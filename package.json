@@ -1,14 +1,30 @@
 {
   "name": "flow-masitaprex",
   "version": "1.0.0",
+  "description": "Servidor para manejar pagos de Flow y Mercado Pago con activación automática de créditos en Firebase",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "firebase-admin": "^12.6.0",
     "node-fetch": "^3.3.2"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "flow",
+    "mercado-pago",
+    "firebase",
+    "webhook",
+    "fly.io",
+    "consulta-pe"
+  ],
+  "author": "José",
+  "license": "MIT"
 }
