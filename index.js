@@ -7,7 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// -------------------- 🔥 FIREBASE ADMIN SDK --------------------
+// -------------------------------------------------------------
+// 🔥 CONFIGURACIÓN DE FIREBASE ADMIN SDK
 const serviceAccount = {
   type: process.env.FIREBASE_TYPE,
   project_id: process.env.FIREBASE_PROJECT_ID,
@@ -22,21 +23,22 @@ const serviceAccount = {
   universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
 };
 
-if (!admin.apps.length) {
-  try {
+// Inicializar Firebase
+try {
+  if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
     console.log("🟢 Firebase Admin SDK inicializado correctamente.");
-  } catch (error) {
-    console.error("🔴 Error al inicializar Firebase Admin SDK:", error.message);
   }
+} catch (error) {
+  console.error("🔴 Error al inicializar Firebase Admin SDK:", error.message);
 }
 
 const db = admin.firestore();
 
 // -------------------------------------------------------------
-// ✅ FUNCIÓN GENERAL PARA ACTUALIZAR CRÉDITOS EN FIRESTORE
+// ⚙️ FUNCIÓN PARA ACTUALIZAR CRÉDITOS
 async function actualizarCreditos(email, monto) {
   const usuariosRef = db.collection("usuarios");
   const snapshot = await usuariosRef.where("email", "==", email).get();
@@ -65,7 +67,7 @@ async function actualizarCreditos(email, monto) {
 }
 
 // -------------------------------------------------------------
-// 💳 WEBHOOK MERCADO PAGO (para pagos de 10 y 20 soles)
+// 💳 WEBHOOK MERCADO PAGO (pagos pequeños: 10 y 20 soles)
 app.post("/webhook/mercadopago", async (req, res) => {
   try {
     const { email, monto, estado } = req.body;
@@ -83,7 +85,7 @@ app.post("/webhook/mercadopago", async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// 💰 WEBHOOK FLOW (para pagos de 50 soles a más)
+// 💰 WEBHOOK FLOW (pagos de 50 soles o más)
 app.post("/webhook/flow", async (req, res) => {
   try {
     const { email, monto, estado } = req.body;
@@ -101,5 +103,14 @@ app.post("/webhook/flow", async (req, res) => {
 });
 
 // -------------------------------------------------------------
+// 🧠 TEST GENERAL
+app.get("/", (req, res) => {
+  res.send("🚀 API de pagos funcionando correctamente.");
+});
+
+// -------------------------------------------------------------
+// 🔊 PUERTO (Fly.io usa por defecto 8080)
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`)
+);
