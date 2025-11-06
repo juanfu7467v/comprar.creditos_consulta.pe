@@ -1,0 +1,10 @@
+# Ignorar dependencias locales, ya que serán instaladas dentro del contenedor
+node_modules
+# Ignorar logs de npm
+npm-debug.log
+# Ignorar archivos específicos de desarrollo
+.env
+# Ignorar archivos del OS
+.DS_Store
+# Ignorar el caché y archivos de Fly.io
+.fly
