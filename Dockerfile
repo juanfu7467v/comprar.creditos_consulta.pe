@@ -1,22 +1,21 @@
-# Usa una imagen base oficial de Node.js (versión 20 es estable)
+# 1. Usa una imagen base oficial de Node.js (versión 20 estable y ligera)
 FROM node:20-slim
 
-# Crea y establece el directorio de la aplicación
+# 2. Crea y establece el directorio de la aplicación
 WORKDIR /app
 
-# Copia el package.json y package-lock.json para instalar dependencias
-COPY package*.json ./
+# 3. Copia los archivos de configuración de dependencias
+# Esto permite que Docker cachee la capa de npm install
+COPY package.json package-lock.json ./
 
-# Instala las dependencias. 
-# Si estás usando npm, usa `npm install`. Si usas yarn, usa `yarn install`.
+# 4. Instala las dependencias
 RUN npm install
 
-# Copia el resto de los archivos de tu aplicación
+# 5. Copia el resto de los archivos (index.js, etc.)
 COPY . .
 
-# Expone el puerto que usa tu aplicación (debe coincidir con tu index.js, que usa 8080)
+# 6. Expone el puerto que usa tu aplicación (8080 en index.js)
 EXPOSE 8080
 
-# Comando para iniciar la aplicación
-# Asume que tu script de inicio en package.json es "start": "node index.js"
+# 7. Comando para iniciar la aplicación (debe coincidir con tu script "start" en package.json)
 CMD [ "npm", "start" ]
