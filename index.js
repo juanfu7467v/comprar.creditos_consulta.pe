@@ -1,4 +1,3 @@
-// index.js
 import express from "express";
 import admin from "firebase-admin";
 import cors from "cors";
@@ -7,23 +6,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/**
- * Construye el objeto serviceAccount a partir de:
- * 1) process.env.FIREBASE_SERVICE_ACCOUNT (JSON string, recomendado), o
- * 2) variables individuales FIREBASE_*
- */
+// =======================================================
+// 🔧 Configuración de Firebase desde variables de entorno
+// =======================================================
 function buildServiceAccountFromEnv() {
-  // Opción 1: secret único con JSON (recomendado)
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     try {
-      // Si el secret fue guardado con saltos escapados \\n, esto preserva el formato
       const saRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
       const sa = JSON.parse(saRaw);
       if (!sa.project_id || typeof sa.project_id !== "string") {
         console.error("❌ FIREBASE_SERVICE_ACCOUNT no contiene project_id válido.");
         return null;
       }
-      // Asegurar que la private_key tenga saltos de línea reales
       if (sa.private_key && sa.private_key.includes("\\n")) {
         sa.private_key = sa.private_key.replace(/\\n/g, "\n");
       }
@@ -34,7 +28,6 @@ function buildServiceAccountFromEnv() {
     }
   }
 
-  // Opción 2: variables individuales
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL) {
     const sa = {
       type: process.env.FIREBASE_TYPE || "service_account",
@@ -52,47 +45,40 @@ function buildServiceAccountFromEnv() {
       universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
     };
     if (!sa.project_id || !sa.private_key || !sa.client_email) {
-      console.error("❌ Faltan variables FIREBASE_* obligatorias (project_id, private_key, client_email).");
+      console.error("❌ Faltan variables FIREBASE_* obligatorias.");
       return null;
     }
     return sa;
   }
 
-  console.error("❌ No se encontró configuración de Firebase en variables de entorno.");
+  console.error("❌ No se encontró configuración de Firebase.");
   return null;
 }
 
-// Construir service account
+// Inicializar Firebase
 const serviceAccount = buildServiceAccountFromEnv();
-
 try {
-  if (!serviceAccount) {
-    throw new Error("Credenciales de Firebase no encontradas o inválidas.");
-  }
-
-  // Inicializar app solo si no está inicializada
+  if (!serviceAccount) throw new Error("Credenciales Firebase inválidas.");
   if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
     console.log("🟢 Firebase Admin SDK inicializado correctamente.");
   }
 } catch (error) {
-  console.error("🔴 Error al inicializar Firebase Admin SDK:", error.message);
-  // si Firebase falla, no seguir (evita que la app arroje errores sin sentido)
-  // pero seguimos levantando el servidor para que puedas ver logs / endpoints de salud
+  console.error("🔴 Error al inicializar Firebase:", error.message);
 }
 
 let db;
 try {
   db = admin.firestore();
 } catch (e) {
-  console.warn("⚠️ Firestore no disponible (Firebase no inicializado). Muchas rutas requerirán Firebase.", e.message);
-  db = null; // se validará antes de usar
+  console.warn("⚠️ Firestore no disponible:", e.message);
+  db = null;
 }
 
-// ------------------ resto de la app (webhooks / endpoints) ------------------
-const PAQUETES = {
+// =======================================================
+// 🎯 Configuración de paquetes
+// =======================================================
+const PAQUETES_CREDITOS = {
   10: 60,
   20: 125,
   50: 330,
@@ -101,84 +87,120 @@ const PAQUETES = {
 };
 const CREDITOS_CORTESIA = 3;
 
-async function otorgarCreditos(email, montoPagado) {
+const PLANES_ILIMITADOS = {
+  60: 7,    // 7 días
+  80: 15,   // 15 días
+  110: 30,  // 30 días
+  160: 60,  // 60 días
+  510: 70,  // 70 días
+};
+
+// =======================================================
+// 💎 Función para otorgar créditos o plan ilimitado
+// =======================================================
+async function otorgarBeneficio(uid, email, montoPagado) {
   if (!db) throw new Error("Firestore no inicializado.");
 
-  const creditosBase = PAQUETES[montoPagado];
-  if (!creditosBase) {
-    console.log(`⚠️ Monto de pago S/${montoPagado} no coincide con ningún paquete.`);
-    throw new Error("Monto de pago no válido o no configurado.");
-  }
-
-  const creditosOtorgados = creditosBase + CREDITOS_CORTESIA;
   const usuariosRef = db.collection("usuarios");
-  const snapshot = await usuariosRef.where("email", "==", email).get();
+  let userDoc;
 
-  if (snapshot.empty) {
-    console.log(`⚠️ Usuario con email ${email} no encontrado en Firestore.`);
-    throw new Error("Usuario no encontrado.");
+  if (uid) {
+    userDoc = usuariosRef.doc(uid);
+  } else if (email) {
+    const snapshot = await usuariosRef.where("email", "==", email).get();
+    if (snapshot.empty) throw new Error("Usuario no encontrado por email.");
+    userDoc = usuariosRef.doc(snapshot.docs[0].id);
+  } else {
+    throw new Error("Falta UID o Email para identificar usuario.");
   }
 
-  const docId = snapshot.docs[0].id;
-  const userRef = db.collection("usuarios").doc(docId);
+  const doc = await userDoc.get();
+  if (!doc.exists) throw new Error("Documento de usuario no existe en Firestore.");
 
-  let totalCreditosFinal;
-  try {
-    await db.runTransaction(async (t) => {
-      const doc = await t.get(userRef);
-      if (!doc.exists) throw new Error("Documento de usuario no existe!");
-      const creditosActuales = doc.data().creditos || 0;
-      totalCreditosFinal = creditosActuales + creditosOtorgados;
-      t.update(userRef, {
-        creditos: totalCreditosFinal,
-        tipoPlan: "creditos",
-        fechaActivacion: admin.firestore.FieldValue.serverTimestamp(),
-        duracionDias: 0,
-        ultimaCompraMonto: montoPagado,
-        ultimaCompraCreditos: creditosOtorgados,
-      });
+  let tipoPlan = "creditos";
+  let creditosOtorgados = 0;
+  let duracionDias = 0;
+
+  if (PAQUETES_CREDITOS[montoPagado]) {
+    tipoPlan = "creditos";
+    creditosOtorgados = PAQUETES_CREDITOS[montoPagado] + CREDITOS_CORTESIA;
+  } else if (PLANES_ILIMITADOS[montoPagado]) {
+    tipoPlan = "ilimitado";
+    duracionDias = PLANES_ILIMITADOS[montoPagado];
+  } else {
+    throw new Error("Monto de pago no coincide con ningún plan.");
+  }
+
+  await db.runTransaction(async (t) => {
+    const userData = (await t.get(userDoc)).data();
+    const creditosActuales = userData.creditos || 0;
+    const nuevosCreditos =
+      tipoPlan === "creditos" ? creditosActuales + creditosOtorgados : creditosActuales;
+
+    t.update(userDoc, {
+      creditos: nuevosCreditos,
+      tipoPlan,
+      fechaActivacion: admin.firestore.FieldValue.serverTimestamp(),
+      duracionDias,
+      ultimaCompraMonto: montoPagado,
+      ultimaCompraCreditos: creditosOtorgados,
     });
-  } catch (e) {
-    console.error("❌ Falló la transacción:", e);
-    throw e;
-  }
+  });
 
   return {
-    message: "Créditos activados y saldo actualizado correctamente.",
-    totalCreditosFinal,
-    creditosOtorgados,
+    message:
+      tipoPlan === "creditos"
+        ? `Créditos asignados: ${creditosOtorgados}`
+        : `Plan ilimitado activado por ${duracionDias} días`,
+    tipoPlan,
+    montoPagado,
   };
 }
 
-app.post("/webhook/mercadopago", async (req, res) => {
+// =======================================================
+// 🌐 Endpoints compatibles con AppCreator24 (GET)
+// =======================================================
+app.get("/api/mercadopago", async (req, res) => {
   try {
-    const { email, monto, estado } = req.body;
-    if (!email || !monto) return res.status(400).json({ message: "Faltan datos (email/monto)." });
-    if (estado !== "approved" && estado !== "pagado") return res.status(200).json({ message: "Pago no confirmado." });
-    const result = await otorgarCreditos(email, monto);
+    const { uid, email, monto, estado } = req.query;
+    if (!email && !uid) return res.status(400).json({ message: "Falta UID o email." });
+    if (!monto) return res.status(400).json({ message: "Falta monto." });
+    if (estado !== "approved" && estado !== "pagado")
+      return res.status(200).json({ message: "Pago no confirmado." });
+
+    const result = await otorgarBeneficio(uid, email, Number(monto));
     res.json({ ok: true, result });
   } catch (e) {
-    console.error("Error webhook MP:", e.message);
+    console.error("Error en /api/mercadopago:", e.message);
     res.status(500).json({ error: e.message });
   }
 });
 
-app.post("/webhook/flow", async (req, res) => {
+app.get("/api/flow", async (req, res) => {
   try {
-    const { email, monto, estado } = req.body;
-    if (!email || !monto) return res.status(400).json({ message: "Faltan datos (email/monto)." });
-    if (estado !== "paid" && estado !== "pagado") return res.status(200).json({ message: "Pago no confirmado." });
-    const result = await otorgarCreditos(email, monto);
+    const { uid, email, monto, estado } = req.query;
+    if (!email && !uid) return res.status(400).json({ message: "Falta UID o email." });
+    if (!monto) return res.status(400).json({ message: "Falta monto." });
+    if (estado !== "paid" && estado !== "pagado")
+      return res.status(200).json({ message: "Pago no confirmado." });
+
+    const result = await otorgarBeneficio(uid, email, Number(monto));
     res.json({ ok: true, result });
   } catch (e) {
-    console.error("Error webhook Flow:", e.message);
+    console.error("Error en /api/flow:", e.message);
     res.status(500).json({ error: e.message });
   }
 });
 
+// Endpoint de prueba
 app.get("/", (req, res) => {
   res.json({ status: "ok", firebaseInitialized: !!db });
 });
 
+// =======================================================
+// 🚀 Servidor
+// =======================================================
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`)
+);
