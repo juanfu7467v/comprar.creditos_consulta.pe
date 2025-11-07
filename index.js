@@ -1,13 +1,12 @@
 import express from "express";
 import admin from "firebase-admin";
 import cors from "cors";
-import moment from "moment-timezone"; // Para manejo profesional de fechas/horas y zona horaria
-import axios from "axios"; // ⬅️ Necesitas instalar esto: npm install axios
+import moment from "moment-timezone"; 
+import axios from "axios"; 
 
 // Dependencias de Pago
-// 🔥 CORRECCIÓN: Usar la importación correcta para el SDK de MP v2.x en módulos ESM
+// Usar la importación correcta para el SDK de MP v2.x en módulos ESM
 import { MercadoPagoConfig, Preference } from "mercadopago"; 
-// import flow from "flow-node-sdk"; 
 
 const app = express();
 app.use(cors());
@@ -78,7 +77,10 @@ try {
 const FLOW_API_KEY = process.env.FLOW_API_KEY;
 const FLOW_SECRET_KEY = process.env.FLOW_SECRET_KEY;
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
-const HOST_URL = process.env.HOST_URL || "http://localhost:8080";
+
+// 🔥 CORRECCIÓN CLAVE: Usar la URL pública de Fly.io como valor por defecto (o desde ENV)
+// Esto asegura que la returnUrl enviada a Flow y MP sea accesible desde internet.
+const HOST_URL = process.env.HOST_URL || "https://pago-planes-consulta-pe.fly.dev"; 
 
 // Variables de GitHub
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -89,13 +91,11 @@ if (!GITHUB_TOKEN || !GITHUB_REPO) {
     console.warn("⚠️ Variables GITHUB_TOKEN o GITHUB_REPO no configuradas. El guardado en GitHub estará deshabilitado.");
 }
 
-// 🔥 CORRECCIÓN de inicialización de Mercado Pago (Esta sección reemplaza las líneas que fallaban)
+// Inicialización de Mercado Pago
 let mpClient;
 if (MERCADOPAGO_ACCESS_TOKEN) {
-  // Utilizamos new MercadoPagoConfig para inicializar el SDK v2.x
   mpClient = new MercadoPagoConfig({ 
     accessToken: MERCADOPAGO_ACCESS_TOKEN,
-    // Opciones adicionales si son necesarias
   });
   console.log("🟢 Mercado Pago SDK configurado.");
 } else {
@@ -106,13 +106,13 @@ if (MERCADOPAGO_ACCESS_TOKEN) {
 // Inicialización de Flow SDK (Mock o Real)
 let flowClient = null;
 if (FLOW_API_KEY && FLOW_SECRET_KEY) {
-  // Simulación:
+  // Simulación para mantener el comportamiento original (pero con el HOST_URL correcto)
   flowClient = {
-    createPayment: ({ commerceOrder, subject, amount, email }) => {
-      console.log(`[Flow Mock] Creando pago por ${amount} PEN...`);
-      const urlReturn = `${HOST_URL}/api/flow?monto=${amount}&uid=${commerceOrder.split('-')[1]}&email=${email}&estado=pagado&ref=${commerceOrder}`;
-      
+    createPayment: ({ commerceOrder, subject, amount, email, urlReturn }) => {
+      console.log(`[Flow Mock] Creando pago por ${amount} PEN. Return URL: ${urlReturn}`);
+      // Nota: Aquí se usa la urlReturn generada en createFlowPayment, que ya usa HOST_URL.
       return Promise.resolve({
+        // La URL de redirección debe apuntar al mock/servidor de Flow
         url: `https://mock.flow.cl/payment/redirect?token=${commerceOrder}&returnUrl=${encodeURIComponent(urlReturn)}`,
         token: commerceOrder
       });
@@ -246,7 +246,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor) {
     tipoPlan = "creditos";
     creditosComprados = PAQUETES_CREDITOS[montoPagado];
     
-    // 🔥 Lógica de cortesía progresiva
+    // Lógica de cortesía progresiva
     creditosCortesia = calcularCreditosCortesia(comprasAntes);
     
     creditosOtorgadosTotal = creditosComprados + creditosCortesia;
@@ -348,18 +348,18 @@ Tus **${creditosAntes}** créditos restantes siguen disponibles. (¡Es tu compra
  * Crea una preferencia de pago en Mercado Pago.
  */
 async function createMercadoPagoPreference(amount, uid, email, description) {
-  // 🔥 CORRECCIÓN: Usamos mpClient y Preference
   if (!mpClient) {
     throw new Error("Mercado Pago SDK no configurado. Falta Access Token.");
   }
   
   const externalReference = `MP-${uid}-${Date.now()}`;
-  const preference = new Preference(mpClient); // Usa la clase Preference con el cliente inicializado
+  const preference = new Preference(mpClient); 
 
   const response = await preference.create({
     body: {
       items: [{ title: description, unit_price: amount, quantity: 1, currency_id: "PEN" }],
       payer: { email: email },
+      // Usa HOST_URL para las URLs de retorno
       back_urls: {
         success: `${HOST_URL}/api/mercadopago?monto=${amount}&uid=${uid}&email=${email}&estado=approved&ref=${externalReference}`,
         failure: `${HOST_URL}/api/mercadopago?monto=${amount}&uid=${uid}&email=${email}&estado=rejected&ref=${externalReference}`,
@@ -384,14 +384,18 @@ async function createFlowPayment(amount, uid, email, subject) {
   }
   const commerceOrder = `FLOW-${uid}-${Date.now()}`;
 
+  // Usar HOST_URL para urlReturn y urlConfirmation
+  const urlReturn = `${HOST_URL}/api/flow?monto=${amount}&uid=${uid}&email=${email}&estado=pagado&ref=${commerceOrder}`;
+  const urlConfirmation = `${HOST_URL}/api/flow/confirmation`;
+
   const paymentData = {
     commerceOrder: commerceOrder,
     subject: subject,
     amount: amount,
     email: email,
     currency: "PEN", 
-    urlConfirmation: `${HOST_URL}/api/flow/confirmation`, 
-    urlReturn: `${HOST_URL}/api/flow?monto=${amount}&uid=${uid}&email=${email}&estado=pagado&ref=${commerceOrder}`,
+    urlConfirmation: urlConfirmation, 
+    urlReturn: urlReturn,
   };
 
   const response = await flowClient.createPayment(paymentData);
@@ -523,6 +527,7 @@ app.get("/", (req, res) => {
     status: "ok",
     firebaseInitialized: !!db,
     githubLogging: !!(GITHUB_TOKEN && GITHUB_REPO),
+    HOST_URL_USED: HOST_URL, // Muestra la URL que se está usando
     endpoints_init: {
       mercadopago_init: `${HOST_URL}/api/init/mercadopago/:amount?uid={uid}&email={email}`,
       flow_creditos_init: `${HOST_URL}/api/init/flow/creditos/:amount?uid={uid}&email={email}`,
@@ -535,4 +540,4 @@ app.get("/", (req, res) => {
 // 🚀 Servidor
 // =======================================================
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Servidor corriendo en puerto ${PORT} usando HOST_URL: ${HOST_URL}`));
