@@ -2,11 +2,11 @@ import express from "express";
 import admin from "firebase-admin";
 import cors from "cors";
 import moment from "moment-timezone"; // Para manejo profesional de fechas/horas y zona horaria
+import axios from "axios"; // ⬅️ Necesitas instalar esto: npm install axios
 
 // Dependencias de Pago
 import mercadopago from "mercadopago";
-// import flow from "flow-node-sdk"; // ⚠️ Descomentar e instalar el SDK de Flow real si lo tienes
-// ⚠️ Si Flow es un simple cliente HTTP, el "flowClient" debe ser configurado como tal.
+// import flow from "flow-node-sdk"; 
 
 const app = express();
 app.use(cors());
@@ -72,12 +72,22 @@ try {
 }
 
 // =======================================================
-// 💳 Configuración de Flow y Mercado Pago
+// 💳 Configuración de Pago y GitHub
 // =======================================================
 const FLOW_API_KEY = process.env.FLOW_API_KEY;
 const FLOW_SECRET_KEY = process.env.FLOW_SECRET_KEY;
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 const HOST_URL = process.env.HOST_URL || "http://localhost:8080";
+
+// Variables de GitHub
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const GITHUB_REPO = process.env.GITHUB_REPO; // Formato: 'usuario/repositorio'
+const GITHUB_FILE_PATH = 'public/compras_exitosas.log'; // Archivo donde se guardarán las compras
+
+if (!GITHUB_TOKEN || !GITHUB_REPO) {
+    console.warn("⚠️ Variables GITHUB_TOKEN o GITHUB_REPO no configuradas. El guardado en GitHub estará deshabilitado.");
+}
+
 
 // Inicialización de Mercado Pago SDK
 if (MERCADOPAGO_ACCESS_TOKEN) {
@@ -90,13 +100,10 @@ if (MERCADOPAGO_ACCESS_TOKEN) {
 // Inicialización de Flow SDK (Mock o Real)
 let flowClient = null;
 if (FLOW_API_KEY && FLOW_SECRET_KEY) {
-  // ⚠️ Aquí debes usar la inicialización real de tu SDK de Flow.
-  // Ejemplo real (si existe el SDK): flowClient = new flow.FlowClient(FLOW_API_KEY, FLOW_SECRET_KEY);
   // Simulación:
   flowClient = {
     createPayment: ({ commerceOrder, subject, amount, email }) => {
       console.log(`[Flow Mock] Creando pago por ${amount} PEN...`);
-      // Simula la respuesta de Flow, usando los callbacks configurados
       const urlReturn = `${HOST_URL}/api/flow?monto=${amount}&uid=${commerceOrder.split('-')[1]}&email=${email}&estado=pagado&ref=${commerceOrder}`;
       
       return Promise.resolve({
@@ -114,21 +121,106 @@ if (FLOW_API_KEY && FLOW_SECRET_KEY) {
 // 🎯 Configuración de paquetes de créditos y planes
 // =======================================================
 const PAQUETES_CREDITOS = {
-  10: 60, // S/ 10 -> 60 créditos
-  20: 125, // S/ 20 -> 125 créditos
-  50: 330, // S/ 50 -> 330 créditos
-  100: 700, // S/ 100 -> 700 créditos
-  200: 1500, // S/ 200 -> 1500 créditos
+  10: 60,
+  20: 125, 
+  50: 330, 
+  100: 700, 
+  200: 1500, 
 };
-const CREDITOS_CORTESIA = 3;
 
 const PLANES_ILIMITADOS = {
-  60: 7, // S/ 60 -> 7 Días
-  80: 15, // S/ 80 -> 15 Días
-  110: 30, // S/ 110 -> 30 Días
-  160: 60, // S/ 160 -> 60 Días
-  510: 70, // S/ 510 -> 70 Días
+  60: 7,
+  80: 15, 
+  110: 30, 
+  160: 60, 
+  510: 70,
 };
+
+// =======================================================
+// 🎁 Función para calcular créditos de cortesía
+// =======================================================
+/**
+ * Calcula los créditos de cortesía basados en el número de compras exitosas.
+ * - 1ra compra: 2 créditos
+ * - 2da compra: 3 créditos
+ * - 3ra compra: 4 créditos, etc. (Máximo 5 para evitar abusos, por ejemplo)
+ * @param {number} numComprasExitosa - El número de compras que lleva el usuario (antes de esta compra).
+ * @returns {number} - Créditos de cortesía a otorgar.
+ */
+function calcularCreditosCortesia(numComprasExitosa) {
+    // Si es la primera compra (numComprasExitosa = 0), se otorga 2
+    // Si es la segunda compra (numComprasExitosa = 1), se otorga 3
+    const creditosBase = 2;
+    let creditos = creditosBase + numComprasExitosa;
+    
+    // Opcional: Limitar los créditos de cortesía (ej. máximo 5)
+    // return Math.min(creditos, 5); 
+
+    return creditos;
+}
+
+// =======================================================
+// 💾 Función para guardar datos en GitHub
+// =======================================================
+/**
+ * Guarda los detalles de la compra en un archivo log en GitHub.
+ * @param {string} uid - ID de usuario.
+ * @param {string} email - Email del usuario.
+ * @param {number} montoPagado - Monto pagado.
+ * @param {string} processor - Procesador de pago.
+ * @param {number} numCompras - Número de compra exitosa.
+ */
+async function savePurchaseToGithub(uid, email, montoPagado, processor, numCompras) {
+    if (!GITHUB_TOKEN || !GITHUB_REPO) {
+        console.warn("❌ Guardado en GitHub omitido: Faltan variables de entorno.");
+        return;
+    }
+    
+    const githubApiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+    const purchaseLog = `${moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss')} | UID: ${uid} | Email: ${email} | Monto: S/${montoPagado} | Procesador: ${processor} | Compra #: ${numCompras}\n`;
+
+    try {
+        // 1. Intentar obtener el contenido actual del archivo (para añadir el nuevo log)
+        let sha = null;
+        let existingContent = "";
+
+        try {
+            const response = await axios.get(githubApiUrl, {
+                headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+            });
+            sha = response.data.sha;
+            existingContent = Buffer.from(response.data.content, 'base64').toString('utf8');
+        } catch (error) {
+            // Si el archivo no existe (status 404), 'sha' será null y 'existingContent' vacío, lo cual es correcto.
+            if (error.response && error.response.status !== 404) {
+                 throw error; // Re-lanzar otros errores que no sean 404
+            }
+        }
+        
+        const newContent = existingContent + purchaseLog;
+        const contentBase64 = Buffer.from(newContent, 'utf8').toString('base64');
+
+        // 2. Enviar la actualización/creación del archivo
+        const commitMessage = `Log de Compra: ${email} - S/${montoPagado} (${processor})`;
+        
+        await axios.put(githubApiUrl, {
+            message: commitMessage,
+            content: contentBase64,
+            sha: sha // Necesario si estás actualizando un archivo existente
+        }, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+
+        console.log(`✅ Compra de ${email} registrada en GitHub con éxito.`);
+
+    } catch (e) {
+        console.error(`❌ Error al guardar en GitHub: ${e.message}`);
+        if (e.response) {
+            console.error("Detalle del error de GitHub:", e.response.data);
+        }
+    }
+}
+
 
 // =======================================================
 // 💎 Función para otorgar créditos o plan ilimitado y generar mensaje
@@ -138,38 +230,37 @@ const PLANES_ILIMITADOS = {
  * @param {string} uid - ID de usuario de Firebase.
  * @param {string} email - Email del usuario.
  * @param {number} montoPagado - Monto pagado en soles (PEN).
+ * @param {string} processor - Procesador de pago (ej. 'Mercado Pago', 'Flow').
  * @returns {Promise<object>} - Objeto con el tipo de plan y el mensaje de confirmación.
  */
-async function otorgarBeneficio(uid, email, montoPagado) {
+async function otorgarBeneficio(uid, email, montoPagado, processor) {
   if (!db) throw new Error("Firestore no inicializado.");
 
   const usuariosRef = db.collection("usuarios");
-  let userDoc;
-
-  // 1. Encontrar o crear el documento de usuario
-  if (uid) {
-    userDoc = usuariosRef.doc(uid);
-  } else if (email) {
-    const snapshot = await usuariosRef.where("email", "==", email).limit(1).get();
-    if (snapshot.empty) throw new Error("Usuario no encontrado por email.");
-    userDoc = usuariosRef.doc(snapshot.docs[0].id);
-  } else {
-    throw new Error("Falta UID o Email para identificar usuario.");
-  }
+  let userDoc = usuariosRef.doc(uid); // Simplificamos asumiendo que el UID es la clave
 
   const doc = await userDoc.get();
   if (!doc.exists) throw new Error("Documento de usuario no existe en Firestore.");
 
-  // 2. Determinar el beneficio
+  const userDataBefore = doc.data();
+  const creditosAntes = userDataBefore.creditos || 0;
+  const comprasAntes = userDataBefore.numComprasExitosa || 0;
+  
+  // 1. Determinar el beneficio
   let tipoPlan = "";
   let creditosComprados = 0;
+  let creditosCortesia = 0;
   let creditosOtorgadosTotal = 0;
   let duracionDias = 0;
 
   if (PAQUETES_CREDITOS[montoPagado]) {
     tipoPlan = "creditos";
     creditosComprados = PAQUETES_CREDITOS[montoPagado];
-    creditosOtorgadosTotal = creditosComprados + CREDITOS_CORTESIA;
+    
+    // 🔥 Lógica de cortesía progresiva
+    creditosCortesia = calcularCreditosCortesia(comprasAntes);
+    
+    creditosOtorgadosTotal = creditosComprados + creditosCortesia;
   } else if (PLANES_ILIMITADOS[montoPagado]) {
     tipoPlan = "ilimitado";
     duracionDias = PLANES_ILIMITADOS[montoPagado];
@@ -177,44 +268,42 @@ async function otorgarBeneficio(uid, email, montoPagado) {
     throw new Error(`Monto de pago S/ ${montoPagado} no coincide con ningún plan válido.`);
   }
 
-  const userDataBefore = doc.data();
-  const creditosAntes = userDataBefore.creditos || 0;
-  
-  // 3. Aplicar beneficio en una transacción
+  // 2. Aplicar beneficio en una transacción
+  const numComprasNueva = comprasAntes + 1;
   await db.runTransaction(async (t) => {
     let updateData = {};
 
     if (tipoPlan === "creditos") {
-      // Sumar créditos
       updateData.creditos = creditosAntes + creditosOtorgadosTotal;
       updateData.ultimaCompraCreditos = creditosOtorgadosTotal;
       updateData.tipoPlan = 'creditos_paquete';
     } else {
-      // Activar plan ilimitado (lógica de extensión simplificada)
+      // Lógica de extensión de plan ilimitado (mantenida de la versión anterior)
       const fechaActual = moment();
       let fechaFinActual = userDataBefore.fechaFinIlimitado ? moment(userDataBefore.fechaFinIlimitado.toDate()) : fechaActual;
-      
-      // Si la fecha de fin ya pasó, la nueva duración empieza hoy. Si no, extiende desde la fecha de fin actual.
       const fechaInicio = fechaFinActual.isAfter(fechaActual) ? fechaFinActual : fechaActual;
       const fechaFinNueva = fechaInicio.clone().add(duracionDias, 'days');
 
       updateData.fechaFinIlimitado = admin.firestore.Timestamp.fromDate(fechaFinNueva.toDate());
       updateData.duracionDias = duracionDias;
       updateData.tipoPlan = 'ilimitado';
-      updateData.creditos = creditosAntes; // Mantener créditos
+      updateData.creditos = creditosAntes; 
       updateData.ultimaCompraCreditos = 0;
     }
     
+    updateData.numComprasExitosa = numComprasNueva; // ⬅️ Actualizamos el contador de compras
     updateData.ultimaCompraMonto = montoPagado;
     updateData.fechaUltimaCompra = admin.firestore.FieldValue.serverTimestamp();
-
 
     t.update(userDoc, updateData);
   });
   
+  // 3. Registrar la compra en GitHub (no bloqueante)
+  savePurchaseToGithub(uid, email, montoPagado, processor, numComprasNueva);
+
   // 4. Generar el mensaje profesional
   let mensaje = {};
-  const horaActual = moment.tz("America/Lima"); // Asume zona horaria de Perú
+  const horaActual = moment.tz("America/Lima");
   let saludoTiempo = "";
   if (horaActual.hour() >= 5 && horaActual.hour() < 12) {
     saludoTiempo = "día ☀️";
@@ -228,13 +317,12 @@ async function otorgarBeneficio(uid, email, montoPagado) {
 
 
   if (tipoPlan === "creditos") {
-    // Recargar datos para obtener el total actualizado, aunque en este punto ya lo sabemos
     const totalCreditosFinal = creditosAntes + creditosOtorgadosTotal;
     
     mensaje.titulo = `Activación Exitosa de Créditos 💳`;
     mensaje.cuerpo = `Estimada usuario(a) **${email}**, tus **${creditosComprados} créditos** por la compra de **S/${montoPagado}** fueron activados exitosamente 💳.
     
-Además, decidimos premiarte con **${CREDITOS_CORTESIA} créditos extra de regalo** 🎁, porque los buenos usuarios siempre se notan 😉.
+Además, decidimos premiarte con **${creditosCortesia} créditos extra de regalo** 🎁, porque los buenos usuarios siempre se notan 😉. (¡Es tu compra #${numComprasNueva}!)
     
 En total ahora tienes **${totalCreditosFinal} créditos**, incluyendo los **${creditosAntes}** que ya tenías en tu cuenta.
     
@@ -251,7 +339,7 @@ Disfrútalos, te los ganaste 😌✨
     
 Tu acceso ilimitado está garantizado hasta el **${fechaFin}**. ¡Aprovecha al máximo! 🚀
     
-Tus **${creditosAntes}** créditos restantes siguen disponibles.
+Tus **${creditosAntes}** créditos restantes siguen disponibles. (¡Es tu compra #${numComprasNueva}!)
     
 (El equipo de Consulta PE te desea una excelente ${saludoTiempo})`;
   }
@@ -265,11 +353,10 @@ Tus **${creditosAntes}** créditos restantes siguen disponibles.
 
 // =======================================================
 // 💸 Funciones de INICIACIÓN de Pago
-// (Mismas que en el original, pero con una aclaración de Yape/Tarjeta)
 // =======================================================
 
 /**
- * Crea una preferencia de pago en Mercado Pago (Incluye Yape, Tarjeta, etc. en el checkout).
+ * Crea una preferencia de pago en Mercado Pago.
  */
 async function createMercadoPagoPreference(amount, uid, email, description) {
   if (!mercadopago.configurations.access_token) {
@@ -278,14 +365,7 @@ async function createMercadoPagoPreference(amount, uid, email, description) {
   const externalReference = `MP-${uid}-${Date.now()}`;
 
   const preference = {
-    items: [
-      {
-        title: description,
-        unit_price: amount,
-        quantity: 1,
-        currency_id: "PEN", // Moneda Peruana: Soles
-      },
-    ],
+    items: [{ title: description, unit_price: amount, quantity: 1, currency_id: "PEN" }],
     payer: { email: email },
     back_urls: {
       success: `${HOST_URL}/api/mercadopago?monto=${amount}&uid=${uid}&email=${email}&estado=approved&ref=${externalReference}`,
@@ -294,18 +374,15 @@ async function createMercadoPagoPreference(amount, uid, email, description) {
     },
     auto_return: "approved",
     external_reference: externalReference,
-    payment_methods: {
-      installments: 1, 
-    },
+    payment_methods: { installments: 1 },
   };
 
   const response = await mercadopago.preferences.create(preference);
-  // Retorna la URL de redirección (init_point) que incluye todas las opciones (Tarjetas, Yape, etc.)
   return response.body.init_point;
 }
 
 /**
- * Crea un pago con Flow (Incluye todas las opciones de Flow en el checkout).
+ * Crea un pago con Flow.
  */
 async function createFlowPayment(amount, uid, email, subject) {
   if (!flowClient) {
@@ -319,17 +396,16 @@ async function createFlowPayment(amount, uid, email, subject) {
     amount: amount,
     email: email,
     currency: "PEN", 
-    // Flow requiere que la confirmación sea POST (urlConfirmation)
     urlConfirmation: `${HOST_URL}/api/flow/confirmation`, 
     urlReturn: `${HOST_URL}/api/flow?monto=${amount}&uid=${uid}&email=${email}&estado=pagado&ref=${commerceOrder}`,
   };
 
   const response = await flowClient.createPayment(paymentData);
-  return response.url; // URL de redirección a Flow
+  return response.url;
 }
 
 // =======================================================
-// 🌐 Endpoints de INICIACIÓN de Pago (Únicos y Claros)
+// 🌐 Endpoints de INICIACIÓN de Pago 
 // =======================================================
 
 // ➡️ Endpoint Unificado para iniciar pagos con Mercado Pago (S/ 10, S/ 20)
@@ -338,25 +414,16 @@ app.get("/api/init/mercadopago/:amount", async (req, res) => {
     const amount = Number(req.params.amount);
     const { uid, email } = req.query;
 
-    if (!uid || !email) {
-      return res.status(400).json({ message: "Faltan 'uid' y 'email' en la query." });
-    }
-    if (![10, 20].includes(amount)) {
-      return res.status(400).json({ message: "Monto no válido para Mercado Pago (solo S/ 10, S/ 20)." });
-    }
-
-    const creditos = PAQUETES_CREDITOS[amount] + CREDITOS_CORTESIA;
-    const description = `Paquete de ${creditos} créditos (incl. cortesía) - S/${amount}`;
+    if (!uid || !email) return res.status(400).json({ message: "Faltan 'uid' y 'email' en la query." });
+    if (![10, 20].includes(amount)) return res.status(400).json({ message: "Monto no válido para Mercado Pago (solo S/ 10, S/ 20)." });
+    
+    // Nota: Los créditos de cortesía se calcularán dinámicamente en 'otorgarBeneficio'
+    const creditos = PAQUETES_CREDITOS[amount]; 
+    const description = `Paquete de ${creditos} créditos`;
 
     const redirectUrl = await createMercadoPagoPreference(amount, uid, email, description);
 
-    res.json({
-      ok: true,
-      processor: "Mercado Pago (Incluye Yape, Tarjetas, etc.)",
-      amount: amount,
-      description: description,
-      redirectUrl: redirectUrl,
-    });
+    res.json({ ok: true, processor: "Mercado Pago", amount: amount, description: description, redirectUrl: redirectUrl });
   } catch (e) {
     console.error("Error en /api/init/mercadopago:", e.message);
     res.status(500).json({ error: e.message });
@@ -369,25 +436,15 @@ app.get("/api/init/flow/creditos/:amount", async (req, res) => {
     const amount = Number(req.params.amount);
     const { uid, email } = req.query;
 
-    if (!uid || !email) {
-      return res.status(400).json({ message: "Faltan 'uid' y 'email' en la query." });
-    }
-    if (![50, 100, 200].includes(amount)) {
-      return res.status(400).json({ message: "Monto no válido para Flow Créditos." });
-    }
+    if (!uid || !email) return res.status(400).json({ message: "Faltan 'uid' y 'email' en la query." });
+    if (![50, 100, 200].includes(amount)) return res.status(400).json({ message: "Monto no válido para Flow Créditos." });
 
-    const creditos = PAQUETES_CREDITOS[amount] + CREDITOS_CORTESIA;
-    const description = `Paquete de ${creditos} créditos (incl. cortesía) - Flow`;
+    const creditos = PAQUETES_CREDITOS[amount];
+    const description = `Paquete de ${creditos} créditos - Flow`;
 
     const redirectUrl = await createFlowPayment(amount, uid, email, description);
 
-    res.json({
-      ok: true,
-      processor: "Flow (Incluye Tarjetas, Banca, etc.)",
-      amount: amount,
-      description: description,
-      redirectUrl: redirectUrl,
-    });
+    res.json({ ok: true, processor: "Flow", amount: amount, description: description, redirectUrl: redirectUrl });
   } catch (e) {
     console.error("Error en /api/init/flow/creditos:", e.message);
     res.status(500).json({ error: e.message });
@@ -400,25 +457,15 @@ app.get("/api/init/flow/ilimitado/:amount", async (req, res) => {
     const amount = Number(req.params.amount);
     const { uid, email } = req.query;
 
-    if (!uid || !email) {
-      return res.status(400).json({ message: "Faltan 'uid' y 'email' en la query." });
-    }
-    if (!PLANES_ILIMITADOS[amount]) {
-      return res.status(400).json({ message: "Monto no válido para Plan Ilimitado." });
-    }
+    if (!uid || !email) return res.status(400).json({ message: "Faltan 'uid' y 'email' en la query." });
+    if (!PLANES_ILIMITADOS[amount]) return res.status(400).json({ message: "Monto no válido para Plan Ilimitado." });
 
     const dias = PLANES_ILIMITADOS[amount];
     const description = `Plan Ilimitado por ${dias} días - Flow`;
 
     const redirectUrl = await createFlowPayment(amount, uid, email, description);
 
-    res.json({
-      ok: true,
-      processor: "Flow (Incluye Tarjetas, Banca, etc.)",
-      amount: amount,
-      description: description,
-      redirectUrl: redirectUrl,
-    });
+    res.json({ ok: true, processor: "Flow", amount: amount, description: description, redirectUrl: redirectUrl });
   } catch (e) {
     console.error("Error en /api/init/flow/ilimitado:", e.message);
     res.status(500).json({ error: e.message });
@@ -434,20 +481,12 @@ app.get("/api/mercadopago", async (req, res) => {
   const { uid, email, monto, estado } = req.query;
 
   try {
-    console.log(`[MP Callback] UID: ${uid}, Email: ${email}, Monto: ${monto}, Estado: ${estado}`);
-
-    if (!email || !uid || !monto) {
-        return res.redirect("/payment/error?msg=Faltan_datos_en_el_callback");
-    }
+    if (!email || !uid || !monto) return res.redirect("/payment/error?msg=Faltan_datos_en_el_callback");
     
-    // Solo otorgamos el beneficio si el estado es aprobado.
-    if (estado !== "approved") {
-      // Redirigir a una página de estado de pago pendiente/rechazado en tu app
-      return res.redirect(`/payment/rejected?status=${estado}`); 
-    }
+    if (estado !== "approved") return res.redirect(`/payment/rejected?status=${estado}`); 
 
-    const result = await otorgarBeneficio(uid, email, Number(monto));
-    // Redirigir a la página de éxito de tu app, pasando el mensaje
+    const result = await otorgarBeneficio(uid, email, Number(monto), 'Mercado Pago');
+    
     const encodedMessage = encodeURIComponent(JSON.stringify(result.message));
     res.redirect(`/payment/success?msg=${encodedMessage}`);
 
@@ -462,19 +501,12 @@ app.get("/api/flow", async (req, res) => {
   const { uid, email, monto, estado } = req.query;
 
   try {
-    console.log(`[Flow Callback] UID: ${uid}, Email: ${email}, Monto: ${monto}, Estado: ${estado}`);
-
-    if (!email || !uid || !monto) {
-        return res.redirect("/payment/error?msg=Faltan_datos_en_el_callback");
-    }
+    if (!email || !uid || !monto) return res.redirect("/payment/error?msg=Faltan_datos_en_el_callback");
     
-    // El estado 'pagado' (o 'paid') es el que esperamos en el retorno del usuario.
-    if (estado !== "pagado" && estado !== "paid") {
-      return res.redirect(`/payment/rejected?status=${estado}`); 
-    }
+    if (estado !== "pagado" && estado !== "paid") return res.redirect(`/payment/rejected?status=${estado}`); 
     
-    const result = await otorgarBeneficio(uid, email, Number(monto));
-    // Redirigir a la página de éxito de tu app, pasando el mensaje
+    const result = await otorgarBeneficio(uid, email, Number(monto), 'Flow');
+    
     const encodedMessage = encodeURIComponent(JSON.stringify(result.message));
     res.redirect(`/payment/success?msg=${encodedMessage}`);
 
@@ -485,11 +517,9 @@ app.get("/api/flow", async (req, res) => {
 });
 
 // ⚠️ Endpoint de confirmación de servidor a servidor de Flow (POST)
-// **Debe ser completado** con la lógica de verificación de firma de Flow.
 app.post("/api/flow/confirmation", (req, res) => {
-    // ⚠️ Lógica de verificación de firma y confirmación final del pago de Flow aquí
-    // El SDK real se encarga de esto. Por ahora, solo respondemos 200 para no fallar.
-    console.log("[Flow POST Confirmation] Recibida, pero no procesada (usar SDK real)");
+    // Aquí se debería procesar el callback POST de Flow para la confirmación
+    console.log("[Flow POST Confirmation] Recibida, no procesada (usar SDK real)");
     res.status(200).send("OK");
 });
 
@@ -499,17 +529,11 @@ app.get("/", (req, res) => {
   res.json({
     status: "ok",
     firebaseInitialized: !!db,
-    flowConfigured: !!FLOW_API_KEY,
-    mercadopagoConfigured: !!MERCADOPAGO_ACCESS_TOKEN,
+    githubLogging: !!(GITHUB_TOKEN && GITHUB_REPO),
     endpoints_init: {
       mercadopago_init: `${HOST_URL}/api/init/mercadopago/:amount?uid={uid}&email={email}`,
       flow_creditos_init: `${HOST_URL}/api/init/flow/creditos/:amount?uid={uid}&email={email}`,
       flow_ilimitado_init: `${HOST_URL}/api/init/flow/ilimitado/:amount?uid={uid}&email={email}`,
-    },
-    endpoints_callback: {
-        callback_mercadopago_redirect: `${HOST_URL}/api/mercadopago`,
-        callback_flow_redirect: `${HOST_URL}/api/flow`,
-        callback_flow_post: `${HOST_URL}/api/flow/confirmation`,
     }
   });
 });
