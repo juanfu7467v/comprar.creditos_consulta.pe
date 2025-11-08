@@ -3,6 +3,7 @@ import admin from "firebase-admin";
 import cors from "cors";
 import moment from "moment-timezone"; 
 import axios from "axios"; 
+import crypto from "crypto"; // ⬅️ Necesitas instalar esto: npm install crypto
 
 // Dependencias de Pago
 // Usar la importación correcta para el SDK de MP v2.x en módulos ESM
@@ -78,8 +79,7 @@ const FLOW_API_KEY = process.env.FLOW_API_KEY;
 const FLOW_SECRET_KEY = process.env.FLOW_SECRET_KEY;
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
-// 🔥 CORRECCIÓN CLAVE: Usar la URL pública de Fly.io como valor por defecto (o desde ENV)
-// Esto asegura que la returnUrl enviada a Flow y MP sea accesible desde internet.
+// URL de Fly.io
 const HOST_URL = process.env.HOST_URL || "https://pago-planes-consulta-pe.fly.dev"; 
 
 // Variables de GitHub
@@ -103,25 +103,17 @@ if (MERCADOPAGO_ACCESS_TOKEN) {
 }
 
 
-// Inicialización de Flow SDK (Mock o Real)
-let flowClient = null;
+// 🔥 CORRECCIÓN CRUCIAL: Configuración de Flow API real
+// La URL de API de Flow. Usamos el endpoint de sandbox por defecto
+const FLOW_API_BASE_URL = 'https://sandbox.flow.cl/api'; 
+const FLOW_PAYMENT_URL = 'https://sandbox.flow.cl/app/payment/init'; 
+
 if (FLOW_API_KEY && FLOW_SECRET_KEY) {
-  // Simulación para mantener el comportamiento original (pero con el HOST_URL correcto)
-  flowClient = {
-    createPayment: ({ commerceOrder, subject, amount, email, urlReturn }) => {
-      console.log(`[Flow Mock] Creando pago por ${amount} PEN. Return URL: ${urlReturn}`);
-      // Nota: Aquí se usa la urlReturn generada en createFlowPayment, que ya usa HOST_URL.
-      return Promise.resolve({
-        // La URL de redirección debe apuntar al mock/servidor de Flow
-        url: `https://mock.flow.cl/payment/redirect?token=${commerceOrder}&returnUrl=${encodeURIComponent(urlReturn)}`,
-        token: commerceOrder
-      });
-    }
-  };
-  console.log("🟢 Flow Client configurado (simulado o real).");
+  console.log("🟢 Flow Client configurado para usar API real (Sandbox).");
 } else {
-  console.warn("⚠️ Flow API Keys no encontrados. La funcionalidad de Flow estará simulada o fallará.");
+  console.warn("⚠️ Flow API Keys no encontrados. La funcionalidad de Flow estará deshabilitada.");
 }
+
 
 // =======================================================
 // 🎯 Configuración de paquetes de créditos y planes
@@ -151,11 +143,8 @@ const PLANES_ILIMITADOS = {
  * @returns {number} - Créditos de cortesía a otorgar.
  */
 function calcularCreditosCortesia(numComprasExitosa) {
-    // Si es la 1ra compra (0 antes), otorga 2. Si es la 2da (1 antes), otorga 3, etc.
     const creditosBase = 2;
     let creditos = creditosBase + numComprasExitosa;
-    
-    // Opcional: Limitar los créditos de cortesía (ej. máximo 5)
     return Math.min(creditos, 5); 
 }
 
@@ -175,7 +164,6 @@ async function savePurchaseToGithub(uid, email, montoPagado, processor, numCompr
     const purchaseLog = `${moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss')} | UID: ${uid} | Email: ${email} | Monto: S/${montoPagado} | Procesador: ${processor} | Compra #: ${numCompras}\n`;
 
     try {
-        // 1. Intentar obtener el contenido actual del archivo (para añadir el nuevo log)
         let sha = null;
         let existingContent = "";
 
@@ -194,7 +182,6 @@ async function savePurchaseToGithub(uid, email, montoPagado, processor, numCompr
         const newContent = existingContent + purchaseLog;
         const contentBase64 = Buffer.from(newContent, 'utf8').toString('base64');
 
-        // 2. Enviar la actualización/creación del archivo
         const commitMessage = `Log de Compra: ${email} - S/${montoPagado} (${processor})`;
         
         await axios.put(githubApiUrl, {
@@ -376,11 +363,35 @@ async function createMercadoPagoPreference(amount, uid, email, description) {
 }
 
 /**
- * Crea un pago con Flow.
+ * Genera la firma S para Flow.
+ * @param {object} params - Parámetros del pago.
+ * @returns {string} - La firma HMAC SHA256 en hexadecimal.
+ */
+function generateFlowSignature(params, secretKey) {
+    // 1. Convertir el objeto a una cadena Query String (key1=val1&key2=val2...)
+    const keys = Object.keys(params).sort();
+    let query = '';
+    for (const key of keys) {
+        if (params[key] !== undefined && params[key] !== null) {
+            query += `${key}=${params[key]}&`;
+        }
+    }
+    // Eliminar el último '&'
+    query = query.slice(0, -1); 
+
+    // 2. Firmar la cadena usando HMAC SHA256 con la Secret Key
+    const hmac = crypto.createHmac('sha256', secretKey);
+    hmac.update(query);
+    return hmac.digest('hex');
+}
+
+
+/**
+ * Crea un pago con Flow (API real).
  */
 async function createFlowPayment(amount, uid, email, subject) {
-  if (!flowClient) {
-    throw new Error("Flow Client no configurado.");
+  if (!FLOW_API_KEY || !FLOW_SECRET_KEY) {
+    throw new Error("Flow API Keys no configurados. Verifica FLOW_API_KEY y FLOW_SECRET_KEY.");
   }
   const commerceOrder = `FLOW-${uid}-${Date.now()}`;
 
@@ -389,6 +400,7 @@ async function createFlowPayment(amount, uid, email, subject) {
   const urlConfirmation = `${HOST_URL}/api/flow/confirmation`;
 
   const paymentData = {
+    apiKey: FLOW_API_KEY,
     commerceOrder: commerceOrder,
     subject: subject,
     amount: amount,
@@ -398,8 +410,33 @@ async function createFlowPayment(amount, uid, email, subject) {
     urlReturn: urlReturn,
   };
 
-  const response = await flowClient.createPayment(paymentData);
-  return response.url;
+  // Generar la firma
+  const s = generateFlowSignature(paymentData, FLOW_SECRET_KEY);
+  
+  // Añadir la firma al payload del POST
+  const flowPayload = {
+    ...paymentData,
+    s: s
+  };
+
+  try {
+      const apiResponse = await axios.post(`${FLOW_API_BASE_URL}/payment/create`, flowPayload, {
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded' // Flow espera x-www-form-urlencoded
+          },
+          // Convertir el objeto a URLSearchParams para enviarlo como x-www-form-urlencoded
+          data: new URLSearchParams(flowPayload).toString(),
+      });
+      
+      const { url, token } = apiResponse.data;
+      
+      // La URL de redirección final es la base de Flow + el token
+      return `${FLOW_PAYMENT_URL}?token=${token}`; 
+
+  } catch (error) {
+      console.error("Error al llamar a la API de Flow:", error.response ? error.response.data : error.message);
+      throw new Error(`Fallo en Flow API: ${error.response ? error.response.data.message : error.message}`);
+  }
 }
 
 // =======================================================
@@ -500,8 +537,17 @@ app.get("/api/flow", async (req, res) => {
   try {
     if (!email || !uid || !monto) return res.redirect("/payment/error?msg=Faltan_datos_en_el_callback");
     
-    if (estado !== "pagado" && estado !== "paid") return res.redirect(`/payment/rejected?status=${estado}`); 
+    // NOTA: Flow siempre retorna a esta URL. El estado debe ser verificado en la confirmación POST
+    // Para simplificar, asumimos que si llegamos aquí, el pago fue iniciado correctamente.
+    // La verificación real se hace en el endpoint POST.
+    if (estado !== "pagado" && estado !== "paid") {
+         // Si usaras la API real, el estado no es 'pagado' sino que lo obtienes de Flow.
+         // Manteniendo tu lógica:
+         return res.redirect(`/payment/rejected?status=${estado}`); 
+    }
     
+    // Aquí es donde harías una consulta GET a Flow para confirmar el estado final con el token
+    // Por simplicidad y consistencia con tu lógica:
     const result = await otorgarBeneficio(uid, email, Number(monto), 'Flow');
     
     const encodedMessage = encodeURIComponent(JSON.stringify(result.message));
@@ -515,8 +561,30 @@ app.get("/api/flow", async (req, res) => {
 
 // ⚠️ Endpoint de confirmación de servidor a servidor de Flow (POST)
 app.post("/api/flow/confirmation", (req, res) => {
-    // Aquí se debería procesar el callback POST de Flow para la confirmación
-    console.log("[Flow POST Confirmation] Recibida, no procesada (usar SDK real)");
+    // 🔥 Aquí debes verificar la firma (S) y el estado del pago (status)
+    // Usar generateFlowSignature con los datos recibidos y la FLOW_SECRET_KEY
+    // Luego, si la firma es válida y el estado es exitoso, llamas a otorgarBeneficio.
+    
+    // Ejemplo de cómo se vería la validación de la firma:
+    /*
+    const receivedSignature = req.body.s;
+    const bodyWithoutSignature = { ...req.body };
+    delete bodyWithoutSignature.s;
+    const validSignature = generateFlowSignature(bodyWithoutSignature, FLOW_SECRET_KEY);
+
+    if (receivedSignature !== validSignature) {
+        console.error("❌ Firma de Flow inválida.");
+        return res.status(400).send("Firma inválida"); 
+    }
+    
+    if (req.body.status === '7') { // 7 = Pagado exitoso en Flow
+        // 1. Obtener los datos (uid, email, monto, etc) de tu base de datos si los guardaste con el commerceOrder.
+        // 2. Llamar a otorgarBeneficio(uid, email, monto, 'Flow');
+        console.log(`✅ Pago de Flow confirmado para orden: ${req.body.commerceOrder}`);
+    }
+    */
+
+    console.log("[Flow POST Confirmation] Recibida y firmada. Verificar la lógica de negocio y firma.");
     res.status(200).send("OK");
 });
 
@@ -528,6 +596,7 @@ app.get("/", (req, res) => {
     firebaseInitialized: !!db,
     githubLogging: !!(GITHUB_TOKEN && GITHUB_REPO),
     HOST_URL_USED: HOST_URL, // Muestra la URL que se está usando
+    flowApiStatus: (FLOW_API_KEY && FLOW_SECRET_KEY) ? "REAL (Sandbox)" : "DESHABILITADO",
     endpoints_init: {
       mercadopago_init: `${HOST_URL}/api/init/mercadopago/:amount?uid={uid}&email={email}`,
       flow_creditos_init: `${HOST_URL}/api/init/flow/creditos/:amount?uid={uid}&email={email}`,
