@@ -3,11 +3,9 @@ import admin from "firebase-admin";
 import cors from "cors";
 import moment from "moment-timezone"; 
 import axios from "axios"; 
-// crypto ya no es estrictamente necesario sin Flow, pero lo dejamos por si acaso.
-import crypto from "crypto"; 
+import crypto from "crypto"; // Lo mantenemos por si acaso, aunque no se use en MP.
 
 // Dependencias de Pago
-// Usar la importación correcta para el SDK de MP v2.x en módulos ESM
 import { MercadoPagoConfig, Preference } from "mercadopago"; 
 
 const app = express();
@@ -55,28 +53,22 @@ function buildServiceAccountFromEnv() {
 
 // Inicializar Firebase
 const serviceAccount = buildServiceAccountFromEnv();
+let db;
 try {
   if (!serviceAccount) throw new Error("Credenciales Firebase inválidas.");
   if (!admin.apps.length) {
     admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
     console.log("🟢 Firebase Admin SDK inicializado correctamente.");
   }
+  db = admin.firestore();
 } catch (error) {
   console.error("🔴 Error al inicializar Firebase:", error.message);
-}
-
-let db;
-try {
-  db = admin.firestore();
-} catch (e) {
-  console.warn("⚠️ Firestore no disponible:", e.message);
   db = null;
 }
 
 // =======================================================
 // 💳 Configuración de Pago y GitHub
 // =======================================================
-// ❌ Eliminadas: FLOW_API_KEY y FLOW_SECRET_KEY
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
 // URL de Fly.io
@@ -102,12 +94,11 @@ if (MERCADOPAGO_ACCESS_TOKEN) {
   console.warn("⚠️ MERCADOPAGO_ACCESS_TOKEN no encontrado.");
 }
 
-// ❌ Eliminada la configuración de Flow API real
-
 
 // =======================================================
 // 🎯 Configuración de paquetes de créditos y planes
 // =======================================================
+// Monto como llave, Créditos/Días como valor
 const PAQUETES_CREDITOS = {
   10: 60,
   20: 125, 
@@ -116,6 +107,7 @@ const PAQUETES_CREDITOS = {
   200: 1500, 
 };
 
+// Monto como llave, Días de plan como valor
 const PLANES_ILIMITADOS = {
   60: 7,
   80: 15, 
@@ -164,6 +156,7 @@ async function savePurchaseToGithub(uid, email, montoPagado, processor, numCompr
             sha = response.data.sha;
             existingContent = Buffer.from(response.data.content, 'base64').toString('utf8');
         } catch (error) {
+            // Si es un error 404, el archivo no existe, lo creamos después.
             if (error.response && error.response.status !== 404) {
                  throw error;
             }
@@ -218,8 +211,11 @@ async function otorgarBeneficio(uid, email, montoPagado, processor) {
   let creditosCortesia = 0;
   let creditosOtorgadosTotal = 0;
   let duracionDias = 0;
+  let isCreditos = PAQUETES_CREDITOS[montoPagado];
+  let isIlimitado = PLANES_ILIMITADOS[montoPagado];
 
-  if (PAQUETES_CREDITOS[montoPagado]) {
+
+  if (isCreditos) {
     tipoPlan = "creditos";
     creditosComprados = PAQUETES_CREDITOS[montoPagado];
     
@@ -227,7 +223,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor) {
     creditosCortesia = calcularCreditosCortesia(comprasAntes);
     
     creditosOtorgadosTotal = creditosComprados + creditosCortesia;
-  } else if (PLANES_ILIMITADOS[montoPagado]) {
+  } else if (isIlimitado) {
     tipoPlan = "ilimitado";
     duracionDias = PLANES_ILIMITADOS[montoPagado];
   } else {
@@ -253,7 +249,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor) {
       updateData.fechaFinIlimitado = admin.firestore.Timestamp.fromDate(fechaFinNueva.toDate());
       updateData.duracionDias = duracionDias;
       updateData.tipoPlan = 'ilimitado';
-      updateData.creditos = creditosAntes; 
+      updateData.creditos = creditosAntes; // Los créditos anteriores se mantienen
       updateData.ultimaCompraCreditos = 0;
     }
     
@@ -352,14 +348,16 @@ async function createMercadoPagoPreference(amount, uid, email, description) {
   return response.init_point;
 }
 
-// ❌ Eliminadas: generateFlowSignature, createFlowPayment
-
 
 // =======================================================
 // 🌐 Endpoints de INICIACIÓN de Pago 
 // =======================================================
 
-// ➡️ Endpoint Unificado para iniciar **TODOS** los pagos con Mercado Pago
+/**
+ * 💡 IMPORTANTE: Este endpoint usa :amount como un parámetro de ruta
+ * para ser compatible con la estructura de tu API.
+ * * Ejemplo de llamada: GET /api/init/mercadopago/50?uid=ABC&email=test@mail.com
+ */
 app.get("/api/init/mercadopago/:amount", async (req, res) => {
   try {
     const amount = Number(req.params.amount);
@@ -380,11 +378,16 @@ app.get("/api/init/mercadopago/:amount", async (req, res) => {
 
     let description = "";
     if (PAQUETES_CREDITOS[amount]) {
+        // Es un paquete de créditos
         const creditos = PAQUETES_CREDITOS[amount]; 
-        description = `Paquete de ${creditos} créditos`;
+        description = `Paquete de ${creditos} créditos (S/${amount})`;
     } else if (PLANES_ILIMITADOS[amount]) {
+        // Es un plan ilimitado
         const dias = PLANES_ILIMITADOS[amount];
-        description = `Plan Ilimitado por ${dias} días`;
+        description = `Plan Ilimitado por ${dias} días (S/${amount})`;
+    } else {
+        // Debería ser atrapado por la verificación de montos, pero como fallback
+        description = `Compra de S/${amount}`;
     }
     
     const redirectUrl = await createMercadoPagoPreference(amount, uid, email, description);
@@ -396,8 +399,6 @@ app.get("/api/init/mercadopago/:amount", async (req, res) => {
   }
 });
 
-// ❌ Eliminados: /api/init/flow/creditos, /api/init/flow/ilimitado
-
 
 // =======================================================
 // 🔔 Endpoints de Notificación/Callback (Otorga Beneficio)
@@ -405,6 +406,7 @@ app.get("/api/init/mercadopago/:amount", async (req, res) => {
 
 // ➡️ Mercado Pago (Recibe estado final del pago)
 app.get("/api/mercadopago", async (req, res) => {
+  // Nota: MP puede enviar notificaciones por GET o POST. Este es el callback de retorno del usuario (GET).
   const { uid, email, monto, estado } = req.query;
 
   try {
@@ -412,6 +414,7 @@ app.get("/api/mercadopago", async (req, res) => {
     
     if (estado !== "approved") return res.redirect(`/payment/rejected?status=${estado}`); 
 
+    // Otorga el beneficio SOLO si el estado es 'approved'
     const result = await otorgarBeneficio(uid, email, Number(monto), 'Mercado Pago');
     
     const encodedMessage = encodeURIComponent(JSON.stringify(result.message));
@@ -419,11 +422,10 @@ app.get("/api/mercadopago", async (req, res) => {
 
   } catch (e) {
     console.error("Error en /api/mercadopago:", e.message);
+    // Redirección a la URL de error, incluyendo el mensaje para debug
     res.redirect(`/payment/error?msg=${encodeURIComponent(e.message)}`);
   }
 });
-
-// ❌ Eliminados: /api/flow y /api/flow/confirmation
 
 
 // Endpoint de prueba
