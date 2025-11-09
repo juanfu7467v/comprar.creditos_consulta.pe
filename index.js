@@ -412,6 +412,7 @@ app.get("/api/mercadopago", async (req, res) => {
   try {
     if (!email || !uid || !monto) return res.redirect("/payment/error?msg=Faltan_datos_en_el_callback");
     
+    // Si el pago es rechazado, pendiente o el usuario cancela, redirige a la ruta /payment/rejected, etc.
     if (estado !== "approved") return res.redirect(`/payment/rejected?status=${estado}`); 
 
     // Otorga el beneficio SOLO si el estado es 'approved'
@@ -434,7 +435,13 @@ app.get("/", (req, res) => {
   const ilimitadoMontos = Object.keys(PLANES_ILIMITADOS).map(m => Number(m));
   const todosLosMontos = new Set([...creditosMontos, ...ilimitadoMontos]);
   
+  // Este endpoint se usa como tu "interfaz de métodos de pago" si es que no tienes un frontend estático
   res.json({
+    message: "¡Bienvenido! Selecciona tu método de pago y monto.",
+    opciones: [
+        { metodo: "Mercado Pago", ruta_ejemplo: `${HOST_URL}/api/init/mercadopago/50?uid=ABC&email=test@mail.com`},
+        { metodo: "Yape", descripcion: "No implementado aún en este backend."}
+    ],
     status: "ok",
     firebaseInitialized: !!db,
     githubLogging: !!(GITHUB_TOKEN && GITHUB_REPO),
@@ -449,23 +456,34 @@ app.get("/", (req, res) => {
 });
 
 // =======================================================
-// ➡️ Endpoints de FALLBACK (Necesarios para que MP retorne correctamente)
+// 🔄 Endpoints de Redirección (Corrección para evitar Cannot GET)
 // =======================================================
-// Redirige las URLs de éxito/rechazo/error que Express no reconoce a la raíz
-// para que el frontend (HTML/JS) pueda procesar los parámetros de la URL.
-app.get("/payment/success", (req, res) => {
-  // Mantener los query params (?msg=...) y redirigir a la raíz para que el frontend lo maneje
-  res.redirect(`/${req.url.slice("/payment/success".length)}`);
-});
 
+// ❌ Pago Rechazado o Cancelado
 app.get("/payment/rejected", (req, res) => {
-    // Mantener los query params (?status=...) y redirigir a la raíz
-  res.redirect(`/${req.url.slice("/payment/rejected".length)}`);
+    // Redirige al inicio (donde asumo que está tu interfaz de métodos de pago)
+    // Puedes incluir un mensaje de error en la query si tu frontend lo maneja
+    const status = req.query.status || 'rechazado';
+    console.log(`Pago rechazado o cancelado: ${status}`);
+    // Redirección a la interfaz de métodos de pago
+    res.redirect("/?pago=rechazado");
 });
 
+// ⚠️ Error en el proceso (ej. Error de Base de Datos o Credenciales)
 app.get("/payment/error", (req, res) => {
-    // Mantener los query params (?msg=...) y redirigir a la raíz
-  res.redirect(`/${req.url.slice("/payment/error".length)}`);
+    const errorMsg = req.query.msg || 'Error desconocido';
+    console.error(`Error en el proceso de pago: ${errorMsg}`);
+    // Redirección a la interfaz de métodos de pago
+    res.redirect("/?pago=error");
+});
+
+// ✅ Pago Exitoso
+app.get("/payment/success", (req, res) => {
+    // Aquí puedes manejar la visualización del mensaje (req.query.msg)
+    // Pero por simplicidad, redirigimos al inicio indicando el éxito
+    console.log("Pago exitoso. Mensaje:", req.query.msg);
+    // Redirección a la interfaz de métodos de pago o a otra página de "gracias"
+    res.redirect("/?pago=exitoso");
 });
 
 
