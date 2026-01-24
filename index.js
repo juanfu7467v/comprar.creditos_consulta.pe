@@ -5,11 +5,19 @@ import moment from "moment-timezone";
 import axios from "axios"; 
 import { MercadoPagoConfig, Payment } from "mercadopago"; 
 import { generateInvoicePDF } from './pdfGenerator.js';
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Configuración para usar directorios en ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+// 1. Servir archivos estáticos (CSS, JS, Imágenes) desde la carpeta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
 // =======================================================
 // 🔧 Configuración de Firebase desde variables de entorno
@@ -157,7 +165,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // =======================================================
-// 🚀 Endpoints
+// 🚀 Endpoints API
 // =======================================================
 
 // 1. Crear Pago (Checkout API - Core Methods)
@@ -238,8 +246,13 @@ app.post("/api/generate-invoice", async (req, res) => {
   }
 });
 
-app.get("/", (req, res) => {
-  res.json({ status: "ok", message: "Servidor de Pagos Consulta PE" });
+// =======================================================
+// 🌐 Rutas para la WEB (Frontend)
+// =======================================================
+
+// Esta es la ruta que hace que cargue tu página web en vez del JSON
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 8080;
