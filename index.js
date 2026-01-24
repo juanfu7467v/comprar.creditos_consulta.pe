@@ -108,7 +108,6 @@ app.get("/api/config", (req, res) => {
     firebaseConfig: {
       apiKey: process.env.FIREBASE_API_KEY,
       projectId: process.env.FIREBASE_PROJECT_ID,
-      // ... otros campos si los necesitas en el cliente
     }
   });
 });
@@ -116,41 +115,94 @@ app.get("/api/config", (req, res) => {
 app.post("/api/pay", async (req, res) => {
   try {
     const { token, amount, email, uid, description, installments, payment_method_id, issuer_id } = req.body;
+    
+    console.log("--- NUEVA SOLICITUD DE PAGO ---");
+    console.log("Email:", email);
+    console.log("Monto:", amount);
+    console.log("UID:", uid);
+
     const payment = new Payment(mpClient);
     const result = await payment.create({
       body: {
         transaction_amount: Number(amount),
-        token, description, installments: Number(installments),
-        payment_method_id, issuer_id,
+        token,
+        description,
+        installments: Number(installments),
+        payment_method_id,
+        issuer_id,
         payer: { email },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
         metadata: { uid, email, amount }
       }
     });
     
+    // LOG DETALLADO DE LA RESPUESTA DE MERCADO PAGO
+    console.log("--- RESPUESTA MERCADO PAGO ---");
+    console.log("ID de Pago:", result.id);
+    console.log("Status:", result.status);
+    console.log("Status Detail:", result.status_detail); // AQUÍ VERÁS POR QUÉ SE RECHAZÓ
+    
     if (result.status === 'approved') {
+      console.log("✅ Pago aprobado, otorgando beneficios...");
       await otorgarBeneficio(uid, email, Number(amount), 'MP Card', result.id.toString());
+    } else {
+      console.warn("❌ Pago no aprobado. Razón:", result.status_detail);
     }
+
     res.json(result);
   } catch (error) {
+    console.error("🔴 ERROR CRÍTICO EN /api/pay:");
+    if (error.response) {
+      // Error detallado que viene de la API de Mercado Pago
+      console.error(JSON.stringify(error.response, null, 2));
+    } else {
+      console.error(error.message);
+    }
     res.status(500).json({ error: error.message });
   }
+});
+
+app.post("/api/webhook/mercadopago", async (req, res) => {
+  const { action, data } = req.body;
+  console.log(`WEBHOOK RECIBIDO: ${action} - ID: ${data?.id}`);
+  
+  if (action === "payment.created" || action === "payment.updated") {
+    try {
+      const paymentId = data.id;
+      const payment = new Payment(mpClient);
+      const paymentInfo = await payment.get({ id: paymentId });
+      
+      if (paymentInfo.status === "approved") {
+        const { uid, email, amount } = paymentInfo.metadata;
+        await otorgarBeneficio(uid, email, Number(amount), 'MP Webhook', paymentId.toString());
+      }
+    } catch (error) {
+      console.error("Error en Webhook:", error.message);
+    }
+  }
+  res.sendStatus(200);
 });
 
 app.post("/api/generate-invoice", async (req, res) => {
   try {
     const { paymentId, type, ruc, razonSocial } = req.body;
     const doc = await db.collection("pagos_registrados").doc(paymentId.toString()).get();
+    
+    if (!doc.exists) throw new Error("Registro de pago no encontrado en Firestore");
+
     const pdfUrl = await generateInvoicePDF({
       orderId: paymentId,
-      date: moment().tz("America/Lima").format('YYYY-MM-DD'),
+      date: moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'),
       email: doc.data().email,
       amount: doc.data().monto,
       description: doc.data().descripcion,
       type, ruc, razonSocial
     });
     res.json({ pdfUrl });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+  } catch (error) { 
+    console.error("Error factura:", error.message);
+    res.status(500).json({ error: error.message }); 
+  }
 });
 
 // CATCH-ALL: Renderiza la web para cualquier otra ruta
