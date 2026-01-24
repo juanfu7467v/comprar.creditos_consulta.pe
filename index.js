@@ -8,7 +8,6 @@ import { generateInvoicePDF } from './pdfGenerator.js';
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Configuración para usar directorios en ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -16,267 +15,148 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Servir archivos estáticos (CSS, JS, Imágenes) desde la carpeta 'public'
+// Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 // =======================================================
-// 🔧 Configuración de Firebase desde variables de entorno
+// 🔧 Configuración de Firebase
 // =======================================================
 function buildServiceAccountFromEnv() {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     try {
-      const saRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
-      const sa = JSON.parse(saRaw);
-      if (sa.private_key && sa.private_key.includes("\\n")) {
-        sa.private_key = sa.private_key.replace(/\\n/g, "\n");
-      }
+      const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      if (sa.private_key) sa.private_key = sa.private_key.replace(/\\n/g, "\n");
       return sa;
-    } catch (e) {
-      console.error("❌ Error parseando FIREBASE_SERVICE_ACCOUNT:", e.message);
-      return null;
-    }
+    } catch (e) { return null; }
   }
-
-  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL) {
+  if (process.env.FIREBASE_PROJECT_ID) {
     return {
-      type: process.env.FIREBASE_TYPE || "service_account",
       project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY
-        ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
-        : undefined,
+      private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-      auth_uri: process.env.FIREBASE_AUTH_URI,
-      token_uri: process.env.FIREBASE_TOKEN_URI,
-      auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
-      client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
     };
   }
-
-  console.error("❌ No se encontró configuración de Firebase.");
   return null;
 }
 
 const serviceAccount = buildServiceAccountFromEnv();
 let db;
-try {
-  if (!serviceAccount) throw new Error("Credenciales Firebase inválidas.");
-  if (!admin.apps.length) {
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-    console.log("🟢 Firebase Admin SDK inicializado correctamente.");
-  }
+if (serviceAccount && !admin.apps.length) {
+  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
   db = admin.firestore();
-} catch (error) {
-  console.error("🔴 Error al inicializar Firebase:", error.message);
-  db = null;
+  console.log("🟢 Firebase Admin SDK inicializado.");
 }
 
 // =======================================================
-// 💳 Configuración de Pago
+// 💳 Configuración de Mercado Pago (Backend)
 // =======================================================
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
-const HOST_URL = process.env.HOST_URL || "http://localhost:8080";
+const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
 
 let mpClient;
 if (MERCADOPAGO_ACCESS_TOKEN) {
-  mpClient = new MercadoPagoConfig({ 
-    accessToken: MERCADOPAGO_ACCESS_TOKEN,
-  });
+  mpClient = new MercadoPagoConfig({ accessToken: MERCADOPAGO_ACCESS_TOKEN });
   console.log("🟢 Mercado Pago SDK configurado.");
-} else {
-  console.warn("⚠️ MERCADOPAGO_ACCESS_TOKEN no encontrado.");
 }
 
-const PAQUETES_CREDITOS = {
-  10: 60,
-  20: 125, 
-  30: 200,
-  50: 330, 
-  100: 700, 
-  200: 1500, 
-};
-
-const PLANES_ILIMITADOS = {
-  60: 7,
-  80: 15, 
-  110: 30, 
-  160: 60, 
-  510: 70,
-};
+const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
+const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
 // =======================================================
-// 💎 Función para otorgar beneficios y generar PDF
+// 💎 Lógica de Beneficios
 // =======================================================
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
-  console.log(`Iniciando otorgarBeneficio para ${email} (UID: ${uid}), Monto: ${montoPagado}, Ref: ${paymentRef}`);
-  if (!db) throw new Error("Firestore no inicializado.");
-  
-  const pagosRef = db.collection("pagos_registrados");
-  const pagoDoc = pagosRef.doc(paymentRef);
+  if (!db) return;
+  const pagoDoc = db.collection("pagos_registrados").doc(paymentRef);
+  const doc = await pagoDoc.get();
+  if (doc.exists) return { status: 'already_processed' };
 
-  try {
-    const docSnapshot = await pagoDoc.get();
-    if (docSnapshot.exists) {
-      console.warn(`⚠️ IDEMPOTENCIA: Compra ${paymentRef} ya fue procesada.`);
-      return { status: 'already_processed', data: docSnapshot.data() };
-    }
+  await pagoDoc.set({
+    uid, email, monto: montoPagado, processor,
+    fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
+    estado: "approved"
+  });
 
-    await pagoDoc.set({
-      uid, email, monto: montoPagado, processor,
-      fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
-      estado: "approved"
-    });
-  } catch (error) {
-    throw new Error(`Error al verificar idempotencia: ${error.message}`);
-  }
-
-  const usuariosRef = db.collection("usuarios");
-  const userDoc = usuariosRef.doc(uid);
-
+  const userDoc = db.collection("usuarios").doc(uid);
   return await db.runTransaction(async (t) => {
-    const doc = await t.get(userDoc);
-    if (!doc.exists) throw new Error("Usuario no existe.");
-
-    const userData = doc.data();
-    let nuevosCreditos = userData.creditos || 0;
+    const user = await t.get(userDoc);
+    if (!user.exists) return;
+    
     let descripcion = "";
-    let creditosOtorgados = 0;
-
     if (PAQUETES_CREDITOS[montoPagado]) {
-      creditosOtorgados = PAQUETES_CREDITOS[montoPagado];
-      nuevosCreditos += creditosOtorgados;
-      descripcion = `${creditosOtorgados} Créditos`;
+      const otorgados = PAQUETES_CREDITOS[montoPagado];
+      t.update(userDoc, { creditos: (user.data().creditos || 0) + otorgados });
+      descripcion = `${otorgados} Créditos`;
     } else if (PLANES_ILIMITADOS[montoPagado]) {
-      const dias = PLANES_ILIMITADOS[montoPagado];
-      const finPlan = moment().add(dias, 'days').toDate();
-      t.update(userDoc, { planIlimitadoHasta: finPlan });
-      descripcion = `Plan Ilimitado ${dias} días`;
+      const fin = moment().add(PLANES_ILIMITADOS[montoPagado], 'days').toDate();
+      t.update(userDoc, { planIlimitadoHasta: fin });
+      descripcion = `Plan Ilimitado`;
     }
-
-    t.update(userDoc, { 
-      creditos: nuevosCreditos,
-      numComprasExitosa: (userData.numComprasExitosa || 0) + 1
-    });
-
-    t.update(pagoDoc, { descripcion, creditosOtorgados });
-
-    return { status: 'success', descripcion };
+    t.update(pagoDoc, { descripcion });
+    return { status: 'success' };
   });
 }
 
 // =======================================================
-// 🚀 Endpoints API
+// 🚀 Endpoints API (IMPORTANTE: Antes del catch-all '*')
 // =======================================================
 
-// 1. Crear Pago (Checkout API - Core Methods)
+// Obtener Configuración para el Frontend (LEE LOS SECRETS)
+app.get("/api/config", (req, res) => {
+  res.json({
+    mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
+    firebaseConfig: {
+      apiKey: process.env.FIREBASE_API_KEY,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      // ... otros campos si los necesitas en el cliente
+    }
+  });
+});
+
 app.post("/api/pay", async (req, res) => {
   try {
     const { token, amount, email, uid, description, installments, payment_method_id, issuer_id } = req.body;
-
-    if (!mpClient) return res.status(500).json({ error: "Mercado Pago no configurado" });
-
     const payment = new Payment(mpClient);
-    const paymentData = {
+    const result = await payment.create({
       body: {
         transaction_amount: Number(amount),
-        token,
-        description,
-        installments: Number(installments),
-        payment_method_id,
-        issuer_id,
+        token, description, installments: Number(installments),
+        payment_method_id, issuer_id,
         payer: { email },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
         metadata: { uid, email, amount }
       }
-    };
-
-    const result = await payment.create(paymentData);
+    });
     
-    // Si el pago es aprobado inmediatamente, otorgamos el beneficio
     if (result.status === 'approved') {
-      const { uid, email, amount } = result.metadata;
-      await otorgarBeneficio(uid, email, Number(amount), 'Mercado Pago Card', result.id.toString());
+      await otorgarBeneficio(uid, email, Number(amount), 'MP Card', result.id.toString());
     }
-
     res.json(result);
   } catch (error) {
-    console.error("Error al crear pago:", error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// 2. Webhook para confirmación real
-app.post("/api/webhook/mercadopago", async (req, res) => {
-  const { action, data } = req.body;
-  
-  if (action === "payment.created" || action === "payment.updated") {
-    try {
-      const paymentId = data.id;
-      const payment = new Payment(mpClient);
-      const paymentInfo = await payment.get({ id: paymentId });
-      
-      if (paymentInfo.status === "approved") {
-        const { uid, email, amount } = paymentInfo.metadata;
-        await otorgarBeneficio(uid, email, Number(amount), 'Mercado Pago Card', paymentId.toString());
-      }
-    } catch (error) {
-      console.error("Error en Webhook:", error.message);
-    }
-  }
-  res.sendStatus(200);
-});
-
-// 3. Obtener configuración de Firebase para el frontend
-app.get("/api/config", (req, res) => {
-  res.json({
-    firebaseConfig: {
-      apiKey: process.env.FIREBASE_API_KEY,
-      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-      appId: process.env.FIREBASE_APP_ID,
-      measurementId: process.env.FIREBASE_MEASUREMENT_ID
-    }
-  });
-});
-
-// 4. Generar comprobante (Boleta o Factura)
 app.post("/api/generate-invoice", async (req, res) => {
   try {
     const { paymentId, type, ruc, razonSocial } = req.body;
-    const pagoRef = db.collection("pagos_registrados").doc(paymentId.toString());
-    const doc = await pagoRef.get();
-
-    if (!doc.exists) return res.status(404).json({ error: "Pago no encontrado" });
-
-    const data = doc.data();
+    const doc = await db.collection("pagos_registrados").doc(paymentId.toString()).get();
     const pdfUrl = await generateInvoicePDF({
       orderId: paymentId,
-      date: moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'),
-      email: data.email,
-      amount: data.monto,
-      credits: data.creditosOtorgados || 0,
-      description: data.descripcion || "Compra de Créditos",
+      date: moment().tz("America/Lima").format('YYYY-MM-DD'),
+      email: doc.data().email,
+      amount: doc.data().monto,
+      description: doc.data().descripcion,
       type, ruc, razonSocial
     });
-
-    await pagoRef.update({ pdfUrl, invoiceType: type });
     res.json({ pdfUrl });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
-// =======================================================
-// 🌐 Rutas para la WEB (Frontend)
-// =======================================================
-
-// Esta es la ruta que hace que cargue tu página web en vez del JSON
+// CATCH-ALL: Renderiza la web para cualquier otra ruta
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Servidor en puerto ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Web Server running on port ${PORT}`));
