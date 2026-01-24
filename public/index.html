@@ -944,14 +944,16 @@
   <script>
     // === C O N F I G U R A C I Ó N   D E   F I R E B A S E ===
     const firebaseConfig = {
-      // NOTA: Reemplaza esto con tu configuración real de Firebase
-      apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
-      authDomain: "consulta-pe-abf99.firebaseapp.com",
-      projectId: "consulta-pe-abf99",
-      storageBucket: "consulta-pe-abf99.firebasestorage.app",
-      messagingSenderId: "610275972424",
-      appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
-    };
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID
+};
+
+
 
     // 💡 URL BASE DE TU ENDPOINT UNIFICADO (sin el monto final)
     const BASE_API_URL = "https://pago-planes-consulta-pe.fly.dev/api/init/mercadopago"; 
