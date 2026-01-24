@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso a Consulta PE</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Variables CSS Actualizadas con colores más fuertes y limpios */
+    :root {
+        --primary: #007bff; 
+        --secondary: #00ff88; 
+        --accent: #ff4081;
+        --button-gradient: linear-gradient(135deg, #0072ff 0%, #00e676 100%);
+        --bg-gradient: radial-gradient(circle at top right, #fdfbfb 0%, #ebedee 100%);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --text-dark: #2c3e50;
+        --text-muted: #7f8c8d;
+        --shadow-3d: 0 10px 25px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.05);
+        --border-radius: 24px;
+        --input-bg: #f1f3f6;
+    }
+
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background: var(--bg-gradient);
+        color: var(--text-dark);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 420px;
+        margin: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: var(--border-radius);
+        padding: 40px 30px;
+        box-shadow: var(--shadow-3d);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: 1;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 20px;
+        display: none; 
+        border: 4px solid #fff;
+        box-shadow: 0 8px 20px rgba(0,230,118,0.2);
+        animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    h3 {
+        font-weight: 700;
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+        text-align: center;
+        background: var(--button-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    p {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        margin-bottom: 25px;
+    }
+
+    .input-group {
+        width: 100%;
+        margin-bottom: 18px;
+        position: relative;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 16px 20px 16px 50px;
+        font-size: 1rem;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        background: var(--input-bg);
+        color: var(--text-dark);
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .input-field:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
+        outline: none;
+    }
+
+    .field-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 20px;
+        transition: color 0.3s;
+    }
+
+    .input-field:focus + .field-icon {
+        color: var(--primary);
+    }
+
+    button {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .primary-btn {
+        background: var(--button-gradient);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
+    }
+
+    .primary-btn:active {
+        transform: scale(0.96);
+    }
+
+    /* Estilo Deshabilitado */
+    .primary-btn:disabled {
+        background: #ccc;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .register-btn {
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        margin-top: 15px;
+    }
+
+    .separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 25px 0;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .separator::before, .separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .separator:not(:empty)::before { margin-right: 15px; }
+    .separator:not(:empty)::after { margin-left: 15px; }
+
+    .text-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+
+    .text-link a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* MODAL 3D ESTILIZADO */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 20000;
+        padding: 20px;
+    }
+
+    .modal-3d {
+        background: white;
+        padding: 30px;
+        border-radius: 28px;
+        max-width: 350px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        transform: perspective(1000px) rotateX(10deg);
+        animation: modalEntrance 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes modalEntrance {
+        from { opacity: 0; transform: perspective(1000px) translateY(50px) rotateX(30deg); }
+        to { opacity: 1; transform: perspective(1000px) translateY(0) rotateX(0deg); }
+    }
+
+    .modal-icon {
+        font-size: 50px;
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
+
+    .terms-text {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-dark);
+        margin-bottom: 20px;
+        text-align: left;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 12px;
+        border-left: 4px solid var(--secondary);
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        cursor: pointer;
+        user-select: none;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .checkbox-container input {
+        width: 20px;
+        height: 20px;
+        margin-top: 3px;
+    }
+
+    /* FIN MODAL 3D */
+
+    .form-message-tooltip {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100px);
+        width: 90%;
+        max-width: 350px;
+        padding: 15px 20px;
+        border-radius: 15px;
+        color: white;
+        font-weight: 600;
+        text-align: center;
+        z-index: 30000;
+        transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .form-message-tooltip.active { transform: translateX(-50%) translateY(0); }
+    .form-message-tooltip.error { background: #ff5252; }
+    .form-message-tooltip.success { background: #00e676; }
+
+    #loading-indicator {
+        position: fixed;
+        inset: 0;
+        background: #ffffff; 
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    }
+
+    .circle-loader { display: flex; gap: 15px; }
+    .circle-loader div {
+        width: 22px; 
+        height: 22px; 
+        border-radius: 50%;
+        background: var(--button-gradient); 
+        animation: bounce 0.6s infinite alternate;
+    }
+    .circle-loader div:nth-child(2) { animation-delay: 0.2s; }
+    .circle-loader div:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+        from { transform: translateY(0); opacity: 1; }
+        to { transform: translateY(-20px); opacity: 0.7; }
+    }
+
+    .login-form, .register-form, .recover-password-form {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 5px;
+    }
+
+    .register-policy-links {
+        font-size: 0.75rem;
+        text-align: center;
+        margin: 15px 0;
+        color: var(--text-muted);
+    }
+
+    .register-policy-links a {
+        color: var(--primary);
+        text-decoration: none; 
+        font-weight: 600;
+    }
+
+    .help-bot-container {
+        position: fixed;
+        bottom: 30px;
+        right: 25px;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .help-bot-img {
+        width: 75px; height: 75px;
+        object-fit: contain;
+        animation: floatBot 3s ease-in-out infinite;
+    }
+
+    .help-badge {
+        background: #25d366; 
+        color: white;
+        font-size: 10px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-top: 5px; 
+        animation: pulseBadge 2s infinite;
+    }
+
+    @keyframes floatBot {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-12px) rotate(5deg); }
+    }
+
+    @keyframes pulseBadge {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    @media (max-width: 480px) {
+        .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
+        .help-bot-container { bottom: 20px; right: 20px; }
+        .help-bot-img { width: 65px; height: 65px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="terms-modal" class="modal-overlay">
+    <div class="modal-3d">
+        <span class="material-icons modal-icon">gavel</span>
+        <h3>Aviso Legal</h3>
+        <div class="terms-text">
+            Acepto los Términos y Condiciones y declaro que usaré esta información con un fin lícito e interés legítimo.
+        </div>
+        <label class="checkbox-container">
+            <input type="checkbox" id="accept-terms-check">
+            <span>He leído y acepto los términos para continuar.</span>
+        </label>
+        <button id="confirm-terms-btn" class="primary-btn" disabled>
+            Continuar Registro
+        </button>
+        <div class="text-link" style="margin-top: 15px;">
+            <a href="#" onclick="closeTermsModal()">Cancelar</a>
+        </div>
+    </div>
+  </div>
+
+  <div id="form-message-tooltip" class="form-message-tooltip"></div>
+
+  <div id="loading-indicator">
+      <div class="circle-loader">
+          <div></div>
+          <div></div>
+          <div></div>
+      </div>
+  </div>
+
+  <div class="help-bot-container" onclick="window.location.href='https://wa.me/51944950234'">
+      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Help Bot" class="help-bot-img">
+      <div class="help-badge">¿Ayuda?</div>
+  </div>
+
+  <div id="login-register-container" class="container">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Logo" class="avatar">
+
+    <div id="login-form" class="login-form">
+        <h3>Bienvenido</h3>
+        <p>Inicia sesión para continuar</p>
+        <div class="input-group">
+            <span class="material-icons field-icon">email</span>
+            <input type="email" id="login-email" placeholder="Correo electrónico" class="input-field" autocomplete="email">
+        </div>
+        <div class="input-group">
+            <span class="material-icons field-icon">lock</span>
+            <input type="password" id="login-password" placeholder="Contraseña" class="input-field" autocomplete="current-password">
+            <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
+        </div>
+        <button class="primary-btn" onclick="loginWithEmail()">
+            <span>Entrar</span>
+            <span class="material-icons">arrow_forward</span>
+        </button>
+        <div class="text-link">
+            <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
+        </div>
+        <div class="separator">ó</div>
+        <button class="register-btn" onclick="showRegisterForm()">Crear una cuenta nueva</button>
+    </div>
+
+    <div id="register-form" class="register-form">
+        <h3>Únete ahora</h3>
+        <p>Crea tu cuenta en segundos</p>
+        <div class="input-group">
+            <span class="material-icons field-icon">person</span>
+            <input type="text" id="register-name" placeholder="Nombre completo" class="input-field">
+        </div>
+        <div class="input-group">
+            <span class="material-icons field-icon">alternate_email</span>
+            <input type="email" id="register-email" placeholder="Correo electrónico" class="input-field">
+        </div>
+        <div class="input-group">
+            <span class="material-icons field-icon">lock_open</span>
+            <input type="password" id="register-password" placeholder="Contraseña (mín. 6)" class="input-field">
+        </div>
+        <div class="input-group">
+            <span class="material-icons field-icon">verified_user</span>
+            <input type="password" id="register-confirm-password" placeholder="Repetir contraseña" class="input-field">
+        </div>
+        <button class="primary-btn" onclick="openTermsModal()">
+            <span>Registrarme</span>
+            <span class="material-icons">person_add</span>
+        </button>
+        <div class="register-policy-links">
+            Al registrarte aceptas los <a href="go:terminos">Términos</a> y <a href="go:politica">Privacidad</a>.
+        </div>
+        <div class="text-link">
+            ¿Ya tienes cuenta? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
+        </div>
+    </div>
+
+    <div id="recover-password-form" class="recover-password-form">
+        <h3>Recuperar</h3>
+        <p>Te enviaremos un enlace de acceso</p>
+        <div class="input-group">
+            <span class="material-icons field-icon">mark_email_read</span>
+            <input type="email" id="recover-email" placeholder="Tu correo registrado" class="input-field">
+        </div>
+        <button class="primary-btn" onclick="recoverPassword()">
+            <span>Enviar enlace</span>
+            <span class="material-icons">send</span>
+        </button>
+        <div class="text-link">
+            <a href="#" onclick="showLoginForm(); return false;">Volver atrás</a>
+        </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+      onAuthStateChanged, sendPasswordResetEmail 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, setDoc, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg", 
+      authDomain: "consulta-pe-abf99.firebaseapp.com",
+      projectId: "consulta-pe-abf99",
+      storageBucket: "consulta-pe-abf99.firebasestorage.app",
+      messagingSenderId: "610275972424",
+      appId: "1:610275972424:web:01a90ea3b00fcb1fc64f7d", 
+      measurementId: "G-G5MS9N3PCH" 
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app); 
+    const db = getFirestore(app); 
+
+    const formMessageTooltip = document.getElementById('form-message-tooltip'); 
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const recoverPasswordForm = document.getElementById('recover-password-form');
+    const loadingIndicator = document.getElementById('loading-indicator'); 
+    const avatar = document.querySelector('.avatar');
+
+    // Elementos del Modal
+    const termsModal = document.getElementById('terms-modal');
+    const termsCheck = document.getElementById('accept-terms-check');
+    const confirmTermsBtn = document.getElementById('confirm-terms-btn');
+
+    function showMessage(msg, type) {
+        formMessageTooltip.textContent = msg;
+        formMessageTooltip.className = `form-message-tooltip active ${type}`; 
+        setTimeout(() => formMessageTooltip.classList.remove('active'), 4000);
+    }
+
+    function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
+    function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
+
+    function hideAllForms() {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'none';
+        recoverPasswordForm.style.display = 'none';
+        avatar.style.display = 'none';
+    }
+
+    /* FUNCIONES DEL MODAL 3D */
+    window.openTermsModal = () => {
+        const name = document.getElementById('register-name').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        if (!name || !email || !password) return showMessage('Completa todos los campos primero', 'error');
+        
+        termsModal.style.display = 'flex';
+    };
+
+    window.closeTermsModal = () => {
+        termsModal.style.display = 'none';
+    };
+
+    termsCheck.addEventListener('change', () => {
+        confirmTermsBtn.disabled = !termsCheck.checked;
+    });
+
+    confirmTermsBtn.addEventListener('click', () => {
+        closeTermsModal();
+        registerNewAccount();
+    });
+    /* FIN FUNCIONES MODAL */
+
+    window.showRegisterForm = () => {
+        hideAllForms();
+        avatar.style.display = 'none';
+        registerForm.style.display = 'flex';
+    };
+
+    window.showLoginForm = () => {
+        hideAllForms();
+        avatar.style.display = 'block'; 
+        loginForm.style.display = 'flex';
+    };
+
+    window.showRecoverPasswordForm = () => {
+        hideAllForms();
+        avatar.style.display = 'block'; 
+        recoverPasswordForm.style.display = 'flex';
+    };
+
+    window.togglePasswordVisibility = (inputId, icon) => {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    };
+
+    window.loginWithEmail = async () => {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      if (!email || !password) return showMessage('Campos vacíos', 'error');
+      showLoadingOverlay();
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        await saveUserProfile(userCredential.user);
+        redirectToNextPage(); 
+      } catch (error) {
+        hideLoadingOverlay();
+        showMessage('Acceso denegado. Revisa tus datos.', 'error');
+      }
+    };
+
+    window.registerNewAccount = async () => {
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const confirm = document.getElementById('register-confirm-password').value;
+      
+      if (password !== confirm) return showMessage('Las contraseñas no coinciden', 'error');
+      
+      showLoadingOverlay();
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await saveUserProfile(userCredential.user, name);
+        redirectToNextPage();
+      } catch (error) {
+        hideLoadingOverlay();
+        showMessage('Error al crear cuenta.', 'error');
+      }
+    };
+
+    window.recoverPassword = async () => {
+        const email = document.getElementById('recover-email').value;
+        if (!email) return showMessage('Ingresa tu correo', 'error');
+        showLoadingOverlay();
+        try {
+            await sendPasswordResetEmail(auth, email);
+            hideLoadingOverlay();
+            showMessage('Correo enviado. Revisa tu bandeja.', 'success');
+            setTimeout(showLoginForm, 3000);
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error al procesar solicitud.', 'error');
+        }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        redirectToNextPage();
+      } else {
+        setTimeout(() => {
+            showLoginForm();
+            hideLoadingOverlay();
+        }, 500);
+      }
+    });
+
+    async function saveUserProfile(user, name = null) {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+          email: user.email,
+          name: name || user.displayName || user.email.split('@')[0],
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (e) { console.error(e); }
+    }
+
+    function redirectToNextPage() {
+        window.location.href = "go:rapidas";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        hideAllForms();
+        showLoadingOverlay();
+    });
+  </script>
+</body>
+</html>
+
+
+<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
