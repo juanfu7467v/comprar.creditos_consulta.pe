@@ -942,21 +942,8 @@
 
 
   <script>
-    // === C O N F I G U R A C I Ó N   D E   F I R E B A S E ===
-    const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID
-};
-
-
-
     // 💡 URL BASE DE TU ENDPOINT UNIFICADO (sin el monto final)
-    const BASE_API_URL = "https://pago-planes-consulta-pe.fly.dev/api/init/mercadopago"; 
+    const BASE_API_URL = "/api/init/mercadopago"; 
 
     // Mapeo de créditos
     const CREDITS_MAP = {
@@ -975,12 +962,38 @@
       "60-dias": { amount: 160, duration: '60 días' },
       "70-dias": { amount: 510, duration: '70 días' },
     };
-    
-    // === I N I C I A L I Z A C I Ó N   D E   F I R E B A S E ===
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig); 
+
+    let auth;
+
+    async function initApp() {
+      try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config.firebaseConfig);
+        }
+        auth = firebase.auth();
+        
+        // Configurar el observador de autenticación después de inicializar
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            userEmailInput.value = user.email || "";
+            userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
+          } else {
+            window.location.href = "login.html";
+          }
+          updatePaymentButtons(); 
+        });
+
+        // Inicializar la interfaz
+        populateDetailsSelect(currentPurchaseType);
+        handlePaymentCallback();
+      } catch (error) {
+        console.error("Error al cargar la configuración:", error);
+        showErrorModal("Error al conectar con el servidor de autenticación.");
+      }
     }
-    const auth = firebase.auth();
 
     // === O B T E N C I Ó N   D E   E L E M E N T O S   D E L   D O M ===
     const userEmailInput = document.getElementById("userEmail");
@@ -1216,18 +1229,6 @@
     }
 
 
-    // === O B S E R V A D O R   D E   A U T E N T I C A C I Ó N   D E   F I R E B A S E ===
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        userEmailInput.value = user.email || "";
-        userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
-      } else {
-        // Redirigir al login si no hay sesión activa
-        window.location.href = "login.html";
-      }
-      updatePaymentButtons(); 
-    });
-
     // === E V E N T O S ===
     purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
     userEmailInput.addEventListener('input', updatePaymentButtons);
@@ -1239,13 +1240,7 @@
 
     // === I N I C I A L I Z A C I Ó N ===
     document.addEventListener("DOMContentLoaded", () => {
-      // 1. Inicializar con Créditos (por defecto)
-      populateDetailsSelect(currentPurchaseType);
-      
-      // 2. Revisar si hay un callback de pago pendiente de mostrar
-      handlePaymentCallback();
-      
-      // onAuthStateChanged se encarga de la llamada final a updatePaymentButtons
+      initApp();
     });
   </script>
 </body>
