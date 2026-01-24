@@ -22,6 +22,7 @@
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
         }
         #form-checkout__submit:disabled { background-color: #93c5fd; cursor: not-allowed; }
+        iframe { height: 100% !important; width: 100% !important; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
@@ -126,7 +127,7 @@
         const MP_ERRORS = {
             'cc_rejected_high_risk': 'Rechazado por seguridad. Intenta con otra tarjeta.',
             'cc_rejected_insufficient_amount': 'Saldo insuficiente.',
-            'cc_rejected_other_reason': 'El banco no autorizó el pago.'
+            'cc_rejected_other_reason': 'El banco no autorizó el pago o error de red.'
         };
 
         async function init() {
@@ -140,16 +141,16 @@
                 document.getElementById('display-description').textContent = description;
                 document.getElementById('form-checkout__cardholderEmail').value = email || "";
 
-                const mp = new MercadoPago(config.mercadopagoPublicKey);
+                const mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
 
                 const cardForm = mp.cardForm({
                     amount: amount.toString(),
                     iframe: true,
                     form: {
                         id: "form-checkout",
-                        cardNumber: { id: "form-checkout__cardNumber" },
-                        expirationDate: { id: "form-checkout__expirationDate" },
-                        securityCode: { id: "form-checkout__securityCode" },
+                        cardNumber: { id: "form-checkout__cardNumber", placeholder: "Número de tarjeta" },
+                        expirationDate: { id: "form-checkout__expirationDate", placeholder: "MM/YY" },
+                        securityCode: { id: "form-checkout__securityCode", placeholder: "CVC" },
                         cardholderName: { id: "form-checkout__cardholderName" },
                         issuer: { id: "form-checkout__issuer" },
                         installments: { id: "form-checkout__installments" },
@@ -158,6 +159,9 @@
                         identificationNumber: { id: "form-checkout__identificationNumber" },
                     },
                     callbacks: {
+                        onFormMounted: error => {
+                            if (error) return console.warn("Error montando campos: ", error);
+                        },
                         onSubmit: async (event) => {
                             event.preventDefault();
                             const formData = cardForm.getCardFormData();
@@ -191,31 +195,36 @@
                                     document.getElementById('success-status').classList.remove('hidden');
                                 } else {
                                     document.getElementById('error-status').classList.remove('hidden');
-                                    document.getElementById('error-message').textContent = MP_ERRORS[result.status_detail] || "Pago rechazado.";
-                                    document.getElementById('error-detail').textContent = result.status_detail;
+                                    const detail = result.status_detail || 'cc_rejected_other_reason';
+                                    document.getElementById('error-message').textContent = MP_ERRORS[detail] || "Pago rechazado por el banco.";
+                                    document.getElementById('error-detail').textContent = detail;
                                 }
                             } catch (err) {
                                 document.getElementById('loading-status').classList.add('hidden');
                                 document.getElementById('error-status').classList.remove('hidden');
+                                document.getElementById('error-message').textContent = "Error de conexión.";
                             }
                         }
                     }
                 });
             } catch (e) {
-                console.error(e);
+                console.error("Error inicializando:", e);
+                document.getElementById('loading-config').textContent = "Error de conexión. Recarga la página.";
             }
         }
 
         async function generateInvoice() {
             const btn = document.getElementById('generate-btn');
             btn.disabled = true;
-            const res = await fetch("/api/generate-invoice", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ paymentId: window.currentPaymentId, type: 'boleta' })
-            });
-            const data = await res.json();
-            if (data.pdfUrl) window.open(data.pdfUrl, '_blank');
+            try {
+                const res = await fetch("/api/generate-invoice", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ paymentId: window.currentPaymentId, type: 'boleta' })
+                });
+                const data = await res.json();
+                if (data.pdfUrl) window.open(data.pdfUrl, '_blank');
+            } catch (e) { alert("No se pudo generar el PDF"); }
             btn.disabled = false;
         }
 
