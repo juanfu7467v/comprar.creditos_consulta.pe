@@ -91,6 +91,7 @@ if (MERCADOPAGO_ACCESS_TOKEN) {
 const PAQUETES_CREDITOS = {
   10: 60,
   20: 125, 
+  30: 200,
   50: 330, 
   100: 700, 
   200: 1500, 
@@ -191,6 +192,13 @@ app.post("/api/pay", async (req, res) => {
     };
 
     const result = await payment.create(paymentData);
+    
+    // Si el pago es aprobado inmediatamente, otorgamos el beneficio
+    if (result.status === 'approved') {
+      const { uid, email, amount } = result.metadata;
+      await otorgarBeneficio(uid, email, Number(amount), 'Mercado Pago Card', result.id.toString());
+    }
+
     res.json(result);
   } catch (error) {
     console.error("Error al crear pago:", error);
