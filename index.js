@@ -15,7 +15,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 // =======================================================
@@ -48,23 +47,24 @@ if (serviceAccount && !admin.apps.length) {
 }
 
 // =======================================================
-// 💳 Configuración de Mercado Pago (Backend)
+// 💳 Configuración de Mercado Pago
 // =======================================================
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
 
 let mpClient;
 if (MERCADOPAGO_ACCESS_TOKEN) {
-  mpClient = new MercadoPagoConfig({ accessToken: MERCADOPAGO_ACCESS_TOKEN });
+  // Aseguramos que el token no tenga espacios extra
+  mpClient = new MercadoPagoConfig({ 
+    accessToken: MERCADOPAGO_ACCESS_TOKEN.trim(),
+    options: { timeout: 5000 } 
+  });
   console.log("🟢 Mercado Pago SDK configurado.");
 }
 
 const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
 const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
-// =======================================================
-// 💎 Lógica de Beneficios
-// =======================================================
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   if (!db) return;
   const pagoDoc = db.collection("pagos_registrados").doc(paymentRef);
@@ -98,10 +98,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // =======================================================
-// 🚀 Endpoints API (IMPORTANTE: Antes del catch-all '*')
+// 🚀 Endpoints API
 // =======================================================
 
-// Obtener Configuración para el Frontend (LEE LOS SECRETS)
 app.get("/api/config", (req, res) => {
   res.json({
     mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
@@ -116,69 +115,66 @@ app.post("/api/pay", async (req, res) => {
   try {
     const { token, amount, email, uid, description, installments, payment_method_id, issuer_id } = req.body;
     
-    console.log("--- NUEVA SOLICITUD DE PAGO ---");
-    console.log("Email:", email);
+    console.log("--- INTENTO DE PAGO ---");
+    console.log("Payer:", email);
     console.log("Monto:", amount);
-    console.log("UID:", uid);
 
     const payment = new Payment(mpClient);
-    const result = await payment.create({
+    
+    const paymentData = {
       body: {
         transaction_amount: Number(amount),
         token,
         description,
         installments: Number(installments),
         payment_method_id,
-        issuer_id,
+        issuer_id: issuer_id ? Number(issuer_id) : undefined, // Importante: convertir a número si existe
         payer: { email },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
         metadata: { uid, email, amount }
       }
-    });
+    };
+
+    const result = await payment.create(paymentData);
     
-    // LOG DETALLADO DE LA RESPUESTA DE MERCADO PAGO
-    console.log("--- RESPUESTA MERCADO PAGO ---");
-    console.log("ID de Pago:", result.id);
-    console.log("Status:", result.status);
-    console.log("Status Detail:", result.status_detail); // AQUÍ VERÁS POR QUÉ SE RECHAZÓ
-    
+    console.log("--- RESULTADO MP ---");
+    console.log("ID:", result.id);
+    console.log("Estado:", result.status);
+
     if (result.status === 'approved') {
-      console.log("✅ Pago aprobado, otorgando beneficios...");
       await otorgarBeneficio(uid, email, Number(amount), 'MP Card', result.id.toString());
-    } else {
-      console.warn("❌ Pago no aprobado. Razón:", result.status_detail);
     }
 
     res.json(result);
   } catch (error) {
-    console.error("🔴 ERROR CRÍTICO EN /api/pay:");
-    if (error.response) {
-      // Error detallado que viene de la API de Mercado Pago
-      console.error(JSON.stringify(error.response, null, 2));
+    console.error("🔴 ERROR DETALLADO DE MERCADO PAGO:");
+    
+    // El SDK v2 devuelve el error en api_response
+    if (error.api_response) {
+      console.error("Status Code:", error.api_response.status);
+      console.error("Cuerpo del Error:", JSON.stringify(error.api_response.body, null, 2));
     } else {
-      console.error(error.message);
+      console.error("Mensaje:", error.message);
     }
-    res.status(500).json({ error: error.message });
+    
+    res.status(500).json({ 
+      error: "Error al procesar el pago", 
+      details: error.api_response?.body || error.message 
+    });
   }
 });
 
 app.post("/api/webhook/mercadopago", async (req, res) => {
   const { action, data } = req.body;
-  console.log(`WEBHOOK RECIBIDO: ${action} - ID: ${data?.id}`);
-  
   if (action === "payment.created" || action === "payment.updated") {
     try {
-      const paymentId = data.id;
       const payment = new Payment(mpClient);
-      const paymentInfo = await payment.get({ id: paymentId });
-      
+      const paymentInfo = await payment.get({ id: data.id });
       if (paymentInfo.status === "approved") {
         const { uid, email, amount } = paymentInfo.metadata;
-        await otorgarBeneficio(uid, email, Number(amount), 'MP Webhook', paymentId.toString());
+        await otorgarBeneficio(uid, email, Number(amount), 'MP Webhook', data.id.toString());
       }
-    } catch (error) {
-      console.error("Error en Webhook:", error.message);
-    }
+    } catch (error) { console.error("Error Webhook:", error.message); }
   }
   res.sendStatus(200);
 });
@@ -187,9 +183,6 @@ app.post("/api/generate-invoice", async (req, res) => {
   try {
     const { paymentId, type, ruc, razonSocial } = req.body;
     const doc = await db.collection("pagos_registrados").doc(paymentId.toString()).get();
-    
-    if (!doc.exists) throw new Error("Registro de pago no encontrado en Firestore");
-
     const pdfUrl = await generateInvoicePDF({
       orderId: paymentId,
       date: moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'),
@@ -199,16 +192,12 @@ app.post("/api/generate-invoice", async (req, res) => {
       type, ruc, razonSocial
     });
     res.json({ pdfUrl });
-  } catch (error) { 
-    console.error("Error factura:", error.message);
-    res.status(500).json({ error: error.message }); 
-  }
+  } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
-// CATCH-ALL: Renderiza la web para cualquier otra ruta
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Web Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Servidor listo en puerto ${PORT}`));
