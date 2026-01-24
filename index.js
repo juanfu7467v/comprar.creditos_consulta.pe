@@ -113,11 +113,14 @@ app.get("/api/config", (req, res) => {
 
 app.post("/api/pay", async (req, res) => {
   try {
-    const { token, amount, email, uid, description, installments, payment_method_id, issuer_id } = req.body;
+    const { 
+      token, amount, email, uid, description, installments, 
+      payment_method_id, issuer_id, identificationType, identificationNumber 
+    } = req.body;
     
     console.log("--- INTENTO DE PAGO ---");
     console.log("Comprador:", email);
-    console.log("Monto:", amount);
+    console.log("Documento:", identificationType, identificationNumber);
 
     const payment = new Payment(mpClient);
     
@@ -132,8 +135,8 @@ app.post("/api/pay", async (req, res) => {
         payer: { 
           email: email,
           identification: {
-            type: "DNI", // Tipo de documento para Perú
-            number: "12345678" // Número ficticio para pruebas (en producción debe ser real)
+            type: identificationType || "DNI",
+            number: identificationNumber || "00000000"
           }
         },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
@@ -156,19 +159,10 @@ app.post("/api/pay", async (req, res) => {
 
   } catch (error) {
     console.error("🔴 ERROR EN PROCESO DE PAGO:");
-    
     if (error.api_response) {
-      const body = error.api_response.body;
-      console.error("Status:", error.api_response.status);
-      console.error("Detalle Error:", JSON.stringify(body, null, 2));
-      
-      res.status(error.api_response.status || 400).json({
-        status: "error",
-        status_detail: body.cause ? body.cause[0].code : body.message,
-        message: body.message
-      });
+      console.error("Detalle Error:", JSON.stringify(error.api_response.body, null, 2));
+      res.status(400).json(error.api_response.body);
     } else {
-      console.error("Error Interno:", error.message);
       res.status(500).json({ error: error.message });
     }
   }
@@ -210,7 +204,6 @@ app.post("/api/generate-invoice", async (req, res) => {
   }
 });
 
-// Comodín para SPA (React/Vue/HTML Plano)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -218,5 +211,4 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
-  console.log(`📡 Endpoint: ${HOST_URL}`);
 });
