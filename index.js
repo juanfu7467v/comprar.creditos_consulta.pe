@@ -150,19 +150,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       numComprasExitosa: (userData.numComprasExitosa || 0) + 1
     });
 
-    // Generar PDF
-    const pdfUrl = await generateInvoicePDF({
-      orderId: paymentRef,
-      date: moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'),
-      email,
-      amount: montoPagado,
-      credits: creditosOtorgados,
-      description
-    });
+    t.update(pagoDoc, { descripcion, creditosOtorgados });
 
-    t.update(pagoDoc, { pdfUrl });
-
-    return { status: 'success', pdfUrl, descripcion };
+    return { status: 'success', descripcion };
   });
 }
 
@@ -221,17 +211,28 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   res.sendStatus(200);
 });
 
-// 3. Consultar estado de pago y obtener PDF
-app.get("/api/payment-status/:id", async (req, res) => {
+// 3. Generar comprobante (Boleta o Factura)
+app.post("/api/generate-invoice", async (req, res) => {
   try {
-    const paymentId = req.params.id;
-    const pagoDoc = await db.collection("pagos_registrados").doc(paymentId).get();
-    
-    if (pagoDoc.exists) {
-      res.json(pagoDoc.data());
-    } else {
-      res.status(404).json({ error: "Pago no encontrado" });
-    }
+    const { paymentId, type, ruc, razonSocial } = req.body;
+    const pagoRef = db.collection("pagos_registrados").doc(paymentId.toString());
+    const doc = await pagoRef.get();
+
+    if (!doc.exists) return res.status(404).json({ error: "Pago no encontrado" });
+
+    const data = doc.data();
+    const pdfUrl = await generateInvoicePDF({
+      orderId: paymentId,
+      date: moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'),
+      email: data.email,
+      amount: data.monto,
+      credits: data.creditosOtorgados || 0,
+      description: data.descripcion || "Compra de Créditos",
+      type, ruc, razonSocial
+    });
+
+    await pagoRef.update({ pdfUrl, invoiceType: type });
+    res.json({ pdfUrl });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

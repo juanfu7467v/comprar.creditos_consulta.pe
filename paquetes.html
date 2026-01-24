@@ -1220,8 +1220,8 @@
         userEmailInput.value = user.email || "";
         userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
       } else {
-        userEmailInput.value = "";
-        userUidInput.value = "Debes Iniciar Sesión";
+        // Redirigir al login si no hay sesión activa
+        window.location.href = "login.html";
       }
       updatePaymentButtons(); 
     });
