@@ -44,10 +44,6 @@
                     </div>
                 </div>
 
-                <div class="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 text-xs">
-                    <p><strong>Modo Prueba:</strong> Usa el nombre <strong>APRO</strong> y tarjeta <strong>4011...</strong> para aprobar.</p>
-                </div>
-
                 <form id="form-checkout">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Número de tarjeta</label>
                     <div id="form-checkout__cardNumber" class="mp-container"></div>
@@ -65,6 +61,17 @@
 
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del titular</label>
                     <input type="text" id="form-checkout__cardholderName" class="w-full p-3 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Como aparece en la tarjeta" />
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-1">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo</label>
+                            <select id="form-checkout__identificationType" class="w-full p-3 border border-gray-200 rounded-lg mb-4 bg-white outline-none"></select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Número de documento</label>
+                            <input type="text" id="form-checkout__identificationNumber" class="w-full p-3 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="DNI / CE" />
+                        </div>
+                    </div>
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -91,24 +98,20 @@
             <div id="loading-status">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                 <h3 class="text-xl font-bold">Procesando Pago...</h3>
-                <p class="text-gray-400 text-sm">No cierres esta ventana</p>
             </div>
-
             <div id="success-status" class="hidden">
                 <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
                 <h3 class="text-2xl font-bold text-gray-800">¡Pago Aprobado!</h3>
-                <p class="text-gray-500 mb-6">Tus beneficios han sido activados correctamente.</p>
-                <button onclick="generateInvoice()" id="generate-btn" class="w-full bg-gray-800 text-white p-4 rounded-xl font-bold hover:bg-black transition">
-                    <i class="fas fa-file-pdf mr-2"></i>Descargar Comprobante
+                <button onclick="generateInvoice()" id="generate-btn" class="w-full mt-6 bg-gray-800 text-white p-4 rounded-xl font-bold hover:bg-black transition">
+                    Descargar Comprobante
                 </button>
             </div>
-
             <div id="error-status" class="hidden">
                 <div class="text-red-500 text-5xl mb-4"><i class="fas fa-exclamation-circle"></i></div>
                 <h3 class="text-xl font-bold text-gray-800">Pago Rechazado</h3>
                 <p id="error-message" class="text-gray-500 mb-2"></p>
                 <p id="error-detail" class="text-xs text-red-400 mb-6 font-mono"></p>
-                <button onclick="location.reload()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Intentar con otra tarjeta</button>
+                <button onclick="location.reload()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Intentar de nuevo</button>
             </div>
         </div>
     </div>
@@ -121,20 +124,9 @@
         const description = urlParams.get('description') || 'Créditos Consulta PE';
 
         const MP_ERRORS = {
-            'cc_rejected_bad_filled_card_number': 'Número de tarjeta incorrecto.',
-            'cc_rejected_bad_filled_date': 'Fecha de expiración incorrecta.',
-            'cc_rejected_bad_filled_other': 'Datos de la tarjeta incorrectos.',
-            'cc_rejected_bad_filled_security_code': 'Código de seguridad incorrecto.',
-            'cc_rejected_blacklist': 'Tarjeta bloqueada.',
-            'cc_rejected_call_for_authorize': 'Debes autorizar el pago ante tu banco.',
-            'cc_rejected_card_disabled': 'Tarjeta desactivada.',
-            'cc_rejected_card_error': 'Error al procesar la tarjeta.',
-            'cc_rejected_duplicated_payment': 'Pago duplicado.',
-            'cc_rejected_high_risk': 'Pago rechazado por seguridad (prevención de fraude).',
+            'cc_rejected_high_risk': 'Rechazado por seguridad. Intenta con otra tarjeta.',
             'cc_rejected_insufficient_amount': 'Saldo insuficiente.',
-            'cc_rejected_invalid_installments': 'Número de cuotas inválido.',
-            'cc_rejected_max_attempts': 'Demasiados intentos fallidos.',
-            'cc_rejected_other_reason': 'Error general del banco o la red.',
+            'cc_rejected_other_reason': 'El banco no autorizó el pago.'
         };
 
         async function init() {
@@ -142,8 +134,6 @@
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 
-                if (!config.mercadopagoPublicKey) throw new Error("Llave pública no encontrada.");
-
                 document.getElementById('loading-config').classList.add('hidden');
                 document.getElementById('main-ui').classList.remove('hidden');
                 document.getElementById('display-amount').textContent = `S/ ${amount}`;
@@ -157,19 +147,19 @@
                     iframe: true,
                     form: {
                         id: "form-checkout",
-                        cardNumber: { id: "form-checkout__cardNumber", placeholder: "0000 0000 0000 0000" },
-                        expirationDate: { id: "form-checkout__expirationDate", placeholder: "MM/YY" },
-                        securityCode: { id: "form-checkout__securityCode", placeholder: "CVC" },
+                        cardNumber: { id: "form-checkout__cardNumber" },
+                        expirationDate: { id: "form-checkout__expirationDate" },
+                        securityCode: { id: "form-checkout__securityCode" },
                         cardholderName: { id: "form-checkout__cardholderName" },
-                        issuer: { id: "form-checkout__issuer", placeholder: "Banco emisor" },
-                        installments: { id: "form-checkout__installments", placeholder: "Cuotas" },
+                        issuer: { id: "form-checkout__issuer" },
+                        installments: { id: "form-checkout__installments" },
                         cardholderEmail: { id: "form-checkout__cardholderEmail" },
+                        identificationType: { id: "form-checkout__identificationType" },
+                        identificationNumber: { id: "form-checkout__identificationNumber" },
                     },
                     callbacks: {
-                        onFormMounted: error => { if (error) console.warn("Error Form: ", error); },
                         onSubmit: async (event) => {
                             event.preventDefault();
-                            
                             const formData = cardForm.getCardFormData();
                             
                             document.getElementById('payment-form-container').classList.add('hidden');
@@ -187,6 +177,8 @@
                                         payment_method_id: formData.paymentMethodId,
                                         issuer_id: formData.issuerId,
                                         email: formData.cardholderEmail,
+                                        identificationType: formData.identificationType,
+                                        identificationNumber: formData.identificationNumber,
                                         uid: uid
                                     })
                                 });
@@ -198,54 +190,33 @@
                                     window.currentPaymentId = result.id;
                                     document.getElementById('success-status').classList.remove('hidden');
                                 } else {
-                                    const detail = result.status_detail || 'cc_rejected_other_reason';
                                     document.getElementById('error-status').classList.remove('hidden');
-                                    document.getElementById('error-message').textContent = MP_ERRORS[detail] || "No se pudo procesar el pago.";
-                                    document.getElementById('error-detail').textContent = `Código: ${detail}`;
+                                    document.getElementById('error-message').textContent = MP_ERRORS[result.status_detail] || "Pago rechazado.";
+                                    document.getElementById('error-detail').textContent = result.status_detail;
                                 }
                             } catch (err) {
                                 document.getElementById('loading-status').classList.add('hidden');
                                 document.getElementById('error-status').classList.remove('hidden');
-                                document.getElementById('error-message').textContent = "Error de conexión con el servidor.";
                             }
-                        },
-                        onFetching: (resource) => {
-                            const btn = document.getElementById("form-checkout__submit");
-                            btn.disabled = true;
-                            return () => { btn.disabled = false; };
                         }
                     }
                 });
             } catch (e) {
-                document.getElementById('loading-config').innerHTML = `<span class="text-red-500">Error al cargar la pasarela.</span>`;
+                console.error(e);
             }
         }
 
         async function generateInvoice() {
             const btn = document.getElementById('generate-btn');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.textContent = "Generando PDF...";
-            
-            try {
-                const res = await fetch("/api/generate-invoice", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ paymentId: window.currentPaymentId, type: 'boleta' })
-                });
-                const data = await res.json();
-                if (data.pdfUrl) {
-                    window.open(data.pdfUrl, '_blank');
-                    btn.textContent = "¡Listo!";
-                } else {
-                    alert("Error al generar factura");
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                }
-            } catch (e) {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
+            const res = await fetch("/api/generate-invoice", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ paymentId: window.currentPaymentId, type: 'boleta' })
+            });
+            const data = await res.json();
+            if (data.pdfUrl) window.open(data.pdfUrl, '_blank');
+            btn.disabled = false;
         }
 
         init();
