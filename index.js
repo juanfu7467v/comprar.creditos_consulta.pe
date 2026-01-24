@@ -15,6 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Servir archivos estáticos de la carpeta public
 app.use(express.static(path.join(__dirname, 'public')));
 
 // =======================================================
@@ -54,10 +55,9 @@ const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fl
 
 let mpClient;
 if (MERCADOPAGO_ACCESS_TOKEN) {
-  // Aseguramos que el token no tenga espacios extra
   mpClient = new MercadoPagoConfig({ 
     accessToken: MERCADOPAGO_ACCESS_TOKEN.trim(),
-    options: { timeout: 5000 } 
+    options: { timeout: 7000 } 
   });
   console.log("🟢 Mercado Pago SDK configurado.");
 }
@@ -128,7 +128,7 @@ app.post("/api/pay", async (req, res) => {
         description,
         installments: Number(installments),
         payment_method_id,
-        issuer_id: issuer_id ? Number(issuer_id) : undefined, // Importante: convertir a número si existe
+        issuer_id: issuer_id ? Number(issuer_id) : undefined,
         payer: { email },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
         metadata: { uid, email, amount }
@@ -140,27 +140,36 @@ app.post("/api/pay", async (req, res) => {
     console.log("--- RESULTADO MP ---");
     console.log("ID:", result.id);
     console.log("Estado:", result.status);
+    console.log("Detalle específico:", result.status_detail); // <--- LOG CLAVE PARA RECHAZOS
 
     if (result.status === 'approved') {
       await otorgarBeneficio(uid, email, Number(amount), 'MP Card', result.id.toString());
     }
 
+    // Enviamos el resultado completo al frontend para que maneje el estado visualmente
     res.json(result);
+
   } catch (error) {
-    console.error("🔴 ERROR DETALLADO DE MERCADO PAGO:");
+    console.error("🔴 ERROR CRÍTICO EN /api/pay:");
     
-    // El SDK v2 devuelve el error en api_response
     if (error.api_response) {
+      const body = error.api_response.body;
       console.error("Status Code:", error.api_response.status);
-      console.error("Cuerpo del Error:", JSON.stringify(error.api_response.body, null, 2));
+      console.error("Cuerpo del Error:", JSON.stringify(body, null, 2));
+      
+      // Si el error es una política de seguridad (UNAUTHORIZED)
+      if (body.message === "At least one policy returned UNAUTHORIZED") {
+        console.error("⚠️ Tip: Revisa que tu Access Token no sea el mismo que el del comprador.");
+      }
+      
+      res.status(error.api_response.status || 500).json({
+        error: "Error en Mercado Pago",
+        details: body
+      });
     } else {
-      console.error("Mensaje:", error.message);
+      console.error("Error Genérico:", error.message);
+      res.status(500).json({ error: "Error interno del servidor", message: error.message });
     }
-    
-    res.status(500).json({ 
-      error: "Error al procesar el pago", 
-      details: error.api_response?.body || error.message 
-    });
   }
 });
 
@@ -183,6 +192,8 @@ app.post("/api/generate-invoice", async (req, res) => {
   try {
     const { paymentId, type, ruc, razonSocial } = req.body;
     const doc = await db.collection("pagos_registrados").doc(paymentId.toString()).get();
+    if (!doc.exists) throw new Error("Pago no encontrado");
+    
     const pdfUrl = await generateInvoicePDF({
       orderId: paymentId,
       date: moment().tz("America/Lima").format('YYYY-MM-DD HH:mm:ss'),
@@ -192,12 +203,19 @@ app.post("/api/generate-invoice", async (req, res) => {
       type, ruc, razonSocial
     });
     res.json({ pdfUrl });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+  } catch (error) { 
+    console.error("Error Factura:", error.message);
+    res.status(500).json({ error: error.message }); 
+  }
 });
 
+// Manejador de rutas para que siempre cargue la Web (SPA)
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Servidor listo en puerto ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Servidor listo en puerto ${PORT}`);
+  console.log(`🌍 URL Base: ${HOST_URL}`);
+});
