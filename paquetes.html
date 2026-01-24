@@ -1147,32 +1147,15 @@
              return;
         }
 
-        const apiCallUrl = `${BASE_API_URL}/${amount}?uid=${uid}&email=${email}`;
-
-        // Bloquear interfaz
-        mpButton.disabled = true;
-        mpButton.classList.remove('enabled');
-        paymentLoading.style.display = "block";
-        
-        try {
-             const response = await fetch(apiCallUrl);
-             const result = await response.json();
-
-             if (response.ok && result.redirectUrl) {
-                // REDIRECCIÓN REAL A MP
-                window.location.href = result.redirectUrl;
-             } else {
-                throw new Error(result.error || result.message || 'Error desconocido al preparar el pago.');
-             }
-             
-        } catch (error) {
-            console.error("Error al iniciar el pago:", error);
-            showErrorModal(`No se pudo iniciar el proceso de pago. Error: ${error.message}`);
-        } finally {
-            // El `finally` solo se ejecuta si la redirección a MP falla.
-            paymentLoading.style.display = "none";
-            updatePaymentButtons(); 
+        let description = "";
+        if (currentPurchaseType === 'CREDITOS') {
+            description = `${CREDITS_MAP[selectedValue].credits} Créditos`;
+        } else {
+            description = `Plan ${UNLIMITED_MAP[selectedValue].duration}`;
         }
+
+        const checkoutUrl = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}`;
+        window.location.href = checkoutUrl;
     }
     
     // === GESTIÓN DEL SELECTOR DE TIPO DE COMPRA (CRÉDITOS/ILIMITADO) ===

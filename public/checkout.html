@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago con Tarjeta - Consulta PE</title>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        #form-checkout { display: flex; flex-direction: column; max-width: 600px; margin: auto; }
+        .container { height: 18px; display: inline-block; border: 1px solid rgb(118, 118, 118); border-radius: 2px; padding: 1px 2px; }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-width-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-800">Pago Seguro con Tarjeta</h2>
+        
+        <div id="payment-info" class="mb-6 p-4 bg-blue-50 rounded border border-blue-200">
+            <p class="font-semibold">Monto a pagar: <span id="display-amount">S/ 0.00</span></p>
+            <p class="text-sm text-gray-600" id="display-description">Cargando detalles...</p>
+        </div>
+
+        <form id="form-checkout">
+            <div id="form-checkout__cardNumber" class="container mb-4 h-10 w-full p-2"></div>
+            <div id="form-checkout__expirationDate" class="container mb-4 h-10 w-full p-2"></div>
+            <div id="form-checkout__securityCode" class="container mb-4 h-10 w-full p-2"></div>
+            
+            <input type="text" id="form-checkout__cardholderName" placeholder="Nombre del titular" class="border p-2 mb-4 rounded h-10" />
+            <select id="form-checkout__issuer" class="border p-2 mb-4 rounded h-10"></select>
+            <select id="form-checkout__installments" class="border p-2 mb-4 rounded h-10"></select>
+            <input type="email" id="form-checkout__cardholderEmail" placeholder="E-mail" class="border p-2 mb-4 rounded h-10" />
+
+            <button type="submit" id="form-checkout__submit" class="bg-blue-600 text-white font-bold py-3 rounded hover:bg-blue-700 transition">Pagar</button>
+            <progress value="0" class="progress-bar w-full mt-4 hidden">Cargando...</progress>
+        </form>
+
+        <div id="status-screen" class="hidden mt-6 text-center">
+            <div id="loading-status" class="flex flex-col items-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+                <p class="text-lg font-semibold">Procesando su pago...</p>
+            </div>
+            <div id="success-status" class="hidden">
+                <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
+                <h3 class="text-xl font-bold text-green-700">¡Pago Aprobado!</h3>
+                <p class="mb-4">Tus créditos han sido activados correctamente.</p>
+                <a id="download-invoice" href="#" target="_blank" class="inline-block bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700">Descargar Boleta (PDF)</a>
+            </div>
+            <div id="error-status" class="hidden">
+                <i class="fas fa-times-circle text-5xl text-red-500 mb-4"></i>
+                <h3 class="text-xl font-bold text-red-700">Pago Rechazado</h3>
+                <p id="error-message" class="mb-4"></p>
+                <button onclick="location.reload()" class="bg-gray-600 text-white px-6 py-2 rounded font-bold">Reintentar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount');
+        const uid = urlParams.get('uid');
+        const email = urlParams.get('email');
+        const description = urlParams.get('description') || 'Compra de Créditos';
+
+        document.getElementById('display-amount').textContent = `S/ ${amount}`;
+        document.getElementById('display-description').textContent = description;
+        document.getElementById('form-checkout__cardholderEmail').value = email;
+
+        // Reemplazar con tu Public Key de Mercado Pago
+        const mp = new MercadoPago('YOUR_PUBLIC_KEY');
+
+        const cardForm = mp.cardForm({
+            amount: amount,
+            iframe: true,
+            form: {
+                id: "form-checkout",
+                cardNumber: { id: "form-checkout__cardNumber", placeholder: "Número de tarjeta" },
+                expirationDate: { id: "form-checkout__expirationDate", placeholder: "MM/YY" },
+                securityCode: { id: "form-checkout__securityCode", placeholder: "CVC" },
+                cardholderName: { id: "form-checkout__cardholderName" },
+                issuer: { id: "form-checkout__issuer", placeholder: "Banco emisor" },
+                installments: { id: "form-checkout__installments", placeholder: "Cuotas" },
+                cardholderEmail: { id: "form-checkout__cardholderEmail" },
+            },
+            callbacks: {
+                onFormMounted: error => {
+                    if (error) return console.warn("Form Mounted error: ", error);
+                },
+                onSubmit: event => {
+                    event.preventDefault();
+                    const {
+                        paymentMethodId: payment_method_id,
+                        issuerId: issuer_id,
+                        cardholderEmail: email_form,
+                        amount: amount_form,
+                        token,
+                        installments,
+                    } = cardForm.getCardFormData();
+
+                    document.getElementById('form-checkout').classList.add('hidden');
+                    document.getElementById('status-screen').classList.remove('hidden');
+
+                    fetch("/api/pay", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            token,
+                            payment_method_id,
+                            issuer_id,
+                            installments,
+                            amount: amount_form,
+                            email: email_form,
+                            uid: uid,
+                            description: description
+                        }),
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.status === 'approved') {
+                            checkPaymentStatus(result.id);
+                        } else {
+                            showError(result.status_detail || 'El pago no pudo ser procesado.');
+                        }
+                    })
+                    .catch(error => showError(error.message));
+                },
+            },
+        });
+
+        function checkPaymentStatus(paymentId) {
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts++;
+                fetch(`/api/payment-status/${paymentId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.pdfUrl) {
+                        clearInterval(interval);
+                        showSuccess(data.pdfUrl);
+                    }
+                });
+                if (attempts > 10) clearInterval(interval);
+            }, 3000);
+        }
+
+        function showSuccess(pdfUrl) {
+            document.getElementById('loading-status').classList.add('hidden');
+            document.getElementById('success-status').classList.remove('hidden');
+            document.getElementById('download-invoice').href = pdfUrl;
+        }
+
+        function showError(msg) {
+            document.getElementById('loading-status').classList.add('hidden');
+            document.getElementById('error-status').classList.remove('hidden');
+            document.getElementById('error-message').textContent = msg;
+        }
+    </script>
+</body>
+</html>
