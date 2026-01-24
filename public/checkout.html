@@ -8,7 +8,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
-        .mp-container { height: 48px; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 12px; background: white; margin-bottom: 1rem; }
+        .mp-container { 
+            height: 48px; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 0.5rem; 
+            padding: 10px; 
+            background: white; 
+            margin-bottom: 1rem; 
+        }
+        .mp-container:focus-within {
+            border-color: #2563eb;
+            ring: 2px;
+            ring-color: #3b82f6;
+        }
         #form-checkout__submit:disabled { background-color: #93c5fd; cursor: not-allowed; }
     </style>
 </head>
@@ -16,36 +28,82 @@
     <div class="w-full max-w-lg bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
         <div id="payment-form-container">
             <h2 class="text-2xl font-extrabold mb-2 text-center text-blue-900">Finalizar Compra</h2>
-            <div id="loading-config" class="text-center text-blue-600 font-bold py-4">Cargando configuración segura...</div>
+            <div id="loading-config" class="text-center text-blue-600 font-bold py-4 italic animate-pulse">
+                Conectando con pasarela segura...
+            </div>
             
             <div id="main-ui" class="hidden">
                 <div class="mb-8 p-5 bg-blue-50 rounded-xl border border-blue-100">
-                    <div class="flex justify-between mb-2"><span>Paquete:</span><span id="display-description" class="font-bold"></span></div>
-                    <div class="flex justify-between"><span>Total:</span><span id="display-amount" class="text-2xl font-black"></span></div>
+                    <div class="flex justify-between mb-2 text-blue-800">
+                        <span>Paquete:</span>
+                        <span id="display-description" class="font-bold"></span>
+                    </div>
+                    <div class="flex justify-between text-blue-900">
+                        <span>Total a pagar:</span>
+                        <span id="display-amount" class="text-2xl font-black"></span>
+                    </div>
                 </div>
 
                 <form id="form-checkout">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Número de tarjeta</label>
                     <div id="form-checkout__cardNumber" class="mp-container"></div>
+                    
                     <div class="grid grid-cols-2 gap-4">
-                        <div id="form-checkout__expirationDate" class="mp-container"></div>
-                        <div id="form-checkout__securityCode" class="mp-container"></div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Vencimiento</label>
+                            <div id="form-checkout__expirationDate" class="mp-container"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">CVC</label>
+                            <div id="form-checkout__securityCode" class="mp-container"></div>
+                        </div>
                     </div>
-                    <input type="text" id="form-checkout__cardholderName" class="w-full p-3 border border-gray-200 rounded-lg mb-4" placeholder="Nombre en la tarjeta" />
-                    <select id="form-checkout__issuer" class="w-full p-3 border border-gray-200 rounded-lg mb-4"></select>
-                    <select id="form-checkout__installments" class="w-full p-3 border border-gray-200 rounded-lg mb-4"></select>
-                    <input type="email" id="form-checkout__cardholderEmail" class="w-full p-3 border border-gray-200 rounded-lg mb-6" />
-                    <button type="submit" id="form-checkout__submit" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl">Confirmar Pago</button>
+
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del titular</label>
+                    <input type="text" id="form-checkout__cardholderName" class="w-full p-3 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Como aparece en la tarjeta" />
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Banco emisor</label>
+                            <select id="form-checkout__issuer" class="w-full p-3 border border-gray-200 rounded-lg mb-4 bg-white outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Cuotas</label>
+                            <select id="form-checkout__installments" class="w-full p-3 border border-gray-200 rounded-lg mb-4 bg-white outline-none"></select>
+                        </div>
+                    </div>
+
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Correo electrónico</label>
+                    <input type="email" id="form-checkout__cardholderEmail" class="w-full p-3 border border-gray-200 rounded-lg mb-6 outline-none" placeholder="tu@email.com" />
+
+                    <button type="submit" id="form-checkout__submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform transform active:scale-95">
+                        Confirmar Pago Seguro
+                    </button>
                 </form>
             </div>
         </div>
 
         <div id="status-screen" class="hidden text-center py-10">
-            <div id="loading-status">Procesando...</div>
-            <div id="success-status" class="hidden">
-                <h3 class="text-2xl font-bold text-green-600">¡Pago Exitoso!</h3>
-                <button onclick="generateInvoice()" id="generate-btn" class="mt-4 bg-gray-800 text-white p-3 rounded">Descargar Comprobante</button>
+            <div id="loading-status">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <h3 class="text-xl font-bold">Procesando Pago...</h3>
             </div>
-            <div id="error-status" class="hidden text-red-600"></div>
+
+            <div id="success-status" class="hidden">
+                <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
+                <h3 class="text-2xl font-bold text-gray-800">¡Pago Aprobado!</h3>
+                <p class="text-gray-500 mb-6">Tus créditos han sido activados.</p>
+                <button onclick="generateInvoice()" id="generate-btn" class="w-full bg-gray-800 text-white p-4 rounded-xl font-bold hover:bg-black transition">
+                    <i class="fas fa-file-pdf mr-2"></i>Descargar Comprobante
+                </button>
+            </div>
+
+            <div id="error-status" class="hidden">
+                <div class="text-red-500 text-5xl mb-4"><i class="fas fa-exclamation-circle"></i></div>
+                <h3 class="text-xl font-bold text-gray-800">Hubo un problema</h3>
+                <p id="error-message" class="text-gray-500 mb-6"></p>
+                <button onclick="location.reload()" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Intentar de nuevo</button>
+            </div>
         </div>
     </div>
 
@@ -54,15 +112,17 @@
         const amount = urlParams.get('amount');
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
-        const description = urlParams.get('description') || 'Créditos';
+        const description = urlParams.get('description') || 'Créditos Consulta PE';
 
         async function init() {
             try {
-                // 1. OBTENER LA PUBLIC KEY DESDE EL SERVIDOR (SECRETS)
+                // 1. Obtener Public Key desde el Backend
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 
-                if (!config.mercadopagoPublicKey) throw new Error("No se encontró Public Key");
+                if (!config.mercadopagoPublicKey) {
+                    throw new Error("Llave pública no encontrada en el servidor.");
+                }
 
                 document.getElementById('loading-config').classList.add('hidden');
                 document.getElementById('main-ui').classList.remove('hidden');
@@ -70,59 +130,132 @@
                 document.getElementById('display-description').textContent = description;
                 document.getElementById('form-checkout__cardholderEmail').value = email;
 
-                // 2. INICIALIZAR MERCADO PAGO
+                // 2. Inicializar Mercado Pago
                 const mp = new MercadoPago(config.mercadopagoPublicKey);
+
                 const cardForm = mp.cardForm({
-                    amount: amount,
+                    amount: amount.toString(),
                     iframe: true,
                     form: {
                         id: "form-checkout",
-                        cardNumber: { id: "form-checkout__cardNumber" },
-                        expirationDate: { id: "form-checkout__expirationDate" },
-                        securityCode: { id: "form-checkout__securityCode" },
-                        cardholderName: { id: "form-checkout__cardholderName" },
-                        issuer: { id: "form-checkout__issuer" },
-                        installments: { id: "form-checkout__installments" },
-                        cardholderEmail: { id: "form-checkout__cardholderEmail" },
+                        cardNumber: {
+                            id: "form-checkout__cardNumber",
+                            placeholder: "0000 0000 0000 0000",
+                        },
+                        expirationDate: {
+                            id: "form-checkout__expirationDate",
+                            placeholder: "MM/YY",
+                        },
+                        securityCode: {
+                            id: "form-checkout__securityCode",
+                            placeholder: "CVC",
+                        },
+                        cardholderName: {
+                            id: "form-checkout__cardholderName",
+                        },
+                        issuer: {
+                            id: "form-checkout__issuer",
+                            placeholder: "Banco emisor",
+                        },
+                        installments: {
+                            id: "form-checkout__installments",
+                            placeholder: "Cuotas",
+                        },
+                        cardholderEmail: {
+                            id: "form-checkout__cardholderEmail",
+                        },
                     },
                     callbacks: {
+                        onFormMounted: error => {
+                            if (error) return console.warn("Error montando formulario: ", error);
+                            console.log("Formulario listo.");
+                        },
                         onSubmit: async (event) => {
                             event.preventDefault();
-                            const formData = cardForm.getCardFormData();
+                            
+                            const {
+                                paymentMethodId,
+                                issuerId,
+                                cardholderEmail,
+                                token,
+                                installments,
+                                amount: totalAmount
+                            } = cardForm.getCardFormData();
+
                             document.getElementById('payment-form-container').classList.add('hidden');
                             document.getElementById('status-screen').classList.remove('hidden');
 
-                            const res = await fetch("/api/pay", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ ...formData, uid, description })
-                            });
-                            const result = await res.json();
-                            if (result.status === 'approved') {
-                                window.currentPaymentId = result.id;
+                            try {
+                                const res = await fetch("/api/pay", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        token,
+                                        amount: totalAmount,
+                                        description,
+                                        installments,
+                                        payment_method_id: paymentMethodId,
+                                        issuer_id: issuerId,
+                                        email: cardholderEmail,
+                                        uid: uid
+                                    })
+                                });
+
+                                const result = await res.json();
+
                                 document.getElementById('loading-status').classList.add('hidden');
-                                document.getElementById('success-status').classList.remove('hidden');
-                            } else {
-                                document.getElementById('error-status').textContent = "Pago rechazado";
+                                if (result.status === 'approved') {
+                                    window.currentPaymentId = result.id;
+                                    document.getElementById('success-status').classList.remove('hidden');
+                                } else {
+                                    throw new Error(result.status_detail || "El pago fue rechazado.");
+                                }
+                            } catch (err) {
+                                document.getElementById('loading-status').classList.add('hidden');
                                 document.getElementById('error-status').classList.remove('hidden');
+                                document.getElementById('error-message').textContent = err.message;
                             }
+                        },
+                        onFetching: (resource) => {
+                            const payButton = document.getElementById("form-checkout__submit");
+                            payButton.disabled = true;
+                            return () => { payButton.disabled = false; };
                         }
                     }
                 });
             } catch (e) {
-                document.getElementById('loading-config').textContent = "Error al cargar configuración.";
-                console.error(e);
+                document.getElementById('loading-config').innerHTML = `<span class="text-red-500">Error de conexión. Por favor, recarga la página.</span>`;
+                console.error("Error crítico de inicialización:", e);
             }
         }
 
         async function generateInvoice() {
-            const res = await fetch("/api/generate-invoice", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ paymentId: window.currentPaymentId, type: 'boleta' })
-            });
-            const data = await res.json();
-            if (data.pdfUrl) window.open(data.pdfUrl, '_blank');
+            const btn = document.getElementById('generate-btn');
+            btn.disabled = true;
+            btn.textContent = "Generando PDF...";
+            
+            try {
+                const res = await fetch("/api/generate-invoice", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        paymentId: window.currentPaymentId, 
+                        type: 'boleta' 
+                    })
+                });
+                const data = await res.json();
+                if (data.pdfUrl) {
+                    window.open(data.pdfUrl, '_blank');
+                    btn.textContent = "¡Descargado!";
+                } else {
+                    alert("Error: " + (data.error || "No se pudo generar"));
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fas fa-file-pdf mr-2"></i>Reintentar Descarga`;
+                }
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = "Error al conectar";
+            }
         }
 
         init();
