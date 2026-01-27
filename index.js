@@ -35,31 +35,101 @@ const logger = {
   }
 };
 
-// --- Configuración de Firebase ---
+// --- Configuración de Firebase desde variables individuales ---
 function buildServiceAccountFromEnv() {
-  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    try {
-      const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      if (sa.private_key) sa.private_key = sa.private_key.replace(/\\n/g, "\n");
-      return sa;
-    } catch (e) {
-      logger.error('FIREBASE_CONFIG', 'Error parsing Firebase service account', e);
-      return null;
-    }
+  logger.info('FIREBASE_CONFIG', 'Construyendo service account desde variables de entorno individuales');
+  
+  // Verificar que todas las variables requeridas están presentes
+  const requiredVars = [
+    'FIREBASE_PRIVATE_KEY',
+    'FIREBASE_CLIENT_EMAIL',
+    'FIREBASE_PROJECT_ID',
+    'FIREBASE_PRIVATE_KEY_ID'
+  ];
+  
+  const missingVars = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    logger.error('FIREBASE_CONFIG', `Variables de Firebase faltantes: ${missingVars.join(', ')}`);
+    return null;
   }
-  return null;
+  
+  try {
+    // Construir el objeto service account usando las variables individuales
+    const serviceAccount = {
+      "type": process.env.FIREBASE_TYPE || "service_account",
+      "project_id": process.env.FIREBASE_PROJECT_ID,
+      "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+      "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Convertir \n a saltos de línea reales
+      "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+      "client_id": process.env.FIREBASE_CLIENT_ID,
+      "auth_uri": process.env.FIREBASE_AUTH_URI || "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": process.env.FIREBASE_TOKEN_URI || "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL || "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL,
+      "universe_domain": process.env.FIREBASE_UNIVERSE_DOMAIN || "googleapis.com"
+    };
+    
+    logger.info('FIREBASE_CONFIG', 'Service account construido exitosamente', {
+      project_id: serviceAccount.project_id,
+      client_email: serviceAccount.client_email,
+      has_private_key: !!serviceAccount.private_key
+    });
+    
+    return serviceAccount;
+    
+  } catch (error) {
+    logger.error('FIREBASE_CONFIG', 'Error construyendo service account', error);
+    return null;
+  }
 }
 
-const serviceAccount = buildServiceAccountFromEnv();
+// Inicializar Firebase
 let db;
+const serviceAccount = buildServiceAccountFromEnv();
+
 if (serviceAccount && !admin.apps.length) {
   try {
-    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    logger.info('FIREBASE', 'Inicializando Firebase Admin...');
+    
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
+    });
+    
     db = admin.firestore();
-    logger.info('FIREBASE', 'Firebase Admin inicializado correctamente');
+    
+    // Configurar Firestore
+    db.settings({
+      ignoreUndefinedProperties: true
+    });
+    
+    logger.info('FIREBASE', 'Firebase Admin inicializado correctamente', {
+      projectId: serviceAccount.project_id,
+      clientEmail: serviceAccount.client_email
+    });
+    
+    // Verificar conexión a Firestore
+    const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
+      .then(() => ({ status: 'connected', message: 'Conexión a Firestore exitosa' }))
+      .catch(error => ({ status: 'error', message: error.message }));
+    
+    logger.info('FIRESTORE', 'Verificación de conexión', firestoreCheck);
+    
   } catch (error) {
-    logger.error('FIREBASE', 'Error al inicializar Firebase Admin', error);
+    logger.error('FIREBASE', 'Error crítico al inicializar Firebase Admin', error, {
+      projectId: serviceAccount?.project_id,
+      clientEmail: serviceAccount?.client_email
+    });
+    
+    // No salir del proceso, pero registrar el error
+    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarán disponibles.');
   }
+} else if (admin.apps.length) {
+  db = admin.firestore();
+  logger.info('FIREBASE', 'Usando instancia existente de Firebase');
+} else {
+  logger.error('FIREBASE', 'No se pudo inicializar Firebase - Service account no disponible');
 }
 
 // --- Configuración de Mercado Pago ---
@@ -68,13 +138,14 @@ const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fl
 
 if (!MERCADOPAGO_ACCESS_TOKEN) {
   logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no está configurado');
-  process.exit(1);
+  // No salimos del proceso para permitir otras funcionalidades
+  console.warn('ADVERTENCIA: MERCADOPAGO_ACCESS_TOKEN no configurado. Pagos no disponibles.');
 }
 
-const mpClient = new MercadoPagoConfig({ 
+const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({ 
   accessToken: MERCADOPAGO_ACCESS_TOKEN.trim(),
   options: { timeout: 10000 }
-});
+}) : null;
 
 const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
 const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
@@ -191,18 +262,38 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
 app.get("/api/config", (req, res) => {
   logger.info('API_CONFIG', 'Solicitud de configuración recibida');
+  
+  // Construir configuración de Firebase para el cliente
+  const firebaseClientConfig = {
+    apiKey: process.env.FIREBASE_API_KEY,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.FIREBASE_APP_ID,
+    measurementId: process.env.FIREBASE_MEASUREMENT_ID
+  };
+  
   res.json({
     mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
-    firebaseConfig: {
-      apiKey: process.env.FIREBASE_API_KEY,
-      projectId: process.env.FIREBASE_PROJECT_ID,
-    }
+    firebaseConfig: firebaseClientConfig,
+    environment: process.env.NODE_ENV || 'production',
+    timestamp: new Date().toISOString()
   });
 });
 
 app.post("/api/pay", async (req, res) => {
   const context = 'PAYMENT_PROCESS';
   const startTime = Date.now();
+  
+  // Verificar si Mercado Pago está configurado
+  if (!mpClient) {
+    logger.error(context, 'Mercado Pago no configurado');
+    return res.status(503).json({
+      error: 'Servicio de pagos no disponible',
+      message: 'Por favor, contacte al administrador del sistema'
+    });
+  }
   
   try {
     const { 
@@ -337,6 +428,12 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
     id: webhookData.data?.id,
     receivedAt: new Date().toISOString()
   });
+
+  // Verificar si Mercado Pago está configurado
+  if (!mpClient) {
+    logger.error(context, 'Mercado Pago no configurado, ignorando webhook');
+    return res.sendStatus(200); // Siempre responder 200 a MP
+  }
 
   // Escuchar tanto formato nuevo como antiguo
   const isPaymentEvent = webhookData.action?.includes('payment') || webhookData.type === 'payment';
@@ -483,20 +580,66 @@ app.get("/api/invoice-options", (req, res) => {
   });
 });
 
-// Health check endpoint
-app.get("/api/health", (req, res) => {
+// Health check endpoint mejorado
+app.get("/api/health", async (req, res) => {
   const health = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     services: {
       mercadopago: !!MERCADOPAGO_ACCESS_TOKEN,
       firebase: !!db,
+      firebaseInitialized: !!admin.apps.length,
       pdfGenerator: true
     },
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    hostUrl: HOST_URL,
+    flyAppName: process.env.FLY_APP_NAME,
+    firebaseProject: process.env.FIREBASE_PROJECT_ID
   };
+  
+  // Verificar Firebase más profundamente si está inicializado
+  if (db) {
+    try {
+      await db.collection('_healthcheck').doc('ping').set({
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        status: 'ok'
+      }, { merge: true });
+      
+      health.services.firestore = 'connected';
+    } catch (error) {
+      health.services.firestore = 'error';
+      health.services.firestoreError = error.message;
+      health.status = 'degraded';
+    }
+  }
+  
   logger.info('HEALTH_CHECK', 'Health check solicitado', health);
   res.json(health);
+});
+
+// Endpoint para verificar configuración de Firebase
+app.get("/api/debug/firebase", (req, res) => {
+  const firebaseVars = {
+    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? '✓' : '✗',
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? '✓' : '✗',
+    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? '✓' : '✗',
+    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? '✓ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : '✗',
+    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? '✓' : '✗',
+    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? '✓' : '✗',
+    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? '✓' : '✗'
+  };
+  
+  const missingVars = Object.entries(firebaseVars)
+    .filter(([key, value]) => value === '✗')
+    .map(([key]) => key);
+  
+  res.json({
+    firebaseVars,
+    missingVars,
+    adminInitialized: !!admin.apps.length,
+    firestoreAvailable: !!db,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Manejo de errores global
@@ -513,11 +656,30 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Ruta de inicio
+app.get("/", (req, res) => {
+  res.json({
+    message: "API de Pagos Consulta PE",
+    version: "1.0.0",
+    endpoints: {
+      config: "/api/config",
+      pay: "/api/pay",
+      health: "/api/health",
+      webhook: "/api/webhook/mercadopago",
+      invoice: "/api/generate-invoice",
+      debug: "/api/debug/firebase"
+    },
+    status: "online",
+    timestamp: new Date().toISOString()
+  });
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   logger.info('SERVER', `Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
+    firebaseProject: process.env.FIREBASE_PROJECT_ID,
     timestamp: new Date().toISOString()
   });
 });
