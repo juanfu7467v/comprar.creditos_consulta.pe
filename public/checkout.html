@@ -103,6 +103,7 @@
             <div id="success-status" class="hidden">
                 <div class="text-green-500 text-5xl mb-4"><i class="fas fa-check-circle"></i></div>
                 <h3 class="text-2xl font-bold text-gray-800">¡Pago Aprobado!</h3>
+                <p class="text-gray-600 mt-2">Tus créditos han sido activados automáticamente.</p>
                 <button onclick="generateInvoice()" id="generate-btn" class="w-full mt-6 bg-gray-800 text-white p-4 rounded-xl font-bold hover:bg-black transition">
                     Descargar Comprobante
                 </button>
@@ -118,90 +119,126 @@
     </div>
 
     <script>
-    <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const amount = urlParams.get('amount') || "10";
-    const uid = urlParams.get('uid');
-    const email = urlParams.get('email');
-    const description = urlParams.get('description') || 'Créditos Consulta PE';
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount') || "10";
+        const uid = urlParams.get('uid');
+        const email = urlParams.get('email');
+        const description = urlParams.get('description') || 'Créditos Consulta PE';
 
-    async function init() {
-        try {
-            const response = await fetch('/api/config');
-            const config = await response.json();
-            
-            document.getElementById('loading-config').classList.add('hidden');
-            document.getElementById('main-ui').classList.remove('hidden');
-            document.getElementById('display-amount').textContent = `S/ ${amount}`;
-            document.getElementById('display-description').textContent = description;
-            
-            // Si el email viene en la URL, lo pre-cargamos
-            if (email) document.getElementById('form-checkout__cardholderEmail').value = email;
+        async function init() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                document.getElementById('loading-config').classList.add('hidden');
+                document.getElementById('main-ui').classList.remove('hidden');
+                document.getElementById('display-amount').textContent = `S/ ${amount}`;
+                document.getElementById('display-description').textContent = description;
+                
+                if (email) document.getElementById('form-checkout__cardholderEmail').value = email;
 
-            const mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
+                const mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
 
-            const cardForm = mp.cardForm({
-                amount: amount.toString(),
-                iframe: true,
-                form: {
-                    id: "form-checkout",
-                    cardNumber: { id: "form-checkout__cardNumber", placeholder: "Número de tarjeta" },
-                    expirationDate: { id: "form-checkout__expirationDate", placeholder: "MM/YY" },
-                    securityCode: { id: "form-checkout__securityCode", placeholder: "CVC" },
-                    cardholderName: { id: "form-checkout__cardholderName" },
-                    issuer: { id: "form-checkout__issuer" },
-                    installments: { id: "form-checkout__installments" },
-                    cardholderEmail: { id: "form-checkout__cardholderEmail" },
-                    identificationType: { id: "form-checkout__identificationType" },
-                    identificationNumber: { id: "form-checkout__identificationNumber" },
-                },
-                callbacks: {
-                    onSubmit: async (event) => {
-                        event.preventDefault();
-                        const formData = cardForm.getCardFormData();
-                        
-                        document.getElementById('payment-form-container').classList.add('hidden');
-                        document.getElementById('status-screen').classList.remove('hidden');
+                const cardForm = mp.cardForm({
+                    amount: amount.toString(),
+                    iframe: true,
+                    form: {
+                        id: "form-checkout",
+                        cardNumber: { id: "form-checkout__cardNumber", placeholder: "Número de tarjeta" },
+                        expirationDate: { id: "form-checkout__expirationDate", placeholder: "MM/YY" },
+                        securityCode: { id: "form-checkout__securityCode", placeholder: "CVC" },
+                        cardholderName: { id: "form-checkout__cardholderName" },
+                        issuer: { id: "form-checkout__issuer" },
+                        installments: { id: "form-checkout__installments" },
+                        cardholderEmail: { id: "form-checkout__cardholderEmail" },
+                        identificationType: { id: "form-checkout__identificationType" },
+                        identificationNumber: { id: "form-checkout__identificationNumber" },
+                    },
+                    callbacks: {
+                        onFormMounted: error => {
+                            if (error) return console.warn("Error montando campos: ", error);
+                        },
+                        onSubmit: async (event) => {
+                            event.preventDefault();
+                            const formData = cardForm.getCardFormData();
+                            
+                            document.getElementById('payment-form-container').classList.add('hidden');
+                            document.getElementById('status-screen').classList.remove('hidden');
 
-                        try {
-                            const res = await fetch("/api/pay", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    token: formData.token,
-                                    amount: formData.amount,
-                                    description: description,
-                                    installments: formData.installments,
-                                    payment_method_id: formData.paymentMethodId,
-                                    issuer_id: formData.issuerId,
-                                    email: formData.cardholderEmail,
-                                    identificationType: formData.identificationType,
-                                    identificationNumber: formData.identificationNumber,
-                                    uid: uid // PASAMOS EL UID AQUÍ
-                                })
-                            });
+                            try {
+                                const res = await fetch("/api/pay", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        token: formData.token,
+                                        amount: formData.amount,
+                                        description: description,
+                                        installments: formData.installments,
+                                        payment_method_id: formData.paymentMethodId,
+                                        issuer_id: formData.issuerId,
+                                        email: formData.cardholderEmail,
+                                        identificationType: formData.identificationType,
+                                        identificationNumber: formData.identificationNumber,
+                                        uid: uid
+                                    })
+                                });
 
-                            const result = await res.json();
-                            document.getElementById('loading-status').classList.add('hidden');
+                                const result = await res.json();
+                                document.getElementById('loading-status').classList.add('hidden');
 
-                            if (result.status === 'approved') {
-                                window.currentPaymentId = result.id;
-                                document.getElementById('success-status').classList.remove('hidden');
-                            } else {
+                                if (result.status === 'approved') {
+                                    window.currentPaymentId = result.id;
+                                    document.getElementById('success-status').classList.remove('hidden');
+                                } else {
+                                    document.getElementById('error-status').classList.remove('hidden');
+                                    document.getElementById('error-message').textContent = "El pago fue rechazado por el banco.";
+                                    document.getElementById('error-detail').textContent = result.status_detail || 'rejected';
+                                }
+                            } catch (err) {
+                                document.getElementById('loading-status').classList.add('hidden');
                                 document.getElementById('error-status').classList.remove('hidden');
-                                document.getElementById('error-message').textContent = "El pago fue rechazado.";
-                                document.getElementById('error-detail').textContent = result.status_detail;
+                                document.getElementById('error-message').textContent = "Error de conexión con el servidor.";
                             }
-                        } catch (err) {
-                            document.getElementById('loading-status').classList.add('hidden');
-                            document.getElementById('error-status').classList.remove('hidden');
                         }
                     }
-                }
-            });
-        } catch (e) {
-            console.error(e);
+                });
+            } catch (e) {
+                console.error("Error inicializando Mercado Pago:", e);
+                document.getElementById('loading-config').textContent = "Error de configuración. Intenta más tarde.";
+            }
         }
-    }
-    init();
-</script>
+
+        // FUNCIÓN PARA GENERAR FACTURA (Faltaba en tu código anterior)
+        async function generateInvoice() {
+            const btn = document.getElementById('generate-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Generando...";
+            
+            try {
+                const res = await fetch("/api/generate-invoice", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        paymentId: window.currentPaymentId, 
+                        type: 'boleta' 
+                    })
+                });
+                const data = await res.json();
+                if (data.pdfUrl) {
+                    window.open(data.pdfUrl, '_blank');
+                } else {
+                    alert("No se pudo obtener el enlace del comprobante.");
+                }
+            } catch (e) { 
+                alert("Error al conectar con el servidor de facturación."); 
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
