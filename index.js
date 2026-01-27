@@ -1,11 +1,12 @@
 import express from "express";
 import admin from "firebase-admin";
 import cors from "cors";
-import moment from "moment-timezone"; 
-import { MercadoPagoConfig, Payment } from "mercadopago"; 
+import moment from "moment-timezone";
+import { MercadoPagoConfig, Payment } from "mercadopago";
 import { generateInvoicePDF } from './pdfGenerator.js';
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,8 +14,26 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
-
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Logs mejorados con timestamp y contexto
+const logger = {
+  info: (context, message, data = {}) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [INFO] [${context}] ${message}`, Object.keys(data).length ? data : '');
+  },
+  error: (context, message, error = null, data = {}) => {
+    const timestamp = new Date().toISOString();
+    console.error(`[${timestamp}] [ERROR] [${context}] ${message}`, 
+      error ? `Error: ${error.message} - Stack: ${error.stack}` : '',
+      Object.keys(data).length ? data : ''
+    );
+  },
+  warn: (context, message, data = {}) => {
+    const timestamp = new Date().toISOString();
+    console.warn(`[${timestamp}] [WARN] [${context}] ${message}`, Object.keys(data).length ? data : '');
+  }
+};
 
 // --- Configuración de Firebase ---
 function buildServiceAccountFromEnv() {
@@ -23,7 +42,10 @@ function buildServiceAccountFromEnv() {
       const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
       if (sa.private_key) sa.private_key = sa.private_key.replace(/\\n/g, "\n");
       return sa;
-    } catch (e) { return null; }
+    } catch (e) {
+      logger.error('FIREBASE_CONFIG', 'Error parsing Firebase service account', e);
+      return null;
+    }
   }
   return null;
 }
@@ -31,67 +53,144 @@ function buildServiceAccountFromEnv() {
 const serviceAccount = buildServiceAccountFromEnv();
 let db;
 if (serviceAccount && !admin.apps.length) {
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  db = admin.firestore();
-  console.log("🟢 Firebase Admin inicializado.");
+  try {
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    db = admin.firestore();
+    logger.info('FIREBASE', 'Firebase Admin inicializado correctamente');
+  } catch (error) {
+    logger.error('FIREBASE', 'Error al inicializar Firebase Admin', error);
+  }
 }
 
 // --- Configuración de Mercado Pago ---
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
-// IMPORTANTE: Asegúrate de que HOST_URL en Fly.io sea https://tu-app.fly.dev (SIN EL / AL FINAL)
 const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
 
+if (!MERCADOPAGO_ACCESS_TOKEN) {
+  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no está configurado');
+  process.exit(1);
+}
+
 const mpClient = new MercadoPagoConfig({ 
-  accessToken: (MERCADOPAGO_ACCESS_TOKEN || "").trim(),
-  options: { timeout: 7000 } 
+  accessToken: MERCADOPAGO_ACCESS_TOKEN.trim(),
+  options: { timeout: 10000 }
 });
 
 const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
 const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
-  if (!db || !uid) return { status: 'error', message: 'No UID' };
+  const context = 'OTORGAR_BENEFICIO';
   
+  if (!db) {
+    logger.error(context, 'Firebase DB no está inicializado', null, { uid, paymentRef });
+    return { status: 'error', message: 'Database not initialized' };
+  }
+  
+  if (!uid) {
+    logger.error(context, 'UID no proporcionado', null, { paymentRef, montoPagado });
+    return { status: 'error', message: 'No UID provided' };
+  }
+
   const pagoDoc = db.collection("pagos_registrados").doc(paymentRef);
-  const doc = await pagoDoc.get();
   
-  // Evitar duplicados (Idempotencia)
-  if (doc.exists) return { status: 'already_processed' };
-
-  console.log(`🚀 Otorgando beneficio a UID: ${uid} por S/ ${montoPagado}`);
-
-  await pagoDoc.set({
-    uid, email, monto: montoPagado, processor,
-    fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
-    estado: "approved"
-  });
-
-  const userDoc = db.collection("usuarios").doc(uid);
-  return await db.runTransaction(async (t) => {
-    const user = await t.get(userDoc);
-    if (!user.exists) return { status: 'error', message: 'User not found' };
+  try {
+    const doc = await pagoDoc.get();
     
-    let descripcion = "";
-    const montoNum = Number(montoPagado);
+    if (doc.exists) {
+      logger.warn(context, 'Pago ya procesado anteriormente (idempotencia)', { 
+        uid, paymentRef, existingData: doc.data() 
+      });
+      return { status: 'already_processed', data: doc.data() };
+    }
 
-    if (PAQUETES_CREDITOS[montoNum]) {
-      const otorgados = PAQUETES_CREDITOS[montoNum];
-      t.update(userDoc, { creditos: (user.data().creditos || 0) + otorgados });
-      descripcion = `${otorgados} Créditos`;
-    } else if (PLANES_ILIMITADOS[montoNum]) {
-      const fin = moment().add(PLANES_ILIMITADOS[montoNum], 'days').toDate();
-      t.update(userDoc, { planIlimitadoHasta: fin });
-      descripcion = `Plan Ilimitado`;
+    logger.info(context, 'Procesando nuevo pago', { uid, email, montoPagado, processor, paymentRef });
+
+    await pagoDoc.set({
+      uid,
+      email,
+      monto: montoPagado,
+      processor,
+      fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
+      estado: "approved",
+      procesado: false // Flag para seguimiento
+    });
+
+    const userDoc = db.collection("usuarios").doc(uid);
+    
+    const result = await db.runTransaction(async (t) => {
+      const user = await t.get(userDoc);
+      if (!user.exists) {
+        logger.error(context, 'Usuario no encontrado en Firestore', null, { uid });
+        throw new Error(`User ${uid} not found`);
+      }
+      
+      let descripcion = "";
+      const montoNum = Number(montoPagado);
+      let creditosOtorgados = 0;
+      let planOtorgado = null;
+
+      if (PAQUETES_CREDITOS[montoNum]) {
+        creditosOtorgados = PAQUETES_CREDITOS[montoNum];
+        const creditosActuales = user.data().creditos || 0;
+        t.update(userDoc, { creditos: creditosActuales + creditosOtorgados });
+        descripcion = `${creditosOtorgados} Créditos`;
+        logger.info(context, 'Créditos otorgados', { uid, creditosOtorgados, montoPagado });
+      } else if (PLANES_ILIMITADOS[montoNum]) {
+        const dias = PLANES_ILIMITADOS[montoNum];
+        const fin = moment().add(dias, 'days').toDate();
+        t.update(userDoc, { planIlimitadoHasta: fin });
+        planOtorgado = { dias, fechaFin: fin };
+        descripcion = `Plan Ilimitado (${dias} días)`;
+        logger.info(context, 'Plan ilimitado otorgado', { uid, dias, fechaFin: fin });
+      } else {
+        logger.warn(context, 'Monto no coincide con ningún paquete', { montoPagado, uid });
+        descripcion = `Pago de S/ ${montoPagado}`;
+      }
+      
+      // Actualizar documento de pago con descripción
+      t.update(pagoDoc, { 
+        descripcion,
+        procesado: true,
+        procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
+        creditosOtorgados,
+        planOtorgado
+      });
+      
+      return { 
+        status: 'success', 
+        creditosOtorgados, 
+        planOtorgado,
+        descripcion 
+      };
+    });
+
+    logger.info(context, 'Transacción completada exitosamente', { uid, result });
+    return result;
+
+  } catch (error) {
+    logger.error(context, 'Error en otorgarBeneficio', error, { uid, paymentRef, montoPagado });
+    
+    // Marcar el pago como fallido
+    try {
+      await pagoDoc.update({
+        procesado: false,
+        error: error.message,
+        errorStack: error.stack,
+        fallidoEn: admin.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (updateError) {
+      logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef });
     }
     
-    t.update(pagoDoc, { descripcion });
-    return { status: 'success' };
-  });
+    return { status: 'error', message: error.message, error: error.stack };
+  }
 }
 
 // --- API Endpoints ---
 
 app.get("/api/config", (req, res) => {
+  logger.info('API_CONFIG', 'Solicitud de configuración recibida');
   res.json({
     mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
     firebaseConfig: {
@@ -102,11 +201,27 @@ app.get("/api/config", (req, res) => {
 });
 
 app.post("/api/pay", async (req, res) => {
+  const context = 'PAYMENT_PROCESS';
+  const startTime = Date.now();
+  
   try {
     const { 
       token, amount, email, uid, description, installments, 
       payment_method_id, issuer_id, identificationType, identificationNumber 
     } = req.body;
+
+    logger.info(context, 'Iniciando procesamiento de pago', {
+      uid, email, amount, payment_method_id, installments
+    });
+
+    // Validaciones
+    if (!token || !amount || !uid) {
+      logger.error(context, 'Datos de pago incompletos', null, req.body);
+      return res.status(400).json({ 
+        error: 'Datos incompletos', 
+        required: ['token', 'amount', 'uid'] 
+      });
+    }
 
     const payment = new Payment(mpClient);
     
@@ -114,71 +229,295 @@ app.post("/api/pay", async (req, res) => {
       body: {
         transaction_amount: Number(amount),
         token,
-        description,
-        installments: Number(installments),
+        description: description || 'Créditos Consulta PE',
+        installments: Number(installments) || 1,
         payment_method_id,
         issuer_id: issuer_id ? Number(issuer_id) : undefined,
         payer: { 
           email: email,
-          identification: { type: identificationType, number: identificationNumber }
+          identification: { 
+            type: identificationType || 'DNI', 
+            number: identificationNumber 
+          }
         },
-        // Notificación para pagos aprobados después (Yape, Efectivo, etc)
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
-        // Metadatos en minúsculas para evitar problemas de case-sensitivity
-        metadata: { uid: uid, email: email, amount: amount }
+        metadata: { 
+          uid: uid, 
+          email: email, 
+          amount: amount,
+          timestamp: new Date().toISOString(),
+          source: 'direct_payment'
+        }
       }
     };
 
+    logger.info(context, 'Creando pago en Mercado Pago', { metadata: paymentData.body.metadata });
+
     const result = await payment.create(paymentData);
+    const processingTime = Date.now() - startTime;
     
-    // Si se aprueba al instante (tarjetas), activamos créditos ya mismo
+    logger.info(context, 'Respuesta de Mercado Pago recibida', {
+      paymentId: result.id,
+      status: result.status,
+      processingTime: `${processingTime}ms`
+    });
+
+    // Si se aprueba al instante (tarjetas), activamos créditos inmediatamente
     if (result.status === 'approved') {
-      await otorgarBeneficio(uid, email, Number(amount), 'MP Card Instant', result.id.toString());
+      logger.info(context, 'Pago aprobado instantáneamente, otorgando beneficios', {
+        paymentId: result.id,
+        uid
+      });
+      
+      const beneficioResult = await otorgarBeneficio(
+        uid, 
+        email, 
+        Number(amount), 
+        'MP_CARD_INSTANT', 
+        result.id.toString()
+      );
+      
+      logger.info(context, 'Resultado de otorgar beneficio', beneficioResult);
+      
+      // Agregar información de créditos otorgados a la respuesta
+      result.beneficioOtorgado = beneficioResult.status === 'success';
+      if (beneficioResult.creditosOtorgados) {
+        result.creditosOtorgados = beneficioResult.creditosOtorgados;
+      }
+    } else {
+      logger.info(context, 'Pago no aprobado instantáneamente', {
+        paymentId: result.id,
+        status: result.status,
+        statusDetail: result.status_detail
+      });
     }
 
     res.json(result);
+
   } catch (error) {
-    console.error("🔴 Error Pago:", error.api_response?.body || error.message);
-    res.status(400).json(error.api_response?.body || { error: error.message });
+    const processingTime = Date.now() - startTime;
+    logger.error(context, 'Error procesando pago', error, {
+      processingTime: `${processingTime}ms`,
+      requestBody: req.body
+    });
+
+    // Proporcionar un mensaje de error detallado
+    let errorMessage = 'Error procesando el pago';
+    let errorDetails = {};
+    
+    if (error.api_response?.body) {
+      errorDetails = error.api_response.body;
+      errorMessage = errorDetails.message || errorMessage;
+      
+      // Log específico de errores de Mercado Pago
+      if (errorDetails.cause) {
+        logger.error(context, 'Error específico de Mercado Pago', null, {
+          cause: errorDetails.cause,
+          code: errorDetails.error,
+          status: errorDetails.status
+        });
+      }
+    }
+
+    res.status(400).json({
+      error: errorMessage,
+      details: errorDetails,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
 app.post("/api/webhook/mercadopago", async (req, res) => {
-  const { action, data, type } = req.body;
+  const context = 'WEBHOOK_MP';
+  const webhookData = req.body;
   
+  logger.info(context, 'Webhook recibido', {
+    action: webhookData.action,
+    type: webhookData.type,
+    id: webhookData.data?.id,
+    receivedAt: new Date().toISOString()
+  });
+
   // Escuchar tanto formato nuevo como antiguo
-  if (action === "payment.created" || action === "payment.updated" || type === "payment") {
+  const isPaymentEvent = webhookData.action?.includes('payment') || webhookData.type === 'payment';
+  
+  if (isPaymentEvent) {
     try {
-      const paymentId = data?.id || req.body.data?.id;
-      if (!paymentId) return res.sendStatus(200);
+      const paymentId = webhookData.data?.id || webhookData.data?.id;
+      
+      if (!paymentId) {
+        logger.error(context, 'Payment ID no encontrado en webhook', null, webhookData);
+        return res.sendStatus(200); // Siempre responder 200 a MP
+      }
+
+      logger.info(context, 'Consultando información del pago', { paymentId });
 
       const payment = new Payment(mpClient);
       const paymentInfo = await payment.get({ id: paymentId });
 
+      logger.info(context, 'Información del pago obtenida', {
+        paymentId,
+        status: paymentInfo.status,
+        statusDetail: paymentInfo.status_detail
+      });
+
       if (paymentInfo.status === "approved") {
-        // Leemos metadatos con fallback
-        const metadata = paymentInfo.metadata;
-        const uid = metadata?.uid;
-        const email = metadata?.email;
-        const amount = metadata?.amount;
+        // Leer metadatos con fallbacks
+        const metadata = paymentInfo.metadata || {};
+        const uid = metadata.uid;
+        const email = metadata.email || paymentInfo.payer?.email;
+        const amount = metadata.amount || paymentInfo.transaction_amount;
 
         if (uid) {
-          await otorgarBeneficio(uid, email, Number(amount), 'MP Webhook', paymentId.toString());
-          console.log(`✅ Webhook: Créditos activados para ${uid}`);
+          logger.info(context, 'Procesando pago aprobado via webhook', {
+            paymentId, uid, email, amount
+          });
+
+          const beneficioResult = await otorgarBeneficio(
+            uid,
+            email,
+            Number(amount),
+            'MP_WEBHOOK',
+            paymentId.toString()
+          );
+
+          logger.info(context, 'Resultado del webhook', {
+            paymentId,
+            uid,
+            beneficioStatus: beneficioResult.status,
+            message: beneficioResult.message
+          });
+
+        } else {
+          logger.error(context, 'UID no encontrado en metadatos del pago', null, {
+            paymentId,
+            metadata,
+            payer: paymentInfo.payer
+          });
         }
+      } else {
+        logger.info(context, 'Pago no está aprobado, ignorando', {
+          paymentId,
+          status: paymentInfo.status
+        });
       }
+
     } catch (error) {
-      console.error("🔴 Error Webhook:", error.message);
+      logger.error(context, 'Error procesando webhook', error, {
+        paymentId: webhookData.data?.id,
+        action: webhookData.action
+      });
     }
+  } else {
+    logger.info(context, 'Evento no relevante ignorado', {
+      action: webhookData.action,
+      type: webhookData.type
+    });
   }
+
+  // IMPORTANTE: Siempre responder 200 a Mercado Pago
   res.sendStatus(200);
 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Nuevo endpoint para generar comprobante
+app.post("/api/generate-invoice", async (req, res) => {
+  const context = 'GENERATE_INVOICE';
+  
+  try {
+    const { paymentId, type = 'boleta', ruc, razonSocial, email } = req.body;
+    
+    if (!paymentId) {
+      logger.error(context, 'Payment ID requerido', null, req.body);
+      return res.status(400).json({ error: 'Payment ID es requerido' });
+    }
+
+    logger.info(context, 'Generando comprobante', { paymentId, type });
+
+    // En una implementación real, aquí buscarías los datos del pago desde tu DB
+    // Por ahora usamos datos de ejemplo
+    const invoiceData = {
+      orderId: paymentId,
+      date: new Date().toLocaleString('es-PE'),
+      email: email || 'cliente@example.com',
+      amount: req.body.amount || 10,
+      credits: req.body.credits || 60,
+      description: req.body.description || 'Créditos Consulta PE',
+      type: type,
+      ruc: ruc || '',
+      razonSocial: razonSocial || ''
+    };
+
+    const pdfUrl = await generateInvoicePDF(invoiceData);
+    
+    logger.info(context, 'Comprobante generado exitosamente', {
+      paymentId,
+      pdfUrl,
+      type
+    });
+
+    res.json({
+      success: true,
+      pdfUrl: `${HOST_URL}${pdfUrl}`,
+      downloadUrl: `${HOST_URL}${pdfUrl}?download=true`,
+      message: 'Comprobante generado exitosamente'
+    });
+
+  } catch (error) {
+    logger.error(context, 'Error generando comprobante', error, req.body);
+    res.status(500).json({
+      error: 'Error generando comprobante',
+      details: error.message
+    });
+  }
+});
+
+// Endpoint para obtener opciones de facturación
+app.get("/api/invoice-options", (req, res) => {
+  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturación');
+  res.json({
+    options: [
+      { value: 'boleta', label: 'Boleta de Venta', description: 'Para personas naturales' },
+      { value: 'factura', label: 'Factura', description: 'Para empresas con RUC' }
+    ],
+    default: 'boleta'
+  });
+});
+
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  const health = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    services: {
+      mercadopago: !!MERCADOPAGO_ACCESS_TOKEN,
+      firebase: !!db,
+      pdfGenerator: true
+    },
+    environment: process.env.NODE_ENV || 'development'
+  };
+  logger.info('HEALTH_CHECK', 'Health check solicitado', health);
+  res.json(health);
+});
+
+// Manejo de errores global
+app.use((err, req, res, next) => {
+  logger.error('GLOBAL_ERROR', 'Error no manejado', err, {
+    path: req.path,
+    method: req.method
+  });
+  
+  res.status(500).json({
+    error: 'Error interno del servidor',
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Contacte al soporte',
+    requestId: Date.now().toString(36)
+  });
 });
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Servidor en puerto ${PORT}`);
+  logger.info('SERVER', `Servidor iniciado en puerto ${PORT}`, {
+    hostUrl: HOST_URL,
+    nodeEnv: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
 });
