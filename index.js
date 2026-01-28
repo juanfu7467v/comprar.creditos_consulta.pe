@@ -215,43 +215,75 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         throw new Error(`User ${uid} not found`);
       }
       
+      const userData = user.data();
       let descripcion = "";
       const montoNum = Number(montoPagado);
       let creditosOtorgados = 0;
       let planOtorgado = null;
       
-      const creditosActuales = user.data().creditos || 0;
-      logger.info(context, 'Créditos actuales del usuario', { uid, creditosActuales });
+      // Obtener créditos actuales del usuario
+      const creditosActuales = userData.creditos || 0;
+      const tipoPlanActual = userData.tipoPlan || "creditos";
+      
+      logger.info(context, 'Estado actual del usuario', { 
+        uid, 
+        creditosActuales, 
+        tipoPlanActual,
+        duracionDias: userData.duracionDias || 0
+      });
 
+      // CASO 1: Compra de créditos
       if (PAQUETES_CREDITOS[montoNum]) {
         creditosOtorgados = PAQUETES_CREDITOS[montoNum];
         const nuevosCreditos = creditosActuales + creditosOtorgados;
         
         t.update(userDoc, { 
           creditos: nuevosCreditos,
+          tipoPlan: "creditos", // Cambiar tipo de plan a créditos
+          fechaActivacion: admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
         
         descripcion = `${creditosOtorgados} Créditos`;
-        logger.info(context, 'Créditos otorgados', { 
+        logger.info(context, 'Créditos otorgados - Tipo de plan actualizado a "creditos"', { 
           uid, 
           creditosOtorgados, 
           montoPagado,
           creditosAnteriores: creditosActuales,
-          creditosNuevos: nuevosCreditos
+          creditosNuevos: nuevosCreditos,
+          tipoPlanAnterior: tipoPlanActual,
+          tipoPlanNuevo: "creditos"
         });
+        
+      // CASO 2: Compra de plan ilimitado por días
       } else if (PLANES_ILIMITADOS[montoNum]) {
         const dias = PLANES_ILIMITADOS[montoNum];
         const fin = moment().add(dias, 'days').toDate();
         
         t.update(userDoc, { 
+          duracionDias: dias,
           planIlimitadoHasta: fin,
+          creditos: 0, // Resetear créditos a 0 al comprar plan ilimitado
+          tipoPlan: "ilimitado", // Cambiar tipo de plan a ilimitado
+          fechaActivacion: admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
         
         planOtorgado = { dias, fechaFin: fin };
         descripcion = `Plan Ilimitado (${dias} días)`;
-        logger.info(context, 'Plan ilimitado otorgado', { uid, dias, fechaFin: fin });
+        logger.info(context, 'Plan ilimitado otorgado - Créditos reseteados a 0', { 
+          uid, 
+          dias, 
+          fechaFin: fin,
+          creditosAnteriores: creditosActuales,
+          creditosNuevos: 0,
+          tipoPlanAnterior: tipoPlanActual,
+          tipoPlanNuevo: "ilimitado"
+        });
+        
+        // Guardar que los créditos se resetearon
+        creditosOtorgados = 0;
+        
       } else {
         logger.warn(context, 'Monto no coincide con ningún paquete', { montoPagado, uid });
         descripcion = `Pago de S/ ${montoPagado}`;
@@ -263,17 +295,21 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
         creditosOtorgados,
         creditosAnteriores: creditosActuales,
-        creditosNuevos: creditosActuales + creditosOtorgados,
-        planOtorgado
+        creditosNuevos: PLANES_ILIMITADOS[montoNum] ? 0 : (creditosActuales + creditosOtorgados),
+        planOtorgado,
+        tipoPlanAnterior: tipoPlanActual,
+        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos"
       });
       
       return { 
         status: 'success', 
         creditosOtorgados, 
         creditosAnteriores: creditosActuales,
-        creditosNuevos: creditosActuales + creditosOtorgados,
+        creditosNuevos: PLANES_ILIMITADOS[montoNum] ? 0 : (creditosActuales + creditosOtorgados),
         planOtorgado,
-        descripcion 
+        descripcion,
+        tipoPlanAnterior: tipoPlanActual,
+        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos"
       };
     });
 
@@ -418,11 +454,15 @@ app.post("/api/pay", async (req, res) => {
       logger.info(context, 'Resultado de otorgar beneficio', beneficioResult);
       
       result.beneficioOtorgado = beneficioResult.status === 'success';
-      if (beneficioResult.creditosOtorgados) {
+      if (beneficioResult.creditosOtorgados !== undefined) {
         result.creditosOtorgados = beneficioResult.creditosOtorgados;
         result.creditosNuevos = beneficioResult.creditosNuevos;
         result.creditosAnteriores = beneficioResult.creditosAnteriores;
       }
+      if (beneficioResult.planOtorgado) {
+        result.planOtorgado = beneficioResult.planOtorgado;
+      }
+      result.tipoPlanNuevo = beneficioResult.tipoPlanNuevo;
     } else {
       logger.info(context, 'Pago no aprobado instantáneamente', {
         paymentId: result.id,
@@ -558,7 +598,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   res.sendStatus(200);
 });
 
-// NUEVO: Endpoint para obtener información del pago
+// Endpoint para obtener información del pago
 app.get("/api/payment/:paymentId", async (req, res) => {
   const context = 'GET_PAYMENT_INFO';
   const { paymentId } = req.params;
@@ -590,7 +630,8 @@ app.get("/api/payment/:paymentId", async (req, res) => {
       descripcion: pagoData.descripcion,
       fecha: fechaRegistro.toLocaleDateString('es-PE'),
       hora: fechaRegistro.toLocaleTimeString('es-PE'),
-      estado: pagoData.estado
+      estado: pagoData.estado,
+      tipoPlan: pagoData.tipoPlanNuevo || 'creditos'
     });
     
   } catch (error) {
