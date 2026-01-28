@@ -61,6 +61,11 @@
             color: var(--text-dark);
             cursor: pointer;
             width: 30px;
+            transition: transform 0.2s;
+        }
+
+        .back-btn:active {
+            transform: scale(0.9);
         }
 
         .header-title {
@@ -84,64 +89,161 @@
             color: var(--text-gray);
             font-size: 14px;
             margin-bottom: 5px;
-            text-align: center;
         }
 
         .total-price {
             font-size: 34px;
             font-weight: 700;
             color: var(--primary-blue);
-            text-align: center;
         }
 
-        /* Selector de Método de Pago */
-        .payment-methods {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .method-card {
-            background: var(--light-blue);
-            padding: 12px 20px;
-            border-radius: var(--radius-md);
-            color: var(--primary-blue);
-            font-weight: 600;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: 2px solid transparent;
-            white-space: nowrap;
-            text-align: center;
-        }
-
-        .method-card.active {
-            background: var(--primary-blue);
+        /* Tarjeta de Crédito Visual */
+        .credit-card-display {
+            background: var(--gradient);
+            border-radius: var(--radius-lg);
+            padding: 25px;
             color: white;
-            box-shadow: 0 8px 15px rgba(79, 110, 247, 0.25);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(79, 110, 247, 0.35);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Patrón de fondo de tarjeta */
+        .credit-card-display::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .credit-card-display::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-chip::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(0,0,0,0.1) 0px,
+                rgba(0,0,0,0.1) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+        }
+
+        .card-type {
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card-number-display {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin: 25px 0 20px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-holder-info {
+            flex: 1;
+        }
+
+        .card-label {
+            font-size: 10px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .card-value {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .card-logo {
+            font-size: 32px;
+            opacity: 0.9;
         }
 
         /* Formulario */
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         .label {
-            display: flex;
-            align-items: center;
+            display: block;
             font-size: 13px;
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 8px;
         }
 
-        .label i {
-            margin-right: 8px;
-            color: var(--primary-blue);
+        /* Contenedor de input con ícono */
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-gray);
+            font-size: 18px;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .input-box {
@@ -155,9 +257,15 @@
             text-align: center;
         }
 
-        .input-box::placeholder {
-            color: #C1C7D0;
-            text-align: center;
+        .input-box:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.1);
+        }
+
+        /* Input con ícono tiene padding izquierdo */
+        .input-with-icon .input-box {
+            padding-left: 45px;
         }
 
         .mp-container {
@@ -166,9 +274,31 @@
             border-radius: var(--radius-md);
             border: 1px solid #EAECEF;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative;
+        }
+
+        /* Ícono para el campo de tarjeta */
+        .mp-container.with-icon::before {
+            content: '\f09d';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            font-size: 18px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .mp-container.with-icon iframe {
+            padding-left: 45px !important;
+        }
+
+        /* Estilos para centrar texto en iframes de MP */
+        .mp-container iframe {
+            text-align: center !important;
         }
 
         .grid-row {
@@ -176,128 +306,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
-
-        /* Tarjeta Bancaria Gráfica */
-        .card-graphic {
-            background: var(--gradient);
-            border-radius: var(--radius-lg);
-            padding: 25px;
-            color: white;
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(79, 110, 247, 0.3);
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card-chip {
-            width: 50px;
-            height: 35px;
-            background: linear-gradient(135deg, #FFD700 0%, #FFEC8B 100%);
-            border-radius: 8px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-chip::before {
-            content: "";
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            right: 5px;
-            bottom: 5px;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 4px;
-        }
-
-        .card-number {
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .card-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .card-holder {
-            font-size: 14px;
-            opacity: 0.9;
-            text-align: left;
-        }
-
-        .card-expiry {
-            font-size: 14px;
-            opacity: 0.9;
-            text-align: right;
-        }
-
-        .card-logo {
-            font-size: 28px;
-            opacity: 0.9;
-            text-align: right;
-        }
-
-        .card-network {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            opacity: 0.7;
-        }
-
-        /* Switch */
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 25px 0;
-        }
-
-        .switch-text {
-            font-size: 14px;
-            font-weight: 500;
-            text-align: left;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #D1D5DB;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px; width: 18px;
-            left: 3px; bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider { background-color: var(--primary-blue); }
-        input:checked + .slider:before { transform: translateX(20px); }
 
         /* Botón Principal */
         .main-btn {
@@ -311,12 +319,24 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 6px 20px rgba(79, 110, 247, 0.3);
-            transition: transform 0.2s;
-            margin-top: 10px;
-            text-align: center;
+            transition: all 0.3s;
+            margin-top: 20px;
         }
 
-        .main-btn:active { transform: scale(0.98); }
+        .main-btn:hover {
+            background: #3D5FE6;
+            box-shadow: 0 8px 25px rgba(79, 110, 247, 0.4);
+        }
+
+        .main-btn:active {
+            transform: scale(0.98);
+        }
+
+        .main-btn:disabled {
+            background: var(--text-gray);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
 
         /* Pantalla de Carga */
         #loadingScreen {
@@ -331,40 +351,73 @@
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border: 4px solid var(--light-blue);
             border-top: 4px solid var(--primary-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Estilos específicos para inputs de MP */
-        iframe { 
-            height: 100% !important; 
-            width: 100% !important;
-            border: none !important;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .mp-iframe-container {
+        .loading-text {
+            margin-top: 20px;
+            color: var(--text-gray);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Indicador de seguridad */
+        .security-badge {
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            gap: 8px;
+            color: var(--text-gray);
+            font-size: 12px;
+            margin-top: 20px;
+            padding: 12px;
+            background: var(--white);
+            border-radius: var(--radius-md);
         }
 
-        /* Estilos para los textos centrados */
-        .center-text {
-            text-align: center;
+        .security-badge i {
+            color: #10B981;
+            font-size: 16px;
         }
 
-        /* Ajustes para campos de MercadoPago */
-        .mp-field {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Responsive mejorado */
+        @media (max-width: 380px) {
+            .content {
+                padding: 0 20px;
+            }
+
+            .total-price {
+                font-size: 30px;
+            }
+
+            .card-number-display {
+                font-size: 18px;
+            }
+        }
+
+        /* Animación de entrada */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -376,121 +429,160 @@
         <div class="header-title">Datos de Pago</div>
     </div>
 
-    <div class="content">
+    <div class="content fade-in">
         <div class="price-section">
-            <p class="price-label">Precio Total</p>
+            <p class="price-label">Monto total</p>
             <div class="total-price" id="display-amount">S/ 0.00</div>
         </div>
 
-        <div class="payment-methods">
-            <div class="method-card">PayPal</div>
-            <div class="method-card active">
-                Tarjeta <i class="fas fa-check-circle"></i>
+        <!-- Tarjeta de Crédito Visual -->
+        <div class="credit-card-display">
+            <div class="card-top">
+                <div class="card-chip"></div>
+                <div class="card-type">VISA</div>
             </div>
-            <div class="method-card">Billetera</div>
-        </div>
-
-        <!-- Tarjeta Bancaria Gráfica -->
-        <div class="card-graphic">
-            <div class="card-network">
-                <i class="fab fa-cc-visa"></i>
-            </div>
-            <div class="card-chip"></div>
-            <div class="card-number">**** **** **** 1234</div>
+            <div class="card-number-display" id="visual-card-number">•••• •••• •••• ••••</div>
             <div class="card-bottom">
-                <div class="card-holder">
-                    <div style="font-size: 10px; opacity: 0.7;">TITULAR DE LA TARJETA</div>
-                    <div>JUAN PEREZ</div>
+                <div class="card-holder-info">
+                    <div class="card-label">Titular de la tarjeta</div>
+                    <div class="card-value" id="visual-card-holder">TU NOMBRE</div>
                 </div>
-                <div class="card-expiry">
-                    <div style="font-size: 10px; opacity: 0.7;">VÁLIDA HASTA</div>
-                    <div>12/28</div>
-                </div>
-                <div class="card-logo">
-                    <i class="fas fa-credit-card"></i>
+                <div class="card-holder-info">
+                    <div class="card-label">Válido hasta</div>
+                    <div class="card-value" id="visual-card-expiry">••/••</div>
                 </div>
             </div>
         </div>
 
         <form id="form-checkout">
             <div class="form-group">
-                <label class="label">
-                    <i class="fas fa-credit-card"></i> Número de tarjeta
-                </label>
-                <div id="form-checkout__cardNumber" class="mp-container">
-                    <div class="mp-iframe-container"></div>
-                </div>
+                <label class="label">Número de tarjeta</label>
+                <div id="form-checkout__cardNumber" class="mp-container with-icon"></div>
             </div>
 
             <div class="grid-row">
                 <div class="form-group">
-                    <label class="label center-text">Válida hasta</label>
-                    <div id="form-checkout__expirationDate" class="mp-container">
-                        <div class="mp-iframe-container"></div>
-                    </div>
+                    <label class="label">Válido hasta</label>
+                    <div id="form-checkout__expirationDate" class="mp-container"></div>
                 </div>
                 <div class="form-group">
-                    <label class="label center-text">CVV</label>
-                    <div id="form-checkout__securityCode" class="mp-container">
-                        <div class="mp-iframe-container"></div>
-                    </div>
+                    <label class="label">CVV</label>
+                    <div id="form-checkout__securityCode" class="mp-container"></div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="label center-text">Titular de la tarjeta</label>
-                <input type="text" id="form-checkout__cardholderName" class="input-box" placeholder="Nombre y apellido" />
+                <label class="label">Titular de la tarjeta</label>
+                <input 
+                    type="text" 
+                    id="form-checkout__cardholderName" 
+                    class="input-box" 
+                    placeholder="Nombre y apellido"
+                    required
+                />
             </div>
 
+            <div class="form-group">
+                <label class="label">Correo electrónico</label>
+                <input 
+                    type="email" 
+                    id="form-checkout__cardholderEmail" 
+                    class="input-box" 
+                    placeholder="correo@ejemplo.com"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label class="label">Tipo de documento</label>
+                <select id="form-checkout__identificationType" class="input-box" required></select>
+            </div>
+
+            <div class="form-group">
+                <label class="label">Número de documento</label>
+                <input 
+                    type="text" 
+                    id="form-checkout__identificationNumber" 
+                    class="input-box" 
+                    placeholder="12345678"
+                    required
+                />
+            </div>
+
+            <!-- Campos ocultos necesarios para MP -->
             <div style="display:none">
                 <select id="form-checkout__issuer"></select>
                 <select id="form-checkout__installments"></select>
-                <select id="form-checkout__identificationType"></select>
-                <input type="text" id="form-checkout__identificationNumber" />
-                <input type="email" id="form-checkout__cardholderEmail" />
             </div>
 
-            <div class="flex-between">
-                <span class="switch-text">Guardar datos de tarjeta para pagos futuros</span>
-                <label class="switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
+            <button type="submit" id="form-checkout__submit" class="main-btn">
+                <i class="fas fa-lock"></i> Proceder al pago
+            </button>
 
-            <button type="submit" id="form-checkout__submit" class="main-btn">Proceder a confirmar</button>
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Pago 100% seguro y encriptado</span>
+            </div>
         </form>
     </div>
 </div>
 
 <div id="loadingScreen">
     <div class="spinner"></div>
-    <p style="margin-top:15px; color:var(--text-gray); font-size:14px; text-align: center;">Iniciando pago seguro...</p>
+    <p class="loading-text">Iniciando pago seguro...</p>
 </div>
 
 <script>
-    // --- LÓGICA DE NEGOCIO MANTENIDA ---
+    // --- Obtener parámetros de URL ---
     const urlParams = new URLSearchParams(window.location.search);
     const amount = urlParams.get('amount') || "10.00";
     const uid = urlParams.get('uid');
     const email = urlParams.get('email');
     const description = urlParams.get('description') || 'Créditos Consulta PE';
 
+    // --- Validaciones iniciales ---
+    if (!uid) {
+        alert('Error: No se encontró el identificador de usuario');
+        window.location.href = '/';
+    }
+
+    // --- Actualizar vista de tarjeta en tiempo real ---
+    function updateCardDisplay() {
+        const cardholderName = document.getElementById('form-checkout__cardholderName');
+        const visualCardHolder = document.getElementById('visual-card-holder');
+        
+        if (cardholderName && visualCardHolder) {
+            cardholderName.addEventListener('input', (e) => {
+                const value = e.target.value.toUpperCase() || 'TU NOMBRE';
+                visualCardHolder.textContent = value.substring(0, 22);
+            });
+        }
+    }
+
+    // --- Inicializar Mercado Pago ---
     async function initMercadoPago() {
         try {
-            // Mostrar el monto en la pantalla
+            // Mostrar monto
             document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
             
-            // Obtener configuración desde la API
+            // Obtener configuración del servidor
             const response = await fetch('/api/config');
+            if (!response.ok) {
+                throw new Error('No se pudo obtener la configuración del servidor');
+            }
+            
             const config = await response.json();
+            
+            if (!config.mercadopagoPublicKey) {
+                throw new Error('Clave pública de Mercado Pago no configurada');
+            }
             
             // Ocultar pantalla de carga
             document.getElementById('loadingScreen').style.display = 'none';
 
-            // Inicializar MercadoPago
+            // Inicializar SDK de Mercado Pago
             const mp = new MercadoPago(config.mercadopagoPublicKey, { 
-                locale: 'es-PE' 
+                locale: 'es-PE'
             });
 
             // Configurar formulario de tarjeta
@@ -501,77 +593,78 @@
                     id: 'form-checkout',
                     cardNumber: { 
                         id: 'form-checkout__cardNumber', 
-                        placeholder: '**** **** **** ****' 
+                        placeholder: '•••• •••• •••• ••••'
                     },
                     expirationDate: { 
                         id: 'form-checkout__expirationDate', 
-                        placeholder: 'MM/AA' 
+                        placeholder: 'MM/AA'
                     },
                     securityCode: { 
                         id: 'form-checkout__securityCode', 
-                        placeholder: '***' 
+                        placeholder: '•••'
                     },
                     cardholderName: { 
                         id: 'form-checkout__cardholderName',
-                        placeholder: 'Nombre como aparece en la tarjeta'
+                        placeholder: 'Nombre y apellido'
                     },
-                    issuer: { id: 'form-checkout__issuer' },
-                    installments: { id: 'form-checkout__installments' },
-                    identificationType: { id: 'form-checkout__identificationType' },
-                    identificationNumber: { id: 'form-checkout__identificationNumber' },
-                    cardholderEmail: { id: 'form-checkout__cardholderEmail' }
+                    issuer: { 
+                        id: 'form-checkout__issuer'
+                    },
+                    installments: { 
+                        id: 'form-checkout__installments'
+                    },
+                    identificationType: { 
+                        id: 'form-checkout__identificationType'
+                    },
+                    identificationNumber: { 
+                        id: 'form-checkout__identificationNumber',
+                        placeholder: 'Número de documento'
+                    },
+                    cardholderEmail: { 
+                        id: 'form-checkout__cardholderEmail',
+                        placeholder: 'correo@ejemplo.com'
+                    }
                 },
                 callbacks: {
                     onFormMounted: error => {
                         if (error) {
-                            console.warn("Error al montar el formulario:", error);
+                            console.error("Error montando formulario:", error);
                             return;
                         }
                         
                         // Prellenar email si viene en URL
-                        if(email) {
+                        if (email) {
                             document.getElementById('form-checkout__cardholderEmail').value = email;
                         }
                         
-                        // Forzar centrado de textos en los iframes de MercadoPago
-                        setTimeout(() => {
-                            const iframes = document.querySelectorAll('iframe');
-                            iframes.forEach(iframe => {
-                                try {
-                                    iframe.contentDocument.body.style.textAlign = 'center';
-                                    iframe.contentDocument.body.style.display = 'flex';
-                                    iframe.contentDocument.body.style.alignItems = 'center';
-                                    iframe.contentDocument.body.style.justifyContent = 'center';
-                                } catch (e) {
-                                    // Ignorar errores de CORS
-                                }
-                            });
-                        }, 1000);
+                        // Activar actualización de tarjeta visual
+                        updateCardDisplay();
+                        
+                        console.log("Formulario montado correctamente");
                     },
                     onSubmit: async (event) => {
                         event.preventDefault();
+                        
                         const submitBtn = document.getElementById('form-checkout__submit');
-                        const originalText = submitBtn.innerText;
-                        submitBtn.innerText = "Procesando...";
+                        const originalText = submitBtn.innerHTML;
+                        
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
                         submitBtn.disabled = true;
 
                         try {
-                            // Obtener datos del formulario
                             const formData = cardForm.getCardFormData();
                             
-                            // Validar datos básicos
-                            if (!uid) {
-                                alert("Error: ID de usuario no encontrado");
-                                submitBtn.innerText = originalText;
-                                submitBtn.disabled = false;
-                                return;
+                            // Validar datos antes de enviar
+                            if (!formData.token) {
+                                throw new Error('No se pudo generar el token de pago');
                             }
-
-                            // Enviar pago al backend
+                            
+                            console.log('Enviando pago al servidor...');
+                            
                             const res = await fetch('/api/pay', {
                                 method: 'POST',
                                 headers: { 
-                                    'Content-Type': 'application/json' 
+                                    'Content-Type': 'application/json'
                                 },
                                 body: JSON.stringify({
                                     token: formData.token,
@@ -579,85 +672,94 @@
                                     payment_method_id: formData.paymentMethodId,
                                     issuer_id: formData.issuerId,
                                     installments: formData.installments,
-                                    email: formData.cardholderEmail || email,
-                                    uid: uid,
-                                    description: description,
+                                    email: formData.cardholderEmail,
                                     identificationType: formData.identificationType,
-                                    identificationNumber: formData.identificationNumber
+                                    identificationNumber: formData.identificationNumber,
+                                    uid: uid,
+                                    description: description
                                 })
                             });
 
                             const result = await res.json();
                             
-                            if (result.status === 'approved' || result.status === 'pending') {
-                                // Pago exitoso o pendiente
-                                const successMessage = result.status === 'approved' 
-                                    ? '¡Pago aprobado exitosamente!' 
-                                    : 'Pago pendiente de confirmación';
-                                    
-                                alert(successMessage);
-                                
-                                // Redirigir a app nativa si está disponible
-                                if (typeof window.Android !== 'undefined') {
-                                    window.Android.paymentComplete(JSON.stringify(result));
-                                } else if (window.webkit && window.webkit.messageHandlers) {
-                                    window.webkit.messageHandlers.paymentHandler.postMessage(result);
-                                } else {
-                                    window.location.href = `app://payment-success?id=${result.id}&status=${result.status}`;
-                                }
-                                
+                            console.log('Respuesta del servidor:', result);
+
+                            if (result.status === 'approved') {
+                                // Pago aprobado
+                                alert('¡Pago aprobado exitosamente!');
+                                window.location.href = `app://payment-success?id=${result.id}&amount=${amount}`;
+                            } else if (result.status === 'pending') {
+                                // Pago pendiente
+                                alert('Pago pendiente de aprobación. Te notificaremos cuando se confirme.');
+                                window.location.href = `app://payment-pending?id=${result.id}`;
                             } else {
                                 // Pago rechazado
-                                const errorMsg = result.status_detail || result.message || "El pago fue rechazado";
-                                alert(`Pago rechazado: ${errorMsg}\n\nPor favor, verifique sus datos e intente nuevamente.`);
-                                submitBtn.innerText = originalText;
+                                const errorMsg = result.status_detail || result.error || 'Pago rechazado';
+                                alert(`Error en el pago: ${errorMsg}`);
+                                submitBtn.innerHTML = originalText;
                                 submitBtn.disabled = false;
                             }
-                            
                         } catch (error) {
-                            console.error("Error procesando pago:", error);
-                            alert("Error al procesar el pago. Por favor, intente nuevamente.");
-                            submitBtn.innerText = originalText;
+                            console.error('Error procesando pago:', error);
+                            alert('Error al procesar el pago. Por favor, intenta nuevamente.');
+                            submitBtn.innerHTML = originalText;
                             submitBtn.disabled = false;
                         }
                     },
                     onFetching: (resource) => {
-                        console.log("Fetching: ", resource);
-                    },
-                    onError: (error) => {
-                        console.error("Error en formulario MP:", error);
-                        alert(`Error en formulario: ${error.message}`);
+                        console.log('Obteniendo recurso:', resource);
+                        
+                        // Mostrar indicador de carga sutil
+                        const loadingIndicator = document.createElement('div');
+                        loadingIndicator.className = 'loading-indicator';
+                        loadingIndicator.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                        
+                        return () => {
+                            // Limpiar indicador cuando termine
+                            if (loadingIndicator.parentNode) {
+                                loadingIndicator.remove();
+                            }
+                        };
                     }
                 }
             });
-            
+
+            console.log('Mercado Pago inicializado correctamente');
+
         } catch (error) {
-            console.error("Error inicializando MercadoPago:", error);
+            console.error('Error crítico inicializando Mercado Pago:', error);
             document.getElementById('loadingScreen').innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f44336;"></i>
-                    <p style="margin-top: 15px; color: var(--text-dark);">Error al cargar el sistema de pagos</p>
-                    <p style="color: var(--text-gray); font-size: 14px;">Por favor, recargue la página</p>
-                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: var(--primary-blue); color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        Recargar
-                    </button>
-                </div>
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #EF4444; margin-bottom: 20px;"></i>
+                <p class="loading-text" style="color: #EF4444;">Error al cargar el sistema de pagos</p>
+                <p style="color: var(--text-gray); font-size: 12px; margin-top: 10px;">${error.message}</p>
+                <button onclick="location.reload()" class="main-btn" style="margin-top: 20px; max-width: 200px;">
+                    Reintentar
+                </button>
             `;
         }
     }
 
-    // Inicializar cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', initMercadoPago);
+    // --- Iniciar cuando el DOM esté listo ---
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMercadoPago);
+    } else {
+        initMercadoPago();
+    }
 
-    // Función para manejar el botón de retroceso
-    window.handleBack = function() {
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            // Redirigir a la página principal si no hay historial
-            window.location.href = '/';
+    // --- Prevenir envío accidental del formulario ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-checkout');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                // El evento submit ya es manejado por el cardForm de MP
+                // Este listener adicional es por seguridad
+                const submitBtn = document.getElementById('form-checkout__submit');
+                if (!submitBtn.disabled) {
+                    console.log('Formulario enviado');
+                }
+            });
         }
-    };
+    });
 </script>
 
 </body>
