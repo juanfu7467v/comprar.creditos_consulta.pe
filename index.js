@@ -39,7 +39,6 @@ const logger = {
 function buildServiceAccountFromEnv() {
   logger.info('FIREBASE_CONFIG', 'Construyendo service account desde variables de entorno individuales');
   
-  // Verificar que todas las variables requeridas están presentes
   const requiredVars = [
     'FIREBASE_PRIVATE_KEY',
     'FIREBASE_CLIENT_EMAIL',
@@ -55,12 +54,11 @@ function buildServiceAccountFromEnv() {
   }
   
   try {
-    // Construir el objeto service account usando las variables individuales
     const serviceAccount = {
       "type": process.env.FIREBASE_TYPE || "service_account",
       "project_id": process.env.FIREBASE_PROJECT_ID,
       "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
-      "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Convertir \n a saltos de línea reales
+      "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
       "client_email": process.env.FIREBASE_CLIENT_EMAIL,
       "client_id": process.env.FIREBASE_CLIENT_ID,
       "auth_uri": process.env.FIREBASE_AUTH_URI || "https://accounts.google.com/o/oauth2/auth",
@@ -99,7 +97,6 @@ if (serviceAccount && !admin.apps.length) {
     
     db = admin.firestore();
     
-    // Configurar Firestore
     db.settings({
       ignoreUndefinedProperties: true
     });
@@ -109,7 +106,6 @@ if (serviceAccount && !admin.apps.length) {
       clientEmail: serviceAccount.client_email
     });
     
-    // Verificar conexión a Firestore
     const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
       .then(() => ({ status: 'connected', message: 'Conexión a Firestore exitosa' }))
       .catch(error => ({ status: 'error', message: error.message }));
@@ -122,7 +118,6 @@ if (serviceAccount && !admin.apps.length) {
       clientEmail: serviceAccount?.client_email
     });
     
-    // No salir del proceso, pero registrar el error
     console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarán disponibles.');
   }
 } else if (admin.apps.length) {
@@ -138,7 +133,6 @@ const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fl
 
 if (!MERCADOPAGO_ACCESS_TOKEN) {
   logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no está configurado');
-  // No salimos del proceso para permitir otras funcionalidades
   console.warn('ADVERTENCIA: MERCADOPAGO_ACCESS_TOKEN no configurado. Pagos no disponibles.');
 }
 
@@ -166,10 +160,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     return { status: 'error', message: 'No UID provided' };
   }
 
-  // CORRECCIÓN #1: Asegurar que el paymentRef sea string para consistencia
   const paymentRefString = String(paymentRef);
   
-  // CORRECCIÓN #3: Verificar en cache de memoria primero (idempotencia adicional)
   if (processedPaymentsCache.has(paymentRefString)) {
     logger.warn(context, 'Pago ya procesado en cache de memoria (idempotencia)', { 
       uid, paymentRef: paymentRefString, processor 
@@ -187,14 +179,12 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         uid, paymentRef: paymentRefString, existingData: doc.data() 
       });
       
-      // Agregar a cache de memoria para futuras verificaciones rápidas
       processedPaymentsCache.set(paymentRefString, {
         uid,
         timestamp: new Date().toISOString(),
         processor
       });
       
-      // Configurar limpieza automática del cache después de 1 hora
       setTimeout(() => {
         processedPaymentsCache.delete(paymentRefString);
       }, 60 * 60 * 1000);
@@ -213,7 +203,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       processor,
       fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
       estado: "approved",
-      procesado: false // Flag para seguimiento
+      procesado: false
     });
 
     const userDoc = db.collection("usuarios").doc(uid);
@@ -230,14 +220,11 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       let creditosOtorgados = 0;
       let planOtorgado = null;
       
-      // CORRECCIÓN #4: Obtener créditos actuales del usuario
       const creditosActuales = user.data().creditos || 0;
       logger.info(context, 'Créditos actuales del usuario', { uid, creditosActuales });
 
       if (PAQUETES_CREDITOS[montoNum]) {
         creditosOtorgados = PAQUETES_CREDITOS[montoNum];
-        
-        // CORRECCIÓN #4: Calcular nuevo total sumando créditos existentes
         const nuevosCreditos = creditosActuales + creditosOtorgados;
         
         t.update(userDoc, { 
@@ -270,7 +257,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         descripcion = `Pago de S/ ${montoPagado}`;
       }
       
-      // Actualizar documento de pago con descripción
       t.update(pagoDoc, { 
         descripcion,
         procesado: true,
@@ -291,7 +277,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
-    // Agregar a cache de memoria después de procesar exitosamente
     processedPaymentsCache.set(paymentRefString, {
       uid,
       timestamp: new Date().toISOString(),
@@ -299,7 +284,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       status: 'processed'
     });
     
-    // Configurar limpieza automática del cache después de 1 hora
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
     }, 60 * 60 * 1000);
@@ -310,7 +294,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
   } catch (error) {
     logger.error(context, 'Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
     
-    // Marcar el pago como fallido
     try {
       await pagoDoc.update({
         procesado: false,
@@ -331,7 +314,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 app.get("/api/config", (req, res) => {
   logger.info('API_CONFIG', 'Solicitud de configuración recibida');
   
-  // Construir configuración de Firebase para el cliente
   const firebaseClientConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -354,7 +336,6 @@ app.post("/api/pay", async (req, res) => {
   const context = 'PAYMENT_PROCESS';
   const startTime = Date.now();
   
-  // Verificar si Mercado Pago está configurado
   if (!mpClient) {
     logger.error(context, 'Mercado Pago no configurado');
     return res.status(503).json({
@@ -373,7 +354,6 @@ app.post("/api/pay", async (req, res) => {
       uid, email, amount, payment_method_id, installments
     });
 
-    // Validaciones
     if (!token || !amount || !uid) {
       logger.error(context, 'Datos de pago incompletos', null, req.body);
       return res.status(400).json({ 
@@ -421,25 +401,22 @@ app.post("/api/pay", async (req, res) => {
       processingTime: `${processingTime}ms`
     });
 
-    // Si se aprueba al instante (tarjetas), activamos créditos inmediatamente
     if (result.status === 'approved') {
       logger.info(context, 'Pago aprobado instantáneamente, otorgando beneficios', {
         paymentId: result.id,
         uid
       });
       
-      // CORRECCIÓN #1: Convertir ID a string antes de pasar a otorgarBeneficio
       const beneficioResult = await otorgarBeneficio(
         uid, 
         email, 
         Number(amount), 
         'MP_CARD_INSTANT', 
-        result.id.toString() // Aseguramos que sea string
+        result.id.toString()
       );
       
       logger.info(context, 'Resultado de otorgar beneficio', beneficioResult);
       
-      // Agregar información de créditos otorgados a la respuesta
       result.beneficioOtorgado = beneficioResult.status === 'success';
       if (beneficioResult.creditosOtorgados) {
         result.creditosOtorgados = beneficioResult.creditosOtorgados;
@@ -463,7 +440,6 @@ app.post("/api/pay", async (req, res) => {
       requestBody: req.body
     });
 
-    // Proporcionar un mensaje de error detallado
     let errorMessage = 'Error procesando el pago';
     let errorDetails = {};
     
@@ -471,7 +447,6 @@ app.post("/api/pay", async (req, res) => {
       errorDetails = error.api_response.body;
       errorMessage = errorDetails.message || errorMessage;
       
-      // Log específico de errores de Mercado Pago
       if (errorDetails.cause) {
         logger.error(context, 'Error específico de Mercado Pago', null, {
           cause: errorDetails.cause,
@@ -500,13 +475,11 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
     receivedAt: new Date().toISOString()
   });
 
-  // Verificar si Mercado Pago está configurado
   if (!mpClient) {
     logger.error(context, 'Mercado Pago no configurado, ignorando webhook');
-    return res.sendStatus(200); // Siempre responder 200 a MP
+    return res.sendStatus(200);
   }
 
-  // Escuchar tanto formato nuevo como antiguo
   const isPaymentEvent = webhookData.action?.includes('payment') || webhookData.type === 'payment';
   
   if (isPaymentEvent) {
@@ -515,7 +488,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
       
       if (!paymentId) {
         logger.error(context, 'Payment ID no encontrado en webhook', null, webhookData);
-        return res.sendStatus(200); // Siempre responder 200 a MP
+        return res.sendStatus(200);
       }
 
       logger.info(context, 'Consultando información del pago', { paymentId });
@@ -530,7 +503,6 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
       });
 
       if (paymentInfo.status === "approved") {
-        // Leer metadatos con fallbacks
         const metadata = paymentInfo.metadata || {};
         const uid = metadata.uid;
         const email = metadata.email || paymentInfo.payer?.email;
@@ -546,7 +518,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             email,
             Number(amount),
             'MP_WEBHOOK',
-            paymentId.toString() // CORRECCIÓN #1: Asegurar que sea string
+            paymentId.toString()
           );
 
           logger.info(context, 'Resultado del webhook', {
@@ -583,11 +555,51 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
     });
   }
 
-  // IMPORTANTE: Siempre responder 200 a Mercado Pago
   res.sendStatus(200);
 });
 
-// Nuevo endpoint para generar comprobante
+// NUEVO: Endpoint para obtener información del pago
+app.get("/api/payment/:paymentId", async (req, res) => {
+  const context = 'GET_PAYMENT_INFO';
+  const { paymentId } = req.params;
+  
+  try {
+    logger.info(context, 'Obteniendo información del pago', { paymentId });
+    
+    if (!db) {
+      return res.status(503).json({ error: 'Database not available' });
+    }
+    
+    const pagoDoc = await db.collection("pagos_registrados").doc(paymentId).get();
+    
+    if (!pagoDoc.exists) {
+      logger.warn(context, 'Pago no encontrado', { paymentId });
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+    
+    const pagoData = pagoDoc.data();
+    
+    // Formatear fecha
+    const fechaRegistro = pagoData.fechaRegistro?.toDate() || new Date();
+    
+    res.json({
+      id: paymentId,
+      email: pagoData.email,
+      monto: pagoData.monto,
+      creditos: pagoData.creditosOtorgados || 0,
+      descripcion: pagoData.descripcion,
+      fecha: fechaRegistro.toLocaleDateString('es-PE'),
+      hora: fechaRegistro.toLocaleTimeString('es-PE'),
+      estado: pagoData.estado
+    });
+    
+  } catch (error) {
+    logger.error(context, 'Error obteniendo información del pago', error, { paymentId });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint para generar comprobante
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
   
@@ -601,10 +613,8 @@ app.post("/api/generate-invoice", async (req, res) => {
 
     logger.info(context, 'Generando comprobante', { paymentId, type });
 
-    // En una implementación real, aquí buscarías los datos del pago desde tu DB
-    // Por ahora usamos datos de ejemplo
     const invoiceData = {
-      orderId: paymentId,
+      orderId: String(paymentId),
       date: new Date().toLocaleString('es-PE'),
       email: email || 'cliente@example.com',
       amount: req.body.amount || 10,
@@ -614,9 +624,6 @@ app.post("/api/generate-invoice", async (req, res) => {
       ruc: ruc || '',
       razonSocial: razonSocial || ''
     };
-
-    // CORRECCIÓN #1: Asegurar que el paymentId sea string antes de generar PDF
-    invoiceData.orderId = String(paymentId);
     
     const pdfUrl = await generateInvoicePDF(invoiceData);
     
@@ -672,7 +679,6 @@ app.get("/api/health", async (req, res) => {
     processedPaymentsCacheSize: processedPaymentsCache.size
   };
   
-  // Verificar Firebase más profundamente si está inicializado
   if (db) {
     try {
       await db.collection('_healthcheck').doc('ping').set({
@@ -742,6 +748,7 @@ app.get("/", (req, res) => {
       health: "/api/health",
       webhook: "/api/webhook/mercadopago",
       invoice: "/api/generate-invoice",
+      paymentInfo: "/api/payment/:paymentId",
       debug: "/api/debug/firebase"
     },
     status: "online",
