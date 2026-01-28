@@ -301,10 +301,63 @@
             text-align: center !important;
         }
 
+        /* Nuevos estilos para campos con íconos */
+        .mp-container.with-icon-expiry::before {
+            content: '\f073';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            font-size: 18px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .mp-container.with-icon-expiry iframe {
+            padding-left: 45px !important;
+        }
+
+        .mp-container.with-icon-cvv::before {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            font-size: 18px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .mp-container.with-icon-cvv iframe {
+            padding-left: 45px !important;
+        }
+
         .grid-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
+        }
+
+        /* Contenedor para tipo de documento y número */
+        .document-container {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .document-type-group {
+            margin-bottom: 0;
+        }
+
+        .document-number-group {
+            margin-bottom: 0;
         }
 
         /* Botón Principal */
@@ -402,6 +455,11 @@
             .card-number-display {
                 font-size: 18px;
             }
+            
+            .document-container {
+                grid-template-columns: 100px 1fr;
+                gap: 12px;
+            }
         }
 
         /* Animación de entrada */
@@ -418,6 +476,11 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+        
+        /* Campo oculto */
+        .hidden-field {
+            display: none !important;
         }
     </style>
 </head>
@@ -463,11 +526,11 @@
             <div class="grid-row">
                 <div class="form-group">
                     <label class="label">Válido hasta</label>
-                    <div id="form-checkout__expirationDate" class="mp-container"></div>
+                    <div id="form-checkout__expirationDate" class="mp-container with-icon-expiry"></div>
                 </div>
                 <div class="form-group">
                     <label class="label">CVV</label>
-                    <div id="form-checkout__securityCode" class="mp-container"></div>
+                    <div id="form-checkout__securityCode" class="mp-container with-icon-cvv"></div>
                 </div>
             </div>
 
@@ -482,7 +545,8 @@
                 />
             </div>
 
-            <div class="form-group">
+            <!-- Campo de correo OCULTO -->
+            <div class="form-group hidden-field">
                 <label class="label">Correo electrónico</label>
                 <input 
                     type="email" 
@@ -493,20 +557,26 @@
                 />
             </div>
 
-            <div class="form-group">
-                <label class="label">Tipo de documento</label>
-                <select id="form-checkout__identificationType" class="input-box" required></select>
-            </div>
-
-            <div class="form-group">
-                <label class="label">Número de documento</label>
-                <input 
-                    type="text" 
-                    id="form-checkout__identificationNumber" 
-                    class="input-box" 
-                    placeholder="12345678"
-                    required
-                />
+            <!-- Contenedor para documento - tipo a la izquierda, número a la derecha -->
+            <div class="document-container">
+                <div class="form-group document-type-group">
+                    <label class="label">Tipo de documento</label>
+                    <select id="form-checkout__identificationType" class="input-box" required style="text-align: left; padding-left: 16px;">
+                        <option value="">Seleccionar</option>
+                    </select>
+                </div>
+                
+                <div class="form-group document-number-group">
+                    <label class="label">Número de documento</label>
+                    <input 
+                        type="text" 
+                        id="form-checkout__identificationNumber" 
+                        class="input-box" 
+                        placeholder="12345678"
+                        required
+                        style="text-align: center;"
+                    />
+                </div>
             </div>
 
             <!-- Campos ocultos necesarios para MP -->
@@ -632,7 +702,7 @@
                             return;
                         }
                         
-                        // Prellenar email si viene en URL
+                        // Prellenar email si viene en URL (campo oculto)
                         if (email) {
                             document.getElementById('form-checkout__cardholderEmail').value = email;
                         }
