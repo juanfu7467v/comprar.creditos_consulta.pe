@@ -2,36 +2,52 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pago - Consulta PE</title>
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== VARIABLES Y RESET ===== */
         :root {
-            --primary-blue: #2563eb;
-            --primary-blue-dark: #1d4ed8;
-            --gradient-green-start: #10b981;
-            --gradient-green-end: #059669;
-            --gradient-blue-green: linear-gradient(135deg, #2563eb, #10b981);
-            --error-red: #dc2626;
-            --black: #1e293b;
-            --white: #ffffff;
-            --bg-transparent: rgba(255, 255, 255, 0.95);
-            --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
-            --shadow-3d: 0 20px 40px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
-            --radius-sm: 12px;
-            --radius-md: 16px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
+            /* Colores principales */
+            --primary-blue: #2196F3;
+            --primary-blue-dark: #1976D2;
+            --gradient-green-start: #4CAF50;
+            --gradient-green-end: #2E7D32;
+            
+            /* Colores secundarios */
+            --secondary-red: #F44336;
+            --secondary-black: #212121;
+            
+            /* Colores de fondo y superficie */
+            --bg-transparent: transparent;
+            --surface-1: #FFFFFF;
+            --surface-2: #F5F5F5;
+            --surface-3: #EEEEEE;
+            
+            /* Colores de texto */
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-light: #FFFFFF;
+            
+            /* Sombras y bordes */
+            --shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 24px rgba(0,0,0,0.2);
+            --border-radius-sm: 12px;
+            --border-radius-md: 20px;
+            --border-radius-lg: 28px;
+            --border-radius-xl: 40px;
+            
+            /* Espaciado */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
         }
 
         * {
@@ -39,53 +55,61 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background: var(--bg-transparent);
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
             color: var(--text-primary);
             line-height: 1.5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
             padding-top: var(--safe-top);
             padding-bottom: var(--safe-bottom);
             min-height: 100vh;
-            overflow-x: hidden;
+            position: relative;
         }
 
-        /* Header estilo app móvil Android */
+        /* ===== HEADER ESTILO APP MÓVIL ===== */
         .app-header {
-            background: var(--card-bg);
-            padding: 16px 20px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            padding: calc(12px + var(--safe-top)) 20px 12px;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-medium);
             display: flex;
             align-items: center;
-            gap: 16px;
-            border-bottom: 1px solid var(--border-color);
-            backdrop-filter: blur(10px);
-            background: var(--bg-transparent);
+            gap: var(--spacing-sm);
+            min-height: 60px;
         }
 
-        .back-btn {
-            background: none;
+        .header-back {
+            background: rgba(255, 255, 255, 0.2);
             border: none;
-            font-size: 22px;
-            color: var(--primary-blue);
             width: 44px;
             height: 44px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-light);
+            font-size: 20px;
             cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         }
 
-        .back-btn:active {
-            background: rgba(37, 99, 235, 0.1);
+        .header-back:active {
             transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .header-content {
@@ -95,72 +119,50 @@
         .header-title {
             font-size: 20px;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--text-light);
             line-height: 1.2;
-            background: var(--gradient-blue-green);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .header-subtitle {
             font-size: 14px;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 400;
+            margin-top: 2px;
         }
 
-        /* Pantallas completas */
-        .screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(20px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow-y: auto;
-            padding: 20px;
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ===== CONTENEDOR PRINCIPAL ===== */
+        .app-container {
+            width: 100%;
+            min-height: calc(100vh - 60px - var(--safe-bottom));
+            padding: var(--spacing-sm);
             display: flex;
             flex-direction: column;
         }
 
-        .screen.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        /* Contenedor principal */
-        .main-screen {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            position: relative;
-            padding-top: 80px;
-        }
-
-        .app-container {
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 0 32px;
-        }
-
-        /* Card de resumen 3D */
+        /* ===== TARJETA DE RESUMEN ===== */
         .summary-card {
-            background: var(--card-bg);
-            border-radius: var(--radius-xl);
-            padding: 24px;
-            margin: 0 0 24px;
-            box-shadow: var(--shadow-3d);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: var(--surface-1);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-heavy);
             position: relative;
             overflow: hidden;
-            transform-style: preserve-3d;
+            border: 1px solid rgba(33, 150, 243, 0.1);
+            transform: translateY(0);
             transition: transform 0.3s ease;
         }
 
@@ -175,7 +177,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: var(--gradient-blue-green);
+            background: linear-gradient(90deg, var(--primary-blue), var(--gradient-green-start));
         }
 
         .summary-title {
@@ -190,119 +192,97 @@
             letter-spacing: 0.5px;
         }
 
-        .summary-title i {
-            color: var(--primary-blue);
-            font-size: 16px;
-        }
-
         .summary-amount {
             font-size: 42px;
             font-weight: 800;
             color: var(--primary-blue);
             margin: 12px 0;
-            text-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+            text-shadow: 0 2px 4px rgba(33, 150, 243, 0.1);
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .summary-description {
             font-size: 18px;
             color: var(--text-primary);
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: var(--spacing-sm);
         }
 
-        .summary-badge {
-            background: linear-gradient(135deg, #e0f2fe, #dcfce7);
-            color: var(--primary-blue);
+        .summary-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+            margin-top: var(--spacing-md);
+        }
+
+        .feature-badge {
+            background: linear-gradient(135deg, var(--gradient-green-start), var(--gradient-green-end));
+            color: var(--text-light);
             padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            border-radius: var(--border-radius-xl);
+            font-size: 13px;
             font-weight: 600;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 6px;
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+            box-shadow: var(--shadow-light);
         }
 
-        /* Campos de formulario 3D con íconos */
+        /* ===== SECCIONES DEL FORMULARIO ===== */
         .form-section {
-            background: var(--card-bg);
-            border-radius: var(--radius-xl);
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-3d);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: var(--surface-1);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-medium);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .section-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid rgba(33, 150, 243, 0.1);
         }
 
         .section-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
-            border-radius: var(--radius-md);
+            border-radius: var(--border-radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            color: var(--text-light);
+            font-size: 22px;
+            box-shadow: var(--shadow-medium);
         }
 
         .section-title {
+            flex: 1;
             font-size: 18px;
             font-weight: 700;
             color: var(--text-primary);
-            flex: 1;
         }
 
-        /* Campos 3D mejorados */
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ===== CAMPOS DE FORMULARIO 3D ===== */
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: var(--spacing-lg);
             position: relative;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--primary-blue);
-            font-size: 18px;
-            z-index: 2;
-        }
-
-        .mp-container {
-            height: 56px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            background: white;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .mp-container:focus-within {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 2px 4px rgba(0,0,0,0.05);
-            transform: translateY(-1px);
-        }
-
-        .mp-container.has-icon {
-            padding-left: 52px;
-        }
-
-        .form-label {
+        .field-label {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -312,108 +292,204 @@
             color: var(--text-primary);
         }
 
-        .label-text {
+        .field-label .label-text {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .required {
-            color: var(--error-red);
-            margin-left: 4px;
+        .label-icon {
+            color: var(--primary-blue);
+            font-size: 16px;
         }
 
-        /* Inputs personalizados */
-        input, select {
+        .field-helper {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--surface-2);
+            padding: 4px 8px;
+            border-radius: var(--border-radius-sm);
+            cursor: help;
+            position: relative;
+        }
+
+        .field-helper:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--secondary-black);
+            color: var(--text-light);
+            padding: 8px 12px;
+            border-radius: var(--border-radius-sm);
+            font-size: 12px;
+            width: 200px;
+            margin-top: 8px;
+            z-index: 1000;
+            box-shadow: var(--shadow-heavy);
+            white-space: normal;
+        }
+
+        /* Campos estilo 3D */
+        .field-container {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .field-wrapper {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .field-wrapper:focus-within {
+            transform: translateZ(10px);
+        }
+
+        .field-3d {
             width: 100%;
-            height: 100%;
-            padding: 0 16px;
+            padding: 18px 20px 18px 60px;
             border: none;
-            background: transparent;
+            border-radius: var(--border-radius-md);
             font-size: 16px;
             font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
             color: var(--text-primary);
-            outline: none;
-            border-radius: var(--radius-lg);
-        }
-
-        input.has-icon {
-            padding-left: 52px;
-        }
-
-        .custom-select {
-            position: relative;
-            width: 100%;
-        }
-
-        .custom-select select {
-            appearance: none;
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.05),
+                0 4px 20px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(33, 150, 243, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             -webkit-appearance: none;
             -moz-appearance: none;
-            padding-right: 48px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%232563eb' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            background-size: 20px;
+            appearance: none;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Grid responsive */
-        .grid-2 {
+        .field-3d:focus {
+            outline: none;
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.05),
+                0 6px 30px rgba(33, 150, 243, 0.3),
+                0 0 0 2px var(--primary-blue);
+            background: linear-gradient(135deg, var(--surface-1), var(--surface-2));
+            transform: translateY(-1px);
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-blue);
+            font-size: 20px;
+            z-index: 2;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Campos específicos de Mercado Pago */
+        .mp-field-container {
+            height: 58px;
+            background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+            border-radius: var(--border-radius-md);
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.05),
+                0 4px 20px rgba(0,0,0,0.1),
+                0 0 0 1px rgba(33, 150, 243, 0.1);
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .mp-field-container:focus-within {
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.05),
+                0 6px 30px rgba(33, 150, 243, 0.3),
+                0 0 0 2px var(--primary-blue);
+            transform: translateY(-1px);
+        }
+
+        .mp-field-container iframe {
+            height: 100% !important;
+            width: 100% !important;
+            border: none !important;
+        }
+
+        /* Grid para campos en línea */
+        .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: var(--spacing-md);
         }
 
-        /* Tabs estilo Android */
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-sm);
+            }
+        }
+
+        /* ===== TABS DE COMPROBANTE ===== */
         .invoice-tabs {
             display: flex;
-            background: #f1f5f9;
-            border-radius: var(--radius-lg);
+            background: var(--surface-2);
+            border-radius: var(--border-radius-md);
             padding: 6px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
         }
 
         .invoice-tab {
             flex: 1;
             padding: 14px;
             text-align: center;
-            border-radius: var(--radius-md);
+            border-radius: var(--border-radius-sm);
             font-weight: 600;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 15px;
-            color: var(--text-secondary);
             position: relative;
-            overflow: hidden;
+            z-index: 1;
+            color: var(--text-secondary);
         }
 
         .invoice-tab.active {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            color: var(--primary-blue);
-            transform: translateY(-1px);
+            color: var(--text-light);
         }
 
-        .invoice-tab.active::before {
-            content: '';
+        .tab-slider {
             position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 3px;
-            background: var(--primary-blue);
-            border-radius: 2px;
+            top: 6px;
+            left: 6px;
+            height: calc(100% - 12px);
+            width: calc(50% - 6px);
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            border-radius: var(--border-radius-sm);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-medium);
         }
 
-        /* Botones estilo Android */
+        .invoice-fields {
+            display: none;
+            animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .invoice-fields.active {
+            display: block;
+        }
+
+        /* ===== BOTONES ===== */
         .btn {
             width: 100%;
             padding: 20px 24px;
             border: none;
-            border-radius: var(--radius-xl);
+            border-radius: var(--border-radius-lg);
             font-size: 17px;
             font-weight: 700;
             font-family: 'Inter', sans-serif;
@@ -425,64 +501,218 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:active {
             transform: scale(0.98);
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:active::before {
-            width: 300px;
-            height: 300px;
-        }
-
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
-            color: white;
-            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-            border: none;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
+            color: var(--text-light);
+            box-shadow: 
+                0 6px 20px rgba(33, 150, 243, 0.4),
+                0 2px 4px rgba(0,0,0,0.1);
+            margin-top: var(--spacing-md);
         }
 
         .btn-primary:hover {
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+            box-shadow: 
+                0 8px 30px rgba(33, 150, 243, 0.5),
+                0 4px 8px rgba(0,0,0,0.15);
             transform: translateY(-2px);
         }
 
         .btn-primary:disabled {
-            background: #cbd5e1;
+            background: var(--surface-3);
+            color: var(--text-secondary);
             box-shadow: none;
             cursor: not-allowed;
             transform: none;
         }
 
-        .btn-secondary {
-            background: white;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
+        .btn-primary:disabled::before {
+            display: none;
         }
 
         .btn-icon {
             font-size: 20px;
         }
 
-        /* Animación de carga mejorada */
-        .loading-overlay {
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--text-light);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* ===== PANTALLA DE ÉXITO ===== */
+        .success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .success-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            background: var(--surface-1);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            transform: translateY(40px) scale(0.9);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-heavy);
+            overflow: hidden;
+        }
+
+        .success-screen.active .success-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .success-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--gradient-green-start));
+        }
+
+        .success-icon-wrapper {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-lg);
+            position: relative;
+            box-shadow: 
+                0 10px 40px rgba(33, 150, 243, 0.4),
+                inset 0 4px 20px rgba(255,255,255,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: var(--text-light);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .success-message {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.6;
+        }
+
+        .credits-display {
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            color: var(--text-light);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius-xl);
+            font-size: 24px;
+            font-weight: 800;
+            margin: var(--spacing-lg) 0;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .pdf-preview {
+            background: var(--surface-2);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+            border: 2px dashed var(--primary-blue);
+            text-align: left;
+        }
+
+        .pdf-preview i {
+            color: var(--secondary-red);
+            font-size: 24px;
+            margin-right: var(--spacing-sm);
+        }
+
+        .success-actions {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-lg);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--gradient-green-start), var(--gradient-green-end));
+            color: var(--text-light);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        /* ===== INDICADOR DE CARGA (3 CÍRCULOS) ===== */
+        .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
@@ -494,316 +724,73 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
+            z-index: 3000;
         }
 
-        .loading-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .triple-loader {
+        .triple-spinner {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: var(--spacing-lg);
         }
 
-        .loader-circle {
+        .triple-spinner .circle {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            animation: pulse 1.4s ease-in-out infinite;
+            animation: bounce 1.4s infinite ease-in-out both;
         }
 
-        .loader-circle:nth-child(1) {
-            background: var(--primary-blue);
+        .triple-spinner .circle:nth-child(1) {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-dark));
             animation-delay: -0.32s;
         }
 
-        .loader-circle:nth-child(2) {
-            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+        .triple-spinner .circle:nth-child(2) {
+            background: linear-gradient(135deg, var(--gradient-green-start), var(--gradient-green-end));
             animation-delay: -0.16s;
         }
 
-        .loader-circle:nth-child(3) {
-            background: var(--gradient-green-start);
+        .triple-spinner .circle:nth-child(3) {
+            background: linear-gradient(135deg, var(--secondary-red), #D32F2F);
+            animation-delay: 0s;
         }
 
-        @keyframes pulse {
-            0%, 80%, 100% {
-                transform: scale(0.8);
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: center;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        /* ===== ANIMACIONES ===== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { 
+                transform: scale(0);
                 opacity: 0.5;
-            }
-            40% {
+            } 
+            40% { 
                 transform: scale(1);
                 opacity: 1;
             }
         }
 
-        .loading-text {
-            font-size: 18px;
-            color: var(--text-primary);
-            font-weight: 600;
-            text-align: center;
-            margin-top: 20px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        /* Pantalla de éxito 3D */
-        .success-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 24px;
-            text-align: center;
-        }
-
-        .success-icon-3d {
-            font-size: 120px;
-            margin-bottom: 32px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.3));
-            animation: successPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes successPulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .success-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .success-subtitle {
-            font-size: 18px;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-
-        .credits-display {
-            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
-            color: white;
-            padding: 24px 32px;
-            border-radius: var(--radius-xl);
-            font-size: 28px;
-            font-weight: 800;
-            margin: 32px 0;
-            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            transform-style: preserve-3d;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotateX(0);
-            }
-            50% {
-                transform: translateY(-10px) rotateX(5deg);
-            }
-        }
-
-        .pdf-preview {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin: 32px 0;
-            box-shadow: var(--shadow-3d);
-            border: 1px solid var(--border-color);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .pdf-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .pdf-icon {
-            color: var(--error-red);
-            font-size: 24px;
-        }
-
-        .pdf-info h4 {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .pdf-info p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .pdf-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .btn-pdf {
-            flex: 1;
-            padding: 16px;
-            border-radius: var(--radius-lg);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
-
-        .btn-pdf-primary {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-        }
-
-        .btn-pdf-secondary {
-            background: white;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-        }
-
-        /* Mensajes de error/éxito */
-        .message-container {
-            position: fixed;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 20px 24px;
-            box-shadow: var(--shadow-lg);
-            border-left: 4px solid var(--error-red);
-            max-width: 400px;
-            width: 90%;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .message-container.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .message-container.success {
-            border-left-color: var(--gradient-green-start);
-        }
-
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-
-        .message-icon {
-            font-size: 20px;
-        }
-
-        .message-icon.error {
-            color: var(--error-red);
-        }
-
-        .message-icon.success {
-            color: var(--gradient-green-start);
-        }
-
-        .message-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-primary);
-            flex: 1;
-        }
-
-        .message-content {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .app-container {
-                padding: 0 16px 24px;
-            }
-            
-            .summary-amount {
-                font-size: 36px;
-            }
-            
-            .grid-2 {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            
-            .success-icon-3d {
-                font-size: 100px;
-            }
-            
-            .success-title {
-                font-size: 28px;
-            }
-            
-            .credits-display {
-                font-size: 24px;
-                padding: 20px 24px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .summary-amount {
-                font-size: 32px;
-            }
-            
-            .btn {
-                padding: 18px 20px;
-                font-size: 16px;
-            }
-            
-            .success-icon-3d {
-                font-size: 80px;
-            }
-        }
-
-        /* Animaciones */
         @keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -811,447 +798,528 @@
             }
         }
 
-        .animate-in {
-            animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
+
+        /* ===== EFECTOS DE CONFETI ===== */
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: confetti-fall linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                opacity: 0;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 12px;
+            }
+            
+            .summary-amount {
+                font-size: 36px;
+            }
+            
+            .success-icon-wrapper {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .success-icon {
+                font-size: 50px;
+            }
+            
+            .success-title {
+                font-size: 24px;
+            }
+            
+            .btn {
+                padding: 18px 20px;
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+
+        /* ===== SCROLL PERSONALIZADO ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-blue-dark), var(--gradient-green-end));
+        }
+
+        /* ===== ESTADOS DE ERROR ===== */
+        .error-message {
+            background: linear-gradient(135deg, var(--secondary-red), #D32F2F);
+            color: var(--text-light);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin: var(--spacing-md) 0;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            animation: slideInUp 0.3s ease;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .error-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .error-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ===== UTILIDADES ===== */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .mt-1 { margin-top: var(--spacing-xs); }
+        .mt-2 { margin-top: var(--spacing-sm); }
+        .mt-3 { margin-top: var(--spacing-md); }
+        .mt-4 { margin-top: var(--spacing-lg); }
+        .mb-1 { margin-bottom: var(--spacing-xs); }
+        .mb-2 { margin-bottom: var(--spacing-sm); }
+        .mb-3 { margin-bottom: var(--spacing-md); }
+        .mb-4 { margin-bottom: var(--spacing-lg); }
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease; }
     </style>
 </head>
 <body>
-    <!-- Pantalla principal de pago -->
-    <div class="screen main-screen active" id="paymentScreen">
-        <!-- Header -->
-        <div class="app-header">
-            <button class="back-btn" onclick="goBack()">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <div class="header-content">
-                <div class="header-title">Pago Seguro</div>
-                <div class="header-subtitle">Consulta PE</div>
-            </div>
-            <div style="color: var(--gradient-green-start); font-size: 20px;">
-                <i class="fas fa-lock"></i>
-            </div>
+    <!-- Header estilo app móvil -->
+    <header class="app-header">
+        <button class="header-back" onclick="handleBack()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="header-content">
+            <div class="header-title">Pago Seguro</div>
+            <div class="header-subtitle">Consulta PE • Transacción encriptada</div>
         </div>
+        <div class="header-icon">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+    </header>
 
-        <!-- Contenido principal -->
-        <div class="app-container">
-            <!-- Resumen de compra 3D -->
-            <div class="summary-card animate-in">
-                <div class="summary-title">
-                    <i class="fas fa-shopping-bag"></i>
-                    RESUMEN DE COMPRA
-                </div>
-                <div class="summary-amount" id="displayAmount">S/ 0.00</div>
-                <div class="summary-description" id="displayDescription">Cargando...</div>
-                <div class="summary-badge">
+    <!-- Contenedor principal -->
+    <main class="app-container" id="mainContainer">
+        <!-- Tarjeta de resumen -->
+        <section class="summary-card">
+            <div class="summary-title">
+                <i class="fas fa-shopping-cart"></i>
+                RESUMEN DE COMPRA
+            </div>
+            <div class="summary-amount" id="displayAmount">S/ 0.00</div>
+            <div class="summary-description" id="displayDescription">Cargando paquete...</div>
+            
+            <div class="summary-features">
+                <span class="feature-badge">
                     <i class="fas fa-bolt"></i>
                     Recarga instantánea
+                </span>
+                <span class="feature-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    Pago 100% seguro
+                </span>
+                <span class="feature-badge">
+                    <i class="fas fa-headset"></i>
+                    Soporte 24/7
+                </span>
+            </div>
+        </section>
+
+        <!-- Sección de tipo de comprobante -->
+        <section class="form-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div>
+                    <div class="section-title">Tipo de Comprobante</div>
+                    <div class="section-subtitle">Seleccione el tipo de documento para su pago</div>
                 </div>
             </div>
 
-            <!-- Sección de tipo de comprobante -->
-            <div class="form-section animate-in" style="animation-delay: 0.1s">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="section-title">Tipo de Comprobante</div>
+            <div class="invoice-tabs">
+                <div class="tab-slider" id="tabSlider"></div>
+                <div class="invoice-tab active" data-type="boleta" onclick="selectInvoiceType('boleta')">
+                    <i class="fas fa-user"></i> Boleta
                 </div>
-                
-                <div class="invoice-tabs">
-                    <div class="invoice-tab active" data-type="boleta" onclick="selectInvoiceType('boleta')">
-                        Boleta
-                    </div>
-                    <div class="invoice-tab" data-type="factura" onclick="selectInvoiceType('factura')">
-                        Factura
-                    </div>
+                <div class="invoice-tab" data-type="factura" onclick="selectInvoiceType('factura')">
+                    <i class="fas fa-building"></i> Factura
                 </div>
+            </div>
 
-                <!-- Campos para factura -->
-                <div id="invoiceFields" class="invoice-fields">
-                    <div class="form-group">
-                        <label class="form-label">
-                            <span class="label-text">
-                                <i class="fas fa-id-card"></i>
-                                RUC
-                            </span>
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
+            <!-- Campos para factura -->
+            <div id="facturaFields" class="invoice-fields">
+                <div class="form-group">
+                    <label class="field-label">
+                        <span class="label-text">
+                            <i class="fas fa-id-card label-icon"></i>
+                            RUC
+                        </span>
+                        <span class="field-helper" data-tooltip="Ingrese el RUC de 11 dígitos de su empresa">?</span>
+                    </label>
+                    <div class="field-container">
+                        <div class="field-wrapper">
+                            <input type="text" id="ruc" class="field-3d" placeholder="10XXXXXXX01" maxlength="11" inputmode="numeric">
+                            <div class="field-icon">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <input type="text" 
-                                   id="ruc" 
-                                   class="has-icon"
-                                   placeholder="10XXXXXXX01" 
-                                   maxlength="11"
-                                   oninput="validateRUC(this)">
                         </div>
-                        <div class="field-hint" id="rucHint" style="display: none; color: var(--error-red); font-size: 12px; margin-top: 4px;"></div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">
-                            <span class="label-text">
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">
+                        <span class="label-text">
+                            <i class="fas fa-signature label-icon"></i>
+                            Razón Social
+                        </span>
+                        <span class="field-helper" data-tooltip="Nombre completo de la empresa según SUNAT">?</span>
+                    </label>
+                    <div class="field-container">
+                        <div class="field-wrapper">
+                            <input type="text" id="razonSocial" class="field-3d" placeholder="EMPRESA S.A.C.">
+                            <div class="field-icon">
                                 <i class="fas fa-file-signature"></i>
-                                Razón Social
-                            </span>
-                            <span class="required">*</span>
-                        </label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
-                                <i class="fas fa-briefcase"></i>
                             </div>
-                            <input type="text" 
-                                   id="razonSocial" 
-                                   class="has-icon"
-                                   placeholder="Empresa S.A.C."
-                                   oninput="validateRazonSocial(this)">
                         </div>
-                        <div class="field-hint" id="razonSocialHint" style="display: none; color: var(--error-red); font-size: 12px; margin-top: 4px;"></div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Sección de información de pago -->
-            <div class="form-section animate-in" style="animation-delay: 0.2s">
-                <div class="section-header">
-                    <div class="section-icon">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
+        <!-- Sección de información de pago -->
+        <section class="form-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <div>
                     <div class="section-title">Información de Pago</div>
+                    <div class="section-subtitle">Complete los datos de su tarjeta de forma segura</div>
+                </div>
+            </div>
+
+            <form id="paymentForm" novalidate>
+                <!-- Número de tarjeta -->
+                <div class="form-group">
+                    <label class="field-label">
+                        <span class="label-text">
+                            <i class="fas fa-credit-card label-icon"></i>
+                            Número de Tarjeta
+                        </span>
+                        <span class="field-helper" data-tooltip="Ingrese los 16 dígitos de su tarjeta sin espacios">?</span>
+                    </label>
+                    <div id="cardNumberContainer" class="mp-field-container">
+                        <!-- Mercado Pago iframe se inyectará aquí -->
+                    </div>
                 </div>
 
-                <form id="paymentForm">
-                    <!-- Número de tarjeta -->
+                <!-- Fecha de vencimiento y CVC -->
+                <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">
+                        <label class="field-label">
                             <span class="label-text">
-                                <i class="far fa-credit-card"></i>
-                                Número de Tarjeta
+                                <i class="fas fa-calendar-alt label-icon"></i>
+                                Vencimiento
                             </span>
-                            <span class="required">*</span>
                         </label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
-                                <i class="fas fa-credit-card"></i>
-                            </div>
-                            <div id="cardNumberContainer" class="mp-container has-icon"></div>
-                        </div>
+                        <div id="expirationDateContainer" class="mp-field-container"></div>
                     </div>
 
-                    <!-- Fecha y CVC -->
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="label-text">
-                                    <i class="far fa-calendar-alt"></i>
-                                    Vencimiento
-                                </span>
-                                <span class="required">*</span>
-                            </label>
-                            <div id="expirationDateContainer" class="mp-container"></div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="label-text">
-                                    <i class="fas fa-lock"></i>
-                                    CVC
-                                </span>
-                                <span class="required">*</span>
-                            </label>
-                            <div id="securityCodeContainer" class="mp-container"></div>
-                        </div>
-                    </div>
-
-                    <!-- Nombre del titular -->
                     <div class="form-group">
-                        <label class="form-label">
+                        <label class="field-label">
                             <span class="label-text">
-                                <i class="far fa-user"></i>
-                                Nombre del Titular
+                                <i class="fas fa-lock label-icon"></i>
+                                CVC
                             </span>
-                            <span class="required">*</span>
                         </label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
-                                <i class="fas fa-user-circle"></i>
+                        <div id="securityCodeContainer" class="mp-field-container"></div>
+                    </div>
+                </div>
+
+                <!-- Nombre del titular -->
+                <div class="form-group">
+                    <label class="field-label">
+                        <span class="label-text">
+                            <i class="fas fa-user label-icon"></i>
+                            Nombre del Titular
+                        </span>
+                    </label>
+                    <div class="field-container">
+                        <div class="field-wrapper">
+                            <input type="text" id="cardholderName" class="field-3d" placeholder="JUAN PEREZ GARCIA">
+                            <div class="field-icon">
+                                <i class="fas fa-id-card"></i>
                             </div>
-                            <input type="text" 
-                                   id="cardholderName" 
-                                   class="has-icon"
-                                   placeholder="JUAN PEREZ GARCIA"
-                                   oninput="validateName(this)">
                         </div>
                     </div>
+                </div>
 
-                    <!-- Documento -->
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="label-text">
-                                    <i class="fas fa-id-card"></i>
-                                    Tipo de Documento
-                                </span>
-                                <span class="required">*</span>
-                            </label>
-                            <div class="custom-select">
-                                <select id="identificationType"></select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="label-text">
-                                    <i class="fas fa-hashtag"></i>
-                                    Número
-                                </span>
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrapper">
-                                <div class="input-icon">
-                                    <i class="fas fa-fingerprint"></i>
+                <!-- Documento de identidad -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="field-label">
+                            <span class="label-text">
+                                <i class="fas fa-id-card label-icon"></i>
+                                Tipo de Documento
+                            </span>
+                        </label>
+                        <div class="field-container">
+                            <div class="field-wrapper">
+                                <select id="identificationType" class="field-3d">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="DNI">DNI</option>
+                                    <option value="CI">Carnet Extranjería</option>
+                                    <option value="PAS">Pasaporte</option>
+                                </select>
+                                <div class="field-icon">
+                                    <i class="fas fa-passport"></i>
                                 </div>
-                                <input type="text" 
-                                       id="identificationNumber" 
-                                       class="has-icon"
-                                       placeholder="DNI / CE"
-                                       oninput="validateDocument(this)">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Banco y cuotas -->
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="label-text">
-                                    <i class="fas fa-university"></i>
-                                    Banco Emisor
-                                </span>
-                            </label>
-                            <div class="custom-select">
-                                <select id="issuer"></select>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">
-                                <span class="label-text">
-                                    <i class="fas fa-calendar-check"></i>
-                                    Cuotas
-                                </span>
-                                <span class="required">*</span>
-                            </label>
-                            <div class="custom-select">
-                                <select id="installments"></select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Email -->
                     <div class="form-group">
-                        <label class="form-label">
+                        <label class="field-label">
                             <span class="label-text">
-                                <i class="far fa-envelope"></i>
-                                Correo Electrónico
+                                <i class="fas fa-hashtag label-icon"></i>
+                                Número
                             </span>
-                            <span class="required">*</span>
                         </label>
-                        <div class="input-wrapper">
-                            <div class="input-icon">
+                        <div class="field-container">
+                            <div class="field-wrapper">
+                                <input type="text" id="identificationNumber" class="field-3d" placeholder="DNI / CE">
+                                <div class="field-icon">
+                                    <i class="fas fa-sort-numeric-up"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banco y cuotas -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="field-label">
+                            <span class="label-text">
+                                <i class="fas fa-university label-icon"></i>
+                                Banco Emisor
+                            </span>
+                        </label>
+                        <div class="field-container">
+                            <div class="field-wrapper">
+                                <select id="issuer" class="field-3d">
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                                <div class="field-icon">
+                                    <i class="fas fa-landmark"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label">
+                            <span class="label-text">
+                                <i class="fas fa-calendar-check label-icon"></i>
+                                Cuotas
+                            </span>
+                        </label>
+                        <div class="field-container">
+                            <div class="field-wrapper">
+                                <select id="installments" class="field-3d">
+                                    <option value="1">1 cuota</option>
+                                </select>
+                                <div class="field-icon">
+                                    <i class="fas fa-money-check-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Correo electrónico -->
+                <div class="form-group">
+                    <label class="field-label">
+                        <span class="label-text">
+                            <i class="fas fa-envelope label-icon"></i>
+                            Correo Electrónico
+                        </span>
+                        <span class="field-helper" data-tooltip="Recibirá el comprobante en este correo">?</span>
+                    </label>
+                    <div class="field-container">
+                        <div class="field-wrapper">
+                            <input type="email" id="cardholderEmail" class="field-3d" placeholder="tu@email.com" inputmode="email">
+                            <div class="field-icon">
                                 <i class="fas fa-at"></i>
                             </div>
-                            <input type="email" 
-                                   id="cardholderEmail" 
-                                   class="has-icon"
-                                   placeholder="tu@email.com"
-                                   oninput="validateEmail(this)">
                         </div>
-                        <div class="field-hint" id="emailHint" style="display: none; color: var(--error-red); font-size: 12px; margin-top: 4px;"></div>
                     </div>
-
-                    <!-- Botón de pago -->
-                    <button type="submit" 
-                            id="submitButton" 
-                            class="btn btn-primary"
-                            onclick="processPayment(event)">
-                        <i class="fas fa-lock btn-icon"></i>
-                        CONFIRMAR PAGO SEGURO
-                    </button>
-                </form>
-            </div>
-
-            <!-- Información de seguridad -->
-            <div class="form-section animate-in" style="animation-delay: 0.3s; background: linear-gradient(135deg, #f0f9ff, #f0fdf4);">
-                <div class="section-header">
-                    <div class="section-icon" style="background: linear-gradient(135deg, #0ea5e9, #10b981);">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="section-title">Pago 100% Seguro</div>
                 </div>
-                <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
-                    <p style="margin-bottom: 12px;">
-                        <i class="fas fa-check-circle" style="color: var(--gradient-green-start); margin-right: 8px;"></i>
-                        Tus datos están protegidos con encriptación SSL de 256-bit.
-                    </p>
-                    <p>
-                        <i class="fas fa-check-circle" style="color: var(--gradient-green-start); margin-right: 8px;"></i>
-                        No almacenamos información de tu tarjeta en nuestros servidores.
-                    </p>
+
+                <!-- Botón de pago -->
+                <button type="submit" id="submitButton" class="btn btn-primary">
+                    <i class="fas fa-lock btn-icon"></i>
+                    CONFIRMAR PAGO SEGURO
+                </button>
+            </form>
+        </section>
+
+        <!-- Información de seguridad -->
+        <section class="form-section" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-color: #4CAF50;">
+            <div style="display: flex; align-items: flex-start; gap: var(--spacing-md);">
+                <div style="color: #4CAF50; font-size: 28px; flex-shrink: 0;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <div style="font-weight: 800; color: #2E7D32; margin-bottom: 6px; font-size: 16px;">
+                        <i class="fas fa-check-circle"></i> Pago 100% Seguro
+                    </div>
+                    <div style="font-size: 14px; color: #388E3C; line-height: 1.5;">
+                        <p>✓ Encriptación SSL de 256-bit</p>
+                        <p>✓ No almacenamos datos de tu tarjeta</p>
+                        <p>✓ Certificado PCI DSS Nivel 1</p>
+                        <p>✓ Protección antifraude 24/7</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <!-- Pantalla de éxito -->
-    <div class="screen" id="successScreen">
-        <div class="success-screen">
-            <div class="success-icon-3d">
-                <i class="fas fa-check-circle"></i>
+    <!-- Pantalla de éxito (pantalla completa) -->
+    <div class="success-screen" id="successScreen">
+        <div class="confetti-container" id="confettiContainer"></div>
+        
+        <div class="success-content">
+            <div class="success-icon-wrapper">
+                <i class="fas fa-check-circle success-icon"></i>
             </div>
             
-            <h1 class="success-title">¡Pago Aprobado!</h1>
-            <p class="success-subtitle">Tu pago ha sido procesado exitosamente. Los créditos ya están disponibles en tu cuenta.</p>
+            <h1 class="success-title">¡Pago Exitoso!</h1>
+            <p class="success-message">
+                Tu pago ha sido procesado correctamente. Los créditos han sido acreditados a tu cuenta de manera instantánea.
+            </p>
             
             <div class="credits-display" id="creditsDisplay">
                 <i class="fas fa-gem"></i>
                 <span id="creditsAmount">0</span> Créditos Activados
             </div>
 
-            <!-- Comprobante PDF -->
-            <div class="pdf-preview animate-in" style="animation-delay: 0.2s">
-                <div class="pdf-header">
-                    <div class="pdf-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <div class="pdf-info">
-                        <h4>Comprobante de Pago</h4>
-                        <p id="invoiceInfo">Boleta de Venta #000000</p>
-                    </div>
+            <div class="pdf-preview">
+                <div style="display: flex; align-items: center; margin-bottom: var(--spacing-xs);">
+                    <i class="fas fa-file-pdf"></i>
+                    <span style="font-weight: 600; color: var(--text-primary);">Comprobante de Pago</span>
                 </div>
-                
-                <div class="pdf-actions">
-                    <button class="btn-pdf btn-pdf-primary" onclick="viewReceipt()">
-                        <i class="fas fa-eye"></i>
-                        Ver PDF
-                    </button>
-                    <button class="btn-pdf btn-pdf-secondary" onclick="downloadReceipt()">
-                        <i class="fas fa-download"></i>
-                        Descargar
-                    </button>
+                <div style="font-size: 14px; color: var(--text-secondary);">
+                    <div>N° de Transacción: <span id="transactionNumber" style="font-weight: 600;">---</span></div>
+                    <div>Fecha: <span id="transactionDate" style="font-weight: 600;">--/--/---- --:--</span></div>
                 </div>
             </div>
 
-            <div class="modal-actions" style="width: 100%; max-width: 400px; margin-top: 32px;">
-                <button onclick="goToApp()" class="btn btn-primary">
-                    <i class="fas fa-rocket"></i>
-                    CONTINUAR A LA APP
+            <div class="success-actions">
+                <button onclick="downloadReceipt()" class="btn btn-success">
+                    <i class="fas fa-download"></i>
+                    DESCARGAR COMPROBANTE
+                </button>
+                <button onclick="closeSuccessScreen()" class="btn btn-outline">
+                    VOLVER A LA APLICACIÓN
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Overlay de carga -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="triple-loader">
-            <div class="loader-circle"></div>
-            <div class="loader-circle"></div>
-            <div class="loader-circle"></div>
+    <!-- Indicador de carga con 3 círculos -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="triple-spinner">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
         </div>
         <div class="loading-text" id="loadingText">Conectando con pasarela segura...</div>
     </div>
 
-    <!-- Contenedor de mensajes -->
-    <div class="message-container" id="messageContainer">
-        <div class="message-header">
-            <div class="message-icon error" id="messageIcon">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <div class="message-title" id="messageTitle">Error</div>
-            <button onclick="hideMessage()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer;">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="message-content" id="messageContent"></div>
-    </div>
-
     <script>
-        // Variables globales
+        // ===== VARIABLES GLOBALES =====
+        let mercadoPagoInstance = null;
         let currentPaymentId = null;
         let currentInvoiceType = 'boleta';
         let creditsGranted = 0;
-        let cardForm = null;
-        let mpInstance = null;
-        
-        // Parámetros de la URL
+        let paymentData = null;
+
+        // Obtener parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
-        const amount = urlParams.get('amount') || "10";
+        const amount = parseFloat(urlParams.get('amount') || "10");
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
         const description = urlParams.get('description') || 'Créditos Consulta PE';
 
-        // Mapa de créditos por monto
-        const creditMap = {
-            10: 60, 20: 125, 30: 200, 
-            50: 330, 100: 700, 200: 1500
-        };
+        // ===== FUNCIONES DE INTERFAZ =====
 
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
-        });
-
-        async function initApp() {
-            try {
-                // Mostrar información de la compra
-                updatePurchaseInfo();
-                
-                // Ocultar campos de factura inicialmente
-                hideInvoiceFields();
-                
-                // Prellenar email si está disponible
-                if (email) {
-                    document.getElementById('cardholderEmail').value = email;
+        // Función para manejar el botón de retroceso
+        function handleBack() {
+            if (document.getElementById('successScreen').classList.contains('active')) {
+                closeSuccessScreen();
+            } else if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Si no hay historial, intentar cerrar la ventana o redirigir
+                try {
+                    window.close();
+                } catch (e) {
+                    window.location.href = '/';
                 }
-                
-                // Inicializar Mercado Pago
-                await initMercadoPago();
-                
-                // Configurar validaciones en tiempo real
-                setupRealTimeValidation();
-                
-            } catch (error) {
-                console.error('Error inicializando app:', error);
-                showMessage('Error de inicialización', 'No se pudo cargar la configuración del pago', 'error');
             }
         }
 
-        function updatePurchaseInfo() {
-            const amountNum = parseFloat(amount);
-            document.getElementById('displayAmount').textContent = `S/ ${amountNum.toFixed(2)}`;
-            document.getElementById('displayDescription').textContent = description;
-            
-            // Mostrar créditos que se obtendrán
-            const credits = creditMap[amountNum] || 0;
-            if (credits > 0) {
-                const descriptionElement = document.getElementById('displayDescription');
-                descriptionElement.innerHTML += `<div style="font-size: 14px; color: var(--gradient-green-start); margin-top: 8px; font-weight: 600;">
-                    <i class="fas fa-gem"></i> Obtendrás ${credits} créditos
-                </div>`;
-            }
-        }
-
-        function hideInvoiceFields() {
-            document.getElementById('invoiceFields').style.display = 'none';
-        }
-
-        function showInvoiceFields() {
-            document.getElementById('invoiceFields').style.display = 'block';
-        }
-
+        // Función para seleccionar tipo de comprobante
         function selectInvoiceType(type) {
             currentInvoiceType = type;
             
@@ -1263,171 +1331,315 @@
                 }
             });
             
-            // Mostrar/ocultar campos
-            if (type === 'factura') {
-                showInvoiceFields();
+            // Mover slider
+            const tabSlider = document.getElementById('tabSlider');
+            if (type === 'boleta') {
+                tabSlider.style.transform = 'translateX(0)';
             } else {
-                hideInvoiceFields();
-            }
-        }
-
-        // Validaciones en tiempo real
-        function setupRealTimeValidation() {
-            // RUC validation
-            document.getElementById('ruc').addEventListener('blur', function(e) {
-                validateRUC(e.target);
-            });
-            
-            // Razón Social validation
-            document.getElementById('razonSocial').addEventListener('blur', function(e) {
-                validateRazonSocial(e.target);
-            });
-            
-            // Email validation
-            document.getElementById('cardholderEmail').addEventListener('blur', function(e) {
-                validateEmail(e.target);
-            });
-            
-            // Cardholder Name validation
-            document.getElementById('cardholderName').addEventListener('blur', function(e) {
-                validateName(e.target);
-            });
-            
-            // Document validation
-            document.getElementById('identificationNumber').addEventListener('blur', function(e) {
-                validateDocument(e.target);
-            });
-        }
-
-        function validateRUC(input) {
-            const value = input.value.trim();
-            const hint = document.getElementById('rucHint');
-            
-            if (currentInvoiceType !== 'factura') return true;
-            
-            if (!value) {
-                hint.textContent = 'El RUC es requerido para factura';
-                hint.style.display = 'block';
-                return false;
+                tabSlider.style.transform = 'translateX(calc(100% + 6px))';
             }
             
-            if (!/^\d{11}$/.test(value)) {
-                hint.textContent = 'El RUC debe tener 11 dígitos';
-                hint.style.display = 'block';
-                return false;
-            }
-            
-            hint.style.display = 'none';
-            return true;
-        }
-
-        function validateRazonSocial(input) {
-            const value = input.value.trim();
-            const hint = document.getElementById('razonSocialHint');
-            
-            if (currentInvoiceType !== 'factura') return true;
-            
-            if (!value) {
-                hint.textContent = 'La razón social es requerida';
-                hint.style.display = 'block';
-                return false;
-            }
-            
-            if (value.length < 3) {
-                hint.textContent = 'La razón social debe tener al menos 3 caracteres';
-                hint.style.display = 'block';
-                return false;
-            }
-            
-            hint.style.display = 'none';
-            return true;
-        }
-
-        function validateEmail(input) {
-            const value = input.value.trim();
-            const hint = document.getElementById('emailHint');
-            
-            if (!value) {
-                hint.textContent = 'El email es requerido';
-                hint.style.display = 'block';
-                return false;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value)) {
-                hint.textContent = 'Ingrese un email válido';
-                hint.style.display = 'block';
-                return false;
-            }
-            
-            hint.style.display = 'none';
-            return true;
-        }
-
-        function validateName(input) {
-            const value = input.value.trim();
-            if (!value || value.length < 3) {
-                return false;
-            }
-            return true;
-        }
-
-        function validateDocument(input) {
-            const value = input.value.trim();
-            const type = document.getElementById('identificationType').value;
-            
-            if (!value) return false;
-            
-            if (type === 'DNI') {
-                return /^\d{8}$/.test(value);
-            } else if (type === 'CI') {
-                return /^\d{7,10}$/.test(value);
-            }
-            
-            return true;
-        }
-
-        async function initMercadoPago() {
-            try {
-                // Obtener configuración
-                const config = await fetchConfig();
+            // Mostrar/ocultar campos de factura
+            const facturaFields = document.getElementById('facturaFields');
+            if (type === 'factura') {
+                facturaFields.classList.add('active');
                 
-                if (!config.mercadopagoPublicKey) {
-                    throw new Error('No se pudo obtener la clave pública de Mercado Pago');
+                // Validar campos requeridos si están visibles
+                const rucInput = document.getElementById('ruc');
+                const razonSocialInput = document.getElementById('razonSocial');
+                
+                if (rucInput && !rucInput.value.trim()) {
+                    showError('Por favor, ingrese el RUC para la factura');
+                }
+                if (razonSocialInput && !razonSocialInput.value.trim()) {
+                    showError('Por favor, ingrese la Razón Social para la factura');
+                }
+            } else {
+                facturaFields.classList.remove('active');
+            }
+        }
+
+        // Función para mostrar pantalla de éxito
+        function showSuccessScreen(paymentInfo) {
+            paymentData = paymentInfo;
+            
+            // Actualizar información en la pantalla de éxito
+            if (paymentInfo.creditosOtorgados) {
+                creditsGranted = paymentInfo.creditosOtorgados;
+                document.getElementById('creditsAmount').textContent = creditsGranted;
+                
+                // Calcular créditos basados en el monto si no vienen del servidor
+                const creditMap = {
+                    10: 60, 20: 125, 30: 200, 
+                    50: 330, 100: 700, 200: 1500
+                };
+                
+                if (!creditsGranted && creditMap[parseInt(amount)]) {
+                    creditsGranted = creditMap[parseInt(amount)];
+                    document.getElementById('creditsAmount').textContent = creditsGranted;
+                }
+            }
+            
+            if (paymentInfo.id) {
+                currentPaymentId = paymentInfo.id;
+                document.getElementById('transactionNumber').textContent = paymentInfo.id;
+            }
+            
+            // Actualizar fecha
+            const now = new Date();
+            document.getElementById('transactionDate').textContent = 
+                `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} ` +
+                `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            // Mostrar pantalla de éxito
+            document.getElementById('successScreen').classList.add('active');
+            
+            // Crear efecto de confeti
+            createConfetti();
+            
+            // Ocultar el contenido principal
+            document.getElementById('mainContainer').style.display = 'none';
+        }
+
+        // Función para cerrar pantalla de éxito
+        function closeSuccessScreen() {
+            document.getElementById('successScreen').classList.remove('active');
+            document.getElementById('mainContainer').style.display = 'block';
+            
+            // Redirigir de vuelta a la aplicación
+            setTimeout(() => {
+                // Para app nativa de Android
+                if (window.AndroidInterface) {
+                    window.AndroidInterface.paymentCompleted(creditsGranted);
+                } else {
+                    // Para navegador web
+                    window.location.href = `app://payment-success?credits=${creditsGranted}&paymentId=${currentPaymentId}`;
+                }
+            }, 300);
+        }
+
+        // Función para crear efecto de confeti
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = [
+                '#2196F3', '#4CAF50', '#F44336', '#FF9800', 
+                '#9C27B0', '#00BCD4', '#FFEB3B', '#795548'
+            ];
+            
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = confetti.style.width;
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                confetti.style.animationDelay = `${Math.random() * 1}s`;
+                
+                container.appendChild(confetti);
+                
+                // Remover después de la animación
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Función para descargar comprobante
+        async function downloadReceipt() {
+            const downloadBtn = document.querySelector('#successScreen .btn-success');
+            const originalContent = downloadBtn.innerHTML;
+            
+            try {
+                downloadBtn.innerHTML = '<div class="btn-loading"></div>';
+                downloadBtn.disabled = true;
+                
+                // Preparar datos para el comprobante
+                const invoiceData = {
+                    paymentId: currentPaymentId,
+                    type: currentInvoiceType,
+                    amount: amount,
+                    credits: creditsGranted,
+                    description: description,
+                    email: document.getElementById('cardholderEmail').value || email,
+                    date: new Date().toISOString()
+                };
+                
+                // Agregar datos de factura si corresponde
+                if (currentInvoiceType === 'factura') {
+                    invoiceData.ruc = document.getElementById('ruc').value;
+                    invoiceData.razonSocial = document.getElementById('razonSocial').value;
+                    
+                    // Validar datos de factura
+                    if (!invoiceData.ruc || !invoiceData.razonSocial) {
+                        throw new Error('Por favor, complete los datos de facturación');
+                    }
                 }
                 
-                // Inicializar SDK de Mercado Pago
-                mpInstance = new MercadoPago(config.mercadopagoPublicKey, {
+                // Solicitar generación del comprobante
+                const response = await fetch('/api/generate-invoice', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(invoiceData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error generando comprobante');
+                }
+                
+                const result = await response.json();
+                
+                if (result.pdfUrl) {
+                    // Abrir PDF en nueva ventana
+                    window.open(result.pdfUrl, '_blank');
+                    
+                    // También iniciar descarga automática
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = result.downloadUrl || result.pdfUrl;
+                    downloadLink.download = `comprobante_${currentPaymentId}.pdf`;
+                    downloadLink.style.display = 'none';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // Mostrar mensaje de éxito
+                    showToast('Comprobante descargado exitosamente');
+                } else {
+                    throw new Error('URL del comprobante no disponible');
+                }
+                
+            } catch (error) {
+                console.error('Error al descargar comprobante:', error);
+                showError(`Error al generar comprobante: ${error.message}`);
+            } finally {
+                downloadBtn.innerHTML = originalContent;
+                downloadBtn.disabled = false;
+            }
+        }
+
+        // Función para mostrar mensajes de error
+        function showError(message, duration = 5000) {
+            // Remover error anterior si existe
+            const existingError = document.querySelector('.error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Crear nuevo mensaje de error
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-circle error-icon"></i>
+                <div class="error-text">${message}</div>
+            `;
+            
+            // Insertar después del header
+            const header = document.querySelector('.app-header');
+            header.parentNode.insertBefore(errorDiv, header.nextSibling);
+            
+            // Auto-remover después de la duración
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.remove();
+                }
+            }, duration);
+            
+            // Scroll al mensaje de error
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Función para mostrar toast
+        function showToast(message) {
+            // Crear toast
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%) translateY(100px);
+                background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+                color: white;
+                padding: 12px 24px;
+                border-radius: var(--border-radius-lg);
+                font-weight: 600;
+                z-index: 4000;
+                box-shadow: var(--shadow-heavy);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                white-space: nowrap;
+            `;
+            toast.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Animar entrada
+            setTimeout(() => {
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            
+            // Auto-remover después de 3 segundos
+            setTimeout(() => {
+                toast.style.transform = 'translateX(-50%) translateY(100px)';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // ===== INICIALIZACIÓN DE MERCADO PAGO =====
+        async function initializePayment() {
+            try {
+                // Mostrar información inicial
+                document.getElementById('displayAmount').textContent = `S/ ${amount.toFixed(2)}`;
+                document.getElementById('displayDescription').textContent = description;
+                
+                // Inicializar tipo de comprobante
+                selectInvoiceType('boleta');
+                
+                // Ocultar pantalla de carga inicial
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                }, 500);
+                
+                // Obtener configuración de la API
+                document.getElementById('loadingText').textContent = 'Obteniendo configuración...';
+                
+                const configResponse = await fetch('/api/config');
+                if (!configResponse.ok) {
+                    throw new Error('Error en la configuración del servidor');
+                }
+                
+                const config = await configResponse.json();
+                
+                // Prellenar email si está disponible
+                if (email) {
+                    document.getElementById('cardholderEmail').value = email;
+                }
+                
+                // Inicializar Mercado Pago
+                document.getElementById('loadingText').textContent = 'Inicializando pasarela de pago...';
+                
+                mercadoPagoInstance = new MercadoPago(config.mercadopagoPublicKey, {
                     locale: 'es-PE',
                     advancedFraudPrevention: true
                 });
                 
-                // Inicializar formulario de tarjeta
-                initCardForm();
-                
-            } catch (error) {
-                console.error('Error inicializando Mercado Pago:', error);
-                showMessage('Error de conexión', 'No se pudo conectar con el servicio de pagos', 'error');
-                throw error;
-            }
-        }
-
-        async function fetchConfig() {
-            try {
-                const response = await fetch('/api/config');
-                if (!response.ok) throw new Error('Error en la configuración');
-                return await response.json();
-            } catch (error) {
-                console.error('Error obteniendo configuración:', error);
-                throw error;
-            }
-        }
-
-        function initCardForm() {
-            try {
-                cardForm = mpInstance.cardForm({
-                    amount: amount,
-                    autoMount: true,
+                // Configurar formulario de tarjeta
+                const cardForm = mercadoPagoInstance.cardForm({
+                    amount: amount.toString(),
+                    iframe: true,
                     form: {
                         id: 'paymentForm',
                         cardNumber: {
@@ -1444,11 +1656,17 @@
                         },
                         cardholderName: {
                             id: 'cardholderName',
-                            placeholder: 'Nombre como en la tarjeta'
+                            placeholder: 'Nombre como aparece en la tarjeta'
                         },
                         cardholderEmail: {
                             id: 'cardholderEmail',
-                            placeholder: 'Email para el comprobante'
+                            placeholder: 'tu@email.com'
+                        },
+                        issuer: {
+                            id: 'issuer'
+                        },
+                        installments: {
+                            id: 'installments'
                         },
                         identificationType: {
                             id: 'identificationType'
@@ -1456,331 +1674,230 @@
                         identificationNumber: {
                             id: 'identificationNumber',
                             placeholder: 'Número de documento'
-                        },
-                        issuer: {
-                            id: 'issuer'
-                        },
-                        installments: {
-                            id: 'installments'
                         }
                     },
                     callbacks: {
                         onFormMounted: (error) => {
                             if (error) {
                                 console.error('Error montando formulario:', error);
-                                showMessage('Error', 'No se pudo cargar el formulario de pago', 'error');
+                                showError('Error al cargar el formulario de pago');
                             } else {
-                                console.log('Formulario de pago cargado correctamente');
+                                console.log('Formulario montado correctamente');
+                                // Ocultar pantalla de carga completamente
+                                document.getElementById('loadingScreen').style.display = 'none';
                             }
                         },
-                        onCardTokenReceived: (error, token) => {
-                            if (error) {
-                                console.error('Error generando token:', error);
-                                hideLoading();
-                                showMessage('Error en tarjeta', 'Revisa los datos de tu tarjeta', 'error');
-                            } else {
-                                processPaymentWithToken(token);
-                            }
-                        },
+                        
                         onFetching: (resource) => {
-                            console.log('Cargando:', resource);
+                            console.log('Cargando recurso:', resource);
+                            // Mostrar carga específica si es necesario
+                        },
+                        
+                        onSubmit: async (event) => {
+                            event.preventDefault();
+                            
+                            const submitButton = document.getElementById('submitButton');
+                            const originalContent = submitButton.innerHTML;
+                            
+                            try {
+                                // Validar formulario
+                                if (!validateForm()) {
+                                    return;
+                                }
+                                
+                                // Mostrar carga
+                                submitButton.innerHTML = '<div class="btn-loading"></div>';
+                                submitButton.disabled = true;
+                                
+                                // Obtener datos del formulario
+                                const formData = cardForm.getCardFormData();
+                                
+                                // Mostrar pantalla de carga
+                                document.getElementById('loadingScreen').style.display = 'flex';
+                                document.getElementById('loadingText').textContent = 'Procesando pago...';
+                                
+                                // Preparar datos para el pago
+                                const paymentRequest = {
+                                    token: formData.token,
+                                    amount: amount,
+                                    description: description,
+                                    installments: parseInt(formData.installments),
+                                    payment_method_id: formData.paymentMethodId,
+                                    issuer_id: formData.issuerId ? parseInt(formData.issuerId) : null,
+                                    email: formData.cardholderEmail,
+                                    identificationType: formData.identificationType,
+                                    identificationNumber: formData.identificationNumber,
+                                    uid: uid,
+                                    invoiceType: currentInvoiceType
+                                };
+                                
+                                // Agregar datos de factura si corresponde
+                                if (currentInvoiceType === 'factura') {
+                                    paymentRequest.ruc = document.getElementById('ruc').value;
+                                    paymentRequest.razonSocial = document.getElementById('razonSocial').value;
+                                }
+                                
+                                // Enviar pago al servidor
+                                const response = await fetch('/api/pay', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify(paymentRequest)
+                                });
+                                
+                                const result = await response.json();
+                                
+                                if (!response.ok) {
+                                    throw new Error(result.error || 'Error en el pago');
+                                }
+                                
+                                // Ocultar pantalla de carga
+                                document.getElementById('loadingScreen').style.display = 'none';
+                                
+                                if (result.status === 'approved') {
+                                    // Pago aprobado exitosamente
+                                    showSuccessScreen(result);
+                                } else {
+                                    // Pago no aprobado
+                                    showError(`Pago ${result.status}: ${result.status_detail || 'Rechazado por el banco'}`);
+                                }
+                                
+                            } catch (error) {
+                                console.error('Error en el pago:', error);
+                                document.getElementById('loadingScreen').style.display = 'none';
+                                showError(`Error procesando el pago: ${error.message}`);
+                            } finally {
+                                submitButton.innerHTML = originalContent;
+                                submitButton.disabled = false;
+                            }
+                        },
+                        
+                        onError: (error) => {
+                            console.error('Error en formulario de Mercado Pago:', error);
+                            showError(`Error en los datos de la tarjeta: ${error.message}`);
                         }
                     }
                 });
                 
             } catch (error) {
-                console.error('Error inicializando formulario:', error);
-                showMessage('Error', 'No se pudo inicializar el formulario de pago', 'error');
-                throw error;
+                console.error('Error inicializando el pago:', error);
+                showError('Error de configuración: ' + error.message);
+                document.getElementById('loadingScreen').style.display = 'none';
             }
         }
 
-        async function processPayment(event) {
-            event.preventDefault();
+        // Función para validar el formulario
+        function validateForm() {
+            // Validar campos requeridos
+            const requiredFields = [
+                { id: 'cardholderName', name: 'Nombre del titular' },
+                { id: 'cardholderEmail', name: 'Correo electrónico' },
+                { id: 'identificationType', name: 'Tipo de documento' },
+                { id: 'identificationNumber', name: 'Número de documento' }
+            ];
             
-            // Validar formulario completo
-            if (!validateCompleteForm()) {
-                return;
-            }
-            
-            // Mostrar loading
-            showLoading('Procesando pago...');
-            
-            try {
-                // Generar token de tarjeta
-                const formData = cardForm.getCardFormData();
-                
-                if (!formData) {
-                    throw new Error('No se pudieron obtener los datos del formulario');
+            for (const field of requiredFields) {
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    showError(`Por favor, complete el campo: ${field.name}`);
+                    element?.focus();
+                    return false;
                 }
-                
-                // El token se obtendrá automáticamente vía onCardTokenReceived
-                
-            } catch (error) {
-                console.error('Error procesando pago:', error);
-                hideLoading();
-                showMessage('Error', 'Error al procesar el pago: ' + error.message, 'error');
-            }
-        }
-
-        function validateCompleteForm() {
-            let isValid = true;
-            const errors = [];
-            
-            // Validar campos básicos
-            if (!validateEmail(document.getElementById('cardholderEmail'))) {
-                errors.push('Email inválido');
-                isValid = false;
             }
             
-            if (!validateName(document.getElementById('cardholderName'))) {
-                errors.push('Nombre del titular requerido');
-                isValid = false;
+            // Validar email
+            const email = document.getElementById('cardholderEmail').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Por favor, ingrese un correo electrónico válido');
+                document.getElementById('cardholderEmail').focus();
+                return false;
             }
             
-            if (!validateDocument(document.getElementById('identificationNumber'))) {
-                errors.push('Número de documento inválido');
-                isValid = false;
-            }
-            
-            // Validar campos de factura si es necesario
+            // Validar datos de factura si está seleccionado
             if (currentInvoiceType === 'factura') {
-                if (!validateRUC(document.getElementById('ruc'))) {
-                    errors.push('RUC inválido');
-                    isValid = false;
+                const ruc = document.getElementById('ruc').value;
+                const razonSocial = document.getElementById('razonSocial').value;
+                
+                if (!ruc || !ruc.trim()) {
+                    showError('Por favor, ingrese el RUC para la factura');
+                    document.getElementById('ruc').focus();
+                    return false;
                 }
                 
-                if (!validateRazonSocial(document.getElementById('razonSocial'))) {
-                    errors.push('Razón social requerida');
-                    isValid = false;
+                if (!razonSocial || !razonSocial.trim()) {
+                    showError('Por favor, ingrese la Razón Social para la factura');
+                    document.getElementById('razonSocial').focus();
+                    return false;
+                }
+                
+                // Validar formato de RUC (11 dígitos para Perú)
+                const rucRegex = /^[0-9]{11}$/;
+                if (!rucRegex.test(ruc.replace(/\D/g, ''))) {
+                    showError('El RUC debe tener 11 dígitos');
+                    document.getElementById('ruc').focus();
+                    return false;
                 }
             }
             
-            if (!isValid) {
-                showMessage('Error de validación', errors.join(', '), 'error');
-            }
-            
-            return isValid;
+            return true;
         }
 
-        async function processPaymentWithToken(token) {
-            try {
-                const formData = cardForm.getCardFormData();
-                
-                // Preparar datos para el pago
-                const paymentData = {
-                    token: token,
-                    amount: amount,
-                    description: description,
-                    installments: formData.installments,
-                    payment_method_id: formData.paymentMethodId,
-                    issuer_id: formData.issuerId,
-                    email: formData.cardholderEmail,
-                    identificationType: formData.identificationType,
-                    identificationNumber: formData.identificationNumber,
-                    uid: uid,
-                    invoiceType: currentInvoiceType,
-                    ruc: currentInvoiceType === 'factura' ? document.getElementById('ruc').value : null,
-                    razonSocial: currentInvoiceType === 'factura' ? document.getElementById('razonSocial').value : null
-                };
-                
-                // Enviar pago al servidor
-                const response = await fetch('/api/pay', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(paymentData)
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.error || 'Error en el pago');
+        // ===== INICIALIZACIÓN =====
+        document.addEventListener('DOMContentLoaded', () => {
+            // Asegurar que la interfaz ocupe toda la pantalla
+            document.documentElement.style.height = '100%';
+            document.body.style.height = '100%';
+            
+            // Inicializar el sistema de pago
+            initializePayment();
+            
+            // Manejar el evento de beforeunload
+            window.addEventListener('beforeunload', () => {
+                if (document.getElementById('loadingScreen').style.display !== 'none') {
+                    return '¿Está seguro de que desea salir? El pago podría estar en proceso.';
                 }
-                
-                hideLoading();
-                
-                if (result.status === 'approved') {
-                    currentPaymentId = result.id;
-                    
-                    // Mostrar pantalla de éxito
-                    showSuccessScreen(result);
-                } else {
-                    showMessage('Pago rechazado', 
-                        result.status_detail || 'El pago no pudo ser procesado', 
-                        'error');
+            });
+            
+            // Manejar cambios en la orientación
+            window.addEventListener('orientationchange', () => {
+                // Forzar redibujado en algunos dispositivos
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                }, 100);
+            });
+            
+            // Prevenir zoom con doble toque
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', (event) => {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
                 }
-                
-            } catch (error) {
-                console.error('Error procesando pago:', error);
-                hideLoading();
-                showMessage('Error', 'Error al procesar el pago: ' + error.message, 'error');
-            }
-        }
-
-        function showSuccessScreen(paymentResult) {
-            // Calcular créditos otorgados
-            const credits = creditMap[parseInt(amount)] || 0;
-            creditsGranted = credits;
-            
-            // Actualizar display de créditos
-            document.getElementById('creditsAmount').textContent = credits;
-            
-            // Actualizar información del comprobante
-            const invoiceTypeText = currentInvoiceType === 'boleta' ? 'Boleta de Venta' : 'Factura';
-            document.getElementById('invoiceInfo').textContent = `${invoiceTypeText} #${paymentResult.id}`;
-            
-            // Cambiar a pantalla de éxito
-            document.getElementById('paymentScreen').classList.remove('active');
-            document.getElementById('successScreen').classList.add('active');
-            
-            // Animar entrada
-            setTimeout(() => {
-                const elements = document.querySelectorAll('#successScreen .animate-in');
-                elements.forEach((el, index) => {
-                    el.style.animationDelay = `${index * 0.1}s`;
-                    el.classList.add('animate-in');
-                });
-            }, 100);
-        }
-
-        async function generateReceipt() {
-            try {
-                showLoading('Generando comprobante...');
-                
-                const invoiceData = {
-                    paymentId: currentPaymentId,
-                    type: currentInvoiceType,
-                    amount: parseFloat(amount),
-                    credits: creditsGranted,
-                    description: description,
-                    email: document.getElementById('cardholderEmail').value
-                };
-                
-                // Agregar datos de factura si corresponde
-                if (currentInvoiceType === 'factura') {
-                    invoiceData.ruc = document.getElementById('ruc').value;
-                    invoiceData.razonSocial = document.getElementById('razonSocial').value;
-                }
-                
-                const response = await fetch('/api/generate-invoice', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(invoiceData)
-                });
-                
-                const result = await response.json();
-                
-                hideLoading();
-                
-                if (!result.success) {
-                    throw new Error(result.error || 'Error generando comprobante');
-                }
-                
-                return result;
-                
-            } catch (error) {
-                console.error('Error generando comprobante:', error);
-                hideLoading();
-                showMessage('Error', 'No se pudo generar el comprobante', 'error');
-                throw error;
-            }
-        }
-
-        async function viewReceipt() {
-            try {
-                const result = await generateReceipt();
-                window.open(result.pdfUrl, '_blank');
-            } catch (error) {
-                // El error ya fue manejado en generateReceipt
-            }
-        }
-
-        async function downloadReceipt() {
-            try {
-                const result = await generateReceipt();
-                
-                // Crear enlace de descarga
-                const downloadLink = document.createElement('a');
-                downloadLink.href = result.downloadUrl;
-                downloadLink.download = `comprobante_${currentPaymentId}.pdf`;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
-                
-            } catch (error) {
-                // El error ya fue manejado en generateReceipt
-            }
-        }
-
-        function goToApp() {
-            // Redirigir a la app principal
-            window.location.href = `app://payment-success?credits=${creditsGranted}&paymentId=${currentPaymentId}`;
-        }
-
-        function goBack() {
-            if (document.getElementById('successScreen').classList.contains('active')) {
-                // Si estamos en la pantalla de éxito, volver a la de pago
-                document.getElementById('successScreen').classList.remove('active');
-                document.getElementById('paymentScreen').classList.add('active');
-            } else {
-                // Si estamos en la pantalla de pago, ir atrás en el historial
-                window.history.back();
-            }
-        }
-
-        // Funciones de utilidad
-        function showLoading(message) {
-            document.getElementById('loadingText').textContent = message;
-            document.getElementById('loadingOverlay').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('active');
-        }
-
-        function showMessage(title, content, type = 'error') {
-            const container = document.getElementById('messageContainer');
-            const icon = document.getElementById('messageIcon');
-            const titleElement = document.getElementById('messageTitle');
-            const contentElement = document.getElementById('messageContent');
-            
-            // Configurar tipo
-            if (type === 'success') {
-                container.classList.add('success');
-                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
-            } else {
-                container.classList.remove('success');
-                icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
-            }
-            
-            // Configurar contenido
-            titleElement.textContent = title;
-            contentElement.textContent = content;
-            
-            // Mostrar
-            container.classList.add('show');
-            
-            // Ocultar automáticamente después de 5 segundos
-            setTimeout(() => {
-                hideMessage();
-            }, 5000);
-        }
-
-        function hideMessage() {
-            document.getElementById('messageContainer').classList.remove('show');
-        }
-
-        // Manejar errores no capturados
-        window.addEventListener('error', function(event) {
-            console.error('Error no capturado:', event.error);
-            showMessage('Error inesperado', 'Ocurrió un error inesperado. Por favor, intenta nuevamente.', 'error');
+                lastTouchEnd = now;
+            }, { passive: false });
         });
 
-        // Manejar promesas no capturadas
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('Promesa no capturada:', event.reason);
-            showMessage('Error de sistema', 'Ocurrió un error inesperado. Por favor, intenta nuevamente.', 'error');
-        });
+        // ===== COMPATIBILIDAD CON APPS NATIVAS =====
+        // Interfaz para comunicación con Android
+        if (typeof AndroidInterface !== 'undefined') {
+            window.paymentCompleted = function(credits) {
+                if (window.AndroidInterface) {
+                    window.AndroidInterface.paymentCompleted(credits);
+                }
+            };
+        }
+
+        // Detectar si estamos en una app nativa
+        const isInApp = navigator.userAgent.includes('ConsultaPE') || 
+                       navigator.userAgent.includes('Android') || 
+                       window.AndroidInterface;
+
+        if (isInApp) {
+            document.body.classList.add('in-app');
+        }
     </script>
 </body>
 </html>
