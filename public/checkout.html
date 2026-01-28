@@ -725,7 +725,7 @@
     <!-- ========== PANTALLA DE CHECKOUT (INICIAL) ========== -->
     <div id="checkoutScreen">
         <div class="header">
-            <i class="fas fa-arrow-left back-btn" id="backToAppBtn"></i>
+            <i class="fas fa-arrow-left back-btn" onclick="goBack()"></i>
             <div class="header-title">Datos de Pago</div>
         </div>
 
@@ -833,7 +833,7 @@
     <!-- ========== PANTALLA DE PAGO EXITOSO ========== -->
     <div id="successScreen" class="hidden">
         <div class="header">
-            <i class="fas fa-times back-btn" id="backFromSuccessBtn"></i>
+            <i class="fas fa-times back-btn" onclick="closePayment()"></i>
             <div class="header-title">Pago Exitoso</div>
         </div>
 
@@ -921,7 +921,7 @@
                 <i class="fas fa-download"></i> Descargar <span id="voucherTypeText">Boleta</span>
             </button>
 
-            <button class="main-btn" id="backToAppFromSuccessBtn" style="margin-top: 12px; background: var(--text-gray);">
+            <button class="main-btn" onclick="closePayment()" style="margin-top: 12px; background: var(--text-gray);">
                 <i class="fas fa-home"></i> Volver a la App
             </button>
         </div>
@@ -930,7 +930,7 @@
     <!-- ========== PANTALLA DE PAGO FALLIDO ========== -->
     <div id="failedScreen" class="hidden">
         <div class="header">
-            <i class="fas fa-times back-btn" id="backFromFailedBtn"></i>
+            <i class="fas fa-times back-btn" onclick="retryPayment()"></i>
             <div class="header-title">Pago No Aprobado</div>
         </div>
 
@@ -973,11 +973,11 @@
                 </div>
             </div>
 
-            <button class="main-btn" id="retryPaymentBtn" style="margin-top: 20px;">
+            <button class="main-btn" onclick="retryPayment()" style="margin-top: 20px;">
                 <i class="fas fa-redo"></i> Reintentar Pago
             </button>
 
-            <button class="main-btn" id="backToAppFromFailedBtn" style="margin-top: 12px; background: var(--text-gray);">
+            <button class="main-btn" onclick="closePayment()" style="margin-top: 12px; background: var(--text-gray);">
                 <i class="fas fa-home"></i> Volver a la App
             </button>
         </div>
@@ -1001,31 +1001,36 @@
     let currentPaymentData = {};
     let selectedVoucherType = 'boleta';
 
-    // ===== FUNCIONES DE FECHA Y HORA REAL =====
-    function getCurrentDate() {
-        const now = new Date();
-        const options = { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit',
-            timeZone: 'America/Lima'
-        };
-        return now.toLocaleDateString('es-PE', options);
+    // ===== VALIDACIONES INICIALES =====
+    if (!uid) {
+        alert('Error: No se encontró el identificador de usuario');
+        window.location.href = '/';
     }
 
-    function getCurrentTime() {
+    // ===== 🔵 FUNCIÓN PARA OBTENER FECHA Y HORA REAL =====
+    function getRealDateTime() {
         const now = new Date();
-        const options = {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false,
-            timeZone: 'America/Lima'
-        };
-        return now.toLocaleTimeString('es-PE', options);
+        
+        // Obtener fecha en formato dd/mm/yyyy
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const fecha = `${day}/${month}/${year}`;
+        
+        // Obtener hora en formato hh:mm:ss AM/PM
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // La hora '0' debe ser '12'
+        const hoursStr = String(hours).padStart(2, '0');
+        const hora = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
+        
+        return { fecha, hora };
     }
 
-    // ===== FUNCIONES DE NAVEGACIÓN MEJORADAS =====
+    // ===== 🔵 FUNCIONES DE NAVEGACIÓN MEJORADAS =====
     function showScreen(screenId) {
         document.getElementById('checkoutScreen').classList.add('hidden');
         document.getElementById('successScreen').classList.add('hidden');
@@ -1033,31 +1038,38 @@
         document.getElementById(screenId).classList.remove('hidden');
     }
 
-    function goBackToCheckout() {
-        showScreen('checkoutScreen');
+    // 🔵 Función para regresar (botón atrás en checkout)
+    function goBack() {
+        if (confirm('¿Estás seguro de que deseas cancelar el pago?')) {
+            // Intenta volver atrás en el historial del navegador
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // Si no hay historial, redirige a la app
+                closePayment();
+            }
+        }
     }
 
+    // 🔵 Función para cerrar el pago y volver a la app
     function closePayment() {
-        window.location.href = 'app://payment-close';
+        // Intenta usar el esquema de deep link para apps móviles
+        const appScheme = 'app://payment-close';
+        
+        // Crear un intent temporal para verificar si funciona
+        window.location.href = appScheme;
+        
+        // Fallback: Si después de 1 segundo no se abrió la app, redirigir a homepage
+        setTimeout(() => {
+            // Si estás en desarrollo, puedes cambiar esto a tu URL local
+            window.location.href = '/';
+        }, 1000);
     }
 
+    // 🔵 Función para reintentar el pago
     function retryPayment() {
+        // Recargar la página para empezar de nuevo
         location.reload();
-    }
-
-    // ===== CONFIGURACIÓN DE BOTONES DE NAVEGACIÓN =====
-    function setupNavigationButtons() {
-        // Botón de regresar en pantalla de checkout
-        document.getElementById('backToAppBtn').onclick = closePayment;
-        
-        // Botones en pantalla de éxito
-        document.getElementById('backFromSuccessBtn').onclick = goBackToCheckout;
-        document.getElementById('backToAppFromSuccessBtn').onclick = closePayment;
-        
-        // Botones en pantalla de error
-        document.getElementById('backFromFailedBtn').onclick = goBackToCheckout;
-        document.getElementById('retryPaymentBtn').onclick = retryPayment;
-        document.getElementById('backToAppFromFailedBtn').onclick = closePayment;
     }
 
     // ===== ACTUALIZACIÓN DE TARJETA VISUAL =====
@@ -1174,14 +1186,14 @@
             currentPaymentId = paymentId;
             currentPaymentData = paymentData;
 
+            // 🔵 Obtener fecha y hora REAL
+            const { fecha, hora } = getRealDateTime();
+
             // Actualizar información general
             document.getElementById('success-email').textContent = paymentData.email || email;
             document.getElementById('success-amount').textContent = `S/ ${parseFloat(paymentData.monto).toFixed(2)}`;
-            
-            // 🟢 USAR FECHA Y HORA REALES
-            document.getElementById('success-date').textContent = paymentData.fecha || getCurrentDate();
-            document.getElementById('success-time').textContent = paymentData.hora || getCurrentTime();
-            
+            document.getElementById('success-date').textContent = fecha;  // 🔵 Fecha REAL
+            document.getElementById('success-time').textContent = hora;   // 🔵 Hora REAL
             document.getElementById('success-transaction-id').textContent = paymentId;
 
             // 🔵 AJUSTE PRINCIPAL: Actualizar fila de beneficio según el tipo de plan
@@ -1220,38 +1232,38 @@
 
             showScreen('successScreen');
             setupVoucherSelector();
-            setupNavigationButtons();
             
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
 
         } catch (error) {
             console.error('Error obteniendo datos del pago:', error);
             
-            // Fallback en caso de error usando fecha y hora reales
+            // 🔵 Fallback con fecha y hora REAL en caso de error
+            const { fecha, hora } = getRealDateTime();
+            
             document.getElementById('success-email').textContent = email;
             document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
             document.getElementById('benefit-label').textContent = 'Créditos otorgados';
             document.getElementById('benefit-value').textContent = '60';
-            
-            // 🟢 USAR FECHA Y HORA REALES (fallback)
-            document.getElementById('success-date').textContent = getCurrentDate();
-            document.getElementById('success-time').textContent = getCurrentTime();
+            document.getElementById('success-date').textContent = fecha;  // 🔵 Fecha REAL
+            document.getElementById('success-time').textContent = hora;   // 🔵 Hora REAL
             document.getElementById('success-transaction-id').textContent = paymentId;
 
             showScreen('successScreen');
             setupVoucherSelector();
-            setupNavigationButtons();
             
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
         }
     }
 
-    // ===== MOSTRAR PANTALLA DE ERROR =====
+    // ===== 🔵 MOSTRAR PANTALLA DE ERROR CON FECHA Y HORA REAL =====
     function showFailedScreen(paymentId, errorDetail) {
-        // 🟢 USAR FECHA Y HORA REALES
+        // 🔵 Obtener fecha y hora REAL
+        const { fecha, hora } = getRealDateTime();
+        
         document.getElementById('failed-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
-        document.getElementById('failed-date').textContent = getCurrentDate();
-        document.getElementById('failed-time').textContent = getCurrentTime();
+        document.getElementById('failed-date').textContent = fecha;  // 🔵 Fecha REAL
+        document.getElementById('failed-time').textContent = hora;   // 🔵 Hora REAL
         document.getElementById('failed-transaction-id').textContent = paymentId || 'N/A';
 
         const errorReasonEl = document.getElementById('error-reason');
@@ -1273,13 +1285,6 @@
             'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.';
 
         showScreen('failedScreen');
-        setupNavigationButtons();
-    }
-
-    // ===== VALIDACIONES INICIALES =====
-    if (!uid) {
-        alert('Error: No se encontró el identificador de usuario');
-        window.location.href = '/';
     }
 
     // ===== INICIALIZAR MERCADO PAGO =====
@@ -1355,7 +1360,6 @@
                         }
                         
                         updateCardDisplay();
-                        setupNavigationButtons();
                         
                         console.log("Formulario montado correctamente");
                     },
