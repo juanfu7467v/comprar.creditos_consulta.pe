@@ -162,6 +162,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const paymentRefString = String(paymentRef);
   
+  // Verificar cache en memoria primero
   if (processedPaymentsCache.has(paymentRefString)) {
     logger.warn(context, 'Pago ya procesado en cache de memoria (idempotencia)', { 
       uid, paymentRef: paymentRefString, processor 
@@ -172,30 +173,39 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
   const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
   
   try {
+    // Verificar si el pago ya existe en Firestore
     const doc = await pagoDoc.get();
     
     if (doc.exists) {
-      logger.warn(context, 'Pago ya procesado anteriormente en Firestore (idempotencia)', { 
-        uid, paymentRef: paymentRefString, existingData: doc.data() 
-      });
+      const pagoData = doc.data();
       
-      processedPaymentsCache.set(paymentRefString, {
-        uid,
-        timestamp: new Date().toISOString(),
-        processor
-      });
-      
-      setTimeout(() => {
-        processedPaymentsCache.delete(paymentRefString);
-      }, 60 * 60 * 1000);
-      
-      return { status: 'already_processed', data: doc.data() };
+      // Si ya está procesado, retornar inmediatamente
+      if (pagoData.procesado === true) {
+        logger.warn(context, 'Pago ya procesado anteriormente en Firestore (idempotencia)', { 
+          uid, paymentRef: paymentRefString, existingData: pagoData 
+        });
+        
+        // Agregar a cache para evitar verificaciones futuras
+        processedPaymentsCache.set(paymentRefString, {
+          uid,
+          timestamp: new Date().toISOString(),
+          processor
+        });
+        
+        setTimeout(() => {
+          processedPaymentsCache.delete(paymentRefString);
+        }, 60 * 60 * 1000);
+        
+        return { status: 'already_processed', data: pagoData };
+      }
     }
 
     logger.info(context, 'Procesando nuevo pago', { 
       uid, email, montoPagado, processor, paymentRef: paymentRefString 
     });
 
+    // Crear el documento del pago ANTES de otorgar beneficios
+    // Esto marca el pago como "en proceso" para evitar duplicados
     await pagoDoc.set({
       uid,
       email,
@@ -203,7 +213,16 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       processor,
       fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
       estado: "approved",
-      procesado: false
+      procesado: false, // Se marca como false temporalmente
+      procesandoEn: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    // Marcar en cache inmediatamente
+    processedPaymentsCache.set(paymentRefString, {
+      uid,
+      timestamp: new Date().toISOString(),
+      processor,
+      status: 'processing'
     });
 
     const userDoc = db.collection("usuarios").doc(uid);
@@ -289,9 +308,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         descripcion = `Pago de S/ ${montoPagado}`;
       }
       
+      // Marcar el pago como procesado dentro de la transacción
       t.update(pagoDoc, { 
         descripcion,
-        procesado: true,
+        procesado: true, // IMPORTANTE: Marcar como procesado
         procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
         creditosOtorgados,
         creditosAnteriores: creditosActuales,
@@ -313,6 +333,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
+    // Actualizar cache con estado final
     processedPaymentsCache.set(paymentRefString, {
       uid,
       timestamp: new Date().toISOString(),
@@ -320,6 +341,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       status: 'processed'
     });
     
+    // Limpiar cache después de 1 hora
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
     }, 60 * 60 * 1000);
@@ -329,6 +351,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   } catch (error) {
     logger.error(context, 'Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
+    
+    // Limpiar cache en caso de error
+    processedPaymentsCache.delete(paymentRefString);
     
     try {
       await pagoDoc.update({
@@ -515,20 +540,23 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
     receivedAt: new Date().toISOString()
   });
 
+  // Responder inmediatamente a Mercado Pago
+  res.sendStatus(200);
+
   if (!mpClient) {
     logger.error(context, 'Mercado Pago no configurado, ignorando webhook');
-    return res.sendStatus(200);
+    return;
   }
 
   const isPaymentEvent = webhookData.action?.includes('payment') || webhookData.type === 'payment';
   
   if (isPaymentEvent) {
     try {
-      const paymentId = webhookData.data?.id || webhookData.data?.id;
+      const paymentId = webhookData.data?.id;
       
       if (!paymentId) {
         logger.error(context, 'Payment ID no encontrado en webhook', null, webhookData);
-        return res.sendStatus(200);
+        return;
       }
 
       logger.info(context, 'Consultando información del pago', { paymentId });
@@ -594,8 +622,6 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
       type: webhookData.type
     });
   }
-
-  res.sendStatus(200);
 });
 
 // Endpoint para obtener información del pago
