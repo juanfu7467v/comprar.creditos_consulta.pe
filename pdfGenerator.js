@@ -55,137 +55,186 @@ export async function generateInvoicePDF(data) {
             
             doc.pipe(stream);
             
-            // Paleta de colores moderna
+            // Configuración de diseño centralizado
+            const pageWidth = 595.28; // A4 width en puntos
+            const contentWidth = 515; // Ancho del contenido
+            const leftMargin = (pageWidth - contentWidth) / 2; // 40.14 puntos ~ 40
+            const rightMargin = leftMargin;
+            
+            // Paleta de colores moderna y profesional
             const colors = {
-                primary: '#2563eb',      // Azul moderno
-                primaryDark: '#1e40af',  // Azul oscuro
-                success: '#10b981',      // Verde
-                dark: '#1f2937',         // Gris oscuro
-                text: '#374151',         // Texto principal
-                textLight: '#6b7280',    // Texto secundario
-                bg: '#f9fafb',           // Fondo claro
-                bgCard: '#ffffff',       // Fondo tarjetas
-                border: '#e5e7eb',       // Bordes
-                accent: '#f59e0b'        // Acento dorado
+                primary: '#2563eb',      
+                primaryLight: '#3b82f6', 
+                primaryDark: '#1e40af',  
+                success: '#10b981',      
+                dark: '#1f2937',         
+                text: '#374151',         
+                textLight: '#6b7280',    
+                bg: '#f9fafb',           
+                bgCard: '#ffffff',       
+                border: '#e5e7eb',       
+                accent: '#f59e0b',       
+                warning: '#fef3c7',
+                warningBorder: '#fbbf24',
+                warningText: '#92400e'
             };
             
             // ============================================
-            // HEADER MODERNO CON GRADIENTE VISUAL
+            // HEADER CON EFECTO 3D Y GRADIENTE
             // ============================================
-            doc.rect(0, 0, 595, 140).fill(colors.primary);
-            doc.rect(0, 135, 595, 5).fill(colors.accent);
             
-            // Logo/Marca (lado izquierdo)
+            // Fondo principal del header
+            doc.rect(0, 0, pageWidth, 140)
+               .fill(colors.primary);
+            
+            // Sombra 3D inferior
+            doc.rect(0, 140, pageWidth, 3)
+               .fill(colors.primaryDark);
+            
+            doc.rect(0, 143, pageWidth, 5)
+               .fill(colors.accent);
+            
+            // Logo/Marca centrado a la izquierda
             doc.fillColor('#ffffff')
-               .fontSize(28)
+               .fontSize(32)
                .font('Helvetica-Bold')
-               .text('CONSULTA PE', 40, 35);
+               .text('CONSULTA PE', leftMargin, 30);
             
             doc.fontSize(9)
                .font('Helvetica')
-               .fillColor('#e0e7ff')
-               .text('Servicio de Intermediación Tecnológica', 40, 70)
-               .text('Estructuración de Datos Digitales', 40, 85);
+               .fillColor('#dbeafe')
+               .text('Servicio de Intermediación Tecnológica', leftMargin, 70)
+               .text('Estructuración de Datos Digitales', leftMargin, 85);
             
-            // Información fiscal (compacta)
+            // Información fiscal compacta
             doc.fontSize(8)
                .fillColor('#ffffff')
-               .text('RUC: 10736224351', 40, 105)
-               .text('CUBAS PEREZ JOSE RENE', 40, 118);
+               .text('RUC: 10736224351', leftMargin, 105)
+               .text('CUBAS PEREZ JOSE RENE', leftMargin, 118);
             
             // ============================================
-            // BADGE DEL COMPROBANTE (Estilo móvil moderno)
+            // BADGE DEL COMPROBANTE CON EFECTO 3D
             // ============================================
-            const badgeX = 380;
-            const badgeY = 30;
+            const badgeWidth = 170;
+            const badgeX = pageWidth - rightMargin - badgeWidth;
+            const badgeY = 25;
             
-            // Tarjeta flotante del comprobante
-            doc.roundedRect(badgeX, badgeY, 175, 90, 8)
+            // Sombra del badge (efecto 3D)
+            doc.roundedRect(badgeX + 3, badgeY + 3, badgeWidth, 95, 10)
+               .fill('#00000015');
+            
+            // Tarjeta principal del badge
+            doc.roundedRect(badgeX, badgeY, badgeWidth, 95, 10)
                .fill('#ffffff');
             
-            // Tipo de documento (header de la tarjeta)
-            doc.roundedRect(badgeX, badgeY, 175, 30, 8)
-               .fill(type === 'factura' ? colors.success : colors.primaryDark);
+            // Header del badge con color según tipo
+            const badgeHeaderColor = type === 'factura' ? colors.success : colors.primaryDark;
+            doc.roundedRect(badgeX, badgeY, badgeWidth, 32, 10)
+               .fill(badgeHeaderColor);
+            
+            doc.rect(badgeX, badgeY + 22, badgeWidth, 10)
+               .fill(badgeHeaderColor);
             
             doc.fillColor('#ffffff')
-               .fontSize(14)
+               .fontSize(15)
                .font('Helvetica-Bold')
-               .text(type === 'factura' ? 'FACTURA' : 'BOLETA', badgeX, badgeY + 9, { 
-                   width: 175, 
+               .text(type === 'factura' ? 'FACTURA' : 'BOLETA', badgeX, badgeY + 8, { 
+                   width: badgeWidth, 
                    align: 'center' 
                });
             
-            // Número de comprobante
-            doc.fillColor(colors.dark)
-               .fontSize(10)
+            // Número de serie
+            doc.fillColor(colors.textLight)
+               .fontSize(9)
+               .font('Helvetica')
+               .text('N° de Serie', badgeX + 15, badgeY + 45);
+            
+            doc.fillColor(colors.primary)
+               .fontSize(11)
                .font('Helvetica-Bold')
-               .text('N° de Serie', badgeX + 15, badgeY + 45)
-               .fontSize(12)
-               .fillColor(colors.primary)
-               .text(orderId.substring(0, 13).toUpperCase(), badgeX + 15, badgeY + 62);
+               .text(orderId.substring(0, 13).toUpperCase(), badgeX + 15, badgeY + 62, {
+                   width: badgeWidth - 30
+               });
+            
+            // Línea decorativa en el badge
+            doc.moveTo(badgeX + 15, badgeY + 85)
+               .lineTo(badgeX + badgeWidth - 15, badgeY + 85)
+               .lineWidth(2)
+               .strokeColor(colors.accent)
+               .stroke();
             
             // ============================================
-            // SECCIÓN INFORMACIÓN DEL CLIENTE (Tipo Card)
+            // INFORMACIÓN DEL CLIENTE CON CARD 3D
             // ============================================
-            let currentY = 170;
+            let currentY = 175;
             
             // Título de sección
             doc.fillColor(colors.dark)
-               .fontSize(11)
+               .fontSize(12)
                .font('Helvetica-Bold')
-               .text('INFORMACIÓN DEL CLIENTE', 40, currentY);
+               .text('INFORMACIÓN DEL CLIENTE', leftMargin, currentY);
             
-            currentY += 25;
+            currentY += 28;
+            
+            // Altura dinámica de la tarjeta según tipo de comprobante
+            const clientCardHeight = type === 'factura' ? 115 : 85;
+            
+            // Sombra de la tarjeta (efecto 3D)
+            doc.roundedRect(leftMargin + 2, currentY + 2, contentWidth, clientCardHeight, 8)
+               .fill('#00000010');
             
             // Tarjeta del cliente
-            doc.roundedRect(40, currentY, 515, type === 'factura' ? 105 : 80, 6)
+            doc.roundedRect(leftMargin, currentY, contentWidth, clientCardHeight, 8)
                .fillAndStroke(colors.bgCard, colors.border);
             
-            currentY += 18;
+            currentY += 20;
             
-            // Email (con ícono simulado)
+            // Email con ícono
             doc.fillColor(colors.textLight)
                .fontSize(8)
-               .font('Helvetica')
-               .text('✉ EMAIL', 55, currentY);
+               .font('Helvetica-Bold')
+               .text('✉  CORREO ELECTRÓNICO', leftMargin + 20, currentY);
             
             doc.fillColor(colors.text)
                .fontSize(10)
-               .font('Helvetica-Bold')
-               .text(email, 55, currentY + 13, { width: 450 });
+               .font('Helvetica')
+               .text(email, leftMargin + 20, currentY + 15, { width: contentWidth - 40 });
             
-            currentY += 35;
+            currentY += 42;
             
             if (type === 'factura') {
-                // RUC y Razón Social
+                // RUC
                 doc.fillColor(colors.textLight)
                    .fontSize(8)
-                   .font('Helvetica')
-                   .text('🏢 RUC', 55, currentY);
+                   .font('Helvetica-Bold')
+                   .text('🏢  RUC', leftMargin + 20, currentY);
                 
                 doc.fillColor(colors.text)
                    .fontSize(10)
-                   .font('Helvetica-Bold')
-                   .text(rucCliente, 110, currentY);
+                   .font('Helvetica')
+                   .text(rucCliente, leftMargin + 90, currentY + 2);
                 
+                // Razón Social
                 doc.fillColor(colors.textLight)
                    .fontSize(8)
-                   .font('Helvetica')
-                   .text('RAZÓN SOCIAL', 280, currentY);
+                   .font('Helvetica-Bold')
+                   .text('RAZÓN SOCIAL', leftMargin + 260, currentY);
                 
                 doc.fillColor(colors.text)
                    .fontSize(9)
                    .font('Helvetica')
-                   .text(razonSocialCliente, 280, currentY + 13, { width: 260 });
+                   .text(razonSocialCliente, leftMargin + 260, currentY + 15, { 
+                       width: 240 
+                   });
                 
-                currentY += 35;
+                currentY += 42;
             }
             
-            // Fecha e ID (en línea)
+            // Fecha e ID de transacción
             doc.fillColor(colors.textLight)
                .fontSize(8)
-               .font('Helvetica')
-               .text('📅 FECHA DE EMISIÓN', 55, currentY);
+               .font('Helvetica-Bold')
+               .text('📅  FECHA DE EMISIÓN', leftMargin + 20, currentY);
             
             doc.fillColor(colors.text)
                .fontSize(9)
@@ -193,127 +242,169 @@ export async function generateInvoicePDF(data) {
                .text(date || new Date().toLocaleString('es-PE', { 
                    dateStyle: 'long', 
                    timeStyle: 'short' 
-               }), 55, currentY + 13);
+               }), leftMargin + 20, currentY + 15);
             
             doc.fillColor(colors.textLight)
                .fontSize(8)
-               .font('Helvetica')
-               .text('🔑 ID TRANSACCIÓN', 320, currentY);
+               .font('Helvetica-Bold')
+               .text('🔑  ID TRANSACCIÓN', leftMargin + 300, currentY);
             
             doc.fillColor(colors.text)
                .fontSize(8)
                .font('Helvetica-Bold')
-               .text(orderId, 320, currentY + 13);
+               .text(orderId, leftMargin + 300, currentY + 15);
             
             // ============================================
-            // DETALLE DEL SERVICIO (Tabla moderna)
+            // DETALLE DEL SERVICIO - TABLA MODERNA
             // ============================================
-            currentY += 55;
+            currentY += 50;
             
             doc.fillColor(colors.dark)
-               .fontSize(11)
+               .fontSize(12)
                .font('Helvetica-Bold')
-               .text('DETALLE DEL SERVICIO', 40, currentY);
-            
-            currentY += 25;
-            
-            // Header de tabla con estilo moderno
-            doc.roundedRect(40, currentY, 515, 28, 6)
-               .fill(colors.bg);
-            
-            doc.fillColor(colors.textLight)
-               .fontSize(8)
-               .font('Helvetica-Bold')
-               .text('DESCRIPCIÓN', 55, currentY + 10)
-               .text('CANTIDAD', 380, currentY + 10)
-               .text('IMPORTE', 480, currentY + 10);
+               .text('DETALLE DEL SERVICIO', leftMargin, currentY);
             
             currentY += 28;
             
-            // Fila del servicio
-            doc.roundedRect(40, currentY, 515, 60, 6)
-               .fillAndStroke(colors.bgCard, colors.border);
+            // Header de tabla con efecto 3D
+            doc.roundedRect(leftMargin + 1, currentY + 1, contentWidth, 30, 6)
+               .fill('#00000008');
             
-            currentY += 15;
+            doc.roundedRect(leftMargin, currentY, contentWidth, 30, 6)
+               .fill(colors.bg);
             
-            // Descripción del servicio (más clara)
-            doc.fillColor(colors.text)
+            doc.fillColor(colors.textLight)
                .fontSize(9)
                .font('Helvetica-Bold')
-               .text('Servicio de Intermediación Tecnológica', 55, currentY);
+               .text('DESCRIPCIÓN', leftMargin + 20, currentY + 11)
+               .text('CANTIDAD', leftMargin + 340, currentY + 11)
+               .text('IMPORTE', leftMargin + 440, currentY + 11);
+            
+            currentY += 30;
+            
+            // Fila del servicio con sombra
+            doc.roundedRect(leftMargin + 1, currentY + 1, contentWidth, 70, 6)
+               .fill('#00000008');
+            
+            doc.roundedRect(leftMargin, currentY, contentWidth, 70, 6)
+               .fillAndStroke(colors.bgCard, colors.border);
+            
+            currentY += 18;
+            
+            // Descripción del servicio
+            doc.fillColor(colors.dark)
+               .fontSize(10)
+               .font('Helvetica-Bold')
+               .text('Servicio de Intermediación Tecnológica', leftMargin + 20, currentY);
             
             doc.fontSize(8)
                .font('Helvetica')
                .fillColor(colors.textLight)
-               .text('Estructuración de datos y acceso a infraestructura digital', 55, currentY + 14, { 
-                   width: 310 
-               });
+               .text('Estructuración de datos y acceso a infraestructura digital', 
+                     leftMargin + 20, currentY + 16, { width: 300 });
             
-            // Cantidad (con badge)
+            // Cantidad con badge
             const qtyText = credits ? `${credits} créditos` : '1 paquete';
-            doc.roundedRect(375, currentY + 5, 80, 20, 4)
+            const qtyBadgeX = leftMargin + 335;
+            
+            doc.roundedRect(qtyBadgeX, currentY + 3, 90, 24, 5)
                .fill(colors.bg);
             
             doc.fillColor(colors.text)
                .fontSize(9)
                .font('Helvetica-Bold')
-               .text(qtyText, 375, currentY + 11, { width: 80, align: 'center' });
+               .text(qtyText, qtyBadgeX, currentY + 10, { 
+                   width: 90, 
+                   align: 'center' 
+               });
             
-            // Precio
+            // Precio destacado
             doc.fillColor(colors.dark)
-               .fontSize(11)
+               .fontSize(13)
                .font('Helvetica-Bold')
-               .text(`S/ ${parseFloat(amount).toFixed(2)}`, 470, currentY + 10);
+               .text(`S/ ${parseFloat(amount).toFixed(2)}`, leftMargin + 435, currentY + 8);
             
             // ============================================
-            // RESUMEN DE PAGO (Estilo destacado)
+            // RESUMEN DE PAGO CON EFECTO 3D
             // ============================================
-            currentY += 80;
+            currentY += 90;
             
-            // Tarjeta de total
-            doc.roundedRect(350, currentY, 205, 70, 8)
+            const summaryWidth = 200;
+            const summaryX = pageWidth - rightMargin - summaryWidth;
+            
+            // Tarjeta de total con sombra
+            doc.roundedRect(summaryX + 3, currentY + 3, summaryWidth, 75, 10)
+               .fill('#00000015');
+            
+            doc.roundedRect(summaryX, currentY, summaryWidth, 75, 10)
                .fill(colors.primary);
             
-            doc.fillColor('#e0e7ff')
-               .fontSize(9)
+            // Efecto de brillo superior
+            doc.roundedRect(summaryX, currentY, summaryWidth, 35, 10)
+               .fill(colors.primaryLight)
+               .opacity(0.3);
+            
+            doc.opacity(1);
+            
+            doc.fillColor('#dbeafe')
+               .fontSize(10)
                .font('Helvetica')
-               .text('TOTAL A PAGAR', 370, currentY + 15);
+               .text('TOTAL A PAGAR', summaryX + 20, currentY + 18);
             
             doc.fillColor('#ffffff')
-               .fontSize(22)
+               .fontSize(24)
                .font('Helvetica-Bold')
-               .text(`S/ ${parseFloat(amount).toFixed(2)}`, 370, currentY + 35);
+               .text(`S/ ${parseFloat(amount).toFixed(2)}`, summaryX + 20, currentY + 40);
             
-            // Subtotales (opcional, si quieres agregar IGV después)
-            doc.roundedRect(350, currentY + 75, 205, 35, 6)
+            currentY += 80;
+            
+            // Subtotales con sombra
+            doc.roundedRect(summaryX + 2, currentY + 2, summaryWidth, 38, 6)
+               .fill('#00000008');
+            
+            doc.roundedRect(summaryX, currentY, summaryWidth, 38, 6)
                .fillAndStroke(colors.bgCard, colors.border);
             
             doc.fillColor(colors.textLight)
                .fontSize(8)
                .font('Helvetica')
-               .text('Base imponible:', 365, currentY + 85)
-               .text('IGV (0%):', 365, currentY + 97);
+               .text('Base imponible:', summaryX + 15, currentY + 10)
+               .text('IGV (0%):', summaryX + 15, currentY + 23);
             
             doc.fillColor(colors.text)
                .fontSize(8)
                .font('Helvetica-Bold')
-               .text(`S/ ${parseFloat(amount).toFixed(2)}`, 490, currentY + 85, { align: 'right' })
-               .text('S/ 0.00', 490, currentY + 97, { align: 'right' });
+               .text(`S/ ${parseFloat(amount).toFixed(2)}`, summaryX + 120, currentY + 10)
+               .text('S/ 0.00', summaryX + 120, currentY + 23);
             
             // ============================================
-            // TÉRMINOS Y CONDICIONES (Compacto y legible)
+            // TÉRMINOS Y CONDICIONES CON DISEÑO MODERNO
             // ============================================
-            currentY += 135;
+            currentY += 60;
             
             doc.fillColor(colors.dark)
-               .fontSize(9)
+               .fontSize(11)
                .font('Helvetica-Bold')
-               .text('TÉRMINOS DEL SERVICIO Y CLÁUSULAS LEGALES', 40, currentY);
+               .text('TÉRMINOS DEL SERVICIO Y CLÁUSULAS LEGALES', leftMargin, currentY);
             
-            currentY += 20;
+            currentY += 25;
             
-            doc.roundedRect(40, currentY, 515, 130, 6)
-               .fillAndStroke('#fefce8', '#fbbf24');
+            // Altura dinámica para términos
+            const termsHeight = 145;
+            
+            // Tarjeta de términos con sombra
+            doc.roundedRect(leftMargin + 2, currentY + 2, contentWidth, termsHeight, 8)
+               .fill('#00000008');
+            
+            doc.roundedRect(leftMargin, currentY, contentWidth, termsHeight, 8)
+               .fillAndStroke(colors.warning, colors.warningBorder);
+            
+            // Borde decorativo superior
+            doc.roundedRect(leftMargin, currentY, contentWidth, 8, 8)
+               .fill(colors.accent);
+            
+            doc.rect(leftMargin, currentY + 4, contentWidth, 4)
+               .fill(colors.accent);
             
             const terms = [
                 {
@@ -334,76 +425,104 @@ export async function generateInvoicePDF(data) {
                 }
             ];
             
-            let termY = currentY + 12;
+            let termY = currentY + 15;
             terms.forEach((term, index) => {
-                doc.fillColor('#92400e')
+                doc.fillColor(colors.warningText)
                    .fontSize(7.5)
                    .font('Helvetica-Bold')
-                   .text(`${index + 1}. ${term.title}`, 55, termY);
+                   .text(`${index + 1}. ${term.title}`, leftMargin + 20, termY);
                 
                 doc.fillColor('#78350f')
                    .fontSize(7)
                    .font('Helvetica')
-                   .text(term.text, 55, termY + 10, { width: 490 });
+                   .text(term.text, leftMargin + 20, termY + 11, { 
+                       width: contentWidth - 40 
+                   });
                 
-                termY += 28;
+                termY += 32;
             });
             
             // ============================================
-            // FOOTER MODERNO
+            // FOOTER PROFESIONAL Y CENTRADO
             // ============================================
-            currentY += 155;
+            currentY += termsHeight + 20;
             
-            // Línea divisoria
-            doc.moveTo(40, currentY)
-               .lineTo(555, currentY)
-               .stroke(colors.border);
+            // Línea divisoria elegante
+            doc.moveTo(leftMargin, currentY)
+               .lineTo(pageWidth - rightMargin, currentY)
+               .lineWidth(1)
+               .strokeColor(colors.border)
+               .stroke();
             
-            currentY += 15;
+            currentY += 18;
             
-            // Información fiscal footer
+            // Información fiscal del footer
             doc.fillColor(colors.textLight)
-               .fontSize(7)
-               .font('Helvetica')
-               .text('CUBAS PEREZ JOSE RENE | RUC: 10736224351', 40, currentY, { 
-                   width: 515, 
+               .fontSize(7.5)
+               .font('Helvetica-Bold')
+               .text('CUBAS PEREZ JOSE RENE | RUC: 10736224351', leftMargin, currentY, { 
+                   width: contentWidth, 
                    align: 'center' 
                });
             
-            doc.text('Domicilio Fiscal: Caserío Pajonal, Cajamarca - Cutervo', 40, currentY + 12, { 
-                width: 515, 
-                align: 'center' 
-            });
+            doc.font('Helvetica')
+               .text('Domicilio Fiscal: Caserío Pajonal, Cajamarca - Cutervo', 
+                     leftMargin, currentY + 13, { 
+                   width: contentWidth, 
+                   align: 'center' 
+               });
             
-            doc.text('Actividad: 6399 - Otros Servicios de Información N.C.P.', 40, currentY + 24, { 
-                width: 515, 
-                align: 'center' 
-            });
+            doc.text('Actividad: 6399 - Otros Servicios de Información N.C.P.', 
+                     leftMargin, currentY + 26, { 
+                   width: contentWidth, 
+                   align: 'center' 
+               });
             
-            // Badge de verificación
-            currentY += 45;
+            // Badge de verificación centrado con efecto 3D
+            currentY += 48;
             
-            doc.roundedRect(230, currentY, 135, 50, 6)
+            const verifyBadgeWidth = 140;
+            const verifyBadgeX = (pageWidth - verifyBadgeWidth) / 2;
+            
+            // Sombra del badge
+            doc.roundedRect(verifyBadgeX + 2, currentY + 2, verifyBadgeWidth, 55, 8)
+               .fill('#00000010');
+            
+            // Badge principal
+            doc.roundedRect(verifyBadgeX, currentY, verifyBadgeWidth, 55, 8)
                .fillAndStroke(colors.bg, colors.border);
+            
+            // Ícono de verificación
+            doc.roundedRect(verifyBadgeX + (verifyBadgeWidth - 30) / 2, currentY + 8, 30, 16, 4)
+               .fill(colors.success);
+            
+            doc.fillColor('#ffffff')
+               .fontSize(11)
+               .font('Helvetica-Bold')
+               .text('✓', verifyBadgeX, currentY + 10, { 
+                   width: verifyBadgeWidth, 
+                   align: 'center' 
+               });
             
             doc.fillColor(colors.textLight)
                .fontSize(7)
                .font('Helvetica-Bold')
-               .text('✓ COMPROBANTE VERIFICADO', 230, currentY + 12, { 
-                   width: 135, 
+               .text('COMPROBANTE VERIFICADO', verifyBadgeX, currentY + 28, { 
+                   width: verifyBadgeWidth, 
                    align: 'center' 
                });
             
             doc.fontSize(6)
                .font('Helvetica')
-               .text('Sistema electrónico Consulta PE', 230, currentY + 26, { 
-                   width: 135, 
+               .text('Sistema electrónico Consulta PE', verifyBadgeX, currentY + 40, { 
+                   width: verifyBadgeWidth, 
                    align: 'center' 
                });
             
             doc.fontSize(5.5)
-               .text(`Generado: ${new Date().toLocaleString('es-PE')}`, 230, currentY + 37, { 
-                   width: 135, 
+               .text(`Generado: ${new Date().toLocaleString('es-PE')}`, 
+                     verifyBadgeX, currentY + 49, { 
+                   width: verifyBadgeWidth, 
                    align: 'center' 
                });
             
