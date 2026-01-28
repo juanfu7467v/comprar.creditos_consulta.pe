@@ -9,12 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4f46e5;
-            --primary-dark: #4338ca;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --bg-color: #f8fafc;
+            --primary-blue: #2563eb;
+            --primary-blue-dark: #1d4ed8;
+            --gradient-green-start: #10b981;
+            --gradient-green-end: #059669;
+            --gradient-blue-green: linear-gradient(135deg, #2563eb, #10b981);
+            --error-red: #dc2626;
+            --black: #1e293b;
+            --white: #ffffff;
+            --bg-transparent: rgba(255, 255, 255, 0.95);
             --card-bg: #ffffff;
             --text-primary: #1e293b;
             --text-secondary: #64748b;
@@ -22,10 +25,11 @@
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
             --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
@@ -39,7 +43,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-color);
+            background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
             color: var(--text-primary);
             line-height: 1.5;
             padding-top: var(--safe-top);
@@ -48,43 +52,55 @@
             overflow-x: hidden;
         }
 
-        /* Header estilo app móvil */
+        /* Header estilo app móvil Android */
         .app-header {
             background: var(--card-bg);
             padding: 16px 20px;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
             box-shadow: var(--shadow-sm);
             display: flex;
             align-items: center;
             gap: 16px;
             border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            background: var(--bg-transparent);
         }
 
         .back-btn {
             background: none;
             border: none;
-            font-size: 20px;
-            color: var(--text-primary);
-            width: 40px;
-            height: 40px;
+            font-size: 22px;
+            color: var(--primary-blue);
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            transition: background 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
 
         .back-btn:active {
-            background: var(--border-color);
+            background: rgba(37, 99, 235, 0.1);
+            transform: scale(0.95);
+        }
+
+        .header-content {
+            flex: 1;
         }
 
         .header-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 20px;
+            font-weight: 700;
             color: var(--text-primary);
-            flex: 1;
+            line-height: 1.2;
+            background: var(--gradient-blue-green);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header-subtitle {
@@ -93,21 +109,73 @@
             font-weight: 400;
         }
 
+        /* Pantallas completas */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
         /* Contenedor principal */
+        .main-screen {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            position: relative;
+            padding-top: 80px;
+        }
+
         .app-container {
             max-width: 500px;
             margin: 0 auto;
-            padding: 0 16px 32px;
+            width: 100%;
+            padding: 0 0 32px;
         }
 
-        /* Card de resumen */
+        /* Card de resumen 3D */
         .summary-card {
             background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin: 0 0 24px;
+            box-shadow: var(--shadow-3d);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:active {
+            transform: translateY(-2px);
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-blue-green);
         }
 
         .summary-title {
@@ -117,183 +185,282 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-title i {
+            color: var(--primary-blue);
+            font-size: 16px;
         }
 
         .summary-amount {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin: 8px 0;
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin: 12px 0;
+            text-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
         }
 
         .summary-description {
-            font-size: 16px;
+            font-size: 18px;
             color: var(--text-primary);
-            font-weight: 500;
+            font-weight: 600;
+            margin-bottom: 16px;
         }
 
         .summary-badge {
-            background: #e0e7ff;
-            color: var(--primary-color);
-            padding: 4px 12px;
+            background: linear-gradient(135deg, #e0f2fe, #dcfce7);
+            color: var(--primary-blue);
+            padding: 8px 16px;
             border-radius: 20px;
             font-size: 14px;
-            font-weight: 500;
-            display: inline-block;
-            margin-top: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
         }
 
-        /* Secciones del formulario */
+        /* Campos de formulario 3D con íconos */
         .form-section {
             background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            padding: 20px;
+            border-radius: var(--radius-xl);
+            padding: 24px;
             margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-3d);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .section-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
 
         .section-title {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            flex: 1;
         }
 
-        .section-title i {
-            color: var(--primary-color);
-        }
-
-        /* Campos de formulario */
+        /* Campos 3D mejorados */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-blue);
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        .mp-container {
+            height: 56px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: white;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .mp-container:focus-within {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), inset 0 2px 4px rgba(0,0,0,0.05);
+            transform: translateY(-1px);
+        }
+
+        .mp-container.has-icon {
+            padding-left: 52px;
         }
 
         .form-label {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 600;
             color: var(--text-primary);
         }
 
-        .tooltip-icon {
-            color: var(--text-secondary);
-            font-size: 14px;
-            cursor: help;
-            position: relative;
+        .label-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .tooltip-text {
-            position: absolute;
-            background: var(--text-primary);
-            color: white;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            font-size: 12px;
-            width: 200px;
-            bottom: 100%;
-            right: 0;
-            margin-bottom: 8px;
-            display: none;
-            z-index: 10;
-            box-shadow: var(--shadow-lg);
+        .required {
+            color: var(--error-red);
+            margin-left: 4px;
         }
 
-        .tooltip-icon:hover .tooltip-text {
-            display: block;
-        }
-
-        .input-container {
-            position: relative;
-        }
-
-        .mp-container {
-            height: 50px;
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: white;
-            overflow: hidden;
-            transition: all 0.2s;
-        }
-
-        .mp-container:focus-within {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        iframe {
-            height: 100% !important;
-            width: 100% !important;
-        }
-
+        /* Inputs personalizados */
         input, select {
             width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid var(--border-color);
-            border-radius: var(--radius-md);
+            height: 100%;
+            padding: 0 16px;
+            border: none;
+            background: transparent;
             font-size: 16px;
             font-family: 'Inter', sans-serif;
-            background: white;
-            transition: all 0.2s;
+            color: var(--text-primary);
+            outline: none;
+            border-radius: var(--radius-lg);
+        }
+
+        input.has-icon {
+            padding-left: 52px;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select select {
+            appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            appearance: none;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            padding-right: 48px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%232563eb' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 16px center;
-            background-size: 16px;
-            padding-right: 44px;
+            background-size: 20px;
         }
 
+        /* Grid responsive */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
 
-        /* Botones */
+        /* Tabs estilo Android */
+        .invoice-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: var(--radius-lg);
+            padding: 6px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .invoice-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 15px;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .invoice-tab.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: var(--primary-blue);
+            transform: translateY(-1px);
+        }
+
+        .invoice-tab.active::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: var(--primary-blue);
+            border-radius: 2px;
+        }
+
+        /* Botones estilo Android */
         .btn {
             width: 100%;
-            padding: 18px 24px;
+            padding: 20px 24px;
             border: none;
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: var(--radius-xl);
+            font-size: 17px;
+            font-weight: 700;
             font-family: 'Inter', sans-serif;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            transition: all 0.2s;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn:active {
             transform: scale(0.98);
         }
 
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
             color: white;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
         }
 
         .btn-primary:disabled {
@@ -304,228 +471,339 @@
         }
 
         .btn-secondary {
-            background: var(--card-bg);
-            color: var(--text-primary);
-            border: 1.5px solid var(--border-color);
+            background: white;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.1);
         }
 
         .btn-icon {
-            font-size: 18px;
+            font-size: 20px;
         }
 
-        .btn-loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid white;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Modal de éxito 3D */
-        .success-modal {
+        /* Animación de carga mejorada */
+        .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            z-index: 1000;
+            z-index: 2000;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
         }
 
-        .success-modal.active {
+        .loading-overlay.active {
             opacity: 1;
             visibility: visible;
         }
 
-        .modal-content {
-            background: white;
-            border-radius: var(--radius-xl);
-            padding: 40px 30px 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            transform: translateY(20px) scale(0.95);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.2),
-                0 0 0 1px rgba(255,255,255,0.1),
-                0 0 100px rgba(79, 70, 229, 0.2);
-        }
-
-        .success-modal.active .modal-content {
-            transform: translateY(0) scale(1);
-        }
-
-        .success-icon {
-            font-size: 80px;
-            color: var(--success-color);
-            margin-bottom: 20px;
-            filter: drop-shadow(0 4px 8px rgba(16, 185, 129, 0.3));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: var(--success-color);
-            border-radius: 50%;
-            opacity: 0;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-
-        .modal-subtitle {
-            font-size: 16px;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-        }
-
-        .credits-badge {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 12px 24px;
-            border-radius: var(--radius-lg);
-            font-size: 20px;
-            font-weight: 700;
-            margin: 20px 0;
-            display: inline-block;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-        }
-
-        .modal-actions {
+        .triple-loader {
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 12px;
-            margin-top: 30px;
+            margin-bottom: 24px;
         }
 
-        /* Estados de carga */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--bg-color);
+        .loader-circle {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .loader-circle:nth-child(1) {
+            background: var(--primary-blue);
+            animation-delay: -0.32s;
+        }
+
+        .loader-circle:nth-child(2) {
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            animation-delay: -0.16s;
+        }
+
+        .loader-circle:nth-child(3) {
+            background: var(--gradient-green-start);
+        }
+
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Pantalla de éxito 3D */
+        .success-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        .loading-text {
-            font-size: 16px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* Tabs para boleta/factura */
-        .invoice-tabs {
-            display: flex;
-            background: #f1f5f9;
-            border-radius: var(--radius-md);
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-
-        .invoice-tab {
-            flex: 1;
-            padding: 12px;
+            padding: 40px 24px;
             text-align: center;
-            border-radius: var(--radius-sm);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
         }
 
-        .invoice-tab.active {
+        .success-icon-3d {
+            font-size: 120px;
+            margin-bottom: 32px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.3));
+            animation: successPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .success-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .success-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .credits-display {
+            background: linear-gradient(135deg, var(--primary-blue), var(--gradient-green-start));
+            color: white;
+            padding: 24px 32px;
+            border-radius: var(--radius-xl);
+            font-size: 28px;
+            font-weight: 800;
+            margin: 32px 0;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transform-style: preserve-3d;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotateX(0);
+            }
+            50% {
+                transform: translateY(-10px) rotateX(5deg);
+            }
+        }
+
+        .pdf-preview {
             background: white;
-            box-shadow: var(--shadow-sm);
-            color: var(--primary-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 32px 0;
+            box-shadow: var(--shadow-3d);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 400px;
         }
 
-        .invoice-fields {
-            display: none;
-            animation: fadeIn 0.3s;
+        .pdf-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
         }
 
-        .invoice-fields.active {
-            display: block;
+        .pdf-icon {
+            color: var(--error-red);
+            font-size: 24px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .pdf-info h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .pdf-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-pdf {
+            flex: 1;
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-pdf-primary {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+        }
+
+        .btn-pdf-secondary {
+            background: white;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+        }
+
+        /* Mensajes de error/éxito */
+        .message-container {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--error-red);
+            max-width: 400px;
+            width: 90%;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .message-container.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .message-container.success {
+            border-left-color: var(--gradient-green-start);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .message-icon {
+            font-size: 20px;
+        }
+
+        .message-icon.error {
+            color: var(--error-red);
+        }
+
+        .message-icon.success {
+            color: var(--gradient-green-start);
+        }
+
+        .message-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .message-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
         }
 
         /* Responsive */
         @media (max-width: 480px) {
             .app-container {
-                padding: 0 12px 24px;
+                padding: 0 16px 24px;
             }
             
             .summary-amount {
-                font-size: 28px;
+                font-size: 36px;
             }
             
             .grid-2 {
                 grid-template-columns: 1fr;
-                gap: 12px;
+                gap: 16px;
             }
             
-            .modal-content {
-                padding: 30px 20px 20px;
+            .success-icon-3d {
+                font-size: 100px;
+            }
+            
+            .success-title {
+                font-size: 28px;
+            }
+            
+            .credits-display {
+                font-size: 24px;
+                padding: 20px 24px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .summary-amount {
+                font-size: 32px;
+            }
+            
+            .btn {
+                padding: 18px 20px;
+                font-size: 16px;
+            }
+            
+            .success-icon-3d {
+                font-size: 80px;
             }
         }
 
         /* Animaciones */
-        @keyframes slideIn {
+        @keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -533,242 +811,371 @@
             }
         }
 
-        .animate-slide-in {
-            animation: slideIn 0.3s ease-out forwards;
+        .animate-in {
+            animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
     </style>
 </head>
 <body>
-    <!-- Header de la app -->
-    <div class="app-header">
-        <button class="back-btn" onclick="history.back()">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <div>
-            <div class="header-title">Pago Seguro</div>
-            <div class="header-subtitle">Consulta PE</div>
+    <!-- Pantalla principal de pago -->
+    <div class="screen main-screen active" id="paymentScreen">
+        <!-- Header -->
+        <div class="app-header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="header-content">
+                <div class="header-title">Pago Seguro</div>
+                <div class="header-subtitle">Consulta PE</div>
+            </div>
+            <div style="color: var(--gradient-green-start); font-size: 20px;">
+                <i class="fas fa-lock"></i>
+            </div>
         </div>
-        <div class="header-icon">
-            <i class="fas fa-lock" style="color: var(--success-color); font-size: 18px;"></i>
+
+        <!-- Contenido principal -->
+        <div class="app-container">
+            <!-- Resumen de compra 3D -->
+            <div class="summary-card animate-in">
+                <div class="summary-title">
+                    <i class="fas fa-shopping-bag"></i>
+                    RESUMEN DE COMPRA
+                </div>
+                <div class="summary-amount" id="displayAmount">S/ 0.00</div>
+                <div class="summary-description" id="displayDescription">Cargando...</div>
+                <div class="summary-badge">
+                    <i class="fas fa-bolt"></i>
+                    Recarga instantánea
+                </div>
+            </div>
+
+            <!-- Sección de tipo de comprobante -->
+            <div class="form-section animate-in" style="animation-delay: 0.1s">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="section-title">Tipo de Comprobante</div>
+                </div>
+                
+                <div class="invoice-tabs">
+                    <div class="invoice-tab active" data-type="boleta" onclick="selectInvoiceType('boleta')">
+                        Boleta
+                    </div>
+                    <div class="invoice-tab" data-type="factura" onclick="selectInvoiceType('factura')">
+                        Factura
+                    </div>
+                </div>
+
+                <!-- Campos para factura -->
+                <div id="invoiceFields" class="invoice-fields">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">
+                                <i class="fas fa-id-card"></i>
+                                RUC
+                            </span>
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <input type="text" 
+                                   id="ruc" 
+                                   class="has-icon"
+                                   placeholder="10XXXXXXX01" 
+                                   maxlength="11"
+                                   oninput="validateRUC(this)">
+                        </div>
+                        <div class="field-hint" id="rucHint" style="display: none; color: var(--error-red); font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">
+                                <i class="fas fa-file-signature"></i>
+                                Razón Social
+                            </span>
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <input type="text" 
+                                   id="razonSocial" 
+                                   class="has-icon"
+                                   placeholder="Empresa S.A.C."
+                                   oninput="validateRazonSocial(this)">
+                        </div>
+                        <div class="field-hint" id="razonSocialHint" style="display: none; color: var(--error-red); font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de información de pago -->
+            <div class="form-section animate-in" style="animation-delay: 0.2s">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="section-title">Información de Pago</div>
+                </div>
+
+                <form id="paymentForm">
+                    <!-- Número de tarjeta -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">
+                                <i class="far fa-credit-card"></i>
+                                Número de Tarjeta
+                            </span>
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div id="cardNumberContainer" class="mp-container has-icon"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha y CVC -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                    Vencimiento
+                                </span>
+                                <span class="required">*</span>
+                            </label>
+                            <div id="expirationDateContainer" class="mp-container"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">
+                                    <i class="fas fa-lock"></i>
+                                    CVC
+                                </span>
+                                <span class="required">*</span>
+                            </label>
+                            <div id="securityCodeContainer" class="mp-container"></div>
+                        </div>
+                    </div>
+
+                    <!-- Nombre del titular -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">
+                                <i class="far fa-user"></i>
+                                Nombre del Titular
+                            </span>
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <input type="text" 
+                                   id="cardholderName" 
+                                   class="has-icon"
+                                   placeholder="JUAN PEREZ GARCIA"
+                                   oninput="validateName(this)">
+                        </div>
+                    </div>
+
+                    <!-- Documento -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">
+                                    <i class="fas fa-id-card"></i>
+                                    Tipo de Documento
+                                </span>
+                                <span class="required">*</span>
+                            </label>
+                            <div class="custom-select">
+                                <select id="identificationType"></select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">
+                                    <i class="fas fa-hashtag"></i>
+                                    Número
+                                </span>
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <div class="input-icon">
+                                    <i class="fas fa-fingerprint"></i>
+                                </div>
+                                <input type="text" 
+                                       id="identificationNumber" 
+                                       class="has-icon"
+                                       placeholder="DNI / CE"
+                                       oninput="validateDocument(this)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banco y cuotas -->
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">
+                                    <i class="fas fa-university"></i>
+                                    Banco Emisor
+                                </span>
+                            </label>
+                            <div class="custom-select">
+                                <select id="issuer"></select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span class="label-text">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Cuotas
+                                </span>
+                                <span class="required">*</span>
+                            </label>
+                            <div class="custom-select">
+                                <select id="installments"></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="label-text">
+                                <i class="far fa-envelope"></i>
+                                Correo Electrónico
+                            </span>
+                            <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <div class="input-icon">
+                                <i class="fas fa-at"></i>
+                            </div>
+                            <input type="email" 
+                                   id="cardholderEmail" 
+                                   class="has-icon"
+                                   placeholder="tu@email.com"
+                                   oninput="validateEmail(this)">
+                        </div>
+                        <div class="field-hint" id="emailHint" style="display: none; color: var(--error-red); font-size: 12px; margin-top: 4px;"></div>
+                    </div>
+
+                    <!-- Botón de pago -->
+                    <button type="submit" 
+                            id="submitButton" 
+                            class="btn btn-primary"
+                            onclick="processPayment(event)">
+                        <i class="fas fa-lock btn-icon"></i>
+                        CONFIRMAR PAGO SEGURO
+                    </button>
+                </form>
+            </div>
+
+            <!-- Información de seguridad -->
+            <div class="form-section animate-in" style="animation-delay: 0.3s; background: linear-gradient(135deg, #f0f9ff, #f0fdf4);">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #0ea5e9, #10b981);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="section-title">Pago 100% Seguro</div>
+                </div>
+                <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+                    <p style="margin-bottom: 12px;">
+                        <i class="fas fa-check-circle" style="color: var(--gradient-green-start); margin-right: 8px;"></i>
+                        Tus datos están protegidos con encriptación SSL de 256-bit.
+                    </p>
+                    <p>
+                        <i class="fas fa-check-circle" style="color: var(--gradient-green-start); margin-right: 8px;"></i>
+                        No almacenamos información de tu tarjeta en nuestros servidores.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Contenedor principal -->
-    <div class="app-container">
-        <!-- Resumen de compra -->
-        <div class="summary-card animate-slide-in">
-            <div class="summary-title">
-                <i class="fas fa-shopping-bag"></i>
-                RESUMEN DE COMPRA
-            </div>
-            <div class="summary-amount" id="display-amount">S/ 0.00</div>
-            <div class="summary-description" id="display-description">Cargando...</div>
-            <div class="summary-badge">
-                <i class="fas fa-bolt"></i>
-                Recarga instantánea
-            </div>
-        </div>
-
-        <!-- Sección de tipo de comprobante -->
-        <div class="form-section animate-slide-in" style="animation-delay: 0.1s;">
-            <div class="section-title">
-                <i class="fas fa-file-invoice"></i>
-                Tipo de Comprobante
-            </div>
-            
-            <div class="invoice-tabs">
-                <div class="invoice-tab active" data-type="boleta" onclick="selectInvoiceType('boleta')">
-                    Boleta
-                </div>
-                <div class="invoice-tab" data-type="factura" onclick="selectInvoiceType('factura')">
-                    Factura
-                </div>
-            </div>
-
-            <!-- Campos para factura (ocultos por defecto) -->
-            <div id="factura-fields" class="invoice-fields">
-                <div class="form-group">
-                    <label class="form-label">
-                        RUC
-                        <span class="tooltip-icon">
-                            <i class="far fa-question-circle"></i>
-                            <span class="tooltip-text">Ingrese el RUC de su empresa para la factura</span>
-                        </span>
-                    </label>
-                    <input type="text" id="ruc" placeholder="10XXXXXXX01" maxlength="11">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        Razón Social
-                        <span class="tooltip-icon">
-                            <i class="far fa-question-circle"></i>
-                            <span class="tooltip-text">Nombre completo de la empresa según SUNAT</span>
-                        </span>
-                    </label>
-                    <input type="text" id="razon-social" placeholder="Empresa S.A.C.">
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de información de pago -->
-        <div class="form-section animate-slide-in" style="animation-delay: 0.2s;">
-            <div class="section-title">
-                <i class="fas fa-credit-card"></i>
-                Información de Pago
-            </div>
-
-            <form id="form-checkout">
-                <div class="form-group">
-                    <label class="form-label">
-                        Número de Tarjeta
-                        <span class="tooltip-icon">
-                            <i class="far fa-question-circle"></i>
-                            <span class="tooltip-text">Ingrese los 16 dígitos de su tarjeta sin espacios</span>
-                        </span>
-                    </label>
-                    <div id="form-checkout__cardNumber" class="mp-container"></div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label class="form-label">
-                            Vencimiento
-                            <span class="tooltip-icon">
-                                <i class="far fa-question-circle"></i>
-                                <span class="tooltip-text">Mes y año de vencimiento (MM/AA)</span>
-                            </span>
-                        </label>
-                        <div id="form-checkout__expirationDate" class="mp-container"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            CVC
-                            <span class="tooltip-icon">
-                                <i class="far fa-question-circle"></i>
-                                <span class="tooltip-text">Código de seguridad de 3 dígitos atrás de su tarjeta</span>
-                            </span>
-                        </label>
-                        <div id="form-checkout__securityCode" class="mp-container"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        Nombre del Titular
-                        <span class="tooltip-icon">
-                            <i class="far fa-question-circle"></i>
-                            <span class="tooltip-text">Como aparece en la tarjeta (sin abreviaturas)</span>
-                        </span>
-                    </label>
-                    <input type="text" id="form-checkout__cardholderName" placeholder="JUAN PEREZ GARCIA" />
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label class="form-label">
-                            Tipo de Documento
-                            <span class="tooltip-icon">
-                                <i class="far fa-question-circle"></i>
-                                <span class="tooltip-text">Documento de identificación del titular</span>
-                            </span>
-                        </label>
-                        <select id="form-checkout__identificationType"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            Número de Documento
-                        </label>
-                        <input type="text" id="form-checkout__identificationNumber" placeholder="DNI / CE" />
-                    </div>
-                </div>
-
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label class="form-label">Banco Emisor</label>
-                        <select id="form-checkout__issuer"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">
-                            Cuotas
-                            <span class="tooltip-icon">
-                                <i class="far fa-question-circle"></i>
-                                <span class="tooltip-text">Número de cuotas para el pago</span>
-                            </span>
-                        </label>
-                        <select id="form-checkout__installments"></select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">
-                        Correo Electrónico
-                        <span class="tooltip-icon">
-                            <i class="far fa-question-circle"></i>
-                            <span class="tooltip-text">Recibirá el comprobante en este correo</span>
-                        </span>
-                    </label>
-                    <input type="email" id="form-checkout__cardholderEmail" placeholder="tu@email.com" />
-                </div>
-
-                <button type="submit" id="form-checkout__submit" class="btn btn-primary">
-                    <i class="fas fa-lock btn-icon"></i>
-                    CONFIRMAR PAGO SEGURO
-                </button>
-            </form>
-        </div>
-
-        <!-- Información de seguridad -->
-        <div class="form-section" style="background: #f0f9ff; border-color: #bae6fd;">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="color: #0ea5e9; font-size: 20px;">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div>
-                    <div style="font-weight: 600; color: #0369a1; margin-bottom: 4px;">
-                        Pago 100% Seguro
-                    </div>
-                    <div style="font-size: 13px; color: #0c4a6e;">
-                        Tus datos están protegidos con encriptación de 256-bit. No almacenamos información de tu tarjeta.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de éxito (mejorado con efecto 3D) -->
-    <div class="success-modal" id="successModal">
-        <div class="modal-content">
-            <div class="success-icon">
+    <!-- Pantalla de éxito -->
+    <div class="screen" id="successScreen">
+        <div class="success-screen">
+            <div class="success-icon-3d">
                 <i class="fas fa-check-circle"></i>
             </div>
-            <h2 class="modal-title">¡Pago Aprobado!</h2>
-            <p class="modal-subtitle">Tu pago ha sido procesado exitosamente</p>
             
-            <div class="credits-badge" id="creditsGranted">
+            <h1 class="success-title">¡Pago Aprobado!</h1>
+            <p class="success-subtitle">Tu pago ha sido procesado exitosamente. Los créditos ya están disponibles en tu cuenta.</p>
+            
+            <div class="credits-display" id="creditsDisplay">
                 <i class="fas fa-gem"></i>
                 <span id="creditsAmount">0</span> Créditos Activados
             </div>
-            
-            <p style="color: var(--text-secondary); margin: 20px 0; font-size: 14px;">
-                Los créditos ya están disponibles en tu cuenta. Puedes comenzar a usarlos inmediatamente.
-            </p>
-            
-            <div class="modal-actions">
-                <button onclick="downloadReceipt()" class="btn btn-primary">
-                    <i class="fas fa-download"></i>
-                    DESCARGAR COMPROBANTE
-                </button>
-                <button onclick="closeSuccessModal()" class="btn btn-secondary">
-                    CONTINUAR
+
+            <!-- Comprobante PDF -->
+            <div class="pdf-preview animate-in" style="animation-delay: 0.2s">
+                <div class="pdf-header">
+                    <div class="pdf-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="pdf-info">
+                        <h4>Comprobante de Pago</h4>
+                        <p id="invoiceInfo">Boleta de Venta #000000</p>
+                    </div>
+                </div>
+                
+                <div class="pdf-actions">
+                    <button class="btn-pdf btn-pdf-primary" onclick="viewReceipt()">
+                        <i class="fas fa-eye"></i>
+                        Ver PDF
+                    </button>
+                    <button class="btn-pdf btn-pdf-secondary" onclick="downloadReceipt()">
+                        <i class="fas fa-download"></i>
+                        Descargar
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="width: 100%; max-width: 400px; margin-top: 32px;">
+                <button onclick="goToApp()" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    CONTINUAR A LA APP
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Pantalla de carga -->
-    <div class="loading-screen" id="loadingScreen">
-        <div class="loading-spinner"></div>
+    <!-- Overlay de carga -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="triple-loader">
+            <div class="loader-circle"></div>
+            <div class="loader-circle"></div>
+            <div class="loader-circle"></div>
+        </div>
         <div class="loading-text" id="loadingText">Conectando con pasarela segura...</div>
+    </div>
+
+    <!-- Contenedor de mensajes -->
+    <div class="message-container" id="messageContainer">
+        <div class="message-header">
+            <div class="message-icon error" id="messageIcon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="message-title" id="messageTitle">Error</div>
+            <button onclick="hideMessage()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="message-content" id="messageContent"></div>
     </div>
 
     <script>
@@ -776,13 +1183,75 @@
         let currentPaymentId = null;
         let currentInvoiceType = 'boleta';
         let creditsGranted = 0;
+        let cardForm = null;
+        let mpInstance = null;
+        
+        // Parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const amount = urlParams.get('amount') || "10";
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
         const description = urlParams.get('description') || 'Créditos Consulta PE';
 
-        // Función para seleccionar tipo de comprobante
+        // Mapa de créditos por monto
+        const creditMap = {
+            10: 60, 20: 125, 30: 200, 
+            50: 330, 100: 700, 200: 1500
+        };
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+
+        async function initApp() {
+            try {
+                // Mostrar información de la compra
+                updatePurchaseInfo();
+                
+                // Ocultar campos de factura inicialmente
+                hideInvoiceFields();
+                
+                // Prellenar email si está disponible
+                if (email) {
+                    document.getElementById('cardholderEmail').value = email;
+                }
+                
+                // Inicializar Mercado Pago
+                await initMercadoPago();
+                
+                // Configurar validaciones en tiempo real
+                setupRealTimeValidation();
+                
+            } catch (error) {
+                console.error('Error inicializando app:', error);
+                showMessage('Error de inicialización', 'No se pudo cargar la configuración del pago', 'error');
+            }
+        }
+
+        function updatePurchaseInfo() {
+            const amountNum = parseFloat(amount);
+            document.getElementById('displayAmount').textContent = `S/ ${amountNum.toFixed(2)}`;
+            document.getElementById('displayDescription').textContent = description;
+            
+            // Mostrar créditos que se obtendrán
+            const credits = creditMap[amountNum] || 0;
+            if (credits > 0) {
+                const descriptionElement = document.getElementById('displayDescription');
+                descriptionElement.innerHTML += `<div style="font-size: 14px; color: var(--gradient-green-start); margin-top: 8px; font-weight: 600;">
+                    <i class="fas fa-gem"></i> Obtendrás ${credits} créditos
+                </div>`;
+            }
+        }
+
+        function hideInvoiceFields() {
+            document.getElementById('invoiceFields').style.display = 'none';
+        }
+
+        function showInvoiceFields() {
+            document.getElementById('invoiceFields').style.display = 'block';
+        }
+
         function selectInvoiceType(type) {
             currentInvoiceType = type;
             
@@ -794,87 +1263,403 @@
                 }
             });
             
-            // Mostrar/ocultar campos de factura
-            const facturaFields = document.getElementById('factura-fields');
+            // Mostrar/ocultar campos
             if (type === 'factura') {
-                facturaFields.classList.add('active');
+                showInvoiceFields();
             } else {
-                facturaFields.classList.remove('active');
+                hideInvoiceFields();
             }
         }
 
-        // Función para mostrar modal de éxito
-        function showSuccessModal(credits) {
-            creditsGranted = credits;
-            document.getElementById('creditsAmount').textContent = credits;
+        // Validaciones en tiempo real
+        function setupRealTimeValidation() {
+            // RUC validation
+            document.getElementById('ruc').addEventListener('blur', function(e) {
+                validateRUC(e.target);
+            });
             
-            const modal = document.getElementById('successModal');
-            modal.classList.add('active');
+            // Razón Social validation
+            document.getElementById('razonSocial').addEventListener('blur', function(e) {
+                validateRazonSocial(e.target);
+            });
             
-            // Efecto de confeti
-            createConfetti();
+            // Email validation
+            document.getElementById('cardholderEmail').addEventListener('blur', function(e) {
+                validateEmail(e.target);
+            });
+            
+            // Cardholder Name validation
+            document.getElementById('cardholderName').addEventListener('blur', function(e) {
+                validateName(e.target);
+            });
+            
+            // Document validation
+            document.getElementById('identificationNumber').addEventListener('blur', function(e) {
+                validateDocument(e.target);
+            });
         }
 
-        // Función para cerrar modal
-        function closeSuccessModal() {
-            document.getElementById('successModal').classList.remove('active');
-            // Redirigir a la app principal o dashboard
-            setTimeout(() => {
-                window.location.href = `app://payment-success?credits=${creditsGranted}`;
-            }, 300);
+        function validateRUC(input) {
+            const value = input.value.trim();
+            const hint = document.getElementById('rucHint');
+            
+            if (currentInvoiceType !== 'factura') return true;
+            
+            if (!value) {
+                hint.textContent = 'El RUC es requerido para factura';
+                hint.style.display = 'block';
+                return false;
+            }
+            
+            if (!/^\d{11}$/.test(value)) {
+                hint.textContent = 'El RUC debe tener 11 dígitos';
+                hint.style.display = 'block';
+                return false;
+            }
+            
+            hint.style.display = 'none';
+            return true;
         }
 
-        // Efecto de confeti
-        function createConfetti() {
-            const modalContent = document.querySelector('.modal-content');
-            const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+        function validateRazonSocial(input) {
+            const value = input.value.trim();
+            const hint = document.getElementById('razonSocialHint');
             
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = `${Math.random() * 100}%`;
-                confetti.style.top = `${Math.random() * 100}%`;
-                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.width = `${Math.random() * 10 + 5}px`;
-                confetti.style.height = confetti.style.width;
+            if (currentInvoiceType !== 'factura') return true;
+            
+            if (!value) {
+                hint.textContent = 'La razón social es requerida';
+                hint.style.display = 'block';
+                return false;
+            }
+            
+            if (value.length < 3) {
+                hint.textContent = 'La razón social debe tener al menos 3 caracteres';
+                hint.style.display = 'block';
+                return false;
+            }
+            
+            hint.style.display = 'none';
+            return true;
+        }
+
+        function validateEmail(input) {
+            const value = input.value.trim();
+            const hint = document.getElementById('emailHint');
+            
+            if (!value) {
+                hint.textContent = 'El email es requerido';
+                hint.style.display = 'block';
+                return false;
+            }
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                hint.textContent = 'Ingrese un email válido';
+                hint.style.display = 'block';
+                return false;
+            }
+            
+            hint.style.display = 'none';
+            return true;
+        }
+
+        function validateName(input) {
+            const value = input.value.trim();
+            if (!value || value.length < 3) {
+                return false;
+            }
+            return true;
+        }
+
+        function validateDocument(input) {
+            const value = input.value.trim();
+            const type = document.getElementById('identificationType').value;
+            
+            if (!value) return false;
+            
+            if (type === 'DNI') {
+                return /^\d{8}$/.test(value);
+            } else if (type === 'CI') {
+                return /^\d{7,10}$/.test(value);
+            }
+            
+            return true;
+        }
+
+        async function initMercadoPago() {
+            try {
+                // Obtener configuración
+                const config = await fetchConfig();
                 
-                modalContent.appendChild(confetti);
+                if (!config.mercadopagoPublicKey) {
+                    throw new Error('No se pudo obtener la clave pública de Mercado Pago');
+                }
                 
-                // Animación
-                setTimeout(() => {
-                    confetti.style.opacity = '1';
-                    confetti.style.transform = `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 + 50}px) rotate(${Math.random() * 360}deg)`;
-                    confetti.style.transition = 'all 0.8s ease-out';
-                }, 10);
+                // Inicializar SDK de Mercado Pago
+                mpInstance = new MercadoPago(config.mercadopagoPublicKey, {
+                    locale: 'es-PE',
+                    advancedFraudPrevention: true
+                });
                 
-                // Remover después de la animación
-                setTimeout(() => {
-                    confetti.remove();
-                }, 1000);
+                // Inicializar formulario de tarjeta
+                initCardForm();
+                
+            } catch (error) {
+                console.error('Error inicializando Mercado Pago:', error);
+                showMessage('Error de conexión', 'No se pudo conectar con el servicio de pagos', 'error');
+                throw error;
             }
         }
 
-        // Función para descargar comprobante
-        async function downloadReceipt() {
-            const btn = document.querySelector('#successModal .btn-primary');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<div class="btn-loading"></div>';
-            btn.disabled = true;
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (!response.ok) throw new Error('Error en la configuración');
+                return await response.json();
+            } catch (error) {
+                console.error('Error obteniendo configuración:', error);
+                throw error;
+            }
+        }
+
+        function initCardForm() {
+            try {
+                cardForm = mpInstance.cardForm({
+                    amount: amount,
+                    autoMount: true,
+                    form: {
+                        id: 'paymentForm',
+                        cardNumber: {
+                            id: 'cardNumberContainer',
+                            placeholder: '1234 5678 9012 3456'
+                        },
+                        expirationDate: {
+                            id: 'expirationDateContainer',
+                            placeholder: 'MM/AA'
+                        },
+                        securityCode: {
+                            id: 'securityCodeContainer',
+                            placeholder: '123'
+                        },
+                        cardholderName: {
+                            id: 'cardholderName',
+                            placeholder: 'Nombre como en la tarjeta'
+                        },
+                        cardholderEmail: {
+                            id: 'cardholderEmail',
+                            placeholder: 'Email para el comprobante'
+                        },
+                        identificationType: {
+                            id: 'identificationType'
+                        },
+                        identificationNumber: {
+                            id: 'identificationNumber',
+                            placeholder: 'Número de documento'
+                        },
+                        issuer: {
+                            id: 'issuer'
+                        },
+                        installments: {
+                            id: 'installments'
+                        }
+                    },
+                    callbacks: {
+                        onFormMounted: (error) => {
+                            if (error) {
+                                console.error('Error montando formulario:', error);
+                                showMessage('Error', 'No se pudo cargar el formulario de pago', 'error');
+                            } else {
+                                console.log('Formulario de pago cargado correctamente');
+                            }
+                        },
+                        onCardTokenReceived: (error, token) => {
+                            if (error) {
+                                console.error('Error generando token:', error);
+                                hideLoading();
+                                showMessage('Error en tarjeta', 'Revisa los datos de tu tarjeta', 'error');
+                            } else {
+                                processPaymentWithToken(token);
+                            }
+                        },
+                        onFetching: (resource) => {
+                            console.log('Cargando:', resource);
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error inicializando formulario:', error);
+                showMessage('Error', 'No se pudo inicializar el formulario de pago', 'error');
+                throw error;
+            }
+        }
+
+        async function processPayment(event) {
+            event.preventDefault();
+            
+            // Validar formulario completo
+            if (!validateCompleteForm()) {
+                return;
+            }
+            
+            // Mostrar loading
+            showLoading('Procesando pago...');
             
             try {
+                // Generar token de tarjeta
+                const formData = cardForm.getCardFormData();
+                
+                if (!formData) {
+                    throw new Error('No se pudieron obtener los datos del formulario');
+                }
+                
+                // El token se obtendrá automáticamente vía onCardTokenReceived
+                
+            } catch (error) {
+                console.error('Error procesando pago:', error);
+                hideLoading();
+                showMessage('Error', 'Error al procesar el pago: ' + error.message, 'error');
+            }
+        }
+
+        function validateCompleteForm() {
+            let isValid = true;
+            const errors = [];
+            
+            // Validar campos básicos
+            if (!validateEmail(document.getElementById('cardholderEmail'))) {
+                errors.push('Email inválido');
+                isValid = false;
+            }
+            
+            if (!validateName(document.getElementById('cardholderName'))) {
+                errors.push('Nombre del titular requerido');
+                isValid = false;
+            }
+            
+            if (!validateDocument(document.getElementById('identificationNumber'))) {
+                errors.push('Número de documento inválido');
+                isValid = false;
+            }
+            
+            // Validar campos de factura si es necesario
+            if (currentInvoiceType === 'factura') {
+                if (!validateRUC(document.getElementById('ruc'))) {
+                    errors.push('RUC inválido');
+                    isValid = false;
+                }
+                
+                if (!validateRazonSocial(document.getElementById('razonSocial'))) {
+                    errors.push('Razón social requerida');
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                showMessage('Error de validación', errors.join(', '), 'error');
+            }
+            
+            return isValid;
+        }
+
+        async function processPaymentWithToken(token) {
+            try {
+                const formData = cardForm.getCardFormData();
+                
+                // Preparar datos para el pago
+                const paymentData = {
+                    token: token,
+                    amount: amount,
+                    description: description,
+                    installments: formData.installments,
+                    payment_method_id: formData.paymentMethodId,
+                    issuer_id: formData.issuerId,
+                    email: formData.cardholderEmail,
+                    identificationType: formData.identificationType,
+                    identificationNumber: formData.identificationNumber,
+                    uid: uid,
+                    invoiceType: currentInvoiceType,
+                    ruc: currentInvoiceType === 'factura' ? document.getElementById('ruc').value : null,
+                    razonSocial: currentInvoiceType === 'factura' ? document.getElementById('razonSocial').value : null
+                };
+                
+                // Enviar pago al servidor
+                const response = await fetch('/api/pay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentData)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Error en el pago');
+                }
+                
+                hideLoading();
+                
+                if (result.status === 'approved') {
+                    currentPaymentId = result.id;
+                    
+                    // Mostrar pantalla de éxito
+                    showSuccessScreen(result);
+                } else {
+                    showMessage('Pago rechazado', 
+                        result.status_detail || 'El pago no pudo ser procesado', 
+                        'error');
+                }
+                
+            } catch (error) {
+                console.error('Error procesando pago:', error);
+                hideLoading();
+                showMessage('Error', 'Error al procesar el pago: ' + error.message, 'error');
+            }
+        }
+
+        function showSuccessScreen(paymentResult) {
+            // Calcular créditos otorgados
+            const credits = creditMap[parseInt(amount)] || 0;
+            creditsGranted = credits;
+            
+            // Actualizar display de créditos
+            document.getElementById('creditsAmount').textContent = credits;
+            
+            // Actualizar información del comprobante
+            const invoiceTypeText = currentInvoiceType === 'boleta' ? 'Boleta de Venta' : 'Factura';
+            document.getElementById('invoiceInfo').textContent = `${invoiceTypeText} #${paymentResult.id}`;
+            
+            // Cambiar a pantalla de éxito
+            document.getElementById('paymentScreen').classList.remove('active');
+            document.getElementById('successScreen').classList.add('active');
+            
+            // Animar entrada
+            setTimeout(() => {
+                const elements = document.querySelectorAll('#successScreen .animate-in');
+                elements.forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.1}s`;
+                    el.classList.add('animate-in');
+                });
+            }, 100);
+        }
+
+        async function generateReceipt() {
+            try {
+                showLoading('Generando comprobante...');
+                
                 const invoiceData = {
                     paymentId: currentPaymentId,
                     type: currentInvoiceType,
                     amount: parseFloat(amount),
                     credits: creditsGranted,
                     description: description,
-                    email: document.getElementById('form-checkout__cardholderEmail').value
+                    email: document.getElementById('cardholderEmail').value
                 };
                 
                 // Agregar datos de factura si corresponde
                 if (currentInvoiceType === 'factura') {
                     invoiceData.ruc = document.getElementById('ruc').value;
-                    invoiceData.razonSocial = document.getElementById('razon-social').value;
+                    invoiceData.razonSocial = document.getElementById('razonSocial').value;
                 }
                 
                 const response = await fetch('/api/generate-invoice', {
@@ -885,199 +1670,117 @@
                 
                 const result = await response.json();
                 
-                if (result.pdfUrl) {
-                    // Abrir PDF en nueva pestaña
-                    window.open(result.pdfUrl, '_blank');
-                    
-                    // También ofrecer descarga directa
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = result.downloadUrl;
-                    downloadLink.download = `comprobante_${currentPaymentId}.pdf`;
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                } else {
-                    throw new Error('No se pudo generar el comprobante');
+                hideLoading();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Error generando comprobante');
                 }
+                
+                return result;
+                
             } catch (error) {
-                console.error('Error al descargar comprobante:', error);
-                alert('Hubo un error al generar el comprobante. Por favor, inténtalo de nuevo.');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                console.error('Error generando comprobante:', error);
+                hideLoading();
+                showMessage('Error', 'No se pudo generar el comprobante', 'error');
+                throw error;
             }
         }
 
-        // Inicialización de Mercado Pago
-        async function initMercadoPago() {
+        async function viewReceipt() {
             try {
-                // Mostrar información de la compra
-                document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
-                document.getElementById('display-description').textContent = description;
-                
-                // Obtener configuración
-                const response = await fetch('/api/config');
-                if (!response.ok) throw new Error('Error en la configuración');
-                
-                const config = await response.json();
-                
-                // Ocultar pantalla de carga
-                document.getElementById('loadingScreen').style.display = 'none';
-                
-                // Prellenar email si está disponible
-                if (email) {
-                    document.getElementById('form-checkout__cardholderEmail').value = email;
-                }
-                
-                // Inicializar Mercado Pago
-                const mp = new MercadoPago(config.mercadopagoPublicKey, {
-                    locale: 'es-PE'
-                });
-                
-                // Configurar formulario de tarjeta
-                const cardForm = mp.cardForm({
-                    amount: amount.toString(),
-                    iframe: true,
-                    form: {
-                        id: 'form-checkout',
-                        cardNumber: { 
-                            id: 'form-checkout__cardNumber', 
-                            placeholder: '1234 5678 9012 3456' 
-                        },
-                        expirationDate: { 
-                            id: 'form-checkout__expirationDate', 
-                            placeholder: 'MM/AA' 
-                        },
-                        securityCode: { 
-                            id: 'form-checkout__securityCode', 
-                            placeholder: '123' 
-                        },
-                        cardholderName: { id: 'form-checkout__cardholderName' },
-                        issuer: { id: 'form-checkout__issuer' },
-                        installments: { id: 'form-checkout__installments' },
-                        cardholderEmail: { id: 'form-checkout__cardholderEmail' },
-                        identificationType: { id: 'form-checkout__identificationType' },
-                        identificationNumber: { id: 'form-checkout__identificationNumber' }
-                    },
-                    callbacks: {
-                        onFormMounted: error => {
-                            if (error) {
-                                console.error('Error montando formulario:', error);
-                                showError('Error al cargar el formulario de pago');
-                            } else {
-                                console.log('Formulario montado correctamente');
-                            }
-                        },
-                        onSubmit: async (event) => {
-                            event.preventDefault();
-                            const submitBtn = document.getElementById('form-checkout__submit');
-                            submitBtn.innerHTML = '<div class="btn-loading"></div>';
-                            submitBtn.disabled = true;
-                            
-                            try {
-                                const formData = cardForm.getCardFormData();
-                                
-                                // Mostrar pantalla de carga
-                                document.getElementById('loadingScreen').style.display = 'flex';
-                                document.getElementById('loadingText').textContent = 'Procesando pago...';
-                                
-                                // Enviar pago al servidor
-                                const response = await fetch('/api/pay', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        token: formData.token,
-                                        amount: formData.amount,
-                                        description: description,
-                                        installments: formData.installments,
-                                        payment_method_id: formData.paymentMethodId,
-                                        issuer_id: formData.issuerId,
-                                        email: formData.cardholderEmail,
-                                        identificationType: formData.identificationType,
-                                        identificationNumber: formData.identificationNumber,
-                                        uid: uid,
-                                        invoiceType: currentInvoiceType,
-                                        ruc: currentInvoiceType === 'factura' ? document.getElementById('ruc').value : null,
-                                        razonSocial: currentInvoiceType === 'factura' ? document.getElementById('razon-social').value : null
-                                    })
-                                });
-                                
-                                const result = await response.json();
-                                
-                                if (!response.ok) {
-                                    throw new Error(result.error || 'Error en el pago');
-                                }
-                                
-                                // Ocultar pantalla de carga
-                                document.getElementById('loadingScreen').style.display = 'none';
-                                
-                                if (result.status === 'approved') {
-                                    currentPaymentId = result.id;
-                                    
-                                    // Calcular créditos otorgados basado en el monto
-                                    const creditMap = {
-                                        10: 60, 20: 125, 30: 200, 
-                                        50: 330, 100: 700, 200: 1500
-                                    };
-                                    
-                                    const credits = creditMap[parseInt(amount)] || 0;
-                                    
-                                    // Mostrar modal de éxito
-                                    showSuccessModal(credits);
-                                } else {
-                                    showError('El pago fue rechazado', result.status_detail);
-                                }
-                                
-                            } catch (error) {
-                                console.error('Error en el pago:', error);
-                                document.getElementById('loadingScreen').style.display = 'none';
-                                showError('Error procesando el pago', error.message);
-                            } finally {
-                                submitBtn.innerHTML = '<i class="fas fa-lock btn-icon"></i> CONFIRMAR PAGO SEGURO';
-                                submitBtn.disabled = false;
-                            }
-                        },
-                        onFetching: (resource) => {
-                            console.log('Fetching:', resource);
-                            // Mostrar carga para recursos específicos si es necesario
-                        }
-                    }
-                });
-                
+                const result = await generateReceipt();
+                window.open(result.pdfUrl, '_blank');
             } catch (error) {
-                console.error('Error inicializando Mercado Pago:', error);
-                showError('Error de configuración', 'No se pudo conectar con el servicio de pagos');
+                // El error ya fue manejado en generateReceipt
             }
         }
 
-        // Función para mostrar errores
-        function showError(message, detail = '') {
-            // Crear modal de error
-            const errorHtml = `
-                <div class="success-modal active">
-                    <div class="modal-content">
-                        <div style="color: var(--error-color); font-size: 80px; margin-bottom: 20px;">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <h2 class="modal-title" style="color: var(--error-color);">Error</h2>
-                        <p class="modal-subtitle">${message}</p>
-                        ${detail ? `<p style="color: var(--text-secondary); font-size: 14px; margin-top: 10px;">${detail}</p>` : ''}
-                        <div class="modal-actions" style="margin-top: 30px;">
-                            <button onclick="location.reload()" class="btn btn-primary">
-                                INTENTAR DE NUEVO
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = errorHtml;
-            document.body.appendChild(tempDiv.firstElementChild);
+        async function downloadReceipt() {
+            try {
+                const result = await generateReceipt();
+                
+                // Crear enlace de descarga
+                const downloadLink = document.createElement('a');
+                downloadLink.href = result.downloadUrl;
+                downloadLink.download = `comprobante_${currentPaymentId}.pdf`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+            } catch (error) {
+                // El error ya fue manejado en generateReceipt
+            }
         }
 
-        // Inicializar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', initMercadoPago);
+        function goToApp() {
+            // Redirigir a la app principal
+            window.location.href = `app://payment-success?credits=${creditsGranted}&paymentId=${currentPaymentId}`;
+        }
+
+        function goBack() {
+            if (document.getElementById('successScreen').classList.contains('active')) {
+                // Si estamos en la pantalla de éxito, volver a la de pago
+                document.getElementById('successScreen').classList.remove('active');
+                document.getElementById('paymentScreen').classList.add('active');
+            } else {
+                // Si estamos en la pantalla de pago, ir atrás en el historial
+                window.history.back();
+            }
+        }
+
+        // Funciones de utilidad
+        function showLoading(message) {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showMessage(title, content, type = 'error') {
+            const container = document.getElementById('messageContainer');
+            const icon = document.getElementById('messageIcon');
+            const titleElement = document.getElementById('messageTitle');
+            const contentElement = document.getElementById('messageContent');
+            
+            // Configurar tipo
+            if (type === 'success') {
+                container.classList.add('success');
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            } else {
+                container.classList.remove('success');
+                icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            }
+            
+            // Configurar contenido
+            titleElement.textContent = title;
+            contentElement.textContent = content;
+            
+            // Mostrar
+            container.classList.add('show');
+            
+            // Ocultar automáticamente después de 5 segundos
+            setTimeout(() => {
+                hideMessage();
+            }, 5000);
+        }
+
+        function hideMessage() {
+            document.getElementById('messageContainer').classList.remove('show');
+        }
+
+        // Manejar errores no capturados
+        window.addEventListener('error', function(event) {
+            console.error('Error no capturado:', event.error);
+            showMessage('Error inesperado', 'Ocurrió un error inesperado. Por favor, intenta nuevamente.', 'error');
+        });
+
+        // Manejar promesas no capturadas
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Promesa no capturada:', event.reason);
+            showMessage('Error de sistema', 'Ocurrió un error inesperado. Por favor, intenta nuevamente.', 'error');
+        });
     </script>
 </body>
 </html>
