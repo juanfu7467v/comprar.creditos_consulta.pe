@@ -121,9 +121,10 @@
             box-shadow: 0 8px 15px rgba(79, 110, 247, 0.25);
         }
 
-        /* Formulario */
+        /* Formulario con íconos */
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         .label {
@@ -132,12 +133,22 @@
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 8px;
+            padding-left: 30px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 45px;
+            color: var(--primary-blue);
+            font-size: 16px;
+            z-index: 2;
         }
 
         .input-box {
             background: var(--white);
             border-radius: var(--radius-md);
-            padding: 14px 16px;
+            padding: 14px 16px 14px 45px;
             border: 1px solid #EAECEF;
             width: 100%;
             font-size: 15px;
@@ -150,6 +161,30 @@
             border-radius: var(--radius-md);
             border: 1px solid #EAECEF;
             overflow: hidden;
+            position: relative;
+        }
+
+        .mp-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-blue);
+            font-size: 16px;
+            z-index: 1;
+        }
+
+        /* Ajuste para inputs de MP con íconos */
+        #form-checkout__cardNumber {
+            padding-left: 45px;
+        }
+
+        #form-checkout__expirationDate {
+            padding-left: 45px;
+        }
+
+        #form-checkout__securityCode {
+            padding-left: 45px;
         }
 
         .grid-row {
@@ -158,10 +193,9 @@
             gap: 15px;
         }
 
-        /* Promo Card (Referencia Imagen 2) */
-        .promo-card {
+        /* Tarjeta bancaria gráfica */
+        .card-visual {
             background: var(--gradient);
-            background-size: 100% 100%; /* Ajuste pedido */
             border-radius: var(--radius-lg);
             padding: 25px;
             color: white;
@@ -169,29 +203,59 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(79, 110, 247, 0.3);
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .promo-logo {
-            font-size: 24px;
-            margin-bottom: 15px;
+        .card-chip {
+            width: 50px;
+            height: 35px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-chip::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            border-radius: 5px;
+        }
+
+        .card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-holder {
+            font-size: 14px;
             opacity: 0.9;
         }
 
-        .promo-amount {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .promo-text {
+        .card-expiry {
             font-size: 14px;
-            opacity: 0.8;
+            opacity: 0.9;
         }
 
-        .promo-code-info {
-            font-size: 11px;
-            margin-top: 15px;
-            opacity: 0.6;
+        .card-logo {
+            font-size: 24px;
+            opacity: 0.9;
         }
 
         /* Switch */
@@ -288,50 +352,63 @@
 <div class="iphone-container">
     <div class="header">
         <i class="fas fa-arrow-left back-btn" onclick="history.back()"></i>
-        <div class="header-title">Payment data</div>
+        <div class="header-title">Datos de Pago</div>
     </div>
 
     <div class="content">
         <div class="price-section">
-            <p class="price-label">Total price</p>
+            <p class="price-label">Precio Total</p>
             <div class="total-price" id="display-amount">S/ 0.00</div>
         </div>
 
         <div class="payment-methods">
             <div class="method-card">PayPal</div>
             <div class="method-card active">
-                Credit <i class="fas fa-check-circle"></i>
+                Tarjeta <i class="fas fa-check-circle"></i>
             </div>
-            <div class="method-card">Wallet</div>
+            <div class="method-card">Billetera</div>
         </div>
 
-        <div class="promo-card">
-            <div class="promo-logo"><i class="fab fa-nike"></i></div>
-            <div class="promo-amount">$50 off</div>
-            <div class="promo-text">On your first order</div>
-            <div class="promo-code-info">* Promo code valid for orders over $150</div>
+        <!-- Tarjeta bancaria gráfica -->
+        <div class="card-visual">
+            <div class="card-chip"></div>
+            <div class="card-number">•••• •••• •••• 1234</div>
+            <div class="card-footer">
+                <div class="card-holder">JUAN PEREZ</div>
+                <div class="card-expiry">12/28</div>
+                <div class="card-logo">
+                    <i class="fab fa-cc-visa"></i>
+                </div>
+            </div>
         </div>
 
         <form id="form-checkout">
             <div class="form-group">
-                <label class="label">Card number</label>
+                <label class="label">Número de Tarjeta</label>
+                <i class="fas fa-credit-card input-icon"></i>
                 <div id="form-checkout__cardNumber" class="mp-container"></div>
+                <i class="fas fa-credit-card mp-icon"></i>
             </div>
 
             <div class="grid-row">
                 <div class="form-group">
-                    <label class="label">Valid until</label>
+                    <label class="label">Fecha de Vencimiento</label>
+                    <i class="far fa-calendar-alt input-icon"></i>
                     <div id="form-checkout__expirationDate" class="mp-container"></div>
+                    <i class="far fa-calendar-alt mp-icon"></i>
                 </div>
                 <div class="form-group">
-                    <label class="label">CVV</label>
+                    <label class="label">Código de Seguridad</label>
+                    <i class="fas fa-lock input-icon"></i>
                     <div id="form-checkout__securityCode" class="mp-container"></div>
+                    <i class="fas fa-lock mp-icon"></i>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="label">Card holder</label>
-                <input type="text" id="form-checkout__cardholderName" class="input-box" placeholder="Your name and surname" />
+                <label class="label">Titular de la Tarjeta</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="form-checkout__cardholderName" class="input-box" placeholder="Nombre y apellidos" />
             </div>
 
             <div style="display:none">
@@ -343,14 +420,14 @@
             </div>
 
             <div class="flex-between">
-                <span class="switch-text">Save card data for future payments</span>
+                <span class="switch-text">Guardar datos de tarjeta para futuros pagos</span>
                 <label class="switch">
                     <input type="checkbox" checked>
                     <span class="slider"></span>
                 </label>
             </div>
 
-            <button type="submit" id="form-checkout__submit" class="main-btn">Proceed to confirm</button>
+            <button type="submit" id="form-checkout__submit" class="main-btn">Proceder a Confirmar</button>
         </form>
     </div>
 </div>
@@ -385,9 +462,18 @@
                 iframe: true,
                 form: {
                     id: 'form-checkout',
-                    cardNumber: { id: 'form-checkout__cardNumber', placeholder: '**** **** **** ****' },
-                    expirationDate: { id: 'form-checkout__expirationDate', placeholder: 'MM/YY' },
-                    securityCode: { id: 'form-checkout__securityCode', placeholder: '***' },
+                    cardNumber: { 
+                        id: 'form-checkout__cardNumber', 
+                        placeholder: '1234 5678 9012 3456' 
+                    },
+                    expirationDate: { 
+                        id: 'form-checkout__expirationDate', 
+                        placeholder: 'MM/AA' 
+                    },
+                    securityCode: { 
+                        id: 'form-checkout__securityCode', 
+                        placeholder: '123' 
+                    },
                     cardholderName: { id: 'form-checkout__cardholderName' },
                     issuer: { id: 'form-checkout__issuer' },
                     installments: { id: 'form-checkout__installments' },
@@ -430,7 +516,7 @@
                                 window.location.href = `app://payment-success?id=${result.id}`;
                             } else {
                                 alert("Pago rechazado: " + (result.error || "Verifique sus datos"));
-                                submitBtn.innerText = "Proceed to confirm";
+                                submitBtn.innerText = "Proceder a Confirmar";
                                 submitBtn.disabled = false;
                             }
                         } catch (e) {
