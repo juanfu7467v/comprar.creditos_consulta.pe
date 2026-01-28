@@ -144,10 +144,49 @@ const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({
 const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
 const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
-// Variable para rastrear pagos procesados en memoria (cache adicional)
+// 🔴 SOLUCIÓN PROBLEMA 1: Cache en memoria para idempotencia inmediata
 const processedPaymentsCache = new Map();
 
-// 🔴 SOLUCIÓN PROBLEMA 1: Función mejorada con idempotencia robusta
+// 🔴 SOLUCIÓN PROBLEMA 1: Mutex para evitar race conditions
+const paymentLocks = new Map();
+
+/**
+ * 🔴 SOLUCIÓN PROBLEMA 1: Función para adquirir lock de procesamiento
+ * Previene que el mismo pago se procese simultáneamente
+ */
+async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
+  const context = 'PAYMENT_LOCK';
+  const startTime = Date.now();
+  
+  while (paymentLocks.has(paymentRef)) {
+    if (Date.now() - startTime > maxWaitMs) {
+      logger.warn(context, 'Timeout esperando lock', { paymentRef, waitedMs: maxWaitMs });
+      return false;
+    }
+    // Esperar 100ms antes de reintentar
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  paymentLocks.set(paymentRef, Date.now());
+  logger.info(context, '🔒 Lock adquirido', { paymentRef });
+  return true;
+}
+
+/**
+ * 🔴 SOLUCIÓN PROBLEMA 1: Función para liberar lock de procesamiento
+ */
+function releasePaymentLock(paymentRef) {
+  const context = 'PAYMENT_LOCK';
+  paymentLocks.delete(paymentRef);
+  logger.info(context, '🔓 Lock liberado', { paymentRef });
+}
+
+/**
+ * 🔴🔵 FUNCIÓN PRINCIPAL CORREGIDA
+ * Soluciona ambos problemas:
+ * - Problema 1: Evita duplicación con idempotencia robusta
+ * - Problema 2: Acumula días correctamente en planes ilimitados
+ */
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
   
@@ -163,44 +202,71 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const paymentRefString = String(paymentRef);
   
-  // 🔴 CORRECCIÓN 1.1: Verificar cache de memoria primero
+  // 🔴 CORRECCIÓN 1.1: Verificar cache de memoria primero (respuesta instantánea)
   if (processedPaymentsCache.has(paymentRefString)) {
+    const cachedData = processedPaymentsCache.get(paymentRefString);
     logger.warn(context, '🚫 Pago ya procesado en cache de memoria (idempotencia)', { 
-      uid, paymentRef: paymentRefString, processor 
+      uid, 
+      paymentRef: paymentRefString, 
+      processor,
+      procesadoOriginalmentePor: cachedData.processor,
+      procesadoEn: cachedData.timestamp
     });
-    return { status: 'already_processed', message: 'Payment already processed in memory cache' };
+    return { 
+      status: 'already_processed', 
+      message: 'Payment already processed in memory cache',
+      originalProcessor: cachedData.processor,
+      processedAt: cachedData.timestamp
+    };
+  }
+
+  // 🔴 CORRECCIÓN 1.2: Adquirir lock para evitar procesamiento simultáneo
+  const lockAcquired = await acquirePaymentLock(paymentRefString);
+  if (!lockAcquired) {
+    logger.error(context, '❌ No se pudo adquirir lock para procesar pago', null, { 
+      uid, paymentRef: paymentRefString 
+    });
+    return { 
+      status: 'error', 
+      message: 'Could not acquire payment lock - concurrent processing detected' 
+    };
   }
 
   const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
   
   try {
-    // 🔴 CORRECCIÓN 1.2: Verificar en Firestore antes de procesar
+    // 🔴 CORRECCIÓN 1.3: Verificar en Firestore antes de procesar
     const doc = await pagoDoc.get();
     
     if (doc.exists) {
       const existingData = doc.data();
       
       // Verificar si ya fue procesado exitosamente
-      if (existingData.procesado === true) {
+      if (existingData.procesado === true && existingData.estado === "approved") {
         logger.warn(context, '🚫 Pago ya procesado anteriormente en Firestore (idempotencia)', { 
           uid, 
           paymentRef: paymentRefString, 
-          procesadoEn: existingData.procesadoEn,
-          processor: existingData.processor
+          procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
+          processor: existingData.procesadoPor
         });
         
         // Agregar a cache para futuras verificaciones
         processedPaymentsCache.set(paymentRefString, {
           uid,
-          timestamp: new Date().toISOString(),
-          processor: existingData.processor,
+          timestamp: existingData.procesadoEn?.toDate?.()?.toISOString() || new Date().toISOString(),
+          processor: existingData.procesadoPor,
           status: 'already_processed'
         });
+        
+        releasePaymentLock(paymentRefString);
         
         return { 
           status: 'already_processed', 
           data: existingData,
-          message: 'Payment was already processed successfully'
+          message: 'Payment was already processed successfully',
+          creditosOtorgados: existingData.creditosOtorgados || 0,
+          creditosNuevos: existingData.creditosNuevos || 0,
+          planOtorgado: existingData.planOtorgado || null
         };
       }
     }
@@ -209,7 +275,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       uid, email, montoPagado, processor, paymentRef: paymentRefString 
     });
 
-    // 🔴 CORRECCIÓN 1.3: Crear documento con estado "procesando" para evitar condiciones de carrera
+    // 🔴 CORRECCIÓN 1.4: Crear documento con estado "procesando" para evitar condiciones de carrera
     await pagoDoc.set({
       uid,
       email,
@@ -241,13 +307,15 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const tipoPlanActual = userData.tipoPlan || "creditos";
       const duracionDiasActual = userData.duracionDias || 0;
       const fechaActivacionActual = userData.fechaActivacion;
+      const planIlimitadoHastaActual = userData.planIlimitadoHasta;
       
       logger.info(context, '📊 Estado actual del usuario', { 
         uid, 
         creditosActuales, 
         tipoPlanActual,
         duracionDiasActual,
-        fechaActivacionActual: fechaActivacionActual?.toDate?.() || null
+        fechaActivacionActual: fechaActivacionActual?.toDate?.() || null,
+        planIlimitadoHasta: planIlimitadoHastaActual?.toDate?.() || null
       });
 
       // CASO 1: Compra de créditos
@@ -278,14 +346,21 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         const diasNuevos = PLANES_ILIMITADOS[montoNum];
         let duracionTotalDias;
         let fechaFinPlan;
+        let fechaActivacion;
         
-        // 🔵 CORRECCIÓN 2.1: Acumular días basándose en la fecha de activación actual
-        if (tipoPlanActual === "ilimitado" && fechaActivacionActual) {
-          // Si ya tiene plan ilimitado, acumular días
-          const fechaActivacion = fechaActivacionActual.toDate();
+        // 🔵 CORRECCIÓN 2.1: Verificar si ya tiene plan ilimitado ACTIVO
+        const ahora = new Date();
+        const tienePlanIlimitadoActivo = tipoPlanActual === "ilimitado" && 
+                                          fechaActivacionActual && 
+                                          planIlimitadoHastaActual &&
+                                          planIlimitadoHastaActual.toDate() > ahora;
+        
+        if (tienePlanIlimitadoActivo) {
+          // 🔵 CORRECCIÓN 2.2: Acumular días desde la fecha de activación original
+          fechaActivacion = fechaActivacionActual.toDate();
           duracionTotalDias = duracionDiasActual + diasNuevos;
           
-          // Calcular nueva fecha fin desde la fecha de activación + duración total
+          // Calcular nueva fecha fin: fechaActivacion + duracionTotalDias
           fechaFinPlan = moment(fechaActivacion).add(duracionTotalDias, 'days').toDate();
           
           logger.info(context, '➕ Acumulando días al plan ilimitado existente', {
@@ -294,31 +369,34 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
             diasNuevos,
             duracionTotalDias,
             fechaActivacionOriginal: fechaActivacion.toISOString(),
+            fechaFinAnterior: planIlimitadoHastaActual.toDate().toISOString(),
             nuevaFechaFin: fechaFinPlan.toISOString()
           });
           
         } else {
-          // Si no tiene plan ilimitado o es primera compra, crear nuevo
+          // 🔵 CORRECCIÓN 2.3: Crear nuevo plan ilimitado o renovar uno vencido
+          fechaActivacion = ahora;
           duracionTotalDias = diasNuevos;
-          fechaFinPlan = moment().add(diasNuevos, 'days').toDate();
+          fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
           
           logger.info(context, '🆕 Creando nuevo plan ilimitado', {
             uid,
             diasNuevos,
-            fechaInicio: new Date().toISOString(),
-            fechaFin: fechaFinPlan.toISOString()
+            fechaInicio: fechaActivacion.toISOString(),
+            fechaFin: fechaFinPlan.toISOString(),
+            razon: tienePlanIlimitadoActivo ? 'nuevo_plan' : 'plan_vencido_o_inexistente'
           });
         }
         
-        // 🔵 CORRECCIÓN 2.2: Actualizar con duración total acumulada
+        // 🔵 CORRECCIÓN 2.4: Actualizar con duración total acumulada
         t.update(userDoc, { 
-          duracionDias: duracionTotalDias, // Guardar duración total acumulada
+          duracionDias: duracionTotalDias, // ✅ Guardar duración total acumulada
           planIlimitadoHasta: fechaFinPlan,
-          creditos: 0,
+          creditos: 0, // Resetear créditos al tener plan ilimitado
           tipoPlan: "ilimitado",
-          fechaActivacion: tipoPlanActual === "ilimitado" && fechaActivacionActual 
-            ? fechaActivacionActual // Mantener fecha original si ya tenía plan
-            : admin.firestore.FieldValue.serverTimestamp(), // Nueva fecha si es primera compra
+          fechaActivacion: tienePlanIlimitadoActivo 
+            ? fechaActivacionActual // ✅ Mantener fecha original si ya tenía plan activo
+            : admin.firestore.FieldValue.serverTimestamp(), // Nueva fecha si es primera compra o plan vencido
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
         
@@ -327,7 +405,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           diasAgregados: diasNuevos,
           fechaFin: fechaFinPlan 
         };
-        descripcion = `Plan Ilimitado (${diasNuevos} días ${duracionTotalDias > diasNuevos ? '- Total acumulado: ' + duracionTotalDias + ' días' : ''})`;
+        descripcion = `Plan Ilimitado (${diasNuevos} días${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' días' : ''})`;
         
         logger.info(context, '✨ Plan ilimitado actualizado exitosamente', { 
           uid, 
@@ -346,7 +424,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         descripcion = `Pago de S/ ${montoPagado}`;
       }
       
-      // 🔴 CORRECCIÓN 1.4: Marcar pago como procesado exitosamente
+      // 🔴 CORRECCIÓN 1.5: Marcar pago como procesado exitosamente
       t.update(pagoDoc, { 
         descripcion,
         procesado: true, // ✅ Marcar como procesado
@@ -373,7 +451,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
-    // 🔴 CORRECCIÓN 1.5: Agregar a cache después de procesamiento exitoso
+    // 🔴 CORRECCIÓN 1.6: Agregar a cache después de procesamiento exitoso
     processedPaymentsCache.set(paymentRefString, {
       uid,
       timestamp: new Date().toISOString(),
@@ -381,19 +459,23 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       status: 'processed'
     });
     
-    // Limpiar cache después de 2 horas
+    // 🔴 CORRECCIÓN 1.7: Limpiar cache después de 2 horas para ahorrar memoria
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
       logger.info(context, '🧹 Pago removido del cache', { paymentRef: paymentRefString });
     }, 2 * 60 * 60 * 1000);
     
     logger.info(context, '✅ Transacción completada exitosamente', { uid, result });
+    
+    // Liberar lock
+    releasePaymentLock(paymentRefString);
+    
     return result;
 
   } catch (error) {
     logger.error(context, '❌ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
     
-    // Marcar el pago como fallido pero NO procesado
+    // 🔴 CORRECCIÓN 1.8: Marcar el pago como fallido pero NO procesado
     try {
       await pagoDoc.update({
         procesado: false,
@@ -405,6 +487,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     } catch (updateError) {
       logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef: paymentRefString });
     }
+    
+    // Liberar lock
+    releasePaymentLock(paymentRefString);
     
     return { status: 'error', message: error.message, error: error.stack };
   }
@@ -502,7 +587,7 @@ app.post("/api/pay", async (req, res) => {
       processingTime: `${processingTime}ms`
     });
 
-    // 🔴 CORRECCIÓN 1.6: Solo procesar si está aprobado instantáneamente
+    // 🔴 CORRECCIÓN 1.9: Solo procesar si está aprobado instantáneamente
     if (result.status === 'approved') {
       logger.info(context, '💳 Pago aprobado instantáneamente, otorgando beneficios', {
         paymentId: result.id,
@@ -519,7 +604,7 @@ app.post("/api/pay", async (req, res) => {
       
       logger.info(context, 'Resultado de otorgar beneficio', beneficioResult);
       
-      result.beneficioOtorgado = beneficioResult.status === 'success';
+      result.beneficioOtorgado = beneficioResult.status === 'success' || beneficioResult.status === 'already_processed';
       result.beneficioStatus = beneficioResult.status;
       
       if (beneficioResult.creditosOtorgados !== undefined) {
@@ -572,7 +657,7 @@ app.post("/api/pay", async (req, res) => {
   }
 });
 
-// 🔴 CORRECCIÓN 1.7: Webhook mejorado con mejor manejo de idempotencia
+// 🔴 CORRECCIÓN 1.10: Webhook mejorado con mejor manejo de idempotencia
 app.post("/api/webhook/mercadopago", async (req, res) => {
   const context = 'WEBHOOK_MP';
   const webhookData = req.body;
@@ -584,7 +669,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
     receivedAt: new Date().toISOString()
   });
 
-  // Responder inmediatamente a Mercado Pago (200 OK)
+  // ✅ Responder inmediatamente a Mercado Pago (200 OK) para evitar reintentos
   res.sendStatus(200);
 
   if (!mpClient) {
@@ -625,6 +710,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             paymentId, uid, email, amount
           });
 
+          // 🔴 La función otorgarBeneficio ahora maneja la idempotencia internamente
           const beneficioResult = await otorgarBeneficio(
             uid,
             email,
@@ -637,7 +723,8 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             paymentId,
             uid,
             beneficioStatus: beneficioResult.status,
-            message: beneficioResult.message || 'Procesado correctamente'
+            message: beneficioResult.message || 'Procesado correctamente',
+            wasAlreadyProcessed: beneficioResult.status === 'already_processed'
           });
 
         } else {
@@ -788,7 +875,8 @@ app.get("/api/health", async (req, res) => {
     hostUrl: HOST_URL,
     flyAppName: process.env.FLY_APP_NAME,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
-    processedPaymentsCacheSize: processedPaymentsCache.size
+    processedPaymentsCacheSize: processedPaymentsCache.size,
+    activePaymentLocks: paymentLocks.size
   };
   
   if (db) {
@@ -835,6 +923,34 @@ app.get("/api/debug/firebase", (req, res) => {
   });
 });
 
+// 🔴 NUEVO: Endpoint para limpiar cache manualmente (útil para debugging)
+app.post("/api/admin/clear-cache", (req, res) => {
+  const context = 'ADMIN_CLEAR_CACHE';
+  
+  try {
+    const cacheSize = processedPaymentsCache.size;
+    const locksSize = paymentLocks.size;
+    
+    processedPaymentsCache.clear();
+    paymentLocks.clear();
+    
+    logger.info(context, '🧹 Cache limpiado manualmente', {
+      paymentsRemoved: cacheSize,
+      locksRemoved: locksSize
+    });
+    
+    res.json({
+      success: true,
+      message: 'Cache cleared successfully',
+      paymentsRemoved: cacheSize,
+      locksRemoved: locksSize
+    });
+  } catch (error) {
+    logger.error(context, 'Error limpiando cache', error);
+    res.status(500).json({ error: 'Error clearing cache' });
+  }
+});
+
 // Manejo de errores global
 app.use((err, req, res, next) => {
   logger.error('GLOBAL_ERROR', 'Error no manejado', err, {
@@ -853,7 +969,7 @@ app.use((err, req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "1.0.0",
+    version: "2.0.0 - Fixed Duplicate Credits & Cumulative Days",
     endpoints: {
       config: "/api/config",
       pay: "/api/pay",
@@ -861,7 +977,12 @@ app.get("/", (req, res) => {
       webhook: "/api/webhook/mercadopago",
       invoice: "/api/generate-invoice",
       paymentInfo: "/api/payment/:paymentId",
-      debug: "/api/debug/firebase"
+      debug: "/api/debug/firebase",
+      clearCache: "/api/admin/clear-cache"
+    },
+    fixes: {
+      duplicateCredits: "✅ Fixed - Idempotency implemented",
+      cumulativeDays: "✅ Fixed - Days now accumulate correctly"
     },
     status: "online",
     timestamp: new Date().toISOString()
@@ -874,6 +995,8 @@ app.listen(PORT, "0.0.0.0", () => {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
+    version: '2.0.0',
+    fixes: 'Duplicate credits + Cumulative days',
     timestamp: new Date().toISOString()
   });
 });
