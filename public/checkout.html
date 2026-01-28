@@ -20,7 +20,6 @@
             --gradient: linear-gradient(135deg, #4F6EF7 0%, #7E57FF 100%);
             --radius-lg: 18px;
             --radius-md: 12px;
-            --radius-sm: 8px;
         }
 
         * {
@@ -46,25 +45,9 @@
             min-height: 100vh;
             position: relative;
             padding-bottom: 40px;
-            overflow-x: hidden;
         }
 
-        /* Estados de pantalla */
-        .screen {
-            display: none;
-        }
-        
-        .screen.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Header común */
+        /* Header */
         .header {
             padding: 20px;
             display: flex;
@@ -95,12 +78,11 @@
             margin-right: 30px;
         }
 
-        /* Contenido común */
+        /* Contenido */
         .content {
             padding: 0 24px;
         }
 
-        /* --- PANTALLA 1: CHECKOUT --- */
         .price-section {
             margin: 10px 0 25px;
         }
@@ -117,6 +99,7 @@
             color: var(--primary-blue);
         }
 
+        /* Tarjeta de Crédito Visual */
         .credit-card-display {
             background: var(--gradient);
             border-radius: var(--radius-lg);
@@ -229,6 +212,12 @@
             text-transform: uppercase;
         }
 
+        .card-logo {
+            font-size: 32px;
+            opacity: 0.9;
+        }
+
+        /* Formulario */
         .form-group {
             margin-bottom: 20px;
             position: relative;
@@ -240,6 +229,21 @@
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 8px;
+        }
+
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--text-gray);
+            font-size: 18px;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .input-box {
@@ -257,6 +261,10 @@
             outline: none;
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.1);
+        }
+
+        .input-with-icon .input-box {
+            padding-left: 45px;
         }
 
         .mp-container {
@@ -284,6 +292,10 @@
 
         .mp-container.with-icon iframe {
             padding-left: 45px !important;
+        }
+
+        .mp-container iframe {
+            text-align: center !important;
         }
 
         .mp-container.with-icon-expiry::before {
@@ -343,7 +355,7 @@
             margin-bottom: 0;
         }
 
-        /* Botones */
+        /* Botón Principal */
         .main-btn {
             background: var(--primary-blue);
             color: white;
@@ -374,366 +386,17 @@
             box-shadow: none;
         }
 
-        .secondary-btn {
-            background: var(--white);
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-            width: 100%;
-            padding: 18px;
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 12px;
-        }
-
-        .secondary-btn:hover {
-            background: var(--light-blue);
-        }
-
-        /* --- PANTALLA 2: PAGO EXITOSO --- */
-        .success-screen .header {
-            background: linear-gradient(135deg, var(--success-green) 0%, #34D399 100%);
-            color: white;
-        }
-
-        .success-screen .header-title,
-        .success-screen .back-btn {
-            color: white;
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
+        .main-btn.success {
             background: var(--success-green);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 30px auto 20px;
-        }
-
-        .success-icon i {
-            font-size: 36px;
-            color: white;
-        }
-
-        .success-title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--success-green);
-            margin-bottom: 8px;
-        }
-
-        .success-message {
-            text-align: center;
-            color: var(--text-gray);
-            font-size: 15px;
-            margin-bottom: 30px;
-        }
-
-        /* Tabla de detalles de compra */
-        .purchase-details {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #F1F3F5;
-        }
-
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: var(--text-gray);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .detail-value {
-            color: var(--text-dark);
-            font-size: 14px;
-            font-weight: 600;
-            text-align: right;
-        }
-
-        /* Opciones de boleta/factura */
-        .invoice-options {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .invoice-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-dark);
-        }
-
-        .invoice-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 2px solid #EAECEF;
-            border-radius: var(--radius-md);
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .invoice-option:hover {
-            border-color: var(--primary-blue);
-            background: var(--light-blue);
-        }
-
-        .invoice-option.selected {
-            border-color: var(--primary-blue);
-            background: var(--light-blue);
-        }
-
-        .invoice-option .radio {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--text-gray);
-            border-radius: 50%;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .invoice-option.selected .radio {
-            border-color: var(--primary-blue);
-        }
-
-        .invoice-option.selected .radio::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: var(--primary-blue);
-            border-radius: 50%;
-        }
-
-        .invoice-option-content {
-            flex: 1;
-        }
-
-        .invoice-option-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 4px;
-        }
-
-        .invoice-option-desc {
-            font-size: 13px;
-            color: var(--text-gray);
-        }
-
-        /* Campos para factura */
-        .invoice-fields {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            display: none;
-        }
-
-        .invoice-fields.active {
-            display: block;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .field-group {
-            margin-bottom: 16px;
-        }
-
-        .field-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .field-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .field-input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #EAECEF;
-            border-radius: var(--radius-md);
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .field-input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.1);
-        }
-
-        /* Botón de descarga */
-        .download-btn {
-            background: var(--success-green);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 18px;
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-            transition: all 0.3s;
-            margin-top: 5px;
         }
 
-        .download-btn:hover {
-            background: #0EA271;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-        }
-
-        .download-btn:active {
-            transform: scale(0.98);
-        }
-
-        .download-btn i {
-            margin-right: 8px;
-        }
-
-        /* --- PANTALLA 3: PAGO FALLIDO --- */
-        .error-screen .header {
-            background: linear-gradient(135deg, var(--error-red) 0%, #F87171 100%);
-            color: white;
-        }
-
-        .error-screen .header-title,
-        .error-screen .back-btn {
-            color: white;
-        }
-
-        .error-icon {
-            width: 80px;
-            height: 80px;
+        .main-btn.error {
             background: var(--error-red);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 30px auto 20px;
-        }
-
-        .error-icon i {
-            font-size: 36px;
-            color: white;
-        }
-
-        .error-title {
-            text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--error-red);
-            margin-bottom: 8px;
-        }
-
-        .error-message {
-            text-align: center;
-            color: var(--text-gray);
-            font-size: 15px;
-            margin-bottom: 30px;
-        }
-
-        .error-details {
-            background: var(--white);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .error-detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #F1F3F5;
-        }
-
-        .error-detail-item:last-child {
-            border-bottom: none;
-        }
-
-        .error-detail-label {
-            color: var(--text-gray);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .error-detail-value {
-            color: var(--text-dark);
-            font-size: 14px;
-            font-weight: 600;
-            text-align: right;
-            max-width: 60%;
-            word-break: break-word;
-        }
-
-        .error-action-btn {
-            background: var(--error-red);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 18px;
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
-            transition: all 0.3s;
-            margin-top: 5px;
         }
 
-        .error-action-btn:hover {
-            background: #DC2626;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-        }
-
-        .error-action-btn:active {
-            transform: scale(0.98);
-        }
-
-        .error-action-btn i {
-            margin-right: 8px;
-        }
-
-        /* Loading Screen */
+        /* Pantalla de Carga */
         #loadingScreen {
             position: fixed;
             inset: 0;
@@ -765,6 +428,7 @@
             font-weight: 500;
         }
 
+        /* Indicador de seguridad */
         .security-badge {
             display: flex;
             align-items: center;
@@ -783,12 +447,213 @@
             font-size: 16px;
         }
 
-        /* Campo oculto */
         .hidden-field {
             display: none !important;
         }
 
-        /* Responsive */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== ESTILOS PARA SUCCESS SCREEN ===== */
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto 20px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .success-icon i {
+            color: white;
+            font-size: 40px;
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto 20px;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        .error-icon i {
+            color: white;
+            font-size: 40px;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--success-green);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--error-red);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .success-subtitle {
+            font-size: 14px;
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Tabla de información */
+        .info-table {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .info-value.highlight {
+            color: var(--primary-blue);
+            font-size: 16px;
+        }
+
+        /* Selector de comprobante */
+        .voucher-selector {
+            margin-bottom: 20px;
+        }
+
+        .voucher-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .voucher-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .voucher-option {
+            background: var(--white);
+            border: 2px solid #E5E7EB;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .voucher-option:active {
+            transform: scale(0.98);
+        }
+
+        .voucher-option.selected {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .voucher-option-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .voucher-option-desc {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        /* Campos adicionales de factura */
+        .factura-fields {
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .factura-fields.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animación de entrada */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive mejorado */
         @media (max-width: 380px) {
             .content {
                 padding: 0 20px;
@@ -806,29 +671,59 @@
                 grid-template-columns: 100px 1fr;
                 gap: 12px;
             }
-            
-            .detail-row {
-                flex-direction: column;
-                gap: 4px;
+
+            .success-icon, .error-icon {
+                width: 70px;
+                height: 70px;
             }
-            
-            .detail-value {
-                text-align: left;
+
+            .success-icon i, .error-icon i {
+                font-size: 35px;
             }
+        }
+
+        /* Error message box */
+        .error-message {
+            background: #FEE2E2;
+            border: 1px solid #FCA5A5;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .error-message i {
+            color: var(--error-red);
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .error-message-content {
+            flex: 1;
+        }
+
+        .error-message-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--error-red);
+            margin-bottom: 4px;
+        }
+
+        .error-message-text {
+            font-size: 13px;
+            color: #991B1B;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
 <div class="iphone-container">
-    <!-- Pantalla de carga inicial -->
-    <div id="loadingScreen">
-        <div class="spinner"></div>
-        <p class="loading-text">Iniciando pago seguro...</p>
-    </div>
-
-    <!-- PANTALLA 1: CHECKOUT -->
-    <div id="checkoutScreen" class="screen active">
+    <!-- ========== PANTALLA DE CHECKOUT (INICIAL) ========== -->
+    <div id="checkoutScreen">
         <div class="header">
             <i class="fas fa-arrow-left back-btn" onclick="history.back()"></i>
             <div class="header-title">Datos de Pago</div>
@@ -935,340 +830,378 @@
         </div>
     </div>
 
-    <!-- PANTALLA 2: PAGO EXITOSO -->
-    <div id="successScreen" class="screen success-screen">
+    <!-- ========== PANTALLA DE PAGO EXITOSO ========== -->
+    <div id="successScreen" class="hidden">
         <div class="header">
-            <i class="fas fa-arrow-left back-btn" onclick="showScreen('checkoutScreen')"></i>
+            <i class="fas fa-times back-btn" onclick="closePayment()"></i>
             <div class="header-title">Pago Exitoso</div>
         </div>
 
-        <div class="content">
+        <div class="content fade-in">
             <div class="success-icon">
                 <i class="fas fa-check"></i>
             </div>
 
-            <h1 class="success-title">¡Pago Aprobado!</h1>
-            <p class="success-message">Tu compra se ha procesado correctamente</p>
+            <h2 class="success-title">¡Pago Aprobado!</h2>
+            <p class="success-subtitle">Tu transacción se procesó correctamente</p>
 
-            <div class="purchase-details">
-                <div class="detail-row">
-                    <span class="detail-label">Monto pagado</span>
-                    <span class="detail-value" id="success-amount">S/ 0.00</span>
+            <!-- Tabla de información -->
+            <div class="info-table">
+                <div class="info-row">
+                    <span class="info-label">Correo</span>
+                    <span class="info-value" id="success-email">-</span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Créditos otorgados</span>
-                    <span class="detail-value" id="success-credits">0</span>
+                <div class="info-row">
+                    <span class="info-label">Monto pagado</span>
+                    <span class="info-value highlight" id="success-amount">S/ 0.00</span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Fecha</span>
-                    <span class="detail-value" id="success-date">--/--/----</span>
+                <div class="info-row">
+                    <span class="info-label">Créditos otorgados</span>
+                    <span class="info-value highlight" id="success-credits">0</span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Hora</span>
-                    <span class="detail-value" id="success-time">--:--</span>
+                <div class="info-row">
+                    <span class="info-label">Fecha</span>
+                    <span class="info-value" id="success-date">-</span>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">ID de transacción</span>
-                    <span class="detail-value" id="success-transaction-id">-----------</span>
+                <div class="info-row">
+                    <span class="info-label">Hora</span>
+                    <span class="info-value" id="success-time">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ID de transacción</span>
+                    <span class="info-value" id="success-transaction-id">-</span>
                 </div>
             </div>
 
-            <div class="invoice-options">
-                <div class="invoice-title">¿Deseas boleta o factura?</div>
+            <!-- Selector de comprobante -->
+            <div class="voucher-selector">
+                <p class="voucher-title">¿Deseas boleta o factura?</p>
                 
-                <div class="invoice-option" onclick="selectInvoiceOption('boleta')" id="option-boleta">
-                    <div class="radio"></div>
-                    <div class="invoice-option-content">
-                        <div class="invoice-option-title">Boleta</div>
-                        <div class="invoice-option-desc">Para personas naturales (no requiere RUC)</div>
+                <div class="voucher-options">
+                    <div class="voucher-option selected" data-type="boleta">
+                        <div class="voucher-option-label">
+                            <i class="fas fa-file-invoice"></i> Boleta
+                        </div>
+                        <div class="voucher-option-desc">Para personas naturales</div>
+                    </div>
+                    <div class="voucher-option" data-type="factura">
+                        <div class="voucher-option-label">
+                            <i class="fas fa-file-alt"></i> Factura
+                        </div>
+                        <div class="voucher-option-desc">Para empresas</div>
                     </div>
                 </div>
 
-                <div class="invoice-option" onclick="selectInvoiceOption('factura')" id="option-factura">
-                    <div class="radio"></div>
-                    <div class="invoice-option-content">
-                        <div class="invoice-option-title">Factura</div>
-                        <div class="invoice-option-desc">Para empresas con RUC</div>
+                <!-- Campos adicionales para factura -->
+                <div class="factura-fields" id="facturaFields">
+                    <div class="form-group">
+                        <label class="label">RUC</label>
+                        <input 
+                            type="text" 
+                            id="ruc-input" 
+                            class="input-box" 
+                            placeholder="20123456789"
+                            maxlength="11"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label class="label">Razón Social</label>
+                        <input 
+                            type="text" 
+                            id="razon-social-input" 
+                            class="input-box" 
+                            placeholder="Nombre de la empresa"
+                        />
                     </div>
                 </div>
             </div>
 
-            <div class="invoice-fields" id="invoice-fields">
-                <div class="field-group">
-                    <label class="field-label">RUC</label>
-                    <input type="text" class="field-input" id="invoice-ruc" placeholder="10XXXXXXXXX" maxlength="11">
-                </div>
-                <div class="field-group">
-                    <label class="field-label">Razón Social</label>
-                    <input type="text" class="field-input" id="invoice-razon-social" placeholder="Nombre de la empresa">
-                </div>
-            </div>
-
-            <button class="download-btn" onclick="generateReceipt()" id="download-btn">
-                <i class="fas fa-file-download"></i> Descargar boleta
+            <button class="main-btn success" id="downloadVoucherBtn">
+                <i class="fas fa-download"></i> Descargar <span id="voucherTypeText">Boleta</span>
             </button>
 
-            <button class="secondary-btn" onclick="returnToHome()">
-                <i class="fas fa-home"></i> Volver al inicio
+            <button class="main-btn" onclick="closePayment()" style="margin-top: 12px; background: var(--text-gray);">
+                <i class="fas fa-home"></i> Volver a la App
             </button>
         </div>
     </div>
 
-    <!-- PANTALLA 3: PAGO FALLIDO -->
-    <div id="errorScreen" class="screen error-screen">
+    <!-- ========== PANTALLA DE PAGO FALLIDO ========== -->
+    <div id="failedScreen" class="hidden">
         <div class="header">
-            <i class="fas fa-arrow-left back-btn" onclick="showScreen('checkoutScreen')"></i>
-            <div class="header-title">Pago Fallido</div>
+            <i class="fas fa-times back-btn" onclick="retryPayment()"></i>
+            <div class="header-title">Pago No Aprobado</div>
         </div>
 
-        <div class="content">
+        <div class="content fade-in">
             <div class="error-icon">
                 <i class="fas fa-times"></i>
             </div>
 
-            <h1 class="error-title">Pago No Aprobado</h1>
-            <p class="error-message">No pudimos procesar tu pago</p>
+            <h2 class="error-title">Pago Rechazado</h2>
+            <p class="success-subtitle">No se pudo procesar tu transacción</p>
 
-            <div class="error-details">
-                <div class="error-detail-item">
-                    <span class="error-detail-label">Monto</span>
-                    <span class="error-detail-value" id="error-amount">S/ 0.00</span>
-                </div>
-                <div class="error-detail-item">
-                    <span class="error-detail-label">Fecha</span>
-                    <span class="error-detail-value" id="error-date">--/--/----</span>
-                </div>
-                <div class="error-detail-item">
-                    <span class="error-detail-label">Motivo</span>
-                    <span class="error-detail-value" id="error-reason">No especificado</span>
-                </div>
-                <div class="error-detail-item">
-                    <span class="error-detail-label">ID de transacción</span>
-                    <span class="error-detail-value" id="error-transaction-id">-----------</span>
+            <!-- Mensaje de error -->
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <div class="error-message-content">
+                    <div class="error-message-title">Motivo del rechazo</div>
+                    <div class="error-message-text" id="error-reason">
+                        La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.
+                    </div>
                 </div>
             </div>
 
-            <button class="error-action-btn" onclick="retryPayment()">
-                <i class="fas fa-redo"></i> Reintentar pago
+            <!-- Tabla de información (opcional) -->
+            <div class="info-table">
+                <div class="info-row">
+                    <span class="info-label">Monto intentado</span>
+                    <span class="info-value" id="failed-amount">S/ 0.00</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha del intento</span>
+                    <span class="info-value" id="failed-date">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Hora</span>
+                    <span class="info-value" id="failed-time">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ID de referencia</span>
+                    <span class="info-value" id="failed-transaction-id">-</span>
+                </div>
+            </div>
+
+            <button class="main-btn" onclick="retryPayment()" style="margin-top: 20px;">
+                <i class="fas fa-redo"></i> Reintentar Pago
             </button>
 
-            <button class="secondary-btn" onclick="returnToHome()">
-                <i class="fas fa-home"></i> Volver al inicio
+            <button class="main-btn" onclick="closePayment()" style="margin-top: 12px; background: var(--text-gray);">
+                <i class="fas fa-home"></i> Volver a la App
             </button>
         </div>
     </div>
 </div>
 
+<div id="loadingScreen">
+    <div class="spinner"></div>
+    <p class="loading-text">Iniciando pago seguro...</p>
+</div>
+
 <script>
-    // ============================
-    // VARIABLES GLOBALES
-    // ============================
+    // ===== VARIABLES GLOBALES =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const amount = urlParams.get('amount') || "10.00";
+    const uid = urlParams.get('uid');
+    const email = urlParams.get('email');
+    const description = urlParams.get('description') || 'Créditos Consulta PE';
+
+    let currentPaymentId = null;
     let currentPaymentData = {};
-    let selectedInvoiceType = 'boleta';
-    let mercadopagoSDK = null;
-    
-    // Mapeo de montos a créditos
-    const AMOUNT_TO_CREDITS = {
-        '10': 60,
-        '20': 125,
-        '30': 200,
-        '50': 330,
-        '100': 700,
-        '200': 1500
-    };
+    let selectedVoucherType = 'boleta';
 
-    // ============================
-    // FUNCIONES DE NAVEGACIÓN
-    // ============================
+    // ===== VALIDACIONES INICIALES =====
+    if (!uid) {
+        alert('Error: No se encontró el identificador de usuario');
+        window.location.href = '/';
+    }
+
+    // ===== FUNCIONES DE NAVEGACIÓN =====
     function showScreen(screenId) {
-        // Ocultar todas las pantallas
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
+        document.getElementById('checkoutScreen').classList.add('hidden');
+        document.getElementById('successScreen').classList.add('hidden');
+        document.getElementById('failedScreen').classList.add('hidden');
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function closePayment() {
+        window.location.href = 'app://payment-close';
+    }
+
+    function retryPayment() {
+        location.reload();
+    }
+
+    // ===== ACTUALIZACIÓN DE TARJETA VISUAL =====
+    function updateCardDisplay() {
+        const cardholderName = document.getElementById('form-checkout__cardholderName');
+        const visualCardHolder = document.getElementById('visual-card-holder');
+        
+        if (cardholderName && visualCardHolder) {
+            cardholderName.addEventListener('input', (e) => {
+                const value = e.target.value.toUpperCase() || 'TU NOMBRE';
+                visualCardHolder.textContent = value.substring(0, 22);
+            });
+        }
+    }
+
+    // ===== SELECTOR DE COMPROBANTE =====
+    function setupVoucherSelector() {
+        const voucherOptions = document.querySelectorAll('.voucher-option');
+        const facturaFields = document.getElementById('facturaFields');
+        const voucherTypeText = document.getElementById('voucherTypeText');
+
+        voucherOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                voucherOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                
+                selectedVoucherType = option.dataset.type;
+                
+                if (selectedVoucherType === 'factura') {
+                    facturaFields.classList.add('active');
+                    voucherTypeText.textContent = 'Factura';
+                } else {
+                    facturaFields.classList.remove('active');
+                    voucherTypeText.textContent = 'Boleta';
+                }
+            });
         });
-        
-        // Mostrar la pantalla solicitada
-        const screen = document.getElementById(screenId);
-        if (screen) {
-            screen.classList.add('active');
-        }
-        
-        // Restaurar scroll al inicio
-        window.scrollTo(0, 0);
     }
 
-    function showSuccessScreen(paymentData) {
-        currentPaymentData = paymentData;
+    // ===== FUNCIÓN PARA DESCARGAR COMPROBANTE =====
+    async function downloadVoucher() {
+        const btn = document.getElementById('downloadVoucherBtn');
+        const originalText = btn.innerHTML;
         
-        // Calcular créditos según el monto
-        const amount = paymentData.transaction_amount || paymentData.amount;
-        const credits = AMOUNT_TO_CREDITS[amount] || 0;
-        
-        // Formatear fecha y hora
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('es-PE');
-        const timeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
-        
-        // Actualizar elementos de la pantalla
-        document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
-        document.getElementById('success-credits').textContent = credits.toLocaleString('es-PE');
-        document.getElementById('success-date').textContent = dateStr;
-        document.getElementById('success-time').textContent = timeStr;
-        document.getElementById('success-transaction-id').textContent = paymentData.id || '---';
-        
-        // Resetear selección de boleta/factura
-        selectInvoiceOption('boleta');
-        
-        // Mostrar pantalla
-        showScreen('successScreen');
-    }
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+        btn.disabled = true;
 
-    function showErrorScreen(paymentData, errorReason) {
-        currentPaymentData = paymentData;
-        
-        const amount = paymentData.transaction_amount || paymentData.amount || 0;
-        const now = new Date();
-        const dateStr = now.toLocaleDateString('es-PE');
-        
-        // Actualizar elementos de la pantalla
-        document.getElementById('error-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
-        document.getElementById('error-date').textContent = dateStr;
-        document.getElementById('error-reason').textContent = errorReason || 'Error no especificado';
-        document.getElementById('error-transaction-id').textContent = paymentData.id || '---';
-        
-        // Mostrar pantalla
-        showScreen('errorScreen');
-    }
-
-    // ============================
-    // FUNCIONES DE FACTURACIÓN
-    // ============================
-    function selectInvoiceOption(type) {
-        selectedInvoiceType = type;
-        
-        // Actualizar selección visual
-        document.querySelectorAll('.invoice-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        
-        const selectedOption = document.getElementById(`option-${type}`);
-        if (selectedOption) {
-            selectedOption.classList.add('selected');
-        }
-        
-        // Mostrar/ocultar campos para factura
-        const invoiceFields = document.getElementById('invoice-fields');
-        if (type === 'factura') {
-            invoiceFields.classList.add('active');
-            document.getElementById('download-btn').innerHTML = '<i class="fas fa-file-download"></i> Descargar factura';
-        } else {
-            invoiceFields.classList.remove('active');
-            document.getElementById('download-btn').innerHTML = '<i class="fas fa-file-download"></i> Descargar boleta';
-        }
-    }
-
-    function validateInvoiceFields() {
-        if (selectedInvoiceType === 'factura') {
-            const ruc = document.getElementById('invoice-ruc').value.trim();
-            const razonSocial = document.getElementById('invoice-razon-social').value.trim();
-            
-            if (!ruc) {
-                alert('Por favor, ingresa el RUC para la factura');
-                return false;
-            }
-            
-            if (!razonSocial) {
-                alert('Por favor, ingresa la Razón Social para la factura');
-                return false;
-            }
-            
-            // Validar formato de RUC (11 dígitos para Perú)
-            if (!/^\d{11}$/.test(ruc)) {
-                alert('El RUC debe tener 11 dígitos');
-                return false;
-            }
-            
-            return { ruc, razonSocial };
-        }
-        
-        return true;
-    }
-
-    async function generateReceipt() {
-        const validation = validateInvoiceFields();
-        if (!validation) return;
-        
-        const downloadBtn = document.getElementById('download-btn');
-        const originalText = downloadBtn.innerHTML;
-        
-        downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-        downloadBtn.disabled = true;
-        
         try {
-            const invoiceData = {
-                paymentId: currentPaymentData.id || 'N/A',
-                type: selectedInvoiceType,
-                amount: currentPaymentData.transaction_amount || currentPaymentData.amount,
-                credits: AMOUNT_TO_CREDITS[currentPaymentData.transaction_amount || currentPaymentData.amount] || 0,
-                date: new Date().toISOString()
+            const payload = {
+                paymentId: currentPaymentId,
+                type: selectedVoucherType,
+                email: currentPaymentData.email,
+                amount: currentPaymentData.monto,
+                credits: currentPaymentData.creditos,
+                description: currentPaymentData.descripcion
             };
-            
-            if (validation !== true) {
-                invoiceData.ruc = validation.ruc;
-                invoiceData.razonSocial = validation.razonSocial;
+
+            if (selectedVoucherType === 'factura') {
+                const ruc = document.getElementById('ruc-input').value.trim();
+                const razonSocial = document.getElementById('razon-social-input').value.trim();
+                
+                if (!ruc || !razonSocial) {
+                    alert('Por favor completa el RUC y la Razón Social');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                if (ruc.length !== 11) {
+                    alert('El RUC debe tener 11 dígitos');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
+                
+                payload.ruc = ruc;
+                payload.razonSocial = razonSocial;
             }
-            
-            // Llamar al endpoint del servidor para generar el PDF
+
             const response = await fetch('/api/generate-invoice', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(invoiceData)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            
+
             const result = await response.json();
-            
-            if (result.success) {
-                // Descargar el PDF
+
+            if (result.success && result.downloadUrl) {
                 window.open(result.downloadUrl, '_blank');
+                btn.innerHTML = '<i class="fas fa-check"></i> Descargado';
                 
-                // Mostrar mensaje de éxito
                 setTimeout(() => {
-                    alert('Comprobante generado exitosamente. Se ha descargado automáticamente.');
-                }, 1000);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
             } else {
                 throw new Error(result.error || 'Error generando comprobante');
             }
+
         } catch (error) {
-            console.error('Error generando comprobante:', error);
-            alert('Error al generar el comprobante: ' + error.message);
-        } finally {
-            downloadBtn.innerHTML = originalText;
-            downloadBtn.disabled = false;
+            console.error('Error descargando comprobante:', error);
+            alert('Error al generar el comprobante. Por favor intenta nuevamente.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     }
 
-    // ============================
-    // FUNCIONES DE PAGO
-    // ============================
+    // ===== MOSTRAR PANTALLA DE ÉXITO =====
+    async function showSuccessScreen(paymentId) {
+        try {
+            const response = await fetch(`/api/payment/${paymentId}`);
+            const paymentData = await response.json();
+            
+            currentPaymentId = paymentId;
+            currentPaymentData = paymentData;
+
+            document.getElementById('success-email').textContent = paymentData.email || email;
+            document.getElementById('success-amount').textContent = `S/ ${parseFloat(paymentData.monto).toFixed(2)}`;
+            document.getElementById('success-credits').textContent = paymentData.creditos || 0;
+            document.getElementById('success-date').textContent = paymentData.fecha;
+            document.getElementById('success-time').textContent = paymentData.hora;
+            document.getElementById('success-transaction-id').textContent = paymentId;
+
+            showScreen('successScreen');
+            setupVoucherSelector();
+            
+            document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
+
+        } catch (error) {
+            console.error('Error obteniendo datos del pago:', error);
+            
+            document.getElementById('success-email').textContent = email;
+            document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
+            document.getElementById('success-credits').textContent = '60';
+            
+            const now = new Date();
+            document.getElementById('success-date').textContent = now.toLocaleDateString('es-PE');
+            document.getElementById('success-time').textContent = now.toLocaleTimeString('es-PE');
+            document.getElementById('success-transaction-id').textContent = paymentId;
+
+            showScreen('successScreen');
+            setupVoucherSelector();
+            
+            document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
+        }
+    }
+
+    // ===== MOSTRAR PANTALLA DE ERROR =====
+    function showFailedScreen(paymentId, errorDetail) {
+        const now = new Date();
+        
+        document.getElementById('failed-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
+        document.getElementById('failed-date').textContent = now.toLocaleDateString('es-PE');
+        document.getElementById('failed-time').textContent = now.toLocaleTimeString('es-PE');
+        document.getElementById('failed-transaction-id').textContent = paymentId || 'N/A';
+
+        const errorReasonEl = document.getElementById('error-reason');
+        
+        const errorMessages = {
+            'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta.',
+            'cc_rejected_bad_filled_security_code': 'Código de seguridad (CVV) incorrecto.',
+            'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta.',
+            'cc_rejected_bad_filled_other': 'Revisa los datos de la tarjeta.',
+            'cc_rejected_call_for_authorize': 'Debes autorizar el pago con tu banco.',
+            'cc_rejected_card_disabled': 'Tarjeta deshabilitada. Contacta a tu banco.',
+            'cc_rejected_duplicated_payment': 'Ya existe un pago con los mismos datos.',
+            'cc_rejected_high_risk': 'Pago rechazado por seguridad.',
+            'cc_rejected_max_attempts': 'Superaste el límite de intentos permitidos.',
+            'cc_rejected_other_reason': 'La tarjeta rechazó el pago.'
+        };
+
+        errorReasonEl.textContent = errorMessages[errorDetail] || 
+            'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.';
+
+        showScreen('failedScreen');
+    }
+
+    // ===== INICIALIZAR MERCADO PAGO =====
     async function initMercadoPago() {
         try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const amount = urlParams.get('amount') || "10.00";
-            const uid = urlParams.get('uid');
-            const email = urlParams.get('email');
-            const description = urlParams.get('description') || 'Créditos Consulta PE';
-
-            if (!uid) {
-                alert('Error: No se encontró el identificador de usuario');
-                window.location.href = '/';
-                return;
-            }
-
-            // Mostrar monto
             document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
             
-            // Obtener configuración del servidor
             const response = await fetch('/api/config');
             if (!response.ok) {
                 throw new Error('No se pudo obtener la configuración del servidor');
@@ -1280,16 +1213,13 @@
                 throw new Error('Clave pública de Mercado Pago no configurada');
             }
             
-            // Ocultar pantalla de carga
             document.getElementById('loadingScreen').style.display = 'none';
 
-            // Inicializar SDK de Mercado Pago
-            mercadopagoSDK = new MercadoPago(config.mercadopagoPublicKey, { 
+            const mp = new MercadoPago(config.mercadopagoPublicKey, { 
                 locale: 'es-PE'
             });
 
-            // Configurar formulario de tarjeta
-            const cardForm = mercadopagoSDK.cardForm({
+            const cardForm = mp.cardForm({
                 amount: amount.toString(),
                 iframe: true,
                 form: {
@@ -1335,10 +1265,11 @@
                             return;
                         }
                         
-                        // Prellenar email si viene en URL (campo oculto)
                         if (email) {
                             document.getElementById('form-checkout__cardholderEmail').value = email;
                         }
+                        
+                        updateCardDisplay();
                         
                         console.log("Formulario montado correctamente");
                     },
@@ -1354,7 +1285,6 @@
                         try {
                             const formData = cardForm.getCardFormData();
                             
-                            // Validar datos antes de enviar
                             if (!formData.token) {
                                 throw new Error('No se pudo generar el token de pago');
                             }
@@ -1385,28 +1315,30 @@
                             console.log('Respuesta del servidor:', result);
 
                             if (result.status === 'approved') {
-                                // Pago aprobado - mostrar pantalla de éxito
-                                showSuccessScreen(result);
+                                showSuccessScreen(result.id);
                             } else if (result.status === 'pending') {
-                                // Pago pendiente
                                 alert('Pago pendiente de aprobación. Te notificaremos cuando se confirme.');
                                 window.location.href = `app://payment-pending?id=${result.id}`;
                             } else {
-                                // Pago rechazado - mostrar pantalla de error
-                                const errorReason = result.status_detail || result.error || 'Pago rechazado';
-                                showErrorScreen(result, errorReason);
+                                showFailedScreen(result.id, result.status_detail);
                             }
                         } catch (error) {
                             console.error('Error procesando pago:', error);
-                            showErrorScreen({}, 'Error al procesar el pago');
-                        } finally {
-                            submitBtn.innerHTML = originalText;
-                            submitBtn.disabled = false;
+                            showFailedScreen(null, 'cc_rejected_other_reason');
                         }
                     },
                     onFetching: (resource) => {
                         console.log('Obteniendo recurso:', resource);
-                        return () => {};
+                        
+                        const loadingIndicator = document.createElement('div');
+                        loadingIndicator.className = 'loading-indicator';
+                        loadingIndicator.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                        
+                        return () => {
+                            if (loadingIndicator.parentNode) {
+                                loadingIndicator.remove();
+                            }
+                        };
                     }
                 }
             });
@@ -1426,41 +1358,23 @@
         }
     }
 
-    // ============================
-    // FUNCIONES AUXILIARES
-    // ============================
-    function retryPayment() {
-        showScreen('checkoutScreen');
+    // ===== INICIAR CUANDO EL DOM ESTÉ LISTO =====
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMercadoPago);
+    } else {
+        initMercadoPago();
     }
 
-    function returnToHome() {
-        // En un entorno nativo, esto redirigiría a la app
-        // En web, podemos redirigir o recargar
-        if (window.history.length > 1) {
-            history.back();
-        } else {
-            window.location.href = '/';
-        }
-    }
-
-    function updateCardDisplay() {
-        const cardholderName = document.getElementById('form-checkout__cardholderName');
-        const visualCardHolder = document.getElementById('visual-card-holder');
-        
-        if (cardholderName && visualCardHolder) {
-            cardholderName.addEventListener('input', (e) => {
-                const value = e.target.value.toUpperCase() || 'TU NOMBRE';
-                visualCardHolder.textContent = value.substring(0, 22);
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('form-checkout');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                const submitBtn = document.getElementById('form-checkout__submit');
+                if (!submitBtn.disabled) {
+                    console.log('Formulario enviado');
+                }
             });
         }
-    }
-
-    // ============================
-    // INICIALIZACIÓN
-    // ============================
-    document.addEventListener('DOMContentLoaded', () => {
-        initMercadoPago();
-        selectInvoiceOption('boleta'); // Establecer boleta como opción por defecto
     });
 </script>
 
