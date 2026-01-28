@@ -150,6 +150,9 @@ const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({
 const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
 const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
+// Variable para rastrear pagos procesados en memoria (cache adicional)
+const processedPaymentsCache = new Map();
+
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
   
@@ -163,19 +166,45 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     return { status: 'error', message: 'No UID provided' };
   }
 
-  const pagoDoc = db.collection("pagos_registrados").doc(paymentRef);
+  // CORRECCIÓN #1: Asegurar que el paymentRef sea string para consistencia
+  const paymentRefString = String(paymentRef);
+  
+  // CORRECCIÓN #3: Verificar en cache de memoria primero (idempotencia adicional)
+  if (processedPaymentsCache.has(paymentRefString)) {
+    logger.warn(context, 'Pago ya procesado en cache de memoria (idempotencia)', { 
+      uid, paymentRef: paymentRefString, processor 
+    });
+    return { status: 'already_processed', message: 'Payment already processed in memory cache' };
+  }
+
+  const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
   
   try {
     const doc = await pagoDoc.get();
     
     if (doc.exists) {
-      logger.warn(context, 'Pago ya procesado anteriormente (idempotencia)', { 
-        uid, paymentRef, existingData: doc.data() 
+      logger.warn(context, 'Pago ya procesado anteriormente en Firestore (idempotencia)', { 
+        uid, paymentRef: paymentRefString, existingData: doc.data() 
       });
+      
+      // Agregar a cache de memoria para futuras verificaciones rápidas
+      processedPaymentsCache.set(paymentRefString, {
+        uid,
+        timestamp: new Date().toISOString(),
+        processor
+      });
+      
+      // Configurar limpieza automática del cache después de 1 hora
+      setTimeout(() => {
+        processedPaymentsCache.delete(paymentRefString);
+      }, 60 * 60 * 1000);
+      
       return { status: 'already_processed', data: doc.data() };
     }
 
-    logger.info(context, 'Procesando nuevo pago', { uid, email, montoPagado, processor, paymentRef });
+    logger.info(context, 'Procesando nuevo pago', { 
+      uid, email, montoPagado, processor, paymentRef: paymentRefString 
+    });
 
     await pagoDoc.set({
       uid,
@@ -200,17 +229,39 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const montoNum = Number(montoPagado);
       let creditosOtorgados = 0;
       let planOtorgado = null;
+      
+      // CORRECCIÓN #4: Obtener créditos actuales del usuario
+      const creditosActuales = user.data().creditos || 0;
+      logger.info(context, 'Créditos actuales del usuario', { uid, creditosActuales });
 
       if (PAQUETES_CREDITOS[montoNum]) {
         creditosOtorgados = PAQUETES_CREDITOS[montoNum];
-        const creditosActuales = user.data().creditos || 0;
-        t.update(userDoc, { creditos: creditosActuales + creditosOtorgados });
+        
+        // CORRECCIÓN #4: Calcular nuevo total sumando créditos existentes
+        const nuevosCreditos = creditosActuales + creditosOtorgados;
+        
+        t.update(userDoc, { 
+          creditos: nuevosCreditos,
+          ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
         descripcion = `${creditosOtorgados} Créditos`;
-        logger.info(context, 'Créditos otorgados', { uid, creditosOtorgados, montoPagado });
+        logger.info(context, 'Créditos otorgados', { 
+          uid, 
+          creditosOtorgados, 
+          montoPagado,
+          creditosAnteriores: creditosActuales,
+          creditosNuevos: nuevosCreditos
+        });
       } else if (PLANES_ILIMITADOS[montoNum]) {
         const dias = PLANES_ILIMITADOS[montoNum];
         const fin = moment().add(dias, 'days').toDate();
-        t.update(userDoc, { planIlimitadoHasta: fin });
+        
+        t.update(userDoc, { 
+          planIlimitadoHasta: fin,
+          ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
+        });
+        
         planOtorgado = { dias, fechaFin: fin };
         descripcion = `Plan Ilimitado (${dias} días)`;
         logger.info(context, 'Plan ilimitado otorgado', { uid, dias, fechaFin: fin });
@@ -225,22 +276,39 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         procesado: true,
         procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
         creditosOtorgados,
+        creditosAnteriores: creditosActuales,
+        creditosNuevos: creditosActuales + creditosOtorgados,
         planOtorgado
       });
       
       return { 
         status: 'success', 
         creditosOtorgados, 
+        creditosAnteriores: creditosActuales,
+        creditosNuevos: creditosActuales + creditosOtorgados,
         planOtorgado,
         descripcion 
       };
     });
 
+    // Agregar a cache de memoria después de procesar exitosamente
+    processedPaymentsCache.set(paymentRefString, {
+      uid,
+      timestamp: new Date().toISOString(),
+      processor,
+      status: 'processed'
+    });
+    
+    // Configurar limpieza automática del cache después de 1 hora
+    setTimeout(() => {
+      processedPaymentsCache.delete(paymentRefString);
+    }, 60 * 60 * 1000);
+    
     logger.info(context, 'Transacción completada exitosamente', { uid, result });
     return result;
 
   } catch (error) {
-    logger.error(context, 'Error en otorgarBeneficio', error, { uid, paymentRef, montoPagado });
+    logger.error(context, 'Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
     
     // Marcar el pago como fallido
     try {
@@ -251,7 +319,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         fallidoEn: admin.firestore.FieldValue.serverTimestamp()
       });
     } catch (updateError) {
-      logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef });
+      logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef: paymentRefString });
     }
     
     return { status: 'error', message: error.message, error: error.stack };
@@ -360,12 +428,13 @@ app.post("/api/pay", async (req, res) => {
         uid
       });
       
+      // CORRECCIÓN #1: Convertir ID a string antes de pasar a otorgarBeneficio
       const beneficioResult = await otorgarBeneficio(
         uid, 
         email, 
         Number(amount), 
         'MP_CARD_INSTANT', 
-        result.id.toString()
+        result.id.toString() // Aseguramos que sea string
       );
       
       logger.info(context, 'Resultado de otorgar beneficio', beneficioResult);
@@ -374,6 +443,8 @@ app.post("/api/pay", async (req, res) => {
       result.beneficioOtorgado = beneficioResult.status === 'success';
       if (beneficioResult.creditosOtorgados) {
         result.creditosOtorgados = beneficioResult.creditosOtorgados;
+        result.creditosNuevos = beneficioResult.creditosNuevos;
+        result.creditosAnteriores = beneficioResult.creditosAnteriores;
       }
     } else {
       logger.info(context, 'Pago no aprobado instantáneamente', {
@@ -475,7 +546,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             email,
             Number(amount),
             'MP_WEBHOOK',
-            paymentId.toString()
+            paymentId.toString() // CORRECCIÓN #1: Asegurar que sea string
           );
 
           logger.info(context, 'Resultado del webhook', {
@@ -544,6 +615,9 @@ app.post("/api/generate-invoice", async (req, res) => {
       razonSocial: razonSocial || ''
     };
 
+    // CORRECCIÓN #1: Asegurar que el paymentId sea string antes de generar PDF
+    invoiceData.orderId = String(paymentId);
+    
     const pdfUrl = await generateInvoicePDF(invoiceData);
     
     logger.info(context, 'Comprobante generado exitosamente', {
@@ -594,7 +668,8 @@ app.get("/api/health", async (req, res) => {
     environment: process.env.NODE_ENV || 'development',
     hostUrl: HOST_URL,
     flyAppName: process.env.FLY_APP_NAME,
-    firebaseProject: process.env.FIREBASE_PROJECT_ID
+    firebaseProject: process.env.FIREBASE_PROJECT_ID,
+    processedPaymentsCacheSize: processedPaymentsCache.size
   };
   
   // Verificar Firebase más profundamente si está inicializado
