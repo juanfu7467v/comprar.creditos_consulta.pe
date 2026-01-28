@@ -855,9 +855,10 @@
                     <span class="info-label">Monto pagado</span>
                     <span class="info-value highlight" id="success-amount">S/ 0.00</span>
                 </div>
-                <div class="info-row">
-                    <span class="info-label">Créditos otorgados</span>
-                    <span class="info-value highlight" id="success-credits">0</span>
+                <!-- 🔵 FILA MODIFICADA: Se actualiza dinámicamente según el tipo de compra -->
+                <div class="info-row" id="benefit-row">
+                    <span class="info-label" id="benefit-label">Créditos otorgados</span>
+                    <span class="info-value highlight" id="benefit-value">0</span>
                 </div>
                 <div class="info-row">
                     <span class="info-label">Fecha</span>
@@ -1127,7 +1128,7 @@
         }
     }
 
-    // ===== MOSTRAR PANTALLA DE ÉXITO =====
+    // ===== 🔵 FUNCIÓN MEJORADA PARA MOSTRAR PANTALLA DE ÉXITO =====
     async function showSuccessScreen(paymentId) {
         try {
             const response = await fetch(`/api/payment/${paymentId}`);
@@ -1136,12 +1137,46 @@
             currentPaymentId = paymentId;
             currentPaymentData = paymentData;
 
+            // Actualizar información general
             document.getElementById('success-email').textContent = paymentData.email || email;
             document.getElementById('success-amount').textContent = `S/ ${parseFloat(paymentData.monto).toFixed(2)}`;
-            document.getElementById('success-credits').textContent = paymentData.creditos || 0;
             document.getElementById('success-date').textContent = paymentData.fecha;
             document.getElementById('success-time').textContent = paymentData.hora;
             document.getElementById('success-transaction-id').textContent = paymentId;
+
+            // 🔵 AJUSTE PRINCIPAL: Actualizar fila de beneficio según el tipo de plan
+            const benefitLabel = document.getElementById('benefit-label');
+            const benefitValue = document.getElementById('benefit-value');
+            
+            if (paymentData.tipoPlan === 'ilimitado') {
+                // Si es plan ilimitado, mostrar información de días
+                benefitLabel.textContent = 'Plan activado';
+                
+                // Extraer días de la descripción o usar el valor de créditos como días
+                let dias = 0;
+                
+                // Intentar extraer días de la descripción (ej: "Plan Ilimitado (7 días)")
+                const descripcion = paymentData.descripcion || '';
+                const matchDias = descripcion.match(/(\d+)\s*días?/i);
+                
+                if (matchDias) {
+                    dias = parseInt(matchDias[1]);
+                } else {
+                    // Fallback: usar el campo creditos si contiene los días
+                    dias = paymentData.creditos || 0;
+                }
+                
+                benefitValue.textContent = `Ilimitado (${dias} días)`;
+                
+                console.log('✨ Plan ilimitado detectado:', { dias, descripcion });
+                
+            } else {
+                // Si es compra de créditos, mostrar créditos como siempre
+                benefitLabel.textContent = 'Créditos otorgados';
+                benefitValue.textContent = paymentData.creditos || 0;
+                
+                console.log('💳 Créditos otorgados:', paymentData.creditos);
+            }
 
             showScreen('successScreen');
             setupVoucherSelector();
@@ -1151,9 +1186,11 @@
         } catch (error) {
             console.error('Error obteniendo datos del pago:', error);
             
+            // Fallback en caso de error
             document.getElementById('success-email').textContent = email;
             document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
-            document.getElementById('success-credits').textContent = '60';
+            document.getElementById('benefit-label').textContent = 'Créditos otorgados';
+            document.getElementById('benefit-value').textContent = '60';
             
             const now = new Date();
             document.getElementById('success-date').textContent = now.toLocaleDateString('es-PE');
