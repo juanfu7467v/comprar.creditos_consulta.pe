@@ -508,16 +508,21 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     try {
       logger.info(context, '📄 Generando PDF de factura automáticamente', { paymentRef: paymentRefString });
       
+      // Buscar si el pago tiene datos de facturación guardados
+      const pagoSnap = await pagoDoc.get();
+      const pagoData = pagoSnap.exists ? pagoSnap.data() : {};
+
       const invoiceData = {
         orderId: paymentRefString,
         date: new Date().toLocaleString('es-PE'),
-        email: email,
+        email: email || pagoData.email || 'cliente@example.com',
         amount: montoPagado,
         credits: result.creditosOtorgados || 0,
         description: result.descripcion || 'Créditos Consulta PE',
-        type: 'boleta',
-        rucCliente: '', // 🔴 Cambiado de 'ruc' a 'rucCliente'
-        razonSocialCliente: '' // 🔴 Cambiado de 'razonSocial' a 'razonSocialCliente'
+        type: pagoData.tipoComprobante || 'boleta',
+        // Mapeo de seguridad para factura:
+        rucCliente: pagoData.rucCliente || pagoData.ruc || '', 
+        razonSocialCliente: pagoData.razonSocialCliente || pagoData.razonSocial || ''
       };
       
       const pdfPath = await generateInvoicePDF(invoiceData);
@@ -904,7 +909,15 @@ app.post("/api/generate-invoice", async (req, res) => {
   
   try {
     // 🔴 Variables renombradas en la entrada
-    const { paymentId, type = 'boleta', rucCliente, razonSocialCliente, email } = req.body;
+    const { 
+      paymentId, 
+      type = 'boleta', 
+      email,
+      rucCliente,       // nombre nuevo
+      razonSocialCliente, // nombre nuevo
+      ruc,              // fallback nombre antiguo
+      razonSocial       // fallback nombre antiguo
+    } = req.body;
     
     if (!paymentId) {
       logger.error(context, 'Payment ID requerido', null, req.body);
@@ -921,8 +934,9 @@ app.post("/api/generate-invoice", async (req, res) => {
       credits: req.body.credits || 60,
       description: req.body.description || 'Créditos Consulta PE',
       type: type,
-      rucCliente: rucCliente || '', // 🔴 Cambiado de 'ruc' a 'rucCliente'
-      razonSocialCliente: razonSocialCliente || '' // 🔴 Cambiado de 'razonSocial' a 'razonSocialCliente'
+      // Mapeo de seguridad:
+      rucCliente: rucCliente || ruc || '', 
+      razonSocialCliente: razonSocialCliente || razonSocial || ''
     };
     
     const pdfPath = await generateInvoicePDF(invoiceData);
