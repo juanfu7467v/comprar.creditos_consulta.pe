@@ -84,6 +84,7 @@ function buildServiceAccountFromEnv() {
 
 // Inicializar Firebase
 let db;
+let bucket;
 const serviceAccount = buildServiceAccountFromEnv();
 
 if (serviceAccount && !admin.apps.length) {
@@ -92,10 +93,12 @@ if (serviceAccount && !admin.apps.length) {
     
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
-      databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
+      databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
     });
     
     db = admin.firestore();
+    bucket = admin.storage().bucket();
     
     db.settings({
       ignoreUndefinedProperties: true
@@ -103,7 +106,8 @@ if (serviceAccount && !admin.apps.length) {
     
     logger.info('FIREBASE', 'Firebase Admin inicializado correctamente', {
       projectId: serviceAccount.project_id,
-      clientEmail: serviceAccount.client_email
+      clientEmail: serviceAccount.client_email,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET
     });
     
     const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
@@ -122,6 +126,7 @@ if (serviceAccount && !admin.apps.length) {
   }
 } else if (admin.apps.length) {
   db = admin.firestore();
+  bucket = admin.storage().bucket();
   logger.info('FIREBASE', 'Usando instancia existente de Firebase');
 } else {
   logger.error('FIREBASE', 'No se pudo inicializar Firebase - Service account no disponible');
@@ -182,10 +187,58 @@ function releasePaymentLock(paymentRef) {
 }
 
 /**
+ * 🆕 Función para subir PDF a Firebase Storage
+ */
+async function uploadPDFToStorage(pdfPath, paymentId) {
+  const context = 'UPLOAD_PDF';
+  
+  if (!bucket) {
+    logger.error(context, 'Firebase Storage no está inicializado');
+    throw new Error('Firebase Storage not initialized');
+  }
+  
+  try {
+    logger.info(context, 'Subiendo PDF a Firebase Storage', { pdfPath, paymentId });
+    
+    const fileName = `invoices/${paymentId}_${Date.now()}.pdf`;
+    const file = bucket.file(fileName);
+    
+    await bucket.upload(pdfPath, {
+      destination: fileName,
+      metadata: {
+        contentType: 'application/pdf',
+        metadata: {
+          paymentId: paymentId,
+          uploadedAt: new Date().toISOString()
+        }
+      }
+    });
+    
+    // Hacer el archivo público
+    await file.makePublic();
+    
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    
+    logger.info(context, 'PDF subido exitosamente a Storage', { 
+      publicUrl, 
+      paymentId,
+      fileName 
+    });
+    
+    return publicUrl;
+    
+  } catch (error) {
+    logger.error(context, 'Error subiendo PDF a Storage', error, { pdfPath, paymentId });
+    throw error;
+  }
+}
+
+/**
  * 🔴🔵 FUNCIÓN PRINCIPAL CORREGIDA
  * Soluciona ambos problemas:
  * - Problema 1: Evita duplicación con idempotencia robusta
  * - Problema 2: Acumula días correctamente en planes ilimitados
+ * 🆕 Agrega: Guardado automático en Firebase Storage
  */
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
@@ -451,6 +504,48 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
+    // 🆕 NUEVO: Generar y subir PDF a Firebase Storage automáticamente
+    try {
+      logger.info(context, '📄 Generando PDF de factura automáticamente', { paymentRef: paymentRefString });
+      
+      const invoiceData = {
+        orderId: paymentRefString,
+        date: new Date().toLocaleString('es-PE'),
+        email: email,
+        amount: montoPagado,
+        credits: result.creditosOtorgados || 0,
+        description: result.descripcion || 'Créditos Consulta PE',
+        type: 'boleta',
+        rucCliente: '', // 🔴 Cambiado de 'ruc' a 'rucCliente'
+        razonSocialCliente: '' // 🔴 Cambiado de 'razonSocial' a 'razonSocialCliente'
+      };
+      
+      const pdfPath = await generateInvoicePDF(invoiceData);
+      const localPdfPath = path.join(__dirname, 'public', pdfPath);
+      
+      // 🆕 Subir PDF a Firebase Storage
+      const storageUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
+      
+      // Guardar URL del PDF en el documento del pago
+      await pagoDoc.update({
+        pdfUrl: storageUrl,
+        pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp()
+      });
+      
+      logger.info(context, '✅ PDF generado y subido a Storage exitosamente', {
+        paymentRef: paymentRefString,
+        storageUrl
+      });
+      
+      result.pdfUrl = storageUrl;
+      
+    } catch (pdfError) {
+      logger.error(context, '⚠️ Error generando/subiendo PDF (no crítico)', pdfError, { 
+        paymentRef: paymentRefString 
+      });
+      // No fallar la transacción completa si falla el PDF
+    }
+
     // 🔴 CORRECCIÓN 1.6: Agregar a cache después de procesamiento exitoso
     processedPaymentsCache.set(paymentRefString, {
       uid,
@@ -615,6 +710,9 @@ app.post("/api/pay", async (req, res) => {
       if (beneficioResult.planOtorgado) {
         result.planOtorgado = beneficioResult.planOtorgado;
       }
+      if (beneficioResult.pdfUrl) {
+        result.pdfUrl = beneficioResult.pdfUrl;
+      }
       result.tipoPlanNuevo = beneficioResult.tipoPlanNuevo;
     } else {
       logger.info(context, '⏳ Pago no aprobado instantáneamente, esperando webhook', {
@@ -724,7 +822,8 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             uid,
             beneficioStatus: beneficioResult.status,
             message: beneficioResult.message || 'Procesado correctamente',
-            wasAlreadyProcessed: beneficioResult.status === 'already_processed'
+            wasAlreadyProcessed: beneficioResult.status === 'already_processed',
+            pdfUrl: beneficioResult.pdfUrl || null
           });
 
         } else {
@@ -789,7 +888,8 @@ app.get("/api/payment/:paymentId", async (req, res) => {
       hora: fechaRegistro.toLocaleTimeString('es-PE'),
       estado: pagoData.estado,
       tipoPlan: pagoData.tipoPlanNuevo || 'creditos',
-      procesado: pagoData.procesado
+      procesado: pagoData.procesado,
+      pdfUrl: pagoData.pdfUrl || null
     });
     
   } catch (error) {
@@ -798,12 +898,13 @@ app.get("/api/payment/:paymentId", async (req, res) => {
   }
 });
 
-// Endpoint para generar comprobante
+// Endpoint para generar comprobante (con cambio de nombres de variables)
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
   
   try {
-    const { paymentId, type = 'boleta', ruc, razonSocial, email } = req.body;
+    // 🔴 Variables renombradas en la entrada
+    const { paymentId, type = 'boleta', rucCliente, razonSocialCliente, email } = req.body;
     
     if (!paymentId) {
       logger.error(context, 'Payment ID requerido', null, req.body);
@@ -820,22 +921,43 @@ app.post("/api/generate-invoice", async (req, res) => {
       credits: req.body.credits || 60,
       description: req.body.description || 'Créditos Consulta PE',
       type: type,
-      ruc: ruc || '',
-      razonSocial: razonSocial || ''
+      rucCliente: rucCliente || '', // 🔴 Cambiado de 'ruc' a 'rucCliente'
+      razonSocialCliente: razonSocialCliente || '' // 🔴 Cambiado de 'razonSocial' a 'razonSocialCliente'
     };
     
-    const pdfUrl = await generateInvoicePDF(invoiceData);
+    const pdfPath = await generateInvoicePDF(invoiceData);
+    const localPdfPath = path.join(__dirname, 'public', pdfPath);
+    
+    // 🆕 Subir PDF a Firebase Storage
+    let storageUrl = null;
+    try {
+      storageUrl = await uploadPDFToStorage(localPdfPath, paymentId);
+      
+      // Actualizar documento del pago con la URL del PDF
+      if (db) {
+        await db.collection("pagos_registrados").doc(String(paymentId)).update({
+          pdfUrl: storageUrl,
+          pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      
+      logger.info(context, 'PDF subido a Storage', { paymentId, storageUrl });
+    } catch (uploadError) {
+      logger.error(context, 'Error subiendo PDF a Storage (no crítico)', uploadError);
+    }
     
     logger.info(context, 'Comprobante generado exitosamente', {
       paymentId,
-      pdfUrl,
+      pdfUrl: pdfPath,
+      storageUrl,
       type
     });
 
     res.json({
       success: true,
-      pdfUrl: `${HOST_URL}${pdfUrl}`,
-      downloadUrl: `${HOST_URL}${pdfUrl}?download=true`,
+      pdfUrl: `${HOST_URL}${pdfPath}`,
+      downloadUrl: `${HOST_URL}${pdfPath}?download=true`,
+      storageUrl: storageUrl,
       message: 'Comprobante generado exitosamente'
     });
 
@@ -868,6 +990,7 @@ app.get("/api/health", async (req, res) => {
     services: {
       mercadopago: !!MERCADOPAGO_ACCESS_TOKEN,
       firebase: !!db,
+      firebaseStorage: !!bucket,
       firebaseInitialized: !!admin.apps.length,
       pdfGenerator: true
     },
@@ -875,6 +998,7 @@ app.get("/api/health", async (req, res) => {
     hostUrl: HOST_URL,
     flyAppName: process.env.FLY_APP_NAME,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size
   };
@@ -907,7 +1031,8 @@ app.get("/api/debug/firebase", (req, res) => {
     FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? '✓ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : '✗',
     FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? '✓' : '✗',
     FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? '✓' : '✗',
-    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? '✓' : '✗'
+    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? '✓' : '✗',
+    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? '✓' : '✗'
   };
   
   const missingVars = Object.entries(firebaseVars)
@@ -919,6 +1044,7 @@ app.get("/api/debug/firebase", (req, res) => {
     missingVars,
     adminInitialized: !!admin.apps.length,
     firestoreAvailable: !!db,
+    storageAvailable: !!bucket,
     timestamp: new Date().toISOString()
   });
 });
@@ -969,7 +1095,7 @@ app.use((err, req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.0.0 - Fixed Duplicate Credits & Cumulative Days",
+    version: "2.1.0 - Firebase Storage Integration + Invoice Variable Names Fixed",
     endpoints: {
       config: "/api/config",
       pay: "/api/pay",
@@ -982,7 +1108,9 @@ app.get("/", (req, res) => {
     },
     fixes: {
       duplicateCredits: "✅ Fixed - Idempotency implemented",
-      cumulativeDays: "✅ Fixed - Days now accumulate correctly"
+      cumulativeDays: "✅ Fixed - Days now accumulate correctly",
+      firebaseStorage: "✅ Added - Automatic PDF upload to Firebase Storage",
+      invoiceVariables: "✅ Fixed - ruc → rucCliente, razonSocial → razonSocialCliente"
     },
     status: "online",
     timestamp: new Date().toISOString()
@@ -995,8 +1123,9 @@ app.listen(PORT, "0.0.0.0", () => {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
-    version: '2.0.0',
-    fixes: 'Duplicate credits + Cumulative days',
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    version: '2.1.0',
+    features: 'Duplicate credits fix + Cumulative days + Firebase Storage + Invoice variable names',
     timestamp: new Date().toISOString()
   });
 });
