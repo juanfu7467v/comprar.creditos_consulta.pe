@@ -26,7 +26,15 @@ export async function generateInvoicePDF(data) {
             if (!amount) throw new Error('amount es requerido');
             if (!email) throw new Error('email es requerido');
             
+            // 🔴 CORRECCIÓN: Validar con los nombres correctos de variables
             if (type === 'factura' && (!rucCliente || !razonSocialCliente)) {
+                console.error('Validación factura falló:', { 
+                    type, 
+                    rucCliente, 
+                    razonSocialCliente,
+                    hasRuc: !!rucCliente,
+                    hasRazon: !!razonSocialCliente 
+                });
                 throw new Error('RUC y Razón Social son requeridos para factura');
             }
 
@@ -60,12 +68,10 @@ export async function generateInvoicePDF(data) {
             const colors = {
                 black: '#000000',
                 darkGray: '#333333',
-                lightGray: '#f2f2f2', // El gris suave de las cajas
+                lightGray: '#f2f2f2',
                 borderGray: '#e0e0e0'
             };
 
-            // Fuentes: Usamos Courier para los títulos (estilo máquina de escribir de la imagen)
-            // y Helvetica para los datos legibles.
             const fontMono = 'Courier-Bold';
             const fontBody = 'Helvetica';
             const fontBodyBold = 'Helvetica-Bold';
@@ -85,17 +91,14 @@ export async function generateInvoicePDF(data) {
             // ==========================================
             // 2. CAJA SUPERIOR DERECHA (Infraestructura)
             // ==========================================
-            // Dibuja el rectángulo gris claro
             doc.rect(380, 50, 180, 60).fill(colors.lightGray);
 
-            // Texto dentro de la caja
             doc.fillColor(colors.black);
             doc.font(fontMono).fontSize(12)
                .text('INFRAESTRUCTURA', 380, 65, { width: 180, align: 'center' });
             
             doc.font(fontBody).fontSize(10)
                .text('Tecnológica y de Datos', 380, 82, { width: 180, align: 'center' });
-
 
             // ==========================================
             // 3. DATOS DEL CLIENTE
@@ -112,42 +115,35 @@ export async function generateInvoicePDF(data) {
                 doc.text(`RUC: ${rucCliente}`);
                 doc.text(email);
             } else {
-                doc.text(email); // Si es boleta y no hay nombre, usamos el email como id
+                doc.text(email);
                 doc.text('Cliente Final / Usuario App');
             }
 
             // ==========================================
-            // 4. TABLA DE DETALLES (Estilo Imagen)
+            // 4. TABLA DE DETALLES
             // ==========================================
             const tableY = 250;
 
-            // Encabezado GRIS de la tabla
             doc.rect(50, tableY, 495, 30).fill(colors.lightGray);
 
-            // Títulos de columnas (alineados como la imagen)
             doc.fillColor(colors.black).font(fontMono).fontSize(11);
             doc.text('Descripción', 70, tableY + 10);
-            doc.text('Tipo', 300, tableY + 10);      // En lugar de "Materiales"
+            doc.text('Tipo', 300, tableY + 10);
             doc.text('Total', 480, tableY + 10);
 
-            // Fila de datos (Línea blanca de fondo, texto negro)
             const rowY = tableY + 40;
 
             doc.font(fontBody).fontSize(10).fillColor(colors.darkGray);
             
-            // Descripción larga
             doc.text('Servicio de Acceso a Infraestructura Digital', 70, rowY);
             doc.fontSize(8).fillColor('#666666')
                .text('(Intermediación de datos públicos)', 70, rowY + 12);
             
-            // Tipo (Créditos)
             doc.fontSize(10).fillColor(colors.darkGray)
                .text(credits ? `${credits} Créditos` : 'Acceso API', 300, rowY);
 
-            // Total Fila
             doc.text(`S/ ${parseFloat(amount).toFixed(2)}`, 480, rowY);
 
-            // Segunda fila (opcional, para rellenar como la imagen o poner info extra)
             doc.text('Mantenimiento y Soporte', 70, rowY + 30);
             doc.text('Incluido', 300, rowY + 30);
             doc.text('S/ 0.00', 480, rowY + 30);
@@ -157,14 +153,12 @@ export async function generateInvoicePDF(data) {
             // ==========================================
             const totalsY = rowY + 60;
 
-            // Texto pequeño de impuesto (arriba del total)
             doc.font(fontBodyBold).fontSize(10).fillColor(colors.black)
                .text('Impuesto (IGV incluido):', 350, totalsY, { width: 100, align: 'right' });
             
             doc.font(fontBody).fontSize(10)
-               .text('S/ 0.00', 480, totalsY); // Ajustar si desglosas IGV
+               .text('S/ 0.00', 480, totalsY);
 
-            // CAJA GRIS DE TOTAL (Como la imagen)
             const totalBoxY = totalsY + 20;
             doc.rect(340, totalBoxY, 205, 40).fill(colors.lightGray);
 
@@ -175,9 +169,8 @@ export async function generateInvoicePDF(data) {
                .text(`S/ ${parseFloat(amount).toFixed(2)}`, 450, totalBoxY + 10, { align: 'right', width: 80 });
 
             // ==========================================
-            // 6. PROTECCIÓN LEGAL (Insertada sutilmente)
+            // 6. PROTECCIÓN LEGAL
             // ==========================================
-            // En la imagen hay una sección "Tiempo estimado". Ahí pondremos la cláusula legal.
             const legalY = totalBoxY + 60;
 
             doc.font(fontMono).fontSize(10).fillColor(colors.black)
@@ -191,18 +184,15 @@ export async function generateInvoicePDF(data) {
             // ==========================================
             // 7. FOOTER (Barra Gris Inferior)
             // ==========================================
-            // La imagen tiene una barra gris grande al final.
             const footerY = 680;
             const footerHeight = 120;
 
             doc.rect(0, footerY, 595, footerHeight).fill(colors.lightGray);
 
-            // Columnas del footer
             const col1X = 50;
             const col2X = 350;
             const textY = footerY + 30;
 
-            // Columna 1: Información de Pago / Fiscal
             doc.fillColor(colors.black).font(fontMono).fontSize(10)
                .text('INFORMACIÓN FISCAL', col1X, textY);
             
@@ -212,35 +202,33 @@ export async function generateInvoicePDF(data) {
             doc.text('Domicilio: Caserío Pajonal, Cajamarca', col1X);
             doc.text('Actividad: 6399 - Servicios de Información', col1X);
 
-            // Columna 2: Datos de Contacto
             doc.fillColor(colors.black).font(fontMono).fontSize(10)
                .text('DATOS DE CONTACTO', col2X, textY);
 
             doc.font(fontBody).fontSize(8).fillColor(colors.darkGray).moveDown(0.5);
             doc.text('Soporte: App Consulta PE', col2X);
-            doc.text(email, col2X); // Email del cliente o soporte
+            doc.text(email, col2X);
             doc.text('Horario: Lunes a Viernes 9am - 6pm', col2X);
 
-            // Finalizar PDF
             doc.end();
             
             stream.on('finish', () => {
-                console.log(`PDF Generado estilo Boutique: ${fileName}`);
+                console.log(`✅ PDF generado exitosamente: ${fileName}`);
                 resolve(`/invoices/${fileName}`);
             });
             
             stream.on('error', (error) => {
+                console.error('❌ Error en stream del PDF:', error);
                 reject(error);
             });
             
         } catch (error) {
-            console.error('Error generando PDF:', error);
+            console.error('❌ Error generando PDF:', error);
             reject(error);
         }
     });
 }
 
-// Función de limpieza (se mantiene igual)
 export async function cleanupOldInvoices(maxAgeHours = 24) {
     try {
         const invoicesDir = path.join(__dirname, 'public', 'invoices');
@@ -250,16 +238,23 @@ export async function cleanupOldInvoices(maxAgeHours = 24) {
         const now = Date.now();
         const maxAge = maxAgeHours * 60 * 60 * 1000;
         
+        let cleaned = 0;
+        
         for (const file of files) {
             if (file.endsWith('.pdf')) {
                 const filePath = path.join(invoicesDir, file);
                 const stats = fs.statSync(filePath);
                 if (now - stats.mtimeMs > maxAge) {
                     fs.unlinkSync(filePath);
+                    cleaned++;
                 }
             }
         }
+        
+        if (cleaned > 0) {
+            console.log(`🧹 Limpiados ${cleaned} archivos PDF antiguos`);
+        }
     } catch (error) {
-        console.error('Error limpiando archivos:', error);
+        console.error('❌ Error limpiando archivos:', error);
     }
 }
