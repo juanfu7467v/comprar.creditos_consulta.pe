@@ -1054,14 +1054,36 @@
         
         // Si ya tenemos la URL del PDF en los datos del pago, usarla directamente
         if (currentPaymentData && currentPaymentData.pdfUrl) {
-            // Crear un enlace temporal para la descarga
-            const a = document.createElement('a');
-            a.href = currentPaymentData.pdfUrl;
-            a.download = `boleta_${currentPaymentId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            return;
+            // Si es una URL de Firebase Storage o externa, forzar descarga mediante fetch
+            if (currentPaymentData.pdfUrl.startsWith('http')) {
+                try {
+                    const response = await fetch(currentPaymentData.pdfUrl);
+                    const blob = await response.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = blobUrl;
+                    a.download = `boleta_${currentPaymentId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        window.URL.revokeObjectURL(blobUrl);
+                        document.body.removeChild(a);
+                    }, 100);
+                    return;
+                } catch (e) {
+                    console.error("Error descargando desde URL externa, reintentando generación:", e);
+                }
+            } else {
+                // Si ya es un blobUrl local
+                const a = document.createElement('a');
+                a.href = currentPaymentData.pdfUrl;
+                a.download = `boleta_${currentPaymentId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                return;
+            }
         }
 
         const originalText = btn.innerHTML;
@@ -1111,7 +1133,7 @@
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = blobUrl;
-            a.download = `Boleta_${currentPaymentId}_${new Date().getTime()}.pdf`;
+            a.download = `boleta_${currentPaymentId}.pdf`;
             
             // Agregar el enlace al documento
             document.body.appendChild(a);
