@@ -153,7 +153,8 @@ async function verifyFirebaseAuth(req, res, next) {
     '/api/register',
     '/api/config',
     '/api/health',
-    '/api/webhook'
+    '/api/webhook',
+    '/api/validate-recaptcha' // ✅ CORRECCIÓN: Añadido para permitir validación de reCAPTCHA
   ];
   
   // Verificar si la ruta actual está excluida
@@ -1426,7 +1427,7 @@ app.get("/api/health", async (req, res) => {
     security: {
       recaptchaSiteKey: RECAPTCHA_SITE_KEY,
       authMiddleware: true,
-      excludedPaths: ['/login.html', '/register.html', '/api/auth', '/api/config', '/api/health']
+      excludedPaths: ['/login.html', '/register.html', '/api/auth', '/api/config', '/api/health', '/api/validate-recaptcha'] // ✅ Actualizado
     },
     duplicatePrevention: {
       memoryCache: true,
