@@ -1,8 +1,4 @@
-# fly.toml app configuration file generated for masitaprexv2 on 2026-01-30T05:21:38Z
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
+# fly.toml app configuration file for masitaprexv2
 app = 'masitaprexv2'
 primary_region = 'ams'
 
@@ -11,13 +7,19 @@ primary_region = 'ams'
 [http_service]
   internal_port = 8080
   force_https = true
+  # 'stop' apaga la máquina si no hay tráfico para ahorrar
   auto_stop_machines = 'stop'
   auto_start_machines = true
-  min_machines_running = 0
+  # Forzamos a que solo exista una instancia en el grupo
+  min_machines_running = 1
   processes = ['app']
 
+[http_service.concurrency]
+  type = 'requests'
+  soft_limit = 20
+  hard_limit = 25
+
 [[vm]]
-  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 256
+  memory_mb = 512
