@@ -15,10 +15,14 @@
     "firebase-admin": "^12.7.0",
     "mercadopago": "^2.12.0",
     "moment-timezone": "^0.5.48",
-    "pdfkit": "^0.17.2"
+    "pdfkit": "^0.17.2",
+    "qrcode": "^1.5.4"
   },
   "engines": {
     "node": ">=20"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "optionalDependencies": {
+    "pdfkit-table": "^0.1.99"
+  }
 }

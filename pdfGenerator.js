@@ -2,10 +2,14 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import QRCode from 'qrcode';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * Genera una Boleta de Venta Electrónica cumpliendo con la normativa SUNAT (Nuevo RUS)
+ */
 export async function generateInvoicePDF(data) {
     const { 
         orderId, 
@@ -13,44 +17,64 @@ export async function generateInvoicePDF(data) {
         email, 
         amount, 
         credits, 
-        description, 
-        type = 'boleta',
-        rucCliente = '', 
-        razonSocialCliente = '' 
+        description,
+        clientName = ''
     } = data;
     
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
             // Validaciones básicas
             if (!orderId) throw new Error('orderId es requerido');
             if (!amount) throw new Error('amount es requerido');
             if (!email) throw new Error('email es requerido');
             
-            // 🔴 CORRECCIÓN: Validar con los nombres correctos de variables
-            if (type === 'factura' && (!rucCliente || !razonSocialCliente)) {
-                console.error('Validación factura falló:', { 
-                    type, 
-                    rucCliente, 
-                    razonSocialCliente,
-                    hasRuc: !!rucCliente,
-                    hasRazon: !!razonSocialCliente 
-                });
-                throw new Error('RUC y Razón Social son requeridos para factura');
+            const montoTotal = parseFloat(amount);
+            
+            // Lógica SUNAT para Cliente
+            let nombreCliente = "CLIENTES VARIOS";
+            if (montoTotal > 700) {
+                if (!clientName || clientName.trim() === "") {
+                    throw new Error('Para montos mayores a S/ 700 es obligatorio el nombre y documento del cliente.');
+                }
+                nombreCliente = clientName.toUpperCase();
+            } else if (clientName && clientName.trim() !== "") {
+                nombreCliente = clientName.toUpperCase();
             }
+
+            // Datos del Emisor (Nuevo RUS)
+            const emisor = {
+                razonSocial: 'CUBAS PEREZ JOSE RENE',
+                ruc: '10736224351',
+                direccion: 'Caserío Pajonal, Cajamarca',
+                tipoDoc: 'BOLETA DE VENTA ELECTRÓNICA',
+                serie: 'B001'
+            };
+
+            // Formatear correlativo (8 dígitos)
+            const correlativo = String(orderId).slice(-8).padStart(8, '0');
+            const numeracion = `${emisor.serie}-${correlativo}`;
+
+            // Cálculos Económicos (Desglose referencial para formalidad)
+            const opGravada = montoTotal / 1.18;
+            const igv = montoTotal - opGravada;
+
+            // Generar Código QR (RUC | TIPO DOC | SERIE | NUMERO | IGV | TOTAL | FECHA)
+            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${date.split(',')[0]}`;
+            const qrDataUrl = await QRCode.toDataURL(qrContent);
 
             // Configuración del Documento
             const doc = new PDFDocument({ 
-                margin: 50,
+                margin: 40,
                 size: 'A4',
                 info: {
-                    Title: `${type.toUpperCase()} - Consulta PE`,
-                    Author: 'CUBAS PEREZ JOSE RENE',
-                    Subject: 'Comprobante de Infraestructura',
+                    Title: `BOLETA ELECTRÓNICA ${numeracion}`,
+                    Author: emisor.razonSocial,
+                    Subject: 'Comprobante de Pago Electrónico',
                     Creator: 'Consulta PE System'
                 }
             });
             
-            const fileName = `${type}_${orderId}_${Date.now()}.pdf`;
+            const fileName = `boleta_${orderId}_${Date.now()}.pdf`;
             const publicDir = path.join(__dirname, 'public', 'invoices');
             
             if (!fs.existsSync(publicDir)) {
@@ -62,158 +86,92 @@ export async function generateInvoicePDF(data) {
             
             doc.pipe(stream);
 
-            // ==========================================
-            // COLORES Y FUENTES (Estilo de la Imagen)
-            // ==========================================
             const colors = {
                 black: '#000000',
                 darkGray: '#333333',
-                lightGray: '#f2f2f2',
-                borderGray: '#e0e0e0'
+                lightGray: '#f9f9f9',
+                borderGray: '#cccccc'
             };
 
-            const fontMono = 'Courier-Bold';
+            const fontMono = 'Helvetica-Bold';
             const fontBody = 'Helvetica';
-            const fontBodyBold = 'Helvetica-Bold';
 
-            // ==========================================
-            // 1. HEADER (Lado Izquierdo)
-            // ==========================================
-            const startY = 60;
+            // --- ENCABEZADO ---
+            // Lado Izquierdo: Datos del Emisor
+            doc.font(fontMono).fontSize(14).fillColor(colors.black).text(emisor.razonSocial, 40, 50);
+            doc.font(fontBody).fontSize(9).fillColor(colors.darkGray)
+               .text(`RUC: ${emisor.ruc}`, 40, 70)
+               .text(emisor.direccion, 40, 82)
+               .text('Cajamarca - Perú', 40, 94);
+
+            // Lado Derecho: Recuadro de RUC y Numeración
+            doc.rect(350, 45, 200, 80).stroke(colors.black);
+            doc.font(fontMono).fontSize(12).text(`RUC: ${emisor.ruc}`, 350, 60, { width: 200, align: 'center' });
+            doc.rect(350, 75, 200, 25).fill(colors.black);
+            doc.fillColor('#FFFFFF').text(emisor.tipoDoc, 350, 82, { width: 200, align: 'center' });
+            doc.fillColor(colors.black).text(numeracion, 350, 105, { width: 200, align: 'center' });
+
+            // --- DATOS DEL CLIENTE ---
+            doc.rect(40, 140, 510, 60).stroke(colors.borderGray);
+            doc.font(fontMono).fontSize(9).text('ADQUIRENTE:', 50, 150);
+            doc.font(fontBody).text(`Señor(es): ${nombreCliente}`, 50, 165);
+            doc.text(`Email: ${email}`, 50, 177);
+            doc.text(`Fecha de Emisión: ${date}`, 350, 150);
+            doc.text('Moneda: SOLES', 350, 165);
+
+            // --- TABLA DE DETALLE ---
+            const tableY = 220;
+            doc.rect(40, tableY, 510, 20).fill(colors.black);
+            doc.fillColor('#FFFFFF').font(fontMono).fontSize(9);
+            doc.text('CANT.', 45, tableY + 6);
+            doc.text('DESCRIPCIÓN', 100, tableY + 6);
+            doc.text('P. UNIT', 400, tableY + 6);
+            doc.text('IMPORTE', 480, tableY + 6);
+
+            const rowY = tableY + 30;
+            doc.fillColor(colors.black).font(fontBody);
+            doc.text('1.00', 45, rowY);
+            doc.text(description || 'Servicio de Acceso a Infraestructura Digital', 100, rowY, { width: 280 });
+            doc.text(`S/ ${montoTotal.toFixed(2)}`, 400, rowY);
+            doc.text(`S/ ${montoTotal.toFixed(2)}`, 480, rowY);
+
+            // Línea divisoria
+            doc.moveTo(40, rowY + 30).lineTo(550, rowY + 30).stroke(colors.borderGray);
+
+            // --- TOTALES ---
+            const totalsY = rowY + 50;
+            const rightX = 400;
+            const valueX = 480;
+
+            doc.font(fontBody).fontSize(9);
+            doc.text('Op. Gravada:', rightX, totalsY);
+            doc.text(`S/ ${opGravada.toFixed(2)}`, valueX, totalsY);
+
+            doc.text('IGV (18%):', rightX, totalsY + 15);
+            doc.text(`S/ ${igv.toFixed(2)}`, valueX, totalsY + 15);
+
+            doc.font(fontMono).fontSize(11);
+            doc.text('TOTAL:', rightX, totalsY + 35);
+            doc.text(`S/ ${montoTotal.toFixed(2)}`, valueX, totalsY + 35);
+
+            // --- PIE DE PÁGINA (QR Y LEYENDAS) ---
+            const footerY = 550;
             
-            doc.font(fontMono).fontSize(28).fillColor(colors.black)
-               .text('CONSULTA PE', 50, startY);
+            // QR Code
+            doc.image(qrDataUrl, 40, footerY, { width: 80 });
 
-            doc.font(fontBody).fontSize(10).fillColor(colors.darkGray)
-               .text(`N°: ${orderId}`, 50, startY + 35)
-               .text(date || new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' }), 50, startY + 50);
-
-            // ==========================================
-            // 2. CAJA SUPERIOR DERECHA (Infraestructura)
-            // ==========================================
-            doc.rect(380, 50, 180, 60).fill(colors.lightGray);
-
-            doc.fillColor(colors.black);
-            doc.font(fontMono).fontSize(12)
-               .text('INFRAESTRUCTURA', 380, 65, { width: 180, align: 'center' });
+            // Leyendas
+            doc.font(fontBody).fontSize(8).fillColor(colors.darkGray);
+            doc.text('Representación impresa de la Boleta de Venta Electrónica.', 130, footerY + 10);
+            doc.text('Consulte su comprobante en: https://consulta.pe', 130, footerY + 22);
+            doc.text('Bienes transferidos en la Amazonía para ser consumidos en la misma.', 130, footerY + 34);
             
-            doc.font(fontBody).fontSize(10)
-               .text('Tecnológica y de Datos', 380, 82, { width: 180, align: 'center' });
-
-            // ==========================================
-            // 3. DATOS DEL CLIENTE
-            // ==========================================
-            const clientY = 160;
-
-            doc.font(fontMono).fontSize(14).fillColor(colors.black)
-               .text('Datos del cliente:', 50, clientY);
-
-            doc.font(fontBody).fontSize(10).fillColor(colors.darkGray).moveDown(0.5);
-
-            if (type === 'factura') {
-                doc.text(razonSocialCliente, 50);
-                doc.text(`RUC: ${rucCliente}`);
-                doc.text(email);
-            } else {
-                doc.text(email);
-                doc.text('Cliente Final / Usuario App');
-            }
-
-            // ==========================================
-            // 4. TABLA DE DETALLES
-            // ==========================================
-            const tableY = 250;
-
-            doc.rect(50, tableY, 495, 30).fill(colors.lightGray);
-
-            doc.fillColor(colors.black).font(fontMono).fontSize(11);
-            doc.text('Descripción', 70, tableY + 10);
-            doc.text('Tipo', 300, tableY + 10);
-            doc.text('Total', 480, tableY + 10);
-
-            const rowY = tableY + 40;
-
-            doc.font(fontBody).fontSize(10).fillColor(colors.darkGray);
-            
-            doc.text('Servicio de Acceso a Infraestructura Digital', 70, rowY);
-            doc.fontSize(8).fillColor('#666666')
-               .text('(Intermediación de datos públicos)', 70, rowY + 12);
-            
-            doc.fontSize(10).fillColor(colors.darkGray)
-               .text(credits ? `${credits} Créditos` : 'Acceso API', 300, rowY);
-
-            doc.text(`S/ ${parseFloat(amount).toFixed(2)}`, 480, rowY);
-
-            doc.text('Mantenimiento y Soporte', 70, rowY + 30);
-            doc.text('Incluido', 300, rowY + 30);
-            doc.text('S/ 0.00', 480, rowY + 30);
-
-            // ==========================================
-            // 5. TOTALES Y RECTÁNGULO FINAL
-            // ==========================================
-            const totalsY = rowY + 60;
-
-            doc.font(fontBodyBold).fontSize(10).fillColor(colors.black)
-               .text('Impuesto (IGV incluido):', 350, totalsY, { width: 100, align: 'right' });
-            
-            doc.font(fontBody).fontSize(10)
-               .text('S/ 0.00', 480, totalsY);
-
-            const totalBoxY = totalsY + 20;
-            doc.rect(340, totalBoxY, 205, 40).fill(colors.lightGray);
-
-            doc.fillColor(colors.black).font(fontMono).fontSize(14)
-               .text('TOTAL:', 360, totalBoxY + 12);
-
-            doc.font(fontBodyBold).fontSize(16)
-               .text(`S/ ${parseFloat(amount).toFixed(2)}`, 450, totalBoxY + 10, { align: 'right', width: 80 });
-
-            // ==========================================
-            // 6. PROTECCIÓN LEGAL
-            // ==========================================
-            const legalY = totalBoxY + 60;
-
-            doc.font(fontMono).fontSize(10).fillColor(colors.black)
-               .text('Condiciones del Servicio:', 50, legalY);
-
-            doc.font(fontBody).fontSize(8).fillColor('#555555')
-               .text('1. El usuario paga por la infraestructura técnica, no por la compra de datos personales.', 50, legalY + 15)
-               .text('2. La información proviene de fuentes públicas. No hay reembolsos tras la entrega de créditos.', 50, legalY + 27)
-               .text('3. Consulta PE actúa como intermediario tecnológico bajo la Ley 29733.', 50, legalY + 39);
-
-            // ==========================================
-            // 7. FOOTER (Barra Gris Inferior)
-            // ==========================================
-            const footerY = 680;
-            const footerHeight = 120;
-
-            doc.rect(0, footerY, 595, footerHeight).fill(colors.lightGray);
-
-            const col1X = 50;
-            const col2X = 350;
-            const textY = footerY + 30;
-
-            doc.fillColor(colors.black).font(fontMono).fontSize(10)
-               .text('INFORMACIÓN FISCAL', col1X, textY);
-            
-            doc.font(fontBody).fontSize(8).fillColor(colors.darkGray).moveDown(0.5);
-            doc.text('Razón Social: CUBAS PEREZ JOSE RENE', col1X);
-            doc.text('RUC: 10736224351', col1X);
-            doc.text('Domicilio: Caserío Pajonal, Cajamarca', col1X);
-            doc.text('Actividad: 6399 - Servicios de Información', col1X);
-
-            doc.fillColor(colors.black).font(fontMono).fontSize(10)
-               .text('DATOS DE CONTACTO', col2X, textY);
-
-            doc.font(fontBody).fontSize(8).fillColor(colors.darkGray).moveDown(0.5);
-            doc.text('Soporte: App Consulta PE', col2X);
-            doc.text(email, col2X);
-            doc.text('Horario: Lunes a Viernes 9am - 6pm', col2X);
+            doc.font(fontMono).text('¡Gracias por su compra!', 130, footerY + 55);
 
             doc.end();
             
             stream.on('finish', () => {
-                console.log(`✅ PDF generado exitosamente: ${fileName}`);
+                console.log(`✅ Boleta generada: ${fileName}`);
                 resolve(`/invoices/${fileName}`);
             });
             

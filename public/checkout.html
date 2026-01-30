@@ -874,52 +874,15 @@
                 </div>
             </div>
 
-            <!-- Selector de comprobante -->
-            <div class="voucher-selector">
-                <p class="voucher-title">¿Deseas boleta o factura?</p>
-                
-                <div class="voucher-options">
-                    <div class="voucher-option selected" data-type="boleta">
-                        <div class="voucher-option-label">
-                            <i class="fas fa-file-invoice"></i> Boleta
-                        </div>
-                        <div class="voucher-option-desc">Para personas naturales</div>
-                    </div>
-                    <div class="voucher-option" data-type="factura">
-                        <div class="voucher-option-label">
-                            <i class="fas fa-file-alt"></i> Factura
-                        </div>
-                        <div class="voucher-option-desc">Para empresas</div>
-                    </div>
-                </div>
-
-                <!-- Campos adicionales para factura -->
-                <div class="factura-fields" id="facturaFields">
-                    <div class="form-group">
-                        <label class="label">RUC</label>
-                        <input 
-                            type="text" 
-                            id="ruc-input" 
-                            class="input-box" 
-                            placeholder="20123456789"
-                            maxlength="11"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label class="label">Razón Social</label>
-                        <input 
-                            type="text" 
-                            id="razon-social-input" 
-                            class="input-box" 
-                            placeholder="Nombre de la empresa"
-                        />
-                    </div>
-                </div>
+            <!-- Botón de descarga directa (Solo Boleta) -->
+            <div class="voucher-selector" style="margin-top: 20px;">
+                <button class="main-btn success" id="downloadVoucherBtn">
+                    <i class="fas fa-download"></i> Descargar Boleta de Venta
+                </button>
+                <p style="text-align: center; font-size: 12px; color: var(--text-gray); margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i> Comprobante electrónico válido ante SUNAT
+                </p>
             </div>
-
-            <button class="main-btn success" id="downloadVoucherBtn">
-                <i class="fas fa-download"></i> Descargar <span id="voucherTypeText">Boleta</span>
-            </button>
 
             <button class="main-btn" onclick="closePayment()" style="margin-top: 12px; background: var(--text-gray);">
                 <i class="fas fa-home"></i> Volver a la App
@@ -1085,69 +1048,30 @@
         }
     }
 
-    // ===== SELECTOR DE COMPROBANTE =====
-    function setupVoucherSelector() {
-        const voucherOptions = document.querySelectorAll('.voucher-option');
-        const facturaFields = document.getElementById('facturaFields');
-        const voucherTypeText = document.getElementById('voucherTypeText');
-
-        voucherOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                voucherOptions.forEach(opt => opt.classList.remove('selected'));
-                option.classList.add('selected');
-                
-                selectedVoucherType = option.dataset.type;
-                
-                if (selectedVoucherType === 'factura') {
-                    facturaFields.classList.add('active');
-                    voucherTypeText.textContent = 'Factura';
-                } else {
-                    facturaFields.classList.remove('active');
-                    voucherTypeText.textContent = 'Boleta';
-                }
-            });
-        });
-    }
-
-    // ===== FUNCIÓN PARA DESCARGAR COMPROBANTE =====
+    // ===== FUNCIÓN PARA DESCARGAR COMPROBANTE (Simplificada Solo Boleta) =====
     async function downloadVoucher() {
         const btn = document.getElementById('downloadVoucherBtn');
-        const originalText = btn.innerHTML;
         
+        // Si ya tenemos la URL del PDF en los datos del pago, usarla directamente
+        if (currentPaymentData && currentPaymentData.pdfUrl) {
+            window.open(currentPaymentData.pdfUrl, '_blank');
+            return;
+        }
+
+        const originalText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
         btn.disabled = true;
 
         try {
             const payload = {
                 paymentId: currentPaymentId,
-                type: selectedVoucherType,
+                type: 'boleta',
                 email: currentPaymentData.email,
                 amount: currentPaymentData.monto,
                 credits: currentPaymentData.creditos,
-                description: currentPaymentData.descripcion
+                description: currentPaymentData.descripcion,
+                clientName: currentPaymentData.cardholderName || ''
             };
-
-            if (selectedVoucherType === 'factura') {
-                const ruc = document.getElementById('ruc-input').value.trim();
-                const razonSocial = document.getElementById('razon-social-input').value.trim();
-                
-                if (!ruc || !razonSocial) {
-                    alert('Por favor completa el RUC y la Razón Social');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    return;
-                }
-                
-                if (ruc.length !== 11) {
-                    alert('El RUC debe tener 11 dígitos');
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    return;
-                }
-                
-                payload.ruc = ruc;
-                payload.razonSocial = razonSocial;
-            }
 
             const response = await fetch('/api/generate-invoice', {
                 method: 'POST',
@@ -1160,6 +1084,9 @@
             if (result.success && result.downloadUrl) {
                 window.open(result.downloadUrl, '_blank');
                 btn.innerHTML = '<i class="fas fa-check"></i> Descargado';
+                
+                // Actualizar URL para futuras descargas sin llamar al API
+                currentPaymentData.pdfUrl = result.downloadUrl;
                 
                 setTimeout(() => {
                     btn.innerHTML = originalText;
@@ -1231,8 +1158,6 @@
             }
 
             showScreen('successScreen');
-            setupVoucherSelector();
-            
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
 
         } catch (error) {
@@ -1250,8 +1175,6 @@
             document.getElementById('success-transaction-id').textContent = paymentId;
 
             showScreen('successScreen');
-            setupVoucherSelector();
-            
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
         }
     }

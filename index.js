@@ -504,25 +504,18 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
-    // 🆕 NUEVO: Generar y subir PDF a Firebase Storage automáticamente
+    // 🆕 NUEVO: Generar y subir PDF a Firebase Storage automáticamente (Solo Boletas)
     try {
-      logger.info(context, '📄 Generando PDF de factura automáticamente', { paymentRef: paymentRefString });
+      logger.info(context, '📄 Generando Boleta Electrónica automáticamente', { paymentRef: paymentRefString });
       
-      // Buscar si el pago tiene datos de facturación guardados
-      const pagoSnap = await pagoDoc.get();
-      const pagoData = pagoSnap.exists ? pagoSnap.data() : {};
-
       const invoiceData = {
         orderId: paymentRefString,
         date: new Date().toLocaleString('es-PE'),
-        email: email || pagoData.email || 'cliente@example.com',
+        email: email || 'cliente@example.com',
         amount: montoPagado,
         credits: result.creditosOtorgados || 0,
         description: result.descripcion || 'Créditos Consulta PE',
-        type: pagoData.tipoComprobante || 'boleta',
-        // Mapeo de seguridad para factura:
-        rucCliente: pagoData.rucCliente || pagoData.ruc || '', 
-        razonSocialCliente: pagoData.razonSocialCliente || pagoData.razonSocial || ''
+        type: 'boleta'
       };
       
       const pdfPath = await generateInvoicePDF(invoiceData);
@@ -534,10 +527,16 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       // Guardar URL del PDF en el documento del pago
       await pagoDoc.update({
         pdfUrl: storageUrl,
-        pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp()
+        pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
+        tipoComprobante: 'boleta'
       });
       
-      logger.info(context, '✅ PDF generado y subido a Storage exitosamente', {
+      // Eliminar archivo local inmediatamente
+      if (fs.existsSync(localPdfPath)) {
+        fs.unlinkSync(localPdfPath);
+      }
+      
+      logger.info(context, '✅ Boleta generada y subida a Storage exitosamente', {
         paymentRef: paymentRefString,
         storageUrl
       });
@@ -908,15 +907,14 @@ app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
   
   try {
-    // 🔴 Variables renombradas en la entrada
+    // 🔴 Actualizado: Solo Boletas (SUNAT Nuevo RUS)
     const { 
       paymentId, 
-      type = 'boleta', 
       email,
-      rucCliente,       // nombre nuevo
-      razonSocialCliente, // nombre nuevo
-      ruc,              // fallback nombre antiguo
-      razonSocial       // fallback nombre antiguo
+      amount,
+      credits,
+      description,
+      clientName // Opcional si < 700
     } = req.body;
     
     if (!paymentId) {
@@ -924,19 +922,17 @@ app.post("/api/generate-invoice", async (req, res) => {
       return res.status(400).json({ error: 'Payment ID es requerido' });
     }
 
-    logger.info(context, 'Generando comprobante', { paymentId, type });
+    logger.info(context, 'Generando boleta electrónica', { paymentId });
 
     const invoiceData = {
       orderId: String(paymentId),
       date: new Date().toLocaleString('es-PE'),
       email: email || 'cliente@example.com',
-      amount: req.body.amount || 10,
-      credits: req.body.credits || 60,
-      description: req.body.description || 'Créditos Consulta PE',
-      type: type,
-      // Mapeo de seguridad:
-      rucCliente: rucCliente || ruc || '', 
-      razonSocialCliente: razonSocialCliente || razonSocial || ''
+      amount: amount || 10,
+      credits: credits || 60,
+      description: description || 'Créditos Consulta PE',
+      clientName: clientName || '',
+      type: 'boleta'
     };
     
     const pdfPath = await generateInvoicePDF(invoiceData);
@@ -956,6 +952,11 @@ app.post("/api/generate-invoice", async (req, res) => {
       }
       
       logger.info(context, 'PDF subido a Storage', { paymentId, storageUrl });
+      
+      // Eliminar archivo local inmediatamente
+      if (fs.existsSync(localPdfPath)) {
+        fs.unlinkSync(localPdfPath);
+      }
     } catch (uploadError) {
       logger.error(context, 'Error subiendo PDF a Storage (no crítico)', uploadError);
     }
