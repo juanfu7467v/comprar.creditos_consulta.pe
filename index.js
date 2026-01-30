@@ -149,14 +149,14 @@ const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({
 const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
 const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
-// 🔴 SOLUCIÓN PROBLEMA 1: Cache en memoria para idempotencia inmediata
+// Cache en memoria para idempotencia inmediata
 const processedPaymentsCache = new Map();
 
-// 🔴 SOLUCIÓN PROBLEMA 1: Mutex para evitar race conditions
+// Mutex para evitar race conditions
 const paymentLocks = new Map();
 
 /**
- * 🔴 SOLUCIÓN PROBLEMA 1: Función para adquirir lock de procesamiento
+ * Función para adquirir lock de procesamiento
  * Previene que el mismo pago se procese simultáneamente
  */
 async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
@@ -178,7 +178,7 @@ async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
 }
 
 /**
- * 🔴 SOLUCIÓN PROBLEMA 1: Función para liberar lock de procesamiento
+ * Función para liberar lock de procesamiento
  */
 function releasePaymentLock(paymentRef) {
   const context = 'PAYMENT_LOCK';
@@ -187,7 +187,43 @@ function releasePaymentLock(paymentRef) {
 }
 
 /**
- * 🆕 Función para subir PDF a Firebase Storage
+ * 🆕 FUNCIÓN MEJORADA: Verificar si archivo ya existe en Storage
+ * SOLUCIÓN PROBLEMA 1: Evita duplicación verificando antes de subir
+ */
+async function checkFileExistsInStorage(fileName) {
+  const context = 'STORAGE_CHECK';
+  
+  if (!bucket) {
+    logger.error(context, 'Firebase Storage no está inicializado');
+    return { exists: false, url: null };
+  }
+  
+  try {
+    const file = bucket.file(fileName);
+    const [exists] = await file.exists();
+    
+    if (exists) {
+      // Obtener URL pública
+      const [metadata] = await file.getMetadata();
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      
+      logger.info(context, 'Archivo ya existe en Storage', { fileName, publicUrl });
+      return { exists: true, url: publicUrl, metadata };
+    }
+    
+    logger.info(context, 'Archivo no existe en Storage', { fileName });
+    return { exists: false, url: null };
+    
+  } catch (error) {
+    logger.error(context, 'Error verificando existencia en Storage', error, { fileName });
+    return { exists: false, url: null, error: error.message };
+  }
+}
+
+/**
+ * 🆕 FUNCIÓN MEJORADA: Subir PDF a Firebase Storage con idempotencia
+ * SOLUCIÓN PROBLEMA 1: Verifica existencia antes de subir
+ * SOLUCIÓN PROBLEMA 2: Configura metadata correcta para descarga
  */
 async function uploadPDFToStorage(pdfPath, paymentId) {
   const context = 'UPLOAD_PDF';
@@ -198,19 +234,33 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
   }
   
   try {
-    logger.info(context, 'Subiendo PDF a Firebase Storage', { pdfPath, paymentId });
+    logger.info(context, 'Intentando subir PDF a Firebase Storage', { pdfPath, paymentId });
     
-    const fileName = `invoices/${paymentId}_${Date.now()}.pdf`;
+    // 🔴 CORRECCIÓN: Usar nombre estático sin timestamp
+    const fileName = `invoices/${paymentId}.pdf`;
+    
+    // 🔴 CORRECCIÓN: Verificar si el archivo ya existe antes de subir
+    const fileCheck = await checkFileExistsInStorage(fileName);
+    if (fileCheck.exists && fileCheck.url) {
+      logger.info(context, '📁 PDF ya existe en Storage, devolviendo URL existente', { 
+        paymentId, 
+        url: fileCheck.url 
+      });
+      return fileCheck.url;
+    }
+    
     const file = bucket.file(fileName);
     
     await bucket.upload(pdfPath, {
       destination: fileName,
       metadata: {
+        // 🔴 CORRECCIÓN: Metadata esencial para descarga forzada
         contentType: 'application/pdf',
-        contentDisposition: `attachment; filename="${path.basename(pdfPath)}"`,
+        contentDisposition: 'attachment; filename="Boleta_ConsultaPE.pdf"',
         metadata: {
           paymentId: paymentId,
-          uploadedAt: new Date().toISOString()
+          uploadedAt: new Date().toISOString(),
+          type: 'boleta_electronica'
         }
       }
     });
@@ -220,26 +270,23 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
     
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
     
-    logger.info(context, 'PDF subido exitosamente a Storage', { 
-      publicUrl, 
+    logger.info(context, '✅ PDF subido exitosamente a Storage', { 
       paymentId,
-      fileName 
+      fileName,
+      publicUrl,
+      size: fs.statSync(pdfPath).size 
     });
     
     return publicUrl;
     
   } catch (error) {
-    logger.error(context, 'Error subiendo PDF a Storage', error, { pdfPath, paymentId });
+    logger.error(context, '❌ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
     throw error;
   }
 }
 
 /**
- * 🔴🔵 FUNCIÓN PRINCIPAL CORREGIDA
- * Soluciona ambos problemas:
- * - Problema 1: Evita duplicación con idempotencia robusta
- * - Problema 2: Acumula días correctamente en planes ilimitados
- * 🆕 Agrega: Guardado automático en Firebase Storage
+ * Función principal corregida con idempotencia robusta
  */
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
@@ -256,7 +303,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const paymentRefString = String(paymentRef);
   
-  // 🔴 CORRECCIÓN 1.1: Verificar cache de memoria primero (respuesta instantánea)
+  // Verificar cache de memoria primero (respuesta instantánea)
   if (processedPaymentsCache.has(paymentRefString)) {
     const cachedData = processedPaymentsCache.get(paymentRefString);
     logger.warn(context, '🚫 Pago ya procesado en cache de memoria (idempotencia)', { 
@@ -274,7 +321,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     };
   }
 
-  // 🔴 CORRECCIÓN 1.2: Adquirir lock para evitar procesamiento simultáneo
+  // Adquirir lock para evitar procesamiento simultáneo
   const lockAcquired = await acquirePaymentLock(paymentRefString);
   if (!lockAcquired) {
     logger.error(context, '❌ No se pudo adquirir lock para procesar pago', null, { 
@@ -289,7 +336,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
   const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
   
   try {
-    // 🔴 CORRECCIÓN 1.3: Verificar en Firestore antes de procesar
+    // Verificar en Firestore antes de procesar
     const doc = await pagoDoc.get();
     
     if (doc.exists) {
@@ -301,7 +348,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           uid, 
           paymentRef: paymentRefString, 
           procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
-          processor: existingData.procesadoPor
+          processor: existingData.procesadoPor,
+          pdfUrl: existingData.pdfUrl || null
         });
         
         // Agregar a cache para futuras verificaciones
@@ -309,7 +357,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           uid,
           timestamp: existingData.procesadoEn?.toDate?.()?.toISOString() || new Date().toISOString(),
           processor: existingData.procesadoPor,
-          status: 'already_processed'
+          status: 'already_processed',
+          pdfUrl: existingData.pdfUrl || null
         });
         
         releasePaymentLock(paymentRefString);
@@ -320,7 +369,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           message: 'Payment was already processed successfully',
           creditosOtorgados: existingData.creditosOtorgados || 0,
           creditosNuevos: existingData.creditosNuevos || 0,
-          planOtorgado: existingData.planOtorgado || null
+          planOtorgado: existingData.planOtorgado || null,
+          pdfUrl: existingData.pdfUrl || null
         };
       }
     }
@@ -329,7 +379,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       uid, email, montoPagado, processor, paymentRef: paymentRefString 
     });
 
-    // 🔴 CORRECCIÓN 1.4: Crear documento con estado "procesando" para evitar condiciones de carrera
+    // Crear documento con estado "procesando" para evitar condiciones de carrera
     await pagoDoc.set({
       uid,
       email,
@@ -395,14 +445,14 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           tipoPlanNuevo: "creditos"
         });
         
-      // 🔵 CASO 2: Compra de plan ilimitado - CORRECCIÓN PROBLEMA 2
+      // CASO 2: Compra de plan ilimitado
       } else if (PLANES_ILIMITADOS[montoNum]) {
         const diasNuevos = PLANES_ILIMITADOS[montoNum];
         let duracionTotalDias;
         let fechaFinPlan;
         let fechaActivacion;
         
-        // 🔵 CORRECCIÓN 2.1: Verificar si ya tiene plan ilimitado ACTIVO
+        // Verificar si ya tiene plan ilimitado ACTIVO
         const ahora = new Date();
         const tienePlanIlimitadoActivo = tipoPlanActual === "ilimitado" && 
                                           fechaActivacionActual && 
@@ -410,7 +460,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
                                           planIlimitadoHastaActual.toDate() > ahora;
         
         if (tienePlanIlimitadoActivo) {
-          // 🔵 CORRECCIÓN 2.2: Acumular días desde la fecha de activación original
+          // Acumular días desde la fecha de activación original
           fechaActivacion = fechaActivacionActual.toDate();
           duracionTotalDias = duracionDiasActual + diasNuevos;
           
@@ -428,7 +478,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           });
           
         } else {
-          // 🔵 CORRECCIÓN 2.3: Crear nuevo plan ilimitado o renovar uno vencido
+          // Crear nuevo plan ilimitado o renovar uno vencido
           fechaActivacion = ahora;
           duracionTotalDias = diasNuevos;
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
@@ -442,7 +492,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           });
         }
         
-        // 🔵 CORRECCIÓN 2.4: Actualizar con duración total acumulada
+        // Actualizar con duración total acumulada
         t.update(userDoc, { 
           duracionDias: duracionTotalDias, // ✅ Guardar duración total acumulada
           planIlimitadoHasta: fechaFinPlan,
@@ -478,7 +528,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         descripcion = `Pago de S/ ${montoPagado}`;
       }
       
-      // 🔴 CORRECCIÓN 1.5: Marcar pago como procesado exitosamente
+      // Marcar pago como procesado exitosamente
       t.update(pagoDoc, { 
         descripcion,
         procesado: true, // ✅ Marcar como procesado
@@ -505,7 +555,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
-    // 🆕 NUEVO: Generar y subir PDF a Firebase Storage automáticamente (Solo Boletas)
+    // 🔴 NUEVO: Generar y subir PDF a Firebase Storage automáticamente (Solo Boletas)
     try {
       logger.info(context, '📄 Generando Boleta Electrónica automáticamente', { paymentRef: paymentRefString });
       
@@ -522,14 +572,15 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const pdfPath = await generateInvoicePDF(invoiceData);
       const localPdfPath = path.join(__dirname, 'public', pdfPath);
       
-      // 🆕 Subir PDF a Firebase Storage
+      // Subir PDF a Firebase Storage (función mejorada con idempotencia)
       const storageUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
       
       // Guardar URL del PDF en el documento del pago
       await pagoDoc.update({
         pdfUrl: storageUrl,
         pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
-        tipoComprobante: 'boleta'
+        tipoComprobante: 'boleta',
+        storagePath: `invoices/${paymentRefString}.pdf`
       });
       
       // Eliminar archivo local inmediatamente
@@ -551,15 +602,16 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       // No fallar la transacción completa si falla el PDF
     }
 
-    // 🔴 CORRECCIÓN 1.6: Agregar a cache después de procesamiento exitoso
+    // Agregar a cache después de procesamiento exitoso
     processedPaymentsCache.set(paymentRefString, {
       uid,
       timestamp: new Date().toISOString(),
       processor,
-      status: 'processed'
+      status: 'processed',
+      pdfUrl: result.pdfUrl || null
     });
     
-    // 🔴 CORRECCIÓN 1.7: Limpiar cache después de 2 horas para ahorrar memoria
+    // Limpiar cache después de 2 horas para ahorrar memoria
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
       logger.info(context, '🧹 Pago removido del cache', { paymentRef: paymentRefString });
@@ -575,7 +627,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
   } catch (error) {
     logger.error(context, '❌ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
     
-    // 🔴 CORRECCIÓN 1.8: Marcar el pago como fallido pero NO procesado
+    // Marcar el pago como fallido pero NO procesado
     try {
       await pagoDoc.update({
         procesado: false,
@@ -687,7 +739,7 @@ app.post("/api/pay", async (req, res) => {
       processingTime: `${processingTime}ms`
     });
 
-    // 🔴 CORRECCIÓN 1.9: Solo procesar si está aprobado instantáneamente
+    // Solo procesar si está aprobado instantáneamente
     if (result.status === 'approved') {
       logger.info(context, '💳 Pago aprobado instantáneamente, otorgando beneficios', {
         paymentId: result.id,
@@ -760,7 +812,7 @@ app.post("/api/pay", async (req, res) => {
   }
 });
 
-// 🔴 CORRECCIÓN 1.10: Webhook mejorado con mejor manejo de idempotencia
+// Webhook mejorado con mejor manejo de idempotencia
 app.post("/api/webhook/mercadopago", async (req, res) => {
   const context = 'WEBHOOK_MP';
   const webhookData = req.body;
@@ -813,7 +865,6 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             paymentId, uid, email, amount
           });
 
-          // 🔴 La función otorgarBeneficio ahora maneja la idempotencia internamente
           const beneficioResult = await otorgarBeneficio(
             uid,
             email,
@@ -894,7 +945,8 @@ app.get("/api/payment/:paymentId", async (req, res) => {
       estado: pagoData.estado,
       tipoPlan: pagoData.tipoPlanNuevo || 'creditos',
       procesado: pagoData.procesado,
-      pdfUrl: pagoData.pdfUrl || null
+      pdfUrl: pagoData.pdfUrl || null,
+      storagePath: pagoData.storagePath || null
     });
     
   } catch (error) {
@@ -903,12 +955,16 @@ app.get("/api/payment/:paymentId", async (req, res) => {
   }
 });
 
-// Endpoint para generar comprobante (con cambio de nombres de variables)
+/**
+ * 🔴 ENDPOINT CRÍTICO MEJORADO: generate-invoice
+ * SOLUCIÓN PROBLEMA 1: Verifica existencia antes de generar
+ * SOLUCIÓN PROBLEMA 2: Responde inmediatamente si ya existe
+ */
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
   
   try {
-    // 🔴 Actualizado: Solo Boletas (SUNAT Nuevo RUS)
+    // Solo Boletas (SUNAT Nuevo RUS)
     const { 
       paymentId, 
       email,
@@ -924,7 +980,84 @@ app.post("/api/generate-invoice", async (req, res) => {
       return res.status(400).json({ error: 'Payment ID es requerido' });
     }
 
-    logger.info(context, 'Generando boleta electrónica', { paymentId });
+    logger.info(context, 'Solicitud para generar boleta electrónica', { paymentId });
+
+    // 🔴 SOLUCIÓN 1: Verificar si ya existe un PDF para este pago en Firestore
+    let existingPdfUrl = null;
+    let responseSent = false;
+    
+    if (db) {
+      try {
+        const doc = await db.collection("pagos_registrados").doc(String(paymentId)).get();
+        if (doc.exists) {
+          const pagoData = doc.data();
+          
+          // Verificar si ya tiene PDF URL
+          if (pagoData.pdfUrl) {
+            existingPdfUrl = pagoData.pdfUrl;
+            logger.info(context, '✅ PDF ya existe en datos del pago', { 
+              paymentId, 
+              pdfUrl: existingPdfUrl,
+              storagePath: pagoData.storagePath || 'N/A'
+            });
+            
+            // 🔴 SOLUCIÓN 2: Responder inmediatamente con URL existente
+            res.json({
+              success: true,
+              pdfUrl: existingPdfUrl,
+              downloadUrl: existingPdfUrl,
+              storageUrl: existingPdfUrl,
+              message: 'Comprobante ya generado previamente',
+              existed: true,
+              cached: true
+            });
+            
+            responseSent = true;
+            return;
+          }
+        }
+      } catch (dbError) {
+        logger.error(context, 'Error consultando Firestore', dbError, { paymentId });
+        // Continuar con la generación si hay error en la consulta
+      }
+    }
+
+    // Si ya respondimos, salir
+    if (responseSent) return;
+
+    // 🔴 SOLUCIÓN 1: Verificar directamente en Storage
+    const fileName = `invoices/${paymentId}.pdf`;
+    const storageCheck = await checkFileExistsInStorage(fileName);
+    
+    if (storageCheck.exists && storageCheck.url) {
+      logger.info(context, '✅ PDF ya existe en Storage', { 
+        paymentId, 
+        url: storageCheck.url 
+      });
+      
+      // Actualizar Firestore con la URL
+      if (db) {
+        await db.collection("pagos_registrados").doc(String(paymentId)).set({
+          pdfUrl: storageCheck.url,
+          storagePath: fileName,
+          pdfActualizadoEn: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
+      
+      res.json({
+        success: true,
+        pdfUrl: storageCheck.url,
+        downloadUrl: storageCheck.url,
+        storageUrl: storageCheck.url,
+        message: 'Comprobante recuperado de Storage exitosamente',
+        existed: true,
+        fromStorage: true
+      });
+      
+      return;
+    }
+
+    logger.info(context, '📄 Generando nuevo comprobante', { paymentId });
 
     const invoiceData = {
       orderId: String(paymentId),
@@ -937,28 +1070,11 @@ app.post("/api/generate-invoice", async (req, res) => {
       type: 'boleta'
     };
     
-    // 🆕 Verificar si ya existe un PDF para este pago en Firestore para evitar duplicados
-    let storageUrl = null;
-    if (db) {
-      const doc = await db.collection("pagos_registrados").doc(String(paymentId)).get();
-      if (doc.exists && doc.data().pdfUrl) {
-        storageUrl = doc.data().pdfUrl;
-        logger.info(context, 'PDF ya existe en Storage, omitiendo generación', { paymentId, storageUrl });
-        
-        return res.json({
-          success: true,
-          pdfUrl: storageUrl,
-          downloadUrl: storageUrl,
-          storageUrl: storageUrl,
-          message: 'Comprobante recuperado exitosamente'
-        });
-      }
-    }
-
     const pdfPath = await generateInvoicePDF(invoiceData);
     const localPdfPath = path.join(__dirname, 'public', pdfPath);
     
-    // 🆕 Subir PDF a Firebase Storage
+    // Subir PDF a Firebase Storage (función idempotente)
+    let storageUrl = null;
     try {
       storageUrl = await uploadPDFToStorage(localPdfPath, paymentId);
       
@@ -966,40 +1082,51 @@ app.post("/api/generate-invoice", async (req, res) => {
       if (db) {
         await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageUrl,
-          pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp()
+          storagePath: fileName,
+          pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
+          tipoComprobante: 'boleta'
         }, { merge: true });
       }
       
-      logger.info(context, 'PDF subido a Storage', { paymentId, storageUrl });
+      logger.info(context, '✅ PDF generado y almacenado en Storage', { 
+        paymentId, 
+        storageUrl,
+        localPath: pdfPath 
+      });
       
       // Eliminar archivo local inmediatamente
       if (fs.existsSync(localPdfPath)) {
         fs.unlinkSync(localPdfPath);
       }
     } catch (uploadError) {
-      logger.error(context, 'Error subiendo PDF a Storage (no crítico)', uploadError);
+      logger.error(context, 'Error subiendo PDF a Storage', uploadError);
+      // Si falla el upload, devolver la URL local como fallback
+      storageUrl = `${HOST_URL}${pdfPath}`;
     }
     
     logger.info(context, 'Comprobante generado exitosamente', {
       paymentId,
-      pdfUrl: pdfPath,
-      storageUrl,
+      pdfUrl: storageUrl,
       type
     });
 
     res.json({
       success: true,
-      pdfUrl: storageUrl || `${HOST_URL}${pdfPath}`,
-      downloadUrl: storageUrl || `${HOST_URL}${pdfPath}?download=true`,
+      pdfUrl: storageUrl,
+      downloadUrl: storageUrl,
       storageUrl: storageUrl,
-      message: 'Comprobante generado exitosamente'
+      message: 'Comprobante generado exitosamente',
+      existed: false,
+      generated: true
     });
 
   } catch (error) {
-    logger.error(context, 'Error generando comprobante', error, req.body);
+    logger.error(context, '❌ Error generando comprobante', error, req.body);
     res.status(500).json({
+      success: false,
       error: 'Error generando comprobante',
-      details: error.message
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
@@ -1034,7 +1161,13 @@ app.get("/api/health", async (req, res) => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
-    activePaymentLocks: paymentLocks.size
+    activePaymentLocks: paymentLocks.size,
+    duplicatePrevention: {
+      memoryCache: true,
+      firestoreCheck: true,
+      storageCheck: true,
+      fileLocks: true
+    }
   };
   
   if (db) {
@@ -1083,7 +1216,7 @@ app.get("/api/debug/firebase", (req, res) => {
   });
 });
 
-// 🔴 NUEVO: Endpoint para limpiar cache manualmente (útil para debugging)
+// Endpoint para limpiar cache manualmente (útil para debugging)
 app.post("/api/admin/clear-cache", (req, res) => {
   const context = 'ADMIN_CLEAR_CACHE';
   
@@ -1129,7 +1262,7 @@ app.use((err, req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.1.0 - Firebase Storage Integration + Invoice Variable Names Fixed",
+    version: "2.2.0 - Firebase Storage Duplication Fix + Forced Download",
     endpoints: {
       config: "/api/config",
       pay: "/api/pay",
@@ -1141,10 +1274,10 @@ app.get("/", (req, res) => {
       clearCache: "/api/admin/clear-cache"
     },
     fixes: {
-      duplicateCredits: "✅ Fixed - Idempotency implemented",
-      cumulativeDays: "✅ Fixed - Days now accumulate correctly",
-      firebaseStorage: "✅ Added - Automatic PDF upload to Firebase Storage",
-      invoiceVariables: "✅ Fixed - ruc → rucCliente, razonSocial → razonSocialCliente"
+      duplicateFiles: "✅ Fixed - Idempotency in Storage upload",
+      forcedDownload: "✅ Fixed - contentDisposition metadata",
+      instantResponse: "✅ Fixed - Immediate response for existing files",
+      pdfGeneration: "✅ Fixed - Check before generate"
     },
     status: "online",
     timestamp: new Date().toISOString()
@@ -1158,8 +1291,8 @@ app.listen(PORT, "0.0.0.0", () => {
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    version: '2.1.0',
-    features: 'Duplicate credits fix + Cumulative days + Firebase Storage + Invoice variable names',
+    version: '2.2.0',
+    features: 'Storage duplication fix + Forced download metadata + Idempotent PDF generation',
     timestamp: new Date().toISOString()
   });
 });
