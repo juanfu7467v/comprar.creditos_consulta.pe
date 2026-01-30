@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for pago-planes-consulta-pe on 2025-11-07T14:25:00Z
+# fly.toml app configuration file generated for masitaprexv2 on 2026-01-30T05:21:38Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'pago-planes-consulta-pe'
+app = 'masitaprexv2'
 primary_region = 'ams'
 
 [build]
@@ -20,4 +20,4 @@ primary_region = 'ams'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 1024
+  memory_mb = 256
