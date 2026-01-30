@@ -194,7 +194,42 @@
         font-weight: 600;
     }
 
-    /* Estilos para reCAPTCHA - MEJORADOS */
+    /* MEJORA CRÍTICA: Estilos para el modal del reCAPTCHA - Pantalla Completa */
+    .recaptcha-modal-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0, 0, 0, 0.9) !important;
+        z-index: 999999 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .recaptcha-modal-container {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        background: white !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+    
+    /* Estilos específicos para iframe del desafío reCAPTCHA */
+    .recaptcha-modal-iframe {
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+        flex-grow: 1 !important;
+    }
+    
+    /* Asegurar que el contenedor principal del reCAPTCHA sea responsivo */
     .recaptcha-container {
         display: flex;
         justify-content: center;
@@ -202,6 +237,8 @@
         min-height: 78px;
         align-items: center;
         width: 100%;
+        position: relative;
+        z-index: 1;
     }
     
     .g-recaptcha {
@@ -216,6 +253,23 @@
     
     .g-recaptcha iframe {
         width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Sobreescribir estilos del iframe del widget reCAPTCHA */
+    iframe[src*="google.com/recaptcha/"] {
+        max-width: 100% !important;
+    }
+    
+    /* Para el iframe del desafío */
+    iframe[title="El desafío de reCAPTCHA expirará dentro de dos minutos"] {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 1000000 !important;
+        border: none !important;
     }
 
     /* MODAL 3D ESTILIZADO */
@@ -361,8 +415,35 @@
     }
 
     @media (max-width: 480px) {
-        .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        .g-recaptcha { transform: scale(0.95); transform-origin: 0 0; }
+        .container { 
+            margin: 0; 
+            border-radius: 0; 
+            min-height: 100vh; 
+            padding: 50px 25px; 
+        }
+        
+        .g-recaptcha { 
+            transform: scale(0.95); 
+            transform-origin: 0 0; 
+        }
+        
+        /* Asegurar que el modal de reCAPTCHA ocupe toda la pantalla en móviles */
+        .recaptcha-modal-container {
+            padding: 5px !important;
+        }
+        
+        /* Ajustar el tamaño del widget en móviles */
+        iframe[src*="google.com/recaptcha/api2/bframe"] {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    }
+    
+    /* Estilos específicos para tablets */
+    @media (min-width: 481px) and (max-width: 768px) {
+        .recaptcha-modal-container {
+            padding: 20px !important;
+        }
     }
   </style>
 </head>
@@ -620,15 +701,146 @@
     });
     /* FIN FUNCIONES MODAL */
 
+    // 🆕 MEJORA: Función para detectar y mejorar el modal del reCAPTCHA
+    function enhanceRecaptchaModal() {
+        // Buscar y mejorar cualquier modal de reCAPTCHA existente
+        const recaptchaModals = document.querySelectorAll('iframe[title*="recaptcha"], iframe[src*="recaptcha"], div[role="dialog"]');
+        
+        recaptchaModals.forEach(modal => {
+            // Si es un iframe del desafío reCAPTCHA
+            if (modal.tagName === 'IFRAME' && modal.src.includes('google.com/recaptcha')) {
+                // Aplicar estilos para pantalla completa
+                modal.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    z-index: 999999 !important;
+                    border: none !important;
+                    background: white !important;
+                `;
+                
+                // También asegurarse de que el body dentro del iframe tenga estilos correctos
+                try {
+                    const iframeDoc = modal.contentDocument || modal.contentWindow.document;
+                    if (iframeDoc && iframeDoc.body) {
+                        iframeDoc.body.style.cssText = `
+                            width: 100% !important;
+                            height: 100% !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            overflow: hidden !important;
+                        `;
+                    }
+                } catch (e) {
+                    // Cross-origin restrictions pueden prevenir acceso al iframe
+                }
+            }
+            
+            // Si es un contenedor del modal reCAPTCHA
+            if (modal.getAttribute('role') === 'dialog' || modal.className.includes('recaptcha')) {
+                modal.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    width: 100vw !important;
+                    height: 100vh !important;
+                    background: rgba(0,0,0,0.9) !important;
+                    z-index: 999999 !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    margin: 0 !important;
+                    padding: 10px !important;
+                `;
+                
+                // Buscar elementos hijos y aplicarle estilos de pantalla completa
+                const children = modal.querySelectorAll('div, iframe');
+                children.forEach(child => {
+                    if (child.tagName === 'IFRAME') {
+                        child.style.cssText = `
+                            width: 100% !important;
+                            height: 100% !important;
+                            max-width: 100% !important;
+                            max-height: 100% !important;
+                            border: none !important;
+                        `;
+                    } else {
+                        child.style.cssText = `
+                            width: 100% !important;
+                            height: 100% !important;
+                            max-width: 100% !important;
+                            max-height: 100% !important;
+                        `;
+                    }
+                });
+            }
+        });
+    }
+
+    // 🆕 MEJORA: Observador de mutaciones para detectar cuando aparece el modal reCAPTCHA
+    function setupRecaptchaModalObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    mutation.addedNodes.forEach((node) => {
+                        // Verificar si es un modal de reCAPTCHA
+                        if (node.nodeType === 1) {
+                            if (
+                                (node.tagName === 'IFRAME' && node.src && node.src.includes('recaptcha')) ||
+                                (node.getAttribute && (
+                                    node.getAttribute('role') === 'dialog' ||
+                                    node.className.includes('recaptcha') ||
+                                    node.id.includes('recaptcha')
+                                ))
+                            ) {
+                                console.log('Modal reCAPTCHA detectado, aplicando mejoras...');
+                                // Aplicar mejoras inmediatamente
+                                enhanceRecaptchaModal();
+                                
+                                // También aplicar después de un breve retraso por si acaso
+                                setTimeout(enhanceRecaptchaModal, 100);
+                                setTimeout(enhanceRecaptchaModal, 500);
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        // Observar todo el documento para cambios
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // También observar cambios en el head por si acaso
+        observer.observe(document.head, {
+            childList: true,
+            subtree: true
+        });
+
+        // Verificar periódicamente por modales reCAPTCHA
+        setInterval(enhanceRecaptchaModal, 1000);
+    }
+
     // 🆕 Función para inicializar reCAPTCHA
     window.recaptchaOnLoad = function() {
         console.log('reCAPTCHA cargado correctamente');
+        
+        // Configurar observador para modales reCAPTCHA
+        setupRecaptchaModalObserver();
+        
         // Inicializar widgets cuando se cargue el script
         if (loginForm.style.display === 'flex') {
             initLoginRecaptcha();
         } else if (registerForm.style.display === 'flex') {
             initRegisterRecaptcha();
         }
+        
+        // Aplicar mejoras iniciales
+        setTimeout(enhanceRecaptchaModal, 100);
     };
 
     // 🆕 Función para inicializar reCAPTCHA de login
@@ -932,6 +1144,12 @@
         if (returnTo) {
             showMessage('Por favor, inicia sesión para continuar', 'success');
         }
+        
+        // Configurar observador para modales reCAPTCHA
+        setTimeout(setupRecaptchaModalObserver, 1000);
+        
+        // Forzar mejoras periódicamente
+        setInterval(enhanceRecaptchaModal, 2000);
     });
   </script>
 </body>
