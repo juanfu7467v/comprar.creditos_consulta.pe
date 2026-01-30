@@ -914,7 +914,8 @@ app.post("/api/generate-invoice", async (req, res) => {
       amount,
       credits,
       description,
-      clientName // Opcional si < 700
+      clientName, // Opcional si < 700
+      type = 'boleta'
     } = req.body;
     
     if (!paymentId) {
@@ -935,20 +936,37 @@ app.post("/api/generate-invoice", async (req, res) => {
       type: 'boleta'
     };
     
+    // 🆕 Verificar si ya existe un PDF para este pago en Firestore para evitar duplicados
+    let storageUrl = null;
+    if (db) {
+      const doc = await db.collection("pagos_registrados").doc(String(paymentId)).get();
+      if (doc.exists && doc.data().pdfUrl) {
+        storageUrl = doc.data().pdfUrl;
+        logger.info(context, 'PDF ya existe en Storage, omitiendo generación', { paymentId, storageUrl });
+        
+        return res.json({
+          success: true,
+          pdfUrl: storageUrl,
+          downloadUrl: storageUrl,
+          storageUrl: storageUrl,
+          message: 'Comprobante recuperado exitosamente'
+        });
+      }
+    }
+
     const pdfPath = await generateInvoicePDF(invoiceData);
     const localPdfPath = path.join(__dirname, 'public', pdfPath);
     
     // 🆕 Subir PDF a Firebase Storage
-    let storageUrl = null;
     try {
       storageUrl = await uploadPDFToStorage(localPdfPath, paymentId);
       
       // Actualizar documento del pago con la URL del PDF
       if (db) {
-        await db.collection("pagos_registrados").doc(String(paymentId)).update({
+        await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageUrl,
           pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp()
-        });
+        }, { merge: true });
       }
       
       logger.info(context, 'PDF subido a Storage', { paymentId, storageUrl });

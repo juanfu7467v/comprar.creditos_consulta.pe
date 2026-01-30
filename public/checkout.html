@@ -1107,27 +1107,36 @@
             const response = await fetch('/api/generate-invoice', {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/pdf'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
 
-            // Verificar si la respuesta es exitosa
             if (!response.ok) {
                 throw new Error(`Error en la respuesta del servidor: ${response.status}`);
             }
 
-            // Obtener el blob (archivo binario) de la respuesta
-            const blob = await response.blob();
+            const contentType = response.headers.get('content-type');
+            let blob;
+            let blobUrl;
+
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                if (data.success && data.pdfUrl) {
+                    const pdfRes = await fetch(data.pdfUrl);
+                    blob = await pdfRes.blob();
+                } else {
+                    throw new Error(data.error || 'Error al obtener la URL del PDF');
+                }
+            } else {
+                blob = await response.blob();
+            }
             
-            // Verificar si el blob es un PDF válido
-            if (blob.type !== 'application/pdf' && blob.size === 0) {
-                throw new Error('El servidor no devolvió un PDF válido');
+            if (!blob || (blob.type !== 'application/pdf' && blob.size === 0)) {
+                throw new Error('No se pudo obtener un PDF válido');
             }
 
-            // Crear una URL temporal para el blob
-            const blobUrl = window.URL.createObjectURL(blob);
+            blobUrl = window.URL.createObjectURL(blob);
             
             // Crear un enlace temporal para la descarga
             const a = document.createElement('a');
