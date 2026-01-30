@@ -717,6 +717,29 @@
             color: #991B1B;
             line-height: 1.5;
         }
+        
+        /* Mensaje de confirmación */
+        .confirmation-message {
+            background: #D1FAE5;
+            border: 1px solid #A7F3D0;
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .confirmation-message i {
+            color: var(--success-green);
+            font-size: 18px;
+        }
+        
+        .confirmation-message span {
+            font-size: 13px;
+            color: #065F46;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -879,6 +902,13 @@
                 <button class="main-btn success" id="downloadVoucherBtn">
                     <i class="fas fa-download"></i> Descargar Boleta de Venta
                 </button>
+                
+                <!-- Mensaje de confirmación -->
+                <div class="confirmation-message" id="downloadMessage" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>La boleta se está descargando automáticamente...</span>
+                </div>
+                
                 <p style="text-align: center; font-size: 12px; color: var(--text-gray); margin-top: 15px;">
                     <i class="fas fa-info-circle"></i> Comprobante electrónico válido ante SUNAT
                 </p>
@@ -1048,56 +1078,54 @@
         }
     }
 
-    // ===== FUNCIÓN PARA DESCARGAR COMPROBANTE CON BLOB =====
+    // ===== 🔴 FUNCIÓN SIMPLIFICADA PARA DESCARGAR COMPROBANTE =====
+    // 🔴 ELIMINADO: Todo el código de blob y descarga compleja
     async function downloadVoucher() {
         const btn = document.getElementById('downloadVoucherBtn');
+        const messageEl = document.getElementById('downloadMessage');
+        const originalText = btn.innerHTML;
         
-        // Si ya tenemos la URL del PDF en los datos del pago, usarla directamente
-        if (currentPaymentData && currentPaymentData.pdfUrl) {
-            // Si es una URL de Firebase Storage o externa, forzar descarga mediante fetch
-            if (currentPaymentData.pdfUrl.startsWith('http')) {
-                try {
-                    const response = await fetch(currentPaymentData.pdfUrl);
-                    const blob = await response.blob();
-                    const blobUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = blobUrl;
-                    a.download = `boleta_${currentPaymentId}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => {
-                        window.URL.revokeObjectURL(blobUrl);
-                        document.body.removeChild(a);
-                    }, 100);
-                    return;
-                } catch (e) {
-                    console.error("Error descargando desde URL externa, reintentando generación:", e);
-                }
-            } else {
-                // Si ya es un blobUrl local
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparando descarga...';
+        btn.disabled = true;
+        
+        // Mostrar mensaje de confirmación
+        if (messageEl) {
+            messageEl.style.display = 'flex';
+        }
+
+        try {
+            // Si ya tenemos la URL del PDF, la usamos directamente
+            if (currentPaymentData && currentPaymentData.pdfUrl) {
+                console.log('📄 Usando URL existente del PDF:', currentPaymentData.pdfUrl);
+                
+                // 🔴 DESCARGA DIRECTA: Crear enlace y hacer clic
                 const a = document.createElement('a');
                 a.href = currentPaymentData.pdfUrl;
                 a.download = `boleta_${currentPaymentId}.pdf`;
+                a.target = '_blank'; // Abrir en nueva pestaña si es necesario
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
+                
+                btn.innerHTML = '<i class="fas fa-check"></i> Descargado';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    if (messageEl) messageEl.style.display = 'none';
+                }, 3000);
                 return;
             }
-        }
 
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-        btn.disabled = true;
-
-        try {
+            console.log('🔄 Generando nueva boleta para:', currentPaymentId);
+            
+            // Si no tenemos URL, solicitamos una nueva
             const payload = {
                 paymentId: currentPaymentId,
                 type: 'boleta',
-                email: currentPaymentData.email,
-                amount: currentPaymentData.monto,
-                credits: currentPaymentData.creditos,
-                description: currentPaymentData.descripcion,
+                email: currentPaymentData.email || email,
+                amount: currentPaymentData.monto || amount,
+                credits: currentPaymentData.creditos || 0,
+                description: currentPaymentData.descripcion || description,
                 clientName: currentPaymentData.cardholderName || '',
                 fecha: currentPaymentData.fecha || getRealDateTime().fecha,
                 hora: currentPaymentData.hora || getRealDateTime().hora,
@@ -1116,70 +1144,69 @@
                 throw new Error(`Error en la respuesta del servidor: ${response.status}`);
             }
 
-            const contentType = response.headers.get('content-type');
-            let blob;
-            let blobUrl;
-
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-                if (data.success && data.pdfUrl) {
-                    const pdfRes = await fetch(data.pdfUrl);
-                    blob = await pdfRes.blob();
-                } else {
-                    throw new Error(data.error || 'Error al obtener la URL del PDF');
-                }
-            } else {
-                blob = await response.blob();
-            }
+            const result = await response.json();
             
-            if (!blob || (blob.type !== 'application/pdf' && blob.size === 0)) {
-                throw new Error('No se pudo obtener un PDF válido');
+            if (!result.success) {
+                throw new Error(result.error || 'Error al generar el comprobante');
             }
 
-            blobUrl = window.URL.createObjectURL(blob);
+            console.log('✅ Boleta generada exitosamente:', result.pdfUrl);
             
-            // Crear un enlace temporal para la descarga
+            // 🔴 DESCARGA DIRECTA: Usar la URL que nos devuelve el backend
+            const pdfUrl = result.pdfUrl || result.downloadUrl || result.storageUrl;
+            
+            if (!pdfUrl) {
+                throw new Error('No se recibió URL del PDF');
+            }
+            
+            // Guardar la URL en los datos del pago para futuras descargas
+            currentPaymentData.pdfUrl = pdfUrl;
+            
+            // 🔴 DESCARGA DIRECTA: Crear enlace y hacer clic
             const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = blobUrl;
+            a.href = pdfUrl;
             a.download = `boleta_${currentPaymentId}.pdf`;
-            
-            // Agregar el enlace al documento
+            a.target = '_blank'; // Abrir en nueva pestaña si es necesario
             document.body.appendChild(a);
-            
-            // Disparar el clic para iniciar la descarga
             a.click();
+            document.body.removeChild(a);
             
-            // Limpiar después de un tiempo
-            setTimeout(() => {
-                window.URL.revokeObjectURL(blobUrl);
-                document.body.removeChild(a);
-            }, 100);
-            
-            // Actualizar el botón con éxito
+            // Actualizar botón con éxito
             btn.innerHTML = '<i class="fas fa-check"></i> Descargado';
             
-            // Guardar la URL del blob para futuras descargas
-            currentPaymentData.pdfUrl = blobUrl;
-            
-            // Restaurar el botón después de 3 segundos
+            // Restaurar después de 3 segundos
             setTimeout(() => {
                 btn.innerHTML = '<i class="fas fa-download"></i> Descargar Boleta de Venta';
                 btn.disabled = false;
+                if (messageEl) messageEl.style.display = 'none';
             }, 3000);
 
         } catch (error) {
-            console.error('Error descargando comprobante:', error);
+            console.error('❌ Error descargando comprobante:', error);
             
             // Mostrar mensaje de error amigable
-            if (confirm('No se pudo generar el comprobante automáticamente. ¿Deseas intentar abrirlo en una nueva ventana?')) {
-                // Fallback: intentar abrir en nueva ventana
-                window.open(`/api/invoice/${currentPaymentId}`, '_blank');
+            btn.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error, intentar de nuevo';
+            btn.disabled = false;
+            
+            if (messageEl) {
+                messageEl.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i>
+                    <span style="color: #991B1B;">Error: ${error.message || 'No se pudo descargar'}</span>
+                `;
             }
             
-            // Restaurar el botón
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            // Restaurar después de 5 segundos
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                if (messageEl) messageEl.style.display = 'none';
+            }, 5000);
+            
+            // Fallback: intentar abrir en nueva ventana
+            setTimeout(() => {
+                if (confirm('No se pudo descargar automáticamente. ¿Deseas intentar abrirlo en una nueva ventana?')) {
+                    window.open(`/api/invoice/${currentPaymentId}`, '_blank');
+                }
+            }, 1000);
         }
     }
 
@@ -1237,8 +1264,17 @@
             }
 
             showScreen('successScreen');
-            // Asignar la función de descarga al botón
+            
+            // 🔴 ASIGNAR FUNCIÓN SIMPLIFICADA DE DESCARGA
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
+            
+            // 🔴 OPCIÓN: Descarga automática después de 1 segundo
+            setTimeout(() => {
+                if (paymentData.pdfUrl) {
+                    console.log('📄 Iniciando descarga automática...');
+                    downloadVoucher();
+                }
+            }, 1000);
 
         } catch (error) {
             console.error('Error obteniendo datos del pago:', error);
@@ -1255,7 +1291,8 @@
             document.getElementById('success-transaction-id').textContent = paymentId;
 
             showScreen('successScreen');
-            // Asignar la función de descarga al botón
+            
+            // 🔴 ASIGNAR FUNCIÓN SIMPLIFICADA DE DESCARGA
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
         }
     }
