@@ -7,6 +7,9 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   
+  <!-- Google reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  
   <style>
     /* Variables CSS Actualizadas con colores más fuertes y limpios */
     :root {
@@ -208,6 +211,20 @@
         font-weight: 600;
     }
 
+    /* Estilos para reCAPTCHA */
+    .recaptcha-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        min-height: 78px; /* Altura mínima para evitar saltos */
+        align-items: center;
+    }
+    
+    .g-recaptcha {
+        transform: scale(0.95);
+        transform-origin: 0 0;
+    }
+
     /* MODAL 3D ESTILIZADO */
     .modal-overlay {
         position: fixed;
@@ -350,48 +367,9 @@
         font-weight: 600;
     }
 
-    .help-bot-container {
-        position: fixed;
-        bottom: 30px;
-        right: 25px;
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .help-bot-img {
-        width: 75px; height: 75px;
-        object-fit: contain;
-        animation: floatBot 3s ease-in-out infinite;
-    }
-
-    .help-badge {
-        background: #25d366; 
-        color: white;
-        font-size: 10px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-top: 5px; 
-        animation: pulseBadge 2s infinite;
-    }
-
-    @keyframes floatBot {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-12px) rotate(5deg); }
-    }
-
-    @keyframes pulseBadge {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
-
     @media (max-width: 480px) {
         .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        .help-bot-container { bottom: 20px; right: 20px; }
-        .help-bot-img { width: 65px; height: 65px; }
+        .g-recaptcha { transform: scale(0.85); }
     }
   </style>
 </head>
@@ -427,11 +405,6 @@
       </div>
   </div>
 
-  <div class="help-bot-container" onclick="window.location.href='https://wa.me/51944950234'">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Help Bot" class="help-bot-img">
-      <div class="help-badge">¿Ayuda?</div>
-  </div>
-
   <div id="login-register-container" class="container">
     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Logo" class="avatar">
 
@@ -447,6 +420,12 @@
             <input type="password" id="login-password" placeholder="Contraseña" class="input-field" autocomplete="current-password">
             <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
         </div>
+        
+        <!-- 🆕 reCAPTCHA para login -->
+        <div class="recaptcha-container">
+            <div id="login-recaptcha" class="g-recaptcha" data-sitekey="6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo"></div>
+        </div>
+        
         <button class="primary-btn" onclick="loginWithEmail()">
             <span>Entrar</span>
             <span class="material-icons">arrow_forward</span>
@@ -477,6 +456,12 @@
             <span class="material-icons field-icon">verified_user</span>
             <input type="password" id="register-confirm-password" placeholder="Repetir contraseña" class="input-field">
         </div>
+        
+        <!-- 🆕 reCAPTCHA para registro -->
+        <div class="recaptcha-container">
+            <div id="register-recaptcha" class="g-recaptcha" data-sitekey="6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo"></div>
+        </div>
+        
         <button class="primary-btn" onclick="openTermsModal()">
             <span>Registrarme</span>
             <span class="material-icons">person_add</span>
@@ -517,18 +502,54 @@
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     let auth, db;
+    let recaptchaSiteKey = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
+    let appConfig;
+
+    // 🆕 Función para obtener parámetro de la URL
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // 🆕 Función para redirigir después del login
+    function redirectAfterLogin() {
+        const returnTo = getUrlParameter('returnTo');
+        
+        if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
+            // Decodificar y redirigir a la URL original
+            try {
+                const decodedUrl = decodeURIComponent(returnTo);
+                // Validar que sea una URL relativa (por seguridad)
+                if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+                    window.location.href = decodedUrl;
+                    return;
+                }
+            } catch (e) {
+                console.warn('URL de retorno inválida:', e);
+            }
+        }
+        
+        // Redirigir a index.html por defecto
+        window.location.href = "index.html";
+    }
 
     async function initFirebase() {
       try {
         const response = await fetch('/api/config');
-        const config = await response.json();
-        const app = initializeApp(config.firebaseConfig);
+        appConfig = await response.json();
+        const app = initializeApp(appConfig.firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
 
+        // Usar la clave de reCAPTCHA del servidor si está disponible
+        if (appConfig.recaptchaSiteKey) {
+            recaptchaSiteKey = appConfig.recaptchaSiteKey;
+        }
+
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            redirectToNextPage();
+            // Si ya está autenticado, redirigir inmediatamente
+            redirectAfterLogin();
           } else {
             setTimeout(() => {
                 showLoginForm();
@@ -577,6 +598,14 @@
         const name = document.getElementById('register-name').value;
         const email = document.getElementById('register-email').value;
         const password = document.getElementById('register-password').value;
+        
+        // Validar reCAPTCHA para registro
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (!recaptchaResponse) {
+            showMessage('Por favor, verifica que no eres un robot', 'error');
+            return;
+        }
+        
         if (!name || !email || !password) return showMessage('Completa todos los campos primero', 'error');
         
         termsModal.style.display = 'flex';
@@ -600,12 +629,22 @@
         hideAllForms();
         avatar.style.display = 'none';
         registerForm.style.display = 'flex';
+        
+        // Reiniciar reCAPTCHA
+        if (window.grecaptcha) {
+            grecaptcha.reset();
+        }
     };
 
     window.showLoginForm = () => {
         hideAllForms();
         avatar.style.display = 'block'; 
         loginForm.style.display = 'flex';
+        
+        // Reiniciar reCAPTCHA
+        if (window.grecaptcha) {
+            grecaptcha.reset();
+        }
     };
 
     window.showRecoverPasswordForm = () => {
@@ -625,18 +664,72 @@
         }
     };
 
+    // 🆕 Función para validar reCAPTCHA con el backend
+    async function validateRecaptchaWithBackend(recaptchaResponse) {
+        try {
+            const response = await fetch('/api/validate-recaptcha', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ recaptchaResponse })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Error validando reCAPTCHA');
+            }
+            
+            return data.success;
+        } catch (error) {
+            console.error('Error validando reCAPTCHA:', error);
+            throw error;
+        }
+    }
+
     window.loginWithEmail = async () => {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
-      if (!email || !password) return showMessage('Campos vacíos', 'error');
+      
+      if (!email || !password) {
+          showMessage('Campos vacíos', 'error');
+          return;
+      }
+      
+      // Validar reCAPTCHA
+      const recaptchaResponse = grecaptcha.getResponse();
+      if (!recaptchaResponse) {
+          showMessage('Por favor, verifica que no eres un robot', 'error');
+          return;
+      }
+      
       showLoadingOverlay();
+      
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        await saveUserProfile(userCredential.user);
-        redirectToNextPage(); 
+          // Validar reCAPTCHA con el backend primero
+          await validateRecaptchaWithBackend(recaptchaResponse);
+          
+          // Luego proceder con Firebase Auth
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          await saveUserProfile(userCredential.user);
+          
+          // Redirigir con la lógica de returnTo
+          redirectAfterLogin();
+          
       } catch (error) {
-        hideLoadingOverlay();
-        showMessage('Acceso denegado. Revisa tus datos.', 'error');
+          hideLoadingOverlay();
+          
+          // Reiniciar reCAPTCHA
+          grecaptcha.reset();
+          
+          if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+              showMessage('Acceso denegado. Revisa tus datos.', 'error');
+          } else if (error.message.includes('reCAPTCHA')) {
+              showMessage('Error de verificación de seguridad. Intenta nuevamente.', 'error');
+          } else {
+              showMessage('Error al iniciar sesión: ' + error.message, 'error');
+          }
       }
     };
 
@@ -646,22 +739,56 @@
       const password = document.getElementById('register-password').value;
       const confirm = document.getElementById('register-confirm-password').value;
       
-      if (password !== confirm) return showMessage('Las contraseñas no coinciden', 'error');
+      if (password !== confirm) {
+          showMessage('Las contraseñas no coinciden', 'error');
+          grecaptcha.reset();
+          return;
+      }
+      
+      // Validar reCAPTCHA (ya se validó en openTermsModal, pero verificamos de nuevo)
+      const recaptchaResponse = grecaptcha.getResponse();
+      if (!recaptchaResponse) {
+          showMessage('Por favor, verifica que no eres un robot', 'error');
+          return;
+      }
       
       showLoadingOverlay();
       try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await saveUserProfile(userCredential.user, name);
-        redirectToNextPage();
+          // Validar reCAPTCHA con el backend primero
+          await validateRecaptchaWithBackend(recaptchaResponse);
+          
+          // Luego proceder con Firebase Auth
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          await saveUserProfile(userCredential.user, name);
+          
+          // Redirigir con la lógica de returnTo
+          redirectAfterLogin();
+          
       } catch (error) {
-        hideLoadingOverlay();
-        showMessage('Error al crear cuenta.', 'error');
+          hideLoadingOverlay();
+          
+          // Reiniciar reCAPTCHA
+          grecaptcha.reset();
+          
+          if (error.code === 'auth/email-already-in-use') {
+              showMessage('Este correo ya está registrado', 'error');
+          } else if (error.code === 'auth/weak-password') {
+              showMessage('La contraseña es muy débil', 'error');
+          } else if (error.message.includes('reCAPTCHA')) {
+              showMessage('Error de verificación de seguridad. Intenta nuevamente.', 'error');
+          } else {
+              showMessage('Error al crear cuenta: ' + error.message, 'error');
+          }
       }
     };
 
     window.recoverPassword = async () => {
         const email = document.getElementById('recover-email').value;
-        if (!email) return showMessage('Ingresa tu correo', 'error');
+        if (!email) {
+            showMessage('Ingresa tu correo', 'error');
+            return;
+        }
+        
         showLoadingOverlay();
         try {
             await sendPasswordResetEmail(auth, email);
@@ -674,30 +801,30 @@
         }
     };
 
-
-
     async function saveUserProfile(user, name = null) {
       try {
         const userDocRef = doc(db, "users", user.uid);
         await setDoc(userDocRef, {
           email: user.email,
           name: name || user.displayName || user.email.split('@')[0],
+          createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         }, { merge: true });
-      } catch (e) { console.error(e); }
-    }
-
-    function redirectToNextPage() {
-        window.location.href = "index.html";
+      } catch (e) { 
+        console.error('Error guardando perfil:', e);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         hideAllForms();
         showLoadingOverlay();
+        
+        // Mostrar mensaje si viene de redirección
+        const returnTo = getUrlParameter('returnTo');
+        if (returnTo) {
+            showMessage('Por favor, inicia sesión para continuar', 'success');
+        }
     });
   </script>
 </body>
 </html>
-
-
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
