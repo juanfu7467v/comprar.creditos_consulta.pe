@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 export async function generateInvoicePDF(data) {
     const { 
         orderId, 
-        date, 
+        date, // Este parámetro ya no se usará, pero lo mantenemos por compatibilidad
         email, 
         amount, 
         credits, 
@@ -51,12 +51,44 @@ export async function generateInvoicePDF(data) {
             const opGravada = montoTotal / 1.18;
             const igv = montoTotal - opGravada;
 
-            // Generar QR según estándar SUNAT
-            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${date.split(',')[0]}| | `;
+            // OBTENER FECHA Y HORA REALES
+            const now = new Date();
+            
+            // Formatear fecha para Perú (Lima timezone: UTC-5)
+            const peruTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Lima' }));
+            
+            // Formato para mostrar en la boleta
+            const formatoFechaHora = {
+                fecha: peruTime.toLocaleDateString('es-PE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    timeZone: 'America/Lima'
+                }),
+                hora: peruTime.toLocaleTimeString('es-PE', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZone: 'America/Lima'
+                }),
+                // Para el QR SUNAT (formato DD/MM/YYYY)
+                fechaQR: peruTime.toLocaleDateString('es-PE', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    timeZone: 'America/Lima'
+                })
+            };
+            
+            const fechaCompleta = `${formatoFechaHora.fecha}, ${formatoFechaHora.hora}`;
+            
+            // Generar QR según estándar SUNAT con fecha real
+            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${formatoFechaHora.fechaQR}| | `;
             const qrDataUrl = await QRCode.toDataURL(qrContent);
 
             const doc = new PDFDocument({ margin: 40, size: 'A4' });
-            const fileName = `boleta_${orderId}_${Date.now()}.pdf`;
+            // Incluir timestamp real en el nombre del archivo
+            const fileName = `boleta_${orderId}_${now.getTime()}.pdf`;
             const publicDir = path.join(__dirname, 'public', 'invoices');
             
             if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
@@ -89,7 +121,8 @@ export async function generateInvoicePDF(data) {
             doc.font('Helvetica-Bold').fontSize(9).text('ADQUIRENTE:', 50, 160);
             doc.font('Helvetica').text(`Señor(es): ${nombreCliente}`, 50, 175);
             doc.text(`Email: ${email}`, 50, 187);
-            doc.text(`Fecha de Emisión: ${date}`, 350, 160);
+            // Usar fecha real aquí
+            doc.text(`Fecha de Emisión: ${fechaCompleta}`, 350, 160);
             doc.text('Moneda: SOLES (S/)', 350, 175);
 
             // --- TABLA ---
