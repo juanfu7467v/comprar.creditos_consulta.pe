@@ -443,10 +443,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 }
 
 /**
- * FUNCIÓN PRINCIPAL CORREGIDA - Solución completa para condiciones de carrera
- * ✅ La verificación de existencia está dentro de la transacción
- * ✅ El lock se mantiene hasta que la escritura es confirmada
- * ✅ Si el pago ya existe, la transacción aborta inmediatamente
+ * Función principal corregida con idempotencia robusta
  */
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
@@ -481,7 +478,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     };
   }
 
-  // 🔒 ADQUIRIR LOCK AL INICIO DE LA FUNCIÓN
+  // Adquirir lock para evitar procesamiento simultáneo
   const lockAcquired = await acquirePaymentLock(paymentRefString);
   if (!lockAcquired) {
     logger.error(context, '❌ No se pudo adquirir lock para procesar pago', null, { 
@@ -493,58 +490,74 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     };
   }
 
+  const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
+  
   try {
-    const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
+    // Verificar en Firestore antes de procesar
+    const doc = await pagoDoc.get();
+    
+    if (doc.exists) {
+      const existingData = doc.data();
+      
+      // Verificar si ya fue procesado exitosamente
+      if (existingData.procesado === true && existingData.estado === "approved") {
+        logger.warn(context, '🚫 Pago ya procesado anteriormente en Firestore (idempotencia)', { 
+          uid, 
+          paymentRef: paymentRefString, 
+          procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
+          processor: existingData.procesadoPor,
+          pdfUrl: existingData.pdfUrl || null
+        });
+        
+        // Agregar a cache para futuras verificaciones
+        processedPaymentsCache.set(paymentRefString, {
+          uid,
+          timestamp: existingData.procesadoEn?.toDate?.()?.toISOString() || new Date().toISOString(),
+          processor: existingData.procesadoPor,
+          status: 'already_processed',
+          pdfUrl: existingData.pdfUrl || null
+        });
+        
+        releasePaymentLock(paymentRefString);
+        
+        return { 
+          status: 'already_processed', 
+          data: existingData,
+          message: 'Payment was already processed successfully',
+          creditosOtorgados: existingData.creditosOtorgados || 0,
+          creditosNuevos: existingData.creditosNuevos || 0,
+          planOtorgado: existingData.planOtorgado || null,
+          pdfUrl: existingData.pdfUrl || null
+        };
+      }
+    }
+
+    logger.info(context, '✅ Procesando nuevo pago', { 
+      uid, email, montoPagado, processor, paymentRef: paymentRefString 
+    });
+
+    // Crear documento con estado "procesando" para evitar condiciones de carrera
+    await pagoDoc.set({
+      uid,
+      email,
+      monto: montoPagado,
+      processor,
+      fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
+      estado: "processing", // Marca como "procesando"
+      procesado: false,
+      intentoProcesamiento: new Date().toISOString()
+    }, { merge: true });
+
     const userDoc = db.collection("usuarios").doc(uid);
     
-    // 🔄 EJECUTAR TODO DENTRO DE UNA TRANSACCIÓN
     const result = await db.runTransaction(async (t) => {
-      // ✅ VERIFICAR SI EL PAGO YA EXISTE DENTRO DE LA TRANSACCIÓN
-      const pagoSnap = await t.get(pagoDoc);
-      
-      if (pagoSnap.exists) {
-        const existingData = pagoSnap.data();
-        
-        // Verificar si ya fue procesado exitosamente
-        if (existingData.procesado === true && existingData.estado === "approved") {
-          logger.warn(context, '🚫 Pago ya procesado - Transacción abortada', { 
-            uid, 
-            paymentRef: paymentRefString, 
-            procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
-            processor: existingData.procesadoPor,
-            pdfUrl: existingData.pdfUrl || null
-          });
-          
-          // ✅ ABORTAR INMEDIATAMENTE LA TRANSACCIÓN
-          throw new Error('PAYMENT_ALREADY_PROCESSED');
-        }
-      }
-
-      // Si llegamos aquí, el pago no existe o no está procesado
-      logger.info(context, '✅ Procesando nuevo pago dentro de transacción', { 
-        uid, email, montoPagado, processor, paymentRef: paymentRefString 
-      });
-
-      // Crear documento inicial
-      t.set(pagoDoc, {
-        uid,
-        email,
-        monto: montoPagado,
-        processor,
-        fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
-        estado: "processing",
-        procesado: false,
-        intentoProcesamiento: new Date().toISOString()
-      }, { merge: true });
-
-      // Obtener datos del usuario
-      const userSnap = await t.get(userDoc);
-      if (!userSnap.exists) {
+      const user = await t.get(userDoc);
+      if (!user.exists) {
         logger.error(context, 'Usuario no encontrado en Firestore', null, { uid });
         throw new Error(`User ${uid} not found`);
       }
       
-      const userData = userSnap.data();
+      const userData = user.data();
       let descripcion = "";
       const montoNum = Number(montoPagado);
       let creditosOtorgados = 0;
@@ -557,7 +570,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const fechaActivacionActual = userData.fechaActivacion;
       const planIlimitadoHastaActual = userData.planIlimitadoHasta;
       
-      logger.info(context, '📊 Estado actual del usuario dentro de transacción', { 
+      logger.info(context, '📊 Estado actual del usuario', { 
         uid, 
         creditosActuales, 
         tipoPlanActual,
@@ -579,7 +592,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         });
         
         descripcion = `${creditosOtorgados} Créditos`;
-        logger.info(context, '💳 Créditos otorgados dentro de transacción', { 
+        logger.info(context, '💳 Créditos otorgados', { 
           uid, 
           creditosOtorgados, 
           montoPagado,
@@ -611,7 +624,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           // Calcular nueva fecha fin: fechaActivacion + duracionTotalDias
           fechaFinPlan = moment(fechaActivacion).add(duracionTotalDias, 'days').toDate();
           
-          logger.info(context, '➕ Acumulando días al plan ilimitado existente dentro de transacción', {
+          logger.info(context, '➕ Acumulando días al plan ilimitado existente', {
             uid,
             diasAnteriores: duracionDiasActual,
             diasNuevos,
@@ -627,7 +640,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           duracionTotalDias = diasNuevos;
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
           
-          logger.info(context, '🆕 Creando nuevo plan ilimitado dentro de transacción', {
+          logger.info(context, '🆕 Creando nuevo plan ilimitado', {
             uid,
             diasNuevos,
             fechaInicio: fechaActivacion.toISOString(),
@@ -655,7 +668,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         };
         descripcion = `Plan Ilimitado (${diasNuevos} días${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' días' : ''})`;
         
-        logger.info(context, '✨ Plan ilimitado actualizado exitosamente dentro de transacción', { 
+        logger.info(context, '✨ Plan ilimitado actualizado exitosamente', { 
           uid, 
           diasAgregados: diasNuevos,
           duracionTotal: duracionTotalDias,
@@ -668,11 +681,11 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         creditosOtorgados = 0;
         
       } else {
-        logger.warn(context, '⚠️ Monto no coincide con ningún paquete dentro de transacción', { montoPagado, uid });
+        logger.warn(context, '⚠️ Monto no coincide con ningún paquete', { montoPagado, uid });
         descripcion = `Pago de S/ ${montoPagado}`;
       }
       
-      // ✅ ACTUALIZAR PAGO COMO PROCESADO DENTRO DE LA MISMA TRANSACCIÓN
+      // Marcar pago como procesado exitosamente
       t.update(pagoDoc, { 
         descripcion,
         procesado: true, // ✅ Marcar como procesado
@@ -695,15 +708,13 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         planOtorgado,
         descripcion,
         tipoPlanAnterior: tipoPlanActual,
-        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos",
-        paymentRef: paymentRefString
+        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos"
       };
     });
 
-    // 🔄 GENERAR PDF DESPUÉS DE LA TRANSACCIÓN EXITOSA
-    let pdfUrl = null;
+    // 🔴 NUEVO: Generar y subir PDF a Firebase Storage automáticamente (Solo Boletas)
     try {
-      logger.info(context, '📄 Generando Boleta Electrónica automáticamente después de transacción', { paymentRef: paymentRefString });
+      logger.info(context, '📄 Generando Boleta Electrónica automáticamente', { paymentRef: paymentRefString });
       
       const invoiceData = {
         orderId: paymentRefString,
@@ -719,11 +730,11 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const localPdfPath = path.join(__dirname, 'public', pdfPath);
       
       // Subir PDF a Firebase Storage (función mejorada con idempotencia)
-      pdfUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
+      const storageUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
       
-      // Guardar URL del PDF en el documento del pago (después de transacción)
+      // Guardar URL del PDF en el documento del pago
       await pagoDoc.update({
-        pdfUrl: pdfUrl,
+        pdfUrl: storageUrl,
         pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
         tipoComprobante: 'boleta',
         storagePath: `invoices/${paymentRefString}.pdf`
@@ -736,10 +747,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       
       logger.info(context, '✅ Boleta generada y subida a Storage exitosamente', {
         paymentRef: paymentRefString,
-        storageUrl: pdfUrl
+        storageUrl
       });
       
-      result.pdfUrl = pdfUrl;
+      result.pdfUrl = storageUrl;
       
     } catch (pdfError) {
       logger.error(context, '⚠️ Error generando/subiendo PDF (no crítico)', pdfError, { 
@@ -748,7 +759,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       // No fallar la transacción completa si falla el PDF
     }
 
-    // ✅ AGREGAR A CACHE DESPUÉS DE PROCESAMIENTO EXITOSO
+    // Agregar a cache después de procesamiento exitoso
     processedPaymentsCache.set(paymentRefString, {
       uid,
       timestamp: new Date().toISOString(),
@@ -765,45 +776,17 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     
     logger.info(context, '✅ Transacción completada exitosamente', { uid, result });
     
+    // Liberar lock
+    releasePaymentLock(paymentRefString);
+    
     return result;
 
   } catch (error) {
-    // Manejar error específico de pago ya procesado
-    if (error.message === 'PAYMENT_ALREADY_PROCESSED') {
-      // Agregar a cache para futuras verificaciones
-      const existingDoc = await db.collection("pagos_registrados").doc(paymentRefString).get();
-      if (existingDoc.exists) {
-        const existingData = existingDoc.data();
-        processedPaymentsCache.set(paymentRefString, {
-          uid,
-          timestamp: existingData.procesadoEn?.toDate?.()?.toISOString() || new Date().toISOString(),
-          processor: existingData.procesadoPor,
-          status: 'already_processed',
-          pdfUrl: existingData.pdfUrl || null
-        });
-      }
-      
-      logger.warn(context, 'Pago ya procesado, abortando procesamiento', { 
-        uid, 
-        paymentRef: paymentRefString,
-        processor 
-      });
-      
-      // 🔓 LIBERAR LOCK DESPUÉS DE DETECTAR QUE YA FUE PROCESADO
-      releasePaymentLock(paymentRefString);
-      
-      return { 
-        status: 'already_processed', 
-        message: 'Payment was already processed successfully in another transaction',
-        paymentRef: paymentRefString
-      };
-    }
-    
     logger.error(context, '❌ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
     
     // Marcar el pago como fallido pero NO procesado
     try {
-      await db.collection("pagos_registrados").doc(paymentRefString).update({
+      await pagoDoc.update({
         procesado: false,
         estado: "error",
         error: error.message,
@@ -814,12 +797,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef: paymentRefString });
     }
     
-    return { status: 'error', message: error.message, error: error.stack };
-    
-  } finally {
-    // 🔓 LIBERAR LOCK AL FINAL (garantizado que se ejecuta)
+    // Liberar lock
     releasePaymentLock(paymentRefString);
-    logger.info(context, '🔓 Lock liberado en bloque finally', { paymentRef: paymentRefString });
+    
+    return { status: 'error', message: error.message, error: error.stack };
   }
 }
 
@@ -1581,7 +1562,7 @@ app.use((err, req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.3.1 - Solución completa de condiciones de carrera",
+    version: "2.3.0 - Firebase Auth Middleware + reCAPTCHA v2 Integration",
     endpoints: {
       config: "/api/config",
       login: "/api/login",
@@ -1602,15 +1583,7 @@ app.get("/", (req, res) => {
       forcedDownload: "✅ Fixed - contentDisposition metadata",
       instantResponse: "✅ Fixed - Immediate response for existing files",
       pdfGeneration: "✅ Fixed - Check before generate",
-      paymentEndpoints: "✅ EXCLUDED from Auth Middleware - Frontend handles security",
-      raceConditionFix: "✅ FIXED - Transacción atómica + locks mejorados"
-    },
-    raceConditionSolution: {
-      transaction: "✅ Verificación de pago dentro de db.runTransaction",
-      lockAcquisition: "✅ Al inicio de la función otorgarBeneficio",
-      lockRelease: "✅ En bloque finally (garantizado)",
-      abortOnDuplicate: "✅ Transacción aborta si pago ya existe",
-      atomicOperations: "✅ Todas las escrituras en una transacción"
+      paymentEndpoints: "✅ EXCLUDED from Auth Middleware - Frontend handles security"
     },
     status: "online",
     timestamp: new Date().toISOString()
@@ -1625,8 +1598,8 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.3.1',
-    features: 'Auth Middleware + reCAPTCHA v2 + Race Condition Fix',
+    version: '2.3.0',
+    features: 'Auth Middleware + reCAPTCHA v2 + Protected Routes (excluding payment endpoints)',
     excludedPaymentEndpoints: [
       '/api/pay',
       '/api/webhook/mercadopago',
@@ -1636,7 +1609,7 @@ app.listen(PORT, "0.0.0.0", () => {
       '/api/debug/firebase',
       '/api/admin/clear-cache'
     ],
-    raceConditionProtection: 'Active - Transaction + Locks',
     timestamp: new Date().toISOString()
   });
 });
+
