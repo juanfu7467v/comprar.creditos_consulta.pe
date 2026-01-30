@@ -139,7 +139,7 @@ const RECAPTCHA_SITE_KEY = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
 
 /**
  * 🆕 Middleware para verificar autenticación Firebase
- * Protege rutas y redirige a login si no está autenticado
+ * PROTEGE LA RUTA /api/pay pero NO LA EXCLUYE - necesita token en headers
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
@@ -154,7 +154,8 @@ async function verifyFirebaseAuth(req, res, next) {
     '/api/config',
     '/api/health',
     '/api/webhook',
-    '/api/validate-recaptcha' // ✅ CORRECCIÓN: Añadido para permitir validación de reCAPTCHA
+    '/api/validate-recaptcha',
+    '/api/debug/firebase' // Para debugging
   ];
   
   // Verificar si la ruta actual está excluida
@@ -163,7 +164,9 @@ async function verifyFirebaseAuth(req, res, next) {
     req.path === path ||
     req.path.endsWith('.css') ||
     req.path.endsWith('.js') ||
-    req.path.endsWith('.ico')
+    req.path.endsWith('.ico') ||
+    req.path.endsWith('.png') ||
+    req.path.endsWith('.jpg')
   );
   
   if (isExcluded) {
@@ -172,25 +175,60 @@ async function verifyFirebaseAuth(req, res, next) {
   }
   
   try {
-    // Verificar token de Firebase desde cookie o header
+    // Verificar token de Firebase desde headers (Bearer token)
     const authHeader = req.headers.authorization;
     let idToken;
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
       idToken = authHeader.split('Bearer ')[1];
+      logger.info(context, 'Token obtenido de header Authorization', { 
+        hasToken: !!idToken,
+        tokenLength: idToken?.length,
+        path: req.path
+      });
     } else if (req.cookies && req.cookies.__session) {
       idToken = req.cookies.__session;
+      logger.info(context, 'Token obtenido de cookie __session', { 
+        hasToken: !!idToken,
+        path: req.path
+      });
+    } else {
+      // Para rutas HTML, redirigir a login
+      if (req.path.endsWith('.html') || req.path === '/') {
+        logger.info(context, 'Token no encontrado para página HTML, redirigiendo a login', { 
+          path: req.path,
+          originalUrl: req.originalUrl
+        });
+        
+        const returnTo = encodeURIComponent(req.originalUrl);
+        return res.redirect(`/login.html?returnTo=${returnTo}`);
+      } else {
+        // Para APIs como /api/pay, devolver error 401
+        logger.warn(context, 'Token no encontrado para API', { 
+          path: req.path,
+          method: req.method
+        });
+        
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'Token de autenticación requerido',
+          required: 'Authorization: Bearer <token>'
+        });
+      }
     }
     
     if (!idToken) {
-      logger.info(context, 'Token no encontrado, redirigiendo a login', { 
-        path: req.path,
-        originalUrl: req.originalUrl
-      });
+      logger.warn(context, 'Token vacío o inválido', { path: req.path });
       
-      // Redirigir a login con parámetro returnTo
-      const returnTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login.html?returnTo=${returnTo}`);
+      if (req.path.endsWith('.html') || req.path === '/') {
+        const returnTo = encodeURIComponent(req.originalUrl);
+        return res.redirect(`/login.html?returnTo=${returnTo}`);
+      } else {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'Token de autenticación inválido'
+        });
+      }
     }
     
     // Verificar token con Firebase Admin
@@ -207,23 +245,41 @@ async function verifyFirebaseAuth(req, res, next) {
     next();
   } catch (error) {
     logger.error(context, 'Error de autenticación', error, { 
-      path: req.path 
+      path: req.path,
+      errorCode: error.code,
+      errorMessage: error.message
     });
     
-    // Redirigir a login con parámetro returnTo
-    const returnTo = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/login.html?returnTo=${returnTo}`);
+    // Para APIs, devolver error 401
+    if (req.path.startsWith('/api/')) {
+      return res.status(401).json({ 
+        error: 'Authentication failed',
+        message: 'Token de autenticación inválido o expirado',
+        code: error.code
+      });
+    } else {
+      // Para páginas HTML, redirigir a login
+      const returnTo = encodeURIComponent(req.originalUrl);
+      return res.redirect(`/login.html?returnTo=${returnTo}&error=auth_failed`);
+    }
   }
 }
 
-// Aplicar middleware de autenticación a todas las rutas (excepto las estáticas)
-app.use((req, res, next) => {
-  // Solo aplicar a rutas HTML o API (no a archivos estáticos)
-  if (req.path.includes('.') && !req.path.endsWith('.html')) {
+/**
+ * 🆕 Middleware simplificado para rutas estáticas
+ */
+function staticFilesMiddleware(req, res, next) {
+  // Solo aplicar auth middleware a rutas que no sean archivos estáticos
+  if (req.path.includes('.') && 
+      !req.path.endsWith('.html') && 
+      !req.path.startsWith('/api/')) {
     return next();
   }
   return verifyFirebaseAuth(req, res, next);
-});
+}
+
+// Aplicar middleware de autenticación
+app.use(staticFilesMiddleware);
 
 /**
  * 🆕 Función para validar reCAPTCHA
@@ -931,9 +987,20 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
+// 🆕 ENDPOINT CRÍTICO: /api/pay ahora PROTEGIDO por AUTH_MIDDLEWARE
+// El frontend DEBE enviar: headers: { 'Authorization': 'Bearer ' + token }
 app.post("/api/pay", async (req, res) => {
   const context = 'PAYMENT_PROCESS';
   const startTime = Date.now();
+  
+  // 🔴 LOG PARA DEBUG: Verificar si el token está llegando
+  logger.info(context, 'Solicitud de pago recibida', {
+    hasAuthHeader: !!req.headers.authorization,
+    authHeader: req.headers.authorization ? 'Present (hidden for security)' : 'Missing',
+    uidFromMiddleware: req.uid,
+    userFromMiddleware: req.user ? req.user.email : 'No user',
+    path: req.path
+  });
   
   if (!mpClient) {
     logger.error(context, 'Mercado Pago no configurado');
@@ -949,11 +1016,31 @@ app.post("/api/pay", async (req, res) => {
       payment_method_id, issuer_id, identificationType, identificationNumber 
     } = req.body;
 
+    // 🔴 VERIFICACIÓN ADICIONAL: Comparar UID del token con UID del body
+    const uidFromToken = req.uid;
+    const uidFromBody = uid;
+    
+    if (uidFromToken !== uidFromBody) {
+      logger.error(context, 'UID mismatch - potential security issue', null, {
+        uidFromToken,
+        uidFromBody,
+        userEmail: req.user?.email
+      });
+      return res.status(403).json({
+        error: 'Forbidden',
+        message: 'UID del token no coincide con UID de la solicitud'
+      });
+    }
+
     logger.info(context, 'Iniciando procesamiento de pago', {
-      uid, email, amount, payment_method_id, installments
+      uid: uidFromToken,
+      email: email || req.user?.email,
+      amount,
+      payment_method_id,
+      installments
     });
 
-    if (!token || !amount || !uid) {
+    if (!token || !amount || !uidFromToken) {
       logger.error(context, 'Datos de pago incompletos', null, req.body);
       return res.status(400).json({ 
         error: 'Datos incompletos', 
@@ -972,7 +1059,7 @@ app.post("/api/pay", async (req, res) => {
         payment_method_id,
         issuer_id: issuer_id ? Number(issuer_id) : undefined,
         payer: { 
-          email: email,
+          email: email || req.user?.email,
           identification: { 
             type: identificationType || 'DNI', 
             number: identificationNumber 
@@ -980,16 +1067,20 @@ app.post("/api/pay", async (req, res) => {
         },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
         metadata: { 
-          uid: uid, 
-          email: email, 
+          uid: uidFromToken, 
+          email: email || req.user?.email, 
           amount: amount,
           timestamp: new Date().toISOString(),
-          source: 'direct_payment'
+          source: 'direct_payment',
+          authenticatedUser: req.user?.email
         }
       }
     };
 
-    logger.info(context, 'Creando pago en Mercado Pago', { metadata: paymentData.body.metadata });
+    logger.info(context, 'Creando pago en Mercado Pago', { 
+      metadata: paymentData.body.metadata,
+      payerEmail: paymentData.body.payer.email
+    });
 
     const result = await payment.create(paymentData);
     const processingTime = Date.now() - startTime;
@@ -997,19 +1088,20 @@ app.post("/api/pay", async (req, res) => {
     logger.info(context, 'Respuesta de Mercado Pago recibida', {
       paymentId: result.id,
       status: result.status,
-      processingTime: `${processingTime}ms`
+      processingTime: `${processingTime}ms`,
+      uid: uidFromToken
     });
 
     // Solo procesar si está aprobado instantáneamente
     if (result.status === 'approved') {
       logger.info(context, '💳 Pago aprobado instantáneamente, otorgando beneficios', {
         paymentId: result.id,
-        uid
+        uid: uidFromToken
       });
       
       const beneficioResult = await otorgarBeneficio(
-        uid, 
-        email, 
+        uidFromToken, 
+        email || req.user?.email, 
         Number(amount), 
         'MP_CARD_INSTANT', 
         result.id.toString()
@@ -1036,7 +1128,8 @@ app.post("/api/pay", async (req, res) => {
       logger.info(context, '⏳ Pago no aprobado instantáneamente, esperando webhook', {
         paymentId: result.id,
         status: result.status,
-        statusDetail: result.status_detail
+        statusDetail: result.status_detail,
+        uid: uidFromToken
       });
     }
 
@@ -1046,7 +1139,9 @@ app.post("/api/pay", async (req, res) => {
     const processingTime = Date.now() - startTime;
     logger.error(context, 'Error procesando pago', error, {
       processingTime: `${processingTime}ms`,
-      requestBody: req.body
+      uid: req.uid,
+      hasAuth: !!req.headers.authorization,
+      requestBodyKeys: Object.keys(req.body)
     });
 
     let errorMessage = 'Error procesando el pago';
@@ -1171,13 +1266,17 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   }
 });
 
-// Endpoint para obtener información del pago
+// Endpoint para obtener información del pago (también protegido)
 app.get("/api/payment/:paymentId", async (req, res) => {
   const context = 'GET_PAYMENT_INFO';
   const { paymentId } = req.params;
   
   try {
-    logger.info(context, 'Obteniendo información del pago', { paymentId });
+    logger.info(context, 'Obteniendo información del pago', { 
+      paymentId,
+      uid: req.uid,
+      user: req.user?.email 
+    });
     
     if (!db) {
       return res.status(503).json({ error: 'Database not available' });
@@ -1191,6 +1290,17 @@ app.get("/api/payment/:paymentId", async (req, res) => {
     }
     
     const pagoData = pagoDoc.data();
+    
+    // 🔴 VERIFICACIÓN DE SEGURIDAD: Solo el usuario dueño del pago puede verlo
+    if (pagoData.uid !== req.uid && req.user?.email !== 'admin@example.com') {
+      logger.warn(context, 'Intento de acceso no autorizado a pago', {
+        paymentId,
+        pagoUid: pagoData.uid,
+        requestUid: req.uid,
+        userEmail: req.user?.email
+      });
+      return res.status(403).json({ error: 'Forbidden', message: 'No tienes permiso para ver este pago' });
+    }
     
     // Formatear fecha
     const fechaRegistro = pagoData.fechaRegistro?.toDate() || new Date();
@@ -1217,9 +1327,7 @@ app.get("/api/payment/:paymentId", async (req, res) => {
 });
 
 /**
- * 🔴 ENDPOINT CRÍTICO MEJORADO: generate-invoice
- * SOLUCIÓN PROBLEMA 1: Verifica existencia antes de generar
- * SOLUCIÓN PROBLEMA 2: Responde inmediatamente si ya existe
+ * 🔴 ENDPOINT CRÍTICO MEJORADO: generate-invoice (protegido)
  */
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
@@ -1241,39 +1349,51 @@ app.post("/api/generate-invoice", async (req, res) => {
       return res.status(400).json({ error: 'Payment ID es requerido' });
     }
 
-    logger.info(context, 'Solicitud para generar boleta electrónica', { paymentId });
+    logger.info(context, 'Solicitud para generar boleta electrónica', { 
+      paymentId,
+      uid: req.uid,
+      user: req.user?.email 
+    });
 
-    // 🔴 SOLUCIÓN 1: Verificar si ya existe un PDF para este pago en Firestore
-    let existingPdfUrl = null;
-    let responseSent = false;
-    
+    // 🔴 VERIFICACIÓN DE SEGURIDAD: Verificar que el pago pertenezca al usuario
     if (db) {
       try {
         const doc = await db.collection("pagos_registrados").doc(String(paymentId)).get();
         if (doc.exists) {
           const pagoData = doc.data();
           
+          // Solo el dueño del pago puede generar la factura
+          if (pagoData.uid !== req.uid && req.user?.email !== 'admin@example.com') {
+            logger.warn(context, 'Intento no autorizado de generar factura', {
+              paymentId,
+              pagoUid: pagoData.uid,
+              requestUid: req.uid,
+              userEmail: req.user?.email
+            });
+            return res.status(403).json({ 
+              error: 'Forbidden', 
+              message: 'No tienes permiso para generar factura de este pago' 
+            });
+          }
+          
           // Verificar si ya tiene PDF URL
           if (pagoData.pdfUrl) {
-            existingPdfUrl = pagoData.pdfUrl;
             logger.info(context, '✅ PDF ya existe en datos del pago', { 
               paymentId, 
-              pdfUrl: existingPdfUrl,
+              pdfUrl: pagoData.pdfUrl,
               storagePath: pagoData.storagePath || 'N/A'
             });
             
-            // 🔴 SOLUCIÓN 2: Responder inmediatamente con URL existente
             res.json({
               success: true,
-              pdfUrl: existingPdfUrl,
-              downloadUrl: existingPdfUrl,
-              storageUrl: existingPdfUrl,
+              pdfUrl: pagoData.pdfUrl,
+              downloadUrl: pagoData.pdfUrl,
+              storageUrl: pagoData.pdfUrl,
               message: 'Comprobante ya generado previamente',
               existed: true,
               cached: true
             });
             
-            responseSent = true;
             return;
           }
         }
@@ -1281,41 +1401,6 @@ app.post("/api/generate-invoice", async (req, res) => {
         logger.error(context, 'Error consultando Firestore', dbError, { paymentId });
         // Continuar con la generación si hay error en la consulta
       }
-    }
-
-    // Si ya respondimos, salir
-    if (responseSent) return;
-
-    // 🔴 SOLUCIÓN 1: Verificar directamente en Storage
-    const fileName = `invoices/${paymentId}.pdf`;
-    const storageCheck = await checkFileExistsInStorage(fileName);
-    
-    if (storageCheck.exists && storageCheck.url) {
-      logger.info(context, '✅ PDF ya existe en Storage', { 
-        paymentId, 
-        url: storageCheck.url 
-      });
-      
-      // Actualizar Firestore con la URL
-      if (db) {
-        await db.collection("pagos_registrados").doc(String(paymentId)).set({
-          pdfUrl: storageCheck.url,
-          storagePath: fileName,
-          pdfActualizadoEn: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-      }
-      
-      res.json({
-        success: true,
-        pdfUrl: storageCheck.url,
-        downloadUrl: storageCheck.url,
-        storageUrl: storageCheck.url,
-        message: 'Comprobante recuperado de Storage exitosamente',
-        existed: true,
-        fromStorage: true
-      });
-      
-      return;
     }
 
     logger.info(context, '📄 Generando nuevo comprobante', { paymentId });
@@ -1343,7 +1428,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       if (db) {
         await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageUrl,
-          storagePath: fileName,
+          storagePath: `invoices/${paymentId}.pdf`,
           pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
           tipoComprobante: 'boleta'
         }, { merge: true });
@@ -1426,8 +1511,9 @@ app.get("/api/health", async (req, res) => {
     activePaymentLocks: paymentLocks.size,
     security: {
       recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-      authMiddleware: true,
-      excludedPaths: ['/login.html', '/register.html', '/api/auth', '/api/config', '/api/health', '/api/validate-recaptcha'] // ✅ Actualizado
+      authMiddleware: 'ACTIVE - /api/pay PROTECTED',
+      excludedPaths: ['/login.html', '/register.html', '/api/auth', '/api/config', '/api/health', '/api/validate-recaptcha', '/api/debug/firebase'],
+      protectedPaths: ['/api/pay', '/api/payment/*', '/api/generate-invoice']
     },
     duplicatePrevention: {
       memoryCache: true,
@@ -1515,7 +1601,8 @@ app.post("/api/admin/clear-cache", (req, res) => {
 app.use((err, req, res, next) => {
   logger.error('GLOBAL_ERROR', 'Error no manejado', err, {
     path: req.path,
-    method: req.method
+    method: req.method,
+    uid: req.uid
   });
   
   res.status(500).json({
@@ -1529,28 +1616,30 @@ app.use((err, req, res, next) => {
 app.get("/", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.3.0 - Firebase Auth Middleware + reCAPTCHA v2 Integration",
+    version: "2.4.0 - Firebase Auth Middleware + reCAPTCHA v2 Integration + Protected /api/pay",
     endpoints: {
       config: "/api/config",
       login: "/api/login",
       register: "/api/register",
       validateRecaptcha: "/api/validate-recaptcha",
-      pay: "/api/pay",
+      pay: "/api/pay (PROTEGIDA - Requiere Bearer Token)",
       health: "/api/health",
       webhook: "/api/webhook/mercadopago",
-      invoice: "/api/generate-invoice",
-      paymentInfo: "/api/payment/:paymentId",
+      invoice: "/api/generate-invoice (PROTEGIDA)",
+      paymentInfo: "/api/payment/:paymentId (PROTEGIDA)",
       debug: "/api/debug/firebase",
       clearCache: "/api/admin/clear-cache"
     },
     features: {
-      authMiddleware: "✅ Active - Protects routes and redirects to login",
+      authMiddleware: "✅ ACTIVE - /api/pay ahora requiere Bearer Token",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
       duplicateFiles: "✅ Fixed - Idempotency in Storage upload",
       forcedDownload: "✅ Fixed - contentDisposition metadata",
       instantResponse: "✅ Fixed - Immediate response for existing files",
-      pdfGeneration: "✅ Fixed - Check before generate"
+      pdfGeneration: "✅ Fixed - Check before generate",
+      security: "✅ Enhanced - UID verification in /api/pay"
     },
+    security_note: "⚠️ La ruta /api/pay ahora está PROTEGIDA. El frontend debe enviar: headers: { 'Authorization': 'Bearer ' + token }",
     status: "online",
     timestamp: new Date().toISOString()
   });
@@ -1564,8 +1653,9 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.3.0',
-    features: 'Auth Middleware + reCAPTCHA v2 + Protected Routes',
+    version: '2.4.0',
+    features: 'Auth Middleware + Protected /api/pay + reCAPTCHA v2',
+    security: '/api/pay requires Bearer Token',
     timestamp: new Date().toISOString()
   });
 });
