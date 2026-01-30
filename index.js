@@ -207,6 +207,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
       destination: fileName,
       metadata: {
         contentType: 'application/pdf',
+        contentDisposition: `attachment; filename="${path.basename(pdfPath)}"`,
         metadata: {
           paymentId: paymentId,
           uploadedAt: new Date().toISOString()
@@ -988,8 +989,8 @@ app.post("/api/generate-invoice", async (req, res) => {
 
     res.json({
       success: true,
-      pdfUrl: `${HOST_URL}${pdfPath}`,
-      downloadUrl: `${HOST_URL}${pdfPath}?download=true`,
+      pdfUrl: storageUrl || `${HOST_URL}${pdfPath}`,
+      downloadUrl: storageUrl || `${HOST_URL}${pdfPath}?download=true`,
       storageUrl: storageUrl,
       message: 'Comprobante generado exitosamente'
     });

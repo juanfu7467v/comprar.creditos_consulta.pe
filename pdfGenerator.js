@@ -66,9 +66,17 @@ export async function generateInvoicePDF(data) {
             });
             const fechaHoraCompleta = `${fechaFormateada}, ${horaFormateada}`;
 
-            // Generar QR según estándar SUNAT
-            const fechaQR = ahora.toISOString().split('T')[0]; // Formato YYYY-MM-DD para QR
-            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${fechaQR}| | `;
+            // Generar QR según estándar SUNAT (RUC|Tipo|Serie|Correlativo|IGV|Total|Fecha|TipoDocAdq|NumDocAdq)
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const anio = ahora.getFullYear();
+            const fechaQR = `${dia}/${mes}/${anio}`; // Formato DD/MM/AAAA para QR SUNAT
+            
+            // Para boletas menores a 700, el adquirente puede ser no identificado (tipo 0, num -)
+            const tipoDocAdq = montoTotal > 700 ? '1' : '-'; // 1 para DNI si es > 700, o según corresponda
+            const numDocAdq = montoTotal > 700 ? (data.clientDocument || '-') : '-';
+            
+            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${fechaQR}|${tipoDocAdq}|${numDocAdq}|`;
             const qrDataUrl = await QRCode.toDataURL(qrContent);
 
             const doc = new PDFDocument({ margin: 40, size: 'A4' });
