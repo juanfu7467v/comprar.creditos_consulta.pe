@@ -13,7 +13,6 @@ const __dirname = path.dirname(__filename);
 export async function generateInvoicePDF(data) {
     const { 
         orderId, 
-        date, // Este parámetro ya no se usará, pero lo mantenemos por compatibilidad
         email, 
         amount, 
         credits, 
@@ -51,44 +50,29 @@ export async function generateInvoicePDF(data) {
             const opGravada = montoTotal / 1.18;
             const igv = montoTotal - opGravada;
 
-            // OBTENER FECHA Y HORA REALES
-            const now = new Date();
-            
-            // Formatear fecha para Perú (Lima timezone: UTC-5)
-            const peruTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Lima' }));
-            
-            // Formato para mostrar en la boleta
-            const formatoFechaHora = {
-                fecha: peruTime.toLocaleDateString('es-PE', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    timeZone: 'America/Lima'
-                }),
-                hora: peruTime.toLocaleTimeString('es-PE', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    timeZone: 'America/Lima'
-                }),
-                // Para el QR SUNAT (formato DD/MM/YYYY)
-                fechaQR: peruTime.toLocaleDateString('es-PE', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    timeZone: 'America/Lima'
-                })
+            // Obtener fecha y hora REALES actuales
+            const ahora = new Date();
+            const opcionesFecha = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
             };
-            
-            const fechaCompleta = `${formatoFechaHora.fecha}, ${formatoFechaHora.hora}`;
-            
-            // Generar QR según estándar SUNAT con fecha real
-            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${formatoFechaHora.fechaQR}| | `;
+            const fechaFormateada = ahora.toLocaleDateString('es-PE', opcionesFecha);
+            const horaFormateada = ahora.toLocaleTimeString('es-PE', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const fechaHoraCompleta = `${fechaFormateada}, ${horaFormateada}`;
+
+            // Generar QR según estándar SUNAT
+            const fechaQR = ahora.toISOString().split('T')[0]; // Formato YYYY-MM-DD para QR
+            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${fechaQR}| | `;
             const qrDataUrl = await QRCode.toDataURL(qrContent);
 
             const doc = new PDFDocument({ margin: 40, size: 'A4' });
-            // Incluir timestamp real en el nombre del archivo
-            const fileName = `boleta_${orderId}_${now.getTime()}.pdf`;
+            const fileName = `boleta_${orderId}_${Date.now()}.pdf`;
             const publicDir = path.join(__dirname, 'public', 'invoices');
             
             if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
@@ -117,16 +101,34 @@ export async function generateInvoicePDF(data) {
             doc.fillColor(colors.black).fontSize(12).text(numeracion, 350, 115, { width: 200, align: 'center' });
 
             // --- DATOS DEL CLIENTE ---
-            doc.rect(40, 150, 510, 65).stroke(colors.borderGray);
+            // Calcular altura dinámica para el recuadro del cliente basado en la longitud de la fecha/hora
+            const fechaText = `Fecha de Emisión: ${fechaHoraCompleta}`;
+            const fechaLineHeight = 12;
+            const fechaTextWidth = doc.widthOfString(fechaText, { fontSize: 9 });
+            const maxWidth = 150; // Ancho máximo disponible para la fecha
+            const fechaLines = Math.ceil(fechaTextWidth / maxWidth);
+            
+            const baseClientBoxHeight = 65;
+            const extraHeight = (fechaLines - 1) * fechaLineHeight;
+            const clientBoxHeight = baseClientBoxHeight + Math.max(0, extraHeight);
+            
+            doc.rect(40, 150, 510, clientBoxHeight).stroke(colors.borderGray);
             doc.font('Helvetica-Bold').fontSize(9).text('ADQUIRENTE:', 50, 160);
             doc.font('Helvetica').text(`Señor(es): ${nombreCliente}`, 50, 175);
             doc.text(`Email: ${email}`, 50, 187);
-            // Usar fecha real aquí
-            doc.text(`Fecha de Emisión: ${fechaCompleta}`, 350, 160);
-            doc.text('Moneda: SOLES (S/)', 350, 175);
+            
+            // Fecha con salto de línea automático si es necesario
+            doc.text(fechaText, 350, 160, { 
+                width: maxWidth,
+                lineGap: 2
+            });
+            
+            doc.text('Moneda: SOLES (S/)', 350, 160 + (fechaLines * fechaLineHeight));
 
             // --- TABLA ---
-            const tableY = 230;
+            // Calcular posición Y de la tabla basada en la altura dinámica del recuadro del cliente
+            const tableY = 150 + clientBoxHeight + 15;
+            
             doc.rect(40, tableY, 510, 20).fill(colors.black);
             doc.fillColor('#FFFFFF').font('Helvetica-Bold').fontSize(9);
             doc.text('CANT.', 45, tableY + 6);
@@ -134,13 +136,32 @@ export async function generateInvoicePDF(data) {
             doc.text('P. UNIT', 400, tableY + 6);
             doc.text('IMPORTE', 480, tableY + 6);
 
+            // Descripción con altura dinámica
+            const descripcionTexto = description || 'Servicio de Acceso a Infraestructura Digital';
+            const descripcionWidth = 280; // Ancho disponible para descripción
+            const descripcionLineHeight = 12;
+            
+            // Calcular altura necesaria para la descripción
+            const descripcionHeight = doc.heightOfString(descripcionTexto, {
+                width: descripcionWidth,
+                lineGap: 2
+            });
+            
+            const itemHeight = Math.max(30, descripcionHeight + 10); // Altura mínima de 30, más si la descripción es larga
+            
             doc.fillColor(colors.black).font('Helvetica').text('1.00', 45, tableY + 30);
-            doc.text(description || 'Servicio de Acceso a Infraestructura Digital', 100, tableY + 30, { width: 280 });
+            doc.text(descripcionTexto, 100, tableY + 30, { 
+                width: descripcionWidth,
+                lineGap: 2
+            });
             doc.text(`S/ ${montoTotal.toFixed(2)}`, 400, tableY + 30);
             doc.text(`S/ ${montoTotal.toFixed(2)}`, 480, tableY + 30);
 
+            // Línea divisoria inferior de la tabla
+            doc.rect(40, tableY + itemHeight + 10, 510, 1).fill(colors.borderGray).stroke(colors.borderGray);
+
             // --- TOTALES ---
-            const totalsY = tableY + 80;
+            const totalsY = tableY + itemHeight + 30;
             doc.font('Helvetica').fontSize(9);
             doc.text('Op. Gravada:', 400, totalsY);
             doc.text(`S/ ${opGravada.toFixed(2)}`, 480, totalsY);
@@ -150,7 +171,9 @@ export async function generateInvoicePDF(data) {
             doc.text(`S/ ${montoTotal.toFixed(2)}`, 480, totalsY + 35);
 
             // --- PIE DE PÁGINA (QR, LEYENDAS Y RENUNCIA) ---
-            const footerY = 580;
+            // Calcular posición Y del footer basada en la altura dinámica de todo el contenido anterior
+            const footerY = totalsY + 80;
+            
             doc.image(qrDataUrl, 40, footerY, { width: 85 });
 
             doc.font('Helvetica').fontSize(7).fillColor('#666666');
