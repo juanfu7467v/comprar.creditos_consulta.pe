@@ -7,8 +7,24 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   
-  <!-- Google reCAPTCHA v2 -->
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- Google reCAPTCHA v2 con precarga -->
+  <script>
+    // Precargar reCAPTCHA para que cargue más rápido
+    (function() {
+      var recaptchaScript = document.createElement('script');
+      recaptchaScript.src = 'https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad';
+      recaptchaScript.async = true;
+      recaptchaScript.defer = true;
+      document.head.appendChild(recaptchaScript);
+      
+      // Variable global para saber si reCAPTCHA está listo
+      window.recaptchaReady = false;
+      window.recaptchaOnLoad = function() {
+        window.recaptchaReady = true;
+        console.log('reCAPTCHA cargado y listo');
+      };
+    })();
+  </script>
   
   <style>
     /* Variables CSS Actualizadas con colores más fuertes y limpios */
@@ -63,23 +79,6 @@
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
-    }
-
-    .avatar {
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin: 0 auto 20px;
-        display: none; 
-        border: 4px solid #fff;
-        box-shadow: 0 8px 20px rgba(0,230,118,0.2);
-        animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
     }
 
     h3 {
@@ -211,18 +210,45 @@
         font-weight: 600;
     }
 
-    /* Estilos para reCAPTCHA */
+    /* 🆕 Estilos MEJORADOS para reCAPTCHA */
     .recaptcha-container {
+        width: 100%;
+        margin: 20px 0;
         display: flex;
         justify-content: center;
-        margin: 20px 0;
-        min-height: 78px; /* Altura mínima para evitar saltos */
+        min-height: 78px;
         align-items: center;
+        position: relative;
     }
     
-    .g-recaptcha {
-        transform: scale(0.95);
-        transform-origin: 0 0;
+    .recaptcha-placeholder {
+        width: 100%;
+        height: 78px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 14px;
+        border: 1px dashed #dee2e6;
+    }
+    
+    /* Forzar el ancho del reCAPTCHA para que coincida con los inputs */
+    #login-recaptcha, #register-recaptcha {
+        width: 100% !important;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+    
+    /* Contenedor interno de reCAPTCHA */
+    .g-recaptcha > div {
+        width: 100% !important;
+    }
+    
+    /* Asegurar que el iframe de reCAPTCHA ocupe todo el ancho */
+    .g-recaptcha iframe {
+        width: 100% !important;
     }
 
     /* MODAL 3D ESTILIZADO */
@@ -369,7 +395,28 @@
 
     @media (max-width: 480px) {
         .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        .g-recaptcha { transform: scale(0.85); }
+        /* Ajuste fino para reCAPTCHA en móviles */
+        #login-recaptcha, #register-recaptcha {
+            transform: scale(0.9);
+            transform-origin: 0 0;
+        }
+    }
+    
+    /* Animación para el logo del sitio */
+    .site-logo {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--button-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: fadeIn 1s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -406,7 +453,8 @@
   </div>
 
   <div id="login-register-container" class="container">
-    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Logo" class="avatar">
+    <!-- Logo del sitio en lugar del avatar -->
+    <div class="site-logo">ConsultaPE</div>
 
     <div id="login-form" class="login-form">
         <h3>Bienvenido</h3>
@@ -421,9 +469,12 @@
             <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
         </div>
         
-        <!-- 🆕 reCAPTCHA para login -->
-        <div class="recaptcha-container">
-            <div id="login-recaptcha" class="g-recaptcha" data-sitekey="6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo"></div>
+        <!-- 🆕 reCAPTCHA para login con placeholder -->
+        <div class="recaptcha-container" id="login-recaptcha-container">
+            <div id="login-recaptcha-placeholder" class="recaptcha-placeholder">
+                Cargando verificación de seguridad...
+            </div>
+            <div id="login-recaptcha" style="display: none;"></div>
         </div>
         
         <button class="primary-btn" onclick="loginWithEmail()">
@@ -457,9 +508,12 @@
             <input type="password" id="register-confirm-password" placeholder="Repetir contraseña" class="input-field">
         </div>
         
-        <!-- 🆕 reCAPTCHA para registro -->
-        <div class="recaptcha-container">
-            <div id="register-recaptcha" class="g-recaptcha" data-sitekey="6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo"></div>
+        <!-- 🆕 reCAPTCHA para registro con placeholder -->
+        <div class="recaptcha-container" id="register-recaptcha-container">
+            <div id="register-recaptcha-placeholder" class="recaptcha-placeholder">
+                Cargando verificación de seguridad...
+            </div>
+            <div id="register-recaptcha" style="display: none;"></div>
         </div>
         
         <button class="primary-btn" onclick="openTermsModal()">
@@ -504,6 +558,12 @@
     let auth, db;
     let recaptchaSiteKey = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
     let appConfig;
+    
+    // Variables para manejar reCAPTCHA
+    let recaptchaWidgets = {
+        login: null,
+        register: null
+    };
 
     // 🆕 Función para obtener parámetro de la URL
     function getUrlParameter(name) {
@@ -533,6 +593,57 @@
         window.location.href = "index.html";
     }
 
+    // 🆕 Función para inicializar reCAPTCHA con retry
+    function initializeRecaptcha(containerId, placeholderId, widgetName) {
+        if (!window.grecaptcha || !window.recaptchaReady) {
+            console.log('reCAPTCHA no está listo aún, reintentando en 500ms...');
+            setTimeout(() => initializeRecaptcha(containerId, placeholderId, widgetName), 500);
+            return;
+        }
+        
+        try {
+            const container = document.getElementById(containerId);
+            const placeholder = document.getElementById(placeholderId);
+            
+            if (!container || !placeholder) {
+                console.error('Contenedor de reCAPTCHA no encontrado');
+                return;
+            }
+            
+            // Ocultar placeholder y mostrar reCAPTCHA real
+            placeholder.style.display = 'none';
+            container.style.display = 'block';
+            
+            // Renderizar reCAPTCHA
+            recaptchaWidgets[widgetName] = grecaptcha.render(containerId, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'callback': function(response) {
+                    console.log('reCAPTCHA validado:', widgetName);
+                },
+                'expired-callback': function() {
+                    console.log('reCAPTCHA expirado:', widgetName);
+                },
+                'error-callback': function() {
+                    console.log('Error en reCAPTCHA:', widgetName);
+                }
+            });
+            
+            console.log('reCAPTCHA inicializado para:', widgetName);
+        } catch (error) {
+            console.error('Error inicializando reCAPTCHA:', error);
+            // Reintentar después de 1 segundo
+            setTimeout(() => initializeRecaptcha(containerId, placeholderId, widgetName), 1000);
+        }
+    }
+
+    // 🆕 Función para resetear reCAPTCHA específico
+    function resetRecaptcha(widgetName) {
+        if (recaptchaWidgets[widgetName] && window.grecaptcha) {
+            grecaptcha.reset(recaptchaWidgets[widgetName]);
+        }
+    }
+
     async function initFirebase() {
       try {
         const response = await fetch('/api/config');
@@ -560,6 +671,7 @@
       } catch (error) {
         console.error("Error al cargar configuración:", error);
         showMessage('Error al conectar con el servidor.', 'error');
+        hideLoadingOverlay();
       }
     }
 
@@ -570,7 +682,6 @@
     const registerForm = document.getElementById('register-form');
     const recoverPasswordForm = document.getElementById('recover-password-form');
     const loadingIndicator = document.getElementById('loading-indicator'); 
-    const avatar = document.querySelector('.avatar');
 
     // Elementos del Modal
     const termsModal = document.getElementById('terms-modal');
@@ -590,7 +701,6 @@
         loginForm.style.display = 'none';
         registerForm.style.display = 'none';
         recoverPasswordForm.style.display = 'none';
-        avatar.style.display = 'none';
     }
 
     /* FUNCIONES DEL MODAL 3D */
@@ -600,7 +710,7 @@
         const password = document.getElementById('register-password').value;
         
         // Validar reCAPTCHA para registro
-        const recaptchaResponse = grecaptcha.getResponse();
+        const recaptchaResponse = getRecaptchaResponse('register');
         if (!recaptchaResponse) {
             showMessage('Por favor, verifica que no eres un robot', 'error');
             return;
@@ -625,31 +735,40 @@
     });
     /* FIN FUNCIONES MODAL */
 
+    // 🆕 Función para obtener la respuesta de reCAPTCHA
+    function getRecaptchaResponse(widgetName) {
+        if (recaptchaWidgets[widgetName] && window.grecaptcha) {
+            return grecaptcha.getResponse(recaptchaWidgets[widgetName]);
+        }
+        return null;
+    }
+
     window.showRegisterForm = () => {
         hideAllForms();
-        avatar.style.display = 'none';
         registerForm.style.display = 'flex';
         
-        // Reiniciar reCAPTCHA
-        if (window.grecaptcha) {
-            grecaptcha.reset();
-        }
+        // Inicializar reCAPTCHA para registro si no está inicializado
+        setTimeout(() => {
+            if (!recaptchaWidgets.register) {
+                initializeRecaptcha('register-recaptcha', 'register-recaptcha-placeholder', 'register');
+            }
+        }, 100);
     };
 
     window.showLoginForm = () => {
         hideAllForms();
-        avatar.style.display = 'block'; 
         loginForm.style.display = 'flex';
         
-        // Reiniciar reCAPTCHA
-        if (window.grecaptcha) {
-            grecaptcha.reset();
-        }
+        // Inicializar reCAPTCHA para login si no está inicializado
+        setTimeout(() => {
+            if (!recaptchaWidgets.login) {
+                initializeRecaptcha('login-recaptcha', 'login-recaptcha-placeholder', 'login');
+            }
+        }, 100);
     };
 
     window.showRecoverPasswordForm = () => {
         hideAllForms();
-        avatar.style.display = 'block'; 
         recoverPasswordForm.style.display = 'flex';
     };
 
@@ -698,7 +817,7 @@
       }
       
       // Validar reCAPTCHA
-      const recaptchaResponse = grecaptcha.getResponse();
+      const recaptchaResponse = getRecaptchaResponse('login');
       if (!recaptchaResponse) {
           showMessage('Por favor, verifica que no eres un robot', 'error');
           return;
@@ -721,7 +840,7 @@
           hideLoadingOverlay();
           
           // Reiniciar reCAPTCHA
-          grecaptcha.reset();
+          resetRecaptcha('login');
           
           if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
               showMessage('Acceso denegado. Revisa tus datos.', 'error');
@@ -741,12 +860,12 @@
       
       if (password !== confirm) {
           showMessage('Las contraseñas no coinciden', 'error');
-          grecaptcha.reset();
+          resetRecaptcha('register');
           return;
       }
       
       // Validar reCAPTCHA (ya se validó en openTermsModal, pero verificamos de nuevo)
-      const recaptchaResponse = grecaptcha.getResponse();
+      const recaptchaResponse = getRecaptchaResponse('register');
       if (!recaptchaResponse) {
           showMessage('Por favor, verifica que no eres un robot', 'error');
           return;
@@ -768,7 +887,7 @@
           hideLoadingOverlay();
           
           // Reiniciar reCAPTCHA
-          grecaptcha.reset();
+          resetRecaptcha('register');
           
           if (error.code === 'auth/email-already-in-use') {
               showMessage('Este correo ya está registrado', 'error');
@@ -822,8 +941,19 @@
         // Mostrar mensaje si viene de redirección
         const returnTo = getUrlParameter('returnTo');
         if (returnTo) {
-            showMessage('Por favor, inicia sesión para continuar', 'success');
+            setTimeout(() => {
+                showMessage('Por favor, inicia sesión para continuar', 'success');
+            }, 1000);
         }
+        
+        // Mostrar formulario de login después de un breve delay
+        setTimeout(() => {
+            showLoginForm();
+            hideLoadingOverlay();
+            
+            // Inicializar reCAPTCHA para login
+            initializeRecaptcha('login-recaptcha', 'login-recaptcha-placeholder', 'login');
+        }, 800);
     });
   </script>
 </body>
