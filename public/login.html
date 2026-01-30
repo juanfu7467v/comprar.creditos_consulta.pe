@@ -7,24 +7,8 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   
-  <!-- Google reCAPTCHA v2 con precarga -->
-  <script>
-    // Precargar reCAPTCHA para que cargue más rápido
-    (function() {
-      var recaptchaScript = document.createElement('script');
-      recaptchaScript.src = 'https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad';
-      recaptchaScript.async = true;
-      recaptchaScript.defer = true;
-      document.head.appendChild(recaptchaScript);
-      
-      // Variable global para saber si reCAPTCHA está listo
-      window.recaptchaReady = false;
-      window.recaptchaOnLoad = function() {
-        window.recaptchaReady = true;
-        console.log('reCAPTCHA cargado y listo');
-      };
-    })();
-  </script>
+  <!-- Google reCAPTCHA v2 -->
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
   
   <style>
     /* Variables CSS Actualizadas con colores más fuertes y limpios */
@@ -210,43 +194,26 @@
         font-weight: 600;
     }
 
-    /* 🆕 Estilos MEJORADOS para reCAPTCHA */
+    /* Estilos para reCAPTCHA - MEJORADOS */
     .recaptcha-container {
-        width: 100%;
-        margin: 20px 0;
         display: flex;
         justify-content: center;
+        margin: 20px 0;
         min-height: 78px;
         align-items: center;
-        position: relative;
-    }
-    
-    .recaptcha-placeholder {
         width: 100%;
-        height: 78px;
-        background: #f8f9fa;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6c757d;
-        font-size: 14px;
-        border: 1px dashed #dee2e6;
     }
     
-    /* Forzar el ancho del reCAPTCHA para que coincida con los inputs */
-    #login-recaptcha, #register-recaptcha {
+    .g-recaptcha {
+        display: inline-block;
         width: 100% !important;
         overflow: hidden;
-        border-radius: 4px;
     }
     
-    /* Contenedor interno de reCAPTCHA */
     .g-recaptcha > div {
         width: 100% !important;
     }
     
-    /* Asegurar que el iframe de reCAPTCHA ocupe todo el ancho */
     .g-recaptcha iframe {
         width: 100% !important;
     }
@@ -395,28 +362,7 @@
 
     @media (max-width: 480px) {
         .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        /* Ajuste fino para reCAPTCHA en móviles */
-        #login-recaptcha, #register-recaptcha {
-            transform: scale(0.9);
-            transform-origin: 0 0;
-        }
-    }
-    
-    /* Animación para el logo del sitio */
-    .site-logo {
-        text-align: center;
-        margin-bottom: 25px;
-        font-size: 2.5rem;
-        font-weight: 700;
-        background: var(--button-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: fadeIn 1s ease-out;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
+        .g-recaptcha { transform: scale(0.95); transform-origin: 0 0; }
     }
   </style>
 </head>
@@ -453,9 +399,6 @@
   </div>
 
   <div id="login-register-container" class="container">
-    <!-- Logo del sitio en lugar del avatar -->
-    <div class="site-logo">ConsultaPE</div>
-
     <div id="login-form" class="login-form">
         <h3>Bienvenido</h3>
         <p>Inicia sesión para continuar</p>
@@ -469,12 +412,9 @@
             <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
         </div>
         
-        <!-- 🆕 reCAPTCHA para login con placeholder -->
-        <div class="recaptcha-container" id="login-recaptcha-container">
-            <div id="login-recaptcha-placeholder" class="recaptcha-placeholder">
-                Cargando verificación de seguridad...
-            </div>
-            <div id="login-recaptcha" style="display: none;"></div>
+        <!-- reCAPTCHA para login -->
+        <div class="recaptcha-container">
+            <div id="login-recaptcha"></div>
         </div>
         
         <button class="primary-btn" onclick="loginWithEmail()">
@@ -508,12 +448,9 @@
             <input type="password" id="register-confirm-password" placeholder="Repetir contraseña" class="input-field">
         </div>
         
-        <!-- 🆕 reCAPTCHA para registro con placeholder -->
-        <div class="recaptcha-container" id="register-recaptcha-container">
-            <div id="register-recaptcha-placeholder" class="recaptcha-placeholder">
-                Cargando verificación de seguridad...
-            </div>
-            <div id="register-recaptcha" style="display: none;"></div>
+        <!-- reCAPTCHA para registro -->
+        <div class="recaptcha-container">
+            <div id="register-recaptcha"></div>
         </div>
         
         <button class="primary-btn" onclick="openTermsModal()">
@@ -559,11 +496,11 @@
     let recaptchaSiteKey = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
     let appConfig;
     
-    // Variables para manejar reCAPTCHA
-    let recaptchaWidgets = {
-        login: null,
-        register: null
-    };
+    // Variables para manejo de reCAPTCHA
+    let loginRecaptchaWidgetId = null;
+    let registerRecaptchaWidgetId = null;
+    let currentRecaptchaWidget = null;
+    let recaptchaRefreshTimer = null;
 
     // 🆕 Función para obtener parámetro de la URL
     function getUrlParameter(name) {
@@ -593,57 +530,6 @@
         window.location.href = "index.html";
     }
 
-    // 🆕 Función para inicializar reCAPTCHA con retry
-    function initializeRecaptcha(containerId, placeholderId, widgetName) {
-        if (!window.grecaptcha || !window.recaptchaReady) {
-            console.log('reCAPTCHA no está listo aún, reintentando en 500ms...');
-            setTimeout(() => initializeRecaptcha(containerId, placeholderId, widgetName), 500);
-            return;
-        }
-        
-        try {
-            const container = document.getElementById(containerId);
-            const placeholder = document.getElementById(placeholderId);
-            
-            if (!container || !placeholder) {
-                console.error('Contenedor de reCAPTCHA no encontrado');
-                return;
-            }
-            
-            // Ocultar placeholder y mostrar reCAPTCHA real
-            placeholder.style.display = 'none';
-            container.style.display = 'block';
-            
-            // Renderizar reCAPTCHA
-            recaptchaWidgets[widgetName] = grecaptcha.render(containerId, {
-                'sitekey': recaptchaSiteKey,
-                'theme': 'light',
-                'callback': function(response) {
-                    console.log('reCAPTCHA validado:', widgetName);
-                },
-                'expired-callback': function() {
-                    console.log('reCAPTCHA expirado:', widgetName);
-                },
-                'error-callback': function() {
-                    console.log('Error en reCAPTCHA:', widgetName);
-                }
-            });
-            
-            console.log('reCAPTCHA inicializado para:', widgetName);
-        } catch (error) {
-            console.error('Error inicializando reCAPTCHA:', error);
-            // Reintentar después de 1 segundo
-            setTimeout(() => initializeRecaptcha(containerId, placeholderId, widgetName), 1000);
-        }
-    }
-
-    // 🆕 Función para resetear reCAPTCHA específico
-    function resetRecaptcha(widgetName) {
-        if (recaptchaWidgets[widgetName] && window.grecaptcha) {
-            grecaptcha.reset(recaptchaWidgets[widgetName]);
-        }
-    }
-
     async function initFirebase() {
       try {
         const response = await fetch('/api/config');
@@ -671,7 +557,6 @@
       } catch (error) {
         console.error("Error al cargar configuración:", error);
         showMessage('Error al conectar con el servidor.', 'error');
-        hideLoadingOverlay();
       }
     }
 
@@ -710,7 +595,7 @@
         const password = document.getElementById('register-password').value;
         
         // Validar reCAPTCHA para registro
-        const recaptchaResponse = getRecaptchaResponse('register');
+        const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
         if (!recaptchaResponse) {
             showMessage('Por favor, verifica que no eres un robot', 'error');
             return;
@@ -735,23 +620,105 @@
     });
     /* FIN FUNCIONES MODAL */
 
-    // 🆕 Función para obtener la respuesta de reCAPTCHA
-    function getRecaptchaResponse(widgetName) {
-        if (recaptchaWidgets[widgetName] && window.grecaptcha) {
-            return grecaptcha.getResponse(recaptchaWidgets[widgetName]);
+    // 🆕 Función para inicializar reCAPTCHA
+    window.recaptchaOnLoad = function() {
+        console.log('reCAPTCHA cargado correctamente');
+        // Inicializar widgets cuando se cargue el script
+        if (loginForm.style.display === 'flex') {
+            initLoginRecaptcha();
+        } else if (registerForm.style.display === 'flex') {
+            initRegisterRecaptcha();
         }
-        return null;
+    };
+
+    // 🆕 Función para inicializar reCAPTCHA de login
+    function initLoginRecaptcha() {
+        if (loginRecaptchaWidgetId !== null) {
+            grecaptcha.reset(loginRecaptchaWidgetId);
+            return;
+        }
+        
+        const container = document.getElementById('login-recaptcha');
+        if (container && window.grecaptcha) {
+            loginRecaptchaWidgetId = grecaptcha.render(container, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'size': 'normal',
+                'callback': function(response) {
+                    console.log('reCAPTCHA de login verificado');
+                    // Iniciar temporizador para refrescar token
+                    startRecaptchaRefreshTimer(loginRecaptchaWidgetId);
+                },
+                'expired-callback': function() {
+                    console.log('reCAPTCHA de login expirado');
+                    showMessage('La verificación expiró. Por favor, márcalo nuevamente.', 'error');
+                },
+                'error-callback': function() {
+                    console.log('Error en reCAPTCHA de login');
+                    showMessage('Error en la verificación. Intenta nuevamente.', 'error');
+                }
+            });
+            currentRecaptchaWidget = loginRecaptchaWidgetId;
+        }
+    }
+
+    // 🆕 Función para inicializar reCAPTCHA de registro
+    function initRegisterRecaptcha() {
+        if (registerRecaptchaWidgetId !== null) {
+            grecaptcha.reset(registerRecaptchaWidgetId);
+            return;
+        }
+        
+        const container = document.getElementById('register-recaptcha');
+        if (container && window.grecaptcha) {
+            registerRecaptchaWidgetId = grecaptcha.render(container, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'size': 'normal',
+                'callback': function(response) {
+                    console.log('reCAPTCHA de registro verificado');
+                    // Iniciar temporizador para refrescar token
+                    startRecaptchaRefreshTimer(registerRecaptchaWidgetId);
+                },
+                'expired-callback': function() {
+                    console.log('reCAPTCHA de registro expirado');
+                    showMessage('La verificación expiró. Por favor, márcalo nuevamente.', 'error');
+                },
+                'error-callback': function() {
+                    console.log('Error en reCAPTCHA de registro');
+                    showMessage('Error en la verificación. Intenta nuevamente.', 'error');
+                }
+            });
+            currentRecaptchaWidget = registerRecaptchaWidgetId;
+        }
+    }
+
+    // 🆕 Función para iniciar temporizador de refresco de reCAPTCHA
+    function startRecaptchaRefreshTimer(widgetId) {
+        // Limpiar temporizador anterior
+        if (recaptchaRefreshTimer) {
+            clearTimeout(recaptchaRefreshTimer);
+        }
+        
+        // Establecer nuevo temporizador para refrescar cada 50 segundos
+        recaptchaRefreshTimer = setTimeout(() => {
+            if (widgetId !== null && window.grecaptcha) {
+                console.log('Refrescando token reCAPTCHA automáticamente');
+                grecaptcha.reset(widgetId);
+                
+                // Volver a iniciar el temporizador
+                startRecaptchaRefreshTimer(widgetId);
+            }
+        }, 50000); // 50 segundos
     }
 
     window.showRegisterForm = () => {
         hideAllForms();
         registerForm.style.display = 'flex';
         
-        // Inicializar reCAPTCHA para registro si no está inicializado
+        // Inicializar reCAPTCHA para registro
         setTimeout(() => {
-            if (!recaptchaWidgets.register) {
-                initializeRecaptcha('register-recaptcha', 'register-recaptcha-placeholder', 'register');
-            }
+            initRegisterRecaptcha();
         }, 100);
     };
 
@@ -759,17 +726,21 @@
         hideAllForms();
         loginForm.style.display = 'flex';
         
-        // Inicializar reCAPTCHA para login si no está inicializado
+        // Inicializar reCAPTCHA para login
         setTimeout(() => {
-            if (!recaptchaWidgets.login) {
-                initializeRecaptcha('login-recaptcha', 'login-recaptcha-placeholder', 'login');
-            }
+            initLoginRecaptcha();
         }, 100);
     };
 
     window.showRecoverPasswordForm = () => {
         hideAllForms();
         recoverPasswordForm.style.display = 'flex';
+        
+        // Detener temporizador de reCAPTCHA si está activo
+        if (recaptchaRefreshTimer) {
+            clearTimeout(recaptchaRefreshTimer);
+            recaptchaRefreshTimer = null;
+        }
     };
 
     window.togglePasswordVisibility = (inputId, icon) => {
@@ -817,7 +788,7 @@
       }
       
       // Validar reCAPTCHA
-      const recaptchaResponse = getRecaptchaResponse('login');
+      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
       if (!recaptchaResponse) {
           showMessage('Por favor, verifica que no eres un robot', 'error');
           return;
@@ -833,6 +804,12 @@
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user);
           
+          // Limpiar temporizador antes de redirigir
+          if (recaptchaRefreshTimer) {
+              clearTimeout(recaptchaRefreshTimer);
+              recaptchaRefreshTimer = null;
+          }
+          
           // Redirigir con la lógica de returnTo
           redirectAfterLogin();
           
@@ -840,7 +817,9 @@
           hideLoadingOverlay();
           
           // Reiniciar reCAPTCHA
-          resetRecaptcha('login');
+          if (loginRecaptchaWidgetId !== null) {
+              grecaptcha.reset(loginRecaptchaWidgetId);
+          }
           
           if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
               showMessage('Acceso denegado. Revisa tus datos.', 'error');
@@ -860,12 +839,14 @@
       
       if (password !== confirm) {
           showMessage('Las contraseñas no coinciden', 'error');
-          resetRecaptcha('register');
+          if (registerRecaptchaWidgetId !== null) {
+              grecaptcha.reset(registerRecaptchaWidgetId);
+          }
           return;
       }
       
       // Validar reCAPTCHA (ya se validó en openTermsModal, pero verificamos de nuevo)
-      const recaptchaResponse = getRecaptchaResponse('register');
+      const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
       if (!recaptchaResponse) {
           showMessage('Por favor, verifica que no eres un robot', 'error');
           return;
@@ -880,6 +861,12 @@
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
           
+          // Limpiar temporizador antes de redirigir
+          if (recaptchaRefreshTimer) {
+              clearTimeout(recaptchaRefreshTimer);
+              recaptchaRefreshTimer = null;
+          }
+          
           // Redirigir con la lógica de returnTo
           redirectAfterLogin();
           
@@ -887,7 +874,9 @@
           hideLoadingOverlay();
           
           // Reiniciar reCAPTCHA
-          resetRecaptcha('register');
+          if (registerRecaptchaWidgetId !== null) {
+              grecaptcha.reset(registerRecaptchaWidgetId);
+          }
           
           if (error.code === 'auth/email-already-in-use') {
               showMessage('Este correo ya está registrado', 'error');
@@ -941,19 +930,8 @@
         // Mostrar mensaje si viene de redirección
         const returnTo = getUrlParameter('returnTo');
         if (returnTo) {
-            setTimeout(() => {
-                showMessage('Por favor, inicia sesión para continuar', 'success');
-            }, 1000);
+            showMessage('Por favor, inicia sesión para continuar', 'success');
         }
-        
-        // Mostrar formulario de login después de un breve delay
-        setTimeout(() => {
-            showLoginForm();
-            hideLoadingOverlay();
-            
-            // Inicializar reCAPTCHA para login
-            initializeRecaptcha('login-recaptcha', 'login-recaptcha-placeholder', 'login');
-        }, 800);
     });
   </script>
 </body>
