@@ -76,8 +76,15 @@ export async function generateInvoicePDF(data) {
             const tipoDocAdq = montoTotal > 700 ? '1' : '-'; // 1 para DNI si es > 700, o según corresponda
             const numDocAdq = montoTotal > 700 ? (data.clientDocument || '-') : '-';
             
-            const qrContent = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${fechaQR}|${tipoDocAdq}|${numDocAdq}|`;
-            const qrDataUrl = await QRCode.toDataURL(qrContent);
+            // Contenido del QR estándar SUNAT
+            const sunatQR = `${emisor.ruc}|03|${emisor.serie}|${correlativo}|${igv.toFixed(2)}|${montoTotal.toFixed(2)}|${fechaQR}|${tipoDocAdq}|${numDocAdq}|`;
+            
+            // URL de verificación para validez y respaldo
+            const hostUrl = process.env.HOST_URL || 'https://comprar-creditos-consulta-pe.fly.dev';
+            const verificationUrl = `${hostUrl}/verify.html?id=${orderId}`;
+            
+            // Generar QR que contiene la URL de verificación (que a su vez muestra los datos reales)
+            const qrDataUrl = await QRCode.toDataURL(verificationUrl);
 
             const doc = new PDFDocument({ margin: 40, size: 'A4' });
             const fileName = `boleta_${orderId}_${Date.now()}.pdf`;

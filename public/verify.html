@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Comprobante - Consulta PE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --success: #10B981;
+            --text-dark: #1F2937;
+            --text-gray: #6B7280;
+            --bg-light: #F3F4F6;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--white);
+            width: 100%;
+            max-width: 500px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header i {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ECFDF5;
+            color: var(--success);
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 24px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .status-badge i {
+            margin-right: 8px;
+        }
+
+        .info-table {
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .info-value {
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .info-value.highlight {
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .footer {
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .footer p {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        #error-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #EF4444;
+        }
+
+        #error-message i {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        #verification-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <i class="fas fa-file-invoice"></i>
+            <h1>Verificación de Comprobante</h1>
+        </div>
+
+        <div id="loading">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+            <p style="margin-top: 16px; color: var(--text-gray);">Verificando datos del comprobante...</p>
+        </div>
+
+        <div id="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h2>No se encontró el comprobante</h2>
+            <p style="margin-top: 8px;">El ID de transacción no es válido o no existe en nuestros registros.</p>
+        </div>
+
+        <div id="verification-content" class="content">
+            <div class="status-badge">
+                <i class="fas fa-check-circle"></i>
+                VÁLIDO ANTE SUNAT
+            </div>
+
+            <div class="info-table">
+                <div class="info-row">
+                    <span class="info-label">ID de Transacción</span>
+                    <span class="info-value" id="val-id">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Emisión</span>
+                    <span class="info-value" id="val-date">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Hora</span>
+                    <span class="info-value" id="val-time">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Adquirente</span>
+                    <span class="info-value" id="val-email">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Descripción</span>
+                    <span class="info-value" id="val-desc">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Monto Total</span>
+                    <span class="info-value highlight" id="val-amount">S/ 0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Este es un servicio de validación de</p>
+            <div class="logo">CONSULTA PE</div>
+        </div>
+    </div>
+
+    <script>
+        async function verifyPayment() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentId = urlParams.get('id');
+
+            if (!paymentId) {
+                showError();
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/payment/${paymentId}`);
+                if (!response.ok) throw new Error('No encontrado');
+
+                const data = await response.json();
+                
+                document.getElementById('val-id').textContent = data.id;
+                document.getElementById('val-date').textContent = data.fecha;
+                document.getElementById('val-time').textContent = data.hora;
+                document.getElementById('val-email').textContent = data.email;
+                document.getElementById('val-desc').textContent = data.descripcion || 'Servicio Consulta PE';
+                document.getElementById('val-amount').textContent = `S/ ${parseFloat(data.monto).toFixed(2)}`;
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('verification-content').style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                showError();
+            }
+        }
+
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error-message').style.display = 'block';
+        }
+
+        window.onload = verifyPayment;
+    </script>
+</body>
+</html>

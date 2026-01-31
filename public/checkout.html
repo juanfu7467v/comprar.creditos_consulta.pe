@@ -906,7 +906,7 @@
                 <!-- Mensaje de confirmación -->
                 <div class="confirmation-message" id="downloadMessage" style="display: none;">
                     <i class="fas fa-check-circle"></i>
-                    <span>La boleta se está descargando automáticamente...</span>
+                    <span>La boleta se está preparando para la descarga...</span>
                 </div>
                 
         
@@ -1266,13 +1266,8 @@
             // 🔴 ASIGNAR FUNCIÓN SIMPLIFICADA DE DESCARGA
             document.getElementById('downloadVoucherBtn').onclick = downloadVoucher;
             
-            // 🔴 OPCIÓN: Descarga automática después de 1 segundo
-            setTimeout(() => {
-                if (paymentData.pdfUrl) {
-                    console.log('📄 Iniciando descarga automática...');
-                    downloadVoucher();
-                }
-            }, 1000);
+            // 🔴 DESCARGA AUTOMÁTICA ELIMINADA: Solo se descarga si el usuario pulsa el botón.
+            // La generación en el storage sigue funcionando igual al pulsar el botón por primera vez.
 
         } catch (error) {
             console.error('Error obteniendo datos del pago:', error);
