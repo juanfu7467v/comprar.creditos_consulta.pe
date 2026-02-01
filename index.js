@@ -221,9 +221,21 @@ async function verifyFirebaseAuth(req, res, next) {
         originalUrl: req.originalUrl
       });
       
-      // Redirigir a login con parámetro returnTo
+      // 🔧 MODIFICACIÓN 3: Mantener la lógica actual desde otras páginas
+      // Si viene de una página interna (tiene returnTo), redirigir a login con returnTo
+      // Si no tiene returnTo (acceso directo), redirigir a login sin returnTo
       const returnTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login?returnTo=${returnTo}`);
+      
+      // Verificar si el usuario viene de una página interna (no es acceso directo)
+      const isDirectAccess = !req.headers.referer || 
+                            req.headers.referer.includes('/login') || 
+                            req.headers.referer.includes('/register');
+      
+      if (isDirectAccess) {
+        return res.redirect('/login');
+      } else {
+        return res.redirect(`/login?returnTo=${returnTo}`);
+      }
     }
     
     // Verificar token con Firebase Admin
@@ -243,9 +255,19 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path 
     });
     
-    // Redirigir a login con parámetro returnTo
+    // 🔧 MODIFICACIÓN 3: Mantener la lógica actual desde otras páginas
     const returnTo = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/login?returnTo=${returnTo}`);
+    
+    // Verificar si el usuario viene de una página interna
+    const isDirectAccess = !req.headers.referer || 
+                          req.headers.referer.includes('/login') || 
+                          req.headers.referer.includes('/register');
+    
+    if (isDirectAccess) {
+      return res.redirect('/login');
+    } else {
+      return res.redirect(`/login?returnTo=${returnTo}`);
+    }
   }
 }
 
@@ -880,12 +902,12 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// 🆕 Endpoint para login con reCAPTCHA
+// 🔧 MODIFICACIÓN 2: Login con redirección después del login directo
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
   
   try {
-    const { email, password, recaptchaResponse } = req.body;
+    const { email, password, recaptchaResponse, redirectFrom } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({
@@ -903,9 +925,18 @@ app.post("/api/login", async (req, res) => {
     
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
     
+    // 🔧 MODIFICACIÓN 2: Determinar a dónde redirigir después del login
+    let redirectTo = '/public/actividad.html'; // Redirección por defecto para acceso directo
+    
+    // Si el usuario viene de otra página (tiene returnTo), mantener esa lógica
+    if (redirectFrom && redirectFrom !== '/login' && redirectFrom !== '/register') {
+      redirectTo = redirectFrom;
+    }
+    
     res.json({
       success: true,
       message: 'Login successful (reCAPTCHA validated)',
+      redirectTo: redirectTo,
       timestamp: new Date().toISOString()
     });
     
@@ -920,12 +951,12 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// 🆕 Endpoint para registro con reCAPTCHA
+// 🔧 MODIFICACIÓN 2: Registro con redirección después del registro directo
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
   
   try {
-    const { name, email, password, recaptchaResponse } = req.body;
+    const { name, email, password, recaptchaResponse, redirectFrom } = req.body;
     
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -939,9 +970,18 @@ app.post("/api/register", async (req, res) => {
     
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
     
+    // 🔧 MODIFICACIÓN 2: Determinar a dónde redirigir después del registro
+    let redirectTo = '/public/actividad.html'; // Redirección por defecto para acceso directo
+    
+    // Si el usuario viene de otra página (tiene returnTo), mantener esa lógica
+    if (redirectFrom && redirectFrom !== '/login' && redirectFrom !== '/register') {
+      redirectTo = redirectFrom;
+    }
+    
     res.json({
       success: true,
       message: 'Registration successful (reCAPTCHA validated)',
+      redirectTo: redirectTo,
       timestamp: new Date().toISOString()
     });
     
@@ -1567,27 +1607,77 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================
-// 🔧 AJUSTES SOLICITADOS
+// 🔧 MODIFICACIÓN 1: Manejo de página 404
 // ================================================
 
-// 🔧 1️⃣ Página no encontrada (404) - Servir public/404.html automáticamente
-// El middleware ya existe al final del archivo, pero lo ajustamos para usar exactamente public/404.html
-
-// 🔧 2️⃣ Redirección después del login directo
-// Modificamos el middleware de sesión para detectar login directo
-
-// 🔧 3️⃣ Mantener lógica actual desde otras páginas
-// El sistema ya maneja esto con los parámetros returnTo
+// 🔧 Middleware para manejar rutas no encontradas y redirigir a /404
+app.use((req, res, next) => {
+  // Verificar si es una ruta de archivo estático o API
+  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map|html)$/i.test(req.path);
+  const isApiRoute = req.path.startsWith('/api/');
+  
+  if (!isStaticFile && !isApiRoute && req.path !== '/') {
+    const requestedPath = path.join(__dirname, 'public', req.path);
+    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
+    
+    // Verificar si el archivo existe (con o sin .html)
+    const fileExists = fs.existsSync(requestedPath) || 
+                       fs.existsSync(requestedHtmlPath);
+    
+    // 🔧 MODIFICACIÓN 1: Si no existe el archivo, redirigir automáticamente a /404
+    if (!fileExists) {
+      logger.warn('404_REDIRECT', 'Página no encontrada, redirigiendo a /404', {
+        path: req.path,
+        originalUrl: req.originalUrl,
+        userAgent: req.headers['user-agent']
+      });
+      
+      // Redirigir automáticamente a la página 404
+      return res.redirect('/404');
+    }
+  }
+  
+  next();
+});
 
 // ================================================
-// El resto del código se mantiene exactamente igual
+// 🔧 MODIFICACIÓN 2: Redirección después del login/registro directo
 // ================================================
 
-// 🔧 Página principal: Servir home.html en lugar de index.html cuando se accede a la raíz
+// Middleware para detectar acceso directo a login/register
+app.use(['/login', '/register'], (req, res, next) => {
+  // Verificar si es acceso directo (no viene de otra página o viene de página externa)
+  const referer = req.headers.referer;
+  const isDirectAccess = !referer || 
+                        referer.includes('/login') || 
+                        referer.includes('/register') ||
+                        !referer.includes(process.env.FLY_APP_NAME || 'masitaprexv2.fly.dev');
+  
+  if (isDirectAccess) {
+    // Guardar en la sesión o pasar como parámetro que es acceso directo
+    req.isDirectAccess = true;
+    logger.info('DIRECT_ACCESS', 'Acceso directo detectado', {
+      path: req.path,
+      referer: referer || 'none',
+      isDirectAccess: true
+    });
+  }
+  
+  next();
+});
+
+// ================================================
+// Página principal: Servir home.html en lugar de index.html cuando se accede a la raíz
+// ================================================
+
 app.get("/", (req, res) => {
   logger.info('ROOT_HOME', 'Sirviendo home.html como página principal en lugar de index.html');
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
+
+// ================================================
+// El resto del código se mantiene exactamente igual
+// ================================================
 
 // 🔧 Middleware para URLs limpias sin .html
 app.use((req, res, next) => {
@@ -1625,41 +1715,36 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔧 1️⃣ AJUSTE SOLICITADO: Manejo mejorado de página 404 personalizada
-app.use((req, res, next) => {
-  // Verificar si es una ruta de archivo estático
-  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
-  
-  if (!isStaticFile && !req.path.startsWith('/api/')) {
-    const requestedPath = path.join(__dirname, 'public', req.path);
-    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
-    
-    // Verificar si el archivo existe (con o sin .html)
-    const fileExists = fs.existsSync(requestedPath) || 
-                       fs.existsSync(requestedHtmlPath) ||
-                       req.path === '/';
-    
-    if (!fileExists) {
-      logger.warn('404_HANDLER', 'Página no encontrada - Sirviendo 404 personalizado', {
-        path: req.path,
-        originalUrl: req.originalUrl
-      });
-      
-      // 🔧 SERVIR EXACTAMENTE public/404.html como solicitado
-      const notFoundPage = path.join(__dirname, 'public', '404.html');
-      if (fs.existsSync(notFoundPage)) {
-        return res.status(404).sendFile(notFoundPage);
-      } else {
-        // Fallback a 404 básico si no existe la página personalizada
-        return res.status(404).send('Página no encontrada');
-      }
-    }
+// 🔧 Manejo de página 404 personalizada
+app.get("/404", (req, res) => {
+  const notFoundPage = path.join(__dirname, 'public', '404.html');
+  if (fs.existsSync(notFoundPage)) {
+    res.status(404).sendFile(notFoundPage);
+  } else {
+    // Fallback a 404 básico si no existe la página personalizada
+    res.status(404).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>404 - Página no encontrada</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+          h1 { color: #ff0000; }
+          p { color: #666; }
+          a { color: #0066cc; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <h1>404 - Página no encontrada</h1>
+        <p>Lo sentimos, la página que buscas no existe.</p>
+        <p><a href="/">Volver al inicio</a></p>
+      </body>
+      </html>
+    `);
   }
-  
-  next();
 });
 
-// 🔧 2️⃣ AJUSTE SOLICITADO: Middleware mejorado para detectar login directo
+// 🔧 Middleware para mantener sesión iniciada automáticamente
 app.use((req, res, next) => {
   // Solo aplicar a rutas HTML, no a archivos estáticos o API
   const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.map'];
@@ -1723,58 +1808,13 @@ app.use((req, res, next) => {
           returnTo: returnTo
         });
         
-        // 🔧 3️⃣ AJUSTE SOLICITADO: Mantener lógica actual de redirección con returnTo
+        // 🔧 MODIFICACIÓN 3: Mantener lógica actual - Redirigir a login con returnTo
         return res.redirect(`/login?returnTo=${returnTo}`);
       }
     }
   }
   
   next();
-});
-
-// 🔧 2️⃣ AJUSTE SOLICITADO: Endpoint para manejar redirección post-login
-app.post("/api/auth/redirect", async (req, res) => {
-  const context = 'AUTH_REDIRECT';
-  
-  try {
-    const { returnTo, isDirectLogin } = req.body;
-    
-    logger.info(context, 'Procesando redirección post-autenticación', {
-      returnTo,
-      isDirectLogin
-    });
-    
-    // 🔧 Lógica para login directo (sin returnTo o returnTo vacío/igual a login)
-    let redirectUrl = '/actividad'; // 🔧 Valor por defecto: public/actividad.html
-    
-    if (returnTo && 
-        returnTo !== '' && 
-        returnTo !== '/login' && 
-        returnTo !== '/login.html' &&
-        !returnTo.includes('login')) {
-      // 🔧 3️⃣ AJUSTE SOLICITADO: Mantener lógica actual para redirección desde otras páginas
-      redirectUrl = returnTo;
-      logger.info(context, 'Redirigiendo a página anterior', { redirectUrl });
-    } else if (isDirectLogin) {
-      // 🔧 2️⃣ AJUSTE SOLICITADO: Redirección específica para login directo
-      redirectUrl = '/actividad';
-      logger.info(context, 'Login directo detectado, redirigiendo a actividad', { redirectUrl });
-    }
-    
-    res.json({
-      success: true,
-      redirectUrl: redirectUrl,
-      message: 'Redirección configurada'
-    });
-    
-  } catch (error) {
-    logger.error(context, 'Error en redirección', error);
-    res.status(500).json({
-      success: false,
-      error: 'Error configurando redirección',
-      redirectUrl: '/actividad' // Fallback a actividad
-    });
-  }
 });
 
 // Manejo de errores global
@@ -1795,22 +1835,18 @@ app.use((err, req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.4.1 - URLs Limpias + Login Directo + 404 Personalizada",
+    version: "2.4.1 - URL Limpias + Auto Login + 404 Personalizada + Redirecciones Mejoradas",
     features: {
-      custom404: "✅ Active - Sirve public/404.html automáticamente",
-      directLoginRedirect: "✅ Active - Redirige a /actividad después de login directo",
-      returnToLogic: "✅ Active - Mantiene lógica de returnTo para otras páginas",
       cleanUrls: "✅ URLs sin .html (ej: /home, /login, /PeliPREX)",
       autoHome: "✅ Sirve home.html como página principal",
+      custom404: "✅ Página 404 personalizada con redirección automática",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
       authMiddleware: "✅ Active - Protects routes and redirects to login",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
-      paymentEndpoints: "✅ EXCLUDED from Auth Middleware"
-    },
-    adjustments: {
-      adjustment1: "Página 404: public/404.html se carga automáticamente para URLs no existentes",
-      adjustment2: "Login directo: Redirige a public/actividad.html después de iniciar sesión o crear cuenta",
-      adjustment3: "Lógica existente: Se mantiene intacta para redirecciones desde otras páginas"
+      paymentEndpoints: "✅ EXCLUDED from Auth Middleware",
+      page404: "✅ Auto-redirect to /404 for non-existent pages",
+      loginRedirect: "✅ Direct access to login redirects to /public/actividad.html",
+      preserveLogic: "✅ Maintains returnTo logic for internal navigation"
     },
     routes: {
       home: "/home",
@@ -1828,9 +1864,6 @@ app.get("/api", (req, res) => {
       purchasePolicy: "/politica.compras",
       notFound: "/404"
     },
-    apiEndpoints: {
-      authRedirect: "/api/auth/redirect (POST) - Para manejar redirecciones post-login"
-    },
     status: "online",
     timestamp: new Date().toISOString()
   });
@@ -1845,12 +1878,13 @@ app.listen(PORT, "0.0.0.0", () => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     version: '2.4.1',
-    features: 'Home as Main Page + Clean URLs + Auto Login + 404 Page + Session Persistence',
-    adjustments: '404 Personalizada + Redirección Login Directo + Mantenimiento Lógica Existente',
+    features: 'Home as Main Page + Clean URLs + Auto Login + 404 Page + Session Persistence + Improved Redirects',
     homeAsMainPage: true,
+    cleanUrlsEnabled: true,
     custom404Enabled: true,
+    auto404Redirect: true,
     directLoginRedirect: true,
-    sessionAutoCheck: true,
+    preserveReturnToLogic: true,
     timestamp: new Date().toISOString()
   });
 });
