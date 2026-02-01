@@ -1242,8 +1242,8 @@ function displayMovieDetails(movie) {
         };
     }
 
-    document.getElementById('modal-play').onclick = (e) => { e.preventDefault(); window.location.replace("recargar.html"); };
-    document.getElementById('modal-share-btn').onclick = (e) => { e.preventDefault(); window.location.replace("http://action_share"); };
+    document.getElementById('modal-play').onclick = (e) => { e.preventDefault(); window.location.href = "planes.html"; };
+    document.getElementById('modal-share-btn').onclick = (e) => { e.preventDefault(); document.getElementById('banner').style.display = 'flex'; };
     
     fetchSuggestionsToModal();
     
@@ -1287,23 +1287,11 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
     analysisModal.classList.add('active');
     document.getElementById('modal').classList.remove('active');
 
-    const prompt = `Actúa como un crítico de cine experto y redacta un análisis completo y objetivo para la película "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El análisis debe ser excelente, ordenado y adecuado para una aplicación móvil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
-    1. Un párrafo introductorio.
-    2. Un subtítulo: "Trama y Desarrollo".
-    3. Un subtítulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuación, dirección, fotografía, etc.).
-    4. Un subtítulo: "Veredicto Final" con un párrafo de conclusión.
-    Asegúrate de que todo el texto generado fluya de manera natural y esté formateado con subtítulos y listas.`;
-
     try {
-        const response = await fetch(GEMINI_API_URL, {
+        const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                config: {
-                    systemInstruction: "You are a cinema critic. Generate the response exclusively using natural language, paragraphs, and lists. Do NOT use markdown for bolding (**)."
-                }
-            })
+            body: JSON.stringify({ movieTitle, movieDescription })
         });
 
         const data = await response.json();
@@ -1311,9 +1299,7 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
 
         if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
             let analysisText = data.candidates[0].content.parts[0].text;
-            
             let finalHtml = analysisText.replace(/\*\*/g, '');
-            
             const parts = finalHtml.split('\n');
             let output = '';
             let inList = false;
@@ -1321,33 +1307,25 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
             parts.forEach(line => {
                 line = line.trim();
                 if (!line) return;
-
                 if (line.match(/^(Trama y Desarrollo|Aspectos Destacados|Veredicto Final)/i)) {
                     if (inList) { output += '</ul>'; inList = false; }
                     output += `<h3>${line.replace(/.$/, '')}</h3>`;
-                }
-                else if (line.startsWith('*') || line.startsWith('•') || line.match(/^[0-9]+\./)) {
+                } else if (line.startsWith('*') || line.startsWith('•') || line.match(/^[0-9]+\./)) {
                     if (!inList) { output += '<ul>'; inList = true; }
                     output += `<li>${line.replace(/^[*\•] ?|^[0-9]+\. ?/, '')}</li>`;
-                }
-                else {
+                } else {
                     if (inList) { output += '</ul>'; inList = false; }
                     output += `<p>${line}</p>`;
                 }
             });
             if (inList) { output += '</ul>'; }
-            
             resultContainer.innerHTML = output;
-
         } else {
-            resultContainer.innerHTML = '<p style="color:var(--accent);">No se pudo generar el análisis. Intenta de nuevo más tarde o verifica la API Key.</p>';
-            console.error("Gemini API Error:", data.error || data);
+            resultContainer.innerHTML = '<p style="color:var(--accent);">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
         }
-
     } catch (error) {
         loadingEl.style.display = 'none';
-        resultContainer.innerHTML = '<p style="color:var(--accent);">Error de conexión al servidor de Gemini. Intenta de nuevo.</p>';
-        console.error("Fetch Error:", error);
+        resultContainer.innerHTML = '<p style="color:var(--accent);">Error de conexión al servidor. Intenta de nuevo.</p>';
     }
 }
 
@@ -1444,6 +1422,110 @@ document.getElementById('analysis-close-btn').onclick = () => {
     document.getElementById('analysis-result-container').innerHTML = '';
 };
 
+</script>
+<!-- Banner de Compartir -->
+<div class="banner" id="banner">  
+    <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
+    <div class="banner-description">  
+        <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+        <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+    </div>  
+    <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
+    <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
+</div>
+
+<style>
+    /* Banner (Oculto por defecto) */  
+    .banner {  
+        width: 100%;  
+        background: linear-gradient(to right, #00264D, #003366);  
+        color: #FFFFFF;  
+        position: fixed;  
+        bottom: 0;  
+        left: 50%;  
+        transform: translateX(-50%);  
+        padding: 30px;  
+        border-top-left-radius: 15px;  
+        border-top-right-radius: 15px;  
+        box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+        display: none; /* Ocultamos el banner al inicio */  
+        flex-direction: column;  
+        align-items: center;  
+        text-align: center;  
+        z-index: 9999;  
+    }  
+
+    .banner-title {  
+        font-size: 24px;  
+        font-weight: bold;  
+        margin-bottom: 15px;  
+        color: #FF00FF;  
+    }  
+
+    .banner-description {  
+        font-size: 18px;  
+        line-height: 1.8;  
+        color: #FFFFFF;  
+        margin-bottom: 20px;  
+    }  
+
+    /* Botones del Banner */  
+    .cta-button, .close-modal {  
+        width: 100%;  
+        padding: 16px;  
+        text-align: center;  
+        text-decoration: none;  
+        border-radius: 25px;  
+        font-size: 18px;  
+        font-weight: bold;  
+        margin-bottom: 12px;  
+        cursor: pointer;  
+        transition: transform 0.2s ease-in-out;  
+        border: none;
+    }  
+
+    .cta-button {  
+        background: linear-gradient(to right, #2ECC71, #66CC99);  
+        color: white;  
+    }  
+
+    .cta-button:hover {  
+        transform: scale(1.08);  
+    }  
+
+    .close-modal {  
+        background-color: red;  
+        color: #FFFFFF;  
+    }  
+
+    .close-modal:hover {  
+        background-color: darkred;  
+        transform: scale(1.08);  
+    }  
+
+    .icon {  
+        margin-right: 8px;  
+        color: #FF00FF;  
+    }
+</style>
+
+<script>
+    function sharePage() {  
+        const url = window.location.href;  
+        const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
+        const text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
+
+        if (navigator.share) {  
+            navigator.share({ title, text, url })  
+                .catch(error => console.log("Error al compartir:", error));  
+        } else {  
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");  
+        }  
+    }  
+
+    function closeBanner() {  
+        document.getElementById('banner').style.display = 'none';  
+    }
 </script>
 </body>
 </html>

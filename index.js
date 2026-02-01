@@ -17,6 +17,45 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// --- Endpoint de Análisis Real con Gemini ---
+app.post("/api/analyze", async (req, res) => {
+  const { movieTitle, movieDescription } = req.body;
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+  if (!GEMINI_API_KEY) {
+    logger.error('GEMINI_API', 'GEMINI_API_KEY no configurada');
+    return res.status(500).json({ error: "GEMINI_API_KEY no configurada en el servidor" });
+  }
+
+  const prompt = `Actúa como un crítico de cine experto y redacta un análisis completo y objetivo para la película "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El análisis debe ser excelente, ordenado y adecuado para una aplicación móvil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
+  1. Un párrafo introductorio.
+  2. Un subtítulo: "Trama y Desarrollo".
+  3. Un subtítulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuación, dirección, fotografía, etc.).
+  4. Un subtítulo: "Veredicto Final" con un párrafo de conclusión.
+  Asegúrate de que todo el texto generado fluya de manera natural y esté formateado con subtítulos y listas.`;
+
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        }
+      },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    logger.error('GEMINI_API', 'Error al llamar a Gemini API', error);
+    res.status(500).json({ error: "Error al procesar el análisis con Gemini" });
+  }
+});
+
 // Logs mejorados con timestamp y contexto
 const logger = {
   info: (context, message, data = {}) => {
@@ -176,7 +215,8 @@ async function verifyFirebaseAuth(req, res, next) {
     '/historial', // ✅ Añadido: Historial
     '/support', // ✅ Añadido: Support
     '/verify', // ✅ Añadido: Verify
-    '/politica.compras' // ✅ Añadido: Política de compras
+    '/politica.compras', // ✅ Añadido: Política de compras
+    '/api/analyze' // ✅ Añadido: Análisis con Gemini
   ];
   
   // Verificar si la ruta actual está excluida
@@ -1633,7 +1673,7 @@ app.use((req, res, next) => {
       });
       
       // Redirigir automáticamente a la página 404
-      return res.redirect('/404');
+      return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
     }
   }
   
