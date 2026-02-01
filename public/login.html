@@ -9,7 +9,6 @@
   
   <!-- Google reCAPTCHA v2 -->
   <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
-  
   <style>
     /* Variables CSS Actualizadas con colores más fuertes y limpios */
     :root {
@@ -63,6 +62,23 @@
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    .avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 20px;
+        display: none; 
+        border: 4px solid #fff;
+        box-shadow: 0 8px 20px rgba(0,230,118,0.2);
+        animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
     }
 
     h3 {
@@ -192,30 +208,6 @@
         color: var(--primary);
         text-decoration: none;
         font-weight: 600;
-    }
-
-    /* Estilos para reCAPTCHA - MEJORADOS */
-    .recaptcha-container {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
-        min-height: 78px;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .g-recaptcha {
-        display: inline-block;
-        width: 100% !important;
-        overflow: hidden;
-    }
-    
-    .g-recaptcha > div {
-        width: 100% !important;
-    }
-    
-    .g-recaptcha iframe {
-        width: 100% !important;
     }
 
     /* MODAL 3D ESTILIZADO */
@@ -360,9 +352,48 @@
         font-weight: 600;
     }
 
+    .help-bot-container {
+        position: fixed;
+        bottom: 30px;
+        right: 25px;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .help-bot-img {
+        width: 75px; height: 75px;
+        object-fit: contain;
+        animation: floatBot 3s ease-in-out infinite;
+    }
+
+    .help-badge {
+        background: #25d366; 
+        color: white;
+        font-size: 10px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-top: 5px; 
+        animation: pulseBadge 2s infinite;
+    }
+
+    @keyframes floatBot {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-12px) rotate(5deg); }
+    }
+
+    @keyframes pulseBadge {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
     @media (max-width: 480px) {
         .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        .g-recaptcha { transform: scale(0.95); transform-origin: 0 0; }
+        .help-bot-container { bottom: 20px; right: 20px; }
+        .help-bot-img { width: 65px; height: 65px; }
     }
   </style>
 </head>
