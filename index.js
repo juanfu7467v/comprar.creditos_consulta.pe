@@ -1567,16 +1567,20 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================
-// 🆕 CONFIGURACIONES SOLICITADAS
+// 🔧 ÚNICO CAMBIO SOLICITADO
 // ================================================
 
-// 🔧 1️⃣ Página principal: Redirigir "/" a "/home"
+// 🔧 Página principal: Servir home.html en lugar de index.html cuando se accede a la raíz
 app.get("/", (req, res) => {
-  logger.info('ROOT_REDIRECT', 'Redirigiendo a página principal /home');
-  res.redirect('/home');
+  logger.info('ROOT_HOME', 'Sirviendo home.html como página principal en lugar de index.html');
+  res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
-// 🔧 2️⃣ Middleware para URLs limpias sin .html
+// ================================================
+// El resto del código se mantiene exactamente igual
+// ================================================
+
+// 🔧 Middleware para URLs limpias sin .html
 app.use((req, res, next) => {
   // Verificar si la URL no tiene extensión y no es una ruta de API
   const isHtmlRoute = !req.path.includes('.') && 
@@ -1612,7 +1616,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔧 3️⃣ Manejo de página 404 personalizada
+// 🔧 Manejo de página 404 personalizada
 app.use((req, res, next) => {
   // Verificar si es una ruta de archivo estático
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
@@ -1624,8 +1628,7 @@ app.use((req, res, next) => {
     // Verificar si el archivo existe (con o sin .html)
     const fileExists = fs.existsSync(requestedPath) || 
                        fs.existsSync(requestedHtmlPath) ||
-                       req.path === '/' || 
-                       req.path === '/home';
+                       req.path === '/';
     
     if (!fileExists) {
       logger.warn('404_HANDLER', 'Página no encontrada', {
@@ -1647,7 +1650,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔧 4️⃣ Middleware para mantener sesión iniciada automáticamente
+// 🔧 Middleware para mantener sesión iniciada automáticamente
 app.use((req, res, next) => {
   // Solo aplicar a rutas HTML, no a archivos estáticos o API
   const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.map'];
@@ -1720,8 +1723,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ================================================
-
 // Manejo de errores global
 app.use((err, req, res, next) => {
   logger.error('GLOBAL_ERROR', 'Error no manejado', err, {
@@ -1743,7 +1744,7 @@ app.get("/api", (req, res) => {
     version: "2.4.0 - URL Limpias + Auto Login + 404 Personalizada",
     features: {
       cleanUrls: "✅ URLs sin .html (ej: /home, /login, /PeliPREX)",
-      autoHome: "✅ Redirige / a /home automáticamente",
+      autoHome: "✅ Sirve home.html como página principal",
       custom404: "✅ Página 404 personalizada",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
       authMiddleware: "✅ Active - Protects routes and redirects to login",
@@ -1779,9 +1780,9 @@ app.listen(PORT, "0.0.0.0", () => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     version: '2.4.0',
-    features: 'Clean URLs + Auto Login + 404 Page + Session Persistence',
+    features: 'Home as Main Page + Clean URLs + Auto Login + 404 Page + Session Persistence',
+    homeAsMainPage: true,
     cleanUrlsEnabled: true,
-    autoRedirectHome: true,
     custom404Enabled: true,
     sessionAutoCheck: true,
     timestamp: new Date().toISOString()
