@@ -526,7 +526,8 @@
       </div>
       <div class="list">
         
-        <a href="planes" class="list-item" id="link-credits">
+        <!-- MODIFICACIÓN: Cambiar el href de "planes" a "planes.html" -->
+        <a href="planes.html" class="list-item" id="link-credits">
           <div class="li-icon"><i class="fa-solid fa-gem"></i></div>
           <div class="text"><div class="title">Comprar créditos</div></div>
           <div class="chev">›</div>
@@ -1417,7 +1418,8 @@ document.getElementById('btn-favoritos').onclick = () => window.location.href = 
 document.getElementById('btn-historial').onclick = () => window.location.href = 'historial.html';
 document.getElementById('btn-last-activity').onclick = () => window.location.href = 'actividad.html';
 
-document.getElementById('link-credits').onclick = (e) => { e.preventDefault(); window.location.href = 'creditos.html'; };
+// MODIFICACIÓN: Ahora el enlace lleva directamente a planes.html
+document.getElementById('link-credits').onclick = (e) => { e.preventDefault(); window.location.href = 'planes.html'; };
 document.getElementById('link-support').onclick = (e) => { e.preventDefault(); window.location.href = 'ayuda.html'; };
 // COMPARTIR: Ambos botones (del reproductor y de "Más funciones") usan la misma referencia
 document.getElementById('link-share').onclick = (e) => { 
