@@ -886,11 +886,21 @@
               grecaptcha.reset(loginRecaptchaWidgetId);
           }
           
-          if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-              showMessage('Acceso denegado. Revisa tus datos.', 'error');
+          // 🆕 MODIFICACIÓN AQUÍ - Mensaje más amigable para el usuario
+          if (error.code === 'auth/invalid-credential') {
+              showMessage('Correo o contraseña incorrectos. Verifica tus datos.', 'error');
+          } else if (error.code === 'auth/user-not-found') {
+              showMessage('No existe una cuenta con este correo.', 'error');
+          } else if (error.code === 'auth/wrong-password') {
+              showMessage('Contraseña incorrecta. Intenta nuevamente.', 'error');
+          } else if (error.code === 'auth/too-many-requests') {
+              showMessage('Demasiados intentos fallidos. Intenta más tarde.', 'error');
+          } else if (error.code === 'auth/user-disabled') {
+              showMessage('Esta cuenta ha sido deshabilitada.', 'error');
           } else if (error.message.includes('reCAPTCHA')) {
               showMessage('Error de verificación de seguridad. Intenta nuevamente.', 'error');
           } else {
+              // Mensaje genérico para otros errores
               showMessage('Error al iniciar sesión: ' + error.message, 'error');
           }
       }
@@ -970,7 +980,14 @@
             setTimeout(showLoginForm, 3000);
         } catch (error) {
             hideLoadingOverlay();
-            showMessage('Error al procesar solicitud.', 'error');
+            // 🆕 Mensaje más específico para recuperación de contraseña
+            if (error.code === 'auth/user-not-found') {
+                showMessage('No existe una cuenta con este correo.', 'error');
+            } else if (error.code === 'auth/invalid-email') {
+                showMessage('Correo electrónico inválido.', 'error');
+            } else {
+                showMessage('Error al procesar solicitud.', 'error');
+            }
         }
     };
 
