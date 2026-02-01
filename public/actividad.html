@@ -538,8 +538,7 @@
           <div class="chev">›</div>
         </a>
 
-        <!-- AJUSTE 1: Botón Compartir con el mismo ID que el del reproductor -->
-        <a href="#" class="list-item" id="modal-share-btn">
+        <a href="modal-share-btn" class="list-item" id="link-share">
             <div class="li-icon"><i class="fa-solid fa-share-nodes"></i></div>
             <div class="text"><div class="title">Compartir</div></div>
             <div class="chev">›</div>
@@ -551,12 +550,11 @@
           <div class="chev">›</div>
         </a>
 
-        <!-- AJUSTE 2 y 3: Botón Cerrar sesión (reemplaza Configuración) -->
-        <a href="#" class="list-item" id="link-logout">
+        <div class="list-item" id="link-logout">
           <div class="li-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
           <div class="text"><div class="title">Cerrar sesión</div></div>
           <div class="chev">›</div>
-        </a>
+        </div>
 
       </div>
     </section>
@@ -1245,15 +1243,10 @@ function displayMovieDetails(movie) {
     }
 
     document.getElementById('modal-play').onclick = (e) => { e.preventDefault(); window.location.href = "planes.html"; };
-    
-    // AJUSTE 1: Ambos botones Compartir (reproductor y perfil) ahora tienen el mismo ID y funcionalidad
-    const shareButtons = document.querySelectorAll('#modal-share-btn');
-    shareButtons.forEach(button => {
-        button.onclick = (e) => { 
-            e.preventDefault(); 
-            document.getElementById('banner').style.display = 'flex'; 
-        };
-    });
+    document.getElementById('modal-share-btn').onclick = (e) => { 
+        e.preventDefault(); 
+        document.getElementById('banner').style.display = 'flex'; 
+    };
     
     fetchSuggestionsToModal();
     
@@ -1328,7 +1321,7 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
                     output += `<p>${line}</p>`;
                 }
             });
-    if (inList) { output += '</ul>'; }
+            if (inList) { output += '</ul>'; }
             resultContainer.innerHTML = output;
         } else {
             resultContainer.innerHTML = '<p style="color:var(--accent);">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
@@ -1340,18 +1333,28 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
 }
 
 /* ==========================================================
-   AJUSTE 3: FUNCIÓN PARA CERRAR SESIÓN REAL
+   FUNCIÓN PARA CERRAR SESIÓN
    ========================================================= */
 async function logoutUser() {
     try {
+        // Cancelar cualquier temporizador de deducción pendiente
+        cancelDeductionTimer();
+        
+        // Cerrar sesión en Firebase
         await auth.signOut();
-        console.log("Sesión cerrada exitosamente");
+        
+        // Limpiar datos locales
+        localStorage.removeItem('planIndicatorClosed');
+        globalFavoritesData = [];
+        currentMovie = null;
+        USER_EMAIL = 'ejemplo@example.com';
         
         // Redirigir al login
         window.location.href = "login.html";
+        
     } catch (error) {
         console.error("Error al cerrar sesión:", error);
-        showErrorModal("No se pudo cerrar sesión. Intenta de nuevo.");
+        showErrorModal("Error al cerrar sesión. Intenta de nuevo.");
     }
 }
 
@@ -1416,16 +1419,30 @@ document.getElementById('btn-last-activity').onclick = () => window.location.hre
 
 document.getElementById('link-credits').onclick = (e) => { e.preventDefault(); window.location.href = 'creditos.html'; };
 document.getElementById('link-support').onclick = (e) => { e.preventDefault(); window.location.href = 'ayuda.html'; };
-
-// AJUSTE 1: El botón Compartir en "Más funciones" ya tiene el mismo ID que el del reproductor
-// y se maneja en la función displayMovieDetails con querySelectorAll
-
+// COMPARTIR: Ambos botones (del reproductor y de "Más funciones") usan la misma referencia
+document.getElementById('link-share').onclick = (e) => { 
+    e.preventDefault(); 
+    document.getElementById('banner').style.display = 'flex'; 
+};
+document.getElementById('modal-share-btn').onclick = (e) => { 
+    e.preventDefault(); 
+    document.getElementById('banner').style.display = 'flex'; 
+};
 document.getElementById('link-legal').onclick = (e) => { e.preventDefault(); window.location.href = 'avisolegalpeliprex.html'; };
 
-// AJUSTE 2 y 3: Botón Cerrar sesión reemplaza Configuración
-document.getElementById('link-logout').onclick = (e) => { 
-    e.preventDefault(); 
-    logoutUser(); 
+// CERRAR SESIÓN: Reemplazo del botón Configuración
+document.getElementById('link-logout').onclick = (e) => {
+    e.preventDefault();
+    showCustomModal("Cerrar sesión", "¿Estás seguro de que quieres cerrar sesión? Serás redirigido al inicio de sesión.", false);
+    // Sobrescribir el botón de aceptar del modal para que ejecute logout
+    const alertBtn = document.getElementById('close-alert-modal');
+    const originalOnClick = alertBtn.onclick;
+    alertBtn.onclick = () => {
+        logoutUser();
+        alertModalEl.classList.remove('active');
+        // Restaurar el comportamiento original
+        alertBtn.onclick = originalOnClick;
+    };
 };
 
 closePlanIndicatorBtn.addEventListener('click', () => {
@@ -1458,7 +1475,7 @@ document.getElementById('analysis-close-btn').onclick = () => {
 
 </script>
 <!-- Banner de Compartir -->
-<div class="banner" id="banner">  
+<div class="banner" id="banner" style="display:none;">  
     <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
     <div class="banner-description">  
         <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
