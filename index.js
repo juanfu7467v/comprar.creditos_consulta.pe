@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public'))); // Movido después del middleware de URLs limpias
 
 // --- Endpoint de Análisis Real con Gemini ---
 app.post("/api/analyze", async (req, res) => {
@@ -1650,41 +1650,39 @@ app.post("/api/admin/clear-cache", (req, res) => {
 // 🔧 MODIFICACIÓN 1: Manejo de página 404
 // ================================================
 
-// 🔧 Middleware para manejar rutas no encontradas y redirigir a /404
+// 🔧 Middleware para URLs limpias sin .html y manejo de archivos estáticos
 app.use((req, res, next) => {
-  // Verificar si es una ruta de archivo estático o API
-  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map|html)$/i.test(req.path);
   const isApiRoute = req.path.startsWith('/api/');
-  
-  // No procesar rutas de API aquí, dejar que lleguen a sus rutas o al manejo de error de API
-  if (isApiRoute) {
-    return next();
+  if (isApiRoute) return next();
+
+  // 1. Manejar raíz
+  if (req.path === '/') {
+    return res.sendFile(path.join(__dirname, 'public', 'home.html'));
   }
 
-  // Si es un archivo estático que no existe, Express.static ya lo habrá pasado aquí
-  // Si no tiene extensión y no es API, verificamos si existe como HTML o si es una ruta inválida
-  if (!isStaticFile && req.path !== '/') {
-    const cleanPath = req.path.replace(/^\//, '');
-    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
-    const directPath = path.join(__dirname, 'public', cleanPath);
-    
-    // Verificar si el archivo existe (con o sin .html)
-    const fileExists = fs.existsSync(htmlPath) || fs.existsSync(directPath);
-    
-    // 🔧 MODIFICACIÓN 1: Si no existe el archivo, servir directamente la página 404
-    if (!fileExists) {
-      logger.warn('404_NOT_FOUND', 'Página no encontrada, sirviendo 404.html', {
-        path: req.path,
-        originalUrl: req.originalUrl
-      });
-      
-      const notFoundPage = path.join(__dirname, 'public', '404.html');
-      if (fs.existsSync(notFoundPage)) {
-        return res.status(404).sendFile(notFoundPage);
-      }
+  // 2. Intentar servir archivo estático directo (css, js, imágenes, etc)
+  const directPath = path.join(__dirname, 'public', req.path);
+  if (fs.existsSync(directPath) && fs.lstatSync(directPath).isFile()) {
+    return res.sendFile(directPath);
+  }
+
+  // 3. Intentar servir como HTML (URLs limpias)
+  const cleanPath = req.path.replace(/^\//, '');
+  const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
+  }
+
+  // 4. Si no existe y no tiene extensión, es un 404 de página web
+  const hasExtension = /\.[a-z0-9]+$/i.test(req.path);
+  if (!hasExtension) {
+    logger.warn('404_NOT_FOUND', 'Página no encontrada, sirviendo 404.html', { path: req.path });
+    const notFoundPage = path.join(__dirname, 'public', '404.html');
+    if (fs.existsSync(notFoundPage)) {
+      return res.status(404).sendFile(notFoundPage);
     }
   }
-  
+
   next();
 });
 
@@ -1727,46 +1725,7 @@ app.get("/", (req, res) => {
 // El resto del código se mantiene exactamente igual
 // ================================================
 
-// 🔧 Middleware para URLs limpias sin .html
-app.use((req, res, next) => {
-  // Verificar si la URL no tiene extensión y no es una ruta de API
-  const isHtmlRoute = !req.path.includes('.') && 
-                      !req.path.startsWith('/api/') &&
-                      !req.path.startsWith('/_next/') &&
-                      req.path !== '/';
-  
-  if (isHtmlRoute) {
-    const cleanPath = req.path.replace(/^\//, ''); // Remover slash inicial
-    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
-    
-    logger.info('CLEAN_URL', 'Procesando URL limpia', {
-      originalPath: req.path,
-      cleanPath,
-      htmlPath
-    });
-    
-    // Verificar si el archivo HTML existe
-    if (fs.existsSync(htmlPath)) {
-      logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
-        path: req.path,
-        htmlFile: `${cleanPath}.html`
-      });
-      return res.sendFile(htmlPath);
-    } else {
-      logger.warn('CLEAN_URL', 'Archivo HTML no encontrado, sirviendo 404.html', {
-        path: req.path,
-        attemptedFile: `${cleanPath}.html`
-      });
-      
-      const notFoundPage = path.join(__dirname, 'public', '404.html');
-      if (fs.existsSync(notFoundPage)) {
-        return res.status(404).sendFile(notFoundPage);
-      }
-    }
-  }
-  
-  next();
-});
+// Middleware de URLs limpias consolidado arriba
 
 // 🔧 Manejo de página 404 personalizada
 app.get("/404", (req, res) => {
@@ -1799,12 +1758,11 @@ app.get("/404", (req, res) => {
 
 // 🔧 Middleware para mantener sesión iniciada automáticamente
 app.use((req, res, next) => {
-  // Solo aplicar a rutas HTML, no a archivos estáticos o API
-  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.map'];
-  const hasStaticExtension = staticExtensions.some(ext => req.path.toLowerCase().endsWith(ext));
+  // Solo aplicar a rutas que no son estáticas ni API
   const isApiRoute = req.path.startsWith('/api/');
+  const hasExtension = /\.[a-z0-9]+$/i.test(req.path);
   
-  if (!hasStaticExtension && !isApiRoute) {
+  if (!hasExtension && !isApiRoute) {
     // Verificar si el usuario ya tiene sesión activa
     const authHeader = req.headers.authorization;
     const cookies = req.headers.cookie;
@@ -1839,7 +1797,7 @@ app.use((req, res, next) => {
       // Verificar token en Authorization header
       if (authHeader && authHeader.startsWith('Bearer ')) {
         const idToken = authHeader.split('Bearer ')[1];
-        hasValidToken = !!idToken;
+        hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
       }
       
       // Verificar token en cookies
@@ -1848,21 +1806,32 @@ app.use((req, res, next) => {
         const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
         if (sessionCookie) {
           const idToken = sessionCookie.split('=')[1].trim();
-          hasValidToken = !!idToken;
+          hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
         }
       }
       
-      // Verificar token en localStorage (simulado para redirección)
-      // En producción, el frontend debe manejar esto
+      // 🔧 CORRECCIÓN: Si no hay token, redirigir a login SOLO si la página existe.
+      // Si la página no existe, el middleware anterior ya habría servido el 404.html.
+      // Si llegamos aquí es porque la página existe (o es una ruta válida) pero requiere auth.
       if (!hasValidToken) {
-        const returnTo = encodeURIComponent(req.originalUrl);
-        logger.info('SESSION_CHECK', 'No hay sesión válida, redirigiendo a login', {
-          path: req.path,
-          returnTo: returnTo
-        });
-        
-        // 🔧 MODIFICACIÓN 3: Mantener lógica actual - Redirigir a login con returnTo
-        return res.redirect(`/login?returnTo=${returnTo}`);
+        const cleanPath = req.path.replace(/^\//, '');
+        const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
+        const fileExists = fs.existsSync(htmlPath) || req.path === '/';
+
+        if (fileExists) {
+          const returnTo = encodeURIComponent(req.originalUrl);
+          logger.info('SESSION_CHECK', 'No hay sesión válida, redirigiendo a login', {
+            path: req.path,
+            returnTo: returnTo
+          });
+          return res.redirect(`/login?returnTo=${returnTo}`);
+        } else {
+          // Si no existe, servir 404 en lugar de redirigir a login
+          const notFoundPage = path.join(__dirname, 'public', '404.html');
+          if (fs.existsSync(notFoundPage)) {
+            return res.status(404).sendFile(notFoundPage);
+          }
+        }
       }
     }
   }
@@ -1908,11 +1877,12 @@ app.all("*", (req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.4.2 - URL Limpias + Auto Login + 404 Web Native + Redirecciones Mejoradas",
+    version: "2.5.0 - Clean URLs + Auth Loop Fix + Native 404",
     features: {
-      cleanUrls: "✅ URLs sin .html (ej: /home, /login, /PeliPREX)",
+      cleanUrls: "✅ URLs sin .html (ej: /peliculas, /historial)",
       autoHome: "✅ Sirve home.html como página principal",
-      custom404: "✅ Página 404 nativa (sin redirección externa)",
+      custom404: "✅ Página 404 nativa para rutas inexistentes",
+      authFix: "✅ Evita bucles de login para usuarios autenticados",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
       authMiddleware: "✅ Active - Protects routes and redirects to login",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
@@ -1950,8 +1920,8 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.4.2',
-    features: 'Home as Main Page + Clean URLs + Auto Login + Native 404 Page + Session Persistence + Improved Redirects',
+    version: '2.5.0',
+    features: 'Clean URLs + Auth Loop Fix + Native 404 + Session Persistence',
     homeAsMainPage: true,
     cleanUrlsEnabled: true,
     custom404Enabled: true,
