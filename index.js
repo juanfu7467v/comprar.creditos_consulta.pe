@@ -161,7 +161,8 @@ async function verifyFirebaseAuth(req, res, next) {
     '/api/payment/', // ✅ Añadido: Información de pagos (con parámetro)
     '/api/generate-invoice', // ✅ Añadido: Generación de facturas
     '/api/debug/firebase', // ✅ Añadido: Debug
-    '/api/admin/clear-cache' // ✅ Añadido: Admin
+    '/api/admin/clear-cache', // ✅ Añadido: Admin
+    '/PeliPREX' // ✅ Añadido: PeliPREX (archivo sin extensión)
   ];
   
   // Verificar si la ruta actual está excluida
@@ -226,10 +227,15 @@ async function verifyFirebaseAuth(req, res, next) {
 
 // Aplicar middleware de autenticación a todas las rutas (excepto las estáticas y las excluidas)
 app.use((req, res, next) => {
-  // Solo aplicar a rutas HTML o API (no a archivos estáticos)
-  if (req.path.includes('.') && !req.path.endsWith('.html')) {
+  // Solo aplicar a rutas HTML, API o archivos sin extensión (como PeliPREX)
+  // No aplicar a archivos estáticos (imágenes, fuentes, etc. que tengan extensiones conocidas)
+  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.map'];
+  const hasStaticExtension = staticExtensions.some(ext => req.path.toLowerCase().endsWith(ext));
+
+  if (hasStaticExtension) {
     return next();
   }
+
   return verifyFirebaseAuth(req, res, next);
 });
 
