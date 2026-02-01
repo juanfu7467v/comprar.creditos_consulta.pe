@@ -818,6 +818,7 @@ loadConfig();
 
 let globalFavoritesData = []; // Almacena los favoritos
 let currentMovie = null; // Almacena la película actual para el modal de Análisis
+let favoritesRefreshInterval = null; // Para controlar el intervalo de actualización automática
 
 /* ==========================================================
    REFERENCIAS Y FUNCIONES DE SOPORTE
@@ -1809,10 +1810,78 @@ function renderFavoritesGrid(data){
   historyTotalItemsEl.textContent = `${data.length} elementos en tu lista`;
 }
 
+/**
+ * MODIFICACIÓN SOLICITADA: Función para actualizar automáticamente los favoritos cada 10 segundos
+ */
+async function autoRefreshFavorites() {
+    try {
+        const data = await fetchRealFavorites();
+        
+        // Comparar si hay cambios en los favoritos
+        const newCount = data.length;
+        const oldCount = globalFavoritesData.length;
+        
+        // Verificar si hay cambios en el contenido (comparar IDs o URLs)
+        const hasContentChanged = JSON.stringify(data) !== JSON.stringify(globalFavoritesData);
+        
+        if (hasContentChanged) {
+            globalFavoritesData = data;
+            renderFavoritesGrid(data);
+            
+            // Mostrar notificación sutil si hay nuevos elementos
+            if (newCount > oldCount) {
+                console.log(`Se agregaron ${newCount - oldCount} nuevas películas a favoritos`);
+                // Podrías agregar aquí una notificación visual sutil si lo deseas
+                if (oldCount > 0) { // Solo mostrar si ya había elementos antes
+                    const notification = document.createElement('div');
+                    notification.style.cssText = 'position:fixed; bottom:80px; right:20px; background:var(--accent); color:white; padding:8px 12px; border-radius:8px; font-size:12px; z-index:1000;';
+                    notification.textContent = `✓ Actualizado: ${newCount} favoritos`;
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 2000);
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error en la actualización automática de favoritos:", error);
+    }
+}
+
+/**
+ * Inicia el intervalo de actualización automática
+ */
+function startAutoRefresh() {
+    // Limpiar intervalo existente si hay uno
+    if (favoritesRefreshInterval) {
+        clearInterval(favoritesRefreshInterval);
+    }
+    
+    // Establecer nuevo intervalo de 10 segundos (10000 milisegundos)
+    favoritesRefreshInterval = setInterval(autoRefreshFavorites, 10000);
+    
+    console.log("Actualización automática de favoritos iniciada (cada 10 segundos)");
+}
+
+/**
+ * Detiene el intervalo de actualización automática
+ */
+function stopAutoRefresh() {
+    if (favoritesRefreshInterval) {
+        clearInterval(favoritesRefreshInterval);
+        favoritesRefreshInterval = null;
+        console.log("Actualización automática de favoritos detenida");
+    }
+}
+
+/**
+ * Función principal modificada para incluir el auto-refresh
+ */
 async function main(){
   const data = await fetchRealFavorites();
   globalFavoritesData = data;
   renderFavoritesGrid(data);
+  
+  // MODIFICACIÓN SOLICITADA: Iniciar la actualización automática después de cargar los datos iniciales
+  startAutoRefresh();
 }
 
 /* ==========================================================
@@ -1885,9 +1954,31 @@ auth.onAuthStateChanged(async (user) => {
     updateProfileUI(null); 
     renderFavoritesGrid([]);
     document.getElementById('loading').style.display = 'none';
+    
+    // MODIFICACIÓN SOLICITADA: Detener el auto-refresh cuando el usuario cierra sesión
+    stopAutoRefresh();
+    
     const currentPath = window.location.pathname + window.location.search;
     window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
   }
+});
+
+// MODIFICACIÓN SOLICITADA: Detener el auto-refresh cuando la página pierde el foco (para optimizar recursos)
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    // La página está en segundo plano, detener el intervalo
+    stopAutoRefresh();
+  } else {
+    // La página está activa nuevamente, reanudar el intervalo si el usuario está autenticado
+    if (auth.currentUser) {
+      startAutoRefresh();
+    }
+  }
+});
+
+// MODIFICACIÓN SOLICITADA: También detener el intervalo cuando se cierra la página
+window.addEventListener('beforeunload', function() {
+  stopAutoRefresh();
 });
 
 </script>
@@ -2052,4 +2143,3 @@ auth.onAuthStateChanged(async (user) => {
 </script>
 </body>
 </html>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
