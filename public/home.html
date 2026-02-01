@@ -6,16 +6,19 @@
   <meta name="description" content="MASITAPREX - Consulta PE (requiere instalación) y PeliPREX HD (se prueba desde la web). Diseño moderno, premium y tecnológico." />
   <title>MASITAPREX | Consulta PE & PeliPREX HD</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- Font -->
+  <!-- Preconexión para recursos críticos -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://blogger.googleusercontent.com">
+
+  <!-- Carga crítica: CSS primero -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Tailwind (carga asíncrona) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root{
@@ -46,6 +49,12 @@
         radial-gradient(1100px 900px at 65% 85%, rgba(255,61,141,.16), transparent 60%),
         linear-gradient(180deg, var(--bg1), var(--bg2));
       overflow-x:hidden;
+    }
+
+    /* Ocultar contenido hasta que cargue todo */
+    .preload * {
+      transition: none !important;
+      animation: none !important;
     }
 
     /* Fondo 3D suave */
@@ -151,6 +160,8 @@
       object-fit: contain;
       display: block;
       margin: 0 auto;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.3s forwards;
     }
 
     /* Tipografía Hero */
@@ -160,6 +171,9 @@
       color: rgba(234,240,255,.75);
       font-weight: 700;
       font-size: 12px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.6s ease 0.4s forwards;
     }
     .title{
       font-weight: 900;
@@ -168,6 +182,9 @@
       margin-top: 10px;
       font-size: clamp(32px, 5.2vw, 64px);
       text-shadow: 0 18px 48px rgba(0,0,0,.55);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.7s ease 0.5s forwards;
     }
     .title b{
       background: linear-gradient(90deg, rgba(53,213,255,1), rgba(109,91,255,1), rgba(255,61,141,1));
@@ -181,9 +198,12 @@
       font-size: clamp(15px, 1.8vw, 18px);
       line-height:1.65;
       max-width: 860px;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.7s ease 0.6s forwards;
     }
 
-    /* Botón Empezar Ahora */
+    /* Botón Empezar Ahora - Modificado para ir directamente a PeliPREX.html */
     .btnStartNow {
       display: inline-flex;
       align-items: center;
@@ -204,6 +224,9 @@
       position: relative;
       overflow: hidden;
       z-index: 1;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.7s ease 0.7s forwards;
     }
     
     .btnStartNow::before {
@@ -237,6 +260,9 @@
       border-bottom: 1px solid rgba(255,255,255,.14);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease 0.8s forwards;
     }
 
     .tienda-header {
@@ -630,6 +656,9 @@
       text-align: center;
       width: 100%;
       margin-top: 0;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease 1s forwards;
     }
 
     .footer p {
@@ -674,21 +703,30 @@
       transform: translateY(-3px);
     }
 
-    /* Animaciones suaves al hacer scroll */
-    .reveal{
-      opacity:0;
-      transform: translateY(10px);
-      transition: opacity .7s ease, transform .7s ease;
+    /* Animaciones de entrada */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    .reveal.show{
-      opacity:1;
-      transform: translateY(0px);
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Accesibilidad: reduce motion */
     @media (prefers-reduced-motion: reduce){
       .orb, .grid3d, .logoHalo, .logoCard::before { animation:none !important; }
-      .reveal{ transition:none !important; opacity:1 !important; transform:none !important; }
+      .btnStartNow, .tienda-mobile, .footer { 
+        animation: fadeIn 0.5s ease forwards !important; 
+        transform: none !important;
+      }
     }
 
     /* Responsive para pantallas grandes */
@@ -712,10 +750,48 @@
         padding: 50px 40px;
       }
     }
+
+    /* Optimización de carga */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    .loading.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
-<body class="antialiased">
+<body class="antialiased preload">
+
+  <!-- Pantalla de carga -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+  </div>
 
   <!-- Fondo 3D + orbes -->
   <div class="scene" aria-hidden="true">
@@ -758,8 +834,8 @@
         <b>PeliPREX HD</b> (entretenimiento que <b>se prueba directo desde la web</b>, sin instalación).
       </p>
 
-      <!-- Botón Empezar Ahora -->
-      <a href="PeliPREX.html" class="btnStartNow reveal">
+      <!-- Botón Empezar Ahora - MODIFICADO: Ahora lleva directamente a PeliPREX.html -->
+      <a href="PeliPREX.html" class="btnStartNow">
         <i class="fas fa-play-circle"></i> Empezar ahora
       </a>
 
@@ -767,7 +843,7 @@
   </section>
 
   <!-- Sección Tienda - Adaptada para aplicación móvil nativa -->
-  <section id="tienda" class="tienda-mobile reveal">
+  <section id="tienda" class="tienda-mobile">
     <div class="tienda-header">
       <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="App Icon" class="tienda-icon">
       <div>
@@ -822,7 +898,7 @@
       </div>
       <div class="detail-item">
         <i class="fas fa-th-large"></i>
-        <span><strong>Categoría:</strong> Plataforma</span>
+        <span><strong>Categoría:</strong> Plataforma</strong></span>
       </div>
       <div class="detail-item">
         <i class="fas fa-language"></i>
@@ -853,7 +929,7 @@
     </p>
 
     <!-- Tabla de Funcionalidades Principales -->
-    <table class="features-table reveal">
+    <table class="features-table">
       <thead>
         <tr>
           <th><i class="fas fa-star"></i> Funcionalidades principales</th>
@@ -933,7 +1009,7 @@
     </p>
 
     <!-- Tabla de Funciones Adicionales -->
-    <table class="additional-features-table reveal">
+    <table class="additional-features-table">
       <thead>
         <tr>
           <th><i class="fas fa-plus-circle"></i> Funciones adicionales</th>
@@ -1058,18 +1134,43 @@
   </footer>
 
   <script>
-    // Reveal on scroll (suave y profesional)
-    const els = document.querySelectorAll(".reveal");
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) e.target.classList.add("show");
-    }, { threshold: 0.15 });
-    els.forEach(el => io.observe(el));
+    // Función para precargar imágenes críticas
+    function preloadImages(urls) {
+      return Promise.all(
+        urls.map(url => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = url;
+            img.onload = resolve;
+            img.onerror = resolve; // Continuar incluso si falla
+          });
+        })
+      );
+    }
 
-    // Smooth scroll para el botón "Empezar ahora"
-    document.querySelector('.btnStartNow').addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = document.querySelector('#tienda');
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Lista de imágenes críticas para precargar
+    const criticalImages = [
+      'https://cdn-icons-png.flaticon.com/128/747/747965.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'
+    ];
+
+    // Carga optimizada de la página
+    document.addEventListener('DOMContentLoaded', function() {
+      // Precargar imágenes críticas
+      preloadImages(criticalImages).then(() => {
+        // Ocultar pantalla de carga después de un tiempo mínimo
+        setTimeout(() => {
+          document.getElementById('loading').classList.add('hidden');
+          document.body.classList.remove('preload');
+          
+          // Iniciar animaciones de fondo
+          const orbs = document.querySelectorAll('.orb, .grid3d');
+          orbs.forEach(orb => {
+            orb.style.animationPlayState = 'running';
+          });
+        }, 500); // Tiempo mínimo de carga para mejor UX
+      });
     });
 
     // Sistema de pantalla completa para screenshots
