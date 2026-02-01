@@ -352,6 +352,28 @@
         font-weight: 600;
     }
 
+    /* ESTILOS PARA reCAPTCHA - AJUSTADO PARA MISMO ANCHO */
+    .recaptcha-container {
+        width: 100%;
+        margin: 10px 0 20px 0;
+    }
+
+    #login-recaptcha, #register-recaptcha {
+        width: 100% !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    .g-recaptcha {
+        width: 100% !important;
+        transform: scale(1.0);
+        transform-origin: 0 0;
+    }
+
+    .g-recaptcha iframe {
+        width: 100% !important;
+    }
+
     .help-bot-container {
         position: fixed;
         bottom: 30px;
@@ -394,6 +416,18 @@
         .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
         .help-bot-container { bottom: 20px; right: 20px; }
         .help-bot-img { width: 65px; height: 65px; }
+        
+        /* Ajuste adicional para reCAPTCHA en móviles */
+        .g-recaptcha {
+            transform: scale(0.9);
+        }
+    }
+
+    /* Ajuste específico para reCAPTCHA en pantallas más pequeñas */
+    @media (max-width: 380px) {
+        .g-recaptcha {
+            transform: scale(0.85);
+        }
     }
   </style>
 </head>
@@ -958,11 +992,8 @@
         hideAllForms();
         showLoadingOverlay();
         
-        // Mostrar mensaje si viene de redirección
-        const returnTo = getUrlParameter('returnTo');
-        if (returnTo) {
-            showMessage('Por favor, inicia sesión para continuar', 'success');
-        }
+        // NOTA: Se eliminó el mensaje "Por favor, inicia sesión para continuar"
+        // ya que no es necesario y ayuda a mantener el diseño limpio
     });
   </script>
 </body>
