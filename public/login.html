@@ -573,8 +573,8 @@
         return urlParams.get(name);
     }
 
-    // 🆕 Función para redirigir después del login
-    function redirectAfterLogin() {
+    // 🆕 Función para redirigir después del login/registro con returnTo
+    function redirectAfterAuth() {
         const returnTo = getUrlParameter('returnTo');
         
         if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
@@ -591,8 +591,8 @@
             }
         }
         
-        // Redirigir a index.html por defecto
-        window.location.href = "index.html";
+        // Redirigir a actividad por defecto si no hay returnTo
+        window.location.href = "actividad";
     }
 
     async function initFirebase() {
@@ -610,8 +610,8 @@
 
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            // 🆕 MODIFICACIÓN: Si el usuario ya tiene sesión iniciada, redirigir a actividad.html
-            window.location.href = "actividad";
+            // 🔧 MODIFICACIÓN: Si el usuario ya tiene sesión iniciada, redirigir según returnTo
+            redirectAfterAuth();
           } else {
             setTimeout(() => {
                 showLoginForm();
@@ -875,8 +875,8 @@
               recaptchaRefreshTimer = null;
           }
           
-          // 🆕 MODIFICACIÓN: Redirigir a actividad después del login exitoso
-          window.location.href = "actividad";
+          // 🔧 MODIFICACIÓN: Redirigir según returnTo después del login exitoso
+          redirectAfterAuth();
           
       } catch (error) {
           hideLoadingOverlay();
@@ -886,7 +886,6 @@
               grecaptcha.reset(loginRecaptchaWidgetId);
           }
           
-          // 🆕 MODIFICACIÓN AQUÍ - Mensaje más amigable para el usuario
           if (error.code === 'auth/invalid-credential') {
               showMessage('Correo o contraseña incorrectos. Verifica tus datos.', 'error');
           } else if (error.code === 'auth/user-not-found') {
@@ -942,8 +941,8 @@
               recaptchaRefreshTimer = null;
           }
           
-          // 🆕 MODIFICACIÓN: Redirigir a actividad después del registro exitoso
-          window.location.href = "actividad";
+          // 🔧 MODIFICACIÓN: Redirigir según returnTo después del registro exitoso
+          redirectAfterAuth();
           
       } catch (error) {
           hideLoadingOverlay();
@@ -980,7 +979,6 @@
             setTimeout(showLoginForm, 3000);
         } catch (error) {
             hideLoadingOverlay();
-            // 🆕 Mensaje más específico para recuperación de contraseña
             if (error.code === 'auth/user-not-found') {
                 showMessage('No existe una cuenta con este correo.', 'error');
             } else if (error.code === 'auth/invalid-email') {
@@ -1008,9 +1006,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         hideAllForms();
         showLoadingOverlay();
-        
-        // NOTA: Se eliminó el mensaje "Por favor, inicia sesión para continuar"
-        // ya que no es necesario y ayuda a mantener el diseño limpio
     });
   </script>
 </body>
