@@ -15,7 +15,6 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
-// app.use(express.static(path.join(__dirname, 'public'))); // Movido después del middleware de URLs limpias
 
 // --- Endpoint de Análisis Real con Gemini ---
 app.post("/api/analyze", async (req, res) => {
@@ -184,7 +183,6 @@ async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
   
   // Rutas excluidas de la verificación (para evitar bucles)
-  // ✅ CORRECCIÓN: Añadidas rutas de pago para permitir procesamiento sin autenticación del middleware
   const excludedPaths = [
     '/login.html',
     '/login',
@@ -197,26 +195,26 @@ async function verifyFirebaseAuth(req, res, next) {
     '/api/health',
     '/api/webhook',
     '/api/validate-recaptcha',
-    '/api/pay', // ✅ Añadido: Endpoint principal de pagos
-    '/api/webhook/mercadopago', // ✅ Añadido: Webhook de Mercado Pago
-    '/api/payment/', // ✅ Añadido: Información de pagos (con parámetro)
-    '/api/generate-invoice', // ✅ Añadido: Generación de facturas
-    '/api/debug/firebase', // ✅ Añadido: Debug
-    '/api/admin/clear-cache', // ✅ Añadido: Admin
-    '/PeliPREX', // ✅ Añadido: PeliPREX (archivo sin extensión)
-    '/home', // ✅ Añadido: Página principal
-    '/index', // ✅ Añadido: Index
-    '/404', // ✅ Añadido: Página 404
-    '/politica-privacidad', // ✅ Añadido: Política de privacidad
-    '/trminos-condiciones', // ✅ Añadido: Términos y condiciones
-    '/actividad', // ✅ Añadido: Actividad
-    '/checkout', // ✅ Añadido: Checkout
-    '/favoritos', // ✅ Añadido: Favoritos
-    '/historial', // ✅ Añadido: Historial
-    '/support', // ✅ Añadido: Support
-    '/verify', // ✅ Añadido: Verify
-    '/politica.compras', // ✅ Añadido: Política de compras
-    '/api/analyze' // ✅ Añadido: Análisis con Gemini
+    '/api/pay',
+    '/api/webhook/mercadopago',
+    '/api/payment/',
+    '/api/generate-invoice',
+    '/api/debug/firebase',
+    '/api/admin/clear-cache',
+    '/PeliPREX',
+    '/home',
+    '/index',
+    '/404',
+    '/politica-privacidad',
+    '/trminos-condiciones',
+    '/actividad',
+    '/checkout',
+    '/favoritos',
+    '/historial',
+    '/support',
+    '/verify',
+    '/politica.compras',
+    '/api/analyze'
   ];
   
   // Verificar si la ruta actual está excluida
@@ -226,7 +224,7 @@ async function verifyFirebaseAuth(req, res, next) {
     req.path.endsWith('.css') ||
     req.path.endsWith('.js') ||
     req.path.endsWith('.ico') ||
-    req.path === '/api/payment' // ✅ Caso base sin parámetro
+    req.path === '/api/payment'
   );
   
   if (isExcluded) {
@@ -254,28 +252,15 @@ async function verifyFirebaseAuth(req, res, next) {
     }
     
     if (!idToken) {
-      // Verificar si hay token en localStorage (simulado a través de query param para redirección)
-      // Esta es una simulación, el frontend real debe manejar el token en localStorage
+      // 🔧 NUEVO COMPORTAMIENTO: Redirigir siempre a login con returnTo para páginas protegidas
       logger.info(context, 'Token no encontrado, redirigiendo a login', { 
         path: req.path,
         originalUrl: req.originalUrl
       });
       
-      // 🔧 MODIFICACIÓN 3: Mantener la lógica actual desde otras páginas
-      // Si viene de una página interna (tiene returnTo), redirigir a login con returnTo
-      // Si no tiene returnTo (acceso directo), redirigir a login sin returnTo
+      // 🔧 SIEMPRE agregar returnTo para que después del login redirija a la página original
       const returnTo = encodeURIComponent(req.originalUrl);
-      
-      // Verificar si el usuario viene de una página interna (no es acceso directo)
-      const isDirectAccess = !req.headers.referer || 
-                            req.headers.referer.includes('/login') || 
-                            req.headers.referer.includes('/register');
-      
-      if (isDirectAccess) {
-        return res.redirect('/login');
-      } else {
-        return res.redirect(`/login?returnTo=${returnTo}`);
-      }
+      return res.redirect(`/login?returnTo=${returnTo}`);
     }
     
     // Verificar token con Firebase Admin
@@ -295,19 +280,9 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path 
     });
     
-    // 🔧 MODIFICACIÓN 3: Mantener la lógica actual desde otras páginas
+    // 🔧 NUEVO COMPORTAMIENTO: Redirigir siempre a login con returnTo cuando hay error
     const returnTo = encodeURIComponent(req.originalUrl);
-    
-    // Verificar si el usuario viene de una página interna
-    const isDirectAccess = !req.headers.referer || 
-                          req.headers.referer.includes('/login') || 
-                          req.headers.referer.includes('/register');
-    
-    if (isDirectAccess) {
-      return res.redirect('/login');
-    } else {
-      return res.redirect(`/login?returnTo=${returnTo}`);
-    }
+    return res.redirect(`/login?returnTo=${returnTo}`);
   }
 }
 
@@ -355,7 +330,6 @@ async function validateRecaptcha(recaptchaResponse) {
       throw new Error('reCAPTCHA validation failed: ' + (data['error-codes']?.join(', ') || 'Unknown error'));
     }
     
-    // Opcional: Verificar score mínimo (v2 no tiene score, solo success)
     return {
       success: true,
       data: data
@@ -366,6 +340,9 @@ async function validateRecaptcha(recaptchaResponse) {
     throw error;
   }
 }
+
+// Aplicar el middleware de autenticación a TODAS las rutas excepto las excluidas
+app.use(verifyFirebaseAuth);
 
 // --- Configuración de Mercado Pago ---
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -471,10 +448,10 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
   try {
     logger.info(context, 'Intentando subir PDF a Firebase Storage', { pdfPath, paymentId });
     
-    // 🔴 CORRECCIÓN: Usar nombre estático sin timestamp
+    // Usar nombre estático sin timestamp
     const fileName = `invoices/${paymentId}.pdf`;
     
-    // 🔴 CORRECCIÓN: Verificar si el archivo ya existe antes de subir
+    // Verificar si el archivo ya existe antes de subir
     const fileCheck = await checkFileExistsInStorage(fileName);
     if (fileCheck.exists && fileCheck.url) {
       logger.info(context, '📁 PDF ya existe en Storage, devolviendo URL existente', { 
@@ -489,7 +466,6 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
     await bucket.upload(pdfPath, {
       destination: fileName,
       metadata: {
-        // 🔴 CORRECCIÓN: Metadata esencial para descarga forzada
         contentType: 'application/pdf',
         contentDisposition: 'attachment; filename="Boleta_ConsultaPE.pdf"',
         metadata: {
@@ -581,7 +557,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       if (existingData.procesado === true && existingData.estado === "approved") {
         logger.warn(context, '🚫 Pago ya procesado anteriormente en Firestore (idempotencia)', { 
           uid, 
-          paymentRef: paymentRefString, 
+      paymentRef: paymentRefString, 
           procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
           processor: existingData.procesadoPor,
           pdfUrl: existingData.pdfUrl || null
@@ -729,13 +705,13 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         
         // Actualizar con duración total acumulada
         t.update(userDoc, { 
-          duracionDias: duracionTotalDias, // ✅ Guardar duración total acumulada
+          duracionDias: duracionTotalDias,
           planIlimitadoHasta: fechaFinPlan,
-          creditos: 0, // Resetear créditos al tener plan ilimitado
+          creditos: 0,
           tipoPlan: "ilimitado",
           fechaActivacion: tienePlanIlimitadoActivo 
-            ? fechaActivacionActual // ✅ Mantener fecha original si ya tenía plan activo
-            : admin.firestore.FieldValue.serverTimestamp(), // Nueva fecha si es primera compra o plan vencido
+            ? fechaActivacionActual
+            : admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
         
@@ -766,8 +742,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       // Marcar pago como procesado exitosamente
       t.update(pagoDoc, { 
         descripcion,
-        procesado: true, // ✅ Marcar como procesado
-        estado: "approved", // Estado final
+        procesado: true,
+        estado: "approved",
         procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
         procesadoPor: processor,
         creditosOtorgados,
@@ -790,7 +766,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
-    // 🔴 NUEVO: Generar y subir PDF a Firebase Storage automáticamente (Solo Boletas)
+    // Generar y subir PDF a Firebase Storage automáticamente (Solo Boletas)
     try {
       logger.info(context, '📄 Generando Boleta Electrónica automáticamente', { paymentRef: paymentRefString });
       
@@ -834,7 +810,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       logger.error(context, '⚠️ Error generando/subiendo PDF (no crítico)', pdfError, { 
         paymentRef: paymentRefString 
       });
-      // No fallar la transacción completa si falla el PDF
     }
 
     // Agregar a cache después de procesamiento exitoso
@@ -942,7 +917,7 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// 🔧 MODIFICACIÓN 2: Login con redirección después del login directo
+// 🔧 Login con redirección después del login
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
   
@@ -959,14 +934,10 @@ app.post("/api/login", async (req, res) => {
     // Validar reCAPTCHA antes de proceder
     await validateRecaptcha(recaptchaResponse);
     
-    // Aquí iría la lógica de autenticación con Firebase
-    // Por simplicidad, solo validamos reCAPTCHA
-    // En producción, agregar autenticación Firebase aquí
-    
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
     
-    // 🔧 MODIFICACIÓN 2: Determinar a dónde redirigir después del login
-    let redirectTo = '/public/actividad.html'; // Redirección por defecto para acceso directo
+    // 🔧 Determinar a dónde redirigir después del login
+    let redirectTo = '/public/actividad.html';
     
     // Si el usuario viene de otra página (tiene returnTo), mantener esa lógica
     if (redirectFrom && redirectFrom !== '/login' && redirectFrom !== '/register') {
@@ -991,7 +962,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// 🔧 MODIFICACIÓN 2: Registro con redirección después del registro directo
+// 🔧 Registro con redirección después del registro directo
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
   
@@ -1010,8 +981,8 @@ app.post("/api/register", async (req, res) => {
     
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
     
-    // 🔧 MODIFICACIÓN 2: Determinar a dónde redirigir después del registro
-    let redirectTo = '/public/actividad.html'; // Redirección por defecto para acceso directo
+    // 🔧 Determinar a dónde redirigir después del registro
+    let redirectTo = '/public/actividad.html';
     
     // Si el usuario viene de otra página (tiene returnTo), mantener esa lógica
     if (redirectFrom && redirectFrom !== '/login' && redirectFrom !== '/register') {
@@ -1325,24 +1296,18 @@ app.get("/api/payment/:paymentId", async (req, res) => {
   }
 });
 
-/**
- * 🔴 ENDPOINT CRÍTICO MEJORADO: generate-invoice
- * ✅ CORRECCIÓN: Este endpoint también está EXCLUIDO del middleware de autenticación
- * SOLUCIÓN PROBLEMA 1: Verifica existencia antes de generar
- * SOLUCIÓN PROBLEMA 2: Responde inmediatamente si ya existe
- */
+// 🔴 ENDPOINT CRÍTICO MEJORADO: generate-invoice
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
   
   try {
-    // Solo Boletas (SUNAT Nuevo RUS)
     const { 
       paymentId, 
       email,
       amount,
       credits,
       description,
-      clientName, // Opcional si < 700
+      clientName,
       type = 'boleta'
     } = req.body;
     
@@ -1353,7 +1318,7 @@ app.post("/api/generate-invoice", async (req, res) => {
 
     logger.info(context, 'Solicitud para generar boleta electrónica SIN middleware de autenticación', { paymentId });
 
-    // 🔴 SOLUCIÓN 1: Verificar si ya existe un PDF para este pago en Firestore
+    // Verificar si ya existe un PDF para este pago en Firestore
     let existingPdfUrl = null;
     let responseSent = false;
     
@@ -1372,7 +1337,6 @@ app.post("/api/generate-invoice", async (req, res) => {
               storagePath: pagoData.storagePath || 'N/A'
             });
             
-            // 🔴 SOLUCIÓN 2: Responder inmediatamente con URL existente
             res.json({
               success: true,
               pdfUrl: existingPdfUrl,
@@ -1389,14 +1353,13 @@ app.post("/api/generate-invoice", async (req, res) => {
         }
       } catch (dbError) {
         logger.error(context, 'Error consultando Firestore', dbError, { paymentId });
-        // Continuar con la generación si hay error en la consulta
       }
     }
 
     // Si ya respondimos, salir
     if (responseSent) return;
 
-    // 🔴 SOLUCIÓN 1: Verificar directamente en Storage
+    // Verificar directamente en Storage
     const fileName = `invoices/${paymentId}.pdf`;
     const storageCheck = await checkFileExistsInStorage(fileName);
     
@@ -1471,7 +1434,6 @@ app.post("/api/generate-invoice", async (req, res) => {
       }
     } catch (uploadError) {
       logger.error(context, 'Error subiendo PDF a Storage', uploadError);
-      // Si falla el upload, devolver la URL local como fallback
       storageUrl = `${HOST_URL}${pdfPath}`;
     }
     
@@ -1647,7 +1609,7 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================
-// 🔧 MODIFICACIÓN 1: Manejo de página 404
+// 🔧 Manejo de página 404
 // ================================================
 
 // 🔧 Middleware para URLs limpias sin .html y manejo de archivos estáticos
@@ -1687,163 +1649,8 @@ app.use((req, res, next) => {
 });
 
 // ================================================
-// 🔧 MODIFICACIÓN 2: Redirección después del login/registro directo
+// 🔧 Manejo final para rutas no encontradas (Catch-all)
 // ================================================
-
-// Middleware para detectar acceso directo a login/register
-app.use(['/login', '/register'], (req, res, next) => {
-  // Verificar si es acceso directo (no viene de otra página o viene de página externa)
-  const referer = req.headers.referer;
-  const isDirectAccess = !referer || 
-                        referer.includes('/login') || 
-                        referer.includes('/register') ||
-                        !referer.includes(process.env.FLY_APP_NAME || 'masitaprexv2.fly.dev');
-  
-  if (isDirectAccess) {
-    // Guardar en la sesión o pasar como parámetro que es acceso directo
-    req.isDirectAccess = true;
-    logger.info('DIRECT_ACCESS', 'Acceso directo detectado', {
-      path: req.path,
-      referer: referer || 'none',
-      isDirectAccess: true
-    });
-  }
-  
-  next();
-});
-
-// ================================================
-// Página principal: Servir home.html en lugar de index.html cuando se accede a la raíz
-// ================================================
-
-app.get("/", (req, res) => {
-  logger.info('ROOT_HOME', 'Sirviendo home.html como página principal en lugar de index.html');
-  res.sendFile(path.join(__dirname, 'public', 'home.html'));
-});
-
-// ================================================
-// El resto del código se mantiene exactamente igual
-// ================================================
-
-// Middleware de URLs limpias consolidado arriba
-
-// 🔧 Manejo de página 404 personalizada
-app.get("/404", (req, res) => {
-  const notFoundPage = path.join(__dirname, 'public', '404.html');
-  if (fs.existsSync(notFoundPage)) {
-    res.status(404).sendFile(notFoundPage);
-  } else {
-    // Fallback a 404 básico si no existe la página personalizada
-    res.status(404).send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>404 - Página no encontrada</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-          h1 { color: #ff0000; }
-          p { color: #666; }
-          a { color: #0066cc; text-decoration: none; }
-        </style>
-      </head>
-      <body>
-        <h1>404 - Página no encontrada</h1>
-        <p>Lo sentimos, la página que buscas no existe.</p>
-        <p><a href="/">Volver al inicio</a></p>
-      </body>
-      </html>
-    `);
-  }
-});
-
-// 🔧 Middleware para mantener sesión iniciada automáticamente
-app.use((req, res, next) => {
-  // Solo aplicar a rutas que no son estáticas ni API
-  const isApiRoute = req.path.startsWith('/api/');
-  const hasExtension = /\.[a-z0-9]+$/i.test(req.path);
-  
-  if (!hasExtension && !isApiRoute) {
-    // Verificar si el usuario ya tiene sesión activa
-    const authHeader = req.headers.authorization;
-    const cookies = req.headers.cookie;
-    
-    // Lista de rutas públicas que no requieren autenticación
-    const publicRoutes = [
-      '/login',
-      '/login.html',
-      '/register',
-      '/register.html',
-      '/home',
-      '/home.html',
-      '/',
-      '/404',
-      '/404.html',
-      '/politica-privacidad',
-      '/politica-privacidad.html',
-      '/trminos-condiciones',
-      '/trminos-condiciones.html',
-      '/politica.compras',
-      '/politica.compras.html'
-    ];
-    
-    const isPublicRoute = publicRoutes.some(route => 
-      req.path === route || 
-      req.path.startsWith(route)
-    );
-    
-    // 🔧 NUEVO: Si el usuario ya está logueado e intenta ir a login o register, redirigir a su perfil
-    const isLoginOrRegister = req.path === '/login' || req.path === '/login.html' || req.path === '/register' || req.path === '/register.html';
-    
-    let hasValidToken = false;
-    // Verificar token en Authorization header
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const idToken = authHeader.split('Bearer ')[1];
-      hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
-    }
-    // Verificar token en cookies
-    if (!hasValidToken && cookies) {
-      const cookiesArray = cookies.split(';');
-      const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
-      if (sessionCookie) {
-        const idToken = sessionCookie.split('=')[1].trim();
-        hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
-      }
-    }
-
-    if (hasValidToken && isLoginOrRegister) {
-      logger.info('ALREADY_LOGGED', 'Usuario ya autenticado intentó acceder a login/register, redirigiendo a perfil', { path: req.path });
-      return res.redirect('/actividad');
-    }
-
-    if (!isPublicRoute) {
-      // 🔧 CORRECCIÓN: Si no hay token, redirigir a login SOLO si la página existe.
-      // Si la página no existe, el middleware anterior ya habría servido el 404.html.
-      // Si llegamos aquí es porque la página existe (o es una ruta válida) pero requiere auth.
-      if (!hasValidToken) {
-        const cleanPath = req.path.replace(/^\//, '');
-        const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
-        const fileExists = fs.existsSync(htmlPath) || req.path === '/';
-
-        if (fileExists) {
-          const returnTo = encodeURIComponent(req.originalUrl);
-          logger.info('SESSION_CHECK', 'No hay sesión válida, redirigiendo a login', {
-            path: req.path,
-            returnTo: returnTo
-          });
-          return res.redirect(`/login?returnTo=${returnTo}`);
-        } else {
-          // Si no existe, servir 404 en lugar de redirigir a login
-          const notFoundPage = path.join(__dirname, 'public', '404.html');
-          if (fs.existsSync(notFoundPage)) {
-            return res.status(404).sendFile(notFoundPage);
-          }
-        }
-      }
-    }
-  }
-  
-  next();
-});
 
 // Manejo de errores global
 app.use((err, req, res, next) => {
@@ -1890,12 +1697,12 @@ app.get("/api", (req, res) => {
       custom404: "✅ Página 404 nativa para rutas inexistentes",
       authFix: "✅ Evita bucles de login y redirige logueados a perfil",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
-      authMiddleware: "✅ Active - Protects routes and redirects to login",
+      authMiddleware: "✅ Active - Protects routes and redirects to login with returnTo",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
       paymentEndpoints: "✅ EXCLUDED from Auth Middleware",
       page404: "✅ Muestra 404.html directamente para rutas inexistentes",
-      loginRedirect: "✅ Direct access to login redirects to /public/actividad.html",
-      preserveLogic: "✅ Maintains returnTo logic for internal navigation"
+      loginRedirect: "✅ Redirects to original page after login with returnTo parameter",
+      preserveLogic: "✅ Maintains returnTo logic for protected pages"
     },
     routes: {
       home: "/home",
@@ -1932,8 +1739,7 @@ app.listen(PORT, "0.0.0.0", () => {
     cleanUrlsEnabled: true,
     custom404Enabled: true,
     auto404Redirect: false,
-    directLoginRedirect: true,
-    preserveReturnToLogic: true,
+    authMiddleware: 'ACTIVE with returnTo redirect',
     timestamp: new Date().toISOString()
   });
 });
