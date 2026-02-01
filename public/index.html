@@ -981,7 +981,8 @@
             userEmailInput.value = user.email || "";
             userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
           } else {
-            window.location.href = "login.html";
+            const currentPath = window.location.pathname + window.location.search;
+            window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
           }
           updatePaymentButtons(); 
         });

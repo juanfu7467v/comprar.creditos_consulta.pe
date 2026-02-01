@@ -1785,7 +1785,13 @@ async function main(){
 // Event Listeners principales
 document.getElementById('btn-trash').addEventListener('click', clearAllHistory);
 // INICIO DE LA MODIFICACIÓN SOLICITADA
-document.getElementById('btn-back').addEventListener('click', ()=> window.location.replace("PeliPREX.html")); 
+document.getElementById('btn-back').addEventListener('click', () => {
+  if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
+    window.history.back();
+  } else {
+    window.location.href = "PeliPREX.html";
+  }
+}); 
 // FIN DE LA MODIFICACIÓN SOLICITADA
 
 
@@ -1845,6 +1851,8 @@ auth.onAuthStateChanged(async (user) => {
     updateProfileUI(null); 
     renderHistoryGrid([]);
     document.getElementById('loading').style.display = 'none';
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
   }
 });
 

@@ -2017,7 +2017,13 @@ async function main(){
 }
 
 // Event Listeners
-document.getElementById('btn-back').addEventListener('click', ()=> window.location.replace("#")); 
+document.getElementById('btn-back').addEventListener('click', () => {
+  if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
+    window.history.back();
+  } else {
+    window.location.href = "index.html";
+  }
+}); 
 
 // Funcionalidad del botón de búsqueda (Abre el Modal de Detalle/Búsqueda)
 const btnSearch = document.getElementById('btn-search');
@@ -2079,6 +2085,8 @@ auth.onAuthStateChanged(async (user) => {
         updateProfileUI(null); 
         // Mostrar spinner mientras se pide la autenticación.
         showLoading();
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
     }
 });
 

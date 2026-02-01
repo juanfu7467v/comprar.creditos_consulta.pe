@@ -1821,9 +1821,13 @@ async function main(){
 
 // Event Listeners principales
 document.getElementById('btn-trash').addEventListener('click', clearAllFavorites); // Se cambió la función a limpiar favoritos
-document.getElementById('btn-back').addEventListener('click', ()=> window.location.replace("index.html")); 
-
-
+document.getElementById('btn-back').addEventListener('click', () => {
+  if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
+    window.history.back();
+  } else {
+    window.location.href = "PeliPREX.html";
+  }
+});
 // Lógica para mostrar/ocultar y funcionar el botón #scrollTop
 const scrollTopBtn = document.getElementById('scrollTop');
 
@@ -1881,6 +1885,8 @@ auth.onAuthStateChanged(async (user) => {
     updateProfileUI(null); 
     renderFavoritesGrid([]);
     document.getElementById('loading').style.display = 'none';
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
   }
 });
 

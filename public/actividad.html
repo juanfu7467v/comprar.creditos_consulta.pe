@@ -454,7 +454,17 @@
 
   <header class="header">
     <div class="top-header-nav">
-        <a href="trailers.html" class="icon-btn top-nav-icon" title="Atrás"><i class="fa-solid fa-arrow-left"></i></a> 
+        <a href="trailers.html" class="icon-btn top-nav-icon" title="Atrás" id="btn-back-profile"><i class="fa-solid fa-arrow-left"></i></a> 
+        <script>
+          document.getElementById('btn-back-profile').addEventListener('click', (e) => {
+            e.preventDefault();
+            if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
+              window.history.back();
+            } else {
+              window.location.href = "PeliPREX.html";
+            }
+          });
+        </script>
         <a href="favoritos.html" class="icon-btn top-nav-icon" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
     </div>
 
@@ -1388,7 +1398,8 @@ auth.onAuthStateChanged(async (user) => {
     fetchProfileData(USER_EMAIL);
     fetchActivityData(USER_EMAIL);
     fetchSuggestions();
-    showCustomModal("Sesión no iniciada", "Por favor, inicia sesión para acceder a todas las funciones de PeliPREX.");
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
   }
 });
 
