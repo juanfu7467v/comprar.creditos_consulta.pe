@@ -1745,10 +1745,16 @@ app.use((req, res, next) => {
       });
       return res.sendFile(htmlPath);
     } else {
-      logger.warn('CLEAN_URL', 'Archivo HTML no encontrado', {
+      logger.warn('CLEAN_URL', 'Archivo HTML no encontrado, redirigiendo a 404', {
         path: req.path,
         attemptedFile: `${cleanPath}.html`
       });
+      // En lugar de pasar al siguiente middleware (que podría ser una API o error),
+      // servimos directamente la página 404 para mantener la experiencia web.
+      const notFoundPage = path.join(__dirname, 'public', '404.html');
+      if (fs.existsSync(notFoundPage)) {
+        return res.status(404).sendFile(notFoundPage);
+      }
     }
   }
   
@@ -1869,6 +1875,22 @@ app.use((err, req, res, next) => {
     message: process.env.NODE_ENV === 'development' ? err.message : 'Contacte al soporte',
     requestId: Date.now().toString(36)
   });
+});
+
+// 🔧 Manejo final para rutas no encontradas (Catch-all)
+// Esto asegura que cualquier ruta que no sea API y no exista devuelva el 404.html
+app.get("*", (req, res, next) => {
+  // Si es una ruta de API, dejar que siga su curso (para que Express maneje el 404 de API si es necesario)
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  const notFoundPage = path.join(__dirname, 'public', '404.html');
+  if (fs.existsSync(notFoundPage)) {
+    res.status(404).sendFile(notFoundPage);
+  } else {
+    next();
+  }
 });
 
 // Ruta de inicio con información del sistema
