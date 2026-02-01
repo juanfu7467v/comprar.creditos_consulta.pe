@@ -1791,25 +1791,31 @@ app.use((req, res, next) => {
       req.path.startsWith(route)
     );
     
-    if (!isPublicRoute) {
-      let hasValidToken = false;
-      
-      // Verificar token en Authorization header
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const idToken = authHeader.split('Bearer ')[1];
+    // 🔧 NUEVO: Si el usuario ya está logueado e intenta ir a login o register, redirigir a su perfil
+    const isLoginOrRegister = req.path === '/login' || req.path === '/login.html' || req.path === '/register' || req.path === '/register.html';
+    
+    let hasValidToken = false;
+    // Verificar token en Authorization header
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const idToken = authHeader.split('Bearer ')[1];
+      hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
+    }
+    // Verificar token en cookies
+    if (!hasValidToken && cookies) {
+      const cookiesArray = cookies.split(';');
+      const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
+      if (sessionCookie) {
+        const idToken = sessionCookie.split('=')[1].trim();
         hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
       }
-      
-      // Verificar token en cookies
-      if (!hasValidToken && cookies) {
-        const cookiesArray = cookies.split(';');
-        const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
-        if (sessionCookie) {
-          const idToken = sessionCookie.split('=')[1].trim();
-          hasValidToken = !!idToken && idToken !== 'null' && idToken !== 'undefined';
-        }
-      }
-      
+    }
+
+    if (hasValidToken && isLoginOrRegister) {
+      logger.info('ALREADY_LOGGED', 'Usuario ya autenticado intentó acceder a login/register, redirigiendo a perfil', { path: req.path });
+      return res.redirect('/actividad');
+    }
+
+    if (!isPublicRoute) {
       // 🔧 CORRECCIÓN: Si no hay token, redirigir a login SOLO si la página existe.
       // Si la página no existe, el middleware anterior ya habría servido el 404.html.
       // Si llegamos aquí es porque la página existe (o es una ruta válida) pero requiere auth.
@@ -1877,12 +1883,12 @@ app.all("*", (req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.5.0 - Clean URLs + Auth Loop Fix + Native 404",
+    version: "2.5.1 - Clean URLs + Auth Loop Fix + Auto Profile Redirect",
     features: {
       cleanUrls: "✅ URLs sin .html (ej: /peliculas, /historial)",
       autoHome: "✅ Sirve home.html como página principal",
       custom404: "✅ Página 404 nativa para rutas inexistentes",
-      authFix: "✅ Evita bucles de login para usuarios autenticados",
+      authFix: "✅ Evita bucles de login y redirige logueados a perfil",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
       authMiddleware: "✅ Active - Protects routes and redirects to login",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
@@ -1920,8 +1926,8 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.5.0',
-    features: 'Clean URLs + Auth Loop Fix + Native 404 + Session Persistence',
+    version: '2.5.1',
+    features: 'Clean URLs + Auth Loop Fix + Auto Profile Redirect + Native 404',
     homeAsMainPage: true,
     cleanUrlsEnabled: true,
     custom404Enabled: true,
