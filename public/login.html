@@ -610,8 +610,8 @@
 
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            // Si ya está autenticado, redirigir inmediatamente
-            redirectAfterLogin();
+            // 🆕 MODIFICACIÓN: Si el usuario ya tiene sesión iniciada, redirigir a actividad.html
+            window.location.href = "actividad";
           } else {
             setTimeout(() => {
                 showLoginForm();
@@ -875,8 +875,8 @@
               recaptchaRefreshTimer = null;
           }
           
-          // Redirigir con la lógica de returnTo
-          redirectAfterLogin();
+          // 🆕 MODIFICACIÓN: Redirigir a actividad después del login exitoso
+          window.location.href = "actividad";
           
       } catch (error) {
           hideLoadingOverlay();
@@ -942,8 +942,8 @@
               recaptchaRefreshTimer = null;
           }
           
-          // Redirigir con la lógica de returnTo
-          redirectAfterLogin();
+          // 🆕 MODIFICACIÓN: Redirigir a actividad después del registro exitoso
+          window.location.href = "actividad";
           
       } catch (error) {
           hideLoadingOverlay();
