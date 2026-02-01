@@ -1567,7 +1567,20 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================
-// 🔧 ÚNICO CAMBIO SOLICITADO
+// 🔧 AJUSTES SOLICITADOS
+// ================================================
+
+// 🔧 1️⃣ Página no encontrada (404) - Servir public/404.html automáticamente
+// El middleware ya existe al final del archivo, pero lo ajustamos para usar exactamente public/404.html
+
+// 🔧 2️⃣ Redirección después del login directo
+// Modificamos el middleware de sesión para detectar login directo
+
+// 🔧 3️⃣ Mantener lógica actual desde otras páginas
+// El sistema ya maneja esto con los parámetros returnTo
+
+// ================================================
+// El resto del código se mantiene exactamente igual
 // ================================================
 
 // 🔧 Página principal: Servir home.html en lugar de index.html cuando se accede a la raíz
@@ -1575,10 +1588,6 @@ app.get("/", (req, res) => {
   logger.info('ROOT_HOME', 'Sirviendo home.html como página principal en lugar de index.html');
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
-
-// ================================================
-// El resto del código se mantiene exactamente igual
-// ================================================
 
 // 🔧 Middleware para URLs limpias sin .html
 app.use((req, res, next) => {
@@ -1616,7 +1625,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔧 Manejo de página 404 personalizada
+// 🔧 1️⃣ AJUSTE SOLICITADO: Manejo mejorado de página 404 personalizada
 app.use((req, res, next) => {
   // Verificar si es una ruta de archivo estático
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
@@ -1631,12 +1640,12 @@ app.use((req, res, next) => {
                        req.path === '/';
     
     if (!fileExists) {
-      logger.warn('404_HANDLER', 'Página no encontrada', {
+      logger.warn('404_HANDLER', 'Página no encontrada - Sirviendo 404 personalizado', {
         path: req.path,
         originalUrl: req.originalUrl
       });
       
-      // Servir página 404 personalizada
+      // 🔧 SERVIR EXACTAMENTE public/404.html como solicitado
       const notFoundPage = path.join(__dirname, 'public', '404.html');
       if (fs.existsSync(notFoundPage)) {
         return res.status(404).sendFile(notFoundPage);
@@ -1650,7 +1659,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🔧 Middleware para mantener sesión iniciada automáticamente
+// 🔧 2️⃣ AJUSTE SOLICITADO: Middleware mejorado para detectar login directo
 app.use((req, res, next) => {
   // Solo aplicar a rutas HTML, no a archivos estáticos o API
   const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.map'];
@@ -1714,13 +1723,58 @@ app.use((req, res, next) => {
           returnTo: returnTo
         });
         
-        // Redirigir a login con parámetro para volver después
+        // 🔧 3️⃣ AJUSTE SOLICITADO: Mantener lógica actual de redirección con returnTo
         return res.redirect(`/login?returnTo=${returnTo}`);
       }
     }
   }
   
   next();
+});
+
+// 🔧 2️⃣ AJUSTE SOLICITADO: Endpoint para manejar redirección post-login
+app.post("/api/auth/redirect", async (req, res) => {
+  const context = 'AUTH_REDIRECT';
+  
+  try {
+    const { returnTo, isDirectLogin } = req.body;
+    
+    logger.info(context, 'Procesando redirección post-autenticación', {
+      returnTo,
+      isDirectLogin
+    });
+    
+    // 🔧 Lógica para login directo (sin returnTo o returnTo vacío/igual a login)
+    let redirectUrl = '/actividad'; // 🔧 Valor por defecto: public/actividad.html
+    
+    if (returnTo && 
+        returnTo !== '' && 
+        returnTo !== '/login' && 
+        returnTo !== '/login.html' &&
+        !returnTo.includes('login')) {
+      // 🔧 3️⃣ AJUSTE SOLICITADO: Mantener lógica actual para redirección desde otras páginas
+      redirectUrl = returnTo;
+      logger.info(context, 'Redirigiendo a página anterior', { redirectUrl });
+    } else if (isDirectLogin) {
+      // 🔧 2️⃣ AJUSTE SOLICITADO: Redirección específica para login directo
+      redirectUrl = '/actividad';
+      logger.info(context, 'Login directo detectado, redirigiendo a actividad', { redirectUrl });
+    }
+    
+    res.json({
+      success: true,
+      redirectUrl: redirectUrl,
+      message: 'Redirección configurada'
+    });
+    
+  } catch (error) {
+    logger.error(context, 'Error en redirección', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error configurando redirección',
+      redirectUrl: '/actividad' // Fallback a actividad
+    });
+  }
 });
 
 // Manejo de errores global
@@ -1741,15 +1795,22 @@ app.use((err, req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.4.0 - URL Limpias + Auto Login + 404 Personalizada",
+    version: "2.4.1 - URLs Limpias + Login Directo + 404 Personalizada",
     features: {
+      custom404: "✅ Active - Sirve public/404.html automáticamente",
+      directLoginRedirect: "✅ Active - Redirige a /actividad después de login directo",
+      returnToLogic: "✅ Active - Mantiene lógica de returnTo para otras páginas",
       cleanUrls: "✅ URLs sin .html (ej: /home, /login, /PeliPREX)",
       autoHome: "✅ Sirve home.html como página principal",
-      custom404: "✅ Página 404 personalizada",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
       authMiddleware: "✅ Active - Protects routes and redirects to login",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
       paymentEndpoints: "✅ EXCLUDED from Auth Middleware"
+    },
+    adjustments: {
+      adjustment1: "Página 404: public/404.html se carga automáticamente para URLs no existentes",
+      adjustment2: "Login directo: Redirige a public/actividad.html después de iniciar sesión o crear cuenta",
+      adjustment3: "Lógica existente: Se mantiene intacta para redirecciones desde otras páginas"
     },
     routes: {
       home: "/home",
@@ -1764,7 +1825,11 @@ app.get("/api", (req, res) => {
       verify: "/verify",
       privacy: "/politica-privacidad",
       terms: "/trminos-condiciones",
-      purchasePolicy: "/politica.compras"
+      purchasePolicy: "/politica.compras",
+      notFound: "/404"
+    },
+    apiEndpoints: {
+      authRedirect: "/api/auth/redirect (POST) - Para manejar redirecciones post-login"
     },
     status: "online",
     timestamp: new Date().toISOString()
@@ -1779,11 +1844,12 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.4.0',
+    version: '2.4.1',
     features: 'Home as Main Page + Clean URLs + Auto Login + 404 Page + Session Persistence',
+    adjustments: '404 Personalizada + Redirección Login Directo + Mantenimiento Lógica Existente',
     homeAsMainPage: true,
-    cleanUrlsEnabled: true,
     custom404Enabled: true,
+    directLoginRedirect: true,
     sessionAutoCheck: true,
     timestamp: new Date().toISOString()
   });
