@@ -1656,24 +1656,32 @@ app.use((req, res, next) => {
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map|html)$/i.test(req.path);
   const isApiRoute = req.path.startsWith('/api/');
   
-  if (!isStaticFile && !isApiRoute && req.path !== '/') {
-    const requestedPath = path.join(__dirname, 'public', req.path);
-    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
+  // No procesar rutas de API aquí, dejar que lleguen a sus rutas o al manejo de error de API
+  if (isApiRoute) {
+    return next();
+  }
+
+  // Si es un archivo estático que no existe, Express.static ya lo habrá pasado aquí
+  // Si no tiene extensión y no es API, verificamos si existe como HTML o si es una ruta inválida
+  if (!isStaticFile && req.path !== '/') {
+    const cleanPath = req.path.replace(/^\//, '');
+    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
+    const directPath = path.join(__dirname, 'public', cleanPath);
     
     // Verificar si el archivo existe (con o sin .html)
-    const fileExists = fs.existsSync(requestedPath) || 
-                       fs.existsSync(requestedHtmlPath);
+    const fileExists = fs.existsSync(htmlPath) || fs.existsSync(directPath);
     
-    // 🔧 MODIFICACIÓN 1: Si no existe el archivo, redirigir automáticamente a /404
+    // 🔧 MODIFICACIÓN 1: Si no existe el archivo, servir directamente la página 404
     if (!fileExists) {
-      logger.warn('404_REDIRECT', 'Página no encontrada, redirigiendo a /404', {
+      logger.warn('404_NOT_FOUND', 'Página no encontrada, sirviendo 404.html', {
         path: req.path,
-        originalUrl: req.originalUrl,
-        userAgent: req.headers['user-agent']
+        originalUrl: req.originalUrl
       });
       
-      // Redirigir automáticamente a la página 404
-      return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+      const notFoundPage = path.join(__dirname, 'public', '404.html');
+      if (fs.existsSync(notFoundPage)) {
+        return res.status(404).sendFile(notFoundPage);
+      }
     }
   }
   
@@ -1745,12 +1753,11 @@ app.use((req, res, next) => {
       });
       return res.sendFile(htmlPath);
     } else {
-      logger.warn('CLEAN_URL', 'Archivo HTML no encontrado, redirigiendo a 404', {
+      logger.warn('CLEAN_URL', 'Archivo HTML no encontrado, sirviendo 404.html', {
         path: req.path,
         attemptedFile: `${cleanPath}.html`
       });
-      // En lugar de pasar al siguiente middleware (que podría ser una API o error),
-      // servimos directamente la página 404 para mantener la experiencia web.
+      
       const notFoundPage = path.join(__dirname, 'public', '404.html');
       if (fs.existsSync(notFoundPage)) {
         return res.status(404).sendFile(notFoundPage);
@@ -1879,17 +1886,21 @@ app.use((err, req, res, next) => {
 
 // 🔧 Manejo final para rutas no encontradas (Catch-all)
 // Esto asegura que cualquier ruta que no sea API y no exista devuelva el 404.html
-app.get("*", (req, res, next) => {
-  // Si es una ruta de API, dejar que siga su curso (para que Express maneje el 404 de API si es necesario)
+app.all("*", (req, res, next) => {
+  // Si es una ruta de API, responder con JSON 404
   if (req.path.startsWith('/api/')) {
-    return next();
+    return res.status(404).json({
+      error: 'Not Found',
+      message: `Cannot ${req.method} ${req.path}`,
+      status: 404
+    });
   }
   
   const notFoundPage = path.join(__dirname, 'public', '404.html');
   if (fs.existsSync(notFoundPage)) {
     res.status(404).sendFile(notFoundPage);
   } else {
-    next();
+    res.status(404).send('Not Found');
   }
 });
 
@@ -1897,16 +1908,16 @@ app.get("*", (req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.4.1 - URL Limpias + Auto Login + 404 Personalizada + Redirecciones Mejoradas",
+    version: "2.4.2 - URL Limpias + Auto Login + 404 Web Native + Redirecciones Mejoradas",
     features: {
       cleanUrls: "✅ URLs sin .html (ej: /home, /login, /PeliPREX)",
       autoHome: "✅ Sirve home.html como página principal",
-      custom404: "✅ Página 404 personalizada con redirección automática",
+      custom404: "✅ Página 404 nativa (sin redirección externa)",
       autoSession: "✅ Mantiene sesión iniciada automáticamente",
       authMiddleware: "✅ Active - Protects routes and redirects to login",
       recaptcha: "✅ Active - Google reCAPTCHA v2 integration",
       paymentEndpoints: "✅ EXCLUDED from Auth Middleware",
-      page404: "✅ Auto-redirect to /404 for non-existent pages",
+      page404: "✅ Muestra 404.html directamente para rutas inexistentes",
       loginRedirect: "✅ Direct access to login redirects to /public/actividad.html",
       preserveLogic: "✅ Maintains returnTo logic for internal navigation"
     },
@@ -1939,12 +1950,12 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.4.1',
-    features: 'Home as Main Page + Clean URLs + Auto Login + 404 Page + Session Persistence + Improved Redirects',
+    version: '2.4.2',
+    features: 'Home as Main Page + Clean URLs + Auto Login + Native 404 Page + Session Persistence + Improved Redirects',
     homeAsMainPage: true,
     cleanUrlsEnabled: true,
     custom404Enabled: true,
-    auto404Redirect: true,
+    auto404Redirect: false,
     directLoginRedirect: true,
     preserveReturnToLogic: true,
     timestamp: new Date().toISOString()
