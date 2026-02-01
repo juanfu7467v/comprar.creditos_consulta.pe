@@ -656,7 +656,23 @@ const db = firebase.firestore();
 const FieldValue = firebase.firestore.FieldValue;
 
 // API Base URL
-const PELIPREX_BASE_URL = "https://peliprex-pe-v2.fly.dev";
+let PELIPREX_BASE_URL = "https://peliprex-pe-v2.fly.dev";
+
+async function loadConfig() {
+  try {
+    const response = await fetch('/api/config');
+    const config = await response.json();
+    if (config.peliprexBaseUrl) {
+      PELIPREX_BASE_URL = config.peliprexBaseUrl;
+      console.log("PELIPREX_BASE_URL cargada desde el servidor:", PELIPREX_BASE_URL);
+    }
+  } catch (error) {
+    console.error("Error al cargar la configuración:", error);
+  }
+}
+
+// Llamar a loadConfig al inicio
+loadConfig();
 
 // CONSTANTES DE GEMINI (TOKEN COMPATIBLE CON AI STUDIO)
 const GEMINI_API_KEY = "AIzaSyAOzh0UW4luQMPFMSZL4WMySgdsTYrxCuo"; 

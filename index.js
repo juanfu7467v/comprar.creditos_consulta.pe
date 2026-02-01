@@ -859,6 +859,7 @@ app.get("/api/config", (req, res) => {
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     firebaseConfig: firebaseClientConfig,
     environment: process.env.NODE_ENV || 'production',
+    peliprexBaseUrl: process.env.PELIPREX_BASE_URL,
     timestamp: new Date().toISOString()
   });
 });
