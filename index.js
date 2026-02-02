@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- Endpoint de AnÃ¡lisis Real con Gemini ---
+// --- Endpoint de Análisis Real con Gemini ---
 app.post("/api/analyze", async (req, res) => {
   const { movieTitle, movieDescription } = req.body;
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -27,12 +27,12 @@ app.post("/api/analyze", async (req, res) => {
     return res.status(500).json({ error: "GEMINI_API_KEY no configurada en el servidor" });
   }
 
-  const prompt = `ActÃºa como un crÃ­tico de cine experto y redacta un anÃ¡lisis completo y objetivo para la pelÃ­cula "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El anÃ¡lisis debe ser excelente, ordenado y adecuado para una aplicaciÃ³n mÃ³vil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
-  1. Un pÃ¡rrafo introductorio.
-  2. Un subtÃ­tulo: "Trama y Desarrollo".
-  3. Un subtÃ­tulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuaciÃ³n, direcciÃ³n, fotografÃ­a, etc.).
-  4. Un subtÃ­tulo: "Veredicto Final" con un pÃ¡rrafo de conclusiÃ³n.
-  AsegÃºrate de que todo el texto generado fluya de manera natural y estÃ© formateado con subtÃ­tulos y listas.`;
+  const prompt = `Actúa como un crítico de cine experto y redacta un análisis completo y objetivo para la película "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El análisis debe ser excelente, ordenado y adecuado para una aplicación móvil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
+  1. Un párrafo introductorio.
+  2. Un subtítulo: "Trama y Desarrollo".
+  3. Un subtítulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuación, dirección, fotografía, etc.).
+  4. Un subtítulo: "Veredicto Final" con un párrafo de conclusión.
+  Asegúrate de que todo el texto generado fluya de manera natural y esté formateado con subtítulos y listas.`;
 
   try {
     const response = await axios.post(
@@ -52,7 +52,7 @@ app.post("/api/analyze", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     logger.error('GEMINI_API', 'Error al llamar a Gemini API', error);
-    res.status(500).json({ error: "Error al procesar el anÃ¡lisis con Gemini" });
+    res.status(500).json({ error: "Error al procesar el análisis con Gemini" });
   }
 });
 
@@ -75,7 +75,7 @@ const logger = {
   }
 };
 
-// --- ConfiguraciÃ³n de Firebase desde variables individuales ---
+// --- Configuración de Firebase desde variables individuales ---
 function buildServiceAccountFromEnv() {
   logger.info('FIREBASE_CONFIG', 'Construyendo service account desde variables de entorno individuales');
   
@@ -151,18 +151,18 @@ if (serviceAccount && !admin.apps.length) {
     });
     
     const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
-      .then(() => ({ status: 'connected', message: 'ConexiÃ³n a Firestore exitosa' }))
+      .then(() => ({ status: 'connected', message: 'Conexión a Firestore exitosa' }))
       .catch(error => ({ status: 'error', message: error.message }));
     
-    logger.info('FIRESTORE', 'VerificaciÃ³n de conexiÃ³n', firestoreCheck);
+    logger.info('FIRESTORE', 'Verificación de conexión', firestoreCheck);
     
   } catch (error) {
-    logger.error('FIREBASE', 'Error crÃ­tico al inicializar Firebase Admin', error, {
+    logger.error('FIREBASE', 'Error crítico al inicializar Firebase Admin', error, {
       projectId: serviceAccount?.project_id,
       clientEmail: serviceAccount?.client_email
     });
     
-    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarÃ¡n disponibles.');
+    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarán disponibles.');
   }
 } else if (admin.apps.length) {
   db = admin.firestore();
@@ -172,19 +172,18 @@ if (serviceAccount && !admin.apps.length) {
   logger.error('FIREBASE', 'No se pudo inicializar Firebase - Service account no disponible');
 }
 
-// --- ConfiguraciÃ³n de reCAPTCHA ---
+// --- Configuración de reCAPTCHA ---
 const RECAPTCHA_SECRET_KEY = process.env.RECAPCHA_CLAVE_SECRETA;
 const RECAPTCHA_SITE_KEY = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
 
 /**
- * ðŸ†• Middleware para verificar autenticaciÃ³n Firebase
- * Protege rutas y redirige a login si no estÃ¡ autenticado
+ * 🆕 Middleware para verificar autenticación Firebase
+ * Protege rutas y redirige a login si no está autenticado
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
   
-  // Rutas excluidas de la verificaciÃ³n (para evitar bucles)
-  // âœ… CORRECCIÃ“N: AÃ±adidas rutas de pago para permitir procesamiento sin autenticaciÃ³n del middleware
+  // Rutas excluidas de la verificación (para evitar bucles)
   const excludedPaths = [
     '/login.html',
     '/login',
@@ -197,40 +196,43 @@ async function verifyFirebaseAuth(req, res, next) {
     '/api/health',
     '/api/webhook',
     '/api/validate-recaptcha',
-    '/api/pay', // âœ… AÃ±adido: Endpoint principal de pagos
-    '/api/webhook/mercadopago', // âœ… AÃ±adido: Webhook de Mercado Pago
-    '/api/payment/', // âœ… AÃ±adido: InformaciÃ³n de pagos (con parÃ¡metro)
-    '/api/generate-invoice', // âœ… AÃ±adido: GeneraciÃ³n de facturas
-    '/api/debug/firebase', // âœ… AÃ±adido: Debug
-    '/api/admin/clear-cache', // âœ… AÃ±adido: Admin
-    '/PeliPREX', // âœ… AÃ±adido: PeliPREX (archivo sin extensiÃ³n)
-    '/home', // âœ… AÃ±adido: PÃ¡gina principal
-    '/index', // âœ… AÃ±adido: Index
-    '/404', // âœ… AÃ±adido: PÃ¡gina 404
-    '/politica-privacidad', // âœ… AÃ±adido: PolÃ­tica de privacidad
-    '/trminos-condiciones', // âœ… AÃ±adido: TÃ©rminos y condiciones
-    '/actividad', // âœ… AÃ±adido: Actividad
-    '/checkout', // âœ… AÃ±adido: Checkout
-    '/favoritos', // âœ… AÃ±adido: Favoritos
-    '/historial', // âœ… AÃ±adido: Historial
-    '/support', // âœ… AÃ±adido: Support
-    '/verify', // âœ… AÃ±adido: Verify
-    '/politica.compras', // âœ… AÃ±adido: PolÃ­tica de compras
-    '/api/analyze' // âœ… AÃ±adido: AnÃ¡lisis con Gemini
+    '/api/pay',
+    '/api/webhook/mercadopago',
+    '/api/payment/',
+    '/api/generate-invoice',
+    '/api/debug/firebase',
+    '/api/admin/clear-cache',
+    '/PeliPREX',
+    '/home',
+    '/index',
+    '/politica-privacidad',
+    '/trminos-condiciones',
+    '/actividad',
+    '/checkout',
+    '/favoritos',
+    '/historial',
+    '/support',
+    '/verify',
+    '/politica.compras',
+    '/api/analyze',
+    '/doc-apis',
+    '/disclaimer-apis',
+    '/terminos-condiciones',
+    '/error-404' // ✅ CORREGIDO: Nombre correcto del archivo
   ];
   
-  // Verificar si la ruta actual estÃ¡ excluida
+  // Verificar si la ruta actual está excluida
   const isExcluded = excludedPaths.some(path => 
     req.path.startsWith(path) || 
     req.path === path ||
     req.path.endsWith('.css') ||
     req.path.endsWith('.js') ||
     req.path.endsWith('.ico') ||
-    req.path === '/api/payment' // âœ… Caso base sin parÃ¡metro
+    req.path === '/api/payment'
   );
   
   if (isExcluded) {
-    logger.info(context, 'Ruta excluida de verificaciÃ³n', { path: req.path });
+    logger.info(context, 'Ruta excluida de verificación', { path: req.path });
     return next();
   }
   
@@ -254,19 +256,13 @@ async function verifyFirebaseAuth(req, res, next) {
     }
     
     if (!idToken) {
-      // Verificar si hay token en localStorage (simulado a travÃ©s de query param para redirecciÃ³n)
-      // Esta es una simulaciÃ³n, el frontend real debe manejar el token en localStorage
       logger.info(context, 'Token no encontrado, redirigiendo a login', { 
         path: req.path,
         originalUrl: req.originalUrl
       });
       
-      // ðŸ”§ MODIFICACIÃ“N 3: Mantener la lÃ³gica actual desde otras pÃ¡ginas
-      // Si viene de una pÃ¡gina interna (tiene returnTo), redirigir a login con returnTo
-      // Si no tiene returnTo (acceso directo), redirigir a login sin returnTo
       const returnTo = encodeURIComponent(req.originalUrl);
       
-      // Verificar si el usuario viene de una pÃ¡gina interna (no es acceso directo)
       const isDirectAccess = !req.headers.referer || 
                             req.headers.referer.includes('/login') || 
                             req.headers.referer.includes('/register');
@@ -291,14 +287,12 @@ async function verifyFirebaseAuth(req, res, next) {
     
     next();
   } catch (error) {
-    logger.error(context, 'Error de autenticaciÃ³n', error, { 
+    logger.error(context, 'Error de autenticación', error, { 
       path: req.path 
     });
     
-    // ðŸ”§ MODIFICACIÃ“N 3: Mantener la lÃ³gica actual desde otras pÃ¡ginas
     const returnTo = encodeURIComponent(req.originalUrl);
     
-    // Verificar si el usuario viene de una pÃ¡gina interna
     const isDirectAccess = !req.headers.referer || 
                           req.headers.referer.includes('/login') || 
                           req.headers.referer.includes('/register');
@@ -312,7 +306,7 @@ async function verifyFirebaseAuth(req, res, next) {
 }
 
 /**
- * ðŸ†• FunciÃ³n para validar reCAPTCHA
+ * 🆕 Función para validar reCAPTCHA
  */
 async function validateRecaptcha(recaptchaResponse) {
   const context = 'RECAPTCHA_VALIDATION';
@@ -355,7 +349,6 @@ async function validateRecaptcha(recaptchaResponse) {
       throw new Error('reCAPTCHA validation failed: ' + (data['error-codes']?.join(', ') || 'Unknown error'));
     }
     
-    // Opcional: Verificar score mÃ­nimo (v2 no tiene score, solo success)
     return {
       success: true,
       data: data
@@ -367,12 +360,12 @@ async function validateRecaptcha(recaptchaResponse) {
   }
 }
 
-// --- ConfiguraciÃ³n de Mercado Pago ---
+// --- Configuración de Mercado Pago ---
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
 
 if (!MERCADOPAGO_ACCESS_TOKEN) {
-  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no estÃ¡ configurado');
+  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no está configurado');
   console.warn('ADVERTENCIA: MERCADOPAGO_ACCESS_TOKEN no configurado. Pagos no disponibles.');
 }
 
@@ -391,8 +384,8 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 /**
- * FunciÃ³n para adquirir lock de procesamiento
- * Previene que el mismo pago se procese simultÃ¡neamente
+ * Función para adquirir lock de procesamiento
+ * Previene que el mismo pago se procese simultáneamente
  */
 async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
   const context = 'PAYMENT_LOCK';
@@ -408,28 +401,28 @@ async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
   }
   
   paymentLocks.set(paymentRef, Date.now());
-  logger.info(context, 'ðŸ”’ Lock adquirido', { paymentRef });
+  logger.info(context, '🔒 Lock adquirido', { paymentRef });
   return true;
 }
 
 /**
- * FunciÃ³n para liberar lock de procesamiento
+ * Función para liberar lock de procesamiento
  */
 function releasePaymentLock(paymentRef) {
   const context = 'PAYMENT_LOCK';
   paymentLocks.delete(paymentRef);
-  logger.info(context, 'ðŸ”“ Lock liberado', { paymentRef });
+  logger.info(context, '🔓 Lock liberado', { paymentRef });
 }
 
 /**
- * ðŸ†• FUNCIÃ“N MEJORADA: Verificar si archivo ya existe en Storage
- * SOLUCIÃ“N PROBLEMA 1: Evita duplicaciÃ³n verificando antes de subir
+ * 🆕 FUNCIÓN MEJORADA: Verificar si archivo ya existe en Storage
+ * SOLUCIÓN PROBLEMA 1: Evita duplicación verificando antes de subir
  */
 async function checkFileExistsInStorage(fileName) {
   const context = 'STORAGE_CHECK';
   
   if (!bucket) {
-    logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
+    logger.error(context, 'Firebase Storage no está inicializado');
     return { exists: false, url: null };
   }
   
@@ -438,7 +431,7 @@ async function checkFileExistsInStorage(fileName) {
     const [exists] = await file.exists();
     
     if (exists) {
-      // Obtener URL pÃºblica
+      // Obtener URL pública
       const [metadata] = await file.getMetadata();
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
       
@@ -456,28 +449,27 @@ async function checkFileExistsInStorage(fileName) {
 }
 
 /**
- * ðŸ†• FUNCIÃ“N MEJORADA: Subir PDF a Firebase Storage con idempotencia
- * SOLUCIÃ“N PROBLEMA 1: Verifica existencia antes de subir
- * SOLUCIÃ“N PROBLEMA 2: Configura metadata correcta para descarga
+ * 🆕 FUNCIÓN MEJORADA: Subir PDF a Firebase Storage con idempotencia
+ * SOLUCIÓN PROBLEMA 1: Verifica existencia antes de subir
+ * SOLUCIÓN PROBLEMA 2: Configura metadata correcta para descarga
  */
 async function uploadPDFToStorage(pdfPath, paymentId) {
   const context = 'UPLOAD_PDF';
   
   if (!bucket) {
-    logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
+    logger.error(context, 'Firebase Storage no está inicializado');
     throw new Error('Firebase Storage not initialized');
   }
   
   try {
     logger.info(context, 'Intentando subir PDF a Firebase Storage', { pdfPath, paymentId });
     
-    // ðŸ”´ CORRECCIÃ“N: Usar nombre estÃ¡tico sin timestamp
     const fileName = `invoices/${paymentId}.pdf`;
     
-    // ðŸ”´ CORRECCIÃ“N: Verificar si el archivo ya existe antes de subir
+    // Verificar si el archivo ya existe antes de subir
     const fileCheck = await checkFileExistsInStorage(fileName);
     if (fileCheck.exists && fileCheck.url) {
-      logger.info(context, 'ðŸ“ PDF ya existe en Storage, devolviendo URL existente', { 
+      logger.info(context, '📋 PDF ya existe en Storage, devolviendo URL existente', { 
         paymentId, 
         url: fileCheck.url 
       });
@@ -489,7 +481,6 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
     await bucket.upload(pdfPath, {
       destination: fileName,
       metadata: {
-        // ðŸ”´ CORRECCIÃ“N: Metadata esencial para descarga forzada
         contentType: 'application/pdf',
         contentDisposition: 'attachment; filename="Boleta_ConsultaPE.pdf"',
         metadata: {
@@ -500,12 +491,12 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
       }
     });
     
-    // Hacer el archivo pÃºblico
+    // Hacer el archivo público
     await file.makePublic();
     
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
     
-    logger.info(context, 'âœ… PDF subido exitosamente a Storage', { 
+    logger.info(context, '✅ PDF subido exitosamente a Storage', { 
       paymentId,
       fileName,
       publicUrl,
@@ -515,19 +506,19 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
     return publicUrl;
     
   } catch (error) {
-    logger.error(context, 'âŒ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
+    logger.error(context, '❌ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
     throw error;
   }
 }
 
 /**
- * FunciÃ³n principal corregida con idempotencia robusta
+ * Función principal corregida con idempotencia robusta
  */
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
   
   if (!db) {
-    logger.error(context, 'Firebase DB no estÃ¡ inicializado', null, { uid, paymentRef });
+    logger.error(context, 'Firebase DB no está inicializado', null, { uid, paymentRef });
     return { status: 'error', message: 'Database not initialized' };
   }
   
@@ -538,10 +529,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const paymentRefString = String(paymentRef);
   
-  // Verificar cache de memoria primero (respuesta instantÃ¡nea)
+  // Verificar cache de memoria primero (respuesta instantánea)
   if (processedPaymentsCache.has(paymentRefString)) {
     const cachedData = processedPaymentsCache.get(paymentRefString);
-    logger.warn(context, 'ðŸš« Pago ya procesado en cache de memoria (idempotencia)', { 
+    logger.warn(context, '🚫 Pago ya procesado en cache de memoria (idempotencia)', { 
       uid, 
       paymentRef: paymentRefString, 
       processor,
@@ -556,10 +547,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     };
   }
 
-  // Adquirir lock para evitar procesamiento simultÃ¡neo
+  // Adquirir lock para evitar procesamiento simultáneo
   const lockAcquired = await acquirePaymentLock(paymentRefString);
   if (!lockAcquired) {
-    logger.error(context, 'âŒ No se pudo adquirir lock para procesar pago', null, { 
+    logger.error(context, '❌ No se pudo adquirir lock para procesar pago', null, { 
       uid, paymentRef: paymentRefString 
     });
     return { 
@@ -579,7 +570,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       
       // Verificar si ya fue procesado exitosamente
       if (existingData.procesado === true && existingData.estado === "approved") {
-        logger.warn(context, 'ðŸš« Pago ya procesado anteriormente en Firestore (idempotencia)', { 
+        logger.warn(context, '🚫 Pago ya procesado anteriormente en Firestore (idempotencia)', { 
           uid, 
           paymentRef: paymentRefString, 
           procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
@@ -610,7 +601,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       }
     }
 
-    logger.info(context, 'âœ… Procesando nuevo pago', { 
+    logger.info(context, '✅ Procesando nuevo pago', { 
       uid, email, montoPagado, processor, paymentRef: paymentRefString 
     });
 
@@ -621,7 +612,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       monto: montoPagado,
       processor,
       fechaRegistro: admin.firestore.FieldValue.serverTimestamp(),
-      estado: "processing", // Marca como "procesando"
+      estado: "processing",
       procesado: false,
       intentoProcesamiento: new Date().toISOString()
     }, { merge: true });
@@ -648,7 +639,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const fechaActivacionActual = userData.fechaActivacion;
       const planIlimitadoHastaActual = userData.planIlimitadoHasta;
       
-      logger.info(context, 'ðŸ“Š Estado actual del usuario', { 
+      logger.info(context, '📊 Estado actual del usuario', { 
         uid, 
         creditosActuales, 
         tipoPlanActual,
@@ -657,7 +648,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         planIlimitadoHasta: planIlimitadoHastaActual?.toDate?.() || null
       });
 
-      // CASO 1: Compra de crÃ©ditos
+      // CASO 1: Compra de créditos
       if (PAQUETES_CREDITOS[montoNum]) {
         creditosOtorgados = PAQUETES_CREDITOS[montoNum];
         const nuevosCreditos = creditosActuales + creditosOtorgados;
@@ -669,8 +660,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
         
-        descripcion = `${creditosOtorgados} CrÃ©ditos`;
-        logger.info(context, 'ðŸ’³ CrÃ©ditos otorgados', { 
+        descripcion = `${creditosOtorgados} Créditos`;
+        logger.info(context, '💳 Créditos otorgados', { 
           uid, 
           creditosOtorgados, 
           montoPagado,
@@ -695,14 +686,14 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
                                           planIlimitadoHastaActual.toDate() > ahora;
         
         if (tienePlanIlimitadoActivo) {
-          // Acumular dÃ­as desde la fecha de activaciÃ³n original
+          // Acumular días desde la fecha de activación original
           fechaActivacion = fechaActivacionActual.toDate();
           duracionTotalDias = duracionDiasActual + diasNuevos;
           
           // Calcular nueva fecha fin: fechaActivacion + duracionTotalDias
           fechaFinPlan = moment(fechaActivacion).add(duracionTotalDias, 'days').toDate();
           
-          logger.info(context, 'âž• Acumulando dÃ­as al plan ilimitado existente', {
+          logger.info(context, '➕ Acumulando días al plan ilimitado existente', {
             uid,
             diasAnteriores: duracionDiasActual,
             diasNuevos,
@@ -718,7 +709,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           duracionTotalDias = diasNuevos;
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
           
-          logger.info(context, 'ðŸ†• Creando nuevo plan ilimitado', {
+          logger.info(context, '🆕 Creando nuevo plan ilimitado', {
             uid,
             diasNuevos,
             fechaInicio: fechaActivacion.toISOString(),
@@ -727,15 +718,15 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           });
         }
         
-        // Actualizar con duraciÃ³n total acumulada
+        // Actualizar con duración total acumulada
         t.update(userDoc, { 
-          duracionDias: duracionTotalDias, // âœ… Guardar duraciÃ³n total acumulada
+          duracionDias: duracionTotalDias,
           planIlimitadoHasta: fechaFinPlan,
-          creditos: 0, // Resetear crÃ©ditos al tener plan ilimitado
+          creditos: 0,
           tipoPlan: "ilimitado",
           fechaActivacion: tienePlanIlimitadoActivo 
-            ? fechaActivacionActual // âœ… Mantener fecha original si ya tenÃ­a plan activo
-            : admin.firestore.FieldValue.serverTimestamp(), // Nueva fecha si es primera compra o plan vencido
+            ? fechaActivacionActual
+            : admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
         
@@ -744,9 +735,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           diasAgregados: diasNuevos,
           fechaFin: fechaFinPlan 
         };
-        descripcion = `Plan Ilimitado (${diasNuevos} dÃ­as${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' dÃ­as' : ''})`;
+        descripcion = `Plan Ilimitado (${diasNuevos} días${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' días' : ''})`;
         
-        logger.info(context, 'âœ¨ Plan ilimitado actualizado exitosamente', { 
+        logger.info(context, '✨ Plan ilimitado actualizado exitosamente', { 
           uid, 
           diasAgregados: diasNuevos,
           duracionTotal: duracionTotalDias,
@@ -759,15 +750,15 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         creditosOtorgados = 0;
         
       } else {
-        logger.warn(context, 'âš ï¸ Monto no coincide con ningÃºn paquete', { montoPagado, uid });
+        logger.warn(context, '⚠️ Monto no coincide con ningún paquete', { montoPagado, uid });
         descripcion = `Pago de S/ ${montoPagado}`;
       }
       
       // Marcar pago como procesado exitosamente
       t.update(pagoDoc, { 
         descripcion,
-        procesado: true, // âœ… Marcar como procesado
-        estado: "approved", // Estado final
+        procesado: true,
+        estado: "approved",
         procesadoEn: admin.firestore.FieldValue.serverTimestamp(),
         procesadoPor: processor,
         creditosOtorgados,
@@ -790,9 +781,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       };
     });
 
-    // ðŸ”´ NUEVO: Generar y subir PDF a Firebase Storage automÃ¡ticamente (Solo Boletas)
+    // Generar y subir PDF a Firebase Storage automáticamente
     try {
-      logger.info(context, 'ðŸ“„ Generando Boleta ElectrÃ³nica automÃ¡ticamente', { paymentRef: paymentRefString });
+      logger.info(context, '📄 Generando Boleta Electrónica automáticamente', { paymentRef: paymentRefString });
       
       const invoiceData = {
         orderId: paymentRefString,
@@ -800,14 +791,14 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         email: email || 'cliente@example.com',
         amount: montoPagado,
         credits: result.creditosOtorgados || 0,
-        description: result.descripcion || 'CrÃ©ditos Consulta PE',
+        description: result.descripcion || 'Créditos Consulta PE',
         type: 'boleta'
       };
       
       const pdfPath = await generateInvoicePDF(invoiceData);
       const localPdfPath = path.join(__dirname, 'public', pdfPath);
       
-      // Subir PDF a Firebase Storage (funciÃ³n mejorada con idempotencia)
+      // Subir PDF a Firebase Storage
       const storageUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
       
       // Guardar URL del PDF en el documento del pago
@@ -823,7 +814,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         fs.unlinkSync(localPdfPath);
       }
       
-      logger.info(context, 'âœ… Boleta generada y subida a Storage exitosamente', {
+      logger.info(context, '✅ Boleta generada y subida a Storage exitosamente', {
         paymentRef: paymentRefString,
         storageUrl
       });
@@ -831,13 +822,12 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       result.pdfUrl = storageUrl;
       
     } catch (pdfError) {
-      logger.error(context, 'âš ï¸ Error generando/subiendo PDF (no crÃ­tico)', pdfError, { 
+      logger.error(context, '⚠️ Error generando/subiendo PDF (no crítico)', pdfError, { 
         paymentRef: paymentRefString 
       });
-      // No fallar la transacciÃ³n completa si falla el PDF
     }
 
-    // Agregar a cache despuÃ©s de procesamiento exitoso
+    // Agregar a cache después de procesamiento exitoso
     processedPaymentsCache.set(paymentRefString, {
       uid,
       timestamp: new Date().toISOString(),
@@ -846,23 +836,21 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       pdfUrl: result.pdfUrl || null
     });
     
-    // Limpiar cache despuÃ©s de 2 horas para ahorrar memoria
+    // Limpiar cache después de 2 horas
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
-      logger.info(context, 'ðŸ§¹ Pago removido del cache', { paymentRef: paymentRefString });
+      logger.info(context, '🧹 Pago removido del cache', { paymentRef: paymentRefString });
     }, 2 * 60 * 60 * 1000);
     
-    logger.info(context, 'âœ… TransacciÃ³n completada exitosamente', { uid, result });
+    logger.info(context, '✅ Transacción completada exitosamente', { uid, result });
     
-    // Liberar lock
     releasePaymentLock(paymentRefString);
     
     return result;
 
   } catch (error) {
-    logger.error(context, 'âŒ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
+    logger.error(context, '❌ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
     
-    // Marcar el pago como fallido pero NO procesado
     try {
       await pagoDoc.update({
         procesado: false,
@@ -875,7 +863,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef: paymentRefString });
     }
     
-    // Liberar lock
     releasePaymentLock(paymentRefString);
     
     return { status: 'error', message: error.message, error: error.stack };
@@ -884,7 +871,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
 // --- API Endpoints ---
 
-// ðŸ†• Endpoint para validar reCAPTCHA
 app.post("/api/validate-recaptcha", async (req, res) => {
   const context = 'RECAPTCHA_API';
   
@@ -909,7 +895,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
     });
     
   } catch (error) {
-    logger.error(context, 'Error en validaciÃ³n reCAPTCHA', error);
+    logger.error(context, 'Error en validación reCAPTCHA', error);
     
     res.status(400).json({
       success: false,
@@ -920,7 +906,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
 });
 
 app.get("/api/config", (req, res) => {
-  logger.info('API_CONFIG', 'Solicitud de configuraciÃ³n recibida');
+  logger.info('API_CONFIG', 'Solicitud de configuración recibida');
   
   const firebaseClientConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -942,7 +928,6 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// ðŸ”§ MODIFICACIÃ“N 2: Login con redirecciÃ³n despuÃ©s del login directo
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
   
@@ -956,19 +941,12 @@ app.post("/api/login", async (req, res) => {
       });
     }
     
-    // Validar reCAPTCHA antes de proceder
     await validateRecaptcha(recaptchaResponse);
-    
-    // AquÃ­ irÃ­a la lÃ³gica de autenticaciÃ³n con Firebase
-    // Por simplicidad, solo validamos reCAPTCHA
-    // En producciÃ³n, agregar autenticaciÃ³n Firebase aquÃ­
     
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
     
-    // ðŸ”§ MODIFICACIÃ“N 2: Determinar a dÃ³nde redirigir despuÃ©s del login
-    let redirectTo = '/public/actividad.html'; // RedirecciÃ³n por defecto para acceso directo
+    let redirectTo = '/public/actividad.html';
     
-    // Si el usuario viene de otra pÃ¡gina (tiene returnTo), mantener esa lÃ³gica
     if (redirectFrom && redirectFrom !== '/login' && redirectFrom !== '/register') {
       redirectTo = redirectFrom;
     }
@@ -991,7 +969,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// ðŸ”§ MODIFICACIÃ“N 2: Registro con redirecciÃ³n despuÃ©s del registro directo
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
   
@@ -1005,15 +982,12 @@ app.post("/api/register", async (req, res) => {
       });
     }
     
-    // Validar reCAPTCHA antes de proceder
     await validateRecaptcha(recaptchaResponse);
     
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
     
-    // ðŸ”§ MODIFICACIÃ“N 2: Determinar a dÃ³nde redirigir despuÃ©s del registro
-    let redirectTo = '/public/actividad.html'; // RedirecciÃ³n por defecto para acceso directo
+    let redirectTo = '/public/actividad.html';
     
-    // Si el usuario viene de otra pÃ¡gina (tiene returnTo), mantener esa lÃ³gica
     if (redirectFrom && redirectFrom !== '/login' && redirectFrom !== '/register') {
       redirectTo = redirectFrom;
     }
@@ -1036,8 +1010,6 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// âœ… CORRECCIÃ“N: Este endpoint ahora estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
-// La seguridad serÃ¡ manejada por el frontend
 app.post("/api/pay", async (req, res) => {
   const context = 'PAYMENT_PROCESS';
   const startTime = Date.now();
@@ -1056,7 +1028,7 @@ app.post("/api/pay", async (req, res) => {
       payment_method_id, issuer_id, identificationType, identificationNumber 
     } = req.body;
 
-    logger.info(context, 'âœ… Procesando pago SIN middleware de autenticaciÃ³n', {
+    logger.info(context, '✅ Procesando pago', {
       uid, email, amount, payment_method_id, installments
     });
 
@@ -1074,7 +1046,7 @@ app.post("/api/pay", async (req, res) => {
       body: {
         transaction_amount: Number(amount),
         token,
-        description: description || 'CrÃ©ditos Consulta PE',
+        description: description || 'Créditos Consulta PE',
         installments: Number(installments) || 1,
         payment_method_id,
         issuer_id: issuer_id ? Number(issuer_id) : undefined,
@@ -1107,9 +1079,8 @@ app.post("/api/pay", async (req, res) => {
       processingTime: `${processingTime}ms`
     });
 
-    // Solo procesar si estÃ¡ aprobado instantÃ¡neamente
     if (result.status === 'approved') {
-      logger.info(context, 'ðŸ’³ Pago aprobado instantÃ¡neamente, otorgando beneficios', {
+      logger.info(context, '💳 Pago aprobado instantáneamente, otorgando beneficios', {
         paymentId: result.id,
         uid
       });
@@ -1140,7 +1111,7 @@ app.post("/api/pay", async (req, res) => {
       }
       result.tipoPlanNuevo = beneficioResult.tipoPlanNuevo;
     } else {
-      logger.info(context, 'â³ Pago no aprobado instantÃ¡neamente, esperando webhook', {
+      logger.info(context, '⏳ Pago no aprobado instantáneamente, esperando webhook', {
         paymentId: result.id,
         status: result.status,
         statusDetail: result.status_detail
@@ -1164,7 +1135,7 @@ app.post("/api/pay", async (req, res) => {
       errorMessage = errorDetails.message || errorMessage;
       
       if (errorDetails.cause) {
-        logger.error(context, 'Error especÃ­fico de Mercado Pago', null, {
+        logger.error(context, 'Error específico de Mercado Pago', null, {
           cause: errorDetails.cause,
           code: errorDetails.error,
           status: errorDetails.status
@@ -1180,20 +1151,17 @@ app.post("/api/pay", async (req, res) => {
   }
 });
 
-// âœ… CORRECCIÃ“N: Este webhook tambiÃ©n estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
-// Webhook mejorado con mejor manejo de idempotencia
 app.post("/api/webhook/mercadopago", async (req, res) => {
   const context = 'WEBHOOK_MP';
   const webhookData = req.body;
   
-  logger.info(context, 'ðŸ“© Webhook recibido SIN middleware de autenticaciÃ³n', {
+  logger.info(context, '📩 Webhook recibido', {
     action: webhookData.action,
     type: webhookData.type,
     id: webhookData.data?.id,
     receivedAt: new Date().toISOString()
   });
 
-  // âœ… Responder inmediatamente a Mercado Pago (200 OK) para evitar reintentos
   res.sendStatus(200);
 
   if (!mpClient) {
@@ -1212,12 +1180,12 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         return;
       }
 
-      logger.info(context, 'ðŸ” Consultando informaciÃ³n del pago', { paymentId });
+      logger.info(context, '🔍 Consultando información del pago', { paymentId });
 
       const payment = new Payment(mpClient);
       const paymentInfo = await payment.get({ id: paymentId });
 
-      logger.info(context, 'ðŸ“„ InformaciÃ³n del pago obtenida', {
+      logger.info(context, '📄 Información del pago obtenida', {
         paymentId,
         status: paymentInfo.status,
         statusDetail: paymentInfo.status_detail
@@ -1230,7 +1198,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         const amount = metadata.amount || paymentInfo.transaction_amount;
 
         if (uid) {
-          logger.info(context, 'âœ… Procesando pago aprobado via webhook', {
+          logger.info(context, '✅ Procesando pago aprobado via webhook', {
             paymentId, uid, email, amount
           });
 
@@ -1242,7 +1210,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             paymentId.toString()
           );
 
-          logger.info(context, 'ðŸ“Š Resultado del webhook', {
+          logger.info(context, '📊 Resultado del webhook', {
             paymentId,
             uid,
             beneficioStatus: beneficioResult.status,
@@ -1252,41 +1220,39 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
           });
 
         } else {
-          logger.error(context, 'âŒ UID no encontrado en metadatos del pago', null, {
+          logger.error(context, '❌ UID no encontrado en metadatos del pago', null, {
             paymentId,
             metadata,
             payer: paymentInfo.payer
           });
         }
       } else {
-        logger.info(context, 'â¸ï¸ Pago no estÃ¡ aprobado, ignorando', {
+        logger.info(context, '⏸️ Pago no está aprobado, ignorando', {
           paymentId,
           status: paymentInfo.status
         });
       }
 
     } catch (error) {
-      logger.error(context, 'âŒ Error procesando webhook', error, {
+      logger.error(context, '❌ Error procesando webhook', error, {
         paymentId: webhookData.data?.id,
         action: webhookData.action
       });
     }
   } else {
-    logger.info(context, 'â„¹ï¸ Evento no relevante ignorado', {
+    logger.info(context, 'ℹ️ Evento no relevante ignorado', {
       action: webhookData.action,
       type: webhookData.type
     });
   }
 });
 
-// âœ… CORRECCIÃ“N: Este endpoint tambiÃ©n estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
-// Endpoint para obtener informaciÃ³n del pago
 app.get("/api/payment/:paymentId", async (req, res) => {
   const context = 'GET_PAYMENT_INFO';
   const { paymentId } = req.params;
   
   try {
-    logger.info(context, 'Obteniendo informaciÃ³n del pago SIN middleware de autenticaciÃ³n', { paymentId });
+    logger.info(context, 'Obteniendo información del pago', { paymentId });
     
     if (!db) {
       return res.status(503).json({ error: 'Database not available' });
@@ -1300,8 +1266,6 @@ app.get("/api/payment/:paymentId", async (req, res) => {
     }
     
     const pagoData = pagoDoc.data();
-    
-    // Formatear fecha
     const fechaRegistro = pagoData.fechaRegistro?.toDate() || new Date();
     
     res.json({
@@ -1320,29 +1284,22 @@ app.get("/api/payment/:paymentId", async (req, res) => {
     });
     
   } catch (error) {
-    logger.error(context, 'Error obteniendo informaciÃ³n del pago', error, { paymentId });
+    logger.error(context, 'Error obteniendo información del pago', error, { paymentId });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-/**
- * ðŸ”´ ENDPOINT CRÃTICO MEJORADO: generate-invoice
- * âœ… CORRECCIÃ“N: Este endpoint tambiÃ©n estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
- * SOLUCIÃ“N PROBLEMA 1: Verifica existencia antes de generar
- * SOLUCIÃ“N PROBLEMA 2: Responde inmediatamente si ya existe
- */
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
   
   try {
-    // Solo Boletas (SUNAT Nuevo RUS)
     const { 
       paymentId, 
       email,
       amount,
       credits,
       description,
-      clientName, // Opcional si < 700
+      clientName,
       type = 'boleta'
     } = req.body;
     
@@ -1351,9 +1308,8 @@ app.post("/api/generate-invoice", async (req, res) => {
       return res.status(400).json({ error: 'Payment ID es requerido' });
     }
 
-    logger.info(context, 'Solicitud para generar boleta electrÃ³nica SIN middleware de autenticaciÃ³n', { paymentId });
+    logger.info(context, 'Solicitud para generar boleta electrónica', { paymentId });
 
-    // ðŸ”´ SOLUCIÃ“N 1: Verificar si ya existe un PDF para este pago en Firestore
     let existingPdfUrl = null;
     let responseSent = false;
     
@@ -1362,17 +1318,14 @@ app.post("/api/generate-invoice", async (req, res) => {
         const doc = await db.collection("pagos_registrados").doc(String(paymentId)).get();
         if (doc.exists) {
           const pagoData = doc.data();
-          
-          // Verificar si ya tiene PDF URL
           if (pagoData.pdfUrl) {
             existingPdfUrl = pagoData.pdfUrl;
-            logger.info(context, 'âœ… PDF ya existe en datos del pago', { 
+            logger.info(context, '✅ PDF ya existe en datos del pago', { 
               paymentId, 
               pdfUrl: existingPdfUrl,
               storagePath: pagoData.storagePath || 'N/A'
             });
             
-            // ðŸ”´ SOLUCIÃ“N 2: Responder inmediatamente con URL existente
             res.json({
               success: true,
               pdfUrl: existingPdfUrl,
@@ -1389,24 +1342,20 @@ app.post("/api/generate-invoice", async (req, res) => {
         }
       } catch (dbError) {
         logger.error(context, 'Error consultando Firestore', dbError, { paymentId });
-        // Continuar con la generaciÃ³n si hay error en la consulta
       }
     }
 
-    // Si ya respondimos, salir
     if (responseSent) return;
 
-    // ðŸ”´ SOLUCIÃ“N 1: Verificar directamente en Storage
     const fileName = `invoices/${paymentId}.pdf`;
     const storageCheck = await checkFileExistsInStorage(fileName);
     
     if (storageCheck.exists && storageCheck.url) {
-      logger.info(context, 'âœ… PDF ya existe en Storage', { 
+      logger.info(context, '✅ PDF ya existe en Storage', { 
         paymentId, 
         url: storageCheck.url 
       });
       
-      // Actualizar Firestore con la URL
       if (db) {
         await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageCheck.url,
@@ -1428,7 +1377,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       return;
     }
 
-    logger.info(context, 'ðŸ“„ Generando nuevo comprobante', { paymentId });
+    logger.info(context, '📄 Generando nuevo comprobante', { paymentId });
 
     const invoiceData = {
       orderId: String(paymentId),
@@ -1436,7 +1385,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       email: email || 'cliente@example.com',
       amount: amount || 10,
       credits: credits || 60,
-      description: description || 'CrÃ©ditos Consulta PE',
+      description: description || 'Créditos Consulta PE',
       clientName: clientName || '',
       type: 'boleta'
     };
@@ -1444,12 +1393,10 @@ app.post("/api/generate-invoice", async (req, res) => {
     const pdfPath = await generateInvoicePDF(invoiceData);
     const localPdfPath = path.join(__dirname, 'public', pdfPath);
     
-    // Subir PDF a Firebase Storage (funciÃ³n idempotente)
     let storageUrl = null;
     try {
       storageUrl = await uploadPDFToStorage(localPdfPath, paymentId);
       
-      // Actualizar documento del pago con la URL del PDF
       if (db) {
         await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageUrl,
@@ -1459,19 +1406,17 @@ app.post("/api/generate-invoice", async (req, res) => {
         }, { merge: true });
       }
       
-      logger.info(context, 'âœ… PDF generado y almacenado en Storage', { 
+      logger.info(context, '✅ PDF generado y almacenado en Storage', { 
         paymentId, 
         storageUrl,
         localPath: pdfPath 
       });
       
-      // Eliminar archivo local inmediatamente
       if (fs.existsSync(localPdfPath)) {
         fs.unlinkSync(localPdfPath);
       }
     } catch (uploadError) {
       logger.error(context, 'Error subiendo PDF a Storage', uploadError);
-      // Si falla el upload, devolver la URL local como fallback
       storageUrl = `${HOST_URL}${pdfPath}`;
     }
     
@@ -1492,7 +1437,7 @@ app.post("/api/generate-invoice", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'âŒ Error generando comprobante', error, req.body);
+    logger.error(context, '❌ Error generando comprobante', error, req.body);
     res.status(500).json({
       success: false,
       error: 'Error generando comprobante',
@@ -1502,10 +1447,8 @@ app.post("/api/generate-invoice", async (req, res) => {
   }
 });
 
-// âœ… CORRECCIÃ“N: Este endpoint tambiÃ©n estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
-// Endpoint para obtener opciones de facturaciÃ³n
 app.get("/api/invoice-options", (req, res) => {
-  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturaciÃ³n SIN middleware de autenticaciÃ³n');
+  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturación');
   res.json({
     options: [
       { value: 'boleta', label: 'Boleta de Venta', description: 'Para personas naturales' },
@@ -1515,8 +1458,6 @@ app.get("/api/invoice-options", (req, res) => {
   });
 });
 
-// âœ… CORRECCIÃ“N: Este endpoint ya estaba excluido
-// Health check endpoint mejorado
 app.get("/api/health", async (req, res) => {
   const health = {
     status: 'healthy',
@@ -1536,38 +1477,8 @@ app.get("/api/health", async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size,
-    security: {
-      recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-      authMiddleware: true,
-      excludedPaths: [
-        '/login.html', 
-        '/login',
-        '/register.html', 
-        '/register',
-        '/api/auth', 
-        '/api/login', 
-        '/api/register',
-        '/api/config', 
-        '/api/health', 
-        '/api/validate-recaptcha',
-        '/api/pay', // âœ… Actualizado
-        '/api/webhook/mercadopago', // âœ… Actualizado
-        '/api/payment/', // âœ… Actualizado
-        '/api/generate-invoice', // âœ… Actualizado
-        '/api/invoice-options', // âœ… Actualizado
-        '/api/debug/firebase', // âœ… Actualizado
-        '/api/admin/clear-cache', // âœ… Actualizado
-        '/home', // âœ… Actualizado
-        '/404', // âœ… Actualizado
-        '/PeliPREX' // âœ… Actualizado
-      ]
-    },
-    duplicatePrevention: {
-      memoryCache: true,
-      firestoreCheck: true,
-      storageCheck: true,
-      fileLocks: true
-    }
+    version: '3.0.0',
+    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas'
   };
   
   if (db) {
@@ -1589,22 +1500,20 @@ app.get("/api/health", async (req, res) => {
   res.json(health);
 });
 
-// âœ… CORRECCIÃ“N: Este endpoint tambiÃ©n estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
-// Endpoint para verificar configuraciÃ³n de Firebase
 app.get("/api/debug/firebase", (req, res) => {
   const firebaseVars = {
-    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? 'âœ“' : 'âœ—',
-    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? 'âœ“' : 'âœ—',
-    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? 'âœ“' : 'âœ—',
-    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? 'âœ“ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : 'âœ—',
-    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? 'âœ“' : 'âœ—',
-    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? 'âœ“' : 'âœ—',
-    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? 'âœ“' : 'âœ—',
-    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? 'âœ“' : 'âœ—'
+    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? '✓' : '✗',
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? '✓' : '✗',
+    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? '✓' : '✗',
+    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? '✓ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : '✗',
+    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? '✓' : '✗',
+    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? '✓' : '✗',
+    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? '✓' : '✗',
+    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? '✓' : '✗'
   };
   
   const missingVars = Object.entries(firebaseVars)
-    .filter(([key, value]) => value === 'âœ—')
+    .filter(([key, value]) => value === '✗')
     .map(([key]) => key);
   
   res.json({
@@ -1617,8 +1526,6 @@ app.get("/api/debug/firebase", (req, res) => {
   });
 });
 
-// âœ… CORRECCIÃ“N: Este endpoint tambiÃ©n estÃ¡ EXCLUIDO del middleware de autenticaciÃ³n
-// Endpoint para limpiar cache manualmente (Ãºtil para debugging)
 app.post("/api/admin/clear-cache", (req, res) => {
   const context = 'ADMIN_CLEAR_CACHE';
   
@@ -1629,7 +1536,7 @@ app.post("/api/admin/clear-cache", (req, res) => {
     processedPaymentsCache.clear();
     paymentLocks.clear();
     
-    logger.info(context, 'ðŸ§¹ Cache limpiado manualmente', {
+    logger.info(context, '🧹 Cache limpiado manualmente', {
       paymentsRemoved: cacheSize,
       locksRemoved: locksSize
     });
@@ -1647,88 +1554,79 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================
-// ðŸ”§ MODIFICACIÃ“N 1: Manejo de pÃ¡gina 404
+// ✅ RUTAS PÚBLICAS INTEGRADAS (sin login requerido)
 // ================================================
 
-// ðŸ”§ Middleware para manejar rutas no encontradas y redirigir a /404
-app.use((req, res, next) => {
-  // Verificar si es una ruta de archivo estÃ¡tico o API
-  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map|html)$/i.test(req.path);
-  const isApiRoute = req.path.startsWith('/api/');
-  
-  if (!isStaticFile && !isApiRoute && req.path !== '/') {
-    const requestedPath = path.join(__dirname, 'public', req.path);
-    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
-    
-    // Verificar si el archivo existe (con o sin .html)
-    const fileExists = fs.existsSync(requestedPath) || 
-                       fs.existsSync(requestedHtmlPath);
-    
-    // ðŸ”§ MODIFICACIÃ“N 1: Si no existe el archivo, redirigir automÃ¡ticamente a /404
-    if (!fileExists) {
-      logger.warn('404_REDIRECT', 'PÃ¡gina no encontrada, redirigiendo a /404', {
-        path: req.path,
-        originalUrl: req.originalUrl,
-        userAgent: req.headers['user-agent']
-      });
-      
-      // Redirigir automÃ¡ticamente a la pÃ¡gina 404
-      return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
-    }
+app.get("/doc-apis", (req, res) => {
+  logger.info('PUBLIC_API_ROUTE', 'Acceso a doc-apis');
+  const htmlPath = path.join(__dirname, "public", "doc-apis.html");
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
   }
-  
-  next();
+  return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
+});
+
+app.get("/disclaimer-apis", (req, res) => {
+  logger.info('PUBLIC_API_ROUTE', 'Acceso a disclaimer-apis');
+  const htmlPath = path.join(__dirname, "public", "disclaimer-apis.html");
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
+  }
+  return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
+});
+
+app.get("/terminos-condiciones", (req, res) => {
+  logger.info('PUBLIC_ROUTE', 'Acceso a términos y condiciones');
+  const htmlPath = path.join(__dirname, "public", "terminos-condiciones.html");
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
+  }
+  return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
+});
+
+app.get("/politica-privacidad", (req, res) => {
+  logger.info('PUBLIC_ROUTE', 'Acceso a política de privacidad');
+  const htmlPath = path.join(__dirname, "public", "politica-privacidad.html");
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
+  }
+  return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
 // ================================================
-// ðŸ”§ MODIFICACIÃ“N 2: RedirecciÃ³n despuÃ©s del login/registro directo
+// ✅ RUTA QUE REQUIERE LOGIN: /api-key
 // ================================================
 
-// Middleware para detectar acceso directo a login/register
-app.use(['/login', '/register'], (req, res, next) => {
-  // Verificar si es acceso directo (no viene de otra pÃ¡gina o viene de pÃ¡gina externa)
-  const referer = req.headers.referer;
-  const isDirectAccess = !referer || 
-                        referer.includes('/login') || 
-                        referer.includes('/register') ||
-                        !referer.includes(process.env.FLY_APP_NAME || 'masitaprexv2.fly.dev');
-  
-  if (isDirectAccess) {
-    // Guardar en la sesiÃ³n o pasar como parÃ¡metro que es acceso directo
-    req.isDirectAccess = true;
-    logger.info('DIRECT_ACCESS', 'Acceso directo detectado', {
-      path: req.path,
-      referer: referer || 'none',
-      isDirectAccess: true
-    });
+app.get("/api-key", (req, res) => {
+  logger.info('PROTECTED_ROUTE', 'Acceso a api-key (requiere autenticación)');
+  const htmlPath = path.join(__dirname, "public", "api-key.html");
+  if (fs.existsSync(htmlPath)) {
+    return res.sendFile(htmlPath);
   }
-  
-  next();
+  return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
 // ================================================
-// PÃ¡gina principal: Servir home.html en lugar de index.html cuando se accede a la raÃ­z
+// PÁGINA PRINCIPAL: Servir home.html
 // ================================================
 
 app.get("/", (req, res) => {
-  logger.info('ROOT_HOME', 'Sirviendo home.html como pÃ¡gina principal en lugar de index.html');
+  logger.info('ROOT_HOME', 'Sirviendo home.html como página principal');
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
 // ================================================
-// El resto del cÃ³digo se mantiene exactamente igual
+// ✅ MIDDLEWARE PARA URLs LIMPIAS (sin .html)
 // ================================================
 
-// ðŸ”§ Middleware para URLs limpias sin .html
 app.use((req, res, next) => {
-  // Verificar si la URL no tiene extensiÃ³n y no es una ruta de API
   const isHtmlRoute = !req.path.includes('.') && 
                       !req.path.startsWith('/api/') &&
                       !req.path.startsWith('/_next/') &&
                       req.path !== '/';
   
   if (isHtmlRoute) {
-    const cleanPath = req.path.replace(/^\//, ''); // Remover slash inicial
+    const cleanPath = req.path.replace(/^\//, '');
     const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
     
     logger.info('CLEAN_URL', 'Procesando URL limpia', {
@@ -1737,7 +1635,6 @@ app.use((req, res, next) => {
       htmlPath
     });
     
-    // Verificar si el archivo HTML existe
     if (fs.existsSync(htmlPath)) {
       logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
         path: req.path,
@@ -1745,13 +1642,13 @@ app.use((req, res, next) => {
       });
       return res.sendFile(htmlPath);
     } else {
-      logger.warn('CLEAN_URL', 'Archivo HTML no encontrado, redirigiendo a 404', {
+      logger.warn('CLEAN_URL', 'Archivo no encontrado, mostrando 404', {
         path: req.path,
         attemptedFile: `${cleanPath}.html`
       });
-      // En lugar de pasar al siguiente middleware (que podrÃ­a ser una API o error),
-      // servimos directamente la pÃ¡gina 404 para mantener la experiencia web.
-      const notFoundPage = path.join(__dirname, 'public', '404.html');
+      
+      // ✅ CORREGIDO: Usar error-404.html en lugar de 404.html
+      const notFoundPage = path.join(__dirname, 'public', 'error-404.html');
       if (fs.existsSync(notFoundPage)) {
         return res.status(404).sendFile(notFoundPage);
       }
@@ -1761,101 +1658,94 @@ app.use((req, res, next) => {
   next();
 });
 
-// ðŸ”§ Manejo de pÃ¡gina 404 personalizada
-app.get("/404", (req, res) => {
-  const notFoundPage = path.join(__dirname, 'public', '404.html');
-  if (fs.existsSync(notFoundPage)) {
-    res.status(404).sendFile(notFoundPage);
-  } else {
-    // Fallback a 404 bÃ¡sico si no existe la pÃ¡gina personalizada
-    res.status(404).send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>404 - PÃ¡gina no encontrada</title>
-        <style>
-          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-          h1 { color: #ff0000; }
-          p { color: #666; }
-          a { color: #0066cc; text-decoration: none; }
-        </style>
-      </head>
-      <body>
-        <h1>404 - PÃ¡gina no encontrada</h1>
-        <p>Lo sentimos, la pÃ¡gina que buscas no existe.</p>
-        <p><a href="/">Volver al inicio</a></p>
-      </body>
-      </html>
-    `);
-  }
-});
+// ================================================
+// ✅ MANEJO DE PÁGINAS 404 (CORREGIDO)
+// ================================================
 
-// ðŸ”§ Middleware para mantener sesiÃ³n iniciada automÃ¡ticamente
 app.use((req, res, next) => {
-  // Solo aplicar a rutas HTML, no a archivos estÃ¡ticos o API
-  const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf', '.map'];
-  const hasStaticExtension = staticExtensions.some(ext => req.path.toLowerCase().endsWith(ext));
+  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map|html)$/i.test(req.path);
   const isApiRoute = req.path.startsWith('/api/');
   
-  if (!hasStaticExtension && !isApiRoute) {
-    // Verificar si el usuario ya tiene sesiÃ³n activa
-    const authHeader = req.headers.authorization;
-    const cookies = req.headers.cookie;
+  if (!isStaticFile && !isApiRoute && req.path !== '/') {
+    const requestedPath = path.join(__dirname, 'public', req.path);
+    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
     
-    // Lista de rutas pÃºblicas que no requieren autenticaciÃ³n
-    const publicRoutes = [
-      '/login',
-      '/login.html',
-      '/register',
-      '/register.html',
-      '/home',
-      '/home.html',
-      '/',
-      '/404',
-      '/404.html',
-      '/politica-privacidad',
-      '/politica-privacidad.html',
-      '/trminos-condiciones',
-      '/trminos-condiciones.html',
-      '/politica.compras',
-      '/politica.compras.html'
-    ];
+    const fileExists = fs.existsSync(requestedPath) || 
+                       fs.existsSync(requestedHtmlPath);
     
-    const isPublicRoute = publicRoutes.some(route => 
-      req.path === route || 
-      req.path.startsWith(route)
-    );
-    
-    if (!isPublicRoute) {
-      let hasValidToken = false;
+    if (!fileExists) {
+      logger.warn('404_HANDLER', 'Página no encontrada - Mostrando error 404', {
+        path: req.path,
+        originalUrl: req.originalUrl,
+        userAgent: req.headers['user-agent']
+      });
       
-      // Verificar token en Authorization header
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const idToken = authHeader.split('Bearer ')[1];
-        hasValidToken = !!idToken;
-      }
-      
-      // Verificar token en cookies
-      if (!hasValidToken && cookies) {
-        const cookiesArray = cookies.split(';');
-        const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
-        if (sessionCookie) {
-          const idToken = sessionCookie.split('=')[1].trim();
-          hasValidToken = !!idToken;
-        }
-      }
-      
-      // Verificar token en localStorage (simulado para redirecciÃ³n)
-      // En producciÃ³n, el frontend debe manejar esto
-      if (!hasValidToken) {
-        const returnTo = encodeURIComponent(req.originalUrl);
-        logger.info('SESSION_CHECK', 'No hay sesiÃ³n vÃ¡lida, redirigiendo a login', {
-          path: req.path,
-          returnTo: returnTo
-        });
-        
-        // ðŸ”§ MODIFICACIÃ“N 3: Mantener lÃ³gica actual - Redirigir a login con returnTo
-        return res.redirect(`/login?returnTo=${returnTo}`);
+      // ✅ CORREGIDO: Usar error-404.html
+      const notFoundPage = path.join(__dirname, 'public', 'error-404.html');
+      if (fs.existsSync(notFoundPage)) {
+        return res.status(404).sendFile(notFoundPage);
+      } else {
+        // Fallback si no existe el archivo
+        return res.status(404).send(`
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>404 - Página no encontrada</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                margin: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                text-align: center;
+                padding: 20px;
+              }
+              h1 {
+                font-size: 120px;
+                margin: 0;
+                font-weight: bold;
+              }
+              h2 {
+                font-size: 24px;
+                margin: 10px 0;
+                font-weight: normal;
+              }
+              p {
+                font-size: 16px;
+                margin: 20px 0;
+                opacity: 0.9;
+              }
+              a {
+                display: inline-block;
+                margin-top: 20px;
+                padding: 12px 30px;
+                background: white;
+                color: #667eea;
+                text-decoration: none;
+                border-radius: 25px;
+                font-weight: bold;
+                transition: transform 0.2s;
+              }
+              a:hover {
+                transform: scale(1.05);
+              }
+            </style>
+          </head>
+          <body>
+            <h1>404</h1>
+            <h2>Página no encontrada</h2>
+            <p>Lo sentimos, la página que buscas no existe.</p>
+            <a href="/">Volver al inicio</a>
+          </body>
+          </html>
+        `);
       }
     }
   }
@@ -1877,54 +1767,32 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ðŸ”§ Manejo final para rutas no encontradas (Catch-all)
-// Esto asegura que cualquier ruta que no sea API y no exista devuelva el 404.html
-app.get("*", (req, res, next) => {
-  // Si es una ruta de API, dejar que siga su curso (para que Express maneje el 404 de API si es necesario)
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  
-  const notFoundPage = path.join(__dirname, 'public', '404.html');
-  if (fs.existsSync(notFoundPage)) {
-    res.status(404).sendFile(notFoundPage);
-  } else {
-    next();
-  }
-});
-
-// Ruta de inicio con informaciÃ³n del sistema
+// Ruta de información de la API
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "2.4.1 - URL Limpias + Auto Login + 404 Personalizada + Redirecciones Mejoradas",
+    version: "3.0.0",
     features: {
-      cleanUrls: "âœ… URLs sin .html (ej: /home, /login, /PeliPREX)",
-      autoHome: "âœ… Sirve home.html como pÃ¡gina principal",
-      custom404: "âœ… PÃ¡gina 404 personalizada con redirecciÃ³n automÃ¡tica",
-      autoSession: "âœ… Mantiene sesiÃ³n iniciada automÃ¡ticamente",
-      authMiddleware: "âœ… Active - Protects routes and redirects to login",
-      recaptcha: "âœ… Active - Google reCAPTCHA v2 integration",
-      paymentEndpoints: "âœ… EXCLUDED from Auth Middleware",
-      page404: "âœ… Auto-redirect to /404 for non-existent pages",
-      loginRedirect: "âœ… Direct access to login redirects to /public/actividad.html",
-      preserveLogic: "âœ… Maintains returnTo logic for internal navigation"
+      cleanUrls: "✅ URLs sin .html profesionales",
+      autoHome: "✅ home.html como página principal",
+      custom404: "✅ Página error-404.html personalizada",
+      publicApis: "✅ Rutas públicas de APIs integradas",
+      autoSession: "✅ Sesión persistente automática"
     },
-    routes: {
+    publicRoutes: {
       home: "/home",
-      login: "/login",
-      register: "/register",
-      peliprex: "/PeliPREX",
+      docApis: "/doc-apis",
+      disclaimerApis: "/disclaimer-apis",
+      terms: "/terminos-condiciones",
+      privacy: "/politica-privacidad"
+    },
+    protectedRoutes: {
+      apiKey: "/api-key (requiere login)",
       activity: "/actividad",
       checkout: "/checkout",
       favorites: "/favoritos",
       history: "/historial",
-      support: "/support",
-      verify: "/verify",
-      privacy: "/politica-privacidad",
-      terms: "/trminos-condiciones",
-      purchasePolicy: "/politica.compras",
-      notFound: "/404"
+      peliprex: "/PeliPREX"
     },
     status: "online",
     timestamp: new Date().toISOString()
@@ -1933,20 +1801,17 @@ app.get("/api", (req, res) => {
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
-  logger.info('SERVER', `ðŸš€ Servidor iniciado en puerto ${PORT}`, {
+  logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '2.4.1',
-    features: 'Home as Main Page + Clean URLs + Auto Login + 404 Page + Session Persistence + Improved Redirects',
-    homeAsMainPage: true,
+    version: '3.0.0',
+    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas',
     cleanUrlsEnabled: true,
     custom404Enabled: true,
-    auto404Redirect: true,
-    directLoginRedirect: true,
-    preserveReturnToLogic: true,
+    publicApisIntegrated: true,
     timestamp: new Date().toISOString()
   });
 });
