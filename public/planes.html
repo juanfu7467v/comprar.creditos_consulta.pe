@@ -1,1388 +1,921 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Consulta PE: Precios y Pagos</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-  <style>
-    /* =====================================================================
-    CSS PRINCIPAL - REDISEÑO PARA APP MÓVIL (MANTENIDO)
-    ===================================================================== */
-    :root {
-      /* Azul y Verde para el degradado */
-      --color-blue: #1e40af; /* Azul oscuro fuerte */
-      --color-green: #059669; /* Verde de éxito/oferta */
-      --primary-gradient: linear-gradient(90deg, var(--color-blue) 0%, var(--color-green) 100%);
-      --secondary-accent: var(--color-green); 
-      --text-dark: #1f2937; 
-      --text-medium: #4b5563; 
-      --text-light: #ffffff; 
-      --card-bg: #ffffff; 
-      --border-color: #e5e7eb; 
-      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-      --mp-color: #009ee3;
-      --flow-color: #21a36e; 
-      --yape-color: #79128c;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      min-height: 100vh;
-      box-sizing: border-box;
-      overflow-x: clip; 
-      font-family: 'Inter', sans-serif;
-      color: var(--text-dark);
-      line-height: 1.6;
-      background: #f3f4f6; 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .app-container {
-      width: 100%;
-      max-width: 500px; 
-      padding: 1rem;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      margin: 0 auto 2rem auto; 
-    }
-
-    .app-card {
-      background: var(--card-bg);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border-color);
-      text-align: center; 
-    }
-    .app-card.accent-border {
-        border-left: 5px solid transparent;
-        border-image: var(--primary-gradient) 1;
-        padding-left: 1rem;
-    }
-
-    h2 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-align: center;
-    }
-    h3 {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      color: var(--text-dark);
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 0.5rem;
-      text-align: center;
-    }
-    
-    .section-subtitle {
-        font-size: 1.1rem;
-        font-weight: 600;
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: center;
-        text-align: left; 
-        justify-content: center;
-    }
-    .section-subtitle i {
-        margin-right: 0.5rem;
-        font-size: 1.3rem;
-        color: var(--color-blue); 
-    }
-    .section-subtitle i.fa-receipt {
-        color: var(--color-blue) !important;
-    }
-
-    .pricing-table {
-        width: 100%;
-        table-layout: fixed; 
-        border-collapse: separate; 
-        border-spacing: 0;
-        margin-top: 1rem;
-        font-size: 0.9rem;
-        text-align: center;
-        overflow: hidden; 
-        border-radius: 0.75rem;
-        box-shadow: var(--shadow-sm);
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .pricing-table th, .pricing-table td {
-        padding: 0.5rem 0.3rem; 
-        border-right: 1px solid #f3f4ff;
-        border-bottom: 1px solid #f3f4f6;
-        word-wrap: break-word; 
-    }
-    .pricing-table th {
-        background: var(--primary-gradient);
-        color: var(--text-light);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.7em; 
-        line-height: 1.2;
-    }
-    .pricing-table tr:nth-child(even) {
-        background-color: #f9fafb; 
-    }
-    .pricing-table tr:last-child td {
-        border-bottom: none;
-    }
-    .pricing-table td:last-child, .pricing-table th:last-child {
-        border-right: none;
-    }
-
-    .pricing-table td strong {
-        font-weight: 700;
-        color: var(--secondary-accent);
-    }
-    .pricing-table tr.recommended-row td {
-        background-color: #ecfdf5; 
-        font-weight: 600;
-    }
-    .pricing-table tr.best-value-row td {
-        background-color: #eff6ff; 
-    }
-    
-    .instruction-list {
-        list-style: none;
-        padding-left: 0;
-        margin-top: 0.5rem;
-        text-align: left; 
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .instruction-list li {
-        margin-bottom: 0.75rem;
-        padding-left: 1.5rem;
-        position: relative;
-        font-size: 0.95rem;
-        color: var(--text-medium);
-    }
-    .instruction-list li strong {
-        color: var(--text-dark);
-    }
-    .instruction-list li:before {
-        content: attr(data-step);
-        position: absolute;
-        left: 0;
-        top: 2px;
-        width: 18px;
-        height: 18px;
-        background: var(--primary-gradient);
-        color: var(--text-light);
-        border-radius: 50%;
-        text-align: center;
-        line-height: 18px;
-        font-size: 0.75rem;
-        font-weight: 700;
-    }
-    
-    /* ESTILO PARA LISTA DE VENTAJAS */
-    .advantage-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr; 
-        gap: 0.75rem;
-        margin-top: 1rem;
-        text-align: left;
-    }
-    .advantage-item {
-        background-color: #f3f4f6; 
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        font-size: 0.85rem;
-        font-weight: 500;
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-sm);
-    }
-    .advantage-item i {
-        font-size: 1.5rem;
-        margin-bottom: 0.25rem;
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .info-box {
-      background-color: #e0f2fe; 
-      border: 1px solid #7dd3fc; 
-      border-radius: 0.6rem;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      color: var(--color-blue); 
-      font-size: 0.95rem;
-      font-weight: 500;
-      text-align: left; 
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .warning-box {
-        background-color: #fef3c7; 
-        border: 1px solid #fbbf24;
-        border-left: 5px solid #d97706; 
-        border-radius: 0.6rem;
-        padding: 1rem;
-        margin-top: 1.5rem;
-        color: #d97706;
-        font-size: 0.9rem;
-        text-align: left;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .warning-box ul {
-        list-style: disc;
-        padding-left: 1.5rem;
-        margin-top: 0.5rem;
-    }
-    .warning-box ul li {
-        margin-bottom: 0.25rem;
-    }
-    
-    .buy-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 400px; 
-      margin-left: auto;
-      margin-right: auto;
-      padding: 1rem 1.5rem;
-      border-radius: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease-in-out;
-      text-align: center;
-      text-decoration: none;
-      box-sizing: border-box;
-      margin-top: 1rem;
-      white-space: normal;
-      word-break: break-word;
-      font-size: 1.05rem;
-      opacity: 0.6; 
-      pointer-events: none; 
-      color: var(--text-light);
-    }
-    .buy-button.enabled {
-        opacity: 1;
-        pointer-events: auto;
-    }
-    .buy-button.mp {
-        background-color: var(--mp-color); 
-        border: 2px solid var(--mp-color);
-    }
-    .buy-button.mp:hover { background-color: #0077b3; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-    .buy-button.disabled-text {
-        opacity: 0.8;
-        background-color: #e5e7eb !important;
-        color: #6b7280 !important;
-        border: 2px solid #d1d5db !important;
-    }
-    .buy-button i { margin-right: 0.75rem; }
-
-    .form-group {
-        margin-bottom: 1rem;
-        text-align: left;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        font-size: 0.95rem;
-    }
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        box-shadow: var(--shadow-sm);
-        font-size: 1rem;
-        transition: border-color 0.3s;
-    }
-    .form-group input:focus, .form-group select:focus {
-        border-color: var(--color-blue);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.2);
-    }
-    
-    .type-selector {
-        display: flex;
-        justify-content: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .type-option {
-        flex: 1;
-        padding: 0.75rem 0.5rem;
-        border-radius: 0.5rem;
-        border: 2px solid var(--border-color);
-        cursor: pointer;
-        font-weight: 600;
-        color: var(--text-medium);
-        transition: all 0.3s ease;
-        text-align: center;
-        font-size: 0.95rem;
-        background-color: #f9fafb;
-    }
-    .type-option.selected {
-        background: var(--primary-gradient);
-        color: var(--text-light);
-        border-color: var(--color-blue);
-        box-shadow: var(--shadow-sm);
-    }
-
-    #purchaseDetailsSelect {
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-        text-align: left;
-    }
-    
-    .loading-spinner, .message-container {
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-    }
-    
-    .app-footer {
-        width: 100%;
-        max-width: 500px;
-        padding: 1rem;
-        box-sizing: border-box;
-        text-align: center;
-        margin-top: 1rem;
-    }
-    .app-footer p {
-        font-size: 0.8rem;
-        color: #6b7280;
-    }
-    
-    /* Estilos para el nuevo footer */
-    .footer-content {
-        width: 100%;
-        max-width: 500px;
-        margin-top: 1rem;
-        padding: 1rem;
-        box-sizing: border-box;
-        text-align: center;
-        background-color: var(--card-bg); /* Fondo blanco para mejor visibilidad */
-        border-top: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        box-shadow: var(--shadow-sm);
-    }
-    .footer-content h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text-dark);
-        border-bottom: none;
-        padding-bottom: 0;
-        margin-bottom: 0.5rem;
-    }
-    .footer-content .social-icons {
-        margin-bottom: 1rem;
-    }
-    .footer-content .social-icons a {
-        color: var(--color-blue);
-        font-size: 1.8rem;
-        margin: 0 0.5rem;
-        transition: color 0.3s;
-    }
-    .footer-content .social-icons a:hover {
-        color: var(--color-green);
-    }
-    .footer-content p {
-        font-size: 0.85rem;
-        color: var(--text-medium);
-        line-height: 1.4;
-    }
-    .footer-content a {
-        color: var(--color-blue);
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-    .footer-content a:hover {
-        text-decoration: underline;
-        color: var(--color-green);
-    }
-    .footer-content strong {
-        font-weight: 600;
-        color: var(--text-dark);
-    }
-    .footer-content footer {
-        padding: 0; 
-    }
-    
-    /* =====================================================================
-    ESTILOS DEL LOADING SPINNER
-    ===================================================================== */
-    .loading-spinner-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem 0; 
-      height: 100px; 
-    }
-
-    .loading-ring-container {
-      display: flex;
-      justify-content: space-between;
-      width: 70px; 
-    }
-
-    .loading-ring {
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: var(--primary-gradient);
-      animation: bounce 1.4s infinite ease-in-out both;
-    }
-
-    .loading-ring:nth-child(1) {
-      animation-delay: -0.32s;
-    }
-    .loading-ring:nth-child(2) {
-      animation-delay: -0.16s;
-    }
-    .loading-ring:nth-child(3) {
-      animation-delay: 0s;
-    }
-
-    @keyframes bounce {
-      0%, 80%, 100% {
-        transform: scale(0);
-      }
-      40% {
-        transform: scale(1.0);
-      }
-    }
-    
-    .loading-text {
-        color: var(--color-blue);
-        font-weight: 600;
-        margin-top: 0.5rem;
-    }
-    
-    /* =====================================================================
-    ESTILOS DEL MODAL DE ÉXITO Y ERROR (TOOLTIP)
-    ===================================================================== */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .success-modal-content, .error-modal-content {
-        background-color: var(--card-bg);
-        border-radius: 1rem;
-        padding: 2rem;
-        max-width: 90%;
-        width: 380px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        transform: scale(0.95);
-        opacity: 0;
-        transition: all 0.3s ease-out;
-    }
-    
-    .modal-overlay.active .success-modal-content,
-    .modal-overlay.active .error-modal-content {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    .success-modal-content .icon-container {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .success-modal-content h4 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--color-green);
-        margin-bottom: 0.5rem;
-    }
-    
-    .error-modal-content h4 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #dc2626; /* Rojo de error */
-        margin-bottom: 0.5rem;
-    }
-
-    .success-modal-content p, .error-modal-content p {
-        font-size: 1rem;
-        color: var(--text-medium);
-        margin-bottom: 1.5rem;
-        text-align: left;
-    }
-    
-    .success-modal-content p strong {
-        color: var(--text-dark);
-        font-weight: 600;
-    }
-
-    .success-modal-content .btn-close, .error-modal-content .btn-close {
-        background-color: var(--color-blue);
-        color: var(--text-light);
-        padding: 0.75rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    .success-modal-content .btn-close:hover, .error-modal-content .btn-close:hover {
-        background-color: #1d4ed8;
-    }
-
-  </style>
-</head>
-<body>
-
-  <div class="app-container">
-    
-    <div id="comprarCreditosContainer" class="app-card accent-border">
-      <h2>🛒 Compra y Activación Automática</h2>
-      
-      <p class="text-center text-sm mb-3 font-semibold">
-        📜 Importante: Antes de comprar, te recomendamos leer la <a href="politica.compras.html" class="text-blue-600 hover:underline">Política de Compras, Créditos y Reembolsos.</a>
-      </p>
-
-      <div class="info-box">
-        <p class="font-bold mb-0">
-         Selecciona tu tipo de compra y paquete para pagar con Mercado Pago. La activación es inmediata al confirmarse el pago.
-        </p>
-      </div>
-
-      <div id="purchaseForm">
-        <div class="form-group">
-            <label>Selecciona el tipo de compra:</label>
-            <div class="type-selector">
-                <div class="type-option selected" id="creditsType" data-type="CREDITOS">
-                    <i class="fas fa-coins"></i> Comprar Créditos
-                </div>
-                <div class="type-option" id="unlimitedType" data-type="ILIMITADO">
-                    <i class="fas fa-rocket"></i> Plan Ilimitado
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-          <label for="userEmail">Tu correo electrónico (para activar la compra):</label>
-          <input
-            type="email"
-            id="userEmail"
-            name="userEmail"
-            required
-            placeholder="ejemplo@gmail.com"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label for="userUid">Tu ID de Usuario:</label>
-          <input
-            type="text"
-            id="userUid"
-            name="userUid"
-            required
-            placeholder="ID de Usuario"
-            readonly
-            style="color: var(--text-medium); background-color: #e9ecef;"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="purchaseDetailsSelect" id="selectLabel">Selecciona el Paquete de Créditos:</label>
-          <select id="purchaseDetailsSelect" name="purchaseDetailsSelect" required>
-            <option value="" disabled selected>Selecciona un monto/plan</option>
-          </select>
-        </div>
-
-        <div class="loading-spinner" id="paymentLoading" style="display: none;">
-             <div class="loading-spinner-container">
-                <div class="loading-ring-container">
-                    <div class="loading-ring"></div>
-                    <div class="loading-ring"></div>
-                    <div class="loading-ring"></div>
-                </div>
-             </div>
-             <p class="loading-text">Iniciando pago, espera un momento...</p>
-        </div>
-        
-        <button type="button" class="buy-button mp" id="mpButton">
-          <i class="fas fa-money-check-alt"></i> Pagar con Mercado Pago
-        </button>
-        
-        <div class="message-container" id="paymentMessage" style="display: none;"></div>
-      </div>
-      
-      <p class="text-center mt-4 text-xs text-gray-500">
-        ⚠️ Importante: Tu ID de usuario debe estar cargado. Contacta a soporte si ves campos vacíos.
-      </p>
-
-    </div>
-    
-    <hr class="w-full max-w-[500px] border-gray-300 mx-auto" style="border-top-width: 4px; border-style: dotted;"/>
-
-    <div class="app-card">
-      <h3 class="text-center"><i class="fas fa-coins text-yellow-600 mr-2"></i> Créditos para Consultas Individuales</h3>
-      
-      <p class="text-center text-sm mb-3">
-        Elige tu paquete y ahorra más por cada consulta con las bonificaciones.
-      </p>
-
-      <table class="pricing-table">
-        <thead>
-          <tr>
-            <th>Monto (S/.)</th>
-            <th>Créditos Asignados</th>
-            <th>Bonificación Extra</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>10</td>
-            <td>60 ⚡</td>
-            <td>+3 Créditos</td>
-          </tr>
-          <tr>
-            <td>20</td>
-            <td>125 🚀</td>
-            <td>+5 Créditos</td>
-          </tr>
-          <tr class="recommended-row">
-            <td>50</td>
-            <td>330 💎</td>
-            <td>+20 Créditos</td>
-          </tr>
-          <tr>
-            <td>100</td>
-            <td>700 👑</td>
-            <td>+40 Créditos</td>
-          </tr>
-          <tr class="best-value-row">
-            <td>200</td>
-            <td>1500 🔥</td>
-            <td>+80 Créditos</td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <p class="text-center mt-4 text-sm font-semibold text-gray-700">
-        💡 Recomendación: El paquete de S/50 es la opción más equilibrada.
-      </p>
-      
-      <h3 class="section-subtitle"><i class="fas fa-chart-bar"></i> Comparativa de Ahorro por Paquete</h3>
-      
-      <table class="pricing-table">
-        <thead>
-          <tr>
-            <th>Paquete</th>
-            <th>Créditos</th>
-            <th>Costo / consulta aprox.</th>
-            <th>Ahorro Estimado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>S/10</td>
-            <td>60 ⚡</td>
-            <td>S/0.17</td>
-            <td>—</td>
-          </tr>
-          <tr class="recommended-row">
-            <td>S/50</td>
-            <td>330 💎</td>
-            <td>S/0.15</td>
-            <td>13%</td>
-          </tr>
-          <tr class="best-value-row">
-            <td>S/200</td>
-            <td>1500 🔥</td>
-            <td>S/0.13</td>
-            <td>24%</td>
-          </tr>
-        </tbody>
-      </table>
-      
-      <p class="text-center mt-4 text-sm text-gray-700">
-        🧠 En resumen: mientras más grande sea tu paquete, menos pagas por consulta y más ahorras a largo plazo.
-      </p>
-
-    </div>
-    
-    <div class="app-card">
-      <h3 class="text-center"><i class="fas fa-rocket text-red-600 mr-2"></i> Planes Ilimitados (Acceso Sin Límites)</h3>
-      
-      <p class="text-center text-sm mb-3">
-        Ideal para alto volumen de consultas. Ahorro garantizado por tiempo definido.
-      </p>
-
-      <table class="pricing-table">
-        <thead>
-          <tr>
-            <th>Duración</th>
-            <th>Precio sugerido (S/.)</th>
-            <th>Ahorro Estimado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>7 días</td>
-            <td>60</td>
-            <td>+S/4.00</td>
-          </tr>
-          <tr>
-            <td>15 días</td>
-            <td>80</td>
-            <td>+S/7.50</td>
-          </tr>
-          <tr class="recommended-row">
-            <td>30 días</td>
-            <td>110</td>
-            <td>+S/17.00</td>
-          </tr>
-          <tr>
-            <td>60 días</td>
-            <td>160</td>
-            <td>+S/30.00</td>
-          </tr>
-          <tr class="best-value-row">
-            <td>70 días</td>
-            <td>510</td>
-            <td>+S/50.00</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="app-card accent-border">
-      <h3 class="text-center"><i class="fas fa-star text-yellow-500 mr-2"></i> Ventajas Exclusivas</h3>
-      
-      <div class="advantage-list">
-        <div class="advantage-item">
-            <i class="fas fa-bolt"></i>
-            <span>Activación Inmediata</span>
-        </div>
-        <div class="advantage-item">
-            <i class="fas fa-shield-alt"></i>
-            <span>Pago 100% Seguro</span>
-        </div>
-        <div class="advantage-item">
-            <i class="fas fa-headset"></i>
-            <span>Soporte Prioritario</span>
-        </div>
-        <div class="advantage-item">
-            <i class="fas fa-percent"></i>
-            <span>Bonificaciones Extra</span>
-        </div>
-      </div>
-      
-    </div>
-
-    <div class="app-card">
-        <h3 class="text-center"><i class="fas fa-clipboard-list text-gray-500 mr-2"></i> Instrucciones para realizar tu pago</h3>
-        
-        <p class="text-sm mb-4">
-            En Consulta PE puedes pagar de forma segura, rápida y confiable con Mercado Pago. Elige el método que prefieras 👇
-        </p>
-        
-        <div class="section-subtitle"><i class="fas fa-credit-card"></i> 1. Pago con Tarjeta de Crédito o Débito</div>
-        <ul class="instruction-list">
-            <li data-step="1">Selecciona “Tarjeta de crédito o débito”.</li>
-            <li data-step="2">Ingresa los datos solicitados (Número, Titular, Vencimiento, CVV, Documento).</li>
-            <li data-step="3">Verifica que tu banco tenga activa la opción “Compras por internet”.</li>
-            <li data-step="4">Presiona “Continuar” para confirmar el pago.</li>
-        </ul>
-        <p class="text-xs text-gray-500 ml-5">⏱️ Tiempo de activación: Inmediato. Tu pago se acredita al instante.</p>
-
-
-        <div class="section-subtitle"><i class="fas fa-university"></i> 2. Pago por Depósito o Transferencia (PagoEfectivo)</div>
-        <p class="text-sm text-gray-700 mb-2">
-            Bancos y agentes: BCP, Interbank, BBVA, Scotiabank, BanBif, Kasnet, Tambo, Western Union, Full Carga.
-        </p>
-        <ul class="instruction-list">
-            <li data-step="1">Selecciona tu banco o agente preferido.</li>
-            <li data-step="2">Mercado Pago generará un código CIP.</li>
-            <li data-step="3">Realiza el pago desde tu banca o agente usando el código CIP.</li>
-        </ul>
-        <p class="text-xs text-gray-500 ml-5">⏱️ Activación: 3 horas (BCP, Interbank, Tambo) o hasta 1 día hábil (BBVA, BanBif).</p>
-
-
-        <div class="section-subtitle" style="color: var(--yape-color);"><i class="fas fa-mobile-alt"></i> 3. Pago con Yape</div>
-        <ul class="instruction-list">
-            <li data-step="1">Selecciona la opción “Yape”.</li>
-            <li data-step="2">Ingresa tu correo electrónico y celular registrado en Yape.</li>
-            <li data-step="3">Asegúrate de tener activa la opción “Compras por internet”.</li>
-            <li data-step="4">Ingresa los 6 dígitos del código de aprobación que te muestra la app.</li>
-            <li data-step="5">Presiona “Pagar”.</li>
-        </ul>
-        <p class="text-xs text-gray-500 ml-5">⏱️ Tiempo de activación: Inmediato. Tu pago se acredita al instante.</p>
-        <p class="text-center mt-3 text-sm">
-            📘 <a href="https://www.yape.com.pe/preguntas-frecuentes/compras-por-internet/como-activo-y-desactivo-mis-compras-por-internet-y-pos-desde-yape" target="_blank" class="text-blue-600 hover:underline font-semibold">Guía oficial para activar compras por internet en Yape</a>
-        </p>
-
-    </div>
-    
-    <div class="app-card">
-        <h3 class="section-subtitle"><i class="fas fa-receipt"></i> Consejos Importantes</h3>
-        <div class="warning-box">
-            <ul>
-                <li>Usa únicamente tarjetas y cuentas bancarias a tu nombre.</li>
-                <li>Asegúrate de tener saldo disponible antes de pagar.</li>
-                <li>Si tu pago no se acredita de inmediato, espera hasta 1 hora.</li>
-                <li>Si necesitas ayuda, envía tu pantallazo o comprobante al soporte de Consulta PE.</li>
-            </ul>
-        </div>
-        
-        <h3 class="section-subtitle"><i class="fas fa-check-circle text-green-600"></i> Activación de Compra</h3>
-        <div class="text-sm text-gray-700">
-            Una vez confirmado tu pago, tu compra (créditos o plan) se activa automáticamente y podrás realizar todas tus consultas sin restricciones. Recibirás un correo o mensaje de confirmación con el detalle de tu compra.
-        </div>
-        
-        <a href="go:11" class="info-credits-button">
-            Todo lo que debes saber acerca de tus créditos !!
-        </a>
-        
-        <div class="text-center mt-4 text-sm text-gray-500">
-            <p>🎯 Nuestra meta: En Consulta PE, queremos que te sientas feliz con tu compra y experimentes una atención de calidad superior. Tu satisfacción nos impulsa a mejorar cada día.</p>
-            <p class="mt-2">⭐ Si te gusta nuestro servicio, recomiéndanos a tus amigos y familiares.</p>
-        </div>
-    </div>
-    
-
-  </div>
-  
-  <div class="footer-content">
-        <footer>
-            <h3>Síguenos en nuestras redes sociales</h3>
-            <div class="social-icons">
-                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-square"></i></a>
-                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube"><i class="fab fa-youtube-square"></i></a>
-            </div>
-            <p class="mb-2">Consulta PE © 2024 - Todos los derechos reservados</p>
-            <p class="mb-2">
-                <a href="go:terminos">Términos y condiciones</a> |
-                <a href="go:politica">Política de privacidad</a> |
-                <a href="go:legal">Aviso legal y descargo de responsabilidad</a>
-            </p>
-            <p>Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong></p>
-        </footer>
-
-    </div>
-
-    <div id="successModalOverlay" class="modal-overlay">
-        <div class="success-modal-content">
-            <div class="icon-container">
-                <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png" alt="Icono de Activación Exitosa" style="width: 80px; height: 80px;">
-            </div>
-            <h4 id="successModalTitle">Activación Exitosa</h4>
-            <div id="successModalBody" class="text-gray-700 mb-6 text-sm whitespace-pre-line text-left">
-                </div>
-            <button class="btn-close" onclick="closeSuccessModal()">¡Entendido! Volver a Consultar</button>
-        </div>
-    </div>
-    
-    <div id="errorModalOverlay" class="modal-overlay">
-        <div class="error-modal-content">
-            <h4 class="text-lg font-bold mb-4">❌ Error en la Transacción</h4>
-            <p id="errorMessage" class="text-gray-700 mb-6 text-sm"></p>
-            <button class="btn-close" onclick="closeErrorModal()">Aceptar</button>
-        </div>
-    </div>
-
-
-  <script>
-    // 💡 URL BASE DE TU ENDPOINT UNIFICADO (sin el monto final)
-    const BASE_API_URL = "/api/init/mercadopago"; 
-
-    // Mapeo de créditos
-    const CREDITS_MAP = {
-      "10": { credits: 60 },
-      "20": { credits: 125 },
-      "50": { credits: 330 },
-      "100": { credits: 700 },
-      "200": { credits: 1500 },
-    };
-    
-    // Mapeo de planes ilimitados (la clave es la duración/descripción, el valor `amount` es el MONTO DE PAGO)
-    const UNLIMITED_MAP = {
-      "7-dias": { amount: 60, duration: '7 días' },
-      "15-dias": { amount: 80, duration: '15 días' },
-      "30-dias": { amount: 110, duration: '30 días' },
-      "60-dias": { amount: 160, duration: '60 días' },
-      "70-dias": { amount: 510, duration: '70 días' },
-    };
-
-    let auth;
-
-    async function initApp() {
-      try {
-        const response = await fetch('/api/config');
-        const config = await response.json();
-        
-        if (!firebase.apps.length) {
-          firebase.initializeApp(config.firebaseConfig);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Pe - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --color-blue: #1e40af;
+          --color-green: #059669;
+          --primary-gradient: linear-gradient(90deg, var(--color-blue) 0%, var(--color-green) 100%);
+          --secondary-accent: var(--color-green); 
+          --text-dark: #1f2937; 
+          --text-medium: #4b5563; 
+          --text-light: #ffffff; 
+          --card-bg: #ffffff; 
+          --border-color: #e5e7eb; 
+          --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+          --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+          --mp-color: #009ee3;
+          --flow-color: #21a36e; 
+          --yape-color: #79128c;
         }
-        auth = firebase.auth();
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        /* Degradado de la cabecera del menú lateral */
+        .sidebar-header-bg {
+            background: linear-gradient(135deg, #009383 0%, #005aee 100%);
+            border-bottom-left-radius: 50% 20%;
+            border-bottom-right-radius: 50% 20%;
+        }
+
+        /* Overlay para el menú lateral */
+        #sidebar-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Transición del menú lateral */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Estilo para los iconos de la cabecera */
+        .header-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+            color: #1f2937;
+        }
+
+        /* Banner de compartir */
+        .banner {  
+            width: 100%;  
+            max-width: 500px;
+            background: linear-gradient(to right, #00264D, #003366);  
+            color: #FFFFFF;  
+            position: fixed;  
+            bottom: 0;  
+            left: 50%;  
+            transform: translateX(-50%);  
+            padding: 30px;  
+            border-top-left-radius: 15px;  
+            border-top-right-radius: 15px;  
+            box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+            display: none; 
+            flex-direction: column;  
+            align-items: center;  
+            text-align: center;  
+            z-index: 9999;  
+        }  
+
+        .banner-title {  
+            font-size: 24px;  
+            font-weight: bold;  
+            margin-bottom: 15px;  
+            color: #FF00FF;  
+        }  
+
+        .banner-description {  
+            font-size: 18px;  
+            line-height: 1.8;  
+            color: #FFFFFF;  
+            margin-bottom: 20px;  
+        }  
+
+        /* Botones del banner */  
+        .cta-button, .close-modal {  
+            width: 100%;  
+            padding: 16px;  
+            text-align: center;  
+            text-decoration: none;  
+            border-radius: 25px;  
+            font-size: 18px;  
+            font-weight: bold;  
+            margin-bottom: 12px;  
+            cursor: pointer;  
+            transition: transform 0.2s ease-in-out;  
+        }  
+
+        .cta-button {  
+            background: linear-gradient(to right, #2ECC71, #66CC99);  
+            color: white;  
+        }  
+
+        .cta-button:hover {  
+            transform: scale(1.08);  
+        }  
+
+        .close-modal {  
+            background-color: red;  
+            color: #FFFFFF;  
+        }  
+
+        .close-modal:hover {  
+            background-color: darkred;  
+            transform: scale(1.08);  
+        }  
+
+        /* Iconos del banner */  
+        .banner-icon {  
+            margin-right: 8px;  
+            color: #FF00FF;  
+        }
+
+        /* Estilos para la interfaz de compras */
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin: 0 auto 2rem auto;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .app-card.accent-border {
+            border-left: 5px solid transparent;
+            border-image: var(--primary-gradient) 1;
+            padding-left: 1rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .pricing-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .pricing-table th, .pricing-table td {
+            padding: 0.5rem 0.3rem;
+            border-right: 1px solid #f3f4ff;
+            border-bottom: 1px solid #f3f4f6;
+            word-wrap: break-word;
+        }
+
+        .pricing-table th {
+            background: var(--primary-gradient);
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7em;
+            line-height: 1.2;
+        }
+
+        .pricing-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        .pricing-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pricing-table td:last-child, .pricing-table th:last-child {
+            border-right: none;
+        }
+
+        .pricing-table td strong {
+            font-weight: 700;
+            color: var(--secondary-accent);
+        }
+
+        .pricing-table tr.recommended-row td {
+            background-color: #ecfdf5;
+            font-weight: 600;
+        }
+
+        .pricing-table tr.best-value-row td {
+            background-color: #eff6ff;
+        }
+
+        /* WhatsApp bubble */
+        .chat-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 1s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            0% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .chat-bubble:hover {
+            background: linear-gradient(45deg, #128C7E, #25D366);
+        }
+
+        .chat-text {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            white-space: nowrap;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 1001;
+            cursor: pointer;
+        }
+
+        .chat-text.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .chat-text.hide {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        /* Prevenir selección y arrastre */
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
+
+    <!-- CABECERA (Header) -->
+    <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
+        <div class="flex items-center gap-3">
+            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="menu" class="header-icon"></i>
+            </button>
+            <img src="https://www.appcreator24.com/srv/imgs/gen/2706889_icohome.png?ts=1769708793" 
+                 alt="Logo" 
+                 style="width: 154px; height: 40px; object-fit: contain;">
+        </div>
         
-        // Configurar el observador de autenticación después de inicializar
-        auth.onAuthStateChanged((user) => {
-          if (user) {
-            userEmailInput.value = user.email || "";
-            userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
-          } else {
-            const currentPath = window.location.pathname + window.location.search;
-            window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
-          }
-          updatePaymentButtons(); 
+        <div class="flex items-center gap-4">
+            <button id="profile-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="user" class="header-icon"></i>
+            </button>
+            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="share-2" class="header-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MENU LATERAL (Sidebar) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
+    
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[60] shadow-2xl overflow-y-auto">
+        <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
+            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center">
+                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" 
+                     alt="App Icon" 
+                     class="w-full h-full object-cover">
+            </div>
+            <h2 class="text-2xl font-bold mt-2">Masitaprex v2</h2>
+            
+            <div class="absolute top-4 left-4 opacity-30">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                    <path d="M12 2a10 10 0 1 0 10 10" stroke-linecap="round"></path>
+                    <path d="M16 6a6 6 0 1 0 6 6" stroke-linecap="round"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Opciones del Menú Actualizadas -->
+        <nav class="mt-6">
+            <div class="flex items-center px-6 py-4 border-l-4 border-red-600 bg-gray-50">
+                <i data-lucide="home" class="w-6 h-6 text-gray-800 mr-4"></i>
+                <span class="text-lg font-semibold text-gray-800">Inicio</span>
+            </div>
+            
+            <a href="peli" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="film" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">PeliPREX</span>
+            </a>
+            
+            <a href="api-key" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="key" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Api key</span>
+            </a>
+            
+            <a href="doc-apis" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Doc. Apis</span>
+            </a>
+            
+            <a href="consultaPE-apk" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="smartphone" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Consulta PE apk</span>
+            </a>
+            
+            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors mt-8">
+                <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Cerrar sesión</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL - Interfaz de Compras -->
+    <main class="p-4">
+        <div class="app-container">
+            
+            <div id="comprarCreditosContainer" class="app-card accent-border">
+                <h2>🛒 Compra y Activación Automática</h2>
+                
+                <p class="text-center text-sm mb-3 font-semibold">
+                    📜 Importante: Antes de comprar, te recomendamos leer la <a href="politica.compras.html" class="text-blue-600 hover:underline">Política de Compras, Créditos y Reembolsos.</a>
+                </p>
+
+                <div class="info-box" style="background-color: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 0.6rem; padding: 1rem; margin-bottom: 1.5rem;">
+                    <p class="font-bold mb-0">
+                    Selecciona tu tipo de compra y paquete para pagar con Mercado Pago. La activación es inmediata al confirmarse el pago.
+                    </p>
+                </div>
+
+                <div id="purchaseForm">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label>Selecciona el tipo de compra:</label>
+                        <div class="type-selector" style="display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                            <div class="type-option selected" id="creditsType" data-type="CREDITOS" style="flex: 1; padding: 0.75rem 0.5rem; border-radius: 0.5rem; border: 2px solid #e5e7eb; cursor: pointer; font-weight: 600; text-align: center; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); color: white;">
+                                <i class="fas fa-coins"></i> Comprar Créditos
+                            </div>
+                            <div class="type-option" id="unlimitedType" data-type="ILIMITADO" style="flex: 1; padding: 0.75rem 0.5rem; border-radius: 0.5rem; border: 2px solid #e5e7eb; cursor: pointer; font-weight: 600; color: #4b5563; text-align: center; background-color: #f9fafb;">
+                                <i class="fas fa-rocket"></i> Plan Ilimitado
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="userEmail">Tu correo electrónico (para activar la compra):</label>
+                        <input
+                            type="email"
+                            id="userEmail"
+                            name="userEmail"
+                            required
+                            placeholder="ejemplo@gmail.com"
+                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;"
+                        />
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="userUid">Tu ID de Usuario:</label>
+                        <input
+                            type="text"
+                            id="userUid"
+                            name="userUid"
+                            required
+                            placeholder="ID de Usuario"
+                            readonly
+                            style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; color: #4b5563; background-color: #e9ecef;"
+                        />
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="purchaseDetailsSelect" id="selectLabel">Selecciona el Paquete de Créditos:</label>
+                        <select id="purchaseDetailsSelect" name="purchaseDetailsSelect" required style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+                            <option value="" disabled selected>Selecciona un monto/plan</option>
+                        </select>
+                    </div>
+
+                    <div class="loading-spinner" id="paymentLoading" style="display: none;">
+                        <div class="loading-spinner-container" style="display: flex; justify-content: center; align-items: center; padding: 2rem 0; height: 100px;">
+                            <div class="loading-ring-container" style="display: flex; justify-content: space-between; width: 70px;">
+                                <div class="loading-ring" style="width: 15px; height: 15px; border-radius: 50%; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); animation: bounce 1.4s infinite ease-in-out both;"></div>
+                                <div class="loading-ring" style="width: 15px; height: 15px; border-radius: 50%; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); animation: bounce 1.4s infinite ease-in-out both; animation-delay: -0.16s;"></div>
+                                <div class="loading-ring" style="width: 15px; height: 15px; border-radius: 50%; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); animation: bounce 1.4s infinite ease-in-out both; animation-delay: 0s;"></div>
+                            </div>
+                        </div>
+                        <p class="loading-text" style="color: #1e40af; font-weight: 600; margin-top: 0.5rem;">Iniciando pago, espera un momento...</p>
+                    </div>
+                    
+                    <button type="button" class="buy-button mp" id="mpButton" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 1rem 1.5rem; border-radius: 0.75rem; font-weight: 700; cursor: pointer; margin-top: 1rem; opacity: 0.6; pointer-events: none; background-color: #009ee3; color: white; border: 2px solid #009ee3;">
+                        <i class="fas fa-money-check-alt"></i> Pagar con Mercado Pago
+                    </button>
+                    
+                    <div class="message-container" id="paymentMessage" style="display: none;"></div>
+                </div>
+                
+                <p class="text-center mt-4 text-xs text-gray-500">
+                    ⚠️ Importante: Tu ID de usuario debe estar cargado. Contacta a soporte si ves campos vacíos.
+                </p>
+            </div>
+            
+            <hr style="width: 100%; max-width: 500px; border: 2px dotted #d1d5db; margin: 0 auto;">
+
+            <div class="app-card">
+                <h3 class="text-center"><i class="fas fa-coins text-yellow-600 mr-2"></i> Créditos para Consultas Individuales</h3>
+                
+                <p class="text-center text-sm mb-3">
+                    Elige tu paquete y ahorra más por cada consulta con las bonificaciones.
+                </p>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Monto (S/.)</th>
+                            <th>Créditos Asignados</th>
+                            <th>Bonificación Extra</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10</td>
+                            <td>60 ⚡</td>
+                            <td>+3 Créditos</td>
+                        </tr>
+                        <tr>
+                            <td>20</td>
+                            <td>125 🚀</td>
+                            <td>+5 Créditos</td>
+                        </tr>
+                        <tr class="recommended-row">
+                            <td>50</td>
+                            <td>330 💎</td>
+                            <td>+20 Créditos</td>
+                        </tr>
+                        <tr>
+                            <td>100</td>
+                            <td>700 👑</td>
+                            <td>+40 Créditos</td>
+                        </tr>
+                        <tr class="best-value-row">
+                            <td>200</td>
+                            <td>1500 🔥</td>
+                            <td>+80 Créditos</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p class="text-center mt-4 text-sm font-semibold text-gray-700">
+                    💡 Recomendación: El paquete de S/50 es la opción más equilibrada.
+                </p>
+                
+                <h3 class="section-subtitle" style="font-size: 1.1rem; font-weight: 600; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-top: 1.5rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-chart-bar"></i> Comparativa de Ahorro por Paquete
+                </h3>
+                
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Paquete</th>
+                            <th>Créditos</th>
+                            <th>Costo / consulta aprox.</th>
+                            <th>Ahorro Estimado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>S/10</td>
+                            <td>60 ⚡</td>
+                            <td>S/0.17</td>
+                            <td>—</td>
+                        </tr>
+                        <tr class="recommended-row">
+                            <td>S/50</td>
+                            <td>330 💎</td>
+                            <td>S/0.15</td>
+                            <td>13%</td>
+                        </tr>
+                        <tr class="best-value-row">
+                            <td>S/200</td>
+                            <td>1500 🔥</td>
+                            <td>S/0.13</td>
+                            <td>24%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p class="text-center mt-4 text-sm text-gray-700">
+                    🧠 En resumen: mientras más grande sea tu paquete, menos pagas por consulta y más ahorras a largo plazo.
+                </p>
+            </div>
+            
+            <div class="app-card">
+                <h3 class="text-center"><i class="fas fa-rocket text-red-600 mr-2"></i> Planes Ilimitados (Acceso Sin Límites)</h3>
+                
+                <p class="text-center text-sm mb-3">
+                    Ideal para alto volumen de consultas. Ahorro garantizado por tiempo definido.
+                </p>
+
+                <table class="pricing-table">
+                    <thead>
+                        <tr>
+                            <th>Duración</th>
+                            <th>Precio sugerido (S/.)</th>
+                            <th>Ahorro Estimado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>7 días</td>
+                            <td>60</td>
+                            <td>+S/4.00</td>
+                        </tr>
+                        <tr>
+                            <td>15 días</td>
+                            <td>80</td>
+                            <td>+S/7.50</td>
+                        </tr>
+                        <tr class="recommended-row">
+                            <td>30 días</td>
+                            <td>110</td>
+                            <td>+S/17.00</td>
+                        </tr>
+                        <tr>
+                            <td>60 días</td>
+                            <td>160</td>
+                            <td>+S/30.00</td>
+                        </tr>
+                        <tr class="best-value-row">
+                            <td>70 días</td>
+                            <td>510</td>
+                            <td>+S/50.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="app-card accent-border">
+                <h3 class="text-center"><i class="fas fa-star text-yellow-500 mr-2"></i> Ventajas Exclusivas</h3>
+                
+                <div class="advantage-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;">
+                    <div class="advantage-item" style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.85rem; font-weight: 500; border: 1px solid #e5e7eb;">
+                        <i class="fas fa-bolt" style="font-size: 1.5rem; margin-bottom: 0.25rem; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <span>Activación Inmediata</span>
+                    </div>
+                    <div class="advantage-item" style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.85rem; font-weight: 500; border: 1px solid #e5e7eb;">
+                        <i class="fas fa-shield-alt" style="font-size: 1.5rem; margin-bottom: 0.25rem; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <span>Pago 100% Seguro</span>
+                    </div>
+                    <div class="advantage-item" style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.85rem; font-weight: 500; border: 1px solid #e5e7eb;">
+                        <i class="fas fa-headset" style="font-size: 1.5rem; margin-bottom: 0.25rem; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <span>Soporte Prioritario</span>
+                    </div>
+                    <div class="advantage-item" style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.85rem; font-weight: 500; border: 1px solid #e5e7eb;">
+                        <i class="fas fa-percent" style="font-size: 1.5rem; margin-bottom: 0.25rem; background: linear-gradient(90deg, #1e40af 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <span>Bonificaciones Extra</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- WhatsApp Bubble -->
+    <div class="chat-bubble" onclick="goToWhatsApp()">
+        <div class="icon">
+            <i class="fab fa-whatsapp"></i>
+        </div>
+    </div>
+
+    <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
+
+    <!-- MODAL DE COMPARTIR -->
+    <div class="banner" id="banner">  
+        <div class="banner-title"><i class="fas fa-heart banner-icon"></i> 🤭 ¡Pequeño favorcito!</div>  
+        <div class="banner-description">  
+            <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+            <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+        </div>  
+        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt banner-icon"></i> Compartir ahora</a>  
+        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times banner-icon"></i> Quizás más tarde</a>  
+    </div>
+
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Control del menú lateral
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleMenu() {
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('open')) {
+                        overlay.classList.add('hidden');
+                    }
+                }, 300);
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Cerrar menú al hacer click en un enlace (excepto cerrar sesión)
+        const navLinks = sidebar.querySelectorAll('nav a:not(#logout-btn)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleMenu();
+                console.log(`Navegando a: ${link.getAttribute('href')}`);
+            });
         });
 
-        // Inicializar la interfaz
-        populateDetailsSelect(currentPurchaseType);
-        handlePaymentCallback();
-      } catch (error) {
-        console.error("Error al cargar la configuración:", error);
-        showErrorModal("Error al conectar con el servidor de autenticación.");
-      }
-    }
+        // Botón de perfil - lleva a actividad
+        document.getElementById('profile-btn').addEventListener('click', function() {
+            alert('Redirigiendo a la actividad del perfil...');
+        });
 
-    // === O B T E N C I Ó N   D E   E L E M E N T O S   D E L   D O M ===
-    const userEmailInput = document.getElementById("userEmail");
-    const userUidInput = document.getElementById("userUid");
-    const purchaseDetailsSelect = document.getElementById("purchaseDetailsSelect"); 
-    const selectLabel = document.getElementById("selectLabel");
-    const paymentLoading = document.getElementById("paymentLoading");
-    const mpButton = document.getElementById("mpButton");
-    const creditsTypeBtn = document.getElementById("creditsType");
-    const unlimitedTypeBtn = document.getElementById("unlimitedType");
+        // Botón de compartir - abre el modal
+        document.getElementById('share-btn').addEventListener('click', function() {
+            document.getElementById('banner').style.display = 'flex';
+        });
 
-    // Elementos del Modal de Éxito
-    const successModalOverlay = document.getElementById("successModalOverlay");
-    const successModalTitle = document.getElementById("successModalTitle");
-    const successModalBody = document.getElementById("successModalBody");
-    
-    // Elementos del Modal de Error
-    const errorModalOverlay = document.getElementById("errorModalOverlay");
-    const errorMessageDisplay = document.getElementById("errorMessage");
-
-
-    let currentPurchaseType = 'CREDITOS'; // Estado inicial
-
-    // === F U N C I O N E S   D E   U T I L I D A D ===
-
-    /** Muestra el Modal de Error/Rechazo de Pago */
-    function showErrorModal(message) {
-      errorMessageDisplay.innerHTML = message.replace(/\n/g, '<br>'); // Permite saltos de línea
-      errorModalOverlay.classList.add('active');
-      errorModalOverlay.style.display = "flex"; 
-      paymentLoading.style.display = "none"; 
-    }
-
-    /** Cierra el Modal de Error/Rechazo de Pago */
-    window.closeErrorModal = function() { 
-      errorModalOverlay.classList.remove('active');
-      setTimeout(() => {
-        errorModalOverlay.style.display = "none"; 
-        // Limpiar URL para evitar que el modal se muestre en cada recarga
-        if (window.location.search.includes('payment/rejected') || window.location.search.includes('payment/error')) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }, 300);
-    }
-    
-    /** Muestra el Modal de Éxito de Pago y Activación */
-    function showSuccessModal(title, body) {
-        successModalTitle.textContent = title;
-        // Reemplazar saltos de línea por <br> para formatear el texto profesional de Firebase
-        successModalBody.innerHTML = body.replace(/\n/g, '<br>');
-        successModalOverlay.classList.add('active');
-        successModalOverlay.style.display = "flex";
-    }
-
-    /** Cierra el Modal de Éxito */
-    window.closeSuccessModal = function() {
-        successModalOverlay.classList.remove('active');
-        setTimeout(() => {
-            successModalOverlay.style.display = "none";
-            // Limpiar URL para evitar que el modal se muestre en cada recarga
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }, 300);
-    }
-    
-    /**
-     * Rellena el SELECT de montos/planes basado en el tipo de compra seleccionado.
-     */
-    function populateDetailsSelect(type) {
-        purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un monto/plan</option>';
-        
-        let map = {};
-        let labelText = '';
-        
-        if (type === 'CREDITOS') {
-            map = CREDITS_MAP;
-            labelText = 'Selecciona el Paquete de Créditos:';
-            
-            for (const amount in map) {
-                const data = map[amount];
-                const option = document.createElement('option');
-                option.value = amount; 
-                option.textContent = `S/ ${amount}.00 (${data.credits} créditos)`;
-                purchaseDetailsSelect.appendChild(option);
+        // Botón de cerrar sesión
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                alert('Cerrando sesión...');
             }
-        } else if (type === 'ILIMITADO') {
-            map = UNLIMITED_MAP;
-            labelText = 'Selecciona el Plan Ilimitado:';
-            
-            for (const key in map) {
-                const data = map[key];
-                const option = document.createElement('option');
-                option.value = key; 
-                option.textContent = `${data.duration} por S/ ${data.amount}.00`;
-                purchaseDetailsSelect.appendChild(option);
+        });
+
+        // Funciones para el modal de compartir
+        setTimeout(() => {  
+            document.getElementById('banner').style.display = 'flex';  
+        }, 50000);  
+
+        function sharePage() {  
+            const url = "https://masitaprexv2.fly.dev/";  
+            const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
+            const text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
+
+            if (navigator.share) {  
+                navigator.share({ title, text, url })  
+                    .catch(error => console.log("Error al compartir:", error));  
+            } else {  
+                window.open(url, "_blank");  
+            }  
+        }  
+
+        function closeBanner() {  
+            document.getElementById('banner').style.display = 'none';  
+        }
+
+        // WhatsApp Bubble functionality
+        const message = "¡Comprar creditos por Whatsapp!";
+        const chatText = document.getElementById("chatText");
+        let index = 0;
+
+        function typeWriter() {
+            if (index < message.length) {
+                chatText.textContent += message.charAt(index);
+                index++;
+                setTimeout(typeWriter, 100);
+            } else {
+                setTimeout(() => {
+                    chatText.classList.remove('show');
+                    chatText.classList.add('hide');
+                    setTimeout(resetAndRestart, 1000);
+                }, 2500);
             }
         }
-        
-        selectLabel.textContent = labelText;
-        updatePaymentButtons();
-    }
 
-
-    /**
-     * Habilita/deshabilita el botón de Mercado Pago y actualiza su texto.
-     */
-    function updatePaymentButtons() {
-        const selectedValue = purchaseDetailsSelect.value;
-        const email = userEmailInput.value.trim();
-        const uid = userUidInput.value.trim();
-        
-        mpButton.disabled = true;
-        mpButton.classList.remove('enabled');
-        mpButton.classList.add('disabled-text');
-
-        if (!email || uid === "Debes Iniciar Sesión" || !uid || uid === "ID_NO_DISPONIBLE") {
-             const msg = '<i class="fas fa-sign-in-alt"></i> Debes Iniciar Sesión para Pagar';
-             mpButton.innerHTML = msg;
-             return;
+        function resetAndRestart() {
+            chatText.textContent = "";
+            index = 0;
+            chatText.classList.remove('hide');
+            setTimeout(() => {
+                chatText.classList.add('show');
+                typeWriter();
+            }, 500);
         }
 
-        if (!selectedValue) {
-            const msg = '<i class="fas fa-hand-pointer"></i> Selecciona un monto/plan';
-            mpButton.innerHTML = msg;
-            return;
+        function goToWhatsApp() {
+            const phoneNumber = '51944950234';
+            const prefilledMessage = encodeURIComponent('Hola, necesito ayuda para comprar créditos para Consulta PE.');
+            window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
         }
+
+        window.onload = () => {
+            setTimeout(() => {
+                chatText.classList.add('show');
+                typeWriter();
+            }, 1000);
+        };
+
+        // Firebase y lógica de compras
+        const CREDITS_MAP = {
+            "10": { credits: 60 },
+            "20": { credits: 125 },
+            "50": { credits: 330 },
+            "100": { credits: 700 },
+            "200": { credits: 1500 },
+        };
         
-        let amount = 0;
-        let purchaseDescription = '';
+        const UNLIMITED_MAP = {
+            "7-dias": { amount: 60, duration: '7 días' },
+            "15-dias": { amount: 80, duration: '15 días' },
+            "30-dias": { amount: 110, duration: '30 días' },
+            "60-dias": { amount: 160, duration: '60 días' },
+            "70-dias": { amount: 510, duration: '70 días' },
+        };
 
-        if (currentPurchaseType === 'CREDITOS') {
-            amount = selectedValue;
-            const data = CREDITS_MAP[selectedValue];
-            purchaseDescription = `${data.credits} Créditos`;
-        } else if (currentPurchaseType === 'ILIMITADO') {
-            const data = UNLIMITED_MAP[selectedValue];
-            amount = data.amount; 
-            purchaseDescription = `Plan ${data.duration}`;
-        }
-        
-        mpButton.disabled = false;
-        mpButton.classList.add('enabled');
-        mpButton.classList.remove('disabled-text');
-        mpButton.innerHTML = `Pagar S/ ${amount}.00 (${purchaseDescription}) `;
-    }
-    
-    /**
-     * Inicia el proceso de pago al servidor.
-     */
-    async function startPayment() {
-        const selectedValue = purchaseDetailsSelect.value;
-        const email = userEmailInput.value.trim();
-        const uid = userUidInput.value.trim();
+        let currentPurchaseType = 'CREDITOS';
+        const userEmailInput = document.getElementById("userEmail");
+        const userUidInput = document.getElementById("userUid");
+        const purchaseDetailsSelect = document.getElementById("purchaseDetailsSelect");
+        const mpButton = document.getElementById("mpButton");
+        const creditsTypeBtn = document.getElementById("creditsType");
+        const unlimitedTypeBtn = document.getElementById("unlimitedType");
 
-        if (!selectedValue || !email || !uid || uid === "Debes Iniciar Sesión" || uid === "ID_NO_DISPONIBLE") {
-            showErrorModal("Por favor, inicia sesión y selecciona un paquete válido.");
-            return;
-        }
-        
-        let amount = 0;
-        if (currentPurchaseType === 'CREDITOS') {
-            amount = selectedValue; 
-        } else if (currentPurchaseType === 'ILIMITADO') {
-            amount = UNLIMITED_MAP[selectedValue].amount; 
-        } else {
-             showErrorModal("Tipo de compra no válido.");
-             return;
-        }
-
-        let description = "";
-        if (currentPurchaseType === 'CREDITOS') {
-            description = `${CREDITS_MAP[selectedValue].credits} Créditos`;
-        } else {
-            description = `Plan ${UNLIMITED_MAP[selectedValue].duration}`;
-        }
-
-        const checkoutUrl = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}`;
-        window.location.href = checkoutUrl;
-    }
-    
-    // === GESTIÓN DEL SELECTOR DE TIPO DE COMPRA (CRÉDITOS/ILIMITADO) ===
-    function handleTypeSelection(event) {
-        const selectedType = event.currentTarget.dataset.type;
-        
-        // Actualizar la clase de los botones
-        creditsTypeBtn.classList.remove('selected');
-        unlimitedTypeBtn.classList.remove('selected');
-        event.currentTarget.classList.add('selected');
-
-        // Actualizar el estado y repoblar el select
-        currentPurchaseType = selectedType;
-        populateDetailsSelect(selectedType);
-    }
-    
-    // === M A N E J O   D E L   C A L L B A C K   D E   P A G O ===
-    function handlePaymentCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlPath = window.location.pathname;
-
-        // 1. Manejar Éxito (Redirección desde /api/mercadopago?msg=...)
-        if (urlPath.endsWith('/payment/success') && urlParams.has('msg')) {
-            try {
-                const encodedMsg = urlParams.get('msg');
-                const decodedMsg = decodeURIComponent(encodedMsg);
-                const messageObj = JSON.parse(decodedMsg);
-                
-                if (messageObj && messageObj.titulo && messageObj.cuerpo) {
-                    showSuccessModal(messageObj.titulo, messageObj.cuerpo);
-                } else {
-                    showErrorModal("Compra exitosa, pero el mensaje de confirmación del servidor está incompleto. Por favor, revisa tus créditos.");
+        function populateDetailsSelect(type) {
+            purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un monto/plan</option>';
+            let map = {};
+            
+            if (type === 'CREDITOS') {
+                map = CREDITS_MAP;
+                for (const amount in map) {
+                    const data = map[amount];
+                    const option = document.createElement('option');
+                    option.value = amount;
+                    option.textContent = `S/ ${amount}.00 (${data.credits} créditos)`;
+                    purchaseDetailsSelect.appendChild(option);
                 }
-            } catch (e) {
-                console.error("Error al procesar el mensaje de éxito:", e);
-                showErrorModal("Error al leer la confirmación del servidor. Por favor, revisa tus créditos.");
+            } else if (type === 'ILIMITADO') {
+                map = UNLIMITED_MAP;
+                for (const key in map) {
+                    const data = map[key];
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = `${data.duration} por S/ ${data.amount}.00`;
+                    purchaseDetailsSelect.appendChild(option);
+                }
             }
-            return true;
+            updatePaymentButtons();
         }
 
-        // 2. Manejar Error/Rechazo (Redirección a /payment/rejected o /payment/error)
-        if (urlPath.endsWith('/payment/rejected')) {
-            const status = urlParams.get('status') || 'desconocido';
-            showErrorModal(`¡Transacción Rechazada! Mercado Pago no pudo aprobar el pago. Estado: ${status.toUpperCase()}. Intenta de nuevo o cambia de medio de pago.`);
-            return true;
+        function updatePaymentButtons() {
+            const selectedValue = purchaseDetailsSelect.value;
+            const email = userEmailInput.value.trim();
+            const uid = userUidInput.value.trim();
+            
+            mpButton.disabled = true;
+            mpButton.style.opacity = "0.6";
+            mpButton.style.pointerEvents = "none";
+
+            if (!email || !uid || uid === "ID_NO_DISPONIBLE") {
+                mpButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Debes Iniciar Sesión para Pagar';
+                return;
+            }
+
+            if (!selectedValue) {
+                mpButton.innerHTML = '<i class="fas fa-hand-pointer"></i> Selecciona un monto/plan';
+                return;
+            }
+            
+            let amount = 0;
+            let purchaseDescription = '';
+
+            if (currentPurchaseType === 'CREDITOS') {
+                amount = selectedValue;
+                const data = CREDITS_MAP[selectedValue];
+                purchaseDescription = `${data.credits} Créditos`;
+            } else if (currentPurchaseType === 'ILIMITADO') {
+                const data = UNLIMITED_MAP[selectedValue];
+                amount = data.amount;
+                purchaseDescription = `Plan ${data.duration}`;
+            }
+            
+            mpButton.disabled = false;
+            mpButton.style.opacity = "1";
+            mpButton.style.pointerEvents = "auto";
+            mpButton.innerHTML = `Pagar S/ ${amount}.00 (${purchaseDescription}) <i class="fas fa-money-check-alt"></i>`;
         }
-        
-        if (urlPath.endsWith('/payment/error') && urlParams.has('msg')) {
-            const errorMsg = urlParams.get('msg');
-            const decodedErrorMsg = decodeURIComponent(errorMsg);
-            showErrorModal(`Error de Activación. Por favor, contacta a soporte con el siguiente detalle: \n\n ${decodedErrorMsg}`);
-            return true;
+
+        async function startPayment() {
+            const selectedValue = purchaseDetailsSelect.value;
+            const email = userEmailInput.value.trim();
+            const uid = userUidInput.value.trim();
+
+            if (!selectedValue || !email || !uid || uid === "ID_NO_DISPONIBLE") {
+                alert("Por favor, inicia sesión y selecciona un paquete válido.");
+                return;
+            }
+            
+            let amount = 0;
+            if (currentPurchaseType === 'CREDITOS') {
+                amount = selectedValue;
+            } else if (currentPurchaseType === 'ILIMITADO') {
+                amount = UNLIMITED_MAP[selectedValue].amount;
+            } else {
+                alert("Tipo de compra no válido.");
+                return;
+            }
+
+            alert(`Redirigiendo a pago por S/ ${amount}.00\nCorreo: ${email}\nID Usuario: ${uid}`);
+            // Aquí iría la lógica real de redirección al checkout
         }
-        
-        return false;
-    }
 
+        function handleTypeSelection(event) {
+            const selectedType = event.currentTarget.dataset.type;
+            
+            creditsTypeBtn.classList.remove('selected');
+            creditsTypeBtn.style.background = "#f9fafb";
+            creditsTypeBtn.style.color = "#4b5563";
+            unlimitedTypeBtn.classList.remove('selected');
+            unlimitedTypeBtn.style.background = "#f9fafb";
+            unlimitedTypeBtn.style.color = "#4b5563";
+            
+            event.currentTarget.classList.add('selected');
+            event.currentTarget.style.background = "linear-gradient(90deg, #1e40af 0%, #059669 100%)";
+            event.currentTarget.style.color = "white";
 
-    // === E V E N T O S ===
-    purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
-    userEmailInput.addEventListener('input', updatePaymentButtons);
-    mpButton.addEventListener('click', startPayment);
-    
-    creditsTypeBtn.addEventListener('click', handleTypeSelection);
-    unlimitedTypeBtn.addEventListener('click', handleTypeSelection);
+            currentPurchaseType = selectedType;
+            populateDetailsSelect(selectedType);
+        }
 
-
-    // === I N I C I A L I Z A C I Ó N ===
-    document.addEventListener("DOMContentLoaded", () => {
-      initApp();
-    });
-  </script>
+        // Inicializar
+        document.addEventListener("DOMContentLoaded", () => {
+            populateDetailsSelect(currentPurchaseType);
+            creditsTypeBtn.addEventListener('click', handleTypeSelection);
+            unlimitedTypeBtn.addEventListener('click', handleTypeSelection);
+            purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
+            userEmailInput.addEventListener('input', updatePaymentButtons);
+            mpButton.addEventListener('click', startPayment);
+        });
+    </script>
 </body>
 </html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta PE</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    .chat-bubble {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 30px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      animation: slideIn 1s ease-out forwards;
-    }
-
-    @keyframes slideIn {
-      0% {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    .chat-bubble:hover {
-      background: linear-gradient(45deg, #128C7E, #25D366); /* Invertir colores al pasar el ratón */
-    }
-
-    .chat-text {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
-      color: white;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 15px;
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      white-space: nowrap;
-      opacity: 0;
-      transform: scale(0.9);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      z-index: 1001;
-      cursor: pointer;
-    }
-
-    .chat-text.show {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .chat-text.hide {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-  </style>
-</head>
-<body>
-
-  <div class="chat-bubble" onclick="goToWhatsApp()">
-    <div class="icon">
-      <i class="fab fa-whatsapp"></i> </div>
-  </div>
-
-  <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
-
-  <script>
-    const message = "¡Comprar creditos por Whatsapp!"; // Nuevo mensaje
-    const chatText = document.getElementById("chatText");
-    let index = 0;
-
-    function typeWriter() {
-      if (index < message.length) {
-        chatText.textContent += message.charAt(index);
-        index++;
-        setTimeout(typeWriter, 100);
-      } else {
-        setTimeout(() => {
-          chatText.classList.remove('show');
-          chatText.classList.add('hide');
-          setTimeout(resetAndRestart, 1000);
-        }, 2500);
-      }
-    }
-
-    function resetAndRestart() {
-      chatText.textContent = "";
-      index = 0;
-      chatText.classList.remove('hide');
-      setTimeout(() => {
-        chatText.classList.add('show');
-        typeWriter();
-      }, 500);
-    }
-
-    function goToWhatsApp() {
-      // Reemplaza 'YOUR_PHONE_NUMBER' con tu número de WhatsApp con código de país, ejemplo: '51987654321'
-      // Y 'YOUR_MESSAGE_TEXT' con el mensaje predefinido que quieras enviar
-      const phoneNumber = '51944950234'; // Ejemplo: 51 para Perú
-      const prefilledMessage = encodeURIComponent('Hola, neseito ayuda para comprar créditos para Consulta PE.');
-      window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
-    }
-
-    window.onload = () => {
-      setTimeout(() => {
-        chatText.classList.add('show');
-        typeWriter();
-      }, 1000);
-    };
-  </script>
-
-</body>
-</html>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
