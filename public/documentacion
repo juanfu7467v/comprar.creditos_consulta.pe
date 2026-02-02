@@ -1307,45 +1307,120 @@ if response.status_code == 200:
     <script>
         const BASE_URL = 'https://consulta-pe-apis-data-v2.fly.dev';
         const API_ENDPOINTS = {
-            '/api/reniec': { method: 'POST', paramName: 'dni', placeholder: '12345678' },
-            '/api/telefonia-doc': { method: 'POST', paramName: 'documento', placeholder: '12345678' },
-            '/api/telefonia-num': { method: 'POST', paramName: 'numero', placeholder: '987654321' },
-            '/api/vehiculos': { method: 'POST', paramName: 'placa', placeholder: 'ABC-123' },
-            '/api/sunat': { method: 'POST', paramName: 'data', placeholder: '20123456789' },
-            '/api/sunat-razon': { method: 'POST', paramName: 'data', placeholder: 'EMPRESA EJEMPLO SAC' },
-            '/api/empresas': { method: 'POST', paramName: 'dni', placeholder: '12345678' },
-            '/api/matrimonios': { method: 'POST', paramName: 'dni', placeholder: '12345678' },
-            '/api/dni_nombres': { method: 'POST', paramName: 'nombres', placeholder: 'JUAN CARLOS PEREZ GOMEZ' },
-            '/api/venezolanos_nombres': { method: 'POST', paramName: 'query', placeholder: 'MARIA RIOS' },
-            '/api/cedula': { method: 'POST', paramName: 'cedula', placeholder: 'V12345678' }
+            '/api/reniec': { 
+                method: 'POST', 
+                paramName: 'dni', 
+                placeholder: '12345678',
+                bodyTemplate: (param) => ({ dni: param })
+            },
+            '/api/telefonia-doc': { 
+                method: 'POST', 
+                paramName: 'documento', 
+                placeholder: '12345678',
+                bodyTemplate: (param) => ({ documento: param })
+            },
+            '/api/telefonia-num': { 
+                method: 'POST', 
+                paramName: 'numero', 
+                placeholder: '987654321',
+                bodyTemplate: (param) => ({ numero: param })
+            },
+            '/api/vehiculos': { 
+                method: 'POST', 
+                paramName: 'placa', 
+                placeholder: 'ABC-123',
+                bodyTemplate: (param) => ({ placa: param })
+            },
+            '/api/sunat': { 
+                method: 'POST', 
+                paramName: 'data', 
+                placeholder: '20123456789',
+                bodyTemplate: (param) => ({ data: param })
+            },
+            '/api/sunat-razon': { 
+                method: 'POST', 
+                paramName: 'data', 
+                placeholder: 'EMPRESA EJEMPLO SAC',
+                bodyTemplate: (param) => ({ data: param })
+            },
+            '/api/empresas': { 
+                method: 'POST', 
+                paramName: 'dni', 
+                placeholder: '12345678',
+                bodyTemplate: (param) => ({ dni: param })
+            },
+            '/api/matrimonios': { 
+                method: 'POST', 
+                paramName: 'dni', 
+                placeholder: '12345678',
+                bodyTemplate: (param) => ({ dni: param })
+            },
+            '/api/dni_nombres': { 
+                method: 'POST', 
+                paramName: 'nombres', 
+                placeholder: 'JUAN CARLOS PEREZ GOMEZ',
+                bodyTemplate: (param) => ({ 
+                    nombres: param.split(' ')[0] || '',
+                    apepaterno: param.split(' ')[1] || '',
+                    apematerno: param.split(' ')[2] || ''
+                })
+            },
+            '/api/venezolanos_nombres': { 
+                method: 'POST', 
+                paramName: 'query', 
+                placeholder: 'MARIA RIOS',
+                bodyTemplate: (param) => ({ query: param })
+            },
+            '/api/cedula': { 
+                method: 'POST', 
+                paramName: 'cedula', 
+                placeholder: 'V12345678',
+                bodyTemplate: (param) => ({ cedula: param })
+            }
         };
+
+        // Initialize DOM elements
         const endpointSelect = document.getElementById('endpoint-select');
         const paramInput = document.getElementById('param-input');
         const selectedEndpoint = document.getElementById('selected-endpoint');
         const apiResponse = document.getElementById('api-response');
         const responseContent = document.getElementById('response-content');
+
+        // Event listeners
         endpointSelect.addEventListener('change', function() {
             const selected = this.value;
             if (selected && API_ENDPOINTS[selected]) {
                 const endpointInfo = API_ENDPOINTS[selected];
                 selectedEndpoint.textContent = `${endpointInfo.method} ${BASE_URL}${selected}`;
                 paramInput.placeholder = endpointInfo.placeholder;
+                // Clear previous response
+                apiResponse.classList.remove('active');
             } else {
                 selectedEndpoint.textContent = 'Selecciona un endpoint';
                 paramInput.placeholder = 'Ej: 12345678, ABC-123, etc.';
             }
         });
-        function copyEndpointUrl() {
-            const text = selectedEndpoint.textContent;
-            if (text !== 'Selecciona un endpoint') {
-                copyToClipboard(text);
-                showNotification('URL copiada al portapapeles');
-            }
-        }
+
+        // Initialize with default endpoint
+        document.addEventListener('DOMContentLoaded', function() {
+            endpointSelect.value = '/api/reniec';
+            endpointSelect.dispatchEvent(new Event('change'));
+            
+            // Add instructions button
+            const instructionsBtn = document.createElement('button');
+            instructionsBtn.className = 'btn btn-secondary';
+            instructionsBtn.innerHTML = '<i class="fas fa-question-circle"></i> Instrucciones';
+            instructionsBtn.onclick = showInstructions;
+            document.querySelector('.button-group').appendChild(instructionsBtn);
+        });
+
+        // CORRECCIÓN 1: Función para probar API (arreglado "Failed to fetch")
         async function testAPI() {
             const endpoint = endpointSelect.value;
-            const token = document.getElementById('api-token').value;
-            const param = paramInput.value;
+            const token = document.getElementById('api-token').value.trim();
+            const param = paramInput.value.trim();
+
+            // Validaciones
             if (!endpoint) {
                 showNotification('Por favor selecciona un endpoint', 'error');
                 return;
@@ -1358,56 +1433,163 @@ if response.status_code == 200:
                 showNotification('Ingresa el parámetro de búsqueda', 'error');
                 return;
             }
+
             const endpointInfo = API_ENDPOINTS[endpoint];
             const url = `${BASE_URL}${endpoint}`;
-            responseContent.innerHTML = '<div class="loading"></div> Cargando respuesta...';
+            
+            // Mostrar loading
+            responseContent.innerHTML = '<div class="loading"></div> Enviando solicitud...';
             apiResponse.classList.add('active');
+
             try {
+                // CORRECCIÓN: Manejo mejorado de errores de CORS y fetch
+                const requestBody = endpointInfo.bodyTemplate(param);
+                
                 const response = await fetch(url, {
                     method: endpointInfo.method,
                     headers: {
                         'x-api-key': token,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        [endpointInfo.paramName]: param
-                    })
+                    body: JSON.stringify(requestBody),
+                    mode: 'cors', // Asegurar modo CORS
+                    credentials: 'omit' // No enviar cookies
                 });
+
+                // Manejar diferentes tipos de respuestas
+                if (!response.ok) {
+                    let errorData;
+                    try {
+                        errorData = await response.json();
+                    } catch {
+                        errorData = { error: `Error ${response.status}: ${response.statusText}` };
+                    }
+                    
+                    responseContent.textContent = JSON.stringify(errorData, null, 2);
+                    showNotification(`Error ${response.status}: ${errorData.error || 'Error en la solicitud'}`, 'error');
+                    return;
+                }
+
                 const data = await response.json();
                 responseContent.textContent = JSON.stringify(data, null, 2);
-                if (!response.ok) {
-                    showNotification(`Error ${response.status}: ${data.error || 'Error desconocido'}`, 'error');
-                } else {
+                
+                if (data.success) {
                     showNotification('Consulta exitosa!', 'success');
+                } else {
+                    showNotification(`Error: ${data.error || 'Error desconocido'}`, 'error');
                 }
+
             } catch (error) {
-                responseContent.textContent = `Error: ${error.message}`;
-                showNotification('Error de conexión', 'error');
+                // CORRECCIÓN: Manejo específico de errores de red
+                console.error('Error en testAPI:', error);
+                
+                let errorMessage = 'Error de conexión';
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    errorMessage = 'Error de red. Verifica tu conexión o que el servidor esté disponible.';
+                } else if (error.name === 'AbortError') {
+                    errorMessage = 'La solicitud fue cancelada por tiempo de espera.';
+                } else {
+                    errorMessage = `Error: ${error.message}`;
+                }
+                
+                responseContent.textContent = JSON.stringify({ 
+                    success: false, 
+                    error: errorMessage 
+                }, null, 2);
+                showNotification(errorMessage, 'error');
             }
         }
+
+        // CORRECCIÓN 2: Funciones de copiado mejoradas
+        function copyEndpointUrl() {
+            const text = selectedEndpoint.textContent;
+            if (text !== 'Selecciona un endpoint') {
+                copyToClipboard(text);
+                showNotification('URL copiada al portapapeles');
+            }
+        }
+
         function copyResponse() {
             const text = responseContent.textContent;
-            if (text && !text.includes('Cargando respuesta')) {
+            if (text && !text.includes('Cargando respuesta') && !text.includes('Enviando solicitud')) {
                 copyToClipboard(text);
                 showNotification('Respuesta copiada al portapapeles');
             }
         }
+
         function copyCode(codeId) {
             const codeElement = document.getElementById(codeId);
-            const codeText = codeElement.querySelector('pre').textContent;
-            copyToClipboard(codeText);
-            showNotification('Código copiado al portapapeles');
+            if (codeElement) {
+                const preElement = codeElement.querySelector('pre');
+                if (preElement) {
+                    copyToClipboard(preElement.textContent);
+                    showNotification('Código copiado al portapapeles');
+                }
+            }
         }
+
         function copyResponseExample(exampleNum) {
-            copyToClipboard('Ejemplo copiado');
-            showNotification('Ejemplo copiado al portapapeles');
+            // Buscar el ejemplo de respuesta
+            const exampleElement = document.querySelector(`[onclick="copyResponseExample(${exampleNum})"]`);
+            if (exampleElement) {
+                const parent = exampleElement.closest('.code-block');
+                if (parent) {
+                    const preElement = parent.querySelector('pre');
+                    if (preElement) {
+                        copyToClipboard(preElement.textContent);
+                        showNotification('Ejemplo copiado al portapapeles');
+                    }
+                }
+            }
         }
+
+        // CORRECCIÓN 3: Función genérica de copiado robusta
+        function copyToClipboard(text) {
+            // Intentar usar la API moderna
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Text copied to clipboard successfully');
+                }).catch(err => {
+                    console.error('Failed to copy text using clipboard API:', err);
+                    fallbackCopy(text);
+                });
+            } else {
+                // Fallback para navegadores más antiguos o contextos inseguros
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                console.log('Text copied using fallback method');
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showNotification('No se pudo copiar al portapapeles', 'error');
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Funciones auxiliares
         function showCodeTab(apiNum, lang) {
             const tabId = `code-${apiNum}-${lang}`;
             const tabs = document.querySelectorAll(`.code-tab[onclick*="${apiNum}"]`);
             const contents = document.querySelectorAll(`.code-content[id^="code-${apiNum}-"]`);
+            
             tabs.forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
+            
             contents.forEach(content => {
                 content.classList.remove('active');
                 if (content.id === tabId) {
@@ -1415,6 +1597,7 @@ if response.status_code == 200:
                 }
             });
         }
+
         function resetTester() {
             endpointSelect.value = '';
             paramInput.value = '';
@@ -1422,21 +1605,14 @@ if response.status_code == 200:
             apiResponse.classList.remove('active');
             showNotification('Formulario limpiado');
         }
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                console.log('Text copied to clipboard');
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            });
-        }
+
         function showNotification(message, type = 'success') {
+            // Remover notificaciones anteriores
+            const existingNotifications = document.querySelectorAll('.custom-notification');
+            existingNotifications.forEach(n => n.remove());
+
             const notification = document.createElement('div');
+            notification.className = 'custom-notification';
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -1449,14 +1625,35 @@ if response.status_code == 200:
                 z-index: 1000;
                 animation: slideIn 0.3s ease-out;
                 font-weight: bold;
+                max-width: 400px;
+                word-wrap: break-word;
             `;
             notification.textContent = message;
             document.body.appendChild(notification);
+
             setTimeout(() => {
                 notification.style.animation = 'slideOut 0.3s ease-out';
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+
+        function showInstructions() {
+            document.getElementById('instructions-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('instructions-modal').classList.remove('active');
+        }
+
+        // Event listeners globales
+        window.onclick = function(event) {
+            const modal = document.getElementById('instructions-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        // Agregar estilos para las animaciones de notificación
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
@@ -1467,50 +1664,36 @@ if response.status_code == 200:
                 from { transform: translateX(0); opacity: 1; }
                 to { transform: translateX(100%); opacity: 0; }
             }
+            
+            /* Estilos para los botones de copiar en todas las secciones */
+            .url-copy-btn, .code-copy-btn, .copy-btn {
+                transition: all 0.2s ease;
+            }
+            
+            .url-copy-btn:active, .code-copy-btn:active, .copy-btn:active {
+                transform: scale(0.95);
+            }
+            
+            /* Mejorar accesibilidad de focus */
+            .btn:focus, input:focus, select:focus, button:focus {
+                outline: 2px solid var(--color-primary-end);
+                outline-offset: 2px;
+            }
         `;
         document.head.appendChild(style);
-        function showInstructions() {
-            document.getElementById('instructions-modal').classList.add('active');
-        }
-        function closeModal() {
-            document.getElementById('instructions-modal').classList.remove('active');
-        }
-        window.onclick = function(event) {
-            const modal = document.getElementById('instructions-modal');
-            if (event.target === modal) {
-                closeModal();
+
+        // Manejar parámetros complejos para DNI por nombres
+        function handleComplexParams(endpoint, param) {
+            if (endpoint === '/api/dni_nombres') {
+                const parts = param.split(' ');
+                return {
+                    nombres: parts[0] || '',
+                    apepaterno: parts[1] || '',
+                    apematerno: parts[2] || parts[1] || '' // Si no hay tercer nombre, usar el segundo
+                };
             }
+            return { [API_ENDPOINTS[endpoint].paramName]: param };
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            endpointSelect.value = '/api/reniec';
-            endpointSelect.dispatchEvent(new Event('change'));
-            const instructionsBtn = document.createElement('button');
-            instructionsBtn.className = 'btn btn-secondary';
-            instructionsBtn.innerHTML = '<i class="fas fa-question-circle"></i> Instrucciones';
-            instructionsBtn.onclick = showInstructions;
-            document.querySelector('.button-group').appendChild(instructionsBtn);
-        });
-        function toggleMobileMenu() {
-            const nav = document.querySelector('nav');
-            nav.classList.toggle('active');
-        }
-async function secureDownload(url, filename) {
-    try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename || 'archivo';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(blobUrl);
-        document.body.removeChild(a);
-    } catch (e) {
-        console.error('Download failed', e);
-        window.open(url, '_blank');
-    }
-}
-</script>
+    </script>
 </body>
 </html>
