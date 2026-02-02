@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="global-consultas.js">
+async function secureDownload(url, filename) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename || 'archivo';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+    } catch (e) {
+        console.error('Download failed', e);
+        window.open(url, '_blank');
+    }
+}
+</script>
+    <script>
+        if (!localStorage.getItem('user_session')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página No Encontrada - Masitaprex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .app-card {
+            scroll-snap-align: start;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen text-gray-800">
+    <header class="w-full relative h-[80vh] md:h-[48rem] overflow-hidden">
+        <div 
+            class="absolute inset-0 bg-cover bg-center" 
+            style="background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFvN-s_wpJUIYTsv5JH1Rs37S7ZXWefZfI-Odk6iBG0cJOtmZ0pzgoDXBLsmidMg-ZvXgxVaffJ1iybh0ws1p3CcWNtH3o_REOqcSeBqGqqYBWOyJS5EWfvE9RRwLxba_txfZM5oE2_2HKtSug1LExyEqIGoxC_h7vIelPv3KQtBb4Dln17k-0WA0Z690J/s1536/1000037253.png');"
+        >
+        </div>
+        <div class="absolute inset-0 flex items-end justify-center pb-12 bg-black/30">
+            <a href="index.html" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
+                Ir a la Página Principal
+            </a>
+        </div>
+    </header>
+    <main class="py-12 px-4 md:px-8">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-8 text-indigo-700">Nuestras Soluciones Destacadas</h2>
+        <div class="flex overflow-x-scroll snap-x snap-mandatory space-x-6 pb-6 md:justify-center md:flex-wrap md:space-x-0 md:gap-6">
+            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl p-6 pt-10 border-t-4 border-purple-500 transform transition hover:scale-[1.02] relative overflow-hidden">
+                <div class="absolute top-4 right-[-40px] w-40 text-center py-1.5 transform rotate-45 bg-gradient-to-r from-red-600 to-red-400 text-white font-extrabold shadow-lg z-10">
+                    Gratis
+                </div>
+                <img src="https://image.winudf.com/v2/image1/ZGV2X2ltYWdlXzM2ODcwNDYzXzIyNjg1OF8yMDI1MTAzMDE5NTI1MjEzOA/icon.webp?w=280&fakeurl=1&type=.webp" alt="Icono de Consulta Pe" class="w-32 h-32 rounded-2xl mb-4 mx-auto shadow-md">
+                <h3 class="text-xl font-bold text-purple-600 mb-2">
+                    Consulta Pe <span class="text-sm font-normal text-gray-500 block">Consulta Rápida de Datos Públicos</span>
+                </h3>
+                <p class="text-gray-600 mb-4 text-sm">
+                    Una herramienta de consulta rápida y confiable. Obtén datos públicos asociados a DNI y RUC, utilizando en ciertos casos solo tu nombre completo. La visualización de resultados es clara y utiliza elementos visuales para un mejor entendimiento de la información.
+                </p>
+                <a href="/api/tienda-apps.html#detail/1" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
+                            Ver en la App Store
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl p-6 pt-10 border-t-4 border-pink-500 transform transition hover:scale-[1.02] relative overflow-hidden">
+                <div class="absolute top-4 right-[-40px] w-40 text-center py-1.5 transform rotate-45 bg-gradient-to-r from-red-600 to-red-400 text-white font-extrabold shadow-lg z-10">
+                    Gratis
+                </div>
+                <img src="https://image.winudf.com/v2/image1/ZGV2X2ltYWdlXzM2ODcwNDYzXzIyNjg1OF8yMDI1MDExNzIyMDExMzYzNg/icon.webp?w=280&fakeurl=1&type=.webp" alt="Icono de CurioApp" class="w-32 h-32 rounded-2xl mb-4 mx-auto shadow-md">
+                <h3 class="text-xl font-bold text-pink-600 mb-2">
+                    CurioApp <span class="text-sm font-normal text-gray-500 block">La Aplicación Todo en Uno para tu Móvil</span>
+                </h3>
+                <p class="text-gray-600 mb-4 text-sm">
+                    Simplifica tu vida digital. CurioApp combina herramientas prácticas con una interfaz moderna y fluida, incluyendo:
+                </p>
+                <ul class="list-none space-y-1 mb-4 text-sm text-gray-700">
+                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Generador de enlaces personalizados (con previsualización visual).</li>
+                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Escáner y generador de códigos QR con animación.</li>
+                    <li class="flex items-center"><span class="text-green-500 mr-2">✓</span>Herramientas de utilidad y entretenimiento atractivo.</li>
+                </ul>
+                <a href="/api/tienda-apps.html#detail/2" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
+                            Ver en la App Store
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl flex flex-col snap-center transform transition hover:scale-[1.02] relative overflow-hidden border-t-4 border-blue-500">
+                <div class="absolute top-4 right-[-40px] w-40 text-center py-1.5 transform rotate-45 bg-gradient-to-r from-blue-600 to-blue-400 text-white font-extrabold shadow-lg z-10">
+                    Gratis
+                </div>
+                <div 
+                    class="h-1/2 w-full bg-cover bg-center overflow-hidden rounded-t-2xl flex items-center justify-center" 
+                    style="background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh3YIrB2BVkYPGxA41eZD5b_ZRtb6P8rQxh35guBZPGVQEtZU0b-AVmFNOwSuxJNvXKYWQXR5fZIeGXSxqbKKcfdGq5a4c40MM4IItcEp9E9vmKXLEDVgRYHu3JProhz5GwbTzDR0xTC171AOMDK4e6RKLsamFSZB2iBZXpSG7awMsRkBMPyMoUB733bPq8/s612/1000038813.jpg');"
+                >
+                    <div class="p-4 bg-black/30 rounded-xl text-white font-bold">PeliPREX HD</div>
+                </div>
+                <div class="h-1/2 p-6 flex flex-col justify-between text-center">
+                    <div>
+                        <h3 class="text-xl font-bold mb-3 text-blue-700">PeliPREX HD</h3>
+                        <p class="mb-6 text-sm text-gray-600">
+                            Encuentra tus películas favoritas al instante. PeliPREX HD te sorprenderá por lo rápido y sencillo que es usarlo. Entra, explora y disfruta sin complicarte. Te encantará desde el primer minuto.
+                        </p>
+                    </div>
+                    <a href="peliprex-hd.html" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 justify-center mt-2">
+                        Ver películas 
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+            </div>
+    </main>
+    <footer class="bg-gray-900 text-gray-400 py-10 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+                <h4 class="text-lg font-bold text-white mb-4">MASITAPREX</h4>
+                <p class="text-sm">
+                    Creando la próxima generación de experiencias digitales. Innovación y calidad en cada proyecto.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-lg font-bold text-white mb-4">Navegación</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="index.html" class="hover:text-indigo-400 transition">Inicio</a></li>
+                    <li><a href="mas-servicios.html" class="hover:text-indigo-400 transition">Productos y Servicios</a></li>
+                    <li><a href="coleccion-apis.html" class="hover:text-indigo-400 transition">APIs de Consulta</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-lg font-bold text-white mb-4">Legal</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="terminos-condiciones.html" class="hover:text-indigo-400 transition">Términos y Condiciones</a></li>
+                    <li><a href="politica-privacidad.html" class="hover:text-indigo-400 transition">Política de Privacidad</a></li>
+                    <li><a href="aviso-legal.html" class="hover:text-indigo-400 transition">Aviso Legal de APIs</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-lg font-bold text-white mb-4">Soporte</h4>
+                <p class="text-sm mb-2">
+                    Email: <a href="mailto:contacto@masitaprex.com" class="hover:text-indigo-400 transition">contacto@masitaprex.com</a>
+                </p>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="ayuda.html" class="hover:text-indigo-400 transition">Ayuda y Documentación</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-10 pt-6 border-t border-gray-800 text-center text-xs text-gray-500">
+            © 2025 MASITAPREX. Todos los derechos reservados. Desarrollado con tecnología de vanguardia.
+        </div>
+    </footer>
+</body>
+</html>
