@@ -1335,21 +1335,6 @@
             document.getElementById('banner').style.display = 'flex';
         });
 
-        // Botón de cerrar sesión - función real
-        document.getElementById('logout-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-                // En una aplicación real, aquí deberías:
-                // 1. Limpiar tokens de sesión/localStorage
-                // 2. Desconectar de Firebase/backend
-                // 3. Redirigir a la página de login
-                
-                // Simulación de cierre de sesión
-                alert('Sesión cerrada correctamente.');
-                window.location.href = 'index.html'; // Cambia esto por tu página de login real
-            }
-        });
-
         // Funciones para el modal de compartir
         setTimeout(() => {  
             document.getElementById('banner').style.display = 'flex';  
@@ -1574,7 +1559,7 @@
                     }
                 }
 
-                // Función para cerrar sesión real
+                // Función para cerrar sesión REAL
                 async function logout() {
                     try {
                         await signOut(auth);
@@ -1589,7 +1574,7 @@
                     }
                 }
 
-                // Asignar la función de logout al botón
+                // Asignar la función de logout real al botón
                 document.getElementById('logout-btn').addEventListener('click', function(e) {
                     e.preventDefault();
                     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
