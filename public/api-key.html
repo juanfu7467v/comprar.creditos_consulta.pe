@@ -1,12 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Consulta PE - App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta PE-apikey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Degradado de la cabecera del menú lateral */
+        .sidebar-header-bg {
+            background: linear-gradient(135deg, #009383 0%, #005aee 100%);
+            border-bottom-left-radius: 50% 20%;
+            border-bottom-right-radius: 50% 20%;
+        }
+
+        /* Overlay para el menú lateral */
+        #sidebar-overlay {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Transición del menú lateral */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Estilo para los iconos de la cabecera para que sean legibles y grandes */
+        .header-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+            color: #1f2937;
+        }
+
+        /* Banner de compartir (Oculto por defecto) */  
+        .banner {  
+            width: 100%;  
+            max-width: 500px;
+            background: linear-gradient(to right, #00264D, #003366);  
+            color: #FFFFFF;  
+            position: fixed;  
+            bottom: 0;  
+            left: 50%;  
+            transform: translateX(-50%);  
+            padding: 30px;  
+            border-top-left-radius: 15px;  
+            border-top-right-radius: 15px;  
+            box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+            display: none; /* Ocultamos el banner al inicio */  
+            flex-direction: column;  
+            align-items: center;  
+            text-align: center;  
+            z-index: 9999;  
+        }  
+
+        .banner-title {  
+            font-size: 24px;  
+            font-weight: bold;  
+            margin-bottom: 15px;  
+            color: #FF00FF;  
+        }  
+
+        .banner-description {  
+            font-size: 18px;  
+            line-height: 1.8;  
+            color: #FFFFFF;  
+            margin-bottom: 20px;  
+        }  
+
+        /* Botones del banner */  
+        .cta-button, .close-modal {  
+            width: 100%;  
+            padding: 16px;  
+            text-align: center;  
+            text-decoration: none;  
+            border-radius: 25px;  
+            font-size: 18px;  
+            font-weight: bold;  
+            margin-bottom: 12px;  
+            cursor: pointer;  
+            transition: transform 0.2s ease-in-out;  
+        }  
+
+        .cta-button {  
+            background: linear-gradient(to right, #2ECC71, #66CC99);  
+            color: white;  
+        }  
+
+        .cta-button:hover {  
+            transform: scale(1.08);  
+        }  
+
+        .close-modal {  
+            background-color: red;  
+            color: #FFFFFF;  
+        }  
+
+        .close-modal:hover {  
+            background-color: darkred;  
+            transform: scale(1.08);  
+        }  
+
+        /* Iconos del banner */  
+        .banner-icon {  
+            margin-right: 8px;  
+            color: #FF00FF;  
+        }
+
+        /* Estilos de la segunda interfaz - AHORA A ANCHO COMPLETO */
         :root {
             --bg: #f8f9fa;
             --card: #ffffff;
@@ -18,36 +135,25 @@
             --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
+        .full-width-container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
             margin: 0;
-            background: var(--bg);
-            color: #111;
-            font-family: var(--font-family);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            user-select: none;
         }
 
-        .wrap {
-            max-width: 420px;
-            margin: 0 auto;
+        .wrap-full {
+            width: 100%;
+            max-width: 100%;
             padding: 18px;
-        }
-
-        h2, h3 {
             margin: 0;
-            font-weight: 700;
         }
 
-        .text-center { text-align: center; }
-        .text-accent { color: var(--accent); }
-        .text-secondary { color: var(--secondary); }
-        .font-bold { font-weight: 700; }
-        .mb-4 { margin-bottom: 16px; }
+        .wide-content {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
 
         /* Loading Spinner */
         #loading-indicator {
@@ -128,6 +234,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            width: 100%;
         }
 
         .profile-header {
@@ -192,6 +299,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            width: 100%;
         }
         
         .section-header {
@@ -288,6 +396,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            width: 100%;
         }
 
         .info-section h3 {
@@ -326,6 +435,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            width: 100%;
         }
 
         .text-container-header {
@@ -391,6 +501,7 @@
             margin-top: 10px;
             border: 1px solid var(--pill);
             border-radius: 16px;
+            width: 100%;
         }
         
         /* Card de recomendación */
@@ -401,6 +512,7 @@
             color: #fff;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             margin-top: 18px;
+            width: 100%;
         }
         .api-recommendation h4 {
             font-size: 16px;
@@ -453,9 +565,10 @@
         /* Paquetes Disponibles */
         .package-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 12px;
             margin-top: 12px;
+            width: 100%;
         }
         
         .package-grid a {
@@ -543,6 +656,7 @@
             font-size: 16px;
             color: #111;
             font-weight: 600;
+            width: 100%;
         }
         .quote i {
             color: var(--secondary);
@@ -592,6 +706,7 @@
             margin-top: 40px;
             padding: 20px;
             text-align: center;
+            width: 100%;
         }
         
         footer h3 {
@@ -695,9 +810,499 @@
             opacity: 0;
             transform: scale(0.9);
         }
+
+        /* Layout principal */
+        .main-content-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .wide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .full-width-section {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 20px;
+            margin: 0 auto;
+        }
     </style>
 </head>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
+<body class="min-h-screen">
+
+    <!-- CABECERA (Header) -->
+    <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
+        <div class="flex items-center gap-3">
+            <!-- Icono de menú a la izquierda de la imagen principal -->
+            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="menu" class="header-icon"></i>
+            </button>
+            <!-- Imagen principal de cabecera -->
+            <img src="https://www.appcreator24.com/srv/imgs/gen/2706889_icohome.png?ts=1769708793" 
+                 alt="Logo" 
+                 style="width: 154px; height: 40px; object-fit: contain;">
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <!-- Icono Perfil - Ahora lleva a actividad -->
+            <button id="profile-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="user" class="header-icon"></i>
+            </button>
+            <!-- Icono Compartir - Ahora abre el modal -->
+            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="share-2" class="header-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MENU LATERAL (Sidebar) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
+    
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[60] shadow-2xl overflow-y-auto">
+        <!-- Encabezado Sidebar con Curva -->
+        <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
+            <!-- Contenedor del icono -->
+            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center">
+                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" 
+                     alt="App Icon" 
+                     class="w-full h-full object-cover">
+            </div>
+            <h2 class="text-2xl font-bold mt-2">Masitaprex v2</h2>
+            
+            <!-- Decoración -->
+            <div class="absolute top-4 left-4 opacity-30">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                    <path d="M12 2a10 10 0 1 0 10 10" stroke-linecap="round"></path>
+                    <path d="M16 6a6 6 0 1 0 6 6" stroke-linecap="round"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Opciones del Menú Actualizadas -->
+        <nav class="mt-6">
+            <!-- Opción actual activa -->
+            <div class="flex items-center px-6 py-4 border-l-4 border-red-600 bg-gray-50">
+                <i data-lucide="home" class="w-6 h-6 text-gray-800 mr-4"></i>
+                <span class="text-lg font-semibold text-gray-800">Inicio</span>
+            </div>
+            
+            <!-- Nuevas opciones del menú -->
+            <a href="peli" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="film" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">PeliPREX</span>
+            </a>
+            
+            <a href="api-key" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="key" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Api key</span>
+            </a>
+            
+            <a href="doc-apis" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Doc. Apis</span>
+            </a>
+            
+            <a href="consultaPE-apk" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="smartphone" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Consulta PE apk</span>
+            </a>
+            
+            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors mt-8">
+                <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Cerrar sesión</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="p-4 wide-content">
+        <!-- Contenedor principal de ancho completo -->
+        <div class="full-width-container" id="profile-container" style="display: none;">
+            <div class="wrap-full">
+                <!-- Contenido de la interfaz de API Key -->
+                <div class="profile-card gradient-border">
+                    <div class="profile-header">
+                        <div class="avatar">
+                            <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
+                        </div>
+                        <div>
+                            <h2>Hola, <span id="userName"></span></h2>
+                            <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-item" id="infoCreditos">
+                            <span class="stat-value" id="creditos">0</span>
+                            <span class="stat-label">Créditos Restantes</span>
+                        </div>
+                        <div class="stat-item" id="infoIlimitado" style="display:none;">
+                            <span class="stat-value" id="diasRestantes">0</span>
+                            <span class="stat-label">Días restantes (Ilimitado)</span>
+                            <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
+                        </div>
+                    </div>
+                    <a href="go:??" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
+                </div>
+
+                <div class="section-card gradient-border">
+                    <h3>Tu Token de Acceso</h3>
+                    <p style="font-size:14px;color:var(--muted);">
+                        Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de intermediación.
+                    </p>
+                    <div class="input-group">
+                        <input type="text" id="api-key-field" readonly />
+                        <button class="copy-btn" onclick="copyApiKey()" title="Copiar Token">
+                            <i class="ri-file-copy-line"></i>
+                        </button>
+                    </div>
+                    <button class="btn-secondary" onclick="generateNewApiKey()">
+                        <i class="ri-refresh-line"></i> Generar Nuevo Token
+                    </button>
+                </div>
+
+                <div class="info-section gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-sparkling-2-line text-secondary"></i>
+                        ¡Felicidades por elegir Consulta PE! 🚀
+                    </div>
+                    <p class="font-bold" style="color:#111;">
+                        Has tomado una de las mejores decisiones para tu proyecto.
+                    </p>
+                    <p>
+                        Aquí encontrarás <strong>11 APIs intermediadas listas para integrar</strong>, limpias, estables y con soporte constante.
+                        Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
+                    </p>
+                    <p style="font-size: 13px; color: #ff0000; margin-top: 10px;">
+                        ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="go:Rapis" class="font-bold" style="color: #ff0000; text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
+                    </p>
+                    <a href="go:doc" target="_blank" class="btn-primary" style="margin-top: 8px;">
+                        <i class="ri-book-3-line"></i> Ver Documentación
+                    </a>
+                </div>
+
+                <div class="info-section gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-lightbulb-line" style="color: #ffc107;"></i>
+                        💡 Sobre el Consumo de Créditos
+                    </div>
+                    <p>
+                        Recuerda que cada servicio intermediado tiene su propio consumo de créditos.
+                    </p>
+                    <p class="font-bold" style="color:var(--accent);">
+                        👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por API.
+                    </p>
+                    <div class="text-container" style="background: #e6f0ff;">
+                        <div class="text-container-header" style="color: #111;">
+                            Recomendación para rentabilidad:
+                        </div>
+                        <p style="color:#111;">
+                            Si vas a integrar los servicios de intermediación en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
+                        </p>
+                        <p style="color:#111;">
+                            Por ejemplo: Si un servicio consume <strong>10 créditos</strong>, puedes configurarlo en tu proyecto para que consuma <strong>12 o 13 créditos</strong>. De esta manera ganas por cada consulta y aseguras la sostenibilidad de tu sistema.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="section-card gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-database-line text-accent"></i>
+                        💳 Tabla de Créditos por Servicio de Infraestructura (<strong>11 APIs</strong>)
+                    </div>
+                    <div class="table-scroll">
+                        <table class="credit-table">
+                            <thead>
+                                <tr>
+                                    <th>🔧 Servicio de Infraestructura</th>
+                                    <th>💰 Créditos</th>
+                                    <th>📝 Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Consulta RENIEC por DNI</strong></td>
+                                    <td>7</td>
+                                    <td>Infraestructura para acceso a datos básicos de identificación</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Telefonía por Documento</strong></td>
+                                    <td>9</td>
+                                    <td>Procesamiento de consultas a registros telefónicos por documento</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Telefonía por Número</strong></td>
+                                    <td>8</td>
+                                    <td>Servicio de consulta inversa de titularidad telefónica</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td>
+                                    <td>8</td>
+                                    <td>Infraestructura para consulta de registros vehiculares</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SUNAT por RUC</strong></td>
+                                    <td>6</td>
+                                    <td>Procesamiento de datos fiscales empresariales</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SUNAT por Razón Social</strong></td>
+                                    <td>5</td>
+                                    <td>Servicio de búsqueda empresarial por nombre</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Empresas donde figura la persona</strong></td>
+                                    <td>4</td>
+                                    <td>Infraestructura para consulta de vinculaciones empresariales</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Matrimonios Registrados</strong></td>
+                                    <td>6</td>
+                                    <td>Procesamiento de registros de estado civil</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Buscar DNI por Nombres y Apellidos</strong></td>
+                                    <td>5</td>
+                                    <td>Servicio de búsqueda inversa por datos nominales</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Buscar Venezolanos por Nombres</strong></td>
+                                    <td>5</td>
+                                    <td>Infraestructura para consultas de personas venezolanas</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Consulta por Cédula Venezolana</strong></td>
+                                    <td>5</td>
+                                    <td>Procesamiento de consultas por documento venezolano</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px;">
+                                        <strong>Nota:</strong> Los créditos cubren exclusivamente costos de infraestructura tecnológica, 
+                                        procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="api-recommendation">
+                    <h4><i class="ri-tools-line"></i> ⚙️ Servicio Intermediado Optimizado</h4>
+                    <p>Te ayudamos a ahorrar tiempo con una mejor alternativa:</p>
+                    <p>Anteriormente usabas el servicio:</p>
+                    <code>/api/ficha | dni | https://consulta-pe-apis-data-v2.fly.dev/api/ficha?dni={DNI_NUMBER} | 30 créditos</code>
+                    <p>Reemplázala por esta intermediación más ligera y práctica:</p>
+                    <code>/api/reniec | dni | https://consulta-pe-apis-data-v2.fly.dev/api/reniec?dni={DNI_NUMBER} | 10 créditos</code>
+                    <p>
+                        💡 Los resultados llegan en texto plano y puedes generar tus propias imágenes si lo deseas.
+                    </p>
+                </div>
+                
+                <div class="info-section gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-rocket-line text-accent"></i>
+                        🧩 11 Servicios de Intermediación Listos para Ti
+                    </div>
+                    <p>
+                        Todos nuestros servicios están <strong>listos para consumir</strong>, probados y optimizados para máxima eficiencia.
+                    </p>
+                    <p>
+                        Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong>no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
+                    </p>
+                </div>
+
+                <div class="wide-grid">
+                    <div class="section-card gradient-border">
+                        <div class="text-container-header">
+                            <i class="ri-money-dollar-circle-line" style="color: var(--secondary);"></i>
+                            💰 Paquetes Disponibles
+                        </div>
+                        <div class="package-grid">
+                            <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
+                                <div class="package-card">
+                                    <div class="amount">S/10</div>
+                                    <div class="credits">60 ⚡ CRÉDITOS</div>
+                                    <div class="benefit">Ideal para pruebas o proyectos pequeños</div>
+                                </div>
+                            </a>
+                            
+                            <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
+                                <div class="package-card">
+                                    <div class="amount">S/20</div>
+                                    <div class="credits">125 🚀 CRÉDITOS</div>
+                                    <div class="benefit">Buen equilibrio entre costo y rendimiento</div>
+                                </div>
+                            </a>
+                            
+                            <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
+                                <div class="package-card" style="border-color: #00e676;">
+                                    <div class="amount">S/50</div>
+                                    <div class="credits">330 💎 CRÉDITOS</div>
+                                    <div class="benefit font-bold" style="color:#00e676;">Opción inteligente y más rentable</div>
+                                </div>
+                            </a>
+                            
+                            <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
+                                <div class="package-card">
+                                    <div class="amount">S/100</div>
+                                    <div class="credits">700 👑 CRÉDITOS</div>
+                                    <div class="benefit">Plan avanzado con excelente retorno</div>
+                                </div>
+                            </a>
+                            
+                            <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
+                                <div class="package-card" style="grid-column: span 2;">
+                                    <div class="amount">S/200</div>
+                                    <div class="credits">1500 🔥 CRÉDITOS</div>
+                                    <div class="benefit font-bold" style="color:#ff0000;">La mejor relación costo-beneficio</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section gradient-border">
+                        <div class="text-container-header">
+                            <i class="ri-line-chart-line text-accent"></i>
+                            📊 Comparativa de Ahorro por Paquete
+                        </div>
+                        <p>
+                            Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong>
+                        </p>
+                        <p>
+                            Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="text-secondary font-bold">💰 13% de ahorro</span>
+                        </p>
+                        <p>
+                            Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color:#ff0000;" class="font-bold">🔥 24% de ahorro</span>
+                        </p>
+                        <p class="font-bold" style="color:var(--accent);">
+                            👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="section-card gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-award-line" style="color: #ffc107;"></i>
+                        💎 Comparativa de Paquetes y Ahorro
+                    </div>
+                    <p class="font-bold">
+                        🎯 Recomendación principal:
+                        Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.
+                    </p>
+                    <p>
+                        Pagas menos por cada crédito, obtienes más consultas por el mismo dinero,
+                        y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.
+                    </p>
+
+                    <div class="text-container-header" style="margin-top: 10px;">
+                        <i class="ri-checkbox-circle-line text-secondary"></i>
+                        ✨ Ventajas exclusivas
+                    </div>
+                    <ul class="advantage-list">
+                        <li><i class="ri-check-line"></i> Tus créditos <strong>jamás caducan</strong>.</li>
+                        <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
+                        <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
+                        <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios intermediados y soporte técnico directo.</li>
+                    </ul>
+                    <p class="font-bold text-center" style="margin-top: 15px;">
+                        💬 En pocas palabras:
+                        Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.
+                    </p>
+                    <p class="font-bold text-center" style="color:#ff0000; font-size: 18px;">
+                        🔥 Consulta PE premia a los desarrolladores inteligentes.
+                    </p>
+                </div>
+
+                <div class="section-card gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-global-line text-accent"></i>
+                        🌐 Planes Ilimitados (para proyectos con alto tráfico)
+                    </div>
+                    <p>
+                        Si tu app ya tiene muchos usuarios o tráfico constante,
+                        el <strong>plan ilimitado</strong> es una excelente opción.
+                    </p>
+                    <table class="unlimited-table">
+                        <thead>
+                            <tr>
+                                <th>DURACIÓN</th>
+                                <th>PRECIO SUGERIDO</th>
+                                <th>AHORRO ESTIMADO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
+                            <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
+                            <tr><td>1 mes</td><td class="price">S/120</td><td>Ahorro S/20</td></tr>
+                            <tr><td>1 mes y medio</td><td class="price">S/165</td><td>Ahorro S/30</td></tr>
+                            <tr><td>2 meses</td><td class="price">S/210</td><td class="saving">Ahorro S/50</td></tr>
+                            <tr><td>2 meses y medio</td><td class="price">S/300</td><td>Ahorro S/37</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="info-section gradient-border">
+                    <div class="text-container-header">
+                        <i class="ri-emotion-line text-secondary"></i>
+                        ✨ Conclusión:
+                    </div>
+                    <p>
+                        Consulta PE te brinda una <strong>experiencia completa, rentable y confiable</strong> al actuar como <strong>intermediario</strong> de diversos servicios de información para que tu proyecto pueda crecer.
+                        Queremos que disfrutes cada integración, que sientas que tu proyecto avanza,
+                        y que digas con orgullo:
+                    </p>
+                    <blockquote class="quote">
+                        Elegí Consulta PE… y fue la mejor decisión. 💚
+                    </blockquote>
+                </div>
+
+                <div class="info-section gradient-border">
+                    <h3>Preguntas Frecuentes (FAQ)</h3>
+                    <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la API?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de intermediación.</p>
+                    <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
+                    <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
+                    <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
+                    <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="go:Rapis" class="font-bold" style="color: var(--accent); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.</p>
+                </div>
+                
+                <footer>
+                    <h3>Síguenos en nuestras redes sociales</h3>
+                    <div class="social-icons">
+                        <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-square"></i></a>
+                        <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube"><i class="fab fa-youtube-square"></i></a>
+                    </div>
+                    <p class="mb-2">Consulta PE © 2024 - Todos los derechos reservados</p>
+                    <p class="mb-2">
+                        <a href="go:terminos">Términos y condiciones</a> |
+                        <a href="go:politica">Política de privacidad</a> |
+                        <a href="go:legal">Aviso legal y descargo de responsabilidad</a>
+                    </p>
+                    <p>Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong></p>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DE COMPARTIR -->
+    <div class="banner" id="banner">  
+        <div class="banner-title"><i class="fas fa-heart banner-icon"></i> 🤭 ¡Pequeño favorcito!</div>  
+        <div class="banner-description">  
+            <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+            <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+        </div>  
+        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt banner-icon"></i> Compartir ahora</a>  
+        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times banner-icon"></i> Quizás más tarde</a>  
+    </div>
+
+    <!-- Loading Indicator -->
     <div id="loading-indicator">
         <div class="dots-loader">
             <div class="dot"></div>
@@ -705,369 +1310,8 @@
             <div class="dot"></div>
         </div>
     </div>
-    <div class="wrap" id="profile-container" style="display: none;">
-        
-        <div class="profile-card gradient-border">
-            <div class="profile-header">
-                <div class="avatar">
-                    <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
-                </div>
-                <div>
-                    <h2>Hola, <span id="userName"></span></h2>
-                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
-                </div>
-            </div>
-            <div class="profile-stats">
-                <div class="stat-item" id="infoCreditos">
-                    <span class="stat-value" id="creditos">0</span>
-                    <span class="stat-label">Créditos Restantes</span>
-                </div>
-                <div class="stat-item" id="infoIlimitado" style="display:none;">
-                    <span class="stat-value" id="diasRestantes">0</span>
-                    <span class="stat-label">Días restantes (Ilimitado)</span>
-                    <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
-                </div>
-            </div>
-            <a href="go:??" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
-        </div>
 
-        <div class="section-card gradient-border">
-            <h3>Tu Token de Acceso</h3>
-            <p style="font-size:14px;color:var(--muted);">
-                Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de intermediación.
-            </p>
-            <div class="input-group">
-                <input type="text" id="api-key-field" readonly />
-                <button class="copy-btn" onclick="copyApiKey()" title="Copiar Token">
-                    <i class="ri-file-copy-line"></i>
-                </button>
-            </div>
-            <button class="btn-secondary" onclick="generateNewApiKey()">
-                <i class="ri-refresh-line"></i> Generar Nuevo Token
-            </button>
-        </div>
-
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-sparkling-2-line text-secondary"></i>
-                ¡Felicidades por elegir Consulta PE! 🚀
-            </div>
-            <p class="font-bold" style="color:#111;">
-                Has tomado una de las mejores decisiones para tu proyecto.
-            </p>
-            <p>
-                Aquí encontrarás <strong>11 APIs intermediadas listas para integrar</strong>, limpias, estables y con soporte constante.
-                Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
-            </p>
-            <p style="font-size: 13px; color: #ff0000; margin-top: 10px;">
-                ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="go:Rapis" class="font-bold" style="color: #ff0000; text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
-            </p>
-            <a href="go:doc" target="_blank" class="btn-primary" style="margin-top: 8px;">
-                <i class="ri-book-3-line"></i> Ver Documentación
-            </a>
-        </div>
-
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-lightbulb-line" style="color: #ffc107;"></i>
-                💡 Sobre el Consumo de Créditos
-            </div>
-            <p>
-                Recuerda que cada servicio intermediado tiene su propio consumo de créditos.
-            </p>
-            <p class="font-bold" style="color:var(--accent);">
-                👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por API.
-            </p>
-            <div class="text-container" style="background: #e6f0ff;">
-                <div class="text-container-header" style="color: #111;">
-                    Recomendación para rentabilidad:
-                </div>
-                <p style="color:#111;">
-                    Si vas a integrar los servicios de intermediación en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
-                </p>
-                <p style="color:#111;">
-                    Por ejemplo: Si un servicio consume <strong>10 créditos</strong>, puedes configurarlo en tu proyecto para que consuma <strong>12 o 13 créditos</strong>. De esta manera ganas por cada consulta y aseguras la sostenibilidad de tu sistema.
-                </p>
-            </div>
-        </div>
-
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-database-line text-accent"></i>
-                💳 Tabla de Créditos por Servicio de Infraestructura (<strong>11 APIs</strong>)
-            </div>
-            <div class="table-scroll">
-                <table class="credit-table">
-                    <thead>
-                        <tr>
-                            <th>🔧 Servicio de Infraestructura</th>
-                            <th>💰 Créditos</th>
-                            <th>📝 Descripción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Consulta RENIEC por DNI</strong></td>
-                            <td>7</td>
-                            <td>Infraestructura para acceso a datos básicos de identificación</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Telefonía por Documento</strong></td>
-                            <td>9</td>
-                            <td>Procesamiento de consultas a registros telefónicos por documento</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Telefonía por Número</strong></td>
-                            <td>8</td>
-                            <td>Servicio de consulta inversa de titularidad telefónica</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td>
-                            <td>8</td>
-                            <td>Infraestructura para consulta de registros vehiculares</td>
-                        </tr>
-                        <tr>
-                            <td><strong>SUNAT por RUC</strong></td>
-                            <td>6</td>
-                            <td>Procesamiento de datos fiscales empresariales</td>
-                        </tr>
-                        <tr>
-                            <td><strong>SUNAT por Razón Social</strong></td>
-                            <td>5</td>
-                            <td>Servicio de búsqueda empresarial por nombre</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Empresas donde figura la persona</strong></td>
-                            <td>4</td>
-                            <td>Infraestructura para consulta de vinculaciones empresariales</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Matrimonios Registrados</strong></td>
-                            <td>6</td>
-                            <td>Procesamiento de registros de estado civil</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Buscar DNI por Nombres y Apellidos</strong></td>
-                            <td>5</td>
-                            <td>Servicio de búsqueda inversa por datos nominales</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Buscar Venezolanos por Nombres</strong></td>
-                            <td>5</td>
-                            <td>Infraestructura para consultas de personas venezolanas</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Consulta por Cédula Venezolana</strong></td>
-                            <td>5</td>
-                            <td>Procesamiento de consultas por documento venezolano</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px;">
-                                <strong>Nota:</strong> Los créditos cubren exclusivamente costos de infraestructura tecnológica, 
-                                procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <div class="api-recommendation">
-            <h4><i class="ri-tools-line"></i> ⚙️ Servicio Intermediado Optimizado</h4>
-            <p>Te ayudamos a ahorrar tiempo con una mejor alternativa:</p>
-            <p>Anteriormente usabas el servicio:</p>
-            <code>/api/ficha | dni | https://consulta-pe-apis-data-v2.fly.dev/api/ficha?dni={DNI_NUMBER} | 30 créditos</code>
-            <p>Reemplázala por esta intermediación más ligera y práctica:</p>
-            <code>/api/reniec | dni | https://consulta-pe-apis-data-v2.fly.dev/api/reniec?dni={DNI_NUMBER} | 10 créditos</code>
-            <p>
-                💡 Los resultados llegan en texto plano y puedes generar tus propias imágenes si lo deseas.
-            </p>
-        </div>
-        
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-rocket-line text-accent"></i>
-                🧩 11 Servicios de Intermediación Listos para Ti
-            </div>
-            <p>
-                Todos nuestros servicios están <strong>listos para consumir</strong>, probados y optimizados para máxima eficiencia.
-            </p>
-            <p>
-                Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong>no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
-            </p>
-        </div>
-
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-money-dollar-circle-line" style="color: var(--secondary);"></i>
-                💰 Paquetes Disponibles
-            </div>
-            <div class="package-grid">
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
-                    <div class="package-card">
-                        <div class="amount">S/10</div>
-                        <div class="credits">60 ⚡ CRÉDITOS</div>
-                        <div class="benefit">Ideal para pruebas o proyectos pequeños</div>
-                    </div>
-                </a>
-                
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
-                    <div class="package-card">
-                        <div class="amount">S/20</div>
-                        <div class="credits">125 🚀 CRÉDITOS</div>
-                        <div class="benefit">Buen equilibrio entre costo y rendimiento</div>
-                    </div>
-                </a>
-                
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
-                    <div class="package-card" style="border-color: #00e676;">
-                        <div class="amount">S/50</div>
-                        <div class="credits">330 💎 CRÉDITOS</div>
-                        <div class="benefit font-bold" style="color:#00e676;">Opción inteligente y más rentable</div>
-                    </div>
-                </a>
-                
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
-                    <div class="package-card">
-                        <div class="amount">S/100</div>
-                        <div class="credits">700 👑 CRÉDITOS</div>
-                        <div class="benefit">Plan avanzado con excelente retorno</div>
-                    </div>
-                </a>
-                
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
-                    <div class="package-card" style="grid-column: span 2;">
-                        <div class="amount">S/200</div>
-                        <div class="credits">1500 🔥 CRÉDITOS</div>
-                        <div class="benefit font-bold" style="color:#ff0000;">La mejor relación costo-beneficio</div>
-                    </div>
-                </a>
-            </div>
-        </div>
-        
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-line-chart-line text-accent"></i>
-                📊 Comparativa de Ahorro por Paquete
-            </div>
-            <p>
-                Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong>
-            </p>
-            <p>
-                Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="text-secondary font-bold">💰 13% de ahorro</span>
-            </p>
-            <p>
-                Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color:#ff0000;" class="font-bold">🔥 24% de ahorro</span>
-            </p>
-            <p class="font-bold" style="color:var(--accent);">
-                👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.
-            </p>
-        </div>
-        
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-award-line" style="color: #ffc107;"></i>
-                💎 Comparativa de Paquetes y Ahorro
-            </div>
-            <p class="font-bold">
-                🎯 Recomendación principal:
-                Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.
-            </p>
-            <p>
-                Pagas menos por cada crédito, obtienes más consultas por el mismo dinero,
-                y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.
-            </p>
-
-            <div class="text-container-header" style="margin-top: 10px;">
-                <i class="ri-checkbox-circle-line text-secondary"></i>
-                ✨ Ventajas exclusivas
-            </div>
-            <ul class="advantage-list">
-                <li><i class="ri-check-line"></i> Tus créditos <strong>jamás caducan</strong>.</li>
-                <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
-                <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
-                <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios intermediados y soporte técnico directo.</li>
-            </ul>
-            <p class="font-bold text-center" style="margin-top: 15px;">
-                💬 En pocas palabras:
-                Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.
-            </p>
-            <p class="font-bold text-center" style="color:#ff0000; font-size: 18px;">
-                🔥 Consulta PE premia a los desarrolladores inteligentes.
-            </p>
-        </div>
-
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-global-line text-accent"></i>
-                🌐 Planes Ilimitados (para proyectos con alto tráfico)
-            </div>
-            <p>
-                Si tu app ya tiene muchos usuarios o tráfico constante,
-                el <strong>plan ilimitado</strong> es una excelente opción.
-            </p>
-            <table class="unlimited-table">
-                <thead>
-                    <tr>
-                        <th>DURACIÓN</th>
-                        <th>PRECIO SUGERIDO</th>
-                        <th>AHORRO ESTIMADO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
-                    <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
-                    <tr><td>1 mes</td><td class="price">S/120</td><td>Ahorro S/20</td></tr>
-                    <tr><td>1 mes y medio</td><td class="price">S/165</td><td>Ahorro S/30</td></tr>
-                    <tr><td>2 meses</td><td class="price">S/210</td><td class="saving">Ahorro S/50</td></tr>
-                    <tr><td>2 meses y medio</td><td class="price">S/300</td><td>Ahorro S/37</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-emotion-line text-secondary"></i>
-                ✨ Conclusión:
-            </div>
-            <p>
-                Consulta PE te brinda una <strong>experiencia completa, rentable y confiable</strong> al actuar como <strong>intermediario</strong> de diversos servicios de información para que tu proyecto pueda crecer.
-                Queremos que disfrutes cada integración, que sientas que tu proyecto avanza,
-                y que digas con orgullo:
-            </p>
-            <blockquote class="quote">
-                Elegí Consulta PE… y fue la mejor decisión. 💚
-            </blockquote>
-        </div>
-
-        <div class="info-section gradient-border">
-            <h3>Preguntas Frecuentes (FAQ)</h3>
-            <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la API?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de intermediación.</p>
-            <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
-            <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
-            <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
-            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="go:Rapis" class="font-bold" style="color: var(--accent); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.</p>
-        </div>
-        
-        <footer>
-            <h3>Síguenos en nuestras redes sociales</h3>
-            <div class="social-icons">
-                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-square"></i></a>
-                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube"><i class="fab fa-youtube-square"></i></a>
-            </div>
-            <p class="mb-2">Consulta PE © 2024 - Todos los derechos reservados</p>
-            <p class="mb-2">
-                <a href="go:terminos">Términos y condiciones</a> |
-                <a href="go:politica">Política de privacidad</a> |
-                <a href="go:legal">Aviso legal y descargo de responsabilidad</a>
-            </p>
-            <p>Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong></p>
-        </footer>
-
-    </div>
-
+    <!-- Modal de Confirmación -->
     <div id="saveConfirmModal" class="modal">
         <div class="modal-content gradient-border">
             <p id="saveConfirmMessage"></p>
@@ -1082,6 +1326,88 @@
     </div>
 
     <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
+
+    <script>
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Control del menú lateral
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleMenu() {
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('open')) {
+                        overlay.classList.add('hidden');
+                    }
+                }, 300);
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Cerrar menú al hacer click en un enlace (excepto cerrar sesión)
+        const navLinks = sidebar.querySelectorAll('nav a:not(#logout-btn)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleMenu();
+                // Aquí normalmente se cargaría el contenido correspondiente a la opción seleccionada
+                console.log(`Navegando a: ${link.getAttribute('href')}`);
+            });
+        });
+
+        // Botón de perfil - lleva a actividad
+        document.getElementById('profile-btn').addEventListener('click', function() {
+            alert('Redirigiendo a la actividad del perfil...');
+            // window.location.href = 'actividad.html'; // Descomentar para redirección real
+        });
+
+        // Botón de compartir - abre el modal
+        document.getElementById('share-btn').addEventListener('click', function() {
+            document.getElementById('banner').style.display = 'flex';
+        });
+
+        // Botón de cerrar sesión
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                alert('Cerrando sesión...');
+                // window.location.href = 'logout.html'; // Descomentar para redirección real
+            }
+        });
+
+        // Funciones para el modal de compartir
+        // Mostrar el banner después de 50 segundos (50000 milisegundos)
+        setTimeout(() => {  
+            document.getElementById('banner').style.display = 'flex';  
+        }, 50000);  
+
+        function sharePage() {  
+            const url = "https://masitaprexv2.fly.dev/";  
+            const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
+            const text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
+
+            if (navigator.share) {  
+                navigator.share({ title, text, url })  
+                    .catch(error => console.log("Error al compartir:", error));  
+            } else {  
+                window.open(url, "_blank");  
+            }  
+        }  
+
+        function closeBanner() {  
+            document.getElementById('banner').style.display = 'none';  
+        }
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1150,149 +1476,149 @@
                     }, 3000);
                 }
 
-                async function generateNewApiKey() {
-                    if (!currentUser) {
-                        showFeedbackModal('No hay usuario autenticado.', true);
-                        return;
-                    }
-                    showLoadingIndicator();
-                    try {
-                        const newApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
-                                               .map(b => b.toString(16).padStart(2, '0')).join('');
-                        
-                        const userRef = doc(db, "usuarios", currentUser.uid);
-                        await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
-                        apiKeyField.value = newApiKey;
-                        showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
-                    } catch (e) {
-                        console.error("Error al generar el token:", e);
-                        showFeedbackModal('Error al generar el token. Intenta de nuevo.', true);
-                    } finally {
-                        hideLoadingIndicator();
-                    }
-                }
-                window.generateNewApiKey = generateNewApiKey;
+        async function generateNewApiKey() {
+            if (!currentUser) {
+                showFeedbackModal('No hay usuario autenticado.', true);
+                return;
+            }
+            showLoadingIndicator();
+            try {
+                const newApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
+                                       .map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                const userRef = doc(db, "usuarios", currentUser.uid);
+                await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
+                apiKeyField.value = newApiKey;
+                showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
+            } catch (e) {
+                console.error("Error al generar el token:", e);
+                showFeedbackModal('Error al generar el token. Intenta de nuevo.', true);
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+        window.generateNewApiKey = generateNewApiKey;
 
-                function copyApiKey() {
-                    if (!apiKeyField.value) {
-                        showFeedbackModal('No hay token para copiar.', true);
-                        return;
-                    }
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(apiKeyField.value)
-                            .then(() => {
-                                showFeedbackModal('Token copiado al portapapeles!');
-                            })
-                            .catch(err => {
-                                console.error('Error al copiar con la API de Clipboard: ', err);
-                                fallbackCopyTextToClipboard(apiKeyField.value);
-                            });
-                    } else {
+        function copyApiKey() {
+            if (!apiKeyField.value) {
+                showFeedbackModal('No hay token para copiar.', true);
+                return;
+            }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(apiKeyField.value)
+                    .then(() => {
+                        showFeedbackModal('Token copiado al portapapeles!');
+                    })
+                    .catch(err => {
+                        console.error('Error al copiar con la API de Clipboard: ', err);
                         fallbackCopyTextToClipboard(apiKeyField.value);
-                    }
+                    });
+            } else {
+                fallbackCopyTextToClipboard(apiKeyField.value);
+            }
+        }
+        window.copyApiKey = copyApiKey;
+
+        function fallbackCopyTextToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            tempInput.style.position = 'fixed';
+            tempInput.style.opacity = '0';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showFeedbackModal('Token copiado al portapapeles! (Método alternativo)');
+                } else {
+                    showFeedbackModal('No se pudo copiar el token.', true);
                 }
-                window.copyApiKey = copyApiKey;
+            } catch (err) {
+                console.error('Fallback: No se pudo copiar.', err);
+                showFeedbackModal('No se pudo copiar el token.', true);
+            }
+            document.body.removeChild(tempInput);
+        }
 
-                function fallbackCopyTextToClipboard(text) {
-                    const tempInput = document.createElement('textarea');
-                    tempInput.value = text;
-                    tempInput.style.position = 'fixed';
-                    tempInput.style.opacity = '0';
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    try {
-                        const successful = document.execCommand('copy');
-                        if (successful) {
-                            showFeedbackModal('Token copiado al portapapeles! (Método alternativo)');
-                        } else {
-                            showFeedbackModal('No se pudo copiar el token.', true);
-                        }
-                    } catch (err) {
-                        console.error('Fallback: No se pudo copiar.', err);
-                        showFeedbackModal('No se pudo copiar el token.', true);
-                    }
-                    document.body.removeChild(tempInput);
+        async function loadProfileData() {
+            showLoadingIndicator();
+            if (!currentUser) {
+                window.location.href = "index.html";
+                hideLoadingIndicator();
+                return;
+            }
+            try {
+                const userRef = doc(db, "usuarios", currentUser.uid);
+                const docSnap = await getDoc(userRef);
+                let userData = {};
+                if (docSnap.exists()) {
+                    userData = docSnap.data();
+                } else {
+                    const defaultName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Usuario');
+                    const initialApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
+                                               .map(b => b.toString(16).padStart(2, '0')).join('');
+
+                    userData = {
+                        name: defaultName,
+                        email: currentUser.email || '',
+                        createdAt: new Date(),
+                        tipoPlan: "creditos",
+                        creditos: 5,
+                        apiKey: initialApiKey
+                    };
+                    await setDoc(userRef, userData);
                 }
 
-                async function loadProfileData() {
-                    showLoadingIndicator();
-                    if (!currentUser) {
-                        window.location.href = "index.html";
-                        hideLoadingIndicator();
-                        return;
-                    }
-                    try {
-                        const userRef = doc(db, "usuarios", currentUser.uid);
-                        const docSnap = await getDoc(userRef);
-                        let userData = {};
-                        if (docSnap.exists()) {
-                            userData = docSnap.data();
-                        } else {
-                            const defaultName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Usuario');
-                            const initialApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
-                                                   .map(b => b.toString(16).padStart(2, '0')).join('');
+                userNameSpan.textContent = userData.name || 'Usuario';
+                if(currentUser.photoURL) {
+                    userPhoto.src = currentUser.photoURL;
+                }
+                
+                infoCreditosDiv.style.display = 'none';
+                infoIlimitadoDiv.style.display = 'none';
 
-                            userData = {
-                                name: defaultName,
-                                email: currentUser.email || '',
-                                createdAt: new Date(),
-                                tipoPlan: "creditos",
-                                creditos: 5,
-                                apiKey: initialApiKey
-                            };
-                            await setDoc(userRef, userData);
-                        }
+                if (userData.tipoPlan === "creditos") {
+                    infoCreditosDiv.style.display = "flex";
+                    creditosSpan.textContent = userData.creditos ? userData.creditos.toLocaleString('es-PE') : '0';
+                } else if (userData.tipoPlan === "ilimitado") {
+                    const fechaActivacion = userData.fechaActivacion ? userData.fechaActivacion.toDate() : null;
+                    const duracion = userData.duracionDias || 0;
 
-                        userNameSpan.textContent = userData.name || 'Usuario';
-                        if(currentUser.photoURL) {
-                            userPhoto.src = currentUser.photoURL;
-                        }
-                        
-                        infoCreditosDiv.style.display = 'none';
-                        infoIlimitadoDiv.style.display = 'none';
+                    if (fechaActivacion) {
+                        const fechaFin = new Date(fechaActivacion);
+                        fechaFin.setDate(fechaFin.getDate() + duracion);
+                        const hoy = new Date();
+                        const diffMs = fechaFin - hoy;
+                        const diasRestantes = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
-                        if (userData.tipoPlan === "creditos") {
-                            infoCreditosDiv.style.display = "flex";
-                            creditosSpan.textContent = userData.creditos ? userData.creditos.toLocaleString('es-PE') : '0';
-                        } else if (userData.tipoPlan === "ilimitado") {
-                            const fechaActivacion = userData.fechaActivacion ? userData.fechaActivacion.toDate() : null;
-                            const duracion = userData.duracionDias || 0;
-
-                            if (fechaActivacion) {
-                                const fechaFin = new Date(fechaActivacion);
-                                fechaFin.setDate(fechaFin.getDate() + duracion);
-                                const hoy = new Date();
-                                const diffMs = fechaFin - hoy;
-                                const diasRestantes = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-
-                                infoIlimitadoDiv.style.display = "flex";
-                                venceElSpan.textContent = fechaFin.toLocaleDateString();
-                                diasRestantesSpan.textContent = diasRestantes;
-                            }
-                        }
-
-                        if (userData.apiKey) {
-                            apiKeyField.value = userData.apiKey;
-                        } else {
-                            generateNewApiKey();
-                        }
-
-                    } catch (e) {
-                        console.error("Error al cargar el perfil:", e);
-                        showFeedbackModal("Error al cargar los datos del perfil.", true);
-                    } finally {
-                        hideLoadingIndicator();
+                        infoIlimitadoDiv.style.display = "flex";
+                        venceElSpan.textContent = fechaFin.toLocaleDateString();
+                        diasRestantesSpan.textContent = diasRestantes;
                     }
                 }
 
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        loadProfileData();
-                    } else {
-                        window.location.href = "index.html";
-                    }
-                });
+                if (userData.apiKey) {
+                    apiKeyField.value = userData.apiKey;
+                } else {
+                    generateNewApiKey();
+                }
+
+            } catch (e) {
+                console.error("Error al cargar el perfil:", e);
+                showFeedbackModal("Error al cargar los datos del perfil.", true);
+            } finally {
+                hideLoadingIndicator();
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadProfileData();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
 
             } catch (error) {
                 console.error('Error inicializando la aplicación:', error);
