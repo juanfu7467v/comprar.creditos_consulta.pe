@@ -275,21 +275,33 @@
       opacity: 1;
     }
 
-    /* Sección Tienda - Estilos para aplicación móvil nativa */
+    /* Sección Tienda - ELIMINADO EL FONDO EN FORMA DE MEDIA LUNA */
     .tienda-mobile {
       width: 100%;
       margin: 0;
       padding: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-      border-top: 1px solid rgba(255,255,255,.14);
-      border-bottom: 1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      position: relative;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.8s ease 0.8s forwards;
+      background: transparent !important;
     }
 
+    /* Fondo para contenido interno */
+    .tienda-content {
+      position: relative;
+      z-index: 1;
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .tienda-content {
+        padding: 24px;
+      }
+    }
+
+    /* Resto de estilos de la sección tienda permanecen iguales */
     .tienda-header {
       display: flex;
       align-items: center;
@@ -430,7 +442,7 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255,255, 0.1);
       border: none;
       color: white;
       font-size: 24px;
@@ -541,7 +553,7 @@
       color: transparent;
     }
 
-    /* Tabla para funcionalidades principales - Mobile UX/UI */
+    /* Tablas rediseñadas para móvil - ELIMINADOS LOS ÍCONOS */
     .features-table {
       width: 100%;
       margin: 20px 0;
@@ -564,11 +576,6 @@
       border-bottom: 1px solid rgba(255,255,255,.14);
     }
 
-    .features-table th i {
-      margin-right: 10px;
-      color: var(--cyan);
-    }
-
     .features-table td {
       padding: 16px;
       border-bottom: 1px solid rgba(255,255,255,.08);
@@ -581,41 +588,19 @@
       border-bottom: none;
     }
 
-    .feature-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 12px;
-      background: rgba(53,213,255,.12);
-      border: 1px solid rgba(53,213,255,.22);
-      color: var(--cyan);
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-
-    .feature-row {
-      display: flex;
-      align-items: flex-start;
-    }
-
-    .feature-content {
-      flex: 1;
-    }
-
     .feature-title {
       font-weight: 700;
       color: var(--cyan);
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       font-size: 16px;
+      display: block;
     }
 
     .feature-desc {
       color: rgba(234,240,255,.75);
       font-size: 14px;
       line-height: 1.5;
+      display: block;
     }
 
     /* Tabla para funciones adicionales */
@@ -641,11 +626,6 @@
       border-bottom: 1px solid rgba(255,255,255,.14);
     }
 
-    .additional-features-table th i {
-      margin-right: 10px;
-      color: var(--pink);
-    }
-
     .additional-features-table td {
       padding: 16px;
       border-bottom: 1px solid rgba(255,255,255,.08);
@@ -658,19 +638,419 @@
       border-bottom: none;
     }
 
-    .additional-feature-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+    /* NUEVA SECCIÓN INFORMATIVA: Infraestructura API 3D */
+    .api-infrastructure {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      padding: 40px 20px;
+      background: linear-gradient(145deg, 
+        rgba(11, 18, 48, 0.95) 0%,
+        rgba(7, 10, 24, 0.98) 100%);
+      border-top: 1px solid rgba(53, 213, 255, 0.2);
+      border-bottom: 1px solid rgba(109, 91, 255, 0.2);
+      overflow: hidden;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    /* Fondo 3D de infraestructura */
+    .api-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.4;
+      background: 
+        linear-gradient(90deg, transparent 98%, rgba(53,213,255,0.1) 100%),
+        linear-gradient(0deg, transparent 98%, rgba(109,91,255,0.1) 100%);
+      background-size: 40px 40px;
+      transform: perspective(800px) rotateX(60deg);
+      transform-origin: center top;
+    }
+
+    /* Elementos 3D de infraestructura */
+    .api-node {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(53, 213, 255, 0.8);
+      box-shadow: 0 0 20px rgba(53, 213, 255, 0.6);
+      z-index: 1;
+      animation: nodePulse 3s infinite ease-in-out;
+    }
+
+    .api-connection {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(53, 213, 255, 0.6),
+        rgba(109, 91, 255, 0.6),
+        transparent);
+      z-index: 0;
+      animation: connectionFlow 4s infinite linear;
+    }
+
+    /* Animaciones para elementos API */
+    @keyframes nodePulse {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(53, 213, 255, 0.6);
+      }
+      50% { 
+        transform: scale(1.3);
+        box-shadow: 0 0 30px rgba(53, 213, 255, 0.9);
+      }
+    }
+
+    @keyframes connectionFlow {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+
+    /* Contenedor principal de la nueva sección */
+    .api-container {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .api-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .api-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,1), 
+        rgba(109,91,255,1),
+        rgba(255,61,141,1));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .api-subtitle {
+      font-size: clamp(16px, 2vw, 18px);
+      color: rgba(234,240,255,.75);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Grid de características de API */
+    .api-features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .api-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .api-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .api-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,1), 
+        rgba(109,91,255,1));
+    }
+
+    .api-card-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 12px;
-      background: rgba(255,61,141,.12);
-      border: 1px solid rgba(255,61,141,.22);
-      color: var(--pink);
-      font-size: 18px;
-      flex-shrink: 0;
+      margin-bottom: 20px;
+      background: rgba(53,213,255,.1);
+      border: 1px solid rgba(53,213,255,.2);
+      color: var(--cyan);
+      font-size: 24px;
+    }
+
+    .api-card-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--cyan);
+    }
+
+    .api-card-text {
+      color: rgba(234,240,255,.8);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* Código animado */
+    .code-animation {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 25px;
+      margin: 30px 0;
+      border: 1px solid rgba(255,255,255,.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .code-lang {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .code-lang-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .php-icon {
+      background: #8892BF;
+      color: white;
+    }
+
+    .python-icon {
+      background: #3776AB;
+      color: white;
+    }
+
+    .code-lang-name {
+      font-weight: 700;
+      color: white;
+    }
+
+    .code-content {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #E6EDF3;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-line {
+      display: flex;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .line-number {
+      min-width: 40px;
+      color: #6E7681;
+      text-align: right;
+      padding-right: 15px;
+      user-select: none;
+    }
+
+    .line-content {
+      flex: 1;
+    }
+
+    .code-keyword {
+      color: #FF7B72;
+    }
+
+    .code-function {
+      color: #D2A8FF;
+    }
+
+    .code-string {
+      color: #A5D6FF;
+    }
+
+    .code-comment {
+      color: #6E7681;
+      font-style: italic;
+    }
+
+    .code-operator {
+      color: #79C0FF;
+    }
+
+    /* Typing cursor animation */
+    .typing-cursor {
+      display: inline-block;
+      width: 8px;
+      height: 20px;
+      background: var(--cyan);
+      margin-left: 4px;
+      animation: blink 1s infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* API Stats - MODIFICADO: Ancho limitado y dos columnas centradas */
+    .api-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 40px auto;
+      max-width: 600px;
+      width: 100%;
+      padding: 0 16px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,1), 
+        rgba(109,91,255,1));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      color: rgba(234,240,255,.7);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    /* CTA Button */
+    .api-cta {
+      text-align: center;
+      margin-top: 40px;
+      padding: 0 16px;
+    }
+
+    .api-cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 28px;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,0.2), 
+        rgba(109,91,255,0.2));
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      border: 1px solid rgba(53,213,255,0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    .api-cta-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.1), 
+        transparent);
+      transition: left 0.6s;
+    }
+
+    .api-cta-button:hover {
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,0.3), 
+        rgba(109,91,255,0.3));
+      border-color: rgba(53,213,255,0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(53,213,255,0.2);
+    }
+
+    .api-cta-button:hover::before {
+      left: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .api-stats {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 800px;
+      }
+      
+      .stat-card {
+        padding: 25px;
+      }
+      
+      .stat-number {
+        font-size: 42px;
+      }
+      
+      .stat-label {
+        font-size: 14px;
+      }
+      
+      .api-cta-button {
+        padding: 18px 36px;
+      }
     }
 
     /* Footer negro con texto blanco */
@@ -752,6 +1132,9 @@
         animation: fadeIn 0.5s ease forwards !important; 
         transform: none !important;
       }
+      .api-node, .api-connection, .typing-cursor {
+        animation: none !important;
+      }
     }
 
     /* Responsive para pantallas grandes */
@@ -763,6 +1146,10 @@
         max-width: 800px;
       }
       
+      .tienda-content {
+        padding: 24px;
+      }
+      
       .screenshot {
         width: 160px;
       }
@@ -771,8 +1158,29 @@
         margin: 24px 0;
       }
 
+      .api-infrastructure {
+        padding: 60px 40px;
+      }
+
       .footer {
         padding: 50px 40px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .api-features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      /* Mejora para tablas en móvil */
+      .features-table td, .additional-features-table td {
+        padding: 12px;
+        font-size: 14px;
+      }
+      
+      .features-table th, .additional-features-table th {
+        padding: 16px;
+        font-size: 16px;
       }
     }
 
@@ -869,280 +1277,354 @@
 
   <!-- Sección Tienda - Adaptada para aplicación móvil nativa -->
   <section id="tienda" class="tienda-mobile">
-    <div class="tienda-header">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="App Icon Consulta PE APK" class="tienda-icon">
-      <div>
-        <h2 class="tienda-title">Consulta PE APK</h2>
-        <p class="tienda-subtitle">Ofrecido por <strong>José C.</strong></p>
+    <div class="tienda-content">
+      <div class="tienda-header">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="App Icon Consulta PE APK" class="tienda-icon">
+        <div>
+          <h2 class="tienda-title">Consulta PE APK</h2>
+          <p class="tienda-subtitle">Ofrecido por <strong>José C.</strong></p>
+        </div>
       </div>
-    </div>
 
-    <p class="tienda-description">
-      Consulta PE APK es una herramienta rápida para <strong>consultar DNI por nombres y apellidos</strong> y obtener datos públicos en algunos casos. Descarga la app <strong>Consulta PE APK</strong> para acceder a estas funcionalidades.
-    </p>
+      <p class="tienda-description">
+        Consulta PE APK es una herramienta rápida para <strong>consultar DNI por nombres y apellidos</strong> y obtener datos públicos en algunos casos. Descarga la app <strong>Consulta PE APK</strong> para acceder a estas funcionalidades.
+      </p>
 
-    <!-- Screenshots -->
-    <div class="screenshots-scroll">
-      <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="Consulta PE APK Screenshot 1 - Interfaz de consulta de DNI" class="screenshot" data-index="0">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" alt="Consulta PE APK Screenshot 2 - Resultados de consulta de DNI" class="screenshot" data-index="1">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" alt="Consulta PE APK Screenshot 3 - Menú de funcionalidades" class="screenshot" data-index="2">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png" alt="Consulta PE APK Screenshot 4 - Consulta de RUC" class="screenshot" data-index="3">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjNmgEegtZKtQNd8UPBbNZ7Y6YAbjYHQ0VKwpih57TxKbP7Nt0ppMWgg4HIYkIpRFgA9Fk0o5EZM-uGzMMzxmTyN8eQFD8wEAEfs6RLlfW9qslIhcsP3OmhnLxYJsumThf-3rjuUcxnp-kQCBys58pmrFCsBqdcMzj8_Ur2PM2uc4ilkIWracOHqiQcgl0/s1920/1000113425.png" alt="Consulta PE APK Screenshot 5 - Sección de PeliPREX" class="screenshot" data-index="4">
-      <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0Zaj4qG3sDP6xYI9PauI53jG-BtNo5_by7iw4Vpp99z_302mCBQqRF8ap8VFMxWto8QaqHuhv_2K1KCWBR64vNryNSq3eaNDqaK8VCNFgNet66gbDQQxBYc-yuCXgIg11j-KtWaNTHomWgU2OnN-z9zlMLsUi6lI-uywABvJNCKr1DOfnF5xLB-A6qUU/s1920/1000113896.png" alt="Consulta PE APK Screenshot 6 - Gestor de contraseñas" class="screenshot" data-index="5">
-    </div>
+      <!-- Screenshots -->
+      <div class="screenshots-scroll">
+        <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="Consulta PE APK Screenshot 1 - Interfaz de consulta de DNI" class="screenshot" data-index="0">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" alt="Consulta PE APK Screenshot 2 - Resultados de consulta de DNI" class="screenshot" data-index="1">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" alt="Consulta PE APK Screenshot 3 - Menú de funcionalidades" class="screenshot" data-index="2">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png" alt="Consulta PE APK Screenshot 4 - Consulta de RUC" class="screenshot" data-index="3">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjNmgEegtZKtQNd8UPBbNZ7Y6YAbjYHQ0VKwpih57TxKbP7Nt0ppMWgg4HIYkIpRFgA9Fk0o5EZM-uGzMMzxmTyN8eQFD8wEAEfs6RLlfW9qslIhcsP3OmhnLxYJsumThf-3rjuUcxnp-kQCBys58pmrFCsBqdcMzj8_Ur2PM2uc4ilkIWracOHqiQcgl0/s1920/1000113425.png" alt="Consulta PE APK Screenshot 5 - Sección de PeliPREX" class="screenshot" data-index="4">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0Zaj4qG3sDP6xYI9PauI53jG-BtNo5_by7iw4Vpp99z_302mCBQqRF8ap8VFMxWto8QaqHuhv_2K1KCWBR64vNryNSq3eaNDqaK8VCNFgNet66gbDQQxBYc-yuCXgIg11j-KtWaNTHomWgU2OnN-z9zlMLsUi6lI-uywABvJNCKr1DOfnF5xLB-A6qUU/s1920/1000113896.png" alt="Consulta PE APK Screenshot 6 - Gestor de contraseñas" class="screenshot" data-index="5">
+      </div>
 
-    <!-- Botón principal de descarga -->
-    <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn">
-      <i class="fas fa-download"></i> Descargar Consulta PE APK
-    </a>
-
-    <!-- Tiendas alternativas -->
-    <div class="stores-row">
-      <a href="https://apkpure.com/es/consulta-pe/com.consulta.pe" target="_blank" rel="noopener noreferrer">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzYApxO4LnNVigFo0cNXeKwK1l18h8b7NdJH2AvBkxh9gBbrgUuYB4nYAgNm5ciCG-E_Sb6MqCiABpJfivhulbTdcPCkz1-4qJ6IcuXEDmVUbs3O4LkVXxbOQfHU3sRTr-FW2kgCMKCmUnUQ1Kjs-oiOL2WD4u-CGe7w1P42y2uVBf5S5PbtE0gizswZDe/s650/1000117704.png" alt="Apk pure - Descargar Consulta PE APK" class="store-logo">
+      <!-- Botón principal de descarga -->
+      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn">
+        <i class="fas fa-download"></i> Descargar Consulta PE APK
       </a>
-      <a href="https://com-masitaorex.uptodown.com/android" target="_blank" rel="noopener noreferrer">
-        <img src="https://stc.utdstc.com/img/svgs/logo-uptodown.svg" alt="Uptodown - Descargar Masitaprex APK" class="store-logo">
+
+      <!-- Tiendas alternativas -->
+      <div class="stores-row">
+        <a href="https://apkpure.com/es/consulta-pe/com.consulta.pe" target="_blank" rel="noopener noreferrer">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzYApxO4LnNVigFo0cNXeKwK1l18h8b7NdJH2AvBkxh9gBbrgUuYB4nYAgNm5ciCG-E_Sb6MqCiABpJfivhulbTdcPCkz1-4qJ6IcuXEDmVUbs3O4LkVXxbOQfHU3sRTr-FW2kgCMKCmUnUQ1Kjs-oiOL2WD4u-CGe7w1P42y2uVBf5S5PbtE0gizswZDe/s650/1000117704.png" alt="Apk pure - Descargar Consulta PE APK" class="store-logo">
+        </a>
+        <a href="https://com-masitaorex.uptodown.com/android" target="_blank" rel="noopener noreferrer">
+          <img src="https://stc.utdstc.com/img/svgs/logo-uptodown.svg" alt="Uptodown - Descargar Masitaprex APK" class="store-logo">
+        </a>
+      </div>
+
+      <!-- Detalles de la aplicación -->
+      <div id="detalles" class="app-details">
+        <h3><i class="fas fa-info-circle"></i> Detalles de la Aplicación Consulta PE APK</h3>
+        <div class="detail-item">
+          <i class="fas fa-archive"></i>
+          <span><strong>Nombre de paquete:</strong> com.masitaprex</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-gem"></i>
+          <span><strong>Licencia:</strong> Gratis</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-mobile-alt"></i>
+          <span><strong>Sistema operativo:</strong> Android</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-th-large"></i>
+          <span><strong>Categoría:</strong> Plataforma</strong></span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-language"></i>
+          <span><strong>Idioma:</strong> Español Latinoamérica</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-user-tie"></i>
+          <span><strong>Ofrecido por:</strong> José C.</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-download"></i>
+          <span><strong>Descargas:</strong> 2 k</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-calendar-day"></i>
+          <span><strong>Fecha:</strong> 16 Abril, 2024</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-cogs"></i>
+          <span><strong>Clasificación de contenido:</strong> Entiendes públicas</span>
+        </div>
+      </div>
+
+      <!-- Acerca de la aplicación -->
+      <h3 class="section-title"><i class="fas fa-book-open"></i> Todo acerca de Consulta PE APK</h3>
+      <p class="tienda-description">
+        <strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla, sin trámites complicados. Su objetivo es simplificar tus gestiones y brindarte acceso a información clave directamente desde tu dispositivo móvil. <strong>Masitaprex</strong> ofrece esta solución integral para <strong>consultar DNI</strong> y acceder a múltiples servicios públicos.
+      </p>
+
+      <!-- Tabla de Funcionalidades Principales - REDISEÑADA para móvil -->
+      <table class="features-table">
+        <thead>
+          <tr>
+            <th>Funcionalidades principales de Consulta PE APK</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="feature-title">Consulta de DNI por nombres y apellidos</span>
+              <span class="feature-desc">Ingresa nombres y apellidos para obtener información relevante como ubicación, edad, estado civil, entre otros detalles asociados al <strong>DNI</strong>.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Consulta de RUC</span>
+              <span class="feature-desc">Permite obtener la información registrada de un RUC, ya sea de una empresa o persona natural.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Líneas telefónicas</span>
+              <span class="feature-desc">Revisa todas las líneas telefónicas a tu nombre registradas en Osiptel.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Información vehicular</span>
+              <span class="feature-desc">Ingresa el número de placa de un vehículo y obtén información sobre su registro y características.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Acceso a servicios públicos</span>
+              <span class="feature-desc">Conéctate fácilmente a servicios de entidades públicas como la PNP, SUNAT, DIGESA, entre otras, para realizar consultas o gestionar trámites.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="tienda-description">
+        <strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> es una aplicación que ofrece una experiencia completa y versátil para todos sus usuarios. Aquí también puedes encontrar todas las redes sociales más populares, como Facebook, TikTok, entre otras. Además, la aplicación incluye una variedad de funciones adicionales que la hacen única, incluyendo acceso a <strong>PeliPREX</strong> para entretenimiento.
+      </p>
+
+      <!-- Tabla de Funciones Adicionales - REDISEÑADA para móvil -->
+      <table class="additional-features-table">
+        <thead>
+          <tr>
+            <th>Funciones adicionales de Masitaprex</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="feature-title">Gestor de contraseñas</span>
+              <span class="feature-desc">Crea claves seguras para tus cuentas de WiFi, redes sociales como Facebook o Instagram, y más.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">PeliPREX - Películas gratis</span>
+              <span class="feature-desc">Accede a un catálogo de 2,500 películas HD ofrecido por <strong>PeliPREX</strong> directamente desde la app.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Identificador telefónico</span>
+              <span class="feature-desc">Descubre si un número telefónico es real o fraudulento.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Sección de foros</span>
+              <span class="feature-desc">Participa en debates, comparte opiniones y conecta con una comunidad activa.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Juegos gratuitos</span>
+              <span class="feature-desc">Disfruta de una variedad de juegos para pasar el rato.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Escáner de códigos QR</span>
+              <span class="feature-desc">Escanea códigos de WhatsApp, productos, páginas web o documentos de forma segura.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Generador de enlaces personalizados</span>
+              <span class="feature-desc">Crea enlaces para WhatsApp o Telegram con mensajes personalizados, ideal para negocios o contactos.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="tienda-description">
+        <strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> combina funcionalidad y entretenimiento en una solución integral. Descarga la app para <strong>consultar DNI por nombres y apellidos</strong> y descubrir todo lo que puedes hacer. ¡Tu vida será más fácil con <strong>Consulta PE</strong> y <strong>PeliPREX</strong>!
+      </p>
+
+      <!-- Botón final de descarga -->
+      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn">
+        <i class="fas fa-download"></i> Descargar Consulta PE APK ahora
       </a>
     </div>
+  </section>
 
-    <!-- Detalles de la aplicación -->
-    <div id="detalles" class="app-details">
-      <h3><i class="fas fa-info-circle"></i> Detalles de la Aplicación Consulta PE APK</h3>
-      <div class="detail-item">
-        <i class="fas fa-archive"></i>
-        <span><strong>Nombre de paquete:</strong> com.masitaprex</span>
+  <!-- NUEVA SECCIÓN: Infraestructura API 3D -->
+  <section class="api-infrastructure">
+    <!-- Fondo de infraestructura API -->
+    <div class="api-background" id="apiBackground"></div>
+    
+    <div class="api-container">
+      <div class="api-header">
+        <h2 class="api-title">Infraestructura API de Masitaprex</h2>
+        <p class="api-subtitle">
+          Nuestra plataforma funciona con una arquitectura de microservicios moderna que garantiza escalabilidad, 
+          seguridad y alto rendimiento para todas tus consultas y operaciones.
+        </p>
       </div>
-      <div class="detail-item">
-        <i class="fas fa-gem"></i>
-        <span><strong>Licencia:</strong> Gratis</span>
+
+      <div class="api-features-grid">
+        <div class="api-card">
+          <div class="api-card-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3 class="api-card-title">Respuesta Instantánea</h3>
+          <p class="api-card-text">
+            Nuestras APIs están optimizadas para responder en menos de 100ms, garantizando una experiencia fluida 
+            al consultar DNI, RUC u otros datos públicos.
+          </p>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="api-card-title">Seguridad de Nivel Empresarial</h3>
+          <p class="api-card-text">
+            Implementamos encriptación end-to-end, autenticación OAuth 2.0 y protección DDoS para garantizar 
+            que tus consultas sean completamente seguras.
+          </p>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-icon">
+            <i class="fas fa-expand-arrows-alt"></i>
+          </div>
+          <h3 class="api-card-title">Escalabilidad Automática</h3>
+          <p class="api-card-text">
+            Nuestra infraestructura se escala automáticamente según la demanda, manejando picos de tráfico 
+            sin afectar el rendimiento del servicio.
+          </p>
+        </div>
       </div>
-      <div class="detail-item">
-        <i class="fas fa-mobile-alt"></i>
-        <span><strong>Sistema operativo:</strong> Android</span>
+
+      <!-- Código animado -->
+      <div class="code-animation">
+        <div class="code-header">
+          <div class="code-lang">
+            <div class="code-lang-icon php-icon">PHP</div>
+            <span class="code-lang-name">Ejemplo de API Request</span>
+          </div>
+          <div class="code-lang">
+            <div class="code-lang-icon python-icon">PY</div>
+            <span class="code-lang-name">Python SDK</span>
+          </div>
+        </div>
+        
+        <div class="code-content">
+          <div class="code-line">
+            <span class="line-number">1</span>
+            <span class="line-content">
+              <span class="code-comment">// Consulta de DNI por nombres y apellidos</span>
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">2</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>api_url = <span class="code-string">"https://api.masitaprex.com/v3/consulta/dni"</span>;
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">3</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>headers = [
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">4</span>
+            <span class="line-content">  <span class="code-string">"Authorization: Bearer YOUR_API_KEY"</span>,</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">5</span>
+            <span class="line-content">  <span class="code-string">"Content-Type: application/json"</span></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">6</span>
+            <span class="line-content">];</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">7</span>
+            <span class="line-content"></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">8</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>data = [
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">9</span>
+            <span class="line-content">  <span class="code-string">"nombres"</span> =<span class="code-operator">></span> <span class="code-string">"Juan Carlos"</span>,</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">10</span>
+            <span class="line-content">  <span class="code-string">"apellidos"</span> =<span class="code-operator">></span> <span class="code-string">"Pérez García"</span></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">11</span>
+            <span class="line-content">];</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">12</span>
+            <span class="line-content"></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">13</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>response = <span class="code-function">http_post</span>(<span class="code-keyword">$</span>api_url, <span class="code-keyword">$</span>data, <span class="code-keyword">$</span>headers)<span class="typing-cursor"></span>
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="detail-item">
-        <i class="fas fa-th-large"></i>
-        <span><strong>Categoría:</strong> Plataforma</strong></span>
+
+      <!-- Estadísticas de API - MODIFICADO: Ancho limitado y diseño responsive -->
+      <div class="api-stats">
+        <div class="stat-card">
+          <div class="stat-number">99.9%</div>
+          <div class="stat-label">Uptime Garantizado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2k+</div>
+          <div class="stat-label">Consultas por Minuto</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number"><100ms</div>
+          <div class="stat-label">Tiempo de Respuesta</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Datos Encriptados</div>
+        </div>
       </div>
-      <div class="detail-item">
-        <i class="fas fa-language"></i>
-        <span><strong>Idioma:</strong> Español Latinoamérica</span>
-      </div>
-      <div class="detail-item">
-        <i class="fas fa-user-tie"></i>
-        <span><strong>Ofrecido por:</strong> José C.</span>
-      </div>
-      <div class="detail-item">
-        <i class="fas fa-download"></i>
-        <span><strong>Descargas:</strong> 2 k</span>
-      </div>
-      <div class="detail-item">
-        <i class="fas fa-calendar-day"></i>
-        <span><strong>Fecha:</strong> 16 Abril, 2024</span>
-      </div>
-      <div class="detail-item">
-        <i class="fas fa-cogs"></i>
-        <span><strong>Clasificación de contenido:</strong> Entiendes públicas</span>
+
+      <div class="api-cta">
+        <a href="api-key" class="api-cta-button">
+          <i class="fas fa-code-branch"></i> Integrar con Nuestras APIs
+        </a>
       </div>
     </div>
-
-    <!-- Acerca de la aplicación -->
-    <h3 class="section-title"><i class="fas fa-book-open"></i> Todo acerca de Consulta PE APK</h3>
-    <p class="tienda-description">
-      <strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla, sin trámites complicados. Su objetivo es simplificar tus gestiones y brindarte acceso a información clave directamente desde tu dispositivo móvil. <strong>Masitaprex</strong> ofrece esta solución integral para <strong>consultar DNI</strong> y acceder a múltiples servicios públicos.
-    </p>
-
-    <!-- Tabla de Funcionalidades Principales -->
-    <table class="features-table">
-      <thead>
-        <tr>
-          <th><i class="fas fa-star"></i> Funcionalidades principales de Consulta PE APK</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="feature-icon">
-                <i class="fas fa-id-card"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Consulta de DNI por nombres y apellidos</div>
-                <div class="feature-desc">Ingresa nombres y apellidos para obtener información relevante como ubicación, edad, estado civil, entre otros detalles asociados al <strong>DNI</strong>.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="feature-icon">
-                <i class="fas fa-building"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Consulta de RUC</div>
-                <div class="feature-desc">Permite obtener la información registrada de un RUC, ya sea de una empresa o persona natural.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="feature-icon">
-                <i class="fas fa-phone"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Líneas telefónicas</div>
-                <div class="feature-desc">Revisa todas las líneas telefónicas a tu nombre registradas en Osiptel.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="feature-icon">
-                <i class="fas fa-car"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Información vehicular</div>
-                <div class="feature-desc">Ingresa el número de placa de un vehículo y obtén información sobre su registro y características.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="feature-icon">
-                <i class="fas fa-university"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Acceso a servicios públicos</div>
-                <div class="feature-desc">Conéctate fácilmente a servicios de entidades públicas como la PNP, SUNAT, DIGESA, entre otras, para realizar consultas o gestionar trámites.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p class="tienda-description">
-      <strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> es una aplicación que ofrece una experiencia completa y versátil para todos sus usuarios. Aquí también puedes encontrar todas las redes sociales más populares, como Facebook, TikTok, entre otras. Además, la aplicación incluye una variedad de funciones adicionales que la hacen única, incluyendo acceso a <strong>PeliPREX</strong> para entretenimiento.
-    </p>
-
-    <!-- Tabla de Funciones Adicionales -->
-    <table class="additional-features-table">
-      <thead>
-        <tr>
-          <th><i class="fas fa-plus-circle"></i> Funciones adicionales de Masitaprex</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-key"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Gestor de contraseñas</div>
-                <div class="feature-desc">Crea claves seguras para tus cuentas de WiFi, redes sociales como Facebook o Instagram, y más.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-film"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">PeliPREX - Películas gratis</div>
-                <div class="feature-desc">Accede a un catálogo de 2,500 películas HD ofrecido por <strong>PeliPREX</strong> directamente desde la app.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-phone-alt"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Identificador telefónico</div>
-                <div class="feature-desc">Descubre si un número telefónico es real o fraudulento.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-users"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Sección de foros</div>
-                <div class="feature-desc">Participa en debates, comparte opiniones y conecta con una comunidad activa.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-gamepad"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Juegos gratuitos</div>
-                <div class="feature-desc">Disfruta de una variedad de juegos para pasar el rato.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-qrcode"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Escáner de códigos QR</div>
-                <div class="feature-desc">Escanea códigos de WhatsApp, productos, páginas web o documentos de forma segura.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="feature-row">
-              <div class="additional-feature-icon">
-                <i class="fas fa-link"></i>
-              </div>
-              <div class="feature-content">
-                <div class="feature-title">Generador de enlaces personalizados</div>
-                <div class="feature-desc">Crea enlaces para WhatsApp o Telegram con mensajes personalizados, ideal para negocios o contactos.</div>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p class="tienda-description">
-      <strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> combina funcionalidad y entretenimiento en una solución integral. Descarga la app para <strong>consultar DNI por nombres y apellidos</strong> y descubrir todo lo que puedes hacer. ¡Tu vida será más fácil con <strong>Consulta PE</strong> y <strong>PeliPREX</strong>!
-    </p>
-
-    <!-- Botón final de descarga -->
-    <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn">
-      <i class="fas fa-download"></i> Descargar Consulta PE APK ahora
-    </a>
   </section>
 
   <!-- Footer negro con texto blanco -->
@@ -1150,7 +1632,7 @@
     <p><strong>Masitaprex</strong> © 2025 - Todos los derechos reservados</p>
     <p>Infraestructura tecnológica funciona con apis externas. No somos responsables por el contenido o servicios ofrecidos por terceros.</p>
     <p><strong>Consulta PE APK</strong> | <strong>PeliPREX HD</strong> | <strong>Masitaprex</strong></p>
-    <p><a href="go:terminos">Términos y condiciones</a> | <a href="go:politica">Política de privacidad</a> | <a href="go:legal">Aviso legal</a></p>
+    <p><a href="terminos-condiciones">Términos y condiciones</a> | <a href="politica-privacidad">Política de privacidad</a> | <a href="disclaimer-apis">Aviso legal</a></p>
     <p>Síguenos en nuestras redes sociales para más información sobre <strong>Consulta PE</strong> y <strong>PeliPREX</strong></p>
     
     <div class="social-icons">
@@ -1200,6 +1682,9 @@
           orbs.forEach(orb => {
             orb.style.animationPlayState = 'running';
           });
+          
+          // Inicializar fondo de infraestructura API
+          initApiBackground();
         }, 500); // Tiempo mínimo de carga para mejor UX
       });
     });
@@ -1310,6 +1795,69 @@
         // Swipe derecha - imagen anterior
         prevImage();
       }
+    }
+
+    // Generar fondo de infraestructura API
+    function initApiBackground() {
+      const background = document.getElementById('apiBackground');
+      if (!background) return;
+      
+      // Crear nodos de conexión
+      const nodes = [];
+      const connections = [];
+      
+      // Generar nodos aleatorios
+      for (let i = 0; i < 15; i++) {
+        const node = document.createElement('div');
+        node.className = 'api-node';
+        
+        // Posición aleatoria
+        const left = Math.random() * 90 + 5;
+        const top = Math.random() * 80 + 10;
+        
+        node.style.left = `${left}%`;
+        node.style.top = `${top}%`;
+        
+        // Delay de animación aleatorio
+        node.style.animationDelay = `${Math.random() * 3}s`;
+        
+        background.appendChild(node);
+        nodes.push({ element: node, x: left, y: top });
+      }
+      
+      // Crear conexiones entre nodos cercanos
+      nodes.forEach((node1, i) => {
+        nodes.forEach((node2, j) => {
+          if (i < j) {
+            // Calcular distancia
+            const dx = node2.x - node1.x;
+            const dy = node2.y - node1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Conectar solo nodos cercanos
+            if (distance < 40) {
+              const connection = document.createElement('div');
+              connection.className = 'api-connection';
+              
+              // Calcular posición y rotación
+              const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+              const length = distance;
+              
+              connection.style.width = `${length}%`;
+              connection.style.left = `${node1.x}%`;
+              connection.style.top = `${node1.y}%`;
+              connection.style.transform = `rotate(${angle}deg)`;
+              connection.style.transformOrigin = '0 0';
+              
+              // Delay de animación aleatorio
+              connection.style.animationDelay = `${Math.random() * 2}s`;
+              
+              background.appendChild(connection);
+              connections.push(connection);
+            }
+          }
+        });
+      });
     }
   </script>
 
