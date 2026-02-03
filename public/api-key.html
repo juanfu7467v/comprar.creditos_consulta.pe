@@ -823,9 +823,9 @@
         
         <div class="flex items-center gap-4">
             <!-- Icono Perfil - Ahora lleva a actividad -->
-            <button id="profile-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <a href="actividad.html" class="p-1 active:bg-gray-100 rounded-full transition-colors">
                 <i data-lucide="user" class="header-icon"></i>
-            </button>
+            </a>
             <!-- Icono Compartir - Ahora abre el modal -->
             <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
                 <i data-lucide="share-2" class="header-icon"></i>
@@ -859,15 +859,21 @@
         <!-- Opciones del Menú -->
         <nav class="mt-6">
             <!-- Opción Inicio -->
-            <a href="index.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="Home.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="home" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
-            <!-- Nuevas opciones del menú -->
-            <a href="peli" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <!-- Opción Recargar -->
+            <a href="planes.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+                <i data-lucide="credit-card" class="w-6 h-6 mr-4"></i>
+                <span class="text-lg">Recargar</span>
+            </a>
+            
+            <!-- Opción PeliPREX HD -->
+            <a href="PeliPREX.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="film" class="w-6 h-6 mr-4"></i>
-                <span class="text-lg">PeliPREX</span>
+                <span class="text-lg">PeliPREX HD</span>
             </a>
             
             <!-- Opción actual activa -->
@@ -876,16 +882,13 @@
                 <span class="text-lg font-semibold text-gray-800">Api key</span>
             </div>
             
-            <a href="doc-apis" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <!-- Opción Documentación APIs -->
+            <a href="doc-apis.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
-                <span class="text-lg">Doc. Apis</span>
+                <span class="text-lg">Documentación APIs</span>
             </a>
             
-            <a href="consultaPE-apk" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
-                <i data-lucide="smartphone" class="w-6 h-6 mr-4"></i>
-                <span class="text-lg">Consulta PE apk</span>
-            </a>
-            
+            <!-- Opción Cerrar Sesión -->
             <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors mt-8">
                 <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Cerrar sesión</span>
@@ -936,7 +939,7 @@
                     <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
                 </div>
             </div>
-            <a href="go:??" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
+            <a href="planes.html" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
         </div>
 
         <div class="section-card gradient-border">
@@ -970,7 +973,7 @@
             <p style="font-size: 13px; color: #ff0000; margin-top: 10px;">
                 ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="go:Rapis" class="font-bold" style="color: #ff0000; text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
             </p>
-            <a href="go:doc" target="_blank" class="btn-primary" style="margin-top: 8px;">
+            <a href="doc-apis.html" target="_blank" class="btn-primary" style="margin-top: 8px;">
                 <i class="ri-book-3-line"></i> Ver Documentación
             </a>
         </div>
@@ -1327,23 +1330,23 @@
             });
         });
 
-        // Botón de perfil - lleva a actividad
-        document.getElementById('profile-btn').addEventListener('click', function() {
-            alert('Redirigiendo a la actividad del perfil...');
-            // window.location.href = 'actividad.html';
-        });
-
         // Botón de compartir - abre el modal
         document.getElementById('share-btn').addEventListener('click', function() {
             document.getElementById('banner').style.display = 'flex';
         });
 
-        // Botón de cerrar sesión
+        // Botón de cerrar sesión - función real
         document.getElementById('logout-btn').addEventListener('click', function(e) {
             e.preventDefault();
             if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-                alert('Cerrando sesión...');
-                // window.location.href = 'logout.html';
+                // En una aplicación real, aquí deberías:
+                // 1. Limpiar tokens de sesión/localStorage
+                // 2. Desconectar de Firebase/backend
+                // 3. Redirigir a la página de login
+                
+                // Simulación de cierre de sesión
+                alert('Sesión cerrada correctamente.');
+                window.location.href = 'index.html'; // Cambia esto por tu página de login real
             }
         });
 
@@ -1372,7 +1375,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         // Obtener configuración dinámica desde el servidor
@@ -1570,6 +1573,29 @@
                         hideLoadingIndicator();
                     }
                 }
+
+                // Función para cerrar sesión real
+                async function logout() {
+                    try {
+                        await signOut(auth);
+                        // Limpiar datos locales si es necesario
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        // Redirigir a la página de inicio/login
+                        window.location.href = "index.html";
+                    } catch (error) {
+                        console.error("Error al cerrar sesión:", error);
+                        alert("Hubo un error al cerrar sesión. Intenta de nuevo.");
+                    }
+                }
+
+                // Asignar la función de logout al botón
+                document.getElementById('logout-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                        logout();
+                    }
+                });
 
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
