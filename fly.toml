@@ -5,14 +5,18 @@ primary_region = 'ams'
 [build]
 
 [http_service]
-  internal_port = 8080
+  internal_port = 80
   force_https = true
-  # 'stop' apaga la máquina si no hay tráfico para ahorrar
+  # 'stop' apaga la máquina por completo cuando no hay tráfico
   auto_stop_machines = 'stop'
   auto_start_machines = true
-  # Forzamos a que solo exista una instancia en el grupo
-  min_machines_running = 1
+  # Cambiado a 0 para que la máquina PUEDA apagarse si no hay nadie
+  min_machines_running = 0
   processes = ['app']
+  
+  # Tiempo de espera para el auto-stop (300 segundos = 5 minutos)
+  [http_service.termination]
+    grace_period = "5s"
 
 [http_service.concurrency]
   type = 'requests'
