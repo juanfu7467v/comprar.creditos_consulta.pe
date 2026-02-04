@@ -15,7 +15,51 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// ================================================
+// 🆕 SISTEMA DE AUTO-SUSPENSIÓN (5 MINUTOS)
+// ================================================
+let lastActivityTime = Date.now();
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutos en milisegundos
+let inactivityTimer = null;
+
+// Middleware para registrar actividad
+app.use((req, res, next) => {
+  lastActivityTime = Date.now();
+  
+  // Resetear timer de inactividad
+  if (inactivityTimer) {
+    clearTimeout(inactivityTimer);
+  }
+  
+  // Configurar nuevo timer
+  inactivityTimer = setTimeout(() => {
+    const inactiveMinutes = Math.floor((Date.now() - lastActivityTime) / 60000);
+    logger.info('AUTO_SUSPEND', `⏸️ Sin actividad por ${inactiveMinutes} minutos - Entrando en modo de reposo`, {
+      lastActivity: new Date(lastActivityTime).toISOString(),
+      currentTime: new Date().toISOString()
+    });
+    
+    // Fly.io detectará la inactividad y suspenderá la instancia automáticamente
+    // No es necesario process.exit() ya que Fly.io maneja esto
+  }, INACTIVITY_TIMEOUT);
+  
+  next();
+});
+
+// ================================================
+// 🔧 CONFIGURACIÓN DE ARCHIVOS ESTÁTICOS CON HEADERS CORRECTOS
+// ================================================
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filepath) => {
+    // Asegurar que los archivos HTML se sirvan correctamente
+    if (filepath.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      // NO establecer Content-Disposition para que se muestre en navegador
+      res.removeHeader('Content-Disposition');
+    }
+  }
+}));
 
 // --- Endpoint de Análisis Real con Gemini ---
 app.post("/api/analyze", async (req, res) => {
@@ -218,7 +262,7 @@ async function verifyFirebaseAuth(req, res, next) {
     '/doc-apis',
     '/disclaimer-apis',
     '/terminos-condiciones',
-    '/error-404' // ✅ CORREGIDO: Nombre correcto del archivo
+    '/error-404'
   ];
   
   // Verificar si la ruta actual está excluida
@@ -1462,6 +1506,11 @@ app.get("/api/health", async (req, res) => {
   const health = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    lastActivity: new Date(lastActivityTime).toISOString(),
+    minutesSinceLastActivity: Math.floor((Date.now() - lastActivityTime) / 60000),
+    autoSuspendEnabled: true,
+    autoSuspendTimeoutMinutes: INACTIVITY_TIMEOUT / 60000,
     services: {
       mercadopago: !!MERCADOPAGO_ACCESS_TOKEN,
       firebase: !!db,
@@ -1477,8 +1526,8 @@ app.get("/api/health", async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size,
-    version: '3.0.0',
-    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas'
+    version: '3.1.0',
+    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas + Auto-Suspensión'
   };
   
   if (db) {
@@ -1560,36 +1609,54 @@ app.post("/api/admin/clear-cache", (req, res) => {
 app.get("/doc-apis", (req, res) => {
   logger.info('PUBLIC_API_ROUTE', 'Acceso a doc-apis');
   const htmlPath = path.join(__dirname, "public", "doc-apis.html");
+  
   if (fs.existsSync(htmlPath)) {
+    // 🔧 SOLUCIÓN: Establecer headers explícitos para HTML
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.removeHeader('Content-Disposition');
     return res.sendFile(htmlPath);
   }
+  
   return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
 app.get("/disclaimer-apis", (req, res) => {
   logger.info('PUBLIC_API_ROUTE', 'Acceso a disclaimer-apis');
   const htmlPath = path.join(__dirname, "public", "disclaimer-apis.html");
+  
   if (fs.existsSync(htmlPath)) {
+    // 🔧 SOLUCIÓN: Establecer headers explícitos para HTML
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.removeHeader('Content-Disposition');
     return res.sendFile(htmlPath);
   }
+  
   return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
 app.get("/terminos-condiciones", (req, res) => {
   logger.info('PUBLIC_ROUTE', 'Acceso a términos y condiciones');
   const htmlPath = path.join(__dirname, "public", "terminos-condiciones.html");
+  
   if (fs.existsSync(htmlPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.removeHeader('Content-Disposition');
     return res.sendFile(htmlPath);
   }
+  
   return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
 app.get("/politica-privacidad", (req, res) => {
   logger.info('PUBLIC_ROUTE', 'Acceso a política de privacidad');
   const htmlPath = path.join(__dirname, "public", "politica-privacidad.html");
+  
   if (fs.existsSync(htmlPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.removeHeader('Content-Disposition');
     return res.sendFile(htmlPath);
   }
+  
   return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
@@ -1600,9 +1667,13 @@ app.get("/politica-privacidad", (req, res) => {
 app.get("/api-key", (req, res) => {
   logger.info('PROTECTED_ROUTE', 'Acceso a api-key (requiere autenticación)');
   const htmlPath = path.join(__dirname, "public", "api-key.html");
+  
   if (fs.existsSync(htmlPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.removeHeader('Content-Disposition');
     return res.sendFile(htmlPath);
   }
+  
   return res.status(404).sendFile(path.join(__dirname, "public", "error-404.html"));
 });
 
@@ -1612,6 +1683,7 @@ app.get("/api-key", (req, res) => {
 
 app.get("/", (req, res) => {
   logger.info('ROOT_HOME', 'Sirviendo home.html como página principal');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
@@ -1640,6 +1712,10 @@ app.use((req, res, next) => {
         path: req.path,
         htmlFile: `${cleanPath}.html`
       });
+      
+      // 🔧 SOLUCIÓN: Headers correctos para HTML
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.removeHeader('Content-Disposition');
       return res.sendFile(htmlPath);
     } else {
       logger.warn('CLEAN_URL', 'Archivo no encontrado, mostrando 404', {
@@ -1647,7 +1723,6 @@ app.use((req, res, next) => {
         attemptedFile: `${cleanPath}.html`
       });
       
-      // ✅ CORREGIDO: Usar error-404.html en lugar de 404.html
       const notFoundPage = path.join(__dirname, 'public', 'error-404.html');
       if (fs.existsSync(notFoundPage)) {
         return res.status(404).sendFile(notFoundPage);
@@ -1659,7 +1734,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================
-// ✅ MANEJO DE PÁGINAS 404 (CORREGIDO)
+// ✅ MANEJO DE PÁGINAS 404
 // ================================================
 
 app.use((req, res, next) => {
@@ -1680,7 +1755,6 @@ app.use((req, res, next) => {
         userAgent: req.headers['user-agent']
       });
       
-      // ✅ CORREGIDO: Usar error-404.html
       const notFoundPage = path.join(__dirname, 'public', 'error-404.html');
       if (fs.existsSync(notFoundPage)) {
         return res.status(404).sendFile(notFoundPage);
@@ -1771,13 +1845,14 @@ app.use((err, req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.0.0",
+    version: "3.1.0",
     features: {
       cleanUrls: "✅ URLs sin .html profesionales",
       autoHome: "✅ home.html como página principal",
       custom404: "✅ Página error-404.html personalizada",
       publicApis: "✅ Rutas públicas de APIs integradas",
-      autoSession: "✅ Sesión persistente automática"
+      autoSession: "✅ Sesión persistente automática",
+      autoSuspend: "✅ Auto-suspensión después de 5 minutos de inactividad"
     },
     publicRoutes: {
       home: "/home",
@@ -1795,6 +1870,12 @@ app.get("/api", (req, res) => {
       peliprex: "/PeliPREX"
     },
     status: "online",
+    autoSuspend: {
+      enabled: true,
+      timeoutMinutes: INACTIVITY_TIMEOUT / 60000,
+      lastActivity: new Date(lastActivityTime).toISOString(),
+      minutesSinceLastActivity: Math.floor((Date.now() - lastActivityTime) / 60000)
+    },
     timestamp: new Date().toISOString()
   });
 });
@@ -1807,11 +1888,13 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.0.0',
-    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas',
+    version: '3.1.0',
+    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas + Auto-Suspensión (5 min)',
     cleanUrlsEnabled: true,
     custom404Enabled: true,
     publicApisIntegrated: true,
+    autoSuspendEnabled: true,
+    autoSuspendTimeout: `${INACTIVITY_TIMEOUT / 60000} minutos`,
     timestamp: new Date().toISOString()
   });
 });
