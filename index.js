@@ -1526,8 +1526,8 @@ app.get("/api/health", async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size,
-    version: '3.1.0',
-    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas + Auto-Suspensión'
+    version: '3.1.1',
+    features: 'URLs Limpias + Página 404 + APIs Públicas Fix + Auto-Suspensión'
   };
   
   if (db) {
@@ -1604,6 +1604,7 @@ app.post("/api/admin/clear-cache", (req, res) => {
 
 // ================================================
 // ✅ RUTAS PÚBLICAS INTEGRADAS (sin login requerido)
+// 🔧 SOLUCIÓN APLICADA: Headers correctos para evitar descarga
 // ================================================
 
 app.get("/doc-apis", (req, res) => {
@@ -1845,19 +1846,19 @@ app.use((err, req, res, next) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.1.0",
+    version: "3.1.1",
     features: {
       cleanUrls: "✅ URLs sin .html profesionales",
       autoHome: "✅ home.html como página principal",
       custom404: "✅ Página error-404.html personalizada",
-      publicApis: "✅ Rutas públicas de APIs integradas",
+      publicApis: "✅ Rutas públicas de APIs CORREGIDAS (sin descarga)",
       autoSession: "✅ Sesión persistente automática",
       autoSuspend: "✅ Auto-suspensión después de 5 minutos de inactividad"
     },
     publicRoutes: {
       home: "/home",
-      docApis: "/doc-apis",
-      disclaimerApis: "/disclaimer-apis",
+      docApis: "/doc-apis (CORREGIDO)",
+      disclaimerApis: "/disclaimer-apis (CORREGIDO)",
       terms: "/terminos-condiciones",
       privacy: "/politica-privacidad"
     },
@@ -1888,11 +1889,11 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.1.0',
-    features: 'URLs Limpias + Página 404 Correcta + APIs Públicas Integradas + Auto-Suspensión (5 min)',
+    version: '3.1.1',
+    features: 'URLs Limpias + 404 + APIs Públicas CORREGIDAS + Auto-Suspensión',
     cleanUrlsEnabled: true,
     custom404Enabled: true,
-    publicApisIntegrated: true,
+    publicApisFix: '✅ doc-apis y disclaimer-apis ya NO descargan',
     autoSuspendEnabled: true,
     autoSuspendTimeout: `${INACTIVITY_TIMEOUT / 60000} minutos`,
     timestamp: new Date().toISOString()
