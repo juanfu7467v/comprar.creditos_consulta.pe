@@ -5,7 +5,7 @@ primary_region = 'ams'
 [build]
 
 [http_service]
-  internal_port = 80
+  internal_port = 8080
   force_https = true
   # 'stop' apaga la máquina por completo cuando no hay tráfico
   auto_stop_machines = 'stop'
