@@ -134,16 +134,21 @@ const PUBLIC_PAGES = [
 
 // Middleware para verificar sesión
 const checkAuth = (req, res, next) => {
-  // Ignorar API y archivos estáticos con extensión
-  if (req.path.startsWith('/api/') || req.path.includes('.')) {
+  // Ignorar API y archivos estáticos con extensión (excepto .html)
+  if (req.path.startsWith('/api/') || (req.path.includes('.') && !req.path.endsWith('.html'))) {
     return next();
   }
 
   // Normalizar path para comparación
-  const pathName = req.path.replace(/^\//, '');
+  let pathName = req.path.replace(/^\//, '');
   
   // Si es la raíz, servir home.html (pública)
   if (pathName === '') return next();
+
+  // Redirigir index.html a la raíz (home.html)
+  if (pathName === 'index.html') {
+    return res.redirect(301, '/');
+  }
 
   // Verificar si la página es pública (considerando tanto con .html como sin él)
   const isPublic = PUBLIC_PAGES.some(page => {
@@ -153,16 +158,21 @@ const checkAuth = (req, res, next) => {
 
   if (isPublic) return next();
 
-  // Aquí iría la lógica de verificación de token (Firebase Admin SDK)
-  // Por simplicidad y siguiendo la instrucción de "Si el usuario no ha iniciado sesión -> redirigir a login.html"
-  // Asumiremos que el frontend maneja la persistencia, pero el servidor protege la carga inicial.
-  
+  // Verificar si el archivo existe en la carpeta public
+  const filePath = path.join(__dirname, 'public', pathName.endsWith('.html') ? pathName : `${pathName}.html`);
+  if (!fs.existsSync(filePath)) {
+    // Si no existe, dejar que el catch-all maneje el 404
+    return next();
+  }
+
+  // Control de acceso para páginas privadas
   const cookies = req.headers.cookie || '';
   const hasSession = cookies.includes('__session=') || cookies.includes('user_session=');
 
   if (!hasSession) {
     logger.info('AUTH', `Acceso denegado a ${req.path}, redirigiendo a login.html`);
-    return res.redirect('/login.html');
+    const returnTo = encodeURIComponent(req.originalUrl);
+    return res.redirect(`/login.html?returnTo=${returnTo}`);
   }
 
   next();
@@ -187,12 +197,9 @@ app.get('/', (req, res) => {
 
 // Manejo explícito de error-404
 app.get('/error-404', (req, res) => {
-  res.status(404).sendFile(path.join(__dirname, 'public', 'error-404'));
-});
-
-// Redirigir cualquier intento de acceder a index.html a la raíz
-app.get('/index.html', (req, res) => {
-  res.redirect(301, '/');
+  res.status(404).sendFile(path.join(__dirname, 'public', 'error-404'), {
+    headers: { 'Content-Type': 'text/html' }
+  });
 });
 
 // Catch-all para 404
@@ -201,7 +208,9 @@ app.use((req, res) => {
     return res.status(404).json({ error: "Endpoint no encontrado" });
   }
   logger.warn('404', `Página no encontrada: ${req.path}`);
-  res.status(404).sendFile(path.join(__dirname, 'public', 'error-404'));
+  res.status(404).sendFile(path.join(__dirname, 'public', 'error-404'), {
+    headers: { 'Content-Type': 'text/html' }
+  });
 });
 
 // Puerto y arranque
