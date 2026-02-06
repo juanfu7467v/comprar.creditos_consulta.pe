@@ -1931,7 +1931,7 @@ app.get("/api", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 80;
 app.listen(PORT, "0.0.0.0", () => {
   logger.info('SERVER', `ðŸš€ Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
