@@ -296,12 +296,13 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN MEJORADO CON REDIRECCIÓN
 // ================================================================
 
 /**
  * Middleware para verificar autenticación Firebase
  * Protege rutas y redirige a login si no está autenticado
+ * Guarda la URL original para redirigir después del login
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
@@ -342,13 +343,14 @@ async function verifyFirebaseAuth(req, res, next) {
     }
     
     if (!idToken) {
-      logger.info(context, 'Token no encontrado, redirigiendo a login', { 
+      logger.info(context, 'Token no encontrado, redirigiendo a login con returnTo', { 
         path: req.path,
         originalUrl: req.originalUrl
       });
       
-      // Redirigir a login sin returnTo para evitar bucles
-      return res.redirect('/login');
+      // Guardar la URL actual para redirigir después del login
+      const returnTo = encodeURIComponent(req.originalUrl || req.path);
+      return res.redirect(`/login?returnTo=${returnTo}`);
     }
     
     // Verificar token con Firebase Admin
@@ -368,8 +370,9 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path 
     });
     
-    // Redirigir a login sin returnTo
-    return res.redirect('/login');
+    // Guardar la URL actual para redirigir después del login
+    const returnTo = encodeURIComponent(req.originalUrl || req.path);
+    return res.redirect(`/login?returnTo=${returnTo}`);
   }
 }
 
@@ -819,6 +822,210 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
+// 📄 CREAR ARCHIVO error-404.html CON EL NUEVO DISEÑO
+// ================================================================
+
+const error404Html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="global-consultas.js">
+async function secureDownload(url, filename) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename || 'archivo';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+    } catch (e) {
+        console.error('Download failed', e);
+        window.open(url, '_blank');
+    }
+}
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página No Encontrada - Masitaprex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .app-card {
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            height: 520px;
+        }
+        .image-container {
+            flex: 0 0 auto;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            border-radius: 1rem 1rem 0 0;
+        }
+        .content-container {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .badge {
+            position: absolute;
+            top: 1rem;
+            right: -40px;
+            width: 160px;
+            text-align: center;
+            padding: 0.375rem 0;
+            transform: rotate(45deg);
+            background: linear-gradient(to right, var(--from-color), var(--to-color));
+            color: white;
+            font-weight: 800;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 10;
+        }
+        .social-icons a {
+            font-size: 1.8rem;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        .social-icons a:hover {
+            transform: scale(1.1);
+        }
+        .social-icons .fa-facebook-square {
+            color: #1877F2;
+        }
+        .social-icons .fa-youtube-square {
+            color: #FF0000;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen text-gray-800">
+    <header class="w-full relative h-[80vh] md:h-[48rem] overflow-hidden">
+        <div 
+            class="absolute inset-0 bg-cover bg-center" 
+            style="background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFvN-s_wpJUIYTsv5JH1Rs37S7ZXWefZfI-Odk6iBG0cJOtmZ0pzgoDXBLsmidMg-ZvXgxVaffJ1iybh0ws1p3CcWNtH3o_REOqcSeBqGqqYBWOyJS5EWfvE9RRwLxba_txfZM5oE2_2HKtSug1LExyEqIGoxC_h7vIelPv3KQtBb4Dln17k-0WA0Z690J/s1536/1000037253.png');"
+        >
+        </div>
+        <div class="absolute inset-0 flex items-end justify-center pb-12 bg-black/30">
+            <a href="/" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
+                Ir a la Página Principal
+            </a>
+        </div>
+    </header>
+    <main class="py-12 px-4 md:px-8">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-8 text-indigo-700">Nuestras Soluciones Destacadas</h2>
+        <div class="flex overflow-x-scroll snap-x snap-mandatory space-x-6 pb-6 md:justify-center md:flex-wrap md:space-x-0 md:gap-6">
+            
+            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl border-t-4 border-purple-500 transform transition hover:scale-[1.02] relative overflow-hidden">
+                <div class="badge" style="--from-color: #dc2626; --to-color: #ef4444;">
+                    Plataforma 
+                </div>
+                <div class="image-container">
+                    <img src="https://image.winudf.com/v2/image1/ZGV2X2ltYWdlXzM2ODcwNDYzXzIyNjg1OF8yMDI1MTAzMDE5NTI1MjEzOA/icon.webp?w=280&fakeurl=1&type=.webp" alt="Icono de Consulta Pe" class="w-full h-full object-cover">
+                </div>
+                <div class="content-container">
+                    <h3 class="text-xl font-bold text-purple-600 mb-2">
+                        Consulta Pe <span class="text-sm font-normal text-gray-500 block">Consulta Rápida de Datos Públicos</span>
+                    </h3>
+                    <p class="text-gray-600 mb-4 text-sm flex-grow">
+                        Una herramienta de consulta rápida y confiable. Obtén datos públicos asociados a DNI y RUC, utilizando en ciertos casos solo tu nombre completo. La visualización de resultados es clara y utiliza elementos visuales para un mejor entendimiento de la información.
+                    </p>
+                    <a href="https://com-masitaorex.uptodown.com/android" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
+                        Instalar aplicaciones apk
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl border-t-4 border-indigo-500 transform transition hover:scale-[1.02] relative overflow-hidden">
+                <div class="badge" style="--from-color: #4f46e5; --to-color: #6366f1;">
+                    Plataforma
+                </div>
+                <div class="image-container">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh3YIrB2BVkYPGxA41eZD5b_ZRtb6P8rQxh35guBZPGVQEtZU0b-AVmFNOwSuxJNvXKYWQXR5fZIeGXSxqbKKcfdGq5a4c40MM4IItcEp9E9vmKXLEDVgRYHu3JProhz5GwbTzDR0xTC171AOMDK4e6RKLsamFSZB2iBZXpSG7awMsRkBMPyMoUB733bPq8/s612/1000038813.jpg" alt="Imagen de PeliPREX HD" class="w-full h-full object-cover">
+                </div>
+                <div class="content-container">
+                    <h3 class="text-xl font-bold text-indigo-600 mb-2">
+                        PeliPREX HD <span class="text-sm font-normal text-gray-500 block">Acceso Digital mediante Infraestructura Intermediaria</span>
+                    </h3>
+                    <p class="text-gray-600 mb-4 text-sm flex-grow">
+                        Plataforma basada en infraestructura intermediaria que facilita el acceso organizado a contenidos digitales disponibles en línea. Explora, descubre y conéctate fácilmente desde una interfaz rápida y moderna.
+                    </p>
+                    <a href="peliprex" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
+                        Acceder a PeliPREX
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl border-t-4 border-blue-500 transform transition hover:scale-[1.02] relative overflow-hidden">
+                <div class="badge" style="--from-color: #2563eb; --to-color: #60a5fa;">
+                    Servicio
+                </div>
+                <div class="image-container">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifNMAy4k9FFdDT96JpFiktrjRpRJz_Quq3lIrHz1t_NdKTZtU6NfMYzmkNGOVtwUg2hdfSZm0lN5SFp5j4LvDZCSd9QUNP8UUS9k_aGvdZ3Tj9W8DhzDFSdTWZJlRHsJ_OraOpFHWtX8wvKVM1oCpj3ggPZKEYMbuGSav51DbbTnZ3dUYSZTnipiJ57nyq/s1408/1000089677.png" alt="Imagen de Conexión API" class="w-full h-full object-cover">
+                </div>
+                <div class="content-container">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">
+                        Conexión API <span class="text-sm font-normal text-gray-500 block">Infraestructura Intermediaria para APIs</span>
+                    </h3>
+                    <p class="text-gray-600 mb-4 text-sm flex-grow">
+                        Servicio digital basado en infraestructura intermediaria que facilita la conexión técnica con diversas fuentes de datos mediante APIs, sin almacenar ni modificar la información consultada.
+                    </p>
+                    <a href="api-key" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
+                        Gestionar API Key
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-gray-900 text-gray-400 py-10 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <h3 class="text-xl font-bold text-white mb-6">Síguenos en nuestras redes sociales</h3>
+            <div class="social-icons mb-8">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
+                    <i class="fab fa-facebook-square"></i>
+                </a>
+                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
+                    <i class="fab fa-youtube-square"></i>
+                </a>
+            </div>
+            <p class="mb-6 text-lg">Consulta PE © 2024 - Todos los derechos reservados</p>
+            <div class="mb-8 flex flex-wrap justify-center gap-4 text-sm">
+                <a href="terminos-condiciones" class="hover:text-indigo-400 transition hover:underline">Términos y condiciones</a>
+                <span class="text-gray-600">|</span>
+                <a href="politica-privacidad" class="hover:text-indigo-400 transition hover:underline">Política de privacidad</a>
+                <span class="text-gray-600">|</span>
+                <a href="aviso-legal-peliprex" class="hover:text-indigo-400 transition hover:underline">Aviso legal peliPREX</a>
+                <span class="text-gray-600">|</span>
+                <a href="disclaimer-apis" class="hover:text-indigo-400 transition hover:underline">Aviso legal apis</a>
+                <span class="text-gray-600">|</span>
+                <a href="disclaimer-apis" class="hover:text-indigo-400 transition hover:underline">Descargo de responsabilidad</a>
+            </div>
+            <p class="text-sm max-w-3xl mx-auto leading-relaxed">
+                Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. 
+                <strong class="text-white">No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>`;
+
+// Crear el archivo error-404.html en el directorio public si no existe
+const error404Path = path.join(__dirname, 'public', 'error-404.html');
+if (!fs.existsSync(path.dirname(error404Path))) {
+  fs.mkdirSync(path.dirname(error404Path), { recursive: true });
+}
+fs.writeFileSync(error404Path, error404Html);
+logger.info('404_PAGE', 'Página 404 actualizada con el nuevo diseño');
+
+// ================================================================
 // 🚨 SOLUCIÓN DEFINITIVA - RUTAS PROBLEMÁTICAS ARRIBA DE TODO
 // ================================================================
 
@@ -1046,12 +1253,12 @@ app.post("/api/validate-recaptcha", async (req, res) => {
   }
 });
 
-// Endpoint de login
+// Endpoint de login con redirección después del login
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
   
   try {
-    const { email, password, recaptchaResponse } = req.body;
+    const { email, password, recaptchaResponse, returnTo } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({
@@ -1064,10 +1271,13 @@ app.post("/api/login", async (req, res) => {
     
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
     
+    // Redirigir a la página original o a la página por defecto
+    const redirectPath = returnTo && returnTo !== 'undefined' ? decodeURIComponent(returnTo) : '/actividad';
+    
     res.json({
       success: true,
       message: 'Login successful (reCAPTCHA validated)',
-      redirectTo: '/actividad',
+      redirectTo: redirectPath,
       timestamp: new Date().toISOString()
     });
     
@@ -1082,12 +1292,12 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Endpoint de registro
+// Endpoint de registro con redirección
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
   
   try {
-    const { name, email, password, recaptchaResponse } = req.body;
+    const { name, email, password, recaptchaResponse, returnTo } = req.body;
     
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -1100,10 +1310,13 @@ app.post("/api/register", async (req, res) => {
     
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
     
+    // Redirigir a la página original o a la página por defecto
+    const redirectPath = returnTo && returnTo !== 'undefined' ? decodeURIComponent(returnTo) : '/actividad';
+    
     res.json({
       success: true,
       message: 'Registration successful (reCAPTCHA validated)',
-      redirectTo: '/actividad',
+      redirectTo: redirectPath,
       timestamp: new Date().toISOString()
     });
     
@@ -1702,6 +1915,7 @@ app.get("/api", (req, res) => {
       custom404: "✅ Página error-404 personalizada",
       authMiddleware: "✅ Control de acceso con Firebase",
       autoRedirect: "✅ Redirección automática a login",
+      returnAfterLogin: "✅ Retorno automático a página original",
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       easyToExpand: "✅ Fácil de agregar nuevas páginas"
@@ -1800,15 +2014,16 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.0.0',
+    version: '3.1.0',
     features: {
       authMiddleware: 'Activo',
+      autoRedirect: 'Activado',
+      returnAfterLogin: 'Activado',
+      custom404: 'Nuevo diseño implementado',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
-      custom404: 'Activo',
       cleanUrls: 'Activo',
-      noIndexHtml: 'Eliminado',
       specialRoutesFixed: '✅ Solución definitiva aplicada'
     },
     timestamp: new Date().toISOString()
