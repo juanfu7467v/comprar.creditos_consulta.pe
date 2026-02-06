@@ -296,7 +296,7 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN MEJORADO CON REDIRECCIÓN
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN MEJORADO
 // ================================================================
 
 /**
@@ -343,13 +343,13 @@ async function verifyFirebaseAuth(req, res, next) {
     }
     
     if (!idToken) {
-      logger.info(context, 'Token no encontrado, redirigiendo a login con returnTo', { 
+      logger.info(context, 'Token no encontrado, redirigiendo a login', { 
         path: req.path,
         originalUrl: req.originalUrl
       });
       
-      // Guardar la URL actual para redirigir después del login
-      const returnTo = encodeURIComponent(req.originalUrl || req.path);
+      // Redirigir a login con parámetro returnTo para volver después del login
+      const returnTo = encodeURIComponent(req.originalUrl);
       return res.redirect(`/login?returnTo=${returnTo}`);
     }
     
@@ -370,8 +370,8 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path 
     });
     
-    // Guardar la URL actual para redirigir después del login
-    const returnTo = encodeURIComponent(req.originalUrl || req.path);
+    // Redirigir a login con parámetro returnTo para volver después del login
+    const returnTo = encodeURIComponent(req.originalUrl);
     return res.redirect(`/login?returnTo=${returnTo}`);
   }
 }
@@ -822,10 +822,59 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// 📄 CREAR ARCHIVO error-404.html CON EL NUEVO DISEÑO
+// 🚨 SOLUCIÓN DEFINITIVA - RUTAS PROBLEMÁTICAS ARRIBA DE TODO
 // ================================================================
 
-const error404Html = `<!DOCTYPE html>
+// 1️⃣ Forzar que estas rutas respondan como HTML ANTES de cualquier generador PDF
+// Esto debe ir ARRIBA de cualquier otra ruta
+
+app.get("/disclaimer-apis", (req, res) => {
+  res.type("html");
+  res.sendFile(path.join(__dirname, "public", "disclaimer-apis.html"));
+});
+
+app.get("/API-Docs", (req, res) => {
+  res.type("html");
+  res.sendFile(path.join(__dirname, "public", "API-Docs.html"));
+});
+
+// ================================================================
+// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
+// ================================================================
+
+// Servir archivos estáticos ANTES de aplicar el middleware de autenticación
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Middleware para URLs limpias (sin .html) - EXCLUIR las rutas problemáticas
+app.use((req, res, next) => {
+  // Excluir las rutas problemáticas que ya manejamos manualmente
+  if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+    return next();
+  }
+  
+  const isHtmlRoute = !req.path.includes('.') && 
+                      !req.path.startsWith('/api/') &&
+                      req.path !== '/';
+  
+  if (isHtmlRoute) {
+    const cleanPath = req.path.replace(/^\//, '');
+    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
+    
+    if (fs.existsSync(htmlPath)) {
+      logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
+        path: req.path,
+        htmlFile: `${cleanPath}.html`
+      });
+      return res.sendFile(htmlPath);
+    }
+  }
+  
+  next();
+});
+
+// Crear y guardar la nueva página de error 404 personalizada
+const createNewError404Page = () => {
+  const error404HTML = `<!DOCTYPE html>
 <html lang="es">
 <head>
     <script src="global-consultas.js">
@@ -912,7 +961,7 @@ async function secureDownload(url, filename) {
         >
         </div>
         <div class="absolute inset-0 flex items-end justify-center pb-12 bg-black/30">
-            <a href="/" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
+            <a href="home" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
                 Ir a la Página Principal
             </a>
         </div>
@@ -1017,64 +1066,13 @@ async function secureDownload(url, filename) {
 </body>
 </html>`;
 
-// Crear el archivo error-404.html en el directorio public si no existe
-const error404Path = path.join(__dirname, 'public', 'error-404.html');
-if (!fs.existsSync(path.dirname(error404Path))) {
-  fs.mkdirSync(path.dirname(error404Path), { recursive: true });
-}
-fs.writeFileSync(error404Path, error404Html);
-logger.info('404_PAGE', 'Página 404 actualizada con el nuevo diseño');
+  const error404Path = path.join(__dirname, 'public', 'error-404.html');
+  fs.writeFileSync(error404Path, error404HTML);
+  logger.info('ERROR_404', 'Nueva página de error 404 creada exitosamente', { path: error404Path });
+};
 
-// ================================================================
-// 🚨 SOLUCIÓN DEFINITIVA - RUTAS PROBLEMÁTICAS ARRIBA DE TODO
-// ================================================================
-
-// 1️⃣ Forzar que estas rutas respondan como HTML ANTES de cualquier generador PDF
-// Esto debe ir ARRIBA de cualquier otra ruta
-
-app.get("/disclaimer-apis", (req, res) => {
-  res.type("html");
-  res.sendFile(path.join(__dirname, "public", "disclaimer-apis.html"));
-});
-
-app.get("/API-Docs", (req, res) => {
-  res.type("html");
-  res.sendFile(path.join(__dirname, "public", "API-Docs.html"));
-});
-
-// ================================================================
-// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
-// ================================================================
-
-// Servir archivos estáticos ANTES de aplicar el middleware de autenticación
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Middleware para URLs limpias (sin .html) - EXCLUIR las rutas problemáticas
-app.use((req, res, next) => {
-  // Excluir las rutas problemáticas que ya manejamos manualmente
-  if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
-    return next();
-  }
-  
-  const isHtmlRoute = !req.path.includes('.') && 
-                      !req.path.startsWith('/api/') &&
-                      req.path !== '/';
-  
-  if (isHtmlRoute) {
-    const cleanPath = req.path.replace(/^\//, '');
-    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
-    
-    if (fs.existsSync(htmlPath)) {
-      logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
-        path: req.path,
-        htmlFile: `${cleanPath}.html`
-      });
-      return res.sendFile(htmlPath);
-    }
-  }
-  
-  next();
-});
+// Crear la página de error 404 al iniciar
+createNewError404Page();
 
 // Middleware para detectar páginas inexistentes y redirigir a error-404
 app.use((req, res, next) => {
@@ -1099,48 +1097,14 @@ app.use((req, res, next) => {
         originalUrl: req.originalUrl
       });
       
-      // Servir directamente la página de error 404
+      // Servir directamente la nueva página de error 404 personalizada
       const error404Path = path.join(__dirname, 'public', 'error-404.html');
       if (fs.existsSync(error404Path)) {
         return res.status(404).sendFile(error404Path);
       } else {
-        return res.status(404).send(`
-          <!DOCTYPE html>
-          <html lang="es">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>404 - Página no encontrada</title>
-            <style>
-              body { 
-                font-family: Arial, sans-serif; 
-                text-align: center; 
-                padding: 50px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-              }
-              h1 { font-size: 72px; margin: 0; }
-              p { font-size: 24px; margin: 20px 0; }
-              a { 
-                color: white; 
-                text-decoration: none; 
-                background: rgba(255,255,255,0.2);
-                padding: 10px 20px;
-                border-radius: 5px;
-                display: inline-block;
-                margin-top: 20px;
-              }
-              a:hover { background: rgba(255,255,255,0.3); }
-            </style>
-          </head>
-          <body>
-            <h1>404</h1>
-            <p>Página no encontrada</p>
-            <p>Lo sentimos, la página que buscas no existe.</p>
-            <a href="/">Volver al inicio</a>
-          </body>
-          </html>
-        `);
+        // Si por alguna razón no existe, crear nuevamente y servir
+        createNewError404Page();
+        return res.status(404).sendFile(error404Path);
       }
     }
   }
@@ -1253,7 +1217,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
   }
 });
 
-// Endpoint de login con redirección después del login
+// Endpoint de login - Ahora maneja el parámetro returnTo
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
   
@@ -1271,8 +1235,8 @@ app.post("/api/login", async (req, res) => {
     
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
     
-    // Redirigir a la página original o a la página por defecto
-    const redirectPath = returnTo && returnTo !== 'undefined' ? decodeURIComponent(returnTo) : '/actividad';
+    // Usar returnTo si está presente, de lo contrario ir a actividad
+    const redirectPath = returnTo && returnTo !== 'undefined' ? returnTo : '/actividad';
     
     res.json({
       success: true,
@@ -1292,7 +1256,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Endpoint de registro con redirección
+// Endpoint de registro - Ahora maneja el parámetro returnTo
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
   
@@ -1310,8 +1274,8 @@ app.post("/api/register", async (req, res) => {
     
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
     
-    // Redirigir a la página original o a la página por defecto
-    const redirectPath = returnTo && returnTo !== 'undefined' ? decodeURIComponent(returnTo) : '/actividad';
+    // Usar returnTo si está presente, de lo contrario ir a actividad
+    const redirectPath = returnTo && returnTo !== 'undefined' ? returnTo : '/actividad';
     
     res.json({
       success: true,
@@ -1915,7 +1879,7 @@ app.get("/api", (req, res) => {
       custom404: "✅ Página error-404 personalizada",
       authMiddleware: "✅ Control de acceso con Firebase",
       autoRedirect: "✅ Redirección automática a login",
-      returnAfterLogin: "✅ Retorno automático a página original",
+      returnTo: "✅ Redirección después del login a página original",
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       easyToExpand: "✅ Fácil de agregar nuevas páginas"
@@ -2014,17 +1978,18 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.1.0',
+    version: '3.0.0',
     features: {
       authMiddleware: 'Activo',
-      autoRedirect: 'Activado',
-      returnAfterLogin: 'Activado',
-      custom404: 'Nuevo diseño implementado',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
+      custom404: 'Activo',
       cleanUrls: 'Activo',
-      specialRoutesFixed: '✅ Solución definitiva aplicada'
+      noIndexHtml: 'Eliminado',
+      specialRoutesFixed: '✅ Solución definitiva aplicada',
+      autoRedirectToLogin: '✅ Activado',
+      returnAfterLogin: '✅ Implementado'
     },
     timestamp: new Date().toISOString()
   });
