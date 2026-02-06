@@ -860,6 +860,15 @@ app.use((req, res, next) => {
     const cleanPath = req.path.replace(/^\//, '');
     const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
     
+    // IMPORTANTE: Verificar que no sea index.html
+    if (htmlPath.includes('index.html')) {
+      logger.warn('CLEAN_URL', 'Intento de acceder a index.html - Redirigiendo a home', {
+        path: req.path,
+        htmlPath
+      });
+      return res.redirect('/home');
+    }
+    
     if (fs.existsSync(htmlPath)) {
       logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
         path: req.path,
@@ -1880,6 +1889,7 @@ app.get("/api", (req, res) => {
       authMiddleware: "✅ Control de acceso con Firebase",
       autoRedirect: "✅ Redirección automática a login",
       returnTo: "✅ Redirección después del login a página original",
+      noIndexHtml: "✅ index.html eliminado - Redirige a home",
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       easyToExpand: "✅ Fácil de agregar nuevas páginas"
@@ -1986,7 +1996,7 @@ app.listen(PORT, "0.0.0.0", () => {
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo',
       cleanUrls: 'Activo',
-      noIndexHtml: 'Eliminado',
+      noIndexHtml: '✅ Eliminado - Redirige a home',
       specialRoutesFixed: '✅ Solución definitiva aplicada',
       autoRedirectToLogin: '✅ Activado',
       returnAfterLogin: '✅ Implementado'
