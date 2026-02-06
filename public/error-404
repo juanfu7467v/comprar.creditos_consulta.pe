@@ -45,7 +45,7 @@ async function secureDownload(url, filename) {
         >
         </div>
         <div class="absolute inset-0 flex items-end justify-center pb-12 bg-black/30">
-            <a href="index.html" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
+            <a href="/home.html" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
                 Ir a la Página Principal
             </a>
         </div>
@@ -126,7 +126,7 @@ async function secureDownload(url, filename) {
             <div>
                 <h4 class="text-lg font-bold text-white mb-4">Navegación</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="index.html" class="hover:text-indigo-400 transition">Inicio</a></li>
+                    <li><a href="/home.html" class="hover:text-indigo-400 transition">Inicio</a></li>
                     <li><a href="mas-servicios.html" class="hover:text-indigo-400 transition">Productos y Servicios</a></li>
                     <li><a href="coleccion-apis.html" class="hover:text-indigo-400 transition">APIs de Consulta</a></li>
                 </ul>
