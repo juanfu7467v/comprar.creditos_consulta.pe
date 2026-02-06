@@ -690,7 +690,7 @@
             margin-top: 40px;
             padding: 20px;
             text-align: center;
-            background: #000;
+            background: transparent; /* Fondo transparente */
             border-top: 1px solid var(--line);
             border-radius: 16px;
         }
@@ -698,13 +698,25 @@
         footer h3 { font-size: 16px; margin-bottom: 10px; color: var(--ink); }
         footer p { font-size: 12px; color: rgba(234,240,255,.78); margin-bottom: 8px; }
         
-        footer a {
-            color: rgba(234,240,255,.78);
+        /* ENLACES AZULES - NUEVO ESTILO */
+        footer a,
+        .info-section a,
+        .text-container a,
+        .section-card a:not(.btn-primary):not(.btn-secondary),
+        .info-section a:not(.btn-primary) {
+            color: #35D5FF !important; /* Color azul para enlaces */
             text-decoration: none;
             margin: 0 5px;
             transition: color 0.3s ease;
         }
-        footer a:hover { color: var(--cyan); }
+        footer a:hover,
+        .info-section a:hover,
+        .text-container a:hover,
+        .section-card a:not(.btn-primary):not(.btn-secondary):hover,
+        .info-section a:not(.btn-primary):hover {
+            color: #6D5BFF !important; /* Color diferente al pasar el mouse */
+            text-decoration: underline;
+        }
 
         .social-icons a {
             font-size: 24px;
@@ -768,6 +780,12 @@
         /* Ajustes puntuales de textos en línea que estaban en #111 (para tema oscuro) */
         /* Nota: Solo color, sin tocar contenido */
         code.font-bold { color: var(--ink); }
+
+        /* Estilo para "Aviso importante" en azul */
+        .aviso-importante {
+            color: #35D5FF !important;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
@@ -847,7 +865,7 @@
             </div>
             
             <!-- Opción Documentación APIs -->
-            <a href="doc-apis" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="API-Docs" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Documentación APIs</span>
             </a>
@@ -935,9 +953,9 @@
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
             <p style="font-size: 13px; color: var(--pink); margin-top: 10px;">
-                ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold" style="color: var(--pink); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
+                <span class="aviso-importante">⚠️ Aviso Importante:</span> Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.
             </p>
-            <a href="doc-apis.html" target="_blank" class="btn-primary" style="margin-top: 8px;">
+            <a href="API-Docs" target="_blank" class="btn-primary" style="margin-top: 8px;">
                 <i class="ri-book-3-line"></i> Ver Documentación
             </a>
         </div>
@@ -1223,7 +1241,7 @@
             <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
             <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
             <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
-            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold" style="color: var(--cyan); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.</p>
+            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.</p>
         </div>
         
         <footer>
@@ -1237,7 +1255,8 @@
                 <a href="terminos-condiciones">Términos y condiciones</a> |
                 <a href="politica-privacidad">Política de privacidad</a> |
                 <a href="aviso-legal-peliprex">Aviso legal peliPREX</a> |
-                <a href="disclaimer-apis">Aviso legal apis </a>
+                <a href="disclaimer-apis">Aviso legal apis</a> |
+                <a href="disclaimer-apis">Descargo de responsabilidad</a>
             </p>
             <p>Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong></p>
         </footer>
@@ -1295,16 +1314,12 @@
             });
         });
 
-        // Botón de compartir - abre el modal
+        // Botón de compartir - abre el modal (NO automáticamente)
         document.getElementById('share-btn').addEventListener('click', function() {
             document.getElementById('banner').style.display = 'flex';
         });
 
         // Funciones para el modal de compartir
-        setTimeout(() => {  
-            document.getElementById('banner').style.display = 'flex';  
-        }, 50000);  
-
         function sharePage() {  
             const url = "https://masitaprexv2.fly.dev/";  
             const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
