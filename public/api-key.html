@@ -12,12 +12,27 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
         :root {
-            --bg: #f8f9fa;
-            --card: #ffffff;
-            --muted: #4b5563;
-            --accent: #1e88e5;
-            --secondary: #00e676;
-            --pill: #e5e7eb;
+            /* Colores de fondo */
+            --bg1: #070A12; /* Azul muy oscuro, casi negro */
+            --bg2: #0B1230; /* Azul noche oscuro */
+            --glass: rgba(255,255,255,.06); /* Vidrio translúcido */
+            --glass2: rgba(255,255,255,.10); /* Vidrio más claro */
+            
+            /* Colores de texto */
+            --ink: #EAF0FF; /* Blanco azulado muy claro */
+            --muted: rgba(234,240,255,.72); /* Texto atenuado */
+            
+            /* Colores de acento (neón / vibrantes) */
+            --pink: #FF3D8D; /* Rosa neón */
+            --ind: #6D5BFF; /* Índigo / azul violeta */
+            --cyan: #35D5FF; /* Cian brillante */
+            --ok: #16e1a4; /* Verde turquesa */
+            --warn: #ffb020; /* Ámbar / naranja */
+            
+            /* Colores adicionales */
+            --line: rgba(255,255,255,.14); /* Líneas sutiles */
+            --shadow: 0 24px 80px rgba(0,0,0,.55); /* Sombras profundas */
+            
             --radius: 18px;
             --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
@@ -28,17 +43,18 @@
 
         body {
             margin: 0;
-            background: var(--bg);
-            color: #111;
+            background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+            color: var(--ink);
             font-family: var(--font-family);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             user-select: none;
+            min-height: 100vh;
         }
 
         /* Degradado de la cabecera del menú lateral */
         .sidebar-header-bg {
-            background: linear-gradient(135deg, #009383 0%, #005aee 100%);
+            background: linear-gradient(135deg, var(--ind) 0%, var(--cyan) 100%);
             border-bottom-left-radius: 50% 20%;
             border-bottom-right-radius: 50% 20%;
         }
@@ -62,15 +78,15 @@
         .header-icon {
             width: 1.75rem;
             height: 1.75rem;
-            color: #1f2937;
+            color: var(--cyan);
         }
 
         /* Banner de compartir (Oculto por defecto) */  
         .banner {  
             width: 100%;  
             max-width: 500px;
-            background: linear-gradient(to right, #00264D, #003366);  
-            color: #FFFFFF;  
+            background: linear-gradient(to right, var(--bg1), var(--ind));  
+            color: var(--ink);  
             position: fixed;  
             bottom: 0;  
             left: 50%;  
@@ -78,25 +94,27 @@
             padding: 30px;  
             border-top-left-radius: 15px;  
             border-top-right-radius: 15px;  
-            box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+            box-shadow: var(--shadow);  
             display: none;
             flex-direction: column;  
             align-items: center;  
             text-align: center;  
             z-index: 9999;  
+            border: 1px solid var(--line);
+            backdrop-filter: blur(10px);
         }  
 
         .banner-title {  
             font-size: 24px;  
             font-weight: bold;  
             margin-bottom: 15px;  
-            color: #FF00FF;  
+            color: var(--pink);  
         }  
 
         .banner-description {  
             font-size: 18px;  
             line-height: 1.8;  
-            color: #FFFFFF;  
+            color: var(--muted);  
             margin-bottom: 20px;  
         }  
 
@@ -115,7 +133,7 @@
         }  
 
         .cta-button {  
-            background: linear-gradient(to right, #2ECC71, #66CC99);  
+            background: linear-gradient(to right, var(--ok), var(--cyan));  
             color: white;  
         }  
 
@@ -124,19 +142,18 @@
         }  
 
         .close-modal {  
-            background-color: red;  
-            color: #FFFFFF;  
+            background: linear-gradient(to right, var(--pink), var(--ind));  
+            color: var(--ink);  
         }  
 
         .close-modal:hover {  
-            background-color: darkred;  
             transform: scale(1.08);  
         }  
 
         /* Iconos del banner */  
         .banner-icon {  
             margin-right: 8px;  
-            color: #FF00FF;  
+            color: var(--cyan);  
         }
 
         /* ESTILOS DE LA INTERFAZ API KEY */
@@ -153,8 +170,6 @@
         }
 
         .text-center { text-align: center; }
-        .text-accent { color: var(--accent); }
-        .text-secondary { color: var(--secondary); }
         .font-bold { font-weight: 700; }
         .mb-4 { margin-bottom: 16px; }
 
@@ -168,9 +183,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: var(--bg);
+            background: var(--bg1);
             z-index: 9999;
             display: none;
+            backdrop-filter: blur(10px);
         }
 
         .dots-loader {
@@ -183,7 +199,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(45deg, var(--secondary), var(--accent));
+            background: linear-gradient(45deg, var(--cyan), var(--pink));
             animation: bounce 1.4s infinite ease-in-out both;
         }
 
@@ -210,6 +226,10 @@
         .gradient-border {
             position: relative;
             z-index: 1;
+            border-radius: var(--radius);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
         }
 
         .gradient-border::before {
@@ -221,7 +241,7 @@
             bottom: 0;
             border-radius: inherit;
             padding: 2px;
-            background: linear-gradient(to right, #1e88e5, #00e676);
+            background: linear-gradient(to right, var(--pink), var(--ind), var(--cyan));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -230,13 +250,15 @@
 
         /* Tarjeta principal de perfil */
         .profile-card {
-            background: var(--card);
+            background: var(--glass);
             border-radius: 24px;
             padding: 18px;
-            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+            box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
         }
 
         .profile-header {
@@ -249,12 +271,12 @@
             width: 60px;
             height: 60px;
             border-radius: 999px;
-            background: var(--pill);
+            background: var(--glass2);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 3px solid var(--secondary);
+            border: 3px solid var(--cyan);
         }
         
         .profile-header img {
@@ -265,13 +287,17 @@
         
         .profile-header h2 {
             font-size: 20px;
+            background: linear-gradient(to right, var(--cyan), var(--ind), var(--pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         
         .profile-stats {
             display: flex;
             justify-content: space-around;
             text-align: center;
-            border-top: 1px solid var(--pill);
+            border-top: 1px solid var(--line);
             padding-top: 16px;
         }
 
@@ -284,7 +310,7 @@
         .stat-value {
             font-size: 24px;
             font-weight: 800;
-            color: var(--accent);
+            color: var(--cyan);
         }
 
         .stat-label {
@@ -293,14 +319,16 @@
         }
 
         .section-card {
-            background: var(--card);
+            background: var(--glass);
             border-radius: 20px;
             padding: 18px;
             margin-top: 18px;
-            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+            box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
         }
         
         .section-header {
@@ -312,6 +340,10 @@
         
         .section-header h3 {
             font-size: 18px;
+            background: linear-gradient(to right, var(--cyan), var(--ind));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .btn-primary {
@@ -319,14 +351,14 @@
             width: 100%;
             padding: 14px;
             border-radius: 12px;
-            background: linear-gradient(to right, #1e88e5, #00e676);
-            color: #fff;
+            background: linear-gradient(to right, var(--pink), var(--ind));
+            color: var(--ink);
             border: none;
             font-weight: 700;
             letter-spacing: 0.6px;
             text-align: center;
             text-decoration: none;
-            box-shadow: 0 4px 10px rgba(30, 136, 229, 0.3);
+            box-shadow: 0 4px 10px rgba(255, 61, 141, 0.3);
             transition: transform 0.1s ease;
             cursor: pointer;
         }
@@ -340,9 +372,9 @@
             width: 100%;
             padding: 12px 16px;
             border-radius: 12px;
-            background: var(--pill);
-            border: none;
-            color: #111;
+            background: var(--glass2);
+            border: 1px solid var(--line);
+            color: var(--ink);
             font-size: 14px;
             font-weight: 600;
             text-overflow: ellipsis;
@@ -355,7 +387,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--accent);
+            color: var(--cyan);
             cursor: pointer;
             font-size: 24px;
             padding: 8px;
@@ -369,9 +401,9 @@
             width: 100%;
             padding: 14px;
             border-radius: 12px;
-            background: #fff;
-            border: 2px solid var(--accent);
-            color: var(--accent);
+            background: var(--glass);
+            border: 2px solid var(--cyan);
+            color: var(--cyan);
             font-weight: 700;
             letter-spacing: 0.6px;
             margin-top: 8px;
@@ -381,7 +413,7 @@
         }
 
         .btn-secondary:hover {
-            background: #f0f0f0;
+            background: var(--glass2);
         }
         
         .btn-secondary i {
@@ -389,18 +421,21 @@
         }
         
         .info-section {
-            background: var(--card);
+            background: var(--glass);
             border-radius: 20px;
             padding: 18px;
             margin-top: 18px;
-            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+            box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
         }
 
         .info-section h3 {
             font-size: 18px;
+            color: var(--ink);
         }
 
         .info-section p, .info-section ul, .info-section li, .info-section div {
@@ -415,14 +450,14 @@
             align-items: flex-start;
             gap: 12px;
             padding: 10px 0;
-            border-bottom: 1px solid var(--pill);
+            border-bottom: 1px solid var(--line);
         }
         .info-item:last-child {
             border-bottom: none;
         }
         .info-item i {
             font-size: 20px;
-            color: var(--accent);
+            color: var(--cyan);
             padding-top: 2px;
         }
         
@@ -430,7 +465,7 @@
         .text-container {
             padding: 16px;
             border-radius: 16px;
-            background: var(--pill);
+            background: var(--glass2);
             margin-top: 18px;
             display: flex;
             flex-direction: column;
@@ -443,21 +478,21 @@
             gap: 8px;
             font-size: 16px;
             font-weight: 700;
-            color: #111;
+            color: var(--ink);
         }
 
         .text-container-header i {
-            color: #ffc107;
+            color: var(--warn);
             font-size: 20px;
         }
 
         .text-container p {
             margin: 0;
             font-size: 14px;
-            color: #111;
+            color: var(--muted);
         }
         .text-container strong {
-            color: var(--accent);
+            color: var(--cyan);
         }
 
         /* Tabla */
@@ -475,41 +510,54 @@
             font-weight: 700;
             color: var(--muted);
             text-transform: uppercase;
-            border-bottom: 1px solid var(--pill);
+            border-bottom: 1px solid var(--line);
             padding-bottom: 12px;
             position: sticky;
             top: 0;
-            background: var(--card);
+            background: var(--glass);
             z-index: 10;
+            backdrop-filter: blur(10px);
         }
         .credit-table tbody tr {
-            background: var(--pill);
+            background: var(--glass2);
             border-radius: 12px;
             overflow: hidden;
             font-weight: 600;
         }
         .credit-table tbody tr:nth-child(even) {
-            background: #f0f0f0;
+            background: var(--glass);
         }
-        .credit-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .credit-table td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; text-align: right; color: var(--accent); font-weight: 700;}
+        .credit-table td:first-child { 
+            border-top-left-radius: 12px; 
+            border-bottom-left-radius: 12px; 
+            color: var(--ink);
+        }
+        .credit-table td:last-child { 
+            border-top-right-radius: 12px; 
+            border-bottom-right-radius: 12px; 
+            text-align: right; 
+            color: var(--cyan); 
+            font-weight: 700;
+        }
 
         .table-scroll {
             max-height: 400px;
             overflow-y: auto;
             margin-top: 10px;
-            border: 1px solid var(--pill);
+            border: 1px solid var(--line);
             border-radius: 16px;
+            background: var(--glass);
         }
         
         /* Card de recomendación */
         .api-recommendation {
-            background: linear-gradient(135deg, #1e88e5 0%, #00e676 100%);
+            background: linear-gradient(135deg, var(--ind) 0%, var(--cyan) 100%);
             border-radius: 16px;
             padding: 18px;
-            color: #fff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            color: var(--ink);
+            box-shadow: var(--shadow);
             margin-top: 18px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
         .api-recommendation h4 {
             font-size: 16px;
@@ -519,6 +567,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            color: var(--ink);
         }
         .api-recommendation code {
             display: block;
@@ -529,13 +578,15 @@
             margin-bottom: 10px;
             white-space: nowrap;
             overflow-x: auto;
+            color: var(--ink);
         }
         .api-recommendation p {
             font-size: 14px;
             margin: 0;
+            color: rgba(234, 240, 255, 0.9);
         }
         .api-recommendation strong {
-            color: #fff000;
+            color: var(--warn);
         }
 
         /* Estilo para lista de ventajas */
@@ -548,14 +599,14 @@
         }
         .advantage-list li {
             font-size: 14px;
-            color: #111;
+            color: var(--ink);
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: 600;
         }
         .advantage-list li i {
-            color: var(--secondary);
+            color: var(--ok);
             font-size: 20px;
         }
         
@@ -573,7 +624,7 @@
         }
         
         .package-card {
-            background: var(--pill);
+            background: var(--glass2);
             border-radius: 12px;
             padding: 12px;
             text-align: center;
@@ -582,30 +633,30 @@
         }
         
         .package-grid a:hover .package-card {
-            background: #e0e2e5;
-            border-color: var(--accent);
+            background: var(--glass);
+            border-color: var(--cyan);
         }
         
         .package-grid a:nth-child(3) .package-card { 
-            border-color: var(--secondary); 
-            background: #e6ffec; 
+            border-color: var(--ok); 
+            background: rgba(22, 225, 164, 0.1); 
         }
         
         .package-grid a:nth-child(3):hover .package-card { 
-            background: #d4fcd8;
-            border-color: var(--secondary);
+            background: rgba(22, 225, 164, 0.2);
+            border-color: var(--ok);
         }
 
         .package-card .amount {
             font-size: 18px;
             font-weight: 800;
-            color: var(--accent);
+            color: var(--cyan);
             margin-bottom: 4px;
         }
         .package-card .credits {
             font-size: 14px;
             font-weight: 700;
-            color: #111;
+            color: var(--ink);
         }
         .package-card .benefit {
             font-size: 11px;
@@ -630,31 +681,32 @@
             font-size: 13px;
         }
         .unlimited-table thead th {
-            background: var(--pill);
-            color: #111;
+            background: var(--glass2);
+            color: var(--ink);
             font-weight: 700;
         }
         .unlimited-table tbody td {
-            border-bottom: 1px solid var(--pill);
+            border-bottom: 1px solid var(--line);
             font-weight: 500;
+            color: var(--muted);
         }
         .unlimited-table tbody tr:last-child td { border-bottom: none; }
-        .unlimited-table .price { font-weight: 700; color: var(--accent); }
-        .unlimited-table .saving { color: #ff0000; font-weight: 600; }
+        .unlimited-table .price { font-weight: 700; color: var(--cyan); }
+        .unlimited-table .saving { color: var(--pink); font-weight: 600; }
         
         .quote {
-            background: linear-gradient(to right, #e6ffec, #ffffff);
-            border-left: 5px solid var(--secondary);
+            background: var(--glass2);
+            border-left: 5px solid var(--ok);
             padding: 15px;
             margin: 20px 0;
             border-radius: 8px;
             font-style: italic;
             font-size: 16px;
-            color: #111;
+            color: var(--ink);
             font-weight: 600;
         }
         .quote i {
-            color: var(--secondary);
+            color: var(--ok);
             margin-right: 5px;
         }
 
@@ -666,12 +718,13 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(0, 0, 0, 0.6);
             display: none;
             justify-content: center;
             align-items: center;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            backdrop-filter: blur(5px);
         }
 
         .modal.active {
@@ -680,20 +733,23 @@
         }
 
         .modal-content {
-            background-color: var(--card);
+            background: var(--glass);
             padding: 20px;
             border-radius: 12px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
             min-width: 250px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line);
+            color: var(--ink);
         }
 
         .modal-content.success {
-            border: 2px solid #5cb85c;
+            border: 2px solid var(--ok);
         }
 
         .modal-content.error {
-            border: 2px solid #ff0000;
+            border: 2px solid var(--pink);
         }
 
         /* Footer */
@@ -701,12 +757,15 @@
             margin-top: 40px;
             padding: 20px;
             text-align: center;
+            background: #000000; /* Negro puro según especificación */
+            border-radius: var(--radius);
+            border: 1px solid var(--line);
         }
         
         footer h3 {
             font-size: 16px;
             margin-bottom: 10px;
-            color: #111;
+            color: var(--ink); /* Blanco según especificación */
         }
         
         footer p {
@@ -716,25 +775,25 @@
         }
         
         footer a {
-            color: var(--muted);
+            color: var(--cyan);
             text-decoration: none;
             margin: 0 5px;
             transition: color 0.3s ease;
         }
 
         footer a:hover {
-            color: #111;
+            color: var(--ink);
         }
 
         .social-icons a {
             font-size: 24px;
-            color: var(--muted);
+            color: var(--cyan);
             margin: 0 10px;
             transition: color 0.3s ease;
         }
 
         .social-icons a:hover {
-            color: #111;
+            color: var(--ink);
         }
         
         .mb-2 {
@@ -756,9 +815,10 @@
             align-items: center;
             font-size: 30px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow);
             z-index: 1000;
             animation: slideIn 1s ease-out forwards;
+            border: 2px solid var(--cyan);
         }
 
         @keyframes slideIn {
@@ -774,18 +834,19 @@
 
         .chat-bubble:hover {
             background: linear-gradient(45deg, #128C7E, #25D366);
+            transform: scale(1.1);
         }
 
         .chat-text {
             position: fixed;
             bottom: 90px;
             right: 20px;
-            background: linear-gradient(45deg, #25D366, #128C7E);
+            background: linear-gradient(45deg, var(--ind), var(--cyan));
             color: white;
             padding: 12px 18px;
             border-radius: 10px;
             font-size: 15px;
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow);
             overflow: hidden;
             white-space: nowrap;
             opacity: 0;
@@ -793,6 +854,7 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
             z-index: 1001;
             cursor: pointer;
+            border: 1px solid var(--line);
         }
 
         .chat-text.show {
@@ -804,30 +866,97 @@
             opacity: 0;
             transform: scale(0.9);
         }
+
+        /* CABECERA personalizada con el nuevo diseño */
+        header {
+            background: var(--glass) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line) !important;
+        }
+
+        /* MENU LATERAL personalizado */
+        #sidebar {
+            background: var(--glass) !important;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Ajustes de texto generales */
+        p, span, div, td {
+            color: var(--muted);
+        }
+
+        strong {
+            color: var(--cyan);
+        }
+
+        code {
+            color: var(--pink);
+            background: var(--glass2);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Ajustes para los enlaces en las tablas */
+        .package-grid a {
+            color: var(--ink);
+        }
+
+        /* Ajuste para el header principal */
+        header .header-icon {
+            color: var(--cyan);
+        }
+
+        /* Ajuste para el menú lateral */
+        #sidebar nav a {
+            color: var(--muted);
+        }
+
+        #sidebar nav a:hover {
+            background: var(--glass2);
+        }
+
+        /* Estilo para la sección activa en el menú */
+        #sidebar nav div.border-l-4 {
+            border-left-color: var(--pink) !important;
+            background: var(--glass2);
+        }
+
+        #sidebar nav div.border-l-4 span {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* Ajuste para el gradiente de texto */
+        .gradient-text {
+            background: linear-gradient(to right, var(--cyan), var(--ind), var(--pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
     </style>
 </head>
 <body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
 
     <!-- CABECERA (Header) -->
-    <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
+    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 h-16">
         <div class="flex items-center gap-3">
             <!-- Icono de menú a la izquierda de la imagen principal -->
-            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors active:bg-opacity-20">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
             <!-- Imagen principal de cabecera -->
             <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ5Yw_NDwKkZUK_t-yHRUPkagmTGz7Bj6rfDuVOwCQcY9B08ujqK-6BHWS4qXIsludoMvz0fhgcmYVOvIhO5QsvRQnigKslPiJS_yFkn4D62KqNg6D_xp9fWmQDv0WJ3Ef62JQPZ8TCb5QVwVoZhXBUaNBnUtFI4br7tauhuzKKKbUUM_i31YWIxsIf8Hv/s240/1000088967.png" 
                  alt="Logo" 
-                 style="width: 154px; height: 40px; object-fit: contain;">
+                 style="width: 154px; height: 40px; object-fit: contain; filter: brightness(1.2);">
         </div>
         
         <div class="flex items-center gap-4">
             <!-- Icono Perfil - Ahora lleva a actividad -->
-            <a href="actividad.html" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <a href="actividad.html" class="p-1 active:bg-gray-100 rounded-full transition-colors active:bg-opacity-20">
                 <i data-lucide="user" class="header-icon"></i>
             </a>
             <!-- Icono Compartir - Ahora abre el modal -->
-            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors active:bg-opacity-20">
                 <i data-lucide="share-2" class="header-icon"></i>
             </button>
         </div>
@@ -836,11 +965,11 @@
     <!-- MENU LATERAL (Sidebar) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
     
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[60] shadow-2xl overflow-y-auto">
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 z-[60] shadow-2xl overflow-y-auto">
         <!-- Encabezado Sidebar con Curva -->
         <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
             <!-- Contenedor del icono -->
-            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center">
+            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center backdrop-blur-md">
                 <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" 
                      alt="App Icon" 
                      class="w-full h-full object-cover">
@@ -859,37 +988,37 @@
         <!-- Opciones del Menú -->
         <nav class="mt-6">
             <!-- Opción Inicio -->
-            <a href="home" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="home" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
                 <i data-lucide="home" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
             <!-- Opción Recargar -->
-            <a href="planes" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="planes" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
                 <i data-lucide="credit-card" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Recargar</span>
             </a>
             
             <!-- Opción PeliPREX HD -->
-            <a href="PeliPREX" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="PeliPREX" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
                 <i data-lucide="film" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">PeliPREX HD</span>
             </a>
             
             <!-- Opción actual activa -->
-            <div class="flex items-center px-6 py-4 border-l-4 border-red-600 bg-gray-50">
-                <i data-lucide="key" class="w-6 h-6 text-gray-800 mr-4"></i>
-                <span class="text-lg font-semibold text-gray-800">Api key</span>
+            <div class="flex items-center px-6 py-4 border-l-4 bg-opacity-30">
+                <i data-lucide="key" class="w-6 h-6 text-cyan-400 mr-4"></i>
+                <span class="text-lg font-semibold gradient-text">Api key</span>
             </div>
             
             <!-- Opción Documentación APIs -->
-            <a href="doc-apis" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="doc-apis" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
                 <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Documentación APIs</span>
             </a>
             
             <!-- Opción Cerrar Sesión -->
-            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors mt-8">
+            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors mt-8">
                 <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Cerrar sesión</span>
             </a>
@@ -918,14 +1047,14 @@
     
     <div class="wrap" id="profile-container" style="display: none;">
         
-        <div class="profile-card gradient-border">
+        <div class="profile-card">
             <div class="profile-header">
                 <div class="avatar">
                     <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
                 </div>
                 <div>
-                    <h2>Hola, <span id="userName"></span></h2>
-                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
+                    <h2>Hola, <span id="userName" class="gradient-text"></span></h2>
+                    <p style="font-size:14px;margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
                 </div>
             </div>
             <div class="profile-stats">
@@ -936,15 +1065,15 @@
                 <div class="stat-item" id="infoIlimitado" style="display:none;">
                     <span class="stat-value" id="diasRestantes">0</span>
                     <span class="stat-label">Días restantes (Ilimitado)</span>
-                    <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
+                    <span style="font-size:11px;margin-top:2px;">Vence el: <span id="venceEl"></span></span>
                 </div>
             </div>
             <a href="planes.html" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
         </div>
 
-        <div class="section-card gradient-border">
-            <h3>Tu Token de Acceso</h3>
-            <p style="font-size:14px;color:var(--muted);">
+        <div class="section-card">
+            <h3 class="gradient-text">Tu Token de Acceso</h3>
+            <p>
                 Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de intermediación.
             </p>
             <div class="input-group">
@@ -958,53 +1087,53 @@
             </button>
         </div>
 
-        <div class="info-section gradient-border">
+        <div class="info-section">
             <div class="text-container-header">
-                <i class="ri-sparkling-2-line text-secondary"></i>
+                <i class="ri-sparkling-2-line" style="color: var(--ok);"></i>
                 ¡Felicidades por elegir Consulta PE! 🚀
             </div>
-            <p class="font-bold" style="color:#111;">
+            <p class="font-bold">
                 Has tomado una de las mejores decisiones para tu proyecto.
             </p>
             <p>
                 Aquí encontrarás <strong>11 APIs intermediadas listas para integrar</strong>, limpias, estables y con soporte constante.
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
-            <p style="font-size: 13px; color: #ff0000; margin-top: 10px;">
-                ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold" style="color: #ff0000; text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
+            <p style="font-size: 13px; color: var(--pink); margin-top: 10px;">
+                ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold" style="color: var(--pink); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
             </p>
             <a href="doc-apis.html" target="_blank" class="btn-primary" style="margin-top: 8px;">
                 <i class="ri-book-3-line"></i> Ver Documentación
             </a>
         </div>
 
-        <div class="info-section gradient-border">
+        <div class="info-section">
             <div class="text-container-header">
-                <i class="ri-lightbulb-line" style="color: #ffc107;"></i>
+                <i class="ri-lightbulb-line" style="color: var(--warn);"></i>
                 💡 Sobre el Consumo de Créditos
             </div>
             <p>
                 Recuerda que cada servicio intermediado tiene su propio consumo de créditos.
             </p>
-            <p class="font-bold" style="color:var(--accent);">
+            <p class="font-bold gradient-text">
                 👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por API.
             </p>
-            <div class="text-container" style="background: #e6f0ff;">
-                <div class="text-container-header" style="color: #111;">
+            <div class="text-container">
+                <div class="text-container-header">
                     Recomendación para rentabilidad:
                 </div>
-                <p style="color:#111;">
+                <p>
                     Si vas a integrar los servicios de intermediación en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
                 </p>
-                <p style="color:#111;">
+                <p>
                     Por ejemplo: Si un servicio consume <strong>10 créditos</strong>, puedes configurarlo en tu proyecto para que consuma <strong>12 o 13 créditos</strong>. De esta manera ganas por cada consulta y aseguras la sostenibilidad de tu sistema.
                 </p>
             </div>
         </div>
 
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-database-line text-accent"></i>
+        <div class="section-card">
+            <div class="text-container-header gradient-text">
+                <i class="ri-database-line"></i>
                 💳 Tabla de Créditos por Servicio de Infraestructura (<strong>11 APIs</strong>)
             </div>
             <div class="table-scroll">
@@ -1075,7 +1204,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px;">
+                            <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--muted);">
                                 <strong>Nota:</strong> Los créditos cubren exclusivamente costos de infraestructura tecnológica, 
                                 procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
                             </td>
@@ -1097,9 +1226,9 @@
             </p>
         </div>
         
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-rocket-line text-accent"></i>
+        <div class="info-section">
+            <div class="text-container-header gradient-text">
+                <i class="ri-rocket-line"></i>
                 🧩 11 Servicios de Intermediación Listos para Ti
             </div>
             <p>
@@ -1110,9 +1239,9 @@
             </p>
         </div>
 
-        <div class="section-card gradient-border">
+        <div class="section-card">
             <div class="text-container-header">
-                <i class="ri-money-dollar-circle-line" style="color: var(--secondary);"></i>
+                <i class="ri-money-dollar-circle-line" style="color: var(--ok);"></i>
                 💰 Paquetes Disponibles
             </div>
             <div class="package-grid">
@@ -1133,10 +1262,10 @@
                 </a>
                 
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
-                    <div class="package-card" style="border-color: #00e676;">
+                    <div class="package-card" style="border-color: var(--ok);">
                         <div class="amount">S/50</div>
                         <div class="credits">330 💎 CRÉDITOS</div>
-                        <div class="benefit font-bold" style="color:#00e676;">Opción inteligente y más rentable</div>
+                        <div class="benefit font-bold" style="color:var(--ok);">Opción inteligente y más rentable</div>
                     </div>
                 </a>
                 
@@ -1152,34 +1281,34 @@
                     <div class="package-card" style="grid-column: span 2;">
                         <div class="amount">S/200</div>
                         <div class="credits">1500 🔥 CRÉDITOS</div>
-                        <div class="benefit font-bold" style="color:#ff0000;">La mejor relación costo-beneficio</div>
+                        <div class="benefit font-bold" style="color:var(--pink);">La mejor relación costo-beneficio</div>
                     </div>
                 </a>
             </div>
         </div>
         
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-line-chart-line text-accent"></i>
+        <div class="info-section">
+            <div class="text-container-header gradient-text">
+                <i class="ri-line-chart-line"></i>
                 📊 Comparativa de Ahorro por Paquete
             </div>
             <p>
                 Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong>
             </p>
             <p>
-                Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="text-secondary font-bold">💰 13% de ahorro</span>
+                Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span style="color:var(--ok);" class="font-bold">💰 13% de ahorro</span>
             </p>
             <p>
-                Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color:#ff0000;" class="font-bold">🔥 24% de ahorro</span>
+                Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color:var(--pink);" class="font-bold">🔥 24% de ahorro</span>
             </p>
-            <p class="font-bold" style="color:var(--accent);">
+            <p class="font-bold gradient-text">
                 👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.
             </p>
         </div>
         
-        <div class="section-card gradient-border">
+        <div class="section-card">
             <div class="text-container-header">
-                <i class="ri-award-line" style="color: #ffc107;"></i>
+                <i class="ri-award-line" style="color: var(--warn);"></i>
                 💎 Comparativa de Paquetes y Ahorro
             </div>
             <p class="font-bold">
@@ -1192,7 +1321,7 @@
             </p>
 
             <div class="text-container-header" style="margin-top: 10px;">
-                <i class="ri-checkbox-circle-line text-secondary"></i>
+                <i class="ri-checkbox-circle-line" style="color: var(--ok);"></i>
                 ✨ Ventajas exclusivas
             </div>
             <ul class="advantage-list">
@@ -1205,14 +1334,14 @@
                 💬 En pocas palabras:
                 Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.
             </p>
-            <p class="font-bold text-center" style="color:#ff0000; font-size: 18px;">
+            <p class="font-bold text-center" style="color:var(--pink); font-size: 18px;">
                 🔥 Consulta PE premia a los desarrolladores inteligentes.
             </p>
         </div>
 
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-global-line text-accent"></i>
+        <div class="section-card">
+            <div class="text-container-header gradient-text">
+                <i class="ri-global-line"></i>
                 🌐 Planes Ilimitados (para proyectos con alto tráfico)
             </div>
             <p>
@@ -1238,9 +1367,9 @@
             </table>
         </div>
 
-        <div class="info-section gradient-border">
+        <div class="info-section">
             <div class="text-container-header">
-                <i class="ri-emotion-line text-secondary"></i>
+                <i class="ri-emotion-line" style="color: var(--ok);"></i>
                 ✨ Conclusión:
             </div>
             <p>
@@ -1253,13 +1382,13 @@
             </blockquote>
         </div>
 
-        <div class="info-section gradient-border">
+        <div class="info-section">
             <h3>Preguntas Frecuentes (FAQ)</h3>
             <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la API?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de intermediación.</p>
             <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
             <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
             <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
-            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold" style="color: var(--accent); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.</p>
+            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold gradient-text" style="text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.</p>
         </div>
         
         <footer>
@@ -1281,7 +1410,7 @@
     </div>
 
     <div id="saveConfirmModal" class="modal">
-        <div class="modal-content gradient-border">
+        <div class="modal-content">
             <p id="saveConfirmMessage"></p>
         </div>
     </div>
