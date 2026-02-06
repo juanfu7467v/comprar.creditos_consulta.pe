@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// 🔐 CONFIGURACIÃ"N DE RUTAS Y CONTROL DE ACCESO
+// 🔐 CONFIGURACIÓN DE RUTAS Y CONTROL DE ACCESO
 // ================================================================
 
 /**
@@ -43,7 +43,9 @@ const PUBLIC_ROUTES = [
   '/aviso-legal-peliprex',
   '/aviso-legal-peliprex.html',
   '/disclaimer-apis',
-  '/disclaimer-apis.html'
+  '/disclaimer-apis.html',
+  '/API-Docs',
+  '/API-Docs.html'
 ];
 
 /**
@@ -59,8 +61,6 @@ const PROTECTED_ROUTES = [
   '/planes.html',
   '/verify',
   '/verify.html',
-  '/API-Docs',
-  '/API-Docs.html',
   '/PeliPREX',
   '/PeliPREX.html',
   '/actividad',
@@ -115,7 +115,7 @@ const logger = {
 };
 
 // ================================================================
-// 🔥 CONFIGURACIÃ"N DE FIREBASE
+// 🔥 CONFIGURACIÓN DE FIREBASE
 // ================================================================
 
 function buildServiceAccountFromEnv() {
@@ -214,7 +214,7 @@ if (serviceAccount && !admin.apps.length) {
 }
 
 // ================================================================
-// 🔐 CONFIGURACIÃ"N DE RECAPTCHA
+// 🔐 CONFIGURACIÓN DE RECAPTCHA
 // ================================================================
 
 const RECAPTCHA_SECRET_KEY = process.env.RECAPCHA_CLAVE_SECRETA;
@@ -273,7 +273,7 @@ async function validateRecaptcha(recaptchaResponse) {
 }
 
 // ================================================================
-// 💳 CONFIGURACIÃ"N DE MERCADO PAGO
+// 💳 CONFIGURACIÓN DE MERCADO PAGO
 // ================================================================
 
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -296,7 +296,7 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÃ"N
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN
 // ================================================================
 
 /**
@@ -819,14 +819,40 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÃ TICOS
+// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
 // ================================================================
 
 // Servir archivos estáticos ANTES de aplicar el middleware de autenticación
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Middleware para URLs limpias (sin .html)
+// IMPORTANTE: Rutas específicas para las páginas problemáticas - manejar manualmente
+app.get('/disclaimer-apis', (req, res) => {
+  const disclaimerPath = path.join(__dirname, 'public', 'disclaimer-apis.html');
+  if (fs.existsSync(disclaimerPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.sendFile(disclaimerPath);
+  } else {
+    res.status(404).send('Página no encontrada');
+  }
+});
+
+app.get('/API-Docs', (req, res) => {
+  const apiDocsPath = path.join(__dirname, 'public', 'API-Docs.html');
+  if (fs.existsSync(apiDocsPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.sendFile(apiDocsPath);
+  } else {
+    res.status(404).send('Página no encontrada');
+  }
+});
+
+// Middleware para URLs limpias (sin .html) - EXCLUIR las rutas problemáticas
 app.use((req, res, next) => {
+  // Excluir las rutas problemáticas que ya manejamos manualmente
+  if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+    return next();
+  }
+  
   const isHtmlRoute = !req.path.includes('.') && 
                       !req.path.startsWith('/api/') &&
                       req.path !== '/';
@@ -853,6 +879,11 @@ app.use((req, res, next) => {
   const isApiRoute = req.path.startsWith('/api/');
   
   if (!isStaticFile && !isApiRoute && req.path !== '/') {
+    // Excluir las rutas problemáticas que ya manejamos
+    if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+      return next();
+    }
+    
     const requestedPath = path.join(__dirname, 'public', req.path);
     const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
     
@@ -1658,6 +1689,7 @@ app.get("/", (req, res) => {
   logger.info('ROOT_HOME', 'Sirviendo home.html como página principal');
   const homePath = path.join(__dirname, 'public', 'home.html');
   if (fs.existsSync(homePath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.sendFile(homePath);
   } else {
     res.status(404).send('Home page not found');
@@ -1714,6 +1746,11 @@ app.use((err, req, res, next) => {
 app.get("*", (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
+  // Excluir las rutas problemáticas que ya manejamos
+  if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+    return next();
   }
   
   const error404Path = path.join(__dirname, 'public', 'error-404.html');
