@@ -216,7 +216,9 @@ async function verifyFirebaseAuth(req, res, next) {
     '/support', // âœ… AÃ±adido: Support
     '/verify', // âœ… AÃ±adido: Verify
     '/politica.compras', // âœ… AÃ±adido: PolÃ­tica de compras
-    '/api/analyze' // âœ… AÃ±adido: AnÃ¡lisis con Gemini
+    '/api/analyze', // âœ… AÃ±adido: AnÃ¡lisis con Gemini
+    '/disclaimer-apis', // ✅ Añadido: Aviso legal APIs
+    '/API-Docs' // ✅ Añadido: Documentación API
   ];
   
   // Verificar si la ruta actual estÃ¡ excluida
@@ -1715,6 +1717,21 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
+// Rutas con cabeceras correctas para visualización en navegador
+app.get("/disclaimer-apis", (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'disclaimer-apis');
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Content-Disposition', 'inline');
+  res.sendFile(filePath);
+});
+
+app.get("/API-Docs", (req, res) => {
+  const filePath = path.join(__dirname, 'public', 'API-Docs');
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+  res.setHeader('Content-Disposition', 'inline');
+  res.sendFile(filePath);
+});
+
 // ================================================
 // El resto del cÃ³digo se mantiene exactamente igual
 // ================================================
@@ -1818,7 +1835,9 @@ app.use((req, res, next) => {
       '/trminos-condiciones',
       '/trminos-condiciones.html',
       '/politica.compras',
-      '/politica.compras.html'
+      '/politica.compras.html',
+      '/disclaimer-apis',
+      '/API-Docs'
     ];
     
     const isPublicRoute = publicRoutes.some(route => 
@@ -1924,6 +1943,8 @@ app.get("/api", (req, res) => {
       privacy: "/politica-privacidad",
       terms: "/trminos-condiciones",
       purchasePolicy: "/politica.compras",
+      disclaimerApis: "/disclaimer-apis",
+      apiDocs: "/API-Docs",
       notFound: "/404"
     },
     status: "online",
