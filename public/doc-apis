@@ -184,6 +184,7 @@
             max-height: 400px;
             overflow-y: auto;
             display: none;
+            position: relative;
         }
         .response-container.active {
             display: block;
@@ -209,6 +210,9 @@
             cursor: pointer;
             font-size: 0.9em;
             transition: background 0.3s;
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
         .copy-btn:hover {
             background: var(--color-primary-start);
@@ -219,6 +223,7 @@
             line-height: 1.5;
             white-space: pre-wrap;
             word-wrap: break-word;
+            padding-top: 10px;
         }
         .api-documentation {
             margin-top: 40px;
@@ -290,17 +295,16 @@
             margin: 15px 0;
             font-family: monospace;
             font-size: 0.95em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            position: relative;
+            padding-right: 100px;
         }
         .endpoint-url code {
-            flex-grow: 1;
             word-break: break-all;
         }
         .url-copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
             background: rgba(0, 0, 0, 0.1);
             border: none;
             padding: 6px 12px;
@@ -397,6 +401,7 @@
             background: #1e293b;
             color: #e2e8f0;
             padding: 20px;
+            padding-top: 45px;
             border-radius: 8px;
             overflow-x: auto;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -436,6 +441,42 @@
             align-items: center;
             gap: 10px;
         }
+        
+        /* Tooltip global - CENTRADO EN ANCHO Y ALTO, TEXTO CENTRADO */
+        .global-tooltip {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #4a5568;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: tooltipFadeIn 0.2s ease-out;
+            pointer-events: none;
+            text-align: center;
+        }
+        
+        .global-tooltip.show {
+            display: block;
+        }
+        
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
         footer {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             color: #cbd5e1;
@@ -642,10 +683,13 @@
     </style>
 </head>
 <body>
+    <!-- Tooltip global -->
+    <div class="global-tooltip" id="globalTooltip">Copiado al portapapeles</div>
+
     <header>
         <div class="container">
-            <h1>Documentación API Consulta PE v2 <span class="badge">NUEVO</span></h1>
-            <p>Consulta PE APIs v2 funciona exclusivamente como intermediario de infraestructura tecnológica.</p>
+            <h1>Documentación API Consulta PE v3 <span class="badge">Masitaprex</span></h1>
+            <p>Consulta PE APIs v3 funciona exclusivamente como intermediario de infraestructura tecnológica.</p>
         </div>
     </header>
     <main class="content">
@@ -663,17 +707,17 @@
                             <label for="endpoint-select"><i class="fas fa-code-branch"></i> Seleccionar Endpoint</label>
                             <select id="endpoint-select">
                                 <option value="">-- Selecciona una API --</option>
-                                <option value="/api/reniec">RENIEC - Consulta por DNI</option>
-                                <option value="/api/telefonia-doc">Telefonía por Documento</option>
-                                <option value="/api/telefonia-num">Telefonía por Número</option>
-                                <option value="/api/vehiculos">Datos SUNARP Vehículo</option>
-                                <option value="/api/sunat">SUNAT por RUC</option>
-                                <option value="/api/sunat-razon">SUNAT por Razón Social</option>
-                                <option value="/api/empresas">Empresas Relacionadas</option>
-                                <option value="/api/matrimonios">Matrimonios Registrados</option>
-                                <option value="/api/dni_nombres">Buscar DNI por Nombres</option>
-                                <option value="/api/venezolanos_nombres">Buscar Venezolano por Nombre</option>
-                                <option value="/api/cedula">Consultar Cédula Venezolana</option>
+                                <option value="/v3/consulta/dni">RENIEC - Consulta por DNI</option>
+                                <option value="/v3/consulta/telefonia-doc">Telefonía por Documento</option>
+                                <option value="/v3/consulta/telefonia-num">Telefonía por Número</option>
+                                <option value="/v3/consulta/placa">Datos SUNARP Vehículo</option>
+                                <option value="/v3/consulta/ruc">SUNAT por RUC</option>
+                                <option value="/v3/consulta/razon-social">SUNAT por Razón Social</option>
+                                <option value="/v3/consulta/empresas">Empresas Relacionadas</option>
+                                <option value="/v3/consulta/matrimonios">Matrimonios Registrados</option>
+                                <option value="/v3/consulta/buscar-dni">Buscar DNI por Nombres</option>
+                                <option value="/v3/consulta/buscar-cedula">Buscar Venezolano por Nombre</option>
+                                <option value="/v3/consulta/cedula">Consultar Cédula Venezolana</option>
                             </select>
                         </div>
                         <div class="input-group">
@@ -683,11 +727,7 @@
                     </div>
                     <div>
                         <div class="input-group">
-                            <label><i class="fas fa-info-circle"></i> URL Base</label>
-                            <input type="text" value="https://consulta-pe-apis-data-v2.fly.dev" readonly style="background: #f3f4f6;">
-                        </div>
-                        <div class="input-group">
-                            <label><i class="fas fa-link"></i> Endpoint Seleccionado</label>
+                            <label><i class="fas fa-link"></i> URL Completa del Endpoint</label>
                             <div class="endpoint-url" style="margin: 0;">
                                 <code id="selected-endpoint">Selecciona un endpoint</code>
                                 <button class="url-copy-btn" onclick="copyEndpointUrl()">
@@ -695,7 +735,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="button-group">
+                        <div class="button-group" style="margin-top: 40px;">
                             <button class="btn btn-primary" onclick="testAPI()">
                                 <i class="fas fa-play"></i> Probar API
                             </button>
@@ -706,12 +746,10 @@
                     </div>
                 </div>
                 <div class="response-container" id="api-response">
-                    <div class="response-header">
-                        <h3><i class="fas fa-server"></i> Respuesta de la API</h3>
-                        <button class="copy-btn" onclick="copyResponse()">
-                            <i class="far fa-copy"></i> Copiar JSON
-                        </button>
-                    </div>
+                    <button class="copy-btn" onclick="copyResponse()">
+                        <i class="far fa-copy"></i> Copiar
+                    </button>
+                    <h3><i class="fas fa-server"></i> Respuesta de la API</h3>
                     <div class="response-content" id="response-content">
                         {}
                     </div>
@@ -719,7 +757,8 @@
             </section>
             <!-- API Documentation -->
             <section class="api-documentation">
-                <h2><i class="fas fa-book"></i> Documentación de las 11 APIs</h2>
+                <h2><i class="fas fa-book"></i> Documentación de las APIs</h2>
+                
                 <!-- API 1: RENIEC -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -735,8 +774,8 @@
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/reniec</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/reniec')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/dni</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/dni')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
@@ -765,7 +804,7 @@
                         </table>
                     </div>
                     <div class="code-examples">
-                        <h4><i class="fas fa-code"></i> Ejemplos de Consumo</h4>
+                        <h4><i class="fas fa-code"></i> Ejemplos de Solicitud</h4>
                         <div class="code-tabs">
                             <button class="code-tab active" onclick="showCodeTab(1, 'curl')">cURL</button>
                             <button class="code-tab" onclick="showCodeTab(1, 'python')">Python</button>
@@ -774,11 +813,11 @@
                         </div>
                         <div class="code-content active" id="code-1-curl">
                             <div class="code-block">
-                                <button class="code-copy-btn" onclick="copyCode('code-1-curl')">
+                                <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                     <i class="far fa-copy"></i> Copiar
                                 </button>
                                 <pre>curl -X POST \
-  'https://consulta-pe-apis-data-v2.fly.dev/api/reniec' \
+  'https://api.masitaprex.com/v3/consulta/dni' \
   -H 'x-api-key: TU_TOKEN_AQUI' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -788,26 +827,28 @@
                         </div>
                         <div class="code-content" id="code-1-python">
                             <div class="code-block">
-                                <button class="code-copy-btn" onclick="copyCode('code-1-python')">
+                                <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                     <i class="far fa-copy"></i> Copiar
                                 </button>
                                 <pre>import requests
-url = "https://consulta-pe-apis-data-v2.fly.dev/api/reniec"
+
+url = "https://api.masitaprex.com/v3/consulta/dni"
 headers = {
     "x-api-key": "TU_TOKEN_AQUI",
     "Content-Type": "application/json"
 }
 data = {"dni": "12345678"}
+
 response = requests.post(url, headers=headers, json=data)
 print(response.json())</pre>
                             </div>
                         </div>
                         <div class="code-content" id="code-1-javascript">
                             <div class="code-block">
-                                <button class="code-copy-btn" onclick="copyCode('code-1-javascript')">
+                                <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                     <i class="far fa-copy"></i> Copiar
                                 </button>
-                                <pre>fetch('https://consulta-pe-apis-data-v2.fly.dev/api/reniec', {
+                                <pre>fetch('https://api.masitaprex.com/v3/consulta/dni', {
     method: 'POST',
     headers: {
         'x-api-key': 'TU_TOKEN_AQUI',
@@ -824,30 +865,34 @@ print(response.json())</pre>
                         </div>
                         <div class="code-content" id="code-1-php">
                             <div class="code-block">
-                                <button class="code-copy-btn" onclick="copyCode('code-1-php')">
+                                <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                     <i class="far fa-copy"></i> Copiar
                                 </button>
-                                <pre>$url = 'https://consulta-pe-apis-data-v2.fly.dev/api/reniec';
+                                <pre><?php
+$url = 'https://api.masitaprex.com/v3/consulta/dni';
 $data = array('dni' => '12345678');
 $headers = array(
     'x-api-key: TU_TOKEN_AQUI',
     'Content-Type: application/json'
 );
+
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
 $response = curl_exec($ch);
 curl_close($ch);
-echo $response;</pre>
+echo $response;
+?></pre>
                             </div>
                         </div>
                     </div>
                     <div class="response-example">
-                        <h4><i class="fas fa-reply"></i> Respuesta de Ejemplo</h4>
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
-                            <button class="code-copy-btn" onclick="copyResponseExample(1)">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                 <i class="far fa-copy"></i> Copiar
                             </button>
                             <pre>{
@@ -879,10 +924,10 @@ echo $response;</pre>
     "fecha_caducidad": "2030-05-15"
   },
   "meta": {
-    "version": "2.0.4",
+    "version": "3.0.0",
     "timestamp": "2024-04-15T10:30:00Z",
     "request_id": "req_abc123",
-    "server": "cluster-aws-pe-01"
+    "server": "cluster-aws-pe-secure-01"
   },
   "consulta-pe": {
     "poweredBy": "Intermediario Consulta Pe v2",
@@ -896,6 +941,7 @@ echo $response;</pre>
                         </div>
                     </div>
                 </div>
+                
                 <!-- API 2: Telefonía por Documento -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -911,8 +957,8 @@ echo $response;</pre>
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/telefonia-doc</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/telefonia-doc')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/telefonia-doc</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/telefonia-doc')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
@@ -941,15 +987,17 @@ echo $response;</pre>
                         </table>
                     </div>
                     <div class="code-examples">
-                        <h4><i class="fas fa-code"></i> Ejemplo en Python</h4>
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
                         <div class="code-block">
-                            <button class="code-copy-btn" onclick="copyCode('telefonia-doc-py')">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                 <i class="far fa-copy"></i> Copiar
                             </button>
                             <pre>import requests
-url = "https://consulta-pe-apis-data-v2.fly.dev/api/telefonia-doc"
-headers = {"x-api-key": "TU_TOKEN"}
+
+url = "https://api.masitaprex.com/v3/consulta/telefonia-doc"
+headers = {"x-api-key": "TU_TOKEN", "Content-Type": "application/json"}
 data = {"documento": "12345678"}
+
 response = requests.post(url, headers=headers, json=data)
 if response.status_code == 200:
     telefonos = response.json()
@@ -957,7 +1005,42 @@ if response.status_code == 200:
         print(f"Número: {tel['numero']}, Operador: {tel['operador']}")</pre>
                         </div>
                     </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "documento": "12345678",
+    "titular": "JUAN CARLOS PEREZ GOMEZ",
+    "lineas": [
+      {
+        "numero": "987654321",
+        "operador": "CLARO",
+        "tipo": "MOVIL",
+        "estado": "ACTIVO",
+        "fecha_activacion": "2020-03-15",
+        "portabilidad": false
+      },
+      {
+        "numero": "945123456",
+        "operador": "MOVISTAR",
+        "tipo": "MOVIL",
+        "estado": "ACTIVO",
+        "fecha_activacion": "2019-11-20",
+        "portabilidad": true
+      }
+    ],
+    "total_lineas": 2
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 3: Telefonía por Número -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -973,8 +1056,8 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/telefonia-num</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/telefonia-num')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/telefonia-num</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/telefonia-num')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
@@ -1002,7 +1085,43 @@ if response.status_code == 200:
                             </tbody>
                         </table>
                     </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>curl -X POST \
+  'https://api.masitaprex.com/v3/consulta/telefonia-num' \
+  -H 'x-api-key: TU_TOKEN_AQUI' \
+  -H 'Content-Type: application/json' \
+  -d '{"numero": "987654321"}'</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "numero": "987654321",
+    "titular": "JUAN CARLOS PEREZ GOMEZ",
+    "documento": "12345678",
+    "operador": "CLARO",
+    "tipo": "MOVIL",
+    "estado": "ACTIVO",
+    "fecha_activacion": "2020-03-15",
+    "portabilidad": false,
+    "departamento": "LIMA"
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 4: Vehículos SUNARP -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1018,8 +1137,8 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/vehiculos</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/vehiculos')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/placa</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/placa')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
@@ -1047,7 +1166,62 @@ if response.status_code == 200:
                             </tbody>
                         </table>
                     </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>fetch('https://api.masitaprex.com/v3/consulta/placa', {
+    method: 'POST',
+    headers: {
+        'x-api-key': 'TU_TOKEN_AQUI',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ placa: 'ABC-123' })
+})
+.then(response => response.json())
+.then(data => console.log(data));</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "placa": "ABC-123",
+    "propietario": {
+      "nombre": "JUAN CARLOS PEREZ GOMEZ",
+      "documento": "12345678",
+      "tipo_documento": "DNI"
+    },
+    "vehiculo": {
+      "marca": "TOYOTA",
+      "modelo": "COROLLA",
+      "año": "2020",
+      "color": "GRIS",
+      "clase": "AUTOMOVIL",
+      "carroceria": "SEDAN",
+      "combustible": "GASOLINA",
+      "motor": "1ZR1234567",
+      "serie": "JTDBT123456789",
+      "asientos": 5,
+      "cilindros": 4,
+      "cilindrada": "1800"
+    },
+    "estado": "ACTIVO",
+    "gravamenes": [],
+    "anotaciones": []
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 5: SUNAT por RUC -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1063,8 +1237,8 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/sunat</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/sunat')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/ruc</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/ruc')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
@@ -1092,7 +1266,63 @@ if response.status_code == 200:
                             </tbody>
                         </table>
                     </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre><?php
+$url = 'https://api.masitaprex.com/v3/consulta/ruc';
+$data = array('data' => '20123456789');
+$headers = array(
+    'x-api-key: TU_TOKEN_AQUI',
+    'Content-Type: application/json'
+);
+
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+?></pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "ruc": "20123456789",
+    "razon_social": "EMPRESA EJEMPLO S.A.C.",
+    "estado": "ACTIVO",
+    "condicion": "HABIDO",
+    "direccion": "AV. EJEMPLO 123 - LIMA - LIMA - SAN ISIDRO",
+    "departamento": "LIMA",
+    "provincia": "LIMA",
+    "distrito": "SAN ISIDRO",
+    "ubigeo": "150131",
+    "tipo_contribuyente": "SOCIEDAD ANONIMA CERRADA",
+    "fecha_inscripcion": "2015-03-20",
+    "sistema_emision": "MANUAL/COMPUTARIZADO",
+    "actividad_comercial": "COMERCIO AL POR MENOR",
+    "num_trabajadores": "5 A 10",
+    "tipo_facturacion": "FACTURA FISICA Y ELECTRONICA",
+    "representante_legal": "JUAN CARLOS PEREZ GOMEZ"
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 6: SUNAT por Razón Social -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1108,15 +1338,83 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/sunat-razon</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/sunat-razon')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/razon-social</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/razon-social')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
                     <div class="endpoint-description">
                         <p>Permite buscar empresas en la base de datos de SUNAT utilizando su razón social o nombre comercial. Devuelve coincidencias parciales y exactas.</p>
                     </div>
+                    <div class="parameters">
+                        <h4><i class="fas fa-list"></i> Parámetros</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Tipo</th>
+                                    <th>Requerido</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>data</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Razón social o nombre comercial</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>import requests
+
+url = "https://api.masitaprex.com/v3/consulta/razon-social"
+headers = {"x-api-key": "TU_TOKEN", "Content-Type": "application/json"}
+data = {"data": "EMPRESA EJEMPLO"}
+
+response = requests.post(url, headers=headers, json=data)
+print(response.json())</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "resultados": [
+      {
+        "ruc": "20123456789",
+        "razon_social": "EMPRESA EJEMPLO S.A.C.",
+        "estado": "ACTIVO",
+        "condicion": "HABIDO",
+        "departamento": "LIMA"
+      },
+      {
+        "ruc": "20987654321",
+        "razon_social": "EMPRESA EJEMPLO E.I.R.L.",
+        "estado": "ACTIVO",
+        "condicion": "HABIDO",
+        "departamento": "AREQUIPA"
+      }
+    ],
+    "total": 2
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 7: Empresas Relacionadas -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1132,15 +1430,84 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/empresas</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/empresas')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/empresas</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/empresas')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
                     <div class="endpoint-description">
                         <p>Lista todas las empresas donde una persona figura como representante legal, socio, accionista o trabajador. Incluye porcentaje de participación y cargo.</p>
                     </div>
+                    <div class="parameters">
+                        <h4><i class="fas fa-list"></i> Parámetros</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Tipo</th>
+                                    <th>Requerido</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>dni</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Número de DNI de 8 dígitos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>curl -X POST \
+  'https://api.masitaprex.com/v3/consulta/empresas' \
+  -H 'x-api-key: TU_TOKEN_AQUI' \
+  -H 'Content-Type: application/json' \
+  -d '{"dni": "12345678"}'</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "dni": "12345678",
+    "persona": "JUAN CARLOS PEREZ GOMEZ",
+    "empresas": [
+      {
+        "ruc": "20123456789",
+        "razon_social": "EMPRESA EJEMPLO S.A.C.",
+        "cargo": "GERENTE GENERAL",
+        "participacion": "45%",
+        "fecha_nombramiento": "2015-03-20",
+        "estado": "ACTIVO"
+      },
+      {
+        "ruc": "20987654321",
+        "razon_social": "COMERCIAL EJEMPLO E.I.R.L.",
+        "cargo": "REPRESENTANTE LEGAL",
+        "participacion": "100%",
+        "fecha_nombramiento": "2018-07-10",
+        "estado": "ACTIVO"
+      }
+    ],
+    "total": 2
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 8: Matrimonios Registrados -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1156,15 +1523,84 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/matrimonios</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/matrimonios')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/matrimonios</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/matrimonios')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
                     <div class="endpoint-description">
                         <p>Consulta el registro de matrimonios civiles asociados a un DNI. Incluye información del cónyuge, fecha de matrimonio y lugar de registro.</p>
                     </div>
+                    <div class="parameters">
+                        <h4><i class="fas fa-list"></i> Parámetros</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Tipo</th>
+                                    <th>Requerido</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>dni</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Número de DNI de 8 dígitos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>fetch('https://api.masitaprex.com/v3/consulta/matrimonios', {
+    method: 'POST',
+    headers: {
+        'x-api-key': 'TU_TOKEN_AQUI',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ dni: '12345678' })
+})
+.then(response => response.json())
+.then(data => console.log(data));</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "dni": "12345678",
+    "persona": "JUAN CARLOS PEREZ GOMEZ",
+    "matrimonios": [
+      {
+        "conyuge": {
+          "nombres": "MARIA ISABEL",
+          "apellidos": "RODRIGUEZ LOPEZ",
+          "dni": "87654321"
+        },
+        "fecha_matrimonio": "2018-06-15",
+        "lugar_registro": "MUNICIPALIDAD DE LIMA",
+        "estado": "VIGENTE",
+        "regimen_patrimonial": "SEPARACION DE PATRIMONIOS"
+      }
+    ],
+    "total": 1
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 9: Buscar DNI por Nombres -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1180,15 +1616,104 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/dni_nombres</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/dni_nombres')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/buscar-dni</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/buscar-dni')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
                     <div class="endpoint-description">
                         <p>Busca posibles números de DNI asociados a nombres y apellidos completos. Útil cuando se conoce el nombre pero no el documento.</p>
                     </div>
+                    <div class="parameters">
+                        <h4><i class="fas fa-list"></i> Parámetros</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Tipo</th>
+                                    <th>Requerido</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>nombres</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Nombres de la persona</td>
+                                </tr>
+                                <tr>
+                                    <td><code>apepaterno</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Apellido paterno</td>
+                                </tr>
+                                <tr>
+                                    <td><code>apematerno</code></td>
+                                    <td>String</td>
+                                    <td>No</td>
+                                    <td>Apellido materno</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>import requests
+
+url = "https://api.masitaprex.com/v3/consulta/buscar-dni"
+headers = {"x-api-key": "TU_TOKEN", "Content-Type": "application/json"}
+data = {
+    "nombres": "JUAN CARLOS",
+    "apepaterno": "PEREZ",
+    "apematerno": "GOMEZ"
+}
+
+response = requests.post(url, headers=headers, json=data)
+print(response.json())</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "busqueda": {
+      "nombres": "JUAN CARLOS",
+      "apellido_paterno": "PEREZ",
+      "apellido_materno": "GOMEZ"
+    },
+    "resultados": [
+      {
+        "dni": "12345678",
+        "nombres_completos": "JUAN CARLOS PEREZ GOMEZ",
+        "fecha_nacimiento": "1990-01-01",
+        "departamento": "LIMA",
+        "exactitud": "100%"
+      },
+      {
+        "dni": "23456789",
+        "nombres_completos": "JUAN CARLOS PEREZ GOMEZ",
+        "fecha_nacimiento": "1985-05-20",
+        "departamento": "AREQUIPA",
+        "exactitud": "100%"
+      }
+    ],
+    "total": 2
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 10: Buscar Venezolano por Nombre -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1204,15 +1729,81 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/venezolanos_nombres</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/venezolanos_nombres')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/buscar-cedula</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/buscar-cedula')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
                     <div class="endpoint-description">
                         <p>Busca personas de nacionalidad venezolana utilizando sus nombres y apellidos. Devuelve posibles coincidencias con sus cédulas.</p>
                     </div>
+                    <div class="parameters">
+                        <h4><i class="fas fa-list"></i> Parámetros</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Tipo</th>
+                                    <th>Requerido</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>query</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Nombres y apellidos completos</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>curl -X POST \
+  'https://api.masitaprex.com/v3/consulta/buscar-cedula' \
+  -H 'x-api-key: TU_TOKEN_AQUI' \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "MARIA RODRIGUEZ"}'</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "busqueda": "MARIA RODRIGUEZ",
+    "resultados": [
+      {
+        "cedula": "V12345678",
+        "nombres_completos": "MARIA ISABEL RODRIGUEZ LOPEZ",
+        "fecha_nacimiento": "1992-03-15",
+        "sexo": "FEMENINO",
+        "estado": "ACTIVO"
+      },
+      {
+        "cedula": "V23456789",
+        "nombres_completos": "MARIA RODRIGUEZ GONZALEZ",
+        "fecha_nacimiento": "1988-11-20",
+        "sexo": "FEMENINO",
+        "estado": "ACTIVO"
+      }
+    ],
+    "total": 2
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
                 <!-- API 11: Consultar Cédula Venezolana -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
@@ -1228,15 +1819,78 @@ if response.status_code == 200:
                         </div>
                     </div>
                     <div class="endpoint-url">
-                        <code>POST https://consulta-pe-apis-data-v2.fly.dev/api/cedula</code>
-                        <button class="url-copy-btn" onclick="copyToClipboard('POST https://consulta-pe-apis-data-v2.fly.dev/api/cedula')">
+                        <code>POST https://api.masitaprex.com/v3/consulta/cedula</code>
+                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/cedula')">
                             <i class="far fa-copy"></i> Copiar
                         </button>
                     </div>
                     <div class="endpoint-description">
                         <p>Consulta información de personas venezolanas utilizando su número de cédula de identidad. Incluye datos personales y de registro.</p>
                     </div>
+                    <div class="parameters">
+                        <h4><i class="fas fa-list"></i> Parámetros</h4>
+                        <table class="parameter-table">
+                            <thead>
+                                <tr>
+                                    <th>Parámetro</th>
+                                    <th>Tipo</th>
+                                    <th>Requerido</th>
+                                    <th>Descripción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>cedula</code></td>
+                                    <td>String</td>
+                                    <td>Sí</td>
+                                    <td>Número de cédula (ej: V12345678)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="code-examples">
+                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>fetch('https://api.masitaprex.com/v3/consulta/cedula', {
+    method: 'POST',
+    headers: {
+        'x-api-key': 'TU_TOKEN_AQUI',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ cedula: 'V12345678' })
+})
+.then(response => response.json())
+.then(data => console.log(data));</pre>
+                        </div>
+                    </div>
+                    <div class="response-example">
+                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
+                        <div class="code-block">
+                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <pre>{
+  "success": true,
+  "data": {
+    "cedula": "V12345678",
+    "nombres": "MARIA ISABEL",
+    "apellidos": "RODRIGUEZ LOPEZ",
+    "fecha_nacimiento": "1992-03-15",
+    "sexo": "FEMENINO",
+    "estado_civil": "SOLTERA",
+    "lugar_nacimiento": "CARACAS",
+    "direccion": "AVENIDA BOLIVAR SECTOR 5",
+    "estado": "ACTIVO",
+    "fecha_expedicion": "2010-05-20"
+  }
+}</pre>
+                        </div>
+                    </div>
                 </div>
+                
             </section>
         </div>
     </main>
@@ -1264,7 +1918,7 @@ if response.status_code == 200:
                         <a href="aviso-legal-apis">Aviso Legal</a>
                         <a href="https://wa.me/51944950234?text=%C2%A1Hola!%20Nesesito%20ayuda...">Soporte Técnico</a>
                     </div>
-                    <p class="mt-2"><strong>Base URL:</strong> https://consulta-pe-apis-data-v2.fly.dev</p>
+                    <p class="mt-2"><strong>Base URL:</strong> https://api.masitaprex.com</p>
                 </div>
             </div>
             <div class="copyright">
@@ -1285,7 +1939,7 @@ if response.status_code == 200:
                 <ol>
                     <li>Obtén tu API Token del panel de administración</li>
                     <li>Incluye el header <code>x-api-key: TU_TOKEN</code> en todas las peticiones</li>
-                    <li>Envía los parámetros requeridos en el body (POST) o query params (GET)</li>
+                    <li>Envía los parámetros requeridos en el body (POST)</li>
                     <li>Procesa la respuesta JSON según tu aplicación</li>
                 </ol>
             </div>
@@ -1305,73 +1959,76 @@ if response.status_code == 200:
         </div>
     </div>
     <script>
-        const BASE_URL = 'https://consulta-pe-apis-data-v2.fly.dev';
+        const BASE_URL = 'https://api.masitaprex.com';
         const API_ENDPOINTS = {
-            '/api/reniec': { 
+            '/v3/consulta/dni': { 
                 method: 'POST', 
                 paramName: 'dni', 
                 placeholder: '12345678',
                 bodyTemplate: (param) => ({ dni: param })
             },
-            '/api/telefonia-doc': { 
+            '/v3/consulta/telefonia-doc': { 
                 method: 'POST', 
                 paramName: 'documento', 
                 placeholder: '12345678',
                 bodyTemplate: (param) => ({ documento: param })
             },
-            '/api/telefonia-num': { 
+            '/v3/consulta/telefonia-num': { 
                 method: 'POST', 
                 paramName: 'numero', 
                 placeholder: '987654321',
                 bodyTemplate: (param) => ({ numero: param })
             },
-            '/api/vehiculos': { 
+            '/v3/consulta/placa': { 
                 method: 'POST', 
                 paramName: 'placa', 
                 placeholder: 'ABC-123',
                 bodyTemplate: (param) => ({ placa: param })
             },
-            '/api/sunat': { 
+            '/v3/consulta/ruc': { 
                 method: 'POST', 
                 paramName: 'data', 
                 placeholder: '20123456789',
                 bodyTemplate: (param) => ({ data: param })
             },
-            '/api/sunat-razon': { 
+            '/v3/consulta/razon-social': { 
                 method: 'POST', 
                 paramName: 'data', 
                 placeholder: 'EMPRESA EJEMPLO SAC',
                 bodyTemplate: (param) => ({ data: param })
             },
-            '/api/empresas': { 
+            '/v3/consulta/empresas': { 
                 method: 'POST', 
                 paramName: 'dni', 
                 placeholder: '12345678',
                 bodyTemplate: (param) => ({ dni: param })
             },
-            '/api/matrimonios': { 
+            '/v3/consulta/matrimonios': { 
                 method: 'POST', 
                 paramName: 'dni', 
                 placeholder: '12345678',
                 bodyTemplate: (param) => ({ dni: param })
             },
-            '/api/dni_nombres': { 
+            '/v3/consulta/buscar-dni': { 
                 method: 'POST', 
                 paramName: 'nombres', 
                 placeholder: 'JUAN CARLOS PEREZ GOMEZ',
-                bodyTemplate: (param) => ({ 
-                    nombres: param.split(' ')[0] || '',
-                    apepaterno: param.split(' ')[1] || '',
-                    apematerno: param.split(' ')[2] || ''
-                })
+                bodyTemplate: (param) => {
+                    const parts = param.split(' ');
+                    return {
+                        nombres: parts.slice(0, -2).join(' ') || parts[0] || '',
+                        apepaterno: parts[parts.length - 2] || '',
+                        apematerno: parts[parts.length - 1] || ''
+                    };
+                }
             },
-            '/api/venezolanos_nombres': { 
+            '/v3/consulta/buscar-cedula': { 
                 method: 'POST', 
                 paramName: 'query', 
-                placeholder: 'MARIA RIOS',
+                placeholder: 'MARIA RODRIGUEZ',
                 bodyTemplate: (param) => ({ query: param })
             },
-            '/api/cedula': { 
+            '/v3/consulta/cedula': { 
                 method: 'POST', 
                 paramName: 'cedula', 
                 placeholder: 'V12345678',
@@ -1393,7 +2050,6 @@ if response.status_code == 200:
                 const endpointInfo = API_ENDPOINTS[selected];
                 selectedEndpoint.textContent = `${endpointInfo.method} ${BASE_URL}${selected}`;
                 paramInput.placeholder = endpointInfo.placeholder;
-                // Clear previous response
                 apiResponse.classList.remove('active');
             } else {
                 selectedEndpoint.textContent = 'Selecciona un endpoint';
@@ -1401,26 +2057,27 @@ if response.status_code == 200:
             }
         });
 
-        // Initialize with default endpoint
+        // Initialize with default
         document.addEventListener('DOMContentLoaded', function() {
-            endpointSelect.value = '/api/reniec';
+            endpointSelect.value = '/v3/consulta/dni';
             endpointSelect.dispatchEvent(new Event('change'));
             
-            // Add instructions button
             const instructionsBtn = document.createElement('button');
             instructionsBtn.className = 'btn btn-secondary';
             instructionsBtn.innerHTML = '<i class="fas fa-question-circle"></i> Instrucciones';
             instructionsBtn.onclick = showInstructions;
-            document.querySelector('.button-group').appendChild(instructionsBtn);
+            const buttonGroup = document.querySelector('.button-group');
+            if (buttonGroup && !document.querySelector('.btn-secondary[onclick*="showInstructions"]')) {
+                buttonGroup.appendChild(instructionsBtn);
+            }
         });
 
-        // CORRECCIÓN 1: Función para probar API (arreglado "Failed to fetch")
+        // Test API function
         async function testAPI() {
             const endpoint = endpointSelect.value;
             const token = document.getElementById('api-token').value.trim();
             const param = paramInput.value.trim();
 
-            // Validaciones
             if (!endpoint) {
                 showNotification('Por favor selecciona un endpoint', 'error');
                 return;
@@ -1437,12 +2094,10 @@ if response.status_code == 200:
             const endpointInfo = API_ENDPOINTS[endpoint];
             const url = `${BASE_URL}${endpoint}`;
             
-            // Mostrar loading
             responseContent.innerHTML = '<div class="loading"></div> Enviando solicitud...';
             apiResponse.classList.add('active');
 
             try {
-                // CORRECCIÓN: Manejo mejorado de errores de CORS y fetch
                 const requestBody = endpointInfo.bodyTemplate(param);
                 
                 const response = await fetch(url, {
@@ -1453,11 +2108,10 @@ if response.status_code == 200:
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify(requestBody),
-                    mode: 'cors', // Asegurar modo CORS
-                    credentials: 'omit' // No enviar cookies
+                    mode: 'cors',
+                    credentials: 'omit'
                 });
 
-                // Manejar diferentes tipos de respuestas
                 if (!response.ok) {
                     let errorData;
                     try {
@@ -1475,13 +2129,12 @@ if response.status_code == 200:
                 responseContent.textContent = JSON.stringify(data, null, 2);
                 
                 if (data.success) {
-                    showNotification('Consulta exitosa!', 'success');
+                    showGlobalTooltip('¡Consulta exitosa!');
                 } else {
                     showNotification(`Error: ${data.error || 'Error desconocido'}`, 'error');
                 }
 
             } catch (error) {
-                // CORRECCIÓN: Manejo específico de errores de red
                 console.error('Error en testAPI:', error);
                 
                 let errorMessage = 'Error de conexión';
@@ -1501,61 +2154,52 @@ if response.status_code == 200:
             }
         }
 
-        // CORRECCIÓN 2: Funciones de copiado mejoradas
+        // Función para mostrar el tooltip global
+        function showGlobalTooltip(message = 'Copiado al portapapeles') {
+            const tooltip = document.getElementById('globalTooltip');
+            tooltip.textContent = message;
+            tooltip.classList.add('show');
+            
+            setTimeout(() => {
+                tooltip.classList.remove('show');
+            }, 2000);
+        }
+
+        // Funciones de copiado mejoradas con tooltip global
         function copyEndpointUrl() {
             const text = selectedEndpoint.textContent;
             if (text !== 'Selecciona un endpoint') {
-                copyToClipboard(text);
-                showNotification('URL copiada al portapapeles');
+                copyToClipboardWithTooltip(text);
             }
         }
 
         function copyResponse() {
             const text = responseContent.textContent;
             if (text && !text.includes('Cargando respuesta') && !text.includes('Enviando solicitud')) {
-                copyToClipboard(text);
-                showNotification('Respuesta copiada al portapapeles');
+                copyToClipboardWithTooltip(text);
             }
         }
 
-        function copyCode(codeId) {
-            const codeElement = document.getElementById(codeId);
-            if (codeElement) {
-                const preElement = codeElement.querySelector('pre');
+        function copyCodeBlock(button) {
+            const codeBlock = button.closest('.code-block');
+            if (codeBlock) {
+                const preElement = codeBlock.querySelector('pre');
                 if (preElement) {
-                    copyToClipboard(preElement.textContent);
-                    showNotification('Código copiado al portapapeles');
+                    copyToClipboardWithTooltip(preElement.textContent);
                 }
             }
         }
 
-        function copyResponseExample(exampleNum) {
-            // Buscar el ejemplo de respuesta
-            const exampleElement = document.querySelector(`[onclick="copyResponseExample(${exampleNum})"]`);
-            if (exampleElement) {
-                const parent = exampleElement.closest('.code-block');
-                if (parent) {
-                    const preElement = parent.querySelector('pre');
-                    if (preElement) {
-                        copyToClipboard(preElement.textContent);
-                        showNotification('Ejemplo copiado al portapapeles');
-                    }
-                }
-            }
-        }
-
-        // CORRECCIÓN 3: Función genérica de copiado robusta
-        function copyToClipboard(text) {
-            // Intentar usar la API moderna
+        // Función genérica de copiado con tooltip
+        function copyToClipboardWithTooltip(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
-                    console.log('Text copied to clipboard successfully');
+                    showGlobalTooltip();
                 }).catch(err => {
-                    console.error('Failed to copy text using clipboard API:', err);
+                    console.error('Error al copiar:', err);
                     fallbackCopy(text);
                 });
             } else {
-                // Fallback para navegadores más antiguos o contextos inseguros
                 fallbackCopy(text);
             }
         }
@@ -1572,9 +2216,9 @@ if response.status_code == 200:
             
             try {
                 document.execCommand('copy');
-                console.log('Text copied using fallback method');
+                showGlobalTooltip();
             } catch (err) {
-                console.error('Fallback copy failed:', err);
+                console.error('Error al copiar:', err);
                 showNotification('No se pudo copiar al portapapeles', 'error');
             } finally {
                 document.body.removeChild(textArea);
@@ -1584,8 +2228,11 @@ if response.status_code == 200:
         // Funciones auxiliares
         function showCodeTab(apiNum, lang) {
             const tabId = `code-${apiNum}-${lang}`;
-            const tabs = document.querySelectorAll(`.code-tab[onclick*="${apiNum}"]`);
-            const contents = document.querySelectorAll(`.code-content[id^="code-${apiNum}-"]`);
+            const parentCard = event.target.closest('.endpoint-card');
+            if (!parentCard) return;
+            
+            const tabs = parentCard.querySelectorAll('.code-tab');
+            const contents = parentCard.querySelectorAll('.code-content');
             
             tabs.forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
@@ -1603,11 +2250,10 @@ if response.status_code == 200:
             paramInput.value = '';
             selectedEndpoint.textContent = 'Selecciona un endpoint';
             apiResponse.classList.remove('active');
-            showNotification('Formulario limpiado');
+            showGlobalTooltip('Formulario limpiado');
         }
 
         function showNotification(message, type = 'success') {
-            // Remover notificaciones anteriores
             const existingNotifications = document.querySelectorAll('.custom-notification');
             existingNotifications.forEach(n => n.remove());
 
@@ -1645,7 +2291,6 @@ if response.status_code == 200:
             document.getElementById('instructions-modal').classList.remove('active');
         }
 
-        // Event listeners globales
         window.onclick = function(event) {
             const modal = document.getElementById('instructions-modal');
             if (event.target === modal) {
@@ -1653,7 +2298,7 @@ if response.status_code == 200:
             }
         };
 
-        // Agregar estilos para las animaciones de notificación
+        // Estilos para las animaciones
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
@@ -1665,7 +2310,6 @@ if response.status_code == 200:
                 to { transform: translateX(100%); opacity: 0; }
             }
             
-            /* Estilos para los botones de copiar en todas las secciones */
             .url-copy-btn, .code-copy-btn, .copy-btn {
                 transition: all 0.2s ease;
             }
@@ -1674,26 +2318,12 @@ if response.status_code == 200:
                 transform: scale(0.95);
             }
             
-            /* Mejorar accesibilidad de focus */
             .btn:focus, input:focus, select:focus, button:focus {
                 outline: 2px solid var(--color-primary-end);
                 outline-offset: 2px;
             }
         `;
         document.head.appendChild(style);
-
-        // Manejar parámetros complejos para DNI por nombres
-        function handleComplexParams(endpoint, param) {
-            if (endpoint === '/api/dni_nombres') {
-                const parts = param.split(' ');
-                return {
-                    nombres: parts[0] || '',
-                    apepaterno: parts[1] || '',
-                    apematerno: parts[2] || parts[1] || '' // Si no hay tercer nombre, usar el segundo
-                };
-            }
-            return { [API_ENDPOINTS[endpoint].paramName]: param };
-        }
     </script>
 </body>
 </html>
