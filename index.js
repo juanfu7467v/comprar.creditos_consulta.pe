@@ -819,17 +819,19 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
+// 🌐 SOLUCIÓN ESPECÍFICA PARA LAS RUTAS PROBLEMÁTICAS
 // ================================================================
 
-// Servir archivos estáticos ANTES de aplicar el middleware de autenticación
-app.use(express.static(path.join(__dirname, 'public')));
+// IMPORTANTE: Definir rutas específicas ANTES del middleware de archivos estáticos
+// Esto previene que express.static las maneje incorrectamente
 
-// IMPORTANTE: Rutas específicas para las páginas problemáticas - manejar manualmente
 app.get('/disclaimer-apis', (req, res) => {
+  logger.info('SPECIAL_ROUTE', 'Sirviendo disclaimer-apis.html manualmente');
   const disclaimerPath = path.join(__dirname, 'public', 'disclaimer-apis.html');
   if (fs.existsSync(disclaimerPath)) {
+    // Configurar headers explícitamente para evitar que se descargue como PDF
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.sendFile(disclaimerPath);
   } else {
     res.status(404).send('Página no encontrada');
@@ -837,19 +839,68 @@ app.get('/disclaimer-apis', (req, res) => {
 });
 
 app.get('/API-Docs', (req, res) => {
+  logger.info('SPECIAL_ROUTE', 'Sirviendo API-Docs.html manualmente');
   const apiDocsPath = path.join(__dirname, 'public', 'API-Docs.html');
   if (fs.existsSync(apiDocsPath)) {
+    // Configurar headers explícitamente para evitar que se descargue como PDF
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
     res.sendFile(apiDocsPath);
   } else {
     res.status(404).send('Página no encontrada');
   }
 });
 
+// También manejar las versiones con .html por si acaso
+app.get('/disclaimer-apis.html', (req, res) => {
+  logger.info('SPECIAL_ROUTE', 'Sirviendo disclaimer-apis.html (con extensión)');
+  const disclaimerPath = path.join(__dirname, 'public', 'disclaimer-apis.html');
+  if (fs.existsSync(disclaimerPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.sendFile(disclaimerPath);
+  } else {
+    res.status(404).send('Página no encontrada');
+  }
+});
+
+app.get('/API-Docs.html', (req, res) => {
+  logger.info('SPECIAL_ROUTE', 'Sirviendo API-Docs.html (con extensión)');
+  const apiDocsPath = path.join(__dirname, 'public', 'API-Docs.html');
+  if (fs.existsSync(apiDocsPath)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.sendFile(apiDocsPath);
+  } else {
+    res.status(404).send('Página no encontrada');
+  }
+});
+
+// ================================================================
+// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
+// ================================================================
+
+// Middleware personalizado para archivos estáticos que excluye rutas problemáticas
+app.use((req, res, next) => {
+  // Si es una de las rutas problemáticas, saltar al siguiente middleware
+  if (req.path === '/disclaimer-apis' || 
+      req.path === '/API-Docs' ||
+      req.path === '/disclaimer-apis.html' || 
+      req.path === '/API-Docs.html') {
+    return next();
+  }
+  
+  // Para todas las demás rutas, usar express.static
+  express.static(path.join(__dirname, 'public'))(req, res, next);
+});
+
 // Middleware para URLs limpias (sin .html) - EXCLUIR las rutas problemáticas
 app.use((req, res, next) => {
   // Excluir las rutas problemáticas que ya manejamos manualmente
-  if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+  if (req.path === '/disclaimer-apis' || 
+      req.path === '/API-Docs' ||
+      req.path === '/disclaimer-apis.html' || 
+      req.path === '/API-Docs.html') {
     return next();
   }
   
@@ -880,7 +931,10 @@ app.use((req, res, next) => {
   
   if (!isStaticFile && !isApiRoute && req.path !== '/') {
     // Excluir las rutas problemáticas que ya manejamos
-    if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+    if (req.path === '/disclaimer-apis' || 
+        req.path === '/API-Docs' ||
+        req.path === '/disclaimer-apis.html' || 
+        req.path === '/API-Docs.html') {
       return next();
     }
     
@@ -1748,11 +1802,7 @@ app.get("*", (req, res) => {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   
-  // Excluir las rutas problemáticas que ya manejamos
-  if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
-    return next();
-  }
-  
+  // Las rutas problemáticas ya fueron manejadas específicamente
   const error404Path = path.join(__dirname, 'public', 'error-404.html');
   if (fs.existsSync(error404Path)) {
     res.status(404).sendFile(error404Path);
@@ -1817,7 +1867,8 @@ app.listen(PORT, "0.0.0.0", () => {
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo',
       cleanUrls: 'Activo',
-      noIndexHtml: 'Eliminado'
+      noIndexHtml: 'Eliminado',
+      specialRoutesFixed: '✅ disclaimer-apis y API-Docs corregidas'
     },
     timestamp: new Date().toISOString()
   });
