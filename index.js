@@ -296,14 +296,13 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN MEJORADO - NUNCA REDIRIGE A index.html
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN MEJORADO
 // ================================================================
 
 /**
  * Middleware para verificar autenticación Firebase
  * Protege rutas y redirige a login si no está autenticado
  * Guarda la URL original para redirigir después del login
- * IMPORTANTE: NUNCA redirige a index.html
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
@@ -349,18 +348,8 @@ async function verifyFirebaseAuth(req, res, next) {
         originalUrl: req.originalUrl
       });
       
-      // CASO ESPECIAL: Para la ruta /api-key, redirigir a / (home) en lugar de /login
-      if (req.path === '/api-key' || req.path === '/api-key.html') {
-        logger.info(context, 'Redirigiendo api-key a home (/) en lugar de login', {
-          path: req.path,
-          reason: 'Redirección especial solicitada'
-        });
-        return res.redirect('/');
-      }
-      
       // Redirigir a login con parámetro returnTo para volver después del login
       const returnTo = encodeURIComponent(req.originalUrl);
-      // NUNCA usar index.html - siempre usar login sin .html
       return res.redirect(`/login?returnTo=${returnTo}`);
     }
     
@@ -381,18 +370,8 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path 
     });
     
-    // CASO ESPECIAL: Para la ruta /api-key, redirigir a / (home) en lugar de /login
-    if (req.path === '/api-key' || req.path === '/api-key.html') {
-      logger.info(context, 'Redirigiendo api-key a home (/) en lugar de login (error de auth)', {
-        path: req.path,
-        reason: 'Redirección especial solicitada'
-      });
-      return res.redirect('/');
-    }
-    
     // Redirigir a login con parámetro returnTo para volver después del login
     const returnTo = encodeURIComponent(req.originalUrl);
-    // NUNCA usar index.html - siempre usar login sin .html
     return res.redirect(`/login?returnTo=${returnTo}`);
   }
 }
@@ -860,44 +839,17 @@ app.get("/API-Docs", (req, res) => {
 });
 
 // ================================================================
-// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS - ELIMINAR index.html
+// 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
 // ================================================================
 
 // Servir archivos estáticos ANTES de aplicar el middleware de autenticación
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Verificar y eliminar index.html si existe
-const checkAndRemoveIndexHtml = () => {
-  const indexPath = path.join(__dirname, 'public', 'index.html');
-  if (fs.existsSync(indexPath)) {
-    try {
-      fs.unlinkSync(indexPath);
-      logger.info('CLEANUP', 'index.html eliminado exitosamente', { path: indexPath });
-    } catch (error) {
-      logger.error('CLEANUP', 'Error al eliminar index.html', error, { path: indexPath });
-    }
-  } else {
-    logger.info('CLEANUP', 'index.html no existe, nada que eliminar', { path: indexPath });
-  }
-};
-
-// Ejecutar la limpieza al iniciar
-checkAndRemoveIndexHtml();
 
 // Middleware para URLs limpias (sin .html) - EXCLUIR las rutas problemáticas
 app.use((req, res, next) => {
   // Excluir las rutas problemáticas que ya manejamos manualmente
   if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
     return next();
-  }
-  
-  // NUNCA servir index.html - redirigir cualquier solicitud a index.html a home
-  if (req.path === '/index.html' || req.path === '/index') {
-    logger.info('CLEAN_URL', 'Redirigiendo index.html a home (/)', {
-      path: req.path,
-      originalUrl: req.originalUrl
-    });
-    return res.redirect('/');
   }
   
   const isHtmlRoute = !req.path.includes('.') && 
@@ -1131,11 +1083,6 @@ app.use((req, res, next) => {
     // Excluir las rutas problemáticas que ya manejamos
     if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
       return next();
-    }
-    
-    // NUNCA redirigir a index.html - redirigir cualquier solicitud a index.html a home
-    if (req.path === '/index.html' || req.path === '/index') {
-      return res.redirect('/');
     }
     
     const requestedPath = path.join(__dirname, 'public', req.path);
@@ -1933,8 +1880,6 @@ app.get("/api", (req, res) => {
       authMiddleware: "✅ Control de acceso con Firebase",
       autoRedirect: "✅ Redirección automática a login",
       returnTo: "✅ Redirección después del login a página original",
-      noIndexHtml: "✅ index.html eliminado y bloqueado",
-      apiKeySpecialRedirect: "✅ /api-key redirige a / en lugar de /login",
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       easyToExpand: "✅ Fácil de agregar nuevas páginas"
@@ -1943,10 +1888,6 @@ app.get("/api", (req, res) => {
       public: PUBLIC_ROUTES,
       protected: PROTECTED_ROUTES,
       publicApi: PUBLIC_API_ROUTES
-    },
-    specialRules: {
-      apiKeyRedirect: "La ruta /api-key redirige a / (home) en lugar de /login cuando no está autenticado",
-      noIndexHtml: "index.html está eliminado y bloqueado - todas las solicitudes a index.html redirigen a /"
     },
     howToAddPages: {
       publicPage: "Agregar ruta a PUBLIC_ROUTES array",
@@ -1979,11 +1920,6 @@ app.use((err, req, res, next) => {
 app.get("*", (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
-  }
-  
-  // NUNCA redirigir a index.html - redirigir cualquier solicitud a index.html a home
-  if (req.path === '/index.html' || req.path === '/index') {
-    return res.redirect('/');
   }
   
   const error404Path = path.join(__dirname, 'public', 'error-404.html');
@@ -2050,15 +1986,10 @@ app.listen(PORT, "0.0.0.0", () => {
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo',
       cleanUrls: 'Activo',
-      noIndexHtml: '✅ Eliminado y bloqueado',
+      noIndexHtml: 'Eliminado',
       specialRoutesFixed: '✅ Solución definitiva aplicada',
       autoRedirectToLogin: '✅ Activado',
-      returnAfterLogin: '✅ Implementado',
-      apiKeySpecialRedirect: '✅ /api-key → / (home)'
-    },
-    specialRules: {
-      apiKeyBehavior: 'La ruta /api-key redirige a / (home) cuando no está autenticado',
-      indexHtml: 'index.html eliminado y bloqueado - todas las solicitudes redirigen a /'
+      returnAfterLogin: '✅ Implementado'
     },
     timestamp: new Date().toISOString()
   });
