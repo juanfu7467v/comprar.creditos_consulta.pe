@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Consulta PE - API Key</title>
+    <title>Consulta PE-apikey</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,19 +12,34 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
         :root {
-            --bg1: #070A12;
-            --bg2: #0B1230;
+            /* ====== NUEVA PALETA (NEÓN DARK GLASS) ====== */
+            --bg1: #070A12;               /* Azul muy oscuro, casi negro */
+            --bg2: #0B1230;               /* Azul noche oscuro */
             --glass: rgba(255,255,255,.06);
             --glass2: rgba(255,255,255,.10);
-            --ink: #EAF0FF;
+
+            --ink: #EAF0FF;               /* Blanco azulado muy claro */
             --muted: rgba(234,240,255,.72);
+
             --pink: #FF3D8D;
             --ind: #6D5BFF;
             --cyan: #35D5FF;
             --ok: #16e1a4;
             --warn: #ffb020;
+
             --line: rgba(255,255,255,.14);
             --shadow: 0 24px 80px rgba(0,0,0,.55);
+
+            /* ====== MAPEOS A VARIABLES EXISTENTES (para no tocar funcionamiento) ====== */
+            --bg: radial-gradient(1200px 600px at 20% -10%, rgba(109,91,255,.28), transparent 55%),
+                   radial-gradient(900px 500px at 90% 10%, rgba(255,61,141,.22), transparent 55%),
+                   radial-gradient(900px 500px at 60% 110%, rgba(53,213,255,.16), transparent 55%),
+                   linear-gradient(180deg, var(--bg2), var(--bg1));
+            --card: rgba(255,255,255,.06);        /* glass */
+            --pill: rgba(255,255,255,.10);        /* glass2 */
+            --accent: var(--cyan);
+            --secondary: var(--ok);
+
             --radius: 18px;
             --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
         }
@@ -34,41 +48,78 @@
 
         body {
             margin: 0;
-            background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+            background: var(--bg);
             color: var(--ink);
             font-family: var(--font-family);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             user-select: none;
-            min-height: 100vh;
         }
 
+        /* ===== Tailwind helper overrides (solo color, sin cambiar estructura) ===== */
+        .bg-white { background-color: rgba(255,255,255,.06) !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        .border-gray-100 { border-color: var(--line) !important; }
+        .text-gray-500 { color: var(--muted) !important; }
+        .text-gray-800 { color: var(--ink) !important; }
+        .hover\:bg-gray-50:hover { background-color: rgba(255,255,255,.06) !important; }
+        .active\:bg-gray-100:active { background-color: rgba(255,255,255,.10) !important; }
+        .bg-gray-50 { background-color: rgba(255,255,255,.06) !important; }
+        .bg-black\/50 { background-color: rgba(0,0,0,.55) !important; }
+        .border-red-600 { border-color: var(--pink) !important; }
+
+        /* ===== CABECERA (Header) ===== */
+        header {
+            box-shadow: 0 10px 40px rgba(0,0,0,.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        /* Degradado de la cabecera del menú lateral */
         .sidebar-header-bg {
-            background: linear-gradient(135deg, var(--ind) 0%, var(--cyan) 100%);
+            background: linear-gradient(135deg, rgba(53,213,255,.95) 0%, rgba(109,91,255,.95) 55%, rgba(255,61,141,.92) 100%);
             border-bottom-left-radius: 50% 20%;
             border-bottom-right-radius: 50% 20%;
         }
 
+        /* Overlay para el menú lateral */
         #sidebar-overlay { transition: opacity 0.3s ease; }
 
+        /* Transición del menú lateral */
         #sidebar {
             transition: transform 0.3s ease-in-out;
             transform: translateX(-100%);
         }
-
         #sidebar.open { transform: translateX(0); }
 
+        /* Fondo del menú lateral: NEGRO PURO (pedido) */
+        #sidebar {
+            background: #000 !important;
+            color: var(--ink);
+            box-shadow: var(--shadow);
+        }
+
+        /* Links del sidebar en oscuro */
+        #sidebar nav a,
+        #sidebar nav div {
+            color: var(--muted);
+        }
+        #sidebar nav a:hover {
+            background: rgba(255,255,255,.06);
+        }
+
+        /* Estilo para los iconos de la cabecera para que sean legibles y grandes */
         .header-icon {
             width: 1.75rem;
             height: 1.75rem;
-            color: var(--cyan);
+            color: var(--ink);
         }
 
+        /* Banner de compartir (SE MANTIENE INTACTO su color actual) */  
         .banner {  
             width: 100%;  
             max-width: 500px;
-            background: linear-gradient(to right, var(--bg1), var(--ind));  
-            color: var(--ink);  
+            background: linear-gradient(to right, #00264D, #003366);  
+            color: #FFFFFF;  
             position: fixed;  
             bottom: 0;  
             left: 50%;  
@@ -76,30 +127,29 @@
             padding: 30px;  
             border-top-left-radius: 15px;  
             border-top-right-radius: 15px;  
-            box-shadow: var(--shadow);  
+            box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
             display: none;
             flex-direction: column;  
             align-items: center;  
             text-align: center;  
             z-index: 9999;  
-            border: 1px solid var(--line);
-            backdrop-filter: blur(10px);
         }  
 
         .banner-title {  
             font-size: 24px;  
             font-weight: bold;  
             margin-bottom: 15px;  
-            color: var(--pink);  
+            color: #FF00FF;  
         }  
 
         .banner-description {  
             font-size: 18px;  
             line-height: 1.8;  
-            color: var(--muted);  
+            color: #FFFFFF;  
             margin-bottom: 20px;  
         }  
 
+        /* Botones del banner */  
         .cta-button, .close-modal {  
             width: 100%;  
             padding: 16px;  
@@ -114,26 +164,28 @@
         }  
 
         .cta-button {  
-            background: linear-gradient(to right, var(--ok), var(--cyan));  
-            color: white;
-            border: none;
+            background: linear-gradient(to right, #2ECC71, #66CC99);  
+            color: white;  
         }  
 
         .cta-button:hover { transform: scale(1.08); }  
 
         .close-modal {  
-            background: linear-gradient(to right, var(--pink), var(--ind));  
-            color: var(--ink);
-            border: none;
+            background-color: red;  
+            color: #FFFFFF;  
         }  
 
-        .close-modal:hover { transform: scale(1.08); }  
+        .close-modal:hover {  
+            background-color: darkred;  
+            transform: scale(1.08);  
+        }  
 
         .banner-icon {  
             margin-right: 8px;  
-            color: var(--cyan);  
+            color: #FF00FF;  
         }
 
+        /* ===== INTERFAZ API KEY ===== */
         .wrap {
             width: 100%;
             max-width: 100%;
@@ -143,9 +195,12 @@
 
         h2, h3 { margin: 0; font-weight: 700; }
         .text-center { text-align: center; }
+        .text-accent { color: var(--accent); }
+        .text-secondary { color: var(--secondary); }
         .font-bold { font-weight: 700; }
         .mb-4 { margin-bottom: 16px; }
 
+        /* Loading Spinner */
         #loading-indicator {
             position: fixed;
             top: 0;
@@ -155,108 +210,70 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: var(--bg1);
+            background: var(--bg);
             z-index: 9999;
             display: none;
-            backdrop-filter: blur(10px);
         }
 
-        .dots-loader {
-            display: flex;
-            justify-content: space-between;
-            width: 80px;
-        }
-
+        .dots-loader { display: flex; justify-content: space-between; width: 80px; }
         .dot {
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(45deg, var(--cyan), var(--pink));
+            background: linear-gradient(45deg, var(--pink), var(--ind), var(--cyan));
             animation: bounce 1.4s infinite ease-in-out both;
         }
-
         .dot:nth-child(1) { animation-delay: -0.32s; }
         .dot:nth-child(2) { animation-delay: -0.16s; }
 
         @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-                opacity: 0.5;
-            }
-            40% {
-                transform: scale(1.0);
-                opacity: 1;
-            }
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1.0); opacity: 1; }
         }
 
-        .gradient-border {
-            position: relative;
-            z-index: 1;
-            border-radius: var(--radius);
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--line);
-        }
-
+        /* Contenedores con borde degradado (nuevo gradiente neón) */
+        .gradient-border { position: relative; z-index: 1; }
         .gradient-border::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             border-radius: inherit;
             padding: 2px;
-            background: linear-gradient(to right, var(--pink), var(--ind), var(--cyan));
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--pink));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             z-index: -1;
         }
 
+        /* Tarjeta principal de perfil */
         .profile-card {
-            background: var(--glass);
+            background: var(--card);
             border-radius: 24px;
             padding: 18px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 16px;
-            backdrop-filter: blur(10px);
             border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
+        .profile-header { display: flex; align-items: center; gap: 12px; }
         .profile-header .avatar {
             width: 60px;
             height: 60px;
             border-radius: 999px;
-            background: var(--glass2);
+            background: var(--pill);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 3px solid var(--cyan);
+            border: 3px solid var(--secondary);
         }
-        
-        .profile-header img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .profile-header h2 {
-            font-size: 20px;
-            background: linear-gradient(to right, var(--cyan), var(--ind), var(--pink));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+        .profile-header img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-header h2 { font-size: 20px; color: var(--ink); }
         
         .profile-stats {
             display: flex;
@@ -266,25 +283,17 @@
             padding-top: 16px;
         }
 
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
+        .stat-item { display: flex; flex-direction: column; gap: 4px; }
         .stat-value {
             font-size: 24px;
             font-weight: 800;
             color: var(--cyan);
+            text-shadow: 0 0 18px rgba(53,213,255,.25);
         }
-
-        .stat-label {
-            font-size: 13px;
-            color: var(--muted);
-        }
+        .stat-label { font-size: 13px; color: var(--muted); }
 
         .section-card {
-            background: var(--glass);
+            background: var(--card);
             border-radius: 20px;
             padding: 18px;
             margin-top: 18px;
@@ -292,8 +301,9 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            backdrop-filter: blur(10px);
             border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
         
         .section-header {
@@ -302,31 +312,26 @@
             justify-content: space-between;
             margin-bottom: 10px;
         }
-        
-        .section-header h3 {
-            font-size: 18px;
-            background: linear-gradient(to right, var(--cyan), var(--ind));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+        .section-header h3 { font-size: 18px; color: var(--ink); }
 
+        /* Botón principal: Gradiente pink -> ind (pedido) */
         .btn-primary {
             display: block;
             width: 100%;
             padding: 14px;
             border-radius: 12px;
-            background: linear-gradient(to right, var(--pink), var(--ind));
-            color: var(--ink);
+            background: linear-gradient(90deg, var(--pink), var(--ind));
+            color: #fff;
             border: none;
             font-weight: 700;
             letter-spacing: 0.6px;
             text-align: center;
             text-decoration: none;
-            box-shadow: 0 4px 10px rgba(255, 61, 141, 0.3);
-            transition: transform 0.1s ease;
+            box-shadow: 0 14px 40px rgba(109,91,255,.18), 0 10px 30px rgba(255,61,141,.18);
+            transition: transform 0.1s ease, filter .2s ease;
             cursor: pointer;
         }
+        .btn-primary:hover { filter: brightness(1.05); }
         .btn-primary:active { transform: scale(0.99); }
 
         .input-group { position: relative; }
@@ -335,13 +340,15 @@
             width: 100%;
             padding: 12px 16px;
             border-radius: 12px;
-            background: var(--glass2);
+            background: rgba(255,255,255,.08);
             border: 1px solid var(--line);
             color: var(--ink);
             font-size: 14px;
             font-weight: 600;
             text-overflow: ellipsis;
+            outline: none;
         }
+        .input-group input::placeholder { color: rgba(234,240,255,.45); }
 
         .input-group .copy-btn {
             position: absolute;
@@ -364,22 +371,24 @@
             width: 100%;
             padding: 14px;
             border-radius: 12px;
-            background: var(--glass);
-            border: 2px solid var(--cyan);
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(53,213,255,.45);
             color: var(--cyan);
             font-weight: 700;
             letter-spacing: 0.6px;
             margin-top: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, border-color .2s ease, transform .1s ease;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
-
-        .btn-secondary:hover { background: var(--glass2); }
+        .btn-secondary:hover { background: rgba(255,255,255,.10); border-color: rgba(255,61,141,.45); }
+        .btn-secondary:active { transform: scale(0.99); }
         .btn-secondary i { font-size: 1.2em; }
-        
+
         .info-section {
-            background: var(--glass);
+            background: var(--card);
             border-radius: 20px;
             padding: 18px;
             margin-top: 18px;
@@ -387,14 +396,12 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            backdrop-filter: blur(10px);
             border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
-        .info-section h3 {
-            font-size: 18px;
-            color: var(--ink);
-        }
+        .info-section h3 { font-size: 18px; color: var(--ink); }
 
         .info-section p, .info-section ul, .info-section li, .info-section div {
             font-size: 14px;
@@ -417,47 +424,39 @@
             padding-top: 2px;
         }
         
+        /* Contenedores de texto con icono */
         .text-container {
             padding: 16px;
             border-radius: 16px;
-            background: var(--glass2);
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--line);
             margin-top: 18px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
+        /* Títulos y énfasis: gradiente cyan -> ind -> pink (pedido) */
         .text-container-header {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 16px;
-            font-weight: 700;
-            color: var(--ink);
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
-        .text-container-header i {
-            color: var(--warn);
-            font-size: 20px;
-        }
+        .text-container-header i { color: var(--warn); font-size: 20px; }
 
-        .text-container p {
-            margin: 0;
-            font-size: 14px;
-            color: var(--muted);
-        }
+        .text-container p { margin: 0; font-size: 14px; color: var(--ink); }
         .text-container strong { color: var(--cyan); }
 
-        .credit-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
-        }
-        .credit-table th, .credit-table td {
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 13px;
-        }
+        /* Tabla */
+        .credit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .credit-table th, .credit-table td { padding: 10px 12px; text-align: left; font-size: 13px; }
         .credit-table thead th {
             font-weight: 700;
             color: var(--muted);
@@ -466,28 +465,27 @@
             padding-bottom: 12px;
             position: sticky;
             top: 0;
-            background: var(--glass);
+            background: rgba(0,0,0,.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             z-index: 10;
-            backdrop-filter: blur(10px);
         }
         .credit-table tbody tr {
-            background: var(--glass2);
+            background: rgba(255,255,255,.06);
             border-radius: 12px;
             overflow: hidden;
             font-weight: 600;
-        }
-        .credit-table tbody tr:nth-child(even) { background: var(--glass); }
-        .credit-table td:first-child { 
-            border-top-left-radius: 12px; 
-            border-bottom-left-radius: 12px; 
             color: var(--ink);
+            border: 1px solid var(--line);
         }
-        .credit-table td:last-child { 
-            border-top-right-radius: 12px; 
-            border-bottom-right-radius: 12px; 
-            text-align: right; 
-            color: var(--cyan); 
-            font-weight: 700;
+        .credit-table tbody tr:nth-child(even) { background: rgba(255,255,255,.08); }
+        .credit-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .credit-table td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            text-align: right;
+            color: var(--cyan);
+            font-weight: 800;
         }
 
         .table-scroll {
@@ -496,31 +494,38 @@
             margin-top: 10px;
             border: 1px solid var(--line);
             border-radius: 16px;
-            background: var(--glass);
+            background: rgba(0,0,0,.18);
         }
         
+        /* Card de recomendación */
         .api-recommendation {
-            background: linear-gradient(135deg, var(--ind) 0%, var(--cyan) 100%);
+            background: linear-gradient(135deg, rgba(53,213,255,.22) 0%, rgba(109,91,255,.22) 55%, rgba(255,61,141,.20) 100%);
+            border: 1px solid var(--line);
             border-radius: 16px;
             padding: 18px;
             color: var(--ink);
             box-shadow: var(--shadow);
             margin-top: 18px;
-            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
         .api-recommendation h4 {
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 800;
             margin-top: 0;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--ink);
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         .api-recommendation code {
             display: block;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--line);
             padding: 8px;
             border-radius: 8px;
             font-size: 13px;
@@ -529,13 +534,10 @@
             overflow-x: auto;
             color: var(--ink);
         }
-        .api-recommendation p {
-            font-size: 14px;
-            margin: 0;
-            color: rgba(234, 240, 255, 0.9);
-        }
+        .api-recommendation p { font-size: 14px; margin: 0; color: var(--muted); }
         .api-recommendation strong { color: var(--warn); }
 
+        /* Lista de ventajas */
         .advantage-list {
             list-style: none;
             padding: 0;
@@ -551,56 +553,51 @@
             gap: 10px;
             font-weight: 600;
         }
-        .advantage-list li i {
-            color: var(--ok);
-            font-size: 20px;
-        }
+        .advantage-list li i { color: var(--ok); font-size: 20px; }
         
+        /* Paquetes Disponibles */
         .package-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 12px;
             margin-top: 12px;
         }
-        
-        .package-grid a {
-            text-decoration: none;
-            color: inherit;
-        }
+        .package-grid a { text-decoration: none; color: inherit; }
         
         .package-card {
-            background: var(--glass2);
+            background: rgba(255,255,255,.06);
             border-radius: 12px;
             padding: 12px;
             text-align: center;
-            border: 2px solid transparent;
-            transition: border-color 0.2s ease, background 0.2s ease;
+            border: 1px solid var(--line);
+            transition: border-color 0.2s ease, background 0.2s ease, transform .12s ease;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
-        
         .package-grid a:hover .package-card {
-            background: var(--glass);
-            border-color: var(--cyan);
+            background: rgba(255,255,255,.10);
+            border-color: rgba(53,213,255,.6);
+            transform: translateY(-1px);
         }
         
         .package-grid a:nth-child(3) .package-card { 
-            border-color: var(--ok); 
-            background: rgba(22, 225, 164, 0.1); 
+            border-color: rgba(22,225,164,.9); 
+            background: rgba(22,225,164,.10); 
         }
-        
         .package-grid a:nth-child(3):hover .package-card { 
-            background: rgba(22, 225, 164, 0.2);
-            border-color: var(--ok);
+            background: rgba(22,225,164,.14);
+            border-color: rgba(22,225,164,1);
         }
 
         .package-card .amount {
             font-size: 18px;
-            font-weight: 800;
+            font-weight: 900;
             color: var(--cyan);
             margin-bottom: 4px;
         }
         .package-card .credits {
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--ink);
         }
         .package-card .benefit {
@@ -612,10 +609,14 @@
 
         .package-grid a:last-child { grid-column: span 2; }
         
+        /* Tabla de Planes Ilimitados */
         .unlimited-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--line);
         }
         .unlimited-table th, .unlimited-table td {
             padding: 10px;
@@ -623,9 +624,9 @@
             font-size: 13px;
         }
         .unlimited-table thead th {
-            background: var(--glass2);
+            background: rgba(255,255,255,.06);
             color: var(--ink);
-            font-weight: 700;
+            font-weight: 800;
         }
         .unlimited-table tbody td {
             border-bottom: 1px solid var(--line);
@@ -633,11 +634,11 @@
             color: var(--muted);
         }
         .unlimited-table tbody tr:last-child td { border-bottom: none; }
-        .unlimited-table .price { font-weight: 700; color: var(--cyan); }
-        .unlimited-table .saving { color: var(--pink); font-weight: 600; }
+        .unlimited-table .price { font-weight: 900; color: var(--cyan); }
+        .unlimited-table .saving { color: var(--warn); font-weight: 800; }
         
         .quote {
-            background: var(--glass2);
+            background: linear-gradient(90deg, rgba(53,213,255,.10), rgba(109,91,255,.10), rgba(255,61,141,.08));
             border-left: 5px solid var(--ok);
             padding: 15px;
             margin: 20px 0;
@@ -646,12 +647,11 @@
             font-size: 16px;
             color: var(--ink);
             font-weight: 600;
+            border: 1px solid var(--line);
         }
-        .quote i {
-            color: var(--ok);
-            margin-right: 5px;
-        }
+        .quote i { color: var(--ok); margin-right: 5px; }
 
+        /* Modal (NO el banner; este modal es el de feedback) */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -659,76 +659,64 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.55);
             display: none;
             justify-content: center;
             align-items: center;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
-            backdrop-filter: blur(5px);
         }
 
-        .modal.active {
-            display: flex;
-            opacity: 1;
-        }
+        .modal.active { display: flex; opacity: 1; }
 
         .modal-content {
-            background: var(--glass);
+            background-color: rgba(0,0,0,.55);
+            color: var(--ink);
             padding: 20px;
             border-radius: 12px;
             text-align: center;
             box-shadow: var(--shadow);
             min-width: 250px;
-            backdrop-filter: blur(10px);
             border: 1px solid var(--line);
-            color: var(--ink);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
         }
 
-        .modal-content.success { border: 2px solid var(--ok); }
-        .modal-content.error { border: 2px solid var(--pink); }
+        .modal-content.success { border: 2px solid rgba(22,225,164,.8); }
+        .modal-content.error { border: 2px solid rgba(255,61,141,.9); }
 
+        /* Footer: negro puro con texto blanco (pedido) */
         footer {
             margin-top: 40px;
             padding: 20px;
             text-align: center;
-            background: #000000;
-            border-radius: var(--radius);
-            border: 1px solid var(--line);
+            background: #000;
+            border-top: 1px solid var(--line);
+            border-radius: 16px;
         }
         
-        footer h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: var(--ink);
-        }
-        
-        footer p {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 8px;
-        }
+        footer h3 { font-size: 16px; margin-bottom: 10px; color: var(--ink); }
+        footer p { font-size: 12px; color: rgba(234,240,255,.78); margin-bottom: 8px; }
         
         footer a {
-            color: var(--cyan);
+            color: rgba(234,240,255,.78);
             text-decoration: none;
             margin: 0 5px;
             transition: color 0.3s ease;
         }
-
-        footer a:hover { color: var(--ink); }
+        footer a:hover { color: var(--cyan); }
 
         .social-icons a {
             font-size: 24px;
-            color: var(--cyan);
+            color: rgba(234,240,255,.78);
             margin: 0 10px;
             transition: color 0.3s ease;
         }
-
-        .social-icons a:hover { color: var(--ink); }
+        .social-icons a:hover { color: var(--cyan); }
         
         .mb-2 { margin-bottom: 8px; }
 
+        /* WhatsApp Bubble (se mantiene verde, no es parte de la paleta principal) */
         .chat-bubble {
             position: fixed;
             bottom: 20px;
@@ -743,38 +731,28 @@
             align-items: center;
             font-size: 30px;
             cursor: pointer;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             animation: slideIn 1s ease-out forwards;
-            border: 2px solid var(--cyan);
         }
 
         @keyframes slideIn {
-            0% {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            100% {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
         }
 
-        .chat-bubble:hover {
-            background: linear-gradient(45deg, #128C7E, #25D366);
-            transform: scale(1.1);
-        }
+        .chat-bubble:hover { background: linear-gradient(45deg, #128C7E, #25D366); }
 
         .chat-text {
             position: fixed;
             bottom: 90px;
             right: 20px;
-            background: linear-gradient(45deg, var(--ind), var(--cyan));
+            background: linear-gradient(45deg, #25D366, #128C7E);
             color: white;
             padding: 12px 18px;
             border-radius: 10px;
             font-size: 15px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
             overflow: hidden;
             white-space: nowrap;
             opacity: 0;
@@ -782,96 +760,58 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
             z-index: 1001;
             cursor: pointer;
-            border: 1px solid var(--line);
         }
 
-        .chat-text.show {
-            opacity: 1;
-            transform: scale(1);
-        }
+        .chat-text.show { opacity: 1; transform: scale(1); }
+        .chat-text.hide { opacity: 0; transform: scale(0.9); }
 
-        .chat-text.hide {
-            opacity: 0;
-            transform: scale(0.9);
-        }
-
-        header {
-            background: var(--glass) !important;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--line) !important;
-        }
-
-        #sidebar {
-            background: var(--glass) !important;
-            backdrop-filter: blur(10px);
-        }
-
-        p, span, div, td { color: var(--muted); }
-        strong { color: var(--cyan); }
-
-        code {
-            color: var(--pink);
-            background: var(--glass2);
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .package-grid a { color: var(--ink); }
-        header .header-icon { color: var(--cyan); }
-        #sidebar nav a { color: var(--muted); }
-        #sidebar nav a:hover { background: var(--glass2); }
-
-        #sidebar nav div.border-l-4 {
-            border-left-color: var(--pink) !important;
-            background: var(--glass2);
-        }
-
-        #sidebar nav div.border-l-4 span {
-            color: var(--ink);
-            font-weight: 600;
-        }
-
-        .gradient-text {
-            background: linear-gradient(to right, var(--cyan), var(--ind), var(--pink));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+        /* Ajustes puntuales de textos en línea que estaban en #111 (para tema oscuro) */
+        /* Nota: Solo color, sin tocar contenido */
+        code.font-bold { color: var(--ink); }
     </style>
 </head>
 <body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
 
-    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 h-16">
+    <!-- CABECERA (Header) -->
+    <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
         <div class="flex items-center gap-3">
-            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors active:bg-opacity-20">
+            <!-- Icono de menú a la izquierda de la imagen principal -->
+            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
+            <!-- Imagen principal de cabecera -->
             <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ5Yw_NDwKkZUK_t-yHRUPkagmTGz7Bj6rfDuVOwCQcY9B08ujqK-6BHWS4qXIsludoMvz0fhgcmYVOvIhO5QsvRQnigKslPiJS_yFkn4D62KqNg6D_xp9fWmQDv0WJ3Ef62JQPZ8TCb5QVwVoZhXBUaNBnUtFI4br7tauhuzKKKbUUM_i31YWIxsIf8Hv/s240/1000088967.png" 
                  alt="Logo" 
-                 style="width: 154px; height: 40px; object-fit: contain; filter: brightness(1.2);">
+                 style="width: 154px; height: 40px; object-fit: contain;">
         </div>
         
         <div class="flex items-center gap-4">
-            <a href="actividad.html" class="p-1 active:bg-gray-100 rounded-full transition-colors active:bg-opacity-20">
+            <!-- Icono Perfil - Ahora lleva a actividad -->
+            <a href="actividad.html" class="p-1 active:bg-gray-100 rounded-full transition-colors">
                 <i data-lucide="user" class="header-icon"></i>
             </a>
-            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors active:bg-opacity-20">
+            <!-- Icono Compartir - Ahora abre el modal -->
+            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
                 <i data-lucide="share-2" class="header-icon"></i>
             </button>
         </div>
     </header>
 
+    <!-- MENU LATERAL (Sidebar) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
     
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 z-[60] shadow-2xl overflow-y-auto">
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[60] shadow-2xl overflow-y-auto">
+        <!-- Encabezado Sidebar con Curva -->
         <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
-            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center backdrop-blur-md">
+            <!-- Contenedor del icono -->
+            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center">
                 <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" 
                      alt="App Icon" 
                      class="w-full h-full object-cover">
             </div>
             <h2 class="text-2xl font-bold mt-2">Masitaprex v2</h2>
             
+            <!-- Decoración -->
             <div class="absolute top-4 left-4 opacity-30">
                 <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
                     <path d="M12 2a10 10 0 1 0 10 10" stroke-linecap="round"></path>
@@ -880,49 +820,58 @@
             </div>
         </div>
 
+        <!-- Opciones del Menú -->
         <nav class="mt-6">
-            <a href="home.html" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
+            <!-- Opción Inicio -->
+            <a href="home" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="home" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
-            <a href="planes.html" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
+            <!-- Opción Recargar -->
+            <a href="planes" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="credit-card" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Recargar</span>
             </a>
             
-            <a href="PeliPREX.html" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
+            <!-- Opción PeliPREX HD -->
+            <a href="PeliPREX" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="film" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">PeliPREX HD</span>
             </a>
             
-            <div class="flex items-center px-6 py-4 border-l-4 bg-opacity-30">
-                <i data-lucide="key" class="w-6 h-6 text-cyan-400 mr-4"></i>
-                <span class="text-lg font-semibold gradient-text">Api key</span>
+            <!-- Opción actual activa -->
+            <div class="flex items-center px-6 py-4 border-l-4 border-red-600 bg-gray-50">
+                <i data-lucide="key" class="w-6 h-6 text-gray-800 mr-4"></i>
+                <span class="text-lg font-semibold text-gray-800">Api key</span>
             </div>
             
-            <a href="doc-apis.html" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors">
+            <!-- Opción Documentación APIs -->
+            <a href="doc-apis" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
                 <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Documentación APIs</span>
             </a>
             
-            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 hover:bg-opacity-20 transition-colors mt-8">
+            <!-- Opción Cerrar Sesión -->
+            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors mt-8">
                 <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Cerrar sesión</span>
             </a>
         </nav>
     </aside>
 
+    <!-- MODAL DE COMPARTIR -->
     <div class="banner" id="banner">  
         <div class="banner-title"><i class="fas fa-heart banner-icon"></i> 🤭 ¡Pequeño favorcito!</div>  
         <div class="banner-description">  
             <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
             <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
         </div>  
-        <button class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt banner-icon"></i> Compartir ahora</button>  
-        <button class="close-modal" onclick="closeBanner()"><i class="fas fa-times banner-icon"></i> Quizás más tarde</button>  
+        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt banner-icon"></i> Compartir ahora</a>  
+        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times banner-icon"></i> Quizás más tarde</a>  
     </div>
 
+    <!-- CONTENIDO PRINCIPAL DE API KEY -->
     <div id="loading-indicator">
         <div class="dots-loader">
             <div class="dot"></div>
@@ -933,14 +882,14 @@
     
     <div class="wrap" id="profile-container" style="display: none;">
         
-        <div class="profile-card">
+        <div class="profile-card gradient-border">
             <div class="profile-header">
                 <div class="avatar">
                     <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
                 </div>
                 <div>
-                    <h2>Hola, <span id="userName" class="gradient-text"></span></h2>
-                    <p style="font-size:14px;margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
+                    <h2>Hola, <span id="userName"></span></h2>
+                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
                 </div>
             </div>
             <div class="profile-stats">
@@ -951,15 +900,15 @@
                 <div class="stat-item" id="infoIlimitado" style="display:none;">
                     <span class="stat-value" id="diasRestantes">0</span>
                     <span class="stat-label">Días restantes (Ilimitado)</span>
-                    <span style="font-size:11px;margin-top:2px;">Vence el: <span id="venceEl"></span></span>
+                    <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
                 </div>
             </div>
             <a href="planes.html" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
         </div>
 
-        <div class="section-card">
-            <h3 class="gradient-text">Tu Token de Acceso</h3>
-            <p>
+        <div class="section-card gradient-border">
+            <h3>Tu Token de Acceso</h3>
+            <p style="font-size:14px;color:var(--muted);">
                 Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de intermediación.
             </p>
             <div class="input-group">
@@ -973,12 +922,12 @@
             </button>
         </div>
 
-        <div class="info-section">
+        <div class="info-section gradient-border">
             <div class="text-container-header">
-                <i class="ri-sparkling-2-line" style="color: var(--ok);"></i>
+                <i class="ri-sparkling-2-line text-secondary"></i>
                 ¡Felicidades por elegir Consulta PE! 🚀
             </div>
-            <p class="font-bold">
+            <p class="font-bold" style="color:var(--ink);">
                 Has tomado una de las mejores decisiones para tu proyecto.
             </p>
             <p>
@@ -986,16 +935,297 @@
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
             <p style="font-size: 13px; color: var(--pink); margin-top: 10px;">
-                ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis.html" class="font-bold" style="color: var(--pink); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
+                ⚠️ Aviso Importante: Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold" style="color: var(--pink); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.
             </p>
             <a href="doc-apis.html" target="_blank" class="btn-primary" style="margin-top: 8px;">
                 <i class="ri-book-3-line"></i> Ver Documentación
             </a>
         </div>
 
-        <!-- (El resto del contenido HTML continúa igual...) -->
-        <!-- Por brevedad, omito el resto pero está incluido en tu código original -->
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-lightbulb-line" style="color: var(--warn);"></i>
+                💡 Sobre el Consumo de Créditos
+            </div>
+            <p>
+                Recuerda que cada servicio intermediado tiene su propio consumo de créditos.
+            </p>
+            <p class="font-bold" style="color:var(--cyan);">
+                👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por API.
+            </p>
+            <div class="text-container" style="background: rgba(53,213,255,.08); border-color: rgba(53,213,255,.25);">
+                <div class="text-container-header" style="color: transparent;">
+                    Recomendación para rentabilidad:
+                </div>
+                <p style="color:var(--ink);">
+                    Si vas a integrar los servicios de intermediación en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
+                </p>
+                <p style="color:var(--ink);">
+                    Por ejemplo: Si un servicio consume <strong>10 créditos</strong>, puedes configurarlo en tu proyecto para que consuma <strong>12 o 13 créditos</strong>. De esta manera ganas por cada consulta y aseguras la sostenibilidad de tu sistema.
+                </p>
+            </div>
+        </div>
 
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-database-line text-accent"></i>
+                💳 Tabla de Créditos por Servicio de Infraestructura (<strong>11 APIs</strong>)
+            </div>
+            <div class="table-scroll">
+                <table class="credit-table">
+                    <thead>
+                        <tr>
+                            <th>🔧 Servicio de Infraestructura</th>
+                            <th>💰 Créditos</th>
+                            <th>📝 Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Consulta RENIEC por DNI</strong></td>
+                            <td>7</td>
+                            <td>Infraestructura para acceso a datos básicos de identificación</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Telefonía por Documento</strong></td>
+                            <td>9</td>
+                            <td>Procesamiento de consultas a registros telefónicos por documento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Telefonía por Número</strong></td>
+                            <td>8</td>
+                            <td>Servicio de consulta inversa de titularidad telefónica</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td>
+                            <td>8</td>
+                            <td>Infraestructura para consulta de registros vehiculares</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SUNAT por RUC</strong></td>
+                            <td>6</td>
+                            <td>Procesamiento de datos fiscales empresariales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SUNAT por Razón Social</strong></td>
+                            <td>5</td>
+                            <td>Servicio de búsqueda empresarial por nombre</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Empresas donde figura la persona</strong></td>
+                            <td>4</td>
+                            <td>Infraestructura para consulta de vinculaciones empresariales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Matrimonios Registrados</strong></td>
+                            <td>6</td>
+                            <td>Procesamiento de registros de estado civil</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Buscar DNI por Nombres y Apellidos</strong></td>
+                            <td>5</td>
+                            <td>Servicio de búsqueda inversa por datos nominales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Buscar Venezolanos por Nombres</strong></td>
+                            <td>5</td>
+                            <td>Infraestructura para consultas de personas venezolanas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consulta por Cédula Venezolana</strong></td>
+                            <td>5</td>
+                            <td>Procesamiento de consultas por documento venezolano</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--muted);">
+                                <strong>Nota:</strong> Los créditos cubren exclusivamente costos de infraestructura tecnológica, 
+                                procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="api-recommendation">
+            <h4><i class="ri-tools-line"></i> ⚙️ Servicio Intermediado Optimizado</h4>
+            <p>Te ayudamos a ahorrar tiempo con una mejor alternativa:</p>
+            <p>Anteriormente usabas el servicio:</p>
+            <code>/api/ficha | dni | https://consulta-pe-apis-data-v2.fly.dev/api/ficha?dni={DNI_NUMBER} | 30 créditos</code>
+            <p>Reemplázala por esta intermediación más ligera y práctica:</p>
+            <code>/api/reniec | dni | https://consulta-pe-apis-data-v2.fly.dev/api/reniec?dni={DNI_NUMBER} | 10 créditos</code>
+            <p>
+                💡 Los resultados llegan en texto plano y puedes generar tus propias imágenes si lo deseas.
+            </p>
+        </div>
+        
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-rocket-line text-accent"></i>
+                🧩 11 Servicios de Intermediación Listos para Ti
+            </div>
+            <p>
+                Todos nuestros servicios están <strong>listos para consumir</strong>, probados y optimizados para máxima eficiencia.
+            </p>
+            <p>
+                Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong>no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
+            </p>
+        </div>
+
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-money-dollar-circle-line" style="color: var(--ok);"></i>
+                💰 Paquetes Disponibles
+            </div>
+            <div class="package-grid">
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
+                    <div class="package-card">
+                        <div class="amount">S/10</div>
+                        <div class="credits">60 ⚡ CRÉDITOS</div>
+                        <div class="benefit">Ideal para pruebas o proyectos pequeños</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
+                    <div class="package-card">
+                        <div class="amount">S/20</div>
+                        <div class="credits">125 🚀 CRÉDITOS</div>
+                        <div class="benefit">Buen equilibrio entre costo y rendimiento</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
+                    <div class="package-card" style="border-color: rgba(22,225,164,1);">
+                        <div class="amount">S/50</div>
+                        <div class="credits">330 💎 CRÉDITOS</div>
+                        <div class="benefit font-bold" style="color: rgba(22,225,164,1);">Opción inteligente y más rentable</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
+                    <div class="package-card">
+                        <div class="amount">S/100</div>
+                        <div class="credits">700 👑 CRÉDITOS</div>
+                        <div class="benefit">Plan avanzado con excelente retorno</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
+                    <div class="package-card" style="grid-column: span 2;">
+                        <div class="amount">S/200</div>
+                        <div class="credits">1500 🔥 CRÉDITOS</div>
+                        <div class="benefit font-bold" style="color: var(--warn);">La mejor relación costo-beneficio</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-line-chart-line text-accent"></i>
+                📊 Comparativa de Ahorro por Paquete
+            </div>
+            <p>
+                Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong>
+            </p>
+            <p>
+                Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="text-secondary font-bold">💰 13% de ahorro</span>
+            </p>
+            <p>
+                Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color: var(--warn);" class="font-bold">🔥 24% de ahorro</span>
+            </p>
+            <p class="font-bold" style="color:var(--cyan);">
+                👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.
+            </p>
+        </div>
+        
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-award-line" style="color: var(--warn);"></i>
+                💎 Comparativa de Paquetes y Ahorro
+            </div>
+            <p class="font-bold" style="color: var(--ink);">
+                🎯 Recomendación principal:
+                Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.
+            </p>
+            <p>
+                Pagas menos por cada crédito, obtienes más consultas por el mismo dinero,
+                y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.
+            </p>
+
+            <div class="text-container-header" style="margin-top: 10px;">
+                <i class="ri-checkbox-circle-line text-secondary"></i>
+                ✨ Ventajas exclusivas
+            </div>
+            <ul class="advantage-list">
+                <li><i class="ri-check-line"></i> Tus créditos <strong>jamás caducan</strong>.</li>
+                <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
+                <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
+                <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios intermediados y soporte técnico directo.</li>
+            </ul>
+            <p class="font-bold text-center" style="margin-top: 15px; color: var(--ink);">
+                💬 En pocas palabras:
+                Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.
+            </p>
+            <p class="font-bold text-center" style="color:var(--warn); font-size: 18px;">
+                🔥 Consulta PE premia a los desarrolladores inteligentes.
+            </p>
+        </div>
+
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-global-line text-accent"></i>
+                🌐 Planes Ilimitados (para proyectos con alto tráfico)
+            </div>
+            <p>
+                Si tu app ya tiene muchos usuarios o tráfico constante,
+                el <strong>plan ilimitado</strong> es una excelente opción.
+            </p>
+            <table class="unlimited-table">
+                <thead>
+                    <tr>
+                        <th>DURACIÓN</th>
+                        <th>PRECIO SUGERIDO</th>
+                        <th>AHORRO ESTIMADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
+                    <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
+                    <tr><td>1 mes</td><td class="price">S/120</td><td>Ahorro S/20</td></tr>
+                    <tr><td>1 mes y medio</td><td class="price">S/165</td><td>Ahorro S/30</td></tr>
+                    <tr><td>2 meses</td><td class="price">S/210</td><td class="saving">Ahorro S/50</td></tr>
+                    <tr><td>2 meses y medio</td><td class="price">S/300</td><td>Ahorro S/37</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-emotion-line text-secondary"></i>
+                ✨ Conclusión:
+            </div>
+            <p>
+                Consulta PE te brinda una <strong>experiencia completa, rentable y confiable</strong> al actuar como <strong>intermediario</strong> de diversos servicios de información para que tu proyecto pueda crecer.
+                Queremos que disfrutes cada integración, que sientas que tu proyecto avanza,
+                y que digas con orgullo:
+            </p>
+            <blockquote class="quote">
+                Elegí Consulta PE… y fue la mejor decisión. 💚
+            </blockquote>
+        </div>
+
+        <div class="info-section gradient-border">
+            <h3>Preguntas Frecuentes (FAQ)</h3>
+            <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la API?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de intermediación.</p>
+            <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
+            <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
+            <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
+            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold" style="color: var(--cyan); text-decoration: underline;">Aviso Legal y Descargo de Responsabilidad</a>.</p>
+        </div>
+        
         <footer>
             <h3>Síguenos en nuestras redes sociales</h3>
             <div class="social-icons">
@@ -1004,10 +1234,10 @@
             </div>
             <p class="mb-2">Consulta PE © 2024 - Todos los derechos reservados</p>
             <p class="mb-2">
-                <a href="terminos-condiciones.html">Términos y condiciones</a> |
-                <a href="politica-privacidad.html">Política de privacidad</a> |
-                <a href="aviso-legal-peliprex.html">Aviso legal peliPREX</a> |
-                <a href="disclaimer-apis.html">Aviso legal apis </a>
+                <a href="terminos-condiciones">Términos y condiciones</a> |
+                <a href="politica-privacidad">Política de privacidad</a> |
+                <a href="aviso-legal-peliprex">Aviso legal peliPREX</a> |
+                <a href="disclaimer-apis">Aviso legal apis </a>
             </p>
             <p>Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong></p>
         </footer>
@@ -1015,11 +1245,12 @@
     </div>
 
     <div id="saveConfirmModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content gradient-border">
             <p id="saveConfirmMessage"></p>
         </div>
     </div>
 
+    <!-- WhatsApp Bubble -->
     <div class="chat-bubble" onclick="goToWhatsApp()">
         <div class="icon">
             <i class="fab fa-whatsapp"></i>
@@ -1029,8 +1260,11 @@
     <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
 
     <script>
+        // ===== SCRIPTS DEL MENÚ LATERAL Y CABECERA =====
+        // Inicializar iconos de Lucide
         lucide.createIcons();
 
+        // Control del menú lateral
         const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -1053,6 +1287,7 @@
         menuToggle.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
+        // Cerrar menú al hacer click en un enlace (excepto cerrar sesión)
         const navLinks = sidebar.querySelectorAll('nav a:not(#logout-btn)');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -1060,10 +1295,12 @@
             });
         });
 
+        // Botón de compartir - abre el modal
         document.getElementById('share-btn').addEventListener('click', function() {
             document.getElementById('banner').style.display = 'flex';
         });
 
+        // Funciones para el modal de compartir
         setTimeout(() => {  
             document.getElementById('banner').style.display = 'flex';  
         }, 50000);  
@@ -1091,6 +1328,7 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+        // Obtener configuración dinámica desde el servidor
         async function getFirebaseConfig() {
             try {
                 const response = await fetch('/api/config');
@@ -1218,7 +1456,7 @@
                 async function loadProfileData() {
                     showLoadingIndicator();
                     if (!currentUser) {
-                        window.location.href = "/home.html";
+                        window.location.href = "index.html";
                         hideLoadingIndicator();
                         return;
                     }
@@ -1286,18 +1524,22 @@
                     }
                 }
 
+                // Función para cerrar sesión REAL
                 async function logout() {
                     try {
                         await signOut(auth);
+                        // Limpiar datos locales si es necesario
                         localStorage.clear();
                         sessionStorage.clear();
-                        window.location.href = "/home.html";
+                        // Redirigir a la página de inicio/login
+                        window.location.href = "index.html";
                     } catch (error) {
                         console.error("Error al cerrar sesión:", error);
                         alert("Hubo un error al cerrar sesión. Intenta de nuevo.");
                     }
                 }
 
+                // Asignar la función de logout real al botón
                 document.getElementById('logout-btn').addEventListener('click', function(e) {
                     e.preventDefault();
                     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
@@ -1310,7 +1552,7 @@
                         currentUser = user;
                         loadProfileData();
                     } else {
-                        window.location.href = "/home.html";
+                        window.location.href = "index.html";
                     }
                 });
 
@@ -1320,6 +1562,7 @@
             }
         }
 
+        // WhatsApp Bubble
         const message = "¡Hola, ¿Necesitas ayuda?!";
         const chatText = document.getElementById("chatText");
         let index = 0;
