@@ -819,25 +819,28 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
+// 🚨 SOLUCIÓN DEFINITIVA - RUTAS PROBLEMÁTICAS ARRIBA DE TODO
+// ================================================================
+
+// 1️⃣ Forzar que estas rutas respondan como HTML ANTES de cualquier generador PDF
+// Esto debe ir ARRIBA de cualquier otra ruta
+
+app.get("/disclaimer-apis", (req, res) => {
+  res.type("html");
+  res.sendFile(path.join(__dirname, "public", "disclaimer-apis.html"));
+});
+
+app.get("/API-Docs", (req, res) => {
+  res.type("html");
+  res.sendFile(path.join(__dirname, "public", "API-Docs.html"));
+});
+
+// ================================================================
 // 🌐 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
 // ================================================================
 
 // Servir archivos estáticos ANTES de aplicar el middleware de autenticación
 app.use(express.static(path.join(__dirname, 'public')));
-
-// RUTAS ESPECÍFICAS PARA LAS PÁGINAS PROBLEMÁTICAS - SIMPLIFICADO
-// Estas rutas deben ir DESPUÉS de express.static pero ANTES del middleware de URLs limpias
-app.get('/disclaimer-apis', (req, res) => {
-  logger.info('SPECIAL_ROUTE', 'Sirviendo disclaimer-apis.html');
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.sendFile(path.join(__dirname, 'public', 'disclaimer-apis.html'));
-});
-
-app.get('/API-Docs', (req, res) => {
-  logger.info('SPECIAL_ROUTE', 'Sirviendo API-Docs.html');
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.sendFile(path.join(__dirname, 'public', 'API-Docs.html'));
-});
 
 // Middleware para URLs limpias (sin .html) - EXCLUIR las rutas problemáticas
 app.use((req, res, next) => {
@@ -1805,7 +1808,8 @@ app.listen(PORT, "0.0.0.0", () => {
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo',
       cleanUrls: 'Activo',
-      noIndexHtml: 'Eliminado'
+      noIndexHtml: 'Eliminado',
+      specialRoutesFixed: '✅ Solución definitiva aplicada'
     },
     timestamp: new Date().toISOString()
   });
