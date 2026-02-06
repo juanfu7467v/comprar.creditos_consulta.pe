@@ -218,7 +218,7 @@ if (serviceAccount && !admin.apps.length) {
 // ================================================================
 
 const RECAPTCHA_SECRET_KEY = process.env.RECAPCHA_CLAVE_SECRETA;
-const RECAPTCHA_SITE_KEY = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
+const RECAPTCHA_SITE_KEY = "6Lc4OGIsAAAAAPrAnOprbzd-ATbUOWHXK3Yl_bVy";
 
 async function validateRecaptcha(recaptchaResponse) {
   const context = 'RECAPTCHA_VALIDATION';
