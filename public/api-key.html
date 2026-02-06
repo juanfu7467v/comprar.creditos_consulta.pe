@@ -1339,6 +1339,40 @@
     </script>
 
     <script type="module">
+        // VERIFICACIÓN INICIAL DE AUTENTICACIÓN
+        // Esta función verifica si el usuario está autenticado antes de cargar Firebase
+        async function verificarAutenticacion() {
+            try {
+                // Intentar obtener información de autenticación del localStorage o sessionStorage
+                const userLoggedIn = localStorage.getItem('userLoggedIn') || sessionStorage.getItem('userLoggedIn');
+                
+                // Si no hay indicio de usuario logueado, redirigir inmediatamente
+                if (!userLoggedIn) {
+                    console.log('Usuario no autenticado, redirigiendo a login.html');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error verificando autenticación:', error);
+                return false;
+            }
+        }
+
+        // Inicializar la aplicación solo si el usuario está autenticado
+        async function iniciarAplicacion() {
+            const estaAutenticado = await verificarAutenticacion();
+            
+            if (!estaAutenticado) {
+                // Ya se redirigió en la función anterior
+                return;
+            }
+            
+            // Si está autenticado, continuar con la carga de Firebase
+            await initApp();
+        }
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -1471,8 +1505,7 @@
                 async function loadProfileData() {
                     showLoadingIndicator();
                     if (!currentUser) {
-                        // Redirigir a public/login.html si no está autenticado
-                        window.location.href = "public/login.html";
+                        window.location.href = "index.html";
                         hideLoadingIndicator();
                         return;
                     }
@@ -1544,11 +1577,11 @@
                 async function logout() {
                     try {
                         await signOut(auth);
-                        // Limpiar datos locales si es necesario
+                        // Limpiar datos locales
                         localStorage.clear();
                         sessionStorage.clear();
                         // Redirigir a la página de login
-                        window.location.href = "public/login.html";
+                        window.location.href = "login.html";
                     } catch (error) {
                         console.error("Error al cerrar sesión:", error);
                         alert("Hubo un error al cerrar sesión. Intenta de nuevo.");
@@ -1566,10 +1599,14 @@
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         currentUser = user;
+                        // Guardar indicador de autenticación
+                        localStorage.setItem('userLoggedIn', 'true');
                         loadProfileData();
                     } else {
-                        // Redirigir a login si no está autenticado
-                        window.location.href = "public/login.html";
+                        // Limpiar indicador y redirigir a login
+                        localStorage.removeItem('userLoggedIn');
+                        sessionStorage.removeItem('userLoggedIn');
+                        window.location.href = "login.html";
                     }
                 });
 
@@ -1614,8 +1651,9 @@
             window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
         }
 
+        // Inicializar la aplicación cuando la página cargue
         window.onload = () => {
-            initApp();
+            iniciarAplicacion();
             setTimeout(() => {
                 chatText.classList.add('show');
                 typeWriter();
