@@ -1005,7 +1005,7 @@ async function secureDownload(url, filename) {
                     <p class="text-gray-600 mb-4 text-sm flex-grow">
                         Plataforma basada en infraestructura intermediaria que facilita el acceso organizado a contenidos digitales disponibles en línea. Explora, descubre y conéctate fácilmente desde una interfaz rápida y moderna.
                     </p>
-                    <a href="peliprex" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
+                    <a href="peliPREX" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
                         Acceder a PeliPREX
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
