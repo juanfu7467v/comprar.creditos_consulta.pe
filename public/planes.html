@@ -134,16 +134,18 @@
             height: 100%;
             width: 288px; /* w-72 = 288px */
             background: #000 !important; /* Fondo negro puro como pedido */
-            color: var(--ink);
+            color: #FFFFFF;
             z-index: 60;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55); /* var(--shadow) */
             overflow-y: auto;
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
+            visibility: hidden;
         }
 
         #sidebar.open {
             transform: translateX(0);
+            visibility: visible;
         }
 
         /* Encabezado del sidebar con curva degradada */
@@ -183,11 +185,12 @@
         }
 
         /* 🔹 CAMBIO APLICADO: Color blanco para el texto "masitaprex" */
-        .sidebar-header-bg h2 {
+        .sidebar-header-bg h1, .sidebar-header-bg h2 {
             font-size: 1.5rem; /* text-2xl = 24px */
             font-weight: 700; /* font-bold */
             margin-top: 8px; /* mt-2 = 8px */
-            color: #FFFFFF; /* Color blanco puro sin degradado */
+            color: #FFFFFF !important; /* Color blanco puro sin degradado */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         /* Decoración SVG en el encabezado */
@@ -211,13 +214,19 @@
             padding-right: 24px; /* px-6 = 24px */
             padding-top: 16px; /* py-4 = 16px vertical */
             padding-bottom: 16px; /* py-4 = 16px vertical */
-            color: #FFFFFF; /* Color blanco para todas las opciones del menú */
-            transition: background-color 0.3s ease; /* transition-colors */
+            color: #FFFFFF !important; /* Color blanco para todas las opciones del menú */
+            transition: all 0.2s ease; /* transition-colors */
             text-decoration: none;
+            border-left: 4px solid transparent;
+        }
+
+        #sidebar nav a span {
+            color: #FFFFFF !important;
         }
 
         #sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.06); /* hover:bg-gray-50 */
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: #FF1F3D;
         }
 
         #sidebar nav div {
@@ -237,14 +246,7 @@
             height: 24px; /* h-6 = 24px */
             margin-right: 16px; /* mr-4 = 16px */
             stroke-width: 1.5; /* Configuración de Lucide */
-        }
-
-        #sidebar nav a i {
-            color: #FFFFFF; /* Color blanco para los iconos */
-        }
-
-        #sidebar nav div i {
-            color: #FFFFFF; /* Color blanco */
+            color: #FFFFFF !important;
         }
 
         /* Separación para el botón de cerrar sesión */
@@ -1083,40 +1085,38 @@
                      alt="App Icon" 
                      class="w-full h-full object-cover">
             </div>
-            <h1 class="text-2xl font-bold mt-2" style="color:#FFFFFF !important; text-shadow:none !important;">
-  masitaprex
-</h1>
+            <h1 class="text-2xl font-bold mt-2" style="color:#FFFFFF !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;">masitaprex</h1>
             
 
         <!-- Opciones del Menú Actualizadas -->
         <nav class="mt-6">
             <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
-            <a href="home" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors" style="color: #ffffff;">
+            <a href="home" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors" >
                 <i data-lucide="home" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
-            <a href="PeliPREX.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
+            <a href="PeliPREX.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
                 <i data-lucide="film" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">PeliPREX</span>
             </a>
             
-            <a href="api-key.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
+            <a href="api-key.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
                 <i data-lucide="key" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Api Key</span>
             </a>
             
-            <a href="doc-apis.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
+            <a href="doc-apis.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
                 <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Doc. APIs</span>
             </a>
             
-            <a href="consultaPE-apk.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
+            <a href="consultaPE-apk.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
                 <i data-lucide="smartphone" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Consulta PE APK</span>
             </a>
             
-            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600 mt-8" style="color: #ffffff;">
+            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600 mt-8" >
                 <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Cerrar sesión</span>
             </a>
@@ -1536,12 +1536,16 @@
             const isOpen = sidebar.classList.toggle('open');
             if (isOpen) {
                 overlay.classList.remove('hidden');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
                 setTimeout(() => overlay.classList.add('opacity-100'), 10);
             } else {
                 overlay.classList.remove('opacity-100');
+                document.body.style.overflow = '';
                 setTimeout(() => {
                     if (!sidebar.classList.contains('open')) {
                         overlay.classList.add('hidden');
+                        overlay.style.display = 'none';
                     }
                 }, 300);
             }
