@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -634,20 +634,16 @@
       border-bottom: none;
     }
 
-    /* NUEVA SECCIÓN INFORMATIVA: Infraestructura API 3D */
+    /* NUEVA SECCIÓN INFORMATIVA: Infraestructura API 3D - FONDO TRANSPARENTE */
     .api-infrastructure {
-      /* MODIFICADO: igual ancho visual que el resto (sin full-bleed) */
       width: 100%;
       position: relative;
       left: auto;
       right: auto;
       margin-left: auto;
       margin-right: auto;
-
       padding: 40px 20px;
-      background: linear-gradient(145deg, 
-        rgba(11, 18, 48, 0.95) 0%,
-        rgba(7, 10, 24, 0.98) 100%);
+      background: transparent !important;
       border-top: 1px solid rgba(53, 213, 255, 0.2);
       border-bottom: 1px solid rgba(109, 91, 255, 0.2);
       overflow: hidden;
@@ -1668,11 +1664,11 @@
           </div>
           <div class="code-line">
             <span class="line-number">4</span>
-            <span class="line-content">  <span class="code-string">"Authorization: Bearer YOUR_API_KEY"</span>,</span>
+            <span class="line-content">  <span class="code-string">"Authorization: Bearer YOUR_API_KEY"</span>,</span>
           </div>
           <div class="code-line">
             <span class="line-number">5</span>
-            <span class="line-content">  <span class="code-string">"Content-Type: application/json"</span></span>
+            <span class="line-content">  <span class="code-string">"Content-Type: application/json"</span></span>
           </div>
           <div class="code-line">
             <span class="line-number">6</span>
@@ -1690,11 +1686,11 @@
           </div>
           <div class="code-line">
             <span class="line-number">9</span>
-            <span class="line-content">  <span class="code-string">"nombres"</span> =<span class="code-operator">></span> <span class="code-string">"Juan Carlos"</span>,</span>
+            <span class="line-content">  <span class="code-string">"nombres"</span> =<span class="code-operator">></span> <span class="code-string">"Juan Carlos"</span>,</span>
           </div>
           <div class="code-line">
             <span class="line-number">10</span>
-            <span class="line-content">  <span class="code-string">"apellidos"</span> =<span class="code-operator">></span> <span class="code-string">"Pérez García"</span></span>
+            <span class="line-content">  <span class="code-string">"apellidos"</span> =<span class="code-operator">></span> <span class="code-string">"Pérez García"</span></span>
           </div>
           <div class="code-line">
             <span class="line-number">11</span>
@@ -1724,7 +1720,7 @@
           <div class="stat-label">Consultas por Minuto</div>
         </div>
         <div class="stat-card">
-          <!-- MODIFICADO: reemplaza “<100ms” por mensaje realista -->
+          <!-- MODIFICADO: reemplaza "<100ms" por mensaje realista -->
           <div class="stat-number">Variable</div>
           <div class="stat-label">Tiempo de Respuesta</div>
         </div>
