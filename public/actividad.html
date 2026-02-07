@@ -234,134 +234,6 @@
 
 
   /* --------------------------------------------------------------
-     NUEVOS ESTILOS DEL BUSCADOR (Desde PeliPREX.html)
-     -------------------------------------------------------------- */
-  #search-bar-container{
-    position: sticky;
-    top: 66px;
-    z-index: 10;
-    padding: 12px 14px;
-    background: var(--bg); 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    margin-bottom: 20px;
-  }
-  #search-input{
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(255,255,255,0.1);
-    background: var(--card);
-    color: var(--text);
-    font-size: 16px;
-    outline: none;
-  }
-  #search-input::placeholder{
-    color: var(--muted);
-  }
-  #detail-view-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 1900;
-    background: var(--bg);
-    display: none;
-    overflow-y: auto;
-  }
-  #detail-view-modal.active {
-    display: block;
-  }
-  .detail-header {
-      position: sticky;
-      top: 0;
-      z-index: 11;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      background: var(--bg);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .detail-header .icon-btn {
-      background: transparent;
-  }
-  .detail-header-title {
-      flex: 1;
-      font-weight: 800;
-      font-size: 18px;
-  }
-  .detail-content {
-      padding: 0 14px 14px; 
-      max-width: 1100px;
-      margin: 0 auto;
-  }
-  .detail-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px 10px;
-      justify-content: center;
-  }
-  @media (min-width: 900px) {
-      .detail-grid {
-          justify-content: flex-start;
-          gap: 20px;
-      }
-      .detail-grid .card {
-          width: 180px; 
-      }
-  }
-  .no-results {
-      text-align: center;
-      color: var(--muted);
-      padding: 50px 0;
-      font-size: 16px;
-  }
-  .card{
-    width: 120px; 
-    flex-shrink: 0;
-    background:var(--card);
-    border-radius:10px;
-    overflow:hidden;
-    position:relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    transition: transform .18s ease, box-shadow .18s ease;
-    cursor: pointer;
-  }
-  .card:hover{ transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.75); }
-  .poster{
-    width:100%;
-    height:180px; 
-    object-fit:cover;
-    display:block;
-    background:linear-gradient(180deg,#222,#171717);
-  }
-  .meta{
-    padding:10px 8px 12px;
-  }
-  .movie-title{
-    display:block;
-    font-weight:700;
-    font-size:13px;
-    color:var(--text);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .movie-sub{
-    margin-top:6px;font-size:12px;color:var(--muted);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  @media (min-width:900px){
-    .detail-grid .card{ width: 220px; }
-    .detail-grid .poster{ height: 330px; }
-  }
-  @media (max-width:420px){
-    .detail-grid .card{ width: calc(50% - 10px); }
-    .detail-grid .poster{ height: 250px; }
-  }
-
-  /* --------------------------------------------------------------
      Estilos de Perfil UI (Integrados y Modificados)
      -------------------------------------------------------------- */
 .header{
@@ -593,7 +465,7 @@
             }
           });
         </script>
-        <button id="btn-search-trigger" class="icon-btn top-nav-icon" title="Buscar Películas"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a href="favoritos.html" class="icon-btn top-nav-icon" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
     </div>
 
     <div class="profile-row">
@@ -742,21 +614,6 @@
     </div>
   </div>
   
-  <!-- NUEVO: Modal de Detalle/Búsqueda -->
-  <div class="modal" id="detail-view-modal">
-      <div class="detail-header">
-          <button class="icon-btn" id="detail-close-btn" title="Cerrar"><i class="fa-solid fa-arrow-left"></i></button>
-          <div class="detail-header-title" id="detail-view-title"></div>
-      </div>
-      <div id="search-bar-container">
-          <input type="search" id="search-input" placeholder="Buscar películas, series o géneros..." autofocus>
-      </div>
-      <div class="detail-content">
-          <div class="detail-grid" id="detail-results-container">
-              </div>
-      </div>
-  </div>
-
   <div class="modal" id="analysis-modal">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="analysis-title">
         <div class="modal-body-full analysis-content-area">
@@ -1424,10 +1281,6 @@ async function fetchSuggestionsToModal(){
    ========================================================= */
 async function generateAnalysisWithGemini(movieTitle, movieDescription) {
     const analysisModal = document.getElementById('analysis-modal');
-const detailViewModal = document.getElementById('detail-view-modal');
-const detailViewTitle = document.getElementById('detail-view-title');
-const detailResultsContainer = document.getElementById('detail-results-container');
-const searchInput = document.getElementById('search-input');
     const analysisTitleEl = document.getElementById('analysis-title');
     const resultContainer = document.getElementById('analysis-result-container');
     const loadingEl = document.getElementById('analysis-loading');
@@ -1557,115 +1410,6 @@ auth.onAuthStateChanged(async (user) => {
     window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
   }
 });
-
-/* ==========================================================
-   LÓGICA DE BÚSQUEDA (Desde PeliPREX.html)
-   ========================================================== */
-document.getElementById('detail-close-btn').onclick = () => {
-    detailViewModal.classList.remove('active');
-    searchInput.value = '';
-};
-
-document.getElementById('btn-search-trigger').onclick = () => {
-    detailViewTitle.textContent = 'Buscador de Películas';
-    detailResultsContainer.innerHTML = '<p class="no-results">Comienza a escribir para buscar...</p>';
-    detailViewModal.classList.add('active');
-    setTimeout(() => searchInput.focus(), 100);
-};
-
-let searchTimeout;
-searchInput.addEventListener('input', (e) => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => handleSearch(e.target.value), 500);
-});
-
-async function handleSearch(query) {
-    if (query.length < 3) {
-        detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
-        detailResultsContainer.innerHTML = '<p class="no-results">Ingresa al menos 3 caracteres para comenzar la búsqueda.</p>';
-        return;
-    }
-    
-    detailViewTitle.textContent = `Resultados para "${query}"`;
-    detailResultsContainer.innerHTML = '';
-    
-    showLoading();
-    const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`);
-    hideLoading();
-
-    if (data && data.resultados && data.resultados.length > 0) {
-        data.resultados.forEach(movie => {
-            detailResultsContainer.appendChild(createMovieCard(movie));
-        });
-    } else {
-        detailResultsContainer.innerHTML = '<p class="no-results">No se encontraron resultados para tu búsqueda.</p>';
-    }
-}
-
-function createMovieCard(item){
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.setAttribute('tabindex','0');
-    div.setAttribute('role', 'link'); 
-
-    const poster = document.createElement('img');
-    poster.className = 'poster';
-    poster.alt = `Póster de ${item.titulo}`;
-    poster.src = safeImage(item.imagen_url);
-    poster.loading = 'lazy'; 
-    
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    const title = document.createElement('div');
-    title.className = 'movie-title';
-    title.textContent = item.titulo;
-    const sub = document.createElement('div');
-    sub.className = 'movie-sub';
-    sub.textContent = item.fecha_lanzamiento ? new Date(item.fecha_lanzamiento).getFullYear() : 'Desconocido';
-
-    meta.appendChild(title);
-    meta.appendChild(sub);
-
-    div.appendChild(poster);
-    div.appendChild(meta);
-
-    div.addEventListener('click', ()=> {
-        handleViewMovieDetails(item, 'suggestion'); 
-    });
-
-    return div;
-}
-
-async function handleViewMovieDetails(movie, source){
-    showLoading();
-    const user = auth.currentUser;
-    if (!user) {
-        hideLoading(); 
-        showErrorModal('Necesitas iniciar sesión para ver contenido.');
-        return;
-    }
-    
-    detailViewModal.classList.remove('active');
-    
-    let finalUrl = movie.pelicula_url;
-    if (finalUrl && finalUrl.includes('drive.google.com')) {
-        const match = finalUrl.match(/\/d\/([^/]+)/);
-        if (match) finalUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
-    } 
-    if (finalUrl && finalUrl.includes('youtube.com/watch?v=')) {
-        finalUrl = finalUrl.replace('watch?v=', 'embed/');
-    }
-
-    if (!finalUrl) {
-        hideLoading();
-        showErrorModal(`El enlace de reproducción para ${movie.titulo} es nulo o está roto.`);
-        return;
-    }
-    
-    const movieWithFixedUrl = {...movie, pelicula_url: finalUrl};
-    displayMovieDetails(movieWithFixedUrl);
-    hideLoading();
-}
 
 /* ==========================================================
    LISTENERS DE EVENTOS
