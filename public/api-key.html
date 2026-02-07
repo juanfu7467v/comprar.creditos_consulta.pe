@@ -75,7 +75,7 @@
                         radial-gradient(900px 500px at 60% 110%, rgba(53,213,255,.14), transparent 55%),
                         linear-gradient(180deg, var(--bg2), var(--bg1));
         }
-        /* Una capa sutil para dar “glass” y profundidad */
+        /* Una capa sutil para dar "glass" y profundidad */
         .galaxy-overlay {
             position: fixed;
             inset: 0;
@@ -406,7 +406,7 @@
             border-radius: 12px;
             background: rgba(255,255,255,.06);
             border: 1px solid rgba(53,213,255,.45);
-            color: var(--cyan);
+            color: #fff;
             font-weight: 700;
             letter-spacing: 0.6px;
             margin-top: 8px;
@@ -814,15 +814,57 @@
         /* Nota: Solo color, sin tocar contenido */
         code.font-bold { color: var(--ink); }
 
-        /* Estilo para "Aviso importante" en azul */
-        .aviso-importante {
-            color: #35D5FF !important;
-            font-weight: bold;
+        /* ESTILOS PARA TEXTO LEGAL */
+        .legal-warning {
+            background: rgba(255, 31, 61, 0.08);
+            border: 1px solid rgba(255, 31, 61, 0.3);
+            border-left: 4px solid var(--danger);
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.6;
         }
 
-        /* Rosado oscuro -> rojo para casos inline con var(--pink) en avisos legales */
-        .legal-emphasis-red {
+        .legal-warning .warning-title {
+            color: var(--danger);
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legal-warning .warning-content {
+            color: var(--ink);
+        }
+
+        .legal-warning .emphasis-red {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .legal-warning a {
             color: var(--danger) !important;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .legal-warning a:hover {
+            color: #ff4d6a !important;
+        }
+
+        /* Texto centrado en cabecera */
+        .header-center-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
     </style>
 </head>
@@ -835,14 +877,15 @@
     <!-- CABECERA (Header) -->
     <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
         <div class="flex items-center gap-3">
-            <!-- Icono de menú a la izquierda de la imagen principal -->
+            <!-- Icono de menú -->
             <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
-            <!-- Imagen principal de cabecera -->
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ5Yw_NDwKkZUK_t-yHRUPkagmTGz7Bj6rfDuVOwCQcY9B08ujqK-6BHWS4qXIsludoMvz0fhgcmYVOvIhO5QsvRQnigKslPiJS_yFkn4D62KqNg6D_xp9fWmQDv0WJ3Ef62JQPZ8TCb5QVwVoZhXBUaNBnUtFI4br7tauhuzKKKbUUM_i31YWIxsIf8Hv/s240/1000088967.png" 
-                 alt="Logo" 
-                 style="width: 154px; height: 40px; object-fit: contain;">
+        </div>
+        
+        <!-- Texto centrado en la cabecera -->
+        <div class="header-center-text">
+            Developer Masitaprex
         </div>
         
         <div class="flex items-center gap-4">
@@ -980,6 +1023,9 @@
             <button class="btn-secondary" onclick="generateNewApiKey()">
                 <i class="ri-refresh-line"></i> Generar Nuevo Token
             </button>
+            <a href="API-Docs" target="_blank" class="btn-secondary">
+                <i class="ri-book-3-line"></i> Ver documentación
+            </a>
         </div>
 
         <div class="info-section gradient-border">
@@ -994,12 +1040,18 @@
                 Aquí encontrarás <strong>11 servicios de Infraestructura tecnológica listos para integrar</strong>, limpios, estables y con soporte constante.
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
-            <p class="legal-emphasis-red" style="font-size: 13px; margin-top: 10px;">
-                <span class="aviso-importante">⚠️ Aviso Importante:</span> Somos un <strong>Infraestructura tecnológica</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de los servicios</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.
-            </p>
-            <a href="API-Docs" target="_blank" class="btn-primary" style="margin-top: 8px;">
-                <i class="ri-book-3-line"></i> Ver Documentación
-            </a>
+            
+            <!-- NUEVO AVISO LEGAL -->
+            <div class="legal-warning">
+                <div class="warning-title">
+                    ⚠️ Aviso Importante
+                </div>
+                <div class="warning-content">
+                    Somos un <span class="emphasis-red">intermediario tecnológico</span> que facilita el acceso a la información. 
+                    <span class="emphasis-red">No somos los custodios, propietarios ni responsables directos de las APIs</span> de las entidades públicas o privadas. 
+                    Consulta nuestro <a href="disclaimer-apis">Aviso Legal y Descargo de Responsabilidad</a>.
+                </div>
+            </div>
         </div>
 
         <div class="info-section gradient-border">
@@ -1488,7 +1540,7 @@
                     }
                 }
 
-                // “Rastro” sutil para sensación 3D/movimiento
+                // "Rastro" sutil para sensación 3D/movimiento
                 ctx.fillStyle = 'rgba(0,0,0,0.06)';
                 ctx.fillRect(0, 0, w, h);
 
