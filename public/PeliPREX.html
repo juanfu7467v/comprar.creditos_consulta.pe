@@ -1,17 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-<title>PeliPREX — Catálogo de Películas</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    
+    <title>PeliPREX HD | Ver Películas Online y Estrenos - Catálogo Completo</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
+    <meta name="description" content="Entra a PeliPREX HD: El mejor catálogo de películas online. Disfruta de estrenos, cine de acción, terror y comedia en alta calidad directamente en tu navegador." />
+    <meta name="keywords" content="peliprex, ver películas online, cine hd, estrenos online, películas sin instalación, cine gratis peru, catálogo de películas, masitaprex cine" />
+    <meta name="author" content="PeliPREX Team" />
+    <meta name="robots" content="index, follow" />
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <meta property="og:title" content="PeliPREX HD | Tu Cine Online sin Instalación" />
+    <meta property="og:description" content="Accede al catálogo masivo de películas y estrenos en HD. Dale play ahora mismo desde tu navegador." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://masitaprex.com/peliPREX" />
+    <meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMUakrMP-yKpoycaGvjK4APon-CjrN80pLn1CkZvz2NcS_XT98tdJA0MeF3EO3Bd7OUoTWIrubwHN2df7VKHHUnIX6_RYv_mfqT4uXRa1IUhsr52TDRBs4hJsHdRj2sSA7v52rC8TX3nDwdq7DBNDyBxQyiKbEJoFzzDdPcMC4_sYc5tCHvEu-8Qz3yM85/s1536/1000088610.png" />
+    <meta property="og:locale" content="es_PE" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PeliPREX HD - Cine en tu Navegador" />
+    <meta name="twitter:description" content="Olvídate de instalar apps pesadas. Mira las mejores películas en PeliPREX HD." />
+    <meta name="twitter:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMUakrMP-yKpoycaGvjK4APon-CjrN80pLn1CkZvz2NcS_XT98tdJA0MeF3EO3Bd7OUoTWIrubwHN2df7VKHHUnIX6_RYv_mfqT4uXRa1IUhsr52TDRBs4hJsHdRj2sSA7v52rC8TX3nDwdq7DBNDyBxQyiKbEJoFzzDdPcMC4_sYc5tCHvEu-8Qz3yM85/s1536/1000088610.png" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8XWofaZfnYbiKt1147Wcmr62ndD9mYoqo7VdYwB07lvggku7ey5nYaPPrFXunSDARE_IyPoe1qzxVQz-9pg03l43B88p_ykZsnWL3e0uBqoRygtuq9_xZf-_ojBwxWZHi_nzOHPm6tIpRSFNa9FYiSia3rRJUFGlksSQ78BO6KustSQ1r-nc7YGVrDaDd/s192/1000089813.png">
+    <link rel="shortcut icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8XWofaZfnYbiKt1147Wcmr62ndD9mYoqo7VdYwB07lvggku7ey5nYaPPrFXunSDARE_IyPoe1qzxVQz-9pg03l43B88p_ykZsnWL3e0uBqoRygtuq9_xZf-_ojBwxWZHi_nzOHPm6tIpRSFNa9FYiSia3rRJUFGlksSQ78BO6KustSQ1r-nc7YGVrDaDd/s192/1000089813.png">
+    <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8XWofaZfnYbiKt1147Wcmr62ndD9mYoqo7VdYwB07lvggku7ey5nYaPPrFXunSDARE_IyPoe1qzxVQz-9pg03l43B88p_ykZsnWL3e0uBqoRygtuq9_xZf-_ojBwxWZHi_nzOHPm6tIpRSFNa9FYiSia3rRJUFGlksSQ78BO6KustSQ1r-nc7YGVrDaDd/s192/1000089813.png">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
 
 <style>
   /* --------------------------------------------------------------
