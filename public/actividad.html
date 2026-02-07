@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-<title>PeliPREX — Perfil</title>
+<title>Actividad</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -232,6 +232,175 @@
     #plan-indicator{ bottom: 18px; }
   }
 
+  /* --------------------------------------------------------------
+     MODAL DE BÚSQUEDA (Nuevo)
+     -------------------------------------------------------------- */
+  #search-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1900;
+      background: var(--bg);
+      display: none;
+      overflow-y: auto;
+  }
+  
+  #search-modal.active {
+      display: block;
+  }
+  
+  .search-header {
+      position: sticky;
+      top: 0;
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .search-input-container {
+      flex: 1;
+      position: relative;
+  }
+  
+  #main-search-input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--card);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+  }
+  
+  #main-search-input::placeholder {
+      color: var(--muted);
+  }
+  
+  .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 18px;
+  }
+  
+  .close-search-btn {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 18px;
+      padding: 8px;
+      cursor: pointer;
+  }
+  
+  .search-content {
+      padding: 0 14px 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+  }
+  
+  .search-results-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px 10px;
+      justify-content: center;
+  }
+  
+  @media (min-width: 900px) {
+      .search-results-grid {
+          justify-content: flex-start;
+          gap: 20px;
+      }
+  }
+  
+  .no-results {
+      text-align: center;
+      color: var(--muted);
+      padding: 50px 0;
+      font-size: 16px;
+      width: 100%;
+  }
+  
+  .loading-results {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 0;
+      font-size: 14px;
+      width: 100%;
+  }
+  
+  .movie-card {
+      width: 120px;
+      flex-shrink: 0;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+  }
+  
+  .movie-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.75);
+  }
+  
+  .movie-poster {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(180deg, #222, #171717);
+  }
+  
+  .movie-meta {
+      padding: 10px 8px 12px;
+  }
+  
+  .movie-title {
+      display: block;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+  
+  .movie-year {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+  
+  @media (min-width: 900px) {
+      .movie-card {
+          width: 180px;
+      }
+      
+      .movie-poster {
+          height: 270px;
+      }
+  }
+  
+  @media (max-width: 420px) {
+      .movie-card {
+          width: calc(50% - 10px);
+      }
+      
+      .movie-poster {
+          height: 200px;
+      }
+  }
 
   /* --------------------------------------------------------------
      Estilos de Perfil UI (Integrados y Modificados)
@@ -452,20 +621,53 @@
 </head>
 <body>
 
+  <!-- Modal de Búsqueda -->
+  <div id="search-modal" class="search-modal">
+      <div class="search-header">
+          <div class="search-input-container">
+              <i class="fa-solid fa-search search-icon"></i>
+              <input type="search" id="main-search-input" placeholder="Buscar películas, series, actores..." autofocus>
+          </div>
+          <button class="close-search-btn" id="close-search-btn">
+              <i class="fa-solid fa-times"></i>
+          </button>
+      </div>
+      
+      <div class="search-content">
+          <!-- Sugerencias de búsqueda -->
+          <div class="filters-section" id="search-suggestions">
+              <h3 class="filter-title">Sugerencias</h3>
+              <div class="filter-chips">
+                  <div class="filter-chip" data-suggestion="accion">Acción</div>
+                  <div class="filter-chip" data-suggestion="comedia">Comedia</div>
+                  <div class="filter-chip" data-suggestion="terror">Terror</div>
+                  <div class="filter-chip" data-suggestion="drama">Drama</div>
+                  <div class="filter-chip" data-suggestion="ciencia ficcion">Ciencia Ficción</div>
+              </div>
+          </div>
+          
+          <!-- Resultados de búsqueda -->
+          <div class="search-results-grid" id="modal-search-results">
+              <!-- Los resultados se cargan aquí -->
+          </div>
+          
+          <div class="no-results" id="modal-no-results" style="display: none;">
+              No se encontraron resultados para tu búsqueda.
+          </div>
+          
+          <div class="loading-results" id="modal-loading" style="display: none;">
+              Buscando películas...
+          </div>
+      </div>
+  </div>
+
   <header class="header">
     <div class="top-header-nav">
         <a href="PeliPREX" class="icon-btn top-nav-icon" title="Atrás" id="btn-back-profile"><i class="fa-solid fa-arrow-left"></i></a> 
-        <script>
-          document.getElementById('btn-back-profile').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
-              window.history.back();
-            } else {
-              window.location.href = "PeliPREX.html";
-            }
-          });
-        </script>
-        <a href="favoritos.html" class="icon-btn top-nav-icon" title="Favoritos"><i class="fa-regular fa-heart"></i></a>
+        <!-- CAMBIO: Icono de corazón reemplazado por icono de búsqueda -->
+        <button class="icon-btn top-nav-icon" id="btn-open-search" title="Buscar películas">
+            <i class="fa-solid fa-search"></i>
+        </button>
     </div>
 
     <div class="profile-row">
@@ -692,6 +894,7 @@ const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemi
 let globalFavoritesData = []; 
 let currentMovie = null; 
 let USER_EMAIL = 'ejemplo@example.com';
+let searchTimeout = null;
 
 // ==========================================================
 // NUEVAS VARIABLES PARA LA DEDUCCIÓN DIFERIDA
@@ -728,6 +931,14 @@ const alertModalEl = document.getElementById('alert-modal');
 const alertTitleEl = document.getElementById('alert-title');
 const alertMessageEl = document.getElementById('alert-message');
 const closeAlertModalBtn = document.getElementById('close-alert-modal');
+
+// NUEVAS REFERENCIAS PARA EL MODAL DE BÚSQUEDA
+const searchModal = document.getElementById('search-modal');
+const mainSearchInput = document.getElementById('main-search-input');
+const modalSearchResults = document.getElementById('modal-search-results');
+const modalNoResults = document.getElementById('modal-no-results');
+const modalLoading = document.getElementById('modal-loading');
+const closeSearchBtn = document.getElementById('close-search-btn');
 
 /* ==========================================================
    UTILITY & DISPLAY FUNCTIONS
@@ -778,6 +989,116 @@ function shuffleArray(array) {
     }
     return array;
 }
+
+/* ==========================================================
+   FUNCIONES PARA EL MODAL DE BÚSQUEDA
+   ========================================================= */
+function openSearchModal() {
+    searchModal.classList.add('active');
+    mainSearchInput.value = '';
+    mainSearchInput.focus();
+    modalSearchResults.innerHTML = '';
+    modalNoResults.style.display = 'none';
+    modalLoading.style.display = 'none';
+}
+
+function closeSearchModal() {
+    searchModal.classList.remove('active');
+    mainSearchInput.value = '';
+    modalSearchResults.innerHTML = '';
+    modalNoResults.style.display = 'none';
+    modalLoading.style.display = 'none';
+}
+
+// Crear tarjeta de película para resultados de búsqueda
+function createMovieCard(movie) {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    card.dataset.id = movie.id || movie.titulo;
+    
+    card.innerHTML = `
+        <img class="movie-poster" src="${safeImage(movie.imagen_url)}" alt="${movie.titulo}" loading="lazy">
+        <div class="movie-meta">
+            <div class="movie-title">${movie.titulo || 'Película'}</div>
+            <div class="movie-year">${movie.año || movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A'}</div>
+        </div>
+    `;
+    
+    card.addEventListener('click', () => {
+        closeSearchModal();
+        handleViewMovieDetails(movie, 'search');
+    });
+    
+    return card;
+}
+
+// Buscar películas por texto
+async function searchMovies(query) {
+    if (!query || query.length < 2) {
+        return [];
+    }
+    
+    modalLoading.style.display = 'block';
+    modalNoResults.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${PELIPREX_BASE_URL}/buscar?q=${encodeURIComponent(query)}`);
+        
+        if (!response.ok) {
+            throw new Error('Error en la búsqueda');
+        }
+        
+        const data = await response.json();
+        return data.resultados || [];
+        
+    } catch (error) {
+        console.error('Error buscando películas:', error);
+        showErrorModal('Error al buscar películas. Intenta de nuevo.');
+        return [];
+    } finally {
+        modalLoading.style.display = 'none';
+    }
+}
+
+// Configurar búsqueda en tiempo real
+mainSearchInput.addEventListener('input', function(e) {
+    const query = e.target.value.trim();
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length < 2) {
+        modalSearchResults.innerHTML = '';
+        modalNoResults.style.display = 'none';
+        return;
+    }
+    
+    modalLoading.style.display = 'block';
+    modalNoResults.style.display = 'none';
+    
+    searchTimeout = setTimeout(async () => {
+        const results = await searchMovies(query);
+        
+        modalLoading.style.display = 'none';
+        modalSearchResults.innerHTML = '';
+        
+        if (results.length > 0) {
+            results.forEach(movie => {
+                modalSearchResults.appendChild(createMovieCard(movie));
+            });
+        } else {
+            modalNoResults.style.display = 'block';
+        }
+    }, 500);
+});
+
+// Configurar sugerencias de búsqueda
+document.querySelectorAll('[data-suggestion]').forEach(button => {
+    button.addEventListener('click', function() {
+        const suggestion = this.dataset.suggestion;
+        mainSearchInput.value = suggestion;
+        mainSearchInput.dispatchEvent(new Event('input'));
+    });
+});
 
 /* ==========================================================
    PLAN INDICATOR / FIREBASE UI UPDATER
@@ -1418,6 +1739,26 @@ document.getElementById('btn-favoritos').onclick = () => window.location.href = 
 document.getElementById('btn-historial').onclick = () => window.location.href = 'historial.html';
 document.getElementById('btn-last-activity').onclick = () => window.location.href = 'actividad.html';
 
+// CAMBIO: Botón de búsqueda en la cabecera
+document.getElementById('btn-open-search').addEventListener('click', openSearchModal);
+
+// Cerrar modal de búsqueda
+closeSearchBtn.addEventListener('click', closeSearchModal);
+
+// Cerrar modal al hacer clic fuera
+searchModal.addEventListener('click', (e) => {
+    if (e.target === searchModal) {
+        closeSearchModal();
+    }
+});
+
+// Cerrar con ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeSearchModal();
+    }
+});
+
 // MODIFICACIÓN: Ahora el enlace lleva directamente a planes.html
 document.getElementById('link-credits').onclick = (e) => { e.preventDefault(); window.location.href = 'planes.html'; };
 document.getElementById('link-support').onclick = (e) => { e.preventDefault(); window.location.href = 'ayuda.html'; };
@@ -1474,6 +1815,16 @@ document.getElementById('analysis-close-btn').onclick = () => {
     document.getElementById('analysis-modal').classList.remove('active');
     document.getElementById('analysis-result-container').innerHTML = '';
 };
+
+// Botón de atrás
+document.getElementById('btn-back-profile').addEventListener('click', (e) => {
+    e.preventDefault();
+    if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
+      window.history.back();
+    } else {
+      window.location.href = "PeliPREX.html";
+    }
+});
 
 </script>
 <!-- Banner de Compartir -->
