@@ -10,7 +10,7 @@ Disallow: /aviso-legal-peliprex.html
 Disallow: /disclaimer-apis.html
 Disallow: /politica.compras.html
 
-# Permitir que rastreen todo lo demás (APIs, PeliPREX, Home)
+# Permitir que rastreen todo lo demás (APIs, PeliPREX, home)
 Allow: /
 
 # Indicarle a Google dónde está tu mapa del sitio
