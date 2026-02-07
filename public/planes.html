@@ -150,9 +150,10 @@
         .sidebar-header-bg {
             height: 192px; /* h-48 = 192px */
             background: linear-gradient(135deg, 
-                rgba(53, 213, 255, 0.95) 0%, 
-                rgba(109, 91, 255, 0.95) 55%, 
-                rgba(255, 31, 61, 0.92) 100%);
+                #FF6B9D 0%, 
+                #FFC0CB 35%, 
+                #87CEEB 65%, 
+                #FF1F3D 100%);
             border-bottom-left-radius: 50% 20%;
             border-bottom-right-radius: 50% 20%;
             position: relative;
@@ -186,7 +187,7 @@
             font-size: 1.5rem; /* text-2xl = 24px */
             font-weight: 700; /* font-bold */
             margin-top: 8px; /* mt-2 = 8px */
-            color: white;
+            color: #ffffff; /* Blanco exclusivo */
         }
 
         /* Decoración SVG en el encabezado */
@@ -374,16 +375,16 @@
         CSS PRINCIPAL - REDISEÑO PARA APP MÓVIL (MANTENIDO)
         ===================================================================== */
         :root {
-            /* Azul y Verde para el degradado */
-            --color-blue: #1e40af; /* Azul oscuro fuerte */
-            --color-green: #059669; /* Verde de éxito/oferta */
-            --primary-gradient: linear-gradient(90deg, var(--color-blue) 0%, var(--color-green) 100%);
-            --secondary-accent: var(--color-green); 
+            /* Colores compatibles con rojo, blanco, rosado y celeste */
+            --color-blue: #87CEEB; /* Celeste */
+            --color-green: #FF6B9D; /* Rosado */
+            --primary-gradient: linear-gradient(90deg, #FF6B9D 0%, #87CEEB 100%);
+            --secondary-accent: #FF6B9D; 
             --text-dark: #1f2937; 
             --text-medium: #4b5563; 
             --text-light: #ffffff; 
             --card-bg: #ffffff; 
-            --border-color: #e5e7eb; 
+            --border-color: #FFC0CB; /* Rosado claro */
             --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             --mp-color: #009ee3;
@@ -460,16 +461,16 @@
         .section-subtitle i {
             margin-right: 0.5rem;
             font-size: 1.3rem;
-            color: var(--color-blue); 
+            color: #FF6B9D; /* Rosado */
         }
         
         .section-subtitle i.fa-receipt {
-            color: var(--color-blue) !important;
+            color: #FF6B9D !important;
         }
 
         .pricing-table {
             width: 100%;
-            table-layout: fixed; 
+            table-layout: auto; /* Cambiado de fixed a auto para ocupar todo el ancho */
             border-collapse: separate; 
             border-spacing: 0;
             margin-top: 1rem;
@@ -483,10 +484,11 @@
         }
         
         .pricing-table th, .pricing-table td {
-            padding: 0.5rem 0.3rem; 
+            padding: 0.75rem 0.5rem; /* Aumentado el padding para ocupar más ancho */
             border-right: 1px solid #f3f4ff;
             border-bottom: 1px solid #f3f4f6;
-            word-wrap: break-word; 
+            word-wrap: break-word;
+            width: 100%; /* Ocupar todo el ancho disponible */
         }
         
         .pricing-table th {
@@ -494,12 +496,12 @@
             color: var(--text-light);
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.7em; 
+            font-size: 0.85em; /* Aumentado ligeramente el tamaño */
             line-height: 1.2;
         }
         
         .pricing-table tr:nth-child(even) {
-            background-color: #f9fafb; 
+            background-color: #FFF0F5; /* Rosado muy claro */
         }
         
         .pricing-table tr:last-child td {
@@ -516,12 +518,12 @@
         }
         
         .pricing-table tr.recommended-row td {
-            background-color: #ecfdf5; 
+            background-color: #FFE4E1; /* Rosado suave */
             font-weight: 600;
         }
         
         .pricing-table tr.best-value-row td {
-            background-color: #eff6ff; 
+            background-color: #E0F7FF; /* Celeste claro */
         }
         
         .instruction-list {
@@ -529,7 +531,7 @@
             padding-left: 0;
             margin-top: 0.5rem;
             text-align: left; 
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
         }
@@ -572,7 +574,7 @@
         }
         
         .advantage-item {
-            background-color: #f3f4f6; 
+            background-color: #FFF0F5; /* Rosado muy claro */
             padding: 0.75rem;
             border-radius: 0.5rem;
             display: flex;
@@ -595,16 +597,16 @@
         }
 
         .info-box {
-            background-color: #e0f2fe; 
-            border: 1px solid #7dd3fc; 
+            background-color: #E0F7FF; /* Celeste claro */
+            border: 1px solid #87CEEB; 
             border-radius: 0.6rem;
             padding: 1rem;
             margin-bottom: 1.5rem;
-            color: var(--color-blue); 
+            color: #1e40af; 
             font-size: 0.95rem;
             font-weight: 500;
             text-align: left; 
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
         }
@@ -619,7 +621,7 @@
             color: #d97706;
             font-size: 0.9rem;
             text-align: left;
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
         }
@@ -639,7 +641,7 @@
             align-items: center;
             justify-content: center;
             width: 100%;
-            max-width: 400px; 
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
             padding: 1rem 1.5rem;
@@ -689,7 +691,7 @@
         .form-group {
             margin-bottom: 1rem;
             text-align: left;
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
         }
@@ -713,9 +715,9 @@
         }
         
         .form-group input:focus, .form-group select:focus {
-            border-color: var(--color-blue);
+            border-color: #FF6B9D;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
         
         .type-selector {
@@ -723,7 +725,7 @@
             justify-content: center;
             gap: 0.75rem;
             margin-bottom: 1.5rem;
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
         }
@@ -745,19 +747,19 @@
         .type-option.selected {
             background: var(--primary-gradient);
             color: var(--text-light);
-            border-color: var(--color-blue);
+            border-color: #FF6B9D;
             box-shadow: var(--shadow-sm);
         }
 
         #purchaseDetailsSelect {
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
             text-align: left;
         }
         
         .loading-spinner, .message-container {
-            max-width: 400px;
+            max-width: 100%; /* Cambiado de 400px a 100% */
             margin-left: auto;
             margin-right: auto;
             text-align: center;
@@ -810,7 +812,7 @@
         }
         
         .loading-text {
-            color: var(--color-blue);
+            color: #FF6B9D;
             font-weight: 600;
             margin-top: 0.5rem;
         }
@@ -862,14 +864,14 @@
         .success-modal-content h4 {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--color-green);
+            color: #FF6B9D;
             margin-bottom: 0.5rem;
         }
         
         .error-modal-content h4 {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #dc2626; /* Rojo de error */
+            color: #FF1F3D; /* Rojo */
             margin-bottom: 0.5rem;
         }
 
@@ -886,7 +888,7 @@
         }
 
         .success-modal-content .btn-close, .error-modal-content .btn-close {
-            background-color: var(--color-blue);
+            background-color: #FF6B9D;
             color: var(--text-light);
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -896,7 +898,7 @@
         }
         
         .success-modal-content .btn-close:hover, .error-modal-content .btn-close:hover {
-            background-color: #1d4ed8;
+            background-color: #FF1F3D;
         }
 
         /* =====================================================================
@@ -929,14 +931,14 @@
         }
         
         .footer-content .social-icons a {
-            color: var(--color-blue);
+            color: #FF6B9D;
             font-size: 1.8rem;
             margin: 0 0.5rem;
             transition: color 0.3s;
         }
         
         .footer-content .social-icons a:hover {
-            color: var(--color-green);
+            color: #87CEEB;
         }
         
         .footer-content p {
@@ -946,14 +948,14 @@
         }
         
         .footer-content a {
-            color: var(--color-blue);
+            color: #87CEEB;
             text-decoration: none;
             transition: color 0.3s;
         }
         
         .footer-content a:hover {
             text-decoration: underline;
-            color: var(--color-green);
+            color: #FF6B9D;
         }
         
         .footer-content strong {
@@ -1079,7 +1081,7 @@
                      alt="App Icon" 
                      class="w-full h-full object-cover">
             </div>
-            <h2 class="text-2xl font-bold mt-2">Masitaprex v2</h2>
+            <h2 class="text-2xl font-bold mt-2">masitaprex</h2>
             
             <!-- Decoración -->
             <div class="absolute top-4 left-4 opacity-30">
