@@ -27,14 +27,14 @@
             --ok: #16e1a4;
             --warn: #ffb020;
 
+            /* NUEVO: rojo para reemplazar rosado oscuro (mayor visibilidad) */
+            --danger: #FF1F3D;
+
             --line: rgba(255,255,255,.14);
             --shadow: 0 24px 80px rgba(0,0,0,.55);
 
             /* ====== MAPEOS A VARIABLES EXISTENTES (para no tocar funcionamiento) ====== */
-            --bg: radial-gradient(1200px 600px at 20% -10%, rgba(109,91,255,.28), transparent 55%),
-                   radial-gradient(900px 500px at 90% 10%, rgba(255,61,141,.22), transparent 55%),
-                   radial-gradient(900px 500px at 60% 110%, rgba(53,213,255,.16), transparent 55%),
-                   linear-gradient(180deg, var(--bg2), var(--bg1));
+            --bg: linear-gradient(180deg, var(--bg2), var(--bg1)); /* Se reemplaza por galaxia 3D animada abajo (canvas), manteniendo ancho/estructura */
             --card: rgba(255,255,255,.06);        /* glass */
             --pill: rgba(255,255,255,.10);        /* glass2 */
             --accent: var(--cyan);
@@ -46,6 +46,9 @@
 
         * { box-sizing: border-box; }
 
+        /* AUMENTO LIGERO DE TAMAÑO DE TEXTO (global) */
+        html { font-size: 106.25%; } /* ~17px base en la mayoría de navegadores */
+        
         body {
             margin: 0;
             background: var(--bg);
@@ -54,6 +57,35 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             user-select: none;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ===== Fondo galaxia 3D animado (APIs / movimiento vivo) ===== */
+        /* Mantiene el mismo ancho/estructura: se pone en layer fijo detrás de todo */
+        #galaxy-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            display: block;
+            background: radial-gradient(1200px 600px at 20% -10%, rgba(109,91,255,.22), transparent 55%),
+                        radial-gradient(900px 500px at 90% 10%, rgba(255,31,61,.16), transparent 55%),
+                        radial-gradient(900px 500px at 60% 110%, rgba(53,213,255,.14), transparent 55%),
+                        linear-gradient(180deg, var(--bg2), var(--bg1));
+        }
+        /* Una capa sutil para dar “glass” y profundidad */
+        .galaxy-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(800px 400px at 30% 20%, rgba(53,213,255,.08), transparent 60%),
+                radial-gradient(900px 500px at 80% 60%, rgba(109,91,255,.08), transparent 60%),
+                radial-gradient(1000px 600px at 60% 100%, rgba(255,31,61,.05), transparent 60%);
+            mix-blend-mode: screen;
         }
 
         /* ===== Tailwind helper overrides (solo color, sin cambiar estructura) ===== */
@@ -65,7 +97,8 @@
         .active\:bg-gray-100:active { background-color: rgba(255,255,255,.10) !important; }
         .bg-gray-50 { background-color: rgba(255,255,255,.06) !important; }
         .bg-black\/50 { background-color: rgba(0,0,0,.55) !important; }
-        .border-red-600 { border-color: var(--pink) !important; }
+        /* Rosado oscuro -> ROJO (visible) */
+        .border-red-600 { border-color: var(--danger) !important; }
 
         /* ===== CABECERA (Header) ===== */
         header {
@@ -76,7 +109,7 @@
 
         /* Degradado de la cabecera del menú lateral */
         .sidebar-header-bg {
-            background: linear-gradient(135deg, rgba(53,213,255,.95) 0%, rgba(109,91,255,.95) 55%, rgba(255,61,141,.92) 100%);
+            background: linear-gradient(135deg, rgba(53,213,255,.95) 0%, rgba(109,91,255,.95) 55%, rgba(255,31,61,.92) 100%);
             border-bottom-left-radius: 50% 20%;
             border-bottom-right-radius: 50% 20%;
         }
@@ -239,7 +272,7 @@
             top: 0; left: 0; right: 0; bottom: 0;
             border-radius: inherit;
             padding: 2px;
-            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--pink));
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -320,14 +353,14 @@
             width: 100%;
             padding: 14px;
             border-radius: 12px;
-            background: linear-gradient(90deg, var(--pink), var(--ind));
+            background: linear-gradient(90deg, var(--danger), var(--ind));
             color: #fff;
             border: none;
             font-weight: 700;
             letter-spacing: 0.6px;
             text-align: center;
             text-decoration: none;
-            box-shadow: 0 14px 40px rgba(109,91,255,.18), 0 10px 30px rgba(255,61,141,.18);
+            box-shadow: 0 14px 40px rgba(109,91,255,.18), 0 10px 30px rgba(255,31,61,.18);
             transition: transform 0.1s ease, filter .2s ease;
             cursor: pointer;
         }
@@ -383,7 +416,7 @@
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
         }
-        .btn-secondary:hover { background: rgba(255,255,255,.10); border-color: rgba(255,61,141,.45); }
+        .btn-secondary:hover { background: rgba(255,255,255,.10); border-color: rgba(255,31,61,.45); }
         .btn-secondary:active { transform: scale(0.99); }
         .btn-secondary i { font-size: 1.2em; }
 
@@ -436,14 +469,14 @@
             gap: 10px;
         }
 
-        /* Títulos y énfasis: gradiente cyan -> ind -> pink (pedido) */
+        /* Títulos y énfasis: gradiente cyan -> ind -> rojo (visibilidad) */
         .text-container-header {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 16px;
             font-weight: 800;
-            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--pink));
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -499,7 +532,7 @@
         
         /* Card de recomendación */
         .api-recommendation {
-            background: linear-gradient(135deg, rgba(53,213,255,.22) 0%, rgba(109,91,255,.22) 55%, rgba(255,61,141,.20) 100%);
+            background: linear-gradient(135deg, rgba(53,213,255,.22) 0%, rgba(109,91,255,.22) 55%, rgba(255,31,61,.20) 100%);
             border: 1px solid var(--line);
             border-radius: 16px;
             padding: 18px;
@@ -517,7 +550,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--pink));
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -567,7 +600,7 @@
         .package-card {
             background: rgba(255,255,255,.06);
             border-radius: 12px;
-            padding: 12px;
+            padding:  12px;
             text-align: center;
             border: 1px solid var(--line);
             transition: border-color 0.2s ease, background 0.2s ease, transform .12s ease;
@@ -638,7 +671,7 @@
         .unlimited-table .saving { color: var(--warn); font-weight: 800; }
         
         .quote {
-            background: linear-gradient(90deg, rgba(53,213,255,.10), rgba(109,91,255,.10), rgba(255,61,141,.08));
+            background: linear-gradient(90deg, rgba(53,213,255,.10), rgba(109,91,255,.10), rgba(255,31,61,.08));
             border-left: 5px solid var(--ok);
             padding: 15px;
             margin: 20px 0;
@@ -683,7 +716,7 @@
         }
 
         .modal-content.success { border: 2px solid rgba(22,225,164,.8); }
-        .modal-content.error { border: 2px solid rgba(255,61,141,.9); }
+        .modal-content.error { border: 2px solid rgba(255,31,61,.9); }
 
         /* Footer: negro puro con texto blanco (pedido) */
         footer {
@@ -786,9 +819,18 @@
             color: #35D5FF !important;
             font-weight: bold;
         }
+
+        /* Rosado oscuro -> rojo para casos inline con var(--pink) en avisos legales */
+        .legal-emphasis-red {
+            color: var(--danger) !important;
+        }
     </style>
 </head>
 <body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
+
+    <!-- Fondo galaxia animado -->
+    <canvas id="galaxy-bg" aria-hidden="true"></canvas>
+    <div class="galaxy-overlay" aria-hidden="true"></div>
 
     <!-- CABECERA (Header) -->
     <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
@@ -827,7 +869,7 @@
                      alt="App Icon" 
                      class="w-full h-full object-cover">
             </div>
-            <h2 class="text-2xl font-bold mt-2">Masitaprex v2</h2>
+            <h2 class="text-2xl font-bold mt-2">Masitaprex v3</h2>
             
             <!-- Decoración -->
             <div class="absolute top-4 left-4 opacity-30">
@@ -907,7 +949,7 @@
                 </div>
                 <div>
                     <h2>Hola, <span id="userName"></span></h2>
-                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V2.!</p>
+                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V3.!</p>
                 </div>
             </div>
             <div class="profile-stats">
@@ -927,7 +969,7 @@
         <div class="section-card gradient-border">
             <h3>Tu Token de Acceso</h3>
             <p style="font-size:14px;color:var(--muted);">
-                Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de intermediación.
+                Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica.
             </p>
             <div class="input-group">
                 <input type="text" id="api-key-field" readonly />
@@ -949,11 +991,11 @@
                 Has tomado una de las mejores decisiones para tu proyecto.
             </p>
             <p>
-                Aquí encontrarás <strong>11 APIs intermediadas listas para integrar</strong>, limpias, estables y con soporte constante.
+                Aquí encontrarás <strong>11 servicios de Infraestructura tecnológica listos para integrar</strong>, limpios, estables y con soporte constante.
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
-            <p style="font-size: 13px; color: var(--pink); margin-top: 10px;">
-                <span class="aviso-importante">⚠️ Aviso Importante:</span> Somos un <strong>intermediario tecnológico</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de las APIs</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.
+            <p class="legal-emphasis-red" style="font-size: 13px; margin-top: 10px;">
+                <span class="aviso-importante">⚠️ Aviso Importante:</span> Somos un <strong>Infraestructura tecnológica</strong> que facilita el acceso a la información. <strong>No somos los custodios, propietarios ni responsables directos de los servicios</strong> de las entidades públicas o privadas. Consulta nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.
             </p>
             <a href="API-Docs" target="_blank" class="btn-primary" style="margin-top: 8px;">
                 <i class="ri-book-3-line"></i> Ver Documentación
@@ -966,17 +1008,17 @@
                 💡 Sobre el Consumo de Créditos
             </div>
             <p>
-                Recuerda que cada servicio intermediado tiene su propio consumo de créditos.
+                Recuerda que cada servicio de Infraestructura tecnológica tiene su propio consumo de créditos.
             </p>
             <p class="font-bold" style="color:var(--cyan);">
-                👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por API.
+                👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por Infraestructura tecnológica.
             </p>
             <div class="text-container" style="background: rgba(53,213,255,.08); border-color: rgba(53,213,255,.25);">
                 <div class="text-container-header" style="color: transparent;">
                     Recomendación para rentabilidad:
                 </div>
                 <p style="color:var(--ink);">
-                    Si vas a integrar los servicios de intermediación en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
+                    Si vas a integrar los servicios de Infraestructura tecnológica en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
                 </p>
                 <p style="color:var(--ink);">
                     Por ejemplo: Si un servicio consume <strong>10 créditos</strong>, puedes configurarlo en tu proyecto para que consuma <strong>12 o 13 créditos</strong>. De esta manera ganas por cada consulta y aseguras la sostenibilidad de tu sistema.
@@ -987,13 +1029,13 @@
         <div class="section-card gradient-border">
             <div class="text-container-header">
                 <i class="ri-database-line text-accent"></i>
-                💳 Tabla de Créditos por Servicio de Infraestructura (<strong>11 APIs</strong>)
+                💳 Tabla de Créditos por Servicio de Infraestructura tecnológica (<strong>11 servicios</strong>)
             </div>
             <div class="table-scroll">
                 <table class="credit-table">
                     <thead>
                         <tr>
-                            <th>🔧 Servicio de Infraestructura</th>
+                            <th>🔧 Servicio de Infraestructura tecnológica</th>
                             <th>💰 Créditos</th>
                             <th>📝 Descripción</th>
                         </tr>
@@ -1002,7 +1044,7 @@
                         <tr>
                             <td><strong>Consulta RENIEC por DNI</strong></td>
                             <td>7</td>
-                            <td>Infraestructura para acceso a datos básicos de identificación</td>
+                            <td>Infraestructura tecnológica para acceso a datos básicos de identificación</td>
                         </tr>
                         <tr>
                             <td><strong>Telefonía por Documento</strong></td>
@@ -1017,7 +1059,7 @@
                         <tr>
                             <td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td>
                             <td>8</td>
-                            <td>Infraestructura para consulta de registros vehiculares</td>
+                            <td>Infraestructura tecnológica para consulta de registros vehiculares</td>
                         </tr>
                         <tr>
                             <td><strong>SUNAT por RUC</strong></td>
@@ -1032,7 +1074,7 @@
                         <tr>
                             <td><strong>Empresas donde figura la persona</strong></td>
                             <td>4</td>
-                            <td>Infraestructura para consulta de vinculaciones empresariales</td>
+                            <td>Infraestructura tecnológica para consulta de vinculaciones empresariales</td>
                         </tr>
                         <tr>
                             <td><strong>Matrimonios Registrados</strong></td>
@@ -1047,7 +1089,7 @@
                         <tr>
                             <td><strong>Buscar Venezolanos por Nombres</strong></td>
                             <td>5</td>
-                            <td>Infraestructura para consultas de personas venezolanas</td>
+                            <td>Infraestructura tecnológica para consultas de personas venezolanas</td>
                         </tr>
                         <tr>
                             <td><strong>Consulta por Cédula Venezolana</strong></td>
@@ -1058,7 +1100,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--muted);">
-                                <strong>Nota:</strong> Los créditos cubren exclusivamente costos de infraestructura tecnológica, 
+                                <strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, 
                                 procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
                             </td>
                         </tr>
@@ -1068,18 +1110,18 @@
         </div>
 
        <div class="api-recommendation">  
-    <h4><i class="ri-tools-line"></i> ⚙️ Infraestructura Intermediaria Optimizada</h4>  
-    <p>Accede a servicios de datos mediante nuestra infraestructura intermediaria segura y eficiente.</p>  
-    <p>Centraliza tus consultas desde una sola plataforma confiable.</p>  
-    <code>URL Base: https://api.masitaprex.com/</code>  
-    <p>Soluciones ligeras, rápidas y listas para integrarse en tus sistemas.</p>  
-    <p>💡 Diseñado para desarrolladores que buscan rendimiento y simplicidad.</p>  
-</div>
+            <h4><i class="ri-tools-line"></i> ⚙️ Infraestructura tecnológica Optimizada</h4>  
+            <p>Accede a servicios de datos mediante nuestra Infraestructura tecnológica segura y eficiente.</p>  
+            <p>Centraliza tus consultas desde una sola plataforma confiable.</p>  
+            <code>URL Base: https://api.masitaprex.com/</code>  
+            <p>Soluciones ligeras, rápidas y listas para integrarse en tus sistemas.</p>  
+            <p>💡 Diseñado para desarrolladores que buscan rendimiento y simplicidad.</p>  
+        </div>
         
         <div class="info-section gradient-border">
             <div class="text-container-header">
                 <i class="ri-rocket-line text-accent"></i>
-                🧩 11 Servicios de Intermediación Listos para Ti
+                🧩 11 Servicios de Infraestructura tecnológica Listos para Ti
             </div>
             <p>
                 Todos nuestros servicios están <strong>listos para consumir</strong>, probados y optimizados para máxima eficiencia.
@@ -1178,7 +1220,7 @@
                 <li><i class="ri-check-line"></i> Tus créditos <strong>jamás caducan</strong>.</li>
                 <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
                 <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
-                <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios intermediados y soporte técnico directo.</li>
+                <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios de Infraestructura tecnológica y soporte técnico directo.</li>
             </ul>
             <p class="font-bold text-center" style="margin-top: 15px; color: var(--ink);">
                 💬 En pocas palabras:
@@ -1223,7 +1265,7 @@
                 ✨ Conclusión:
             </div>
             <p>
-                Consulta PE te brinda una <strong>experiencia completa, rentable y confiable</strong> al actuar como <strong>intermediario</strong> de diversos servicios de información para que tu proyecto pueda crecer.
+                Consulta PE te brinda una <strong>experiencia completa, rentable y confiable</strong> al actuar como <strong>Infraestructura tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer.
                 Queremos que disfrutes cada integración, que sientas que tu proyecto avanza,
                 y que digas con orgullo:
             </p>
@@ -1234,11 +1276,11 @@
 
         <div class="info-section gradient-border">
             <h3>Preguntas Frecuentes (FAQ)</h3>
-            <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la API?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de intermediación.</p>
+            <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la Infraestructura tecnológica?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de Infraestructura tecnológica.</p>
             <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
             <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
             <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
-            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios intermediados con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.</p>
+            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios de Infraestructura tecnológica con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.</p>
         </div>
         
         <footer>
@@ -1255,7 +1297,7 @@
                 <a href="disclaimer-apis">Aviso legal apis</a> |
                 <a href="disclaimer-apis">Descargo de responsabilidad</a>
             </p>
-            <p>Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong></p>
+            <p>Esta aplicación utiliza servicios de Infraestructura tecnológica para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de los servicios de las entidades de origen.</strong></p>
         </footer>
 
     </div>
@@ -1318,7 +1360,7 @@
 
         // Funciones para el modal de compartir
         function sharePage() {  
-            const url = "https://masitaprexv2.fly.dev/";  
+            const url = "https://masitaprexv3.fly.dev/";  
             const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
             const text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
 
@@ -1333,6 +1375,147 @@
         function closeBanner() {  
             document.getElementById('banner').style.display = 'none';  
         }
+
+        /* ===== Fondo galaxia: partículas + parallax suave ===== */
+        (function () {
+            const canvas = document.getElementById('galaxy-bg');
+            const ctx = canvas.getContext('2d', { alpha: true });
+
+            let w = 0, h = 0, dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            const stars = [];
+            const STAR_COUNT = 180;      // ligero (apto móvil)
+            const NEBULA_COUNT = 18;
+            let mouseX = 0.5, mouseY = 0.5;
+
+            function resize() {
+                w = canvas.clientWidth;
+                h = canvas.clientHeight;
+                canvas.width = Math.floor(w * dpr);
+                canvas.height = Math.floor(h * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            function rand(min, max) { return Math.random() * (max - min) + min; }
+
+            function init() {
+                stars.length = 0;
+
+                // Estrellas
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        z: Math.random(),             // profundidad
+                        r: rand(0.6, 1.8),
+                        tw: rand(0.002, 0.01),
+                        a: rand(0.15, 0.9),
+                        hue: rand(190, 280)
+                    });
+                }
+
+                // Nebulosas (burbujas difusas)
+                for (let i = 0; i < NEBULA_COUNT; i++) {
+                    stars.push({
+                        nebula: true,
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        z: rand(0.15, 0.9),
+                        r: rand(120, 260),
+                        a: rand(0.03, 0.10),
+                        hue: rand(190, 320),
+                        driftX: rand(-0.06, 0.06),
+                        driftY: rand(-0.05, 0.05)
+                    });
+                }
+            }
+
+            function drawBackground() {
+                // Fondo base (oscuro)
+                const g = ctx.createLinearGradient(0, 0, 0, h);
+                g.addColorStop(0, '#050710');
+                g.addColorStop(1, '#070A12');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, w, h);
+
+                // Vignette
+                const v = ctx.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.1, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
+                v.addColorStop(0, 'rgba(0,0,0,0)');
+                v.addColorStop(1, 'rgba(0,0,0,0.55)');
+                ctx.fillStyle = v;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            let t = 0;
+            function render() {
+                t += 1;
+                drawBackground();
+
+                // Parallax suave
+                const px = (mouseX - 0.5) * 18;
+                const py = (mouseY - 0.5) * 12;
+
+                // Dibujar nebulosas y estrellas
+                for (const s of stars) {
+                    if (s.nebula) {
+                        s.x += s.driftX;
+                        s.y += s.driftY;
+                        if (s.x < -s.r) s.x = w + s.r;
+                        if (s.x > w + s.r) s.x = -s.r;
+                        if (s.y < -s.r) s.y = h + s.r;
+                        if (s.y > h + s.r) s.y = -s.r;
+
+                        const nx = s.x + px * s.z;
+                        const ny = s.y + py * s.z;
+                        const rg = ctx.createRadialGradient(nx, ny, 0, nx, ny, s.r);
+                        rg.addColorStop(0, `hsla(${s.hue}, 95%, 70%, ${s.a})`);
+                        rg.addColorStop(1, 'rgba(0,0,0,0)');
+                        ctx.fillStyle = rg;
+                        ctx.beginPath();
+                        ctx.arc(nx, ny, s.r, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Twinkle
+                        s.a += Math.sin((t * s.tw) + s.x * 0.01) * 0.004;
+                        s.a = Math.max(0.08, Math.min(0.95, s.a));
+
+                        const sx = s.x + px * s.z;
+                        const sy = s.y + py * s.z;
+
+                        ctx.fillStyle = `hsla(${s.hue}, 90%, 80%, ${s.a})`;
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // “Rastro” sutil para sensación 3D/movimiento
+                ctx.fillStyle = 'rgba(0,0,0,0.06)';
+                ctx.fillRect(0, 0, w, h);
+
+                requestAnimationFrame(render);
+            }
+
+            function onPointerMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                mouseX = (e.clientX - rect.left) / rect.width;
+                mouseY = (e.clientY - rect.top) / rect.height;
+            }
+
+            resize();
+            init();
+            render();
+
+            window.addEventListener('resize', () => {
+                resize();
+                init();
+            }, { passive: true });
+
+            window.addEventListener('mousemove', onPointerMove, { passive: true });
+            window.addEventListener('touchmove', (e) => {
+                if (!e.touches || !e.touches[0]) return;
+                onPointerMove(e.touches[0]);
+            }, { passive: true });
+        })();
     </script>
 
     <script type="module">
