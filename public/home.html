@@ -636,12 +636,14 @@
 
     /* NUEVA SECCIÓN INFORMATIVA: Infraestructura API 3D */
     .api-infrastructure {
-      width: 100vw;
+      /* MODIFICADO: igual ancho visual que el resto (sin full-bleed) */
+      width: 100%;
       position: relative;
-      left: 50%;
-      right: 50%;
-      margin-left: -50vw;
-      margin-right: -50vw;
+      left: auto;
+      right: auto;
+      margin-left: auto;
+      margin-right: auto;
+
       padding: 40px 20px;
       background: linear-gradient(145deg, 
         rgba(11, 18, 48, 0.95) 0%,
@@ -1212,6 +1214,78 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* ===========================================================
+       CAMBIOS SOLICITADOS (SIN BORRAR NADA):
+       - Sección Consulta PE APK: fondo transparente, texto más claro, mismo ancho visual
+       =========================================================== */
+
+    /* MODIFICADO: el contenedor de fondo interno pasa a transparente */
+    #tienda .tienda-content{
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    /* MODIFICADO: garantizar mismo ancho visual que el resto */
+    @media (min-width: 768px){
+      #tienda.tienda-mobile{
+        max-width: 1180px !important; /* igual al wrap */
+        width: min(1180px, calc(100% - 32px)) !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      #tienda .tienda-content{
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+    }
+
+    /* MODIFICADO: colores de texto más claros en toda la sección */
+    #tienda .tienda-description{
+      color: rgba(234,240,255,.88) !important;
+    }
+    #tienda .tienda-subtitle{
+      color: rgba(234,240,255,.82) !important;
+    }
+    #tienda .features-table td,
+    #tienda .additional-features-table td{
+      color: rgba(234,240,255,.90) !important;
+    }
+    #tienda .feature-desc{
+      color: rgba(234,240,255,.84) !important;
+    }
+
+    /* ===========================================================
+       CAMBIOS SOLICITADOS:
+       - Infraestructura API: mismo ancho visual + ajustes de texto
+       =========================================================== */
+
+    /* MODIFICADO: igual ancho visual que otras secciones (wrap) */
+    @media (min-width: 768px){
+      .api-infrastructure{
+        width: min(1180px, calc(100% - 32px)) !important;
+        margin: 0 auto !important;
+        border-radius: 24px; /* no elimina nada: solo añade */
+      }
+      .api-container{
+        max-width: 1180px !important;
+      }
+    }
+
+    /* MODIFICADO: más legible en pantallas estrechas manteniendo ancho consistente */
+    @media (max-width: 767px){
+      .api-infrastructure{
+        width: calc(100% - 32px) !important;
+        margin: 0 auto !important;
+        border-radius: 20px; /* añade suavizado */
+      }
+    }
+
   </style>
 </head>
 
@@ -1286,6 +1360,11 @@
         Consulta PE APK es una herramienta rápida para <strong>consultar DNI por nombres y apellidos</strong> y obtener datos públicos en algunos casos. Descarga la app <strong>Consulta PE APK</strong> para acceder a estas funcionalidades.
       </p>
 
+      <!-- AÑADIDO: aclaración legal + compra de créditos 24/7 (sin borrar nada) -->
+      <p class="tienda-description">
+        Para mantener claridad legal, las consultas y servicios asociados operan mediante <strong>infraestructura intermediaria</strong> que gestiona, controla y protege el acceso a los datos. Además, los usuarios pueden <strong>comprar créditos para las APIs al instante</strong>, <strong>24/7</strong>, de forma <strong>100% segura</strong> (pago y habilitación inmediata).
+      </p>
+
       <!-- Screenshots -->
       <div class="screenshots-scroll">
         <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="Consulta PE APK Screenshot 1 - Interfaz de consulta de DNI" class="screenshot" data-index="0">
@@ -1356,6 +1435,11 @@
       <h3 class="section-title"><i class="fas fa-book-open"></i> Todo acerca de Consulta PE APK</h3>
       <p class="tienda-description">
         <strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla, sin trámites complicados. Su objetivo es simplificar tus gestiones y brindarte acceso a información clave directamente desde tu dispositivo móvil. <strong>Masitaprex</strong> ofrece esta solución integral para <strong>consultar DNI</strong> y acceder a múltiples servicios públicos.
+      </p>
+
+      <!-- AÑADIDO: aclaración legal recurrente (sin borrar nada) -->
+      <p class="tienda-description">
+        Importante: para mantener claridad legal, estas funcionalidades y consultas se soportan mediante <strong>infraestructura intermediaria</strong>, que administra credenciales, control de acceso, auditoría y protección de los endpoints.
       </p>
 
       <!-- Tabla de Funcionalidades Principales - REDISEÑADA para móvil -->
@@ -1477,7 +1561,7 @@
         <h2 class="api-title">Infraestructura API de Masitaprex</h2>
         <p class="api-subtitle">
           Nuestra plataforma funciona con una arquitectura de microservicios moderna que garantiza escalabilidad, 
-          seguridad y alto rendimiento para todas tus consultas y operaciones.
+          seguridad y alto rendimiento para todas tus consultas y operaciones. Operamos mediante <strong>infraestructura intermediaria</strong> que gestiona y protege el acceso a los datos para mantener claridad legal y control de seguridad.
         </p>
       </div>
 
@@ -1486,9 +1570,9 @@
           <div class="api-card-icon">
             <i class="fas fa-bolt"></i>
           </div>
-          <h3 class="api-card-title">Respuesta Instantánea</h3>
+          <h3 class="api-card-title">Respuesta Optimizada</h3>
           <p class="api-card-text">
-            Gestionamos el flujo de datos mediante nodos de alto rendimiento. Optimizamos cada petición para garantizar que el acceso a la información pública sea rápido y estable, adaptándonos dinámicamente a la demanda del servicio.
+            Gestionamos el flujo de datos mediante nodos de alto rendimiento. Optimizamos cada petición para garantizar que el acceso a la información pública sea rápido y estable, adaptándonos dinámicamente a la demanda del servicio. En algunos casos, el tiempo de respuesta puede variar según la fuente, la carga y la validación del endpoint.
           </p>
         </div>
 
@@ -1496,9 +1580,9 @@
           <div class="api-card-icon">
             <i class="fas fa-shield-alt"></i>
           </div>
-          <h3 class="api-card-title">Seguridad de Nivel Empresarial</h3>
+          <h3 class="api-card-title">APIs Seguras (Infraestructura Intermediaria)</h3>
           <p class="api-card-text">
-            Implementamos encriptación end-to-end, autenticación OAuth 2.0 y protección DDoS para garantizar 
+            Las APIs <strong>sí son seguras</strong> porque operan mediante <strong>infraestructura intermediaria</strong> que administra autenticación, rotación de credenciales, control de acceso, registros (auditoría) y protección ante abuso. Además, implementamos encriptación end-to-end, autenticación OAuth 2.0 y protección DDoS para garantizar 
             que tus consultas sean completamente seguras.
           </p>
         </div>
@@ -1512,6 +1596,41 @@
             Nuestra infraestructura se escala automáticamente según la demanda, manejando picos de tráfico 
             sin afectar el rendimiento del servicio.
           </p>
+        </div>
+      </div>
+
+      <!-- AÑADIDO: información adicional de APIs de consulta (sin borrar nada) -->
+      <div class="code-animation" style="margin-top: 10px;">
+        <div class="code-header">
+          <div class="code-lang">
+            <div class="code-lang-icon php-icon">API</div>
+            <span class="code-lang-name">APIs de consulta disponibles</span>
+          </div>
+          <div class="code-lang">
+            <div class="code-lang-icon python-icon">24/7</div>
+            <span class="code-lang-name">Créditos al instante</span>
+          </div>
+        </div>
+
+        <div class="code-content">
+          <div class="code-line">
+            <span class="line-number">1</span>
+            <span class="line-content">
+              <span class="code-comment">// Infraestructura intermediaria para mantener claridad legal</span>
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">2</span>
+            <span class="line-content">
+              <span class="code-comment">// Consultas: DNI (Perú), SUNAT, Cédula (Venezuela), Matrimonios</span>
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">3</span>
+            <span class="line-content">
+              <span class="code-comment">// Créditos: compra inmediata 24/7, habilitación instantánea, 100% segura</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -1605,7 +1724,8 @@
           <div class="stat-label">Consultas por Minuto</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number"><100ms</div>
+          <!-- MODIFICADO: reemplaza “<100ms” por mensaje realista -->
+          <div class="stat-number">Variable</div>
           <div class="stat-label">Tiempo de Respuesta</div>
         </div>
         <div class="stat-card">
@@ -1613,6 +1733,11 @@
           <div class="stat-label">Datos Encriptados</div>
         </div>
       </div>
+
+      <!-- AÑADIDO: compra de créditos 24/7 + infraestructura intermediaria -->
+      <p class="api-subtitle" style="text-align:center; margin-top: 18px;">
+        Puedes <strong>comprar créditos para nuestras APIs al instante</strong>, <strong>24/7</strong>, de forma <strong>100% segura</strong>. El servicio opera mediante <strong>infraestructura intermediaria</strong> para gestionar el acceso, proteger los datos y mantener claridad legal.
+      </p>
 
       <div class="api-cta">
         <a href="api-key" class="api-cta-button">
@@ -1629,6 +1754,11 @@
     <p><strong>Consulta PE APK</strong> | <strong>PeliPREX HD</strong> | <strong>Masitaprex</strong></p>
     <p><a href="terminos-condiciones">Términos y condiciones</a> | <a href="politica-privacidad">Política de privacidad</a> | <a href="disclaimer-apis">Aviso legal APIS</a> | <a href="aviso-legal-peliprex">Aviso legal peliPREX</a></p>
     <p>Síguenos en nuestras redes sociales para más información sobre <strong>Consulta PE</strong> y <strong>PeliPREX</strong></p>
+
+    <!-- AÑADIDO: recordatorio 24/7 + intermediaria (sin borrar nada) -->
+    <p style="margin: 10px 0; color: #ffffff; line-height: 1.6;">
+      Compra de créditos para APIs disponible <strong>24/7</strong> con activación inmediata y <strong>100% segura</strong>. Los servicios operan mediante <strong>infraestructura intermediaria</strong> que gestiona y protege el acceso a los datos para mantener claridad legal.
+    </p>
     
     <div class="social-icons">
       <a href="https://m.facebook.com/61564349657272/" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook"></i></a>
