@@ -32,7 +32,7 @@
 
         /* Degradado de la cabecera del menú lateral */
         .sidebar-header-bg {
-            background: linear-gradient(135deg, #009383 0%, #005aee 100%);
+            background: #000000;
             border-bottom-left-radius: 50% 20%;
             border-bottom-right-radius: 50% 20%;
         }
@@ -46,6 +46,7 @@
         #sidebar {
             transition: transform 0.3s ease-in-out;
             transform: translateX(-100%);
+            background-color: #000000;
         }
 
         #sidebar.open {
@@ -56,7 +57,7 @@
         .header-icon {
             width: 1.75rem;
             height: 1.75rem;
-            color: #1f2937;
+            color: #ffffff;
         }
 
         /* Banner de compartir (Oculto por defecto) */  
@@ -794,25 +795,26 @@
 <body class="min-h-screen">
 
     <!-- CABECERA (Header) -->
-    <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
+    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16" style="background-color: #000000;">
         <div class="flex items-center gap-3">
-            <!-- Icono de menú a la izquierda de la imagen principal -->
-            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <!-- Icono de menú -->
+            <button id="menu-toggle" class="p-1 active:bg-gray-700 rounded-full transition-colors">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
-            <!-- Imagen principal de cabecera -->
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgJ5Yw_NDwKkZUK_t-yHRUPkagmTGz7Bj6rfDuVOwCQcY9B08ujqK-6BHWS4qXIsludoMvz0fhgcmYVOvIhO5QsvRQnigKslPiJS_yFkn4D62KqNg6D_xp9fWmQDv0WJ3Ef62JQPZ8TCb5QVwVoZhXBUaNBnUtFI4br7tauhuzKKKbUUM_i31YWIxsIf8Hv/s240/1000088967.png" 
-                 alt="Logo" 
-                 style="width: 154px; height: 40px; object-fit: contain;">
+        </div>
+        
+        <!-- Título central -->
+        <div class="flex-1 text-center">
+            <h1 class="text-xl font-bold" style="color: #ffffff;">Créditos y Planes</h1>
         </div>
         
         <div class="flex items-center gap-4">
             <!-- Icono Perfil - Ahora lleva a actividad -->
-            <button id="profile-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="profile-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
                 <i data-lucide="user" class="header-icon"></i>
             </button>
             <!-- Icono Compartir - Ahora abre el modal -->
-            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="share-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
                 <i data-lucide="share-2" class="header-icon"></i>
             </button>
         </div>
@@ -821,7 +823,7 @@
     <!-- MENU LATERAL (Sidebar) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
     
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[60] shadow-2xl overflow-y-auto">
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 z-[60] shadow-2xl overflow-y-auto">
         <!-- Encabezado Sidebar con Curva -->
         <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
             <!-- Contenedor del icono -->
@@ -844,32 +846,32 @@
         <!-- Opciones del Menú Actualizadas -->
         <nav class="mt-6">
             <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
-            <a href="home" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
+            <a href="home" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors" style="color: #ffffff;">
                 <i data-lucide="home" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
-            <a href="PeliPREX.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-red-600">
+            <a href="PeliPREX.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
                 <i data-lucide="film" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">PeliPREX</span>
             </a>
             
-            <a href="api-key.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-red-600">
+            <a href="api-key.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
                 <i data-lucide="key" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Api Key</span>
             </a>
             
-            <a href="doc-apis.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-red-600">
+            <a href="doc-apis.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
                 <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Doc. APIs</span>
             </a>
             
-            <a href="consultaPE-apk.html" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-red-600">
+            <a href="consultaPE-apk.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" style="color: #ffffff;">
                 <i data-lucide="smartphone" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Consulta PE APK</span>
             </a>
             
-            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-red-600 mt-8">
+            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600 mt-8" style="color: #ffffff;">
                 <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
                 <span class="text-lg">Cerrar sesión</span>
             </a>
