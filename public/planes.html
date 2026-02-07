@@ -15,42 +15,278 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        /* =====================================================================
-        ESTILOS PARA EL MENÚ LATERAL Y CABECERA
-        ===================================================================== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
+        /* ===== FONDO 3D CON DIAMANTES FLOTANTES ===== */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
             margin: 0;
             padding: 0;
             width: 100%;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Degradado de la cabecera del menú lateral */
-        .sidebar-header-bg {
-            background: #000000;
-            border-bottom-left-radius: 50% 20%;
-            border-bottom-right-radius: 50% 20%;
+        /* Canvas de fondo para los diamantes */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(30, 64, 175, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(5, 150, 105, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
+
+        /* Animación de diamantes flotantes */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(360deg); }
+        }
+
+        /* Diamantes flotantes */
+        .diamond {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.3), rgba(5, 150, 105, 0.3));
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        .diamond:nth-child(1) {
+            top: 10%;
+            left: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .diamond:nth-child(2) {
+            top: 60%;
+            left: 80%;
+            width: 70px;
+            height: 70px;
+            animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .diamond:nth-child(3) {
+            top: 80%;
+            left: 20%;
+            width: 40px;
+            height: 40px;
+            animation: float 7s ease-in-out infinite 1s;
+        }
+
+        .diamond:nth-child(4) {
+            top: 30%;
+            left: 70%;
+            width: 60px;
+            height: 60px;
+            animation: float-slow 9s ease-in-out infinite 2s;
+        }
+
+        .diamond:nth-child(5) {
+            top: 50%;
+            left: 50%;
+            width: 55px;
+            height: 55px;
+            animation: float 7.5s ease-in-out infinite 1.5s;
+        }
+
+        /* ===== ESTILOS DEL MENÚ LATERAL COMPLETO ===== */
 
         /* Overlay para el menú lateral */
-        #sidebar-overlay {
+        #sidebar-overlay { 
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
             transition: opacity 0.3s ease;
+            display: none;
         }
 
-        /* Transición del menú lateral */
+        #sidebar-overlay.opacity-100 {
+            opacity: 1;
+        }
+
+        #sidebar-overlay.hidden {
+            display: none;
+        }
+
+        /* Menú lateral principal */
         #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 288px; /* w-72 = 288px */
+            background: #000 !important; /* Fondo negro puro como pedido */
+            color: var(--ink);
+            z-index: 60;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55); /* var(--shadow) */
+            overflow-y: auto;
             transition: transform 0.3s ease-in-out;
             transform: translateX(-100%);
-            background-color: #000000;
         }
 
         #sidebar.open {
             transform: translateX(0);
+        }
+
+        /* Encabezado del sidebar con curva degradada */
+        .sidebar-header-bg {
+            height: 192px; /* h-48 = 192px */
+            background: linear-gradient(135deg, 
+                rgba(53, 213, 255, 0.95) 0%, 
+                rgba(109, 91, 255, 0.95) 55%, 
+                rgba(255, 31, 61, 0.92) 100%);
+            border-bottom-left-radius: 50% 20%;
+            border-bottom-right-radius: 50% 20%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* Contenedor del icono del sidebar */
+        .sidebar-header-bg > div:first-child {
+            width: 64px; /* w-16 = 64px */
+            height: 64px; /* h-16 = 64px */
+            border-radius: 12px; /* rounded-xl */
+            margin-bottom: 8px; /* mb-2 = 8px */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-header-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-header-bg h2 {
+            font-size: 1.5rem; /* text-2xl = 24px */
+            font-weight: 700; /* font-bold */
+            margin-top: 8px; /* mt-2 = 8px */
+            color: white;
+        }
+
+        /* Decoración SVG en el encabezado */
+        .sidebar-header-bg > div:last-child {
+            position: absolute;
+            top: 16px; /* top-4 = 16px */
+            left: 16px; /* left-4 = 16px */
+            opacity: 0.3;
+        }
+
+        /* Opciones del menú */
+        #sidebar nav {
+            margin-top: 24px; /* mt-6 = 24px */
+        }
+
+        #sidebar nav a,
+        #sidebar nav div {
+            display: flex;
+            align-items: center;
+            padding-left: 24px; /* px-6 = 24px */
+            padding-right: 24px; /* px-6 = 24px */
+            padding-top: 16px; /* py-4 = 16px vertical */
+            padding-bottom: 16px; /* py-4 = 16px vertical */
+            color: rgba(234, 240, 255, 0.72); /* var(--muted) */
+            transition: background-color 0.3s ease; /* transition-colors */
+            text-decoration: none;
+        }
+
+        #sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.06); /* hover:bg-gray-50 */
+        }
+
+        #sidebar nav div {
+            border-left: 4px solid #FF1F3D; /* border-red-600, var(--danger) */
+            background-color: rgba(255, 255, 255, 0.06); /* bg-gray-50 */
+        }
+
+        #sidebar nav div span {
+            font-size: 1.125rem; /* text-lg = 18px */
+            font-weight: 600; /* font-semibold */
+            color: var(--ink); /* text-gray-800 */
+        }
+
+        /* Iconos del menú */
+        #sidebar nav i {
+            width: 24px; /* w-6 = 24px */
+            height: 24px; /* h-6 = 24px */
+            margin-right: 16px; /* mr-4 = 16px */
+            stroke-width: 1.5; /* Configuración de Lucide */
+        }
+
+        #sidebar nav a i {
+            color: rgba(234, 240, 255, 0.72); /* text-gray-500 */
+        }
+
+        #sidebar nav div i {
+            color: var(--ink); /* text-gray-800 */
+        }
+
+        /* Separación para el botón de cerrar sesión */
+        #sidebar nav a:last-child {
+            margin-top: 32px; /* mt-8 = 32px */
+        }
+
+        /* Estilos para el texto del menú */
+        #sidebar nav span {
+            font-size: 1.125rem; /* text-lg = 18px */
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 640px) {
+            #sidebar {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sidebar {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Ajustes para scrollbar en navegadores WebKit */
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(109, 91, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(109, 91, 255, 0.7);
         }
 
         /* Estilo para los iconos de la cabecera para que sean legibles y grandes */
@@ -164,6 +400,8 @@
             flex-direction: column;
             gap: 1.5rem;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         .app-card {
@@ -662,23 +900,25 @@
         }
 
         /* =====================================================================
-        ESTILOS PARA EL FOOTER TRANSPARENTE
+        ESTILOS PARA EL FOOTER - FONDO NEGRO SÓLIDO Y ANCHO COMPLETO
         ===================================================================== */
         .footer-content {
             width: 100%;
-            margin-top: 1rem;
-            padding: 1rem;
+            margin-top: 2rem;
+            padding: 2rem 1rem;
             box-sizing: border-box;
             text-align: center;
-            background-color: transparent !important;
+            background-color: #000000 !important;
             border-top: none !important;
             box-shadow: none !important;
+            position: relative;
+            z-index: 1;
         }
         
         .footer-content h3 {
             font-size: 1.1rem;
             font-weight: 600;
-            color: var(--text-dark);
+            color: #ffffff;
             border-bottom: none;
             padding-bottom: 0;
             margin-bottom: 0.5rem;
@@ -701,7 +941,7 @@
         
         .footer-content p {
             font-size: 0.85rem;
-            color: var(--text-medium);
+            color: #cccccc;
             line-height: 1.4;
         }
         
@@ -718,7 +958,7 @@
         
         .footer-content strong {
             font-weight: 600;
-            color: var(--text-dark);
+            color: #ffffff;
         }
         
         .footer-content footer {
@@ -793,6 +1033,13 @@
     </style>
 </head>
 <body class="min-h-screen">
+
+    <!-- Diamantes flotantes en el fondo -->
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
 
     <!-- CABECERA (Header) -->
     <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16" style="background-color: #000000;">
@@ -963,7 +1210,7 @@
 
         </div>
         
-        <hr class="w-full max-w-[500px] border-gray-300 mx-auto" style="border-top-width: 4px; border-style: dotted;"/>
+        <hr class="w-full border-gray-300 mx-auto" style="border-top-width: 4px; border-style: dotted;"/>
 
         <div class="app-card">
             <h3 class="text-center"><i class="fas fa-coins text-yellow-600 mr-2"></i> Créditos para Consultas Individuales</h3>
@@ -1193,7 +1440,7 @@
 
     </main>
     
-    <!-- FOOTER TRANSPARENTE -->
+    <!-- FOOTER CON FONDO NEGRO SÓLIDO Y ANCHO COMPLETO -->
     <div class="footer-content">
         <footer>
             <h3>Síguenos en nuestras redes sociales</h3>
