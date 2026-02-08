@@ -40,7 +40,7 @@
 
         .iphone-container {
             width: 100%;
-            max-width: 430px;
+            max-width: 100%;
             background: var(--bg-gray);
             min-height: 100vh;
             position: relative;
@@ -56,6 +56,8 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .back-btn {
@@ -64,6 +66,7 @@
             cursor: pointer;
             width: 30px;
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
 
         .back-btn:active {
@@ -81,22 +84,28 @@
         /* Contenido */
         .content {
             padding: 0 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .price-section {
             margin: 10px 0 25px;
+            width: 100%;
         }
 
         .price-label {
             color: var(--text-gray);
             font-size: 14px;
             margin-bottom: 5px;
+            width: 100%;
         }
 
         .total-price {
             font-size: 34px;
             font-weight: 700;
             color: var(--primary-blue);
+            width: 100%;
         }
 
         /* Tarjeta de Crédito Visual */
@@ -113,6 +122,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            width: 100%;
         }
 
         .credit-card-display::before {
@@ -143,6 +153,7 @@
             align-items: flex-start;
             position: relative;
             z-index: 2;
+            width: 100%;
         }
 
         .card-chip {
@@ -184,6 +195,7 @@
             position: relative;
             z-index: 2;
             text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            width: 100%;
         }
 
         .card-bottom {
@@ -192,6 +204,7 @@
             align-items: flex-end;
             position: relative;
             z-index: 2;
+            width: 100%;
         }
 
         .card-holder-info {
@@ -221,6 +234,7 @@
         .form-group {
             margin-bottom: 20px;
             position: relative;
+            width: 100%;
         }
 
         .label {
@@ -229,12 +243,14 @@
             font-weight: 600;
             color: var(--text-dark);
             margin-bottom: 8px;
+            width: 100%;
         }
 
         .input-with-icon {
             position: relative;
             display: flex;
             align-items: center;
+            width: 100%;
         }
 
         .input-icon {
@@ -274,6 +290,7 @@
             border: 1px solid #EAECEF;
             overflow: hidden;
             position: relative;
+            width: 100%;
         }
 
         .mp-container.with-icon::before {
@@ -296,6 +313,7 @@
 
         .mp-container iframe {
             text-align: center !important;
+            width: 100% !important;
         }
 
         .mp-container.with-icon-expiry::before {
@@ -338,6 +356,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
+            width: 100%;
         }
 
         .document-container {
@@ -345,14 +364,17 @@
             grid-template-columns: 120px 1fr;
             gap: 15px;
             align-items: end;
+            width: 100%;
         }
 
         .document-type-group {
             margin-bottom: 0;
+            width: 100%;
         }
 
         .document-number-group {
             margin-bottom: 0;
+            width: 100%;
         }
 
         /* Botón Principal */
@@ -440,6 +462,7 @@
             padding: 12px;
             background: var(--white);
             border-radius: var(--radius-md);
+            width: 100%;
         }
 
         .security-badge i {
@@ -509,6 +532,7 @@
             color: var(--success-green);
             text-align: center;
             margin-bottom: 10px;
+            width: 100%;
         }
 
         .error-title {
@@ -517,6 +541,7 @@
             color: var(--error-red);
             text-align: center;
             margin-bottom: 10px;
+            width: 100%;
         }
 
         .success-subtitle {
@@ -524,6 +549,7 @@
             color: var(--text-gray);
             text-align: center;
             margin-bottom: 30px;
+            width: 100%;
         }
 
         /* Tabla de información */
@@ -533,6 +559,7 @@
             padding: 20px;
             margin-bottom: 25px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            width: 100%;
         }
 
         .info-row {
@@ -541,6 +568,7 @@
             align-items: center;
             padding: 14px 0;
             border-bottom: 1px solid #F3F4F6;
+            width: 100%;
         }
 
         .info-row:last-child {
@@ -568,6 +596,7 @@
         /* Selector de comprobante */
         .voucher-selector {
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .voucher-title {
@@ -576,6 +605,7 @@
             color: var(--text-dark);
             text-align: center;
             margin-bottom: 15px;
+            width: 100%;
         }
 
         .voucher-options {
@@ -583,6 +613,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .voucher-option {
@@ -620,6 +651,7 @@
         .factura-fields {
             display: none;
             animation: slideDown 0.3s ease-out;
+            width: 100%;
         }
 
         .factura-fields.active {
@@ -653,35 +685,6 @@
             }
         }
 
-        /* Responsive mejorado */
-        @media (max-width: 380px) {
-            .content {
-                padding: 0 20px;
-            }
-
-            .total-price {
-                font-size: 30px;
-            }
-
-            .card-number-display {
-                font-size: 18px;
-            }
-            
-            .document-container {
-                grid-template-columns: 100px 1fr;
-                gap: 12px;
-            }
-
-            .success-icon, .error-icon {
-                width: 70px;
-                height: 70px;
-            }
-
-            .success-icon i, .error-icon i {
-                font-size: 35px;
-            }
-        }
-
         /* Error message box */
         .error-message {
             background: #FEE2E2;
@@ -692,6 +695,7 @@
             display: flex;
             align-items: flex-start;
             gap: 12px;
+            width: 100%;
         }
 
         .error-message i {
@@ -728,6 +732,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            width: 100%;
         }
         
         .confirmation-message i {
@@ -739,6 +744,111 @@
             font-size: 13px;
             color: #065F46;
             font-weight: 500;
+        }
+
+        /* ===== RESPONSIVE PARA PANTALLAS GRANDES ===== */
+        @media (min-width: 768px) {
+            .iphone-container {
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px 0;
+                max-width: 800px;
+            }
+
+            .content {
+                max-width: 800px;
+                padding: 0;
+            }
+
+            .credit-card-display {
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .form-group {
+                max-width: 100%;
+            }
+
+            .grid-row {
+                grid-template-columns: 1fr 1fr;
+                max-width: 100%;
+            }
+
+            .document-container {
+                grid-template-columns: 150px 1fr;
+                max-width: 100%;
+            }
+
+            .main-btn {
+                max-width: 100%;
+            }
+
+            .info-table {
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .voucher-options {
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .iphone-container {
+                padding: 30px;
+            }
+
+            .header {
+                max-width: 900px;
+            }
+
+            .content {
+                max-width: 900px;
+            }
+
+            .credit-card-display {
+                max-width: 700px;
+            }
+
+            .info-table {
+                max-width: 700px;
+            }
+        }
+
+        /* Responsive para móviles */
+        @media (max-width: 380px) {
+            .content {
+                padding: 0 20px;
+            }
+
+            .total-price {
+                font-size: 30px;
+            }
+
+            .card-number-display {
+                font-size: 18px;
+            }
+            
+            .document-container {
+                grid-template-columns: 100px 1fr;
+                gap: 12px;
+            }
+
+            .success-icon, .error-icon {
+                width: 70px;
+                height: 70px;
+            }
+
+            .success-icon i, .error-icon i {
+                font-size: 35px;
+            }
         }
     </style>
 </head>
