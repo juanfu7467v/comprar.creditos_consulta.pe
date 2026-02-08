@@ -18,6 +18,8 @@
     <meta property="og:image" content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMUakrMP-yKpoycaGvjK4APon-CjrN80pLn1CkZvz2NcS_XT98tdJA0MeF3EO3Bd7OUoTWIrubwHN2df7VKHHUnIX6_RYv_mfqT4uXRa1IUhsr52TDRBs4hJsHdRj2sSA7v52rC8TX3nDwdq7DBNDyBxQyiKbEJoFzzDdPcMC4_sYc5tCHvEu-8Qz3yM85/s1536/1000088610.png" />
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8XWofaZfnYbiKt1147Wcmr62ndD9mYoqo7VdYwB07lvggku7ey5nYaPPrFXunSDARE_IyPoe1qzxVQz-9pg03l43B88p_ykZsnWL3e0uBqoRygtuq9_xZf-_ojBwxWZHi_nzOHPm6tIpRSFNa9FYiSia3rRJUFGlksSQ78BO6KustSQ1r-nc7YGVrDaDd/s192/1000089813.png">
     <link rel="shortcut icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8XWofaZfnYbiKt1147Wcmr62ndD9mYoqo7VdYwB07lvggku7ey5nYaPPrFXunSDARE_IyPoe1qzxVQz-9pg03l43B88p_ykZsnWL3e0uBqoRygtuq9_xZf-_ojBwxWZHi_nzOHPm6tIpRSFNa9FYiSia3rRJUFGlksSQ78BO6KustSQ1r-nc7YGVrDaDd/s192/1000089813.png">
@@ -29,6 +31,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         :root {
             --color-primary-start: #1E3A8A;
             --color-primary-end: #047857;
@@ -62,6 +65,209 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 15px;
+        }
+
+        /* ===== ESTILOS DEL MENÚ LATERAL COMPLETO ===== */
+
+        /* Overlay para el menú lateral */
+        #sidebar-overlay { 
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: none;
+        }
+
+        #sidebar-overlay.opacity-100 {
+            opacity: 1;
+        }
+
+        #sidebar-overlay.hidden {
+            display: none;
+        }
+
+        /* Menú lateral principal */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 288px; /* w-72 = 288px */
+            background: #000 !important; /* Fondo negro puro */
+            color: #FFFFFF;
+            z-index: 60;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Encabezado del sidebar */
+        .sidebar-header-bg {
+            padding: 40px 24px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* Contenedor del icono del sidebar */
+        .sidebar-header-bg > div:first-child {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-header-bg h1, .sidebar-header-bg h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #FFFFFF !important;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Decoración SVG en el encabezado */
+        .sidebar-header-bg > div:last-child {
+            position: absolute;
+            top: 16px; /* top-4 = 16px */
+            left: 16px; /* left-4 = 16px */
+            opacity: 0.3;
+        }
+
+        /* Opciones del menú */
+        #sidebar nav {
+            padding: 16px 0;
+            flex-grow: 1;
+        }
+
+        #sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            margin-bottom: 2px;
+        }
+
+        #sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+        }
+
+        #sidebar nav a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+            font-weight: 600;
+        }
+
+        /* Iconos del menú */
+        #sidebar nav i {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        /* Separación para el botón de cerrar sesión */
+        #sidebar nav a:last-child {
+            margin-top: 48px; /* Aumentado de 32px a 48px para mayor distinción */
+        }
+
+        /* Estilos para el texto del menú */
+        #sidebar nav span {
+            font-size: 1.125rem; /* text-lg = 18px */
+        }
+
+        /* Botón de hamburguesa */
+        #menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(30, 58, 138, 0.9);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #menu-toggle:hover {
+            transform: scale(1.05);
+            background: rgba(30, 58, 138, 1);
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 640px) {
+            #sidebar {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sidebar {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Ajustes para scrollbar en navegadores WebKit */
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(109, 91, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(109, 91, 255, 0.7);
         }
         header {
             background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
@@ -705,6 +911,63 @@
     </style>
 </head>
 <body>
+    <!-- Botón de apertura del menú -->
+    <button id="menu-toggle">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Overlay para el menú lateral -->
+    <div id="sidebar-overlay" class="hidden"></div>
+
+    <!-- Menú lateral principal -->
+    <aside id="sidebar">
+        <div class="sidebar-header-bg">
+            <!-- Icono del sidebar -->
+            <div>
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8XWofaZfnYbiKt1147Wcmr62ndD9mYoqo7VdYwB07lvggku7ey5nYaPPrFXunSDARE_IyPoe1qzxVQz-9pg03l43B88p_ykZsnWL3e0uBqoRygtuq9_xZf-_ojBwxWZHi_nzOHPm6tIpRSFNa9FYiSia3rRJUFGlksSQ78BO6KustSQ1r-nc7YGVrDaDd/s192/1000089813.png" alt="Logo">
+            </div>
+            <h1>Consulta PE</h1>
+            <h2>Developer</h2>
+            <!-- Decoración SVG -->
+            <div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="header-icon">
+                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+            </div>
+        </div>
+
+        <nav>
+            <a href="home" class="menu-item">
+                <i data-lucide="layout-dashboard" class="menu-icon"></i>
+                <span class="text-lg">Inicio</span>
+            </a>
+            
+            <a href="api-key" class="menu-item">
+                <i data-lucide="terminal-square" class="menu-icon"></i>
+                <span class="text-lg">API Key</span>
+            </a>
+            
+            <a href="planes.html" class="menu-item">
+                <i data-lucide="credit-card" class="menu-icon"></i>
+                <span class="text-lg">Recargar</span>
+            </a>
+
+            <a href="API-Docs" class="menu-item active">
+                <i data-lucide="file-code-2" class="menu-icon"></i>
+                <span class="text-lg">Documentación APIs</span>
+            </a>
+
+            <a href="PeliPREX" class="menu-item">
+                <i data-lucide="clapperboard" class="menu-icon"></i>
+                <span class="text-lg">PeliPREX HD</span>
+            </a>
+
+            <a href="#" id="logout-btn" class="menu-item">
+                <i data-lucide="log-out" class="menu-icon"></i>
+                <span class="text-lg">Cerrar sesión</span>
+            </a>
+        </nav>
+    </aside>
     <!-- Tooltip global -->
     <div class="global-tooltip" id="globalTooltip">Copiado al portapapeles</div>
 
@@ -2220,6 +2483,52 @@ print(response.json())</pre>
                 closeModal();
             }
         };
+
+        // === LÓGICA DEL MENÚ LATERAL ===
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Control del menú lateral
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleMenu() {
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                overlay.classList.remove('opacity-100');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('open')) {
+                        overlay.classList.add('hidden');
+                        overlay.style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+
+        if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+        if (overlay) overlay.addEventListener('click', toggleMenu);
+
+        // Cerrar menú al hacer click en un enlace (excepto cerrar sesión)
+        const navLinks = sidebar.querySelectorAll('nav a:not(#logout-btn)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (href && href !== '#') {
+                    e.preventDefault();
+                    toggleMenu();
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 300);
+                }
+            });
+        });
 
         // Estilos para las animaciones
         const style = document.createElement('style');
