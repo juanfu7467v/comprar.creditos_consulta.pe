@@ -1525,14 +1525,6 @@
                     }
                 }, 300);
             }
-        } else {
-                overlay.classList.remove('opacity-100');
-                setTimeout(() => {
-                    if (!sidebar.classList.contains('open')) {
-                        overlay.classList.add('hidden');
-                    }
-                }, 300);
-            }
         }
 
         menuToggle.addEventListener('click', toggleMenu);
