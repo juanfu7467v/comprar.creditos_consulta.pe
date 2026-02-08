@@ -134,18 +134,16 @@
             height: 100%;
             width: 288px; /* w-72 = 288px */
             background: #000 !important; /* Fondo negro puro como pedido */
-            color: #FFFFFF;
+            color: var(--ink);
             z-index: 60;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55); /* var(--shadow) */
             overflow-y: auto;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s ease-in-out;
             transform: translateX(-100%);
-            visibility: hidden;
         }
 
         #sidebar.open {
             transform: translateX(0);
-            visibility: visible;
         }
 
         /* Encabezado del sidebar con curva degradada */
@@ -184,13 +182,11 @@
             object-fit: cover;
         }
 
-        /* 🔹 CAMBIO APLICADO: Color blanco para el texto "masitaprex" */
-        .sidebar-header-bg h1, .sidebar-header-bg h2 {
+        .sidebar-header-bg h2 {
             font-size: 1.5rem; /* text-2xl = 24px */
             font-weight: 700; /* font-bold */
             margin-top: 8px; /* mt-2 = 8px */
-            color: #FFFFFF !important; /* Color blanco puro sin degradado */
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: white;
         }
 
         /* Decoración SVG en el encabezado */
@@ -214,19 +210,13 @@
             padding-right: 24px; /* px-6 = 24px */
             padding-top: 16px; /* py-4 = 16px vertical */
             padding-bottom: 16px; /* py-4 = 16px vertical */
-            color: #FFFFFF !important; /* Color blanco para todas las opciones del menú */
-            transition: all 0.2s ease; /* transition-colors */
+            color: rgba(234, 240, 255, 0.72); /* var(--muted) */
+            transition: background-color 0.3s ease; /* transition-colors */
             text-decoration: none;
-            border-left: 4px solid transparent;
-        }
-
-        #sidebar nav a span {
-            color: #FFFFFF !important;
         }
 
         #sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-left-color: #FF1F3D;
+            background-color: rgba(255, 255, 255, 0.06); /* hover:bg-gray-50 */
         }
 
         #sidebar nav div {
@@ -237,7 +227,7 @@
         #sidebar nav div span {
             font-size: 1.125rem; /* text-lg = 18px */
             font-weight: 600; /* font-semibold */
-            color: #FFFFFF; /* Color blanco */
+            color: var(--ink); /* text-gray-800 */
         }
 
         /* Iconos del menú */
@@ -246,7 +236,14 @@
             height: 24px; /* h-6 = 24px */
             margin-right: 16px; /* mr-4 = 16px */
             stroke-width: 1.5; /* Configuración de Lucide */
-            color: #FFFFFF !important;
+        }
+
+        #sidebar nav a i {
+            color: rgba(234, 240, 255, 0.72); /* text-gray-500 */
+        }
+
+        #sidebar nav div i {
+            color: var(--ink); /* text-gray-800 */
         }
 
         /* Separación para el botón de cerrar sesión */
@@ -257,7 +254,6 @@
         /* Estilos para el texto del menú */
         #sidebar nav span {
             font-size: 1.125rem; /* text-lg = 18px */
-            color: #FFFFFF; /* Color blanco para todos los textos del menú */
         }
 
         /* Estilos responsivos */
