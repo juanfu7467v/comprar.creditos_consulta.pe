@@ -133,47 +133,48 @@
             left: 0;
             height: 100%;
             width: 288px; /* w-72 = 288px */
-            background: #000 !important; /* Fondo negro puro como pedido */
-            color: var(--ink);
+            background: #000 !important; /* Fondo negro puro */
+            color: #FFFFFF;
             z-index: 60;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55); /* var(--shadow) */
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
             overflow-y: auto;
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
+            display: flex;
+            flex-direction: column;
         }
 
         #sidebar.open {
             transform: translateX(0);
         }
 
-        /* Encabezado del sidebar con curva degradada */
+        /* Encabezado del sidebar */
         .sidebar-header-bg {
-            height: 192px; /* h-48 = 192px */
-            background: linear-gradient(135deg, 
-                rgba(53, 213, 255, 0.95) 0%, 
-                rgba(109, 91, 255, 0.95) 55%, 
-                rgba(255, 31, 61, 0.92) 100%);
-            border-bottom-left-radius: 50% 20%;
-            border-bottom-right-radius: 50% 20%;
+            padding: 40px 24px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: white;
+            flex-shrink: 0;
         }
 
         /* Contenedor del icono del sidebar */
         .sidebar-header-bg > div:first-child {
-            width: 64px; /* w-16 = 64px */
-            height: 64px; /* h-16 = 64px */
-            border-radius: 12px; /* rounded-xl */
-            margin-bottom: 8px; /* mb-2 = 8px */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-header-bg img {
@@ -182,11 +183,13 @@
             object-fit: cover;
         }
 
-        .sidebar-header-bg h2 {
-            font-size: 1.5rem; /* text-2xl = 24px */
-            font-weight: 700; /* font-bold */
-            margin-top: 8px; /* mt-2 = 8px */
-            color: white;
+        .sidebar-header-bg h1, .sidebar-header-bg h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #FFFFFF !important;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         /* Decoración SVG en el encabezado */
@@ -199,51 +202,42 @@
 
         /* Opciones del menú */
         #sidebar nav {
-            margin-top: 24px; /* mt-6 = 24px */
+            padding: 16px 0;
+            flex-grow: 1;
         }
 
-        #sidebar nav a,
-        #sidebar nav div {
+        #sidebar nav a {
             display: flex;
             align-items: center;
-            padding-left: 24px; /* px-6 = 24px */
-            padding-right: 24px; /* px-6 = 24px */
-            padding-top: 16px; /* py-4 = 16px vertical */
-            padding-bottom: 16px; /* py-4 = 16px vertical */
-            color: rgba(234, 240, 255, 0.72); /* var(--muted) */
-            transition: background-color 0.3s ease; /* transition-colors */
+            padding: 14px 24px;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease;
             text-decoration: none;
+            border-left: 4px solid transparent;
+            margin-bottom: 2px;
         }
 
         #sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.06); /* hover:bg-gray-50 */
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
         }
 
-        #sidebar nav div {
-            border-left: 4px solid #FF1F3D; /* border-red-600, var(--danger) */
-            background-color: rgba(255, 255, 255, 0.06); /* bg-gray-50 */
-        }
-
-        #sidebar nav div span {
-            font-size: 1.125rem; /* text-lg = 18px */
-            font-weight: 600; /* font-semibold */
-            color: var(--ink); /* text-gray-800 */
+        #sidebar nav a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+            font-weight: 600;
         }
 
         /* Iconos del menú */
         #sidebar nav i {
-            width: 24px; /* w-6 = 24px */
-            height: 24px; /* h-6 = 24px */
-            margin-right: 16px; /* mr-4 = 16px */
-            stroke-width: 1.5; /* Configuración de Lucide */
-        }
-
-        #sidebar nav a i {
-            color: rgba(234, 240, 255, 0.72); /* text-gray-500 */
-        }
-
-        #sidebar nav div i {
-            color: var(--ink); /* text-gray-800 */
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            stroke-width: 2;
+            color: inherit;
+            flex-shrink: 0;
         }
 
         /* Separación para el botón de cerrar sesión */
@@ -1072,48 +1066,47 @@
     <!-- MENU LATERAL (Sidebar) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
     
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 z-[60] shadow-2xl overflow-y-auto">
-        <!-- Encabezado Sidebar con Curva -->
-        <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
+    <aside id="sidebar">
+        <!-- Encabezado Sidebar -->
+        <div class="sidebar-header-bg">
             <!-- Contenedor del icono -->
-            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center">
+            <div>
                 <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" 
-                     alt="App Icon" 
-                     class="w-full h-full object-cover">
+                     alt="App Icon">
             </div>
-            <h1 class="text-2xl font-bold mt-2" style="color:#FFFFFF !important; text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;">masitaprex</h1>
-            
+            <h1>masitaprex</h1>
+        </div>
 
         <!-- Opciones del Menú Actualizadas -->
-        <nav class="mt-6">
+        <nav>
             <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
-            <a href="home" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors" >
-                <i data-lucide="home" class="w-6 h-6 mr-4"></i>
+            <a href="home.html">
+                <i data-lucide="home"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
-            <a href="PeliPREX.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
-                <i data-lucide="film" class="w-6 h-6 mr-4"></i>
+            <a href="PeliPREX.html">
+                <i data-lucide="film"></i>
                 <span class="text-lg">PeliPREX</span>
             </a>
             
-            <a href="api-key.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
-                <i data-lucide="key" class="w-6 h-6 mr-4"></i>
+            <a href="api-key.html">
+                <i data-lucide="key"></i>
                 <span class="text-lg">Api Key</span>
             </a>
             
-            <a href="doc-apis.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
-                <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
+            <a href="doc-apis.html">
+                <i data-lucide="book-open"></i>
                 <span class="text-lg">Doc. APIs</span>
             </a>
             
-            <a href="consultaPE-apk.html" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600" >
-                <i data-lucide="smartphone" class="w-6 h-6 mr-4"></i>
+            <a href="consultaPE-apk.html">
+                <i data-lucide="smartphone"></i>
                 <span class="text-lg">Consulta PE APK</span>
             </a>
             
-            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 hover:bg-gray-800 transition-colors border-l-4 border-transparent hover:border-red-600 mt-8" >
-                <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
+            <a href="#" id="logout-btn" style="margin-top: auto; margin-bottom: 16px;">
+                <i data-lucide="log-out"></i>
                 <span class="text-lg">Cerrar sesión</span>
             </a>
         </nav>
