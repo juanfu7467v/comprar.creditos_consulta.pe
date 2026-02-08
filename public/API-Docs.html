@@ -734,7 +734,6 @@
                                 <option value="/v3/consulta/telefonia-num">Telefonía por Número</option>
                                 <option value="/v3/consulta/placa">Datos SUNARP Vehículo</option>
                                 <option value="/v3/consulta/ruc">SUNAT por RUC</option>
-                                <option value="/v3/consulta/razon-social">SUNAT por Razón Social</option>
                                 <option value="/v3/consulta/empresas">Empresas Relacionadas</option>
                                 <option value="/v3/consulta/matrimonios">Matrimonios Registrados</option>
                                 <option value="/v3/consulta/buscar-dni">Buscar DNI por Nombres</option>
@@ -1113,7 +1112,7 @@ if response.status_code == 200:
                             <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                 <i class="far fa-copy"></i> Copiar
                             </button>
-                            <pre>curl -X POST \
+                                <pre>curl -X POST \
   'https://api.masitaprex.com/v3/consulta/telefonia-num' \
   -H 'x-api-key: TU_TOKEN_AQUI' \
   -H 'Content-Type: application/json' \
@@ -1345,99 +1344,7 @@ echo $response;
                     </div>
                 </div>
                 
-                <!-- API 6: SUNAT por Razón Social -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <div class="endpoint-title">
-                            <h3>
-                                <span class="endpoint-method">POST</span>
-                                SUNAT por Razón Social
-                            </h3>
-                            <p class="text-muted">Busca empresas por nombre o razón social</p>
-                        </div>
-                        <div class="endpoint-cost">
-                            <i class="fas fa-coins"></i> 5 créditos
-                        </div>
-                    </div>
-                    <div class="endpoint-url">
-                        <code>POST https://api.masitaprex.com/v3/consulta/razon-social</code>
-                        <button class="url-copy-btn" onclick="copyToClipboardWithTooltip('POST https://api.masitaprex.com/v3/consulta/razon-social')">
-                            <i class="far fa-copy"></i> Copiar
-                        </button>
-                    </div>
-                    <div class="endpoint-description">
-                        <p>Permite buscar empresas en la base de datos de SUNAT utilizando su razón social o nombre comercial. Devuelve coincidencias parciales y exactas.</p>
-                    </div>
-                    <div class="parameters">
-                        <h4><i class="fas fa-list"></i> Parámetros</h4>
-                        <table class="parameter-table">
-                            <thead>
-                                <tr>
-                                    <th>Parámetro</th>
-                                    <th>Tipo</th>
-                                    <th>Requerido</th>
-                                    <th>Descripción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><code>data</code></td>
-                                    <td>String</td>
-                                    <td>Sí</td>
-                                    <td>Razón social o nombre comercial</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="code-examples">
-                        <h4><i class="fas fa-code"></i> Ejemplo de Solicitud</h4>
-                        <div class="code-block">
-                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
-                                <i class="far fa-copy"></i> Copiar
-                            </button>
-                            <pre>import requests
-
-url = "https://api.masitaprex.com/v3/consulta/razon-social"
-headers = {"x-api-key": "TU_TOKEN", "Content-Type": "application/json"}
-data = {"data": "EMPRESA EJEMPLO"}
-
-response = requests.post(url, headers=headers, json=data)
-print(response.json())</pre>
-                        </div>
-                    </div>
-                    <div class="response-example">
-                        <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
-                        <div class="code-block">
-                            <button class="code-copy-btn" onclick="copyCodeBlock(this)">
-                                <i class="far fa-copy"></i> Copiar
-                            </button>
-                            <pre>{
-  "success": true,
-  "data": {
-    "resultados": [
-      {
-        "ruc": "20123456789",
-        "razon_social": "EMPRESA EJEMPLO S.A.C.",
-        "estado": "ACTIVO",
-        "condicion": "HABIDO",
-        "departamento": "LIMA"
-      },
-      {
-        "ruc": "20987654321",
-        "razon_social": "EMPRESA EJEMPLO E.I.R.L.",
-        "estado": "ACTIVO",
-        "condicion": "HABIDO",
-        "departamento": "AREQUIPA"
-      }
-    ],
-    "total": 2
-  }
-}</pre>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- API 7: Empresas Relacionadas -->
+                <!-- API 6: Empresas Relacionadas -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
                         <div class="endpoint-title">
@@ -1530,7 +1437,7 @@ print(response.json())</pre>
                     </div>
                 </div>
                 
-                <!-- API 8: Matrimonios Registrados -->
+                <!-- API 7: Matrimonios Registrados -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
                         <div class="endpoint-title">
@@ -1623,7 +1530,7 @@ print(response.json())</pre>
                     </div>
                 </div>
                 
-                <!-- API 9: Buscar DNI por Nombres -->
+                <!-- API 8: Buscar DNI por Nombres -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
                         <div class="endpoint-title">
@@ -1736,7 +1643,7 @@ print(response.json())</pre>
                     </div>
                 </div>
                 
-                <!-- API 10: Buscar Venezolano por Nombre -->
+                <!-- API 9: Buscar Venezolano por Nombre -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
                         <div class="endpoint-title">
@@ -1826,7 +1733,7 @@ print(response.json())</pre>
                     </div>
                 </div>
                 
-                <!-- API 11: Consultar Cédula Venezolana -->
+                <!-- API 10: Consultar Cédula Venezolana -->
                 <div class="endpoint-card">
                     <div class="endpoint-header">
                         <div class="endpoint-title">
@@ -2011,12 +1918,6 @@ print(response.json())</pre>
                 method: 'POST', 
                 paramName: 'data', 
                 placeholder: '20123456789',
-                bodyTemplate: (param) => ({ data: param })
-            },
-            '/v3/consulta/razon-social': { 
-                method: 'POST', 
-                paramName: 'data', 
-                placeholder: 'EMPRESA EJEMPLO SAC',
                 bodyTemplate: (param) => ({ data: param })
             },
             '/v3/consulta/empresas': { 
