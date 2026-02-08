@@ -107,37 +107,180 @@
             -webkit-backdrop-filter: blur(14px);
         }
 
-        /* Degradado de la cabecera del menú lateral */
-        .sidebar-header-bg {
-            background: linear-gradient(135deg, rgba(53,213,255,.95) 0%, rgba(109,91,255,.95) 55%, rgba(255,31,61,.92) 100%);
-            border-bottom-left-radius: 50% 20%;
-            border-bottom-right-radius: 50% 20%;
-        }
-
+        /* ===== ESTILOS DEL MENÚ LATERAL COMPLETO (UNIFICADOS) ===== */
         /* Overlay para el menú lateral */
-        #sidebar-overlay { transition: opacity 0.3s ease; }
+        #sidebar-overlay { 
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: none;
+        }
 
-        /* Transición del menú lateral */
+        #sidebar-overlay.opacity-100 {
+            opacity: 1;
+        }
+
+        #sidebar-overlay.hidden {
+            display: none;
+        }
+
+        /* Menú lateral principal */
         #sidebar {
-            transition: transform 0.3s ease-in-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 288px; /* w-72 = 288px */
+            background: #000 !important; /* Fondo negro puro */
+            color: #FFFFFF;
+            z-index: 60;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
-        }
-        #sidebar.open { transform: translateX(0); }
-
-        /* Fondo del menú lateral: NEGRO PURO (pedido) */
-        #sidebar {
-            background: #000 !important;
-            color: var(--ink);
-            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Links del sidebar en oscuro */
-        #sidebar nav a,
-        #sidebar nav div {
-            color: var(--muted);
+        #sidebar.open {
+            transform: translateX(0);
         }
+
+        /* Encabezado del sidebar */
+        .sidebar-header-bg {
+            padding: 40px 24px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* Contenedor del icono del sidebar */
+        .sidebar-header-bg > div:first-child {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-header-bg h1, .sidebar-header-bg h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #FFFFFF !important;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Decoración SVG en el encabezado */
+        .sidebar-header-bg > div:last-child {
+            position: absolute;
+            top: 16px; /* top-4 = 16px */
+            left: 16px; /* left-4 = 16px */
+            opacity: 0.3;
+        }
+
+        /* Opciones del menú */
+        #sidebar nav {
+            padding: 16px 0;
+            flex-grow: 1;
+        }
+
+        #sidebar nav a {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            margin-bottom: 2px;
+        }
+
         #sidebar nav a:hover {
-            background: rgba(255,255,255,.06);
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+        }
+
+        #sidebar nav a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+            font-weight: 600;
+        }
+
+        /* Iconos del menú */
+        #sidebar nav i {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            stroke-width: 2;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        /* Separación para el botón de cerrar sesión */
+        #sidebar nav a:last-child {
+            margin-top: 32px; /* mt-8 = 32px */
+        }
+
+        /* Estilos para el texto del menú */
+        #sidebar nav span {
+            font-size: 1.125rem; /* text-lg = 18px */
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 640px) {
+            #sidebar {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sidebar {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Ajustes para scrollbar en navegadores WebKit */#sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(109, 91, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(109, 91, 255, 0.7);
         }
 
         /* Estilo para los iconos de la cabecera para que sean legibles y grandes */
@@ -875,26 +1018,26 @@
     <div class="galaxy-overlay" aria-hidden="true"></div>
 
     <!-- CABECERA (Header) -->
-    <header class="bg-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16">
+    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16" style="background-color: #000000;">
         <div class="flex items-center gap-3">
             <!-- Icono de menú -->
-            <button id="menu-toggle" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="menu-toggle" class="p-1 active:bg-gray-700 rounded-full transition-colors">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
         </div>
         
         <!-- Texto centrado en la cabecera -->
-        <div class="header-center-text">
-            Developer Masitaprex
+        <div class="flex-1 text-center">
+            <h1 class="text-xl font-bold" style="color: #ffffff;">Developer Masitaprex</h1>
         </div>
         
         <div class="flex items-center gap-4">
             <!-- Icono Perfil - Ahora lleva a actividad -->
-            <a href="actividad" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="profile-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
                 <i data-lucide="user" class="header-icon"></i>
-            </a>
+            </button>
             <!-- Icono Compartir - Ahora abre el modal -->
-            <button id="share-btn" class="p-1 active:bg-gray-100 rounded-full transition-colors">
+            <button id="share-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
                 <i data-lucide="share-2" class="header-icon"></i>
             </button>
         </div>
@@ -903,61 +1046,47 @@
     <!-- MENU LATERAL (Sidebar) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
     
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white z-[60] shadow-2xl overflow-y-auto">
-        <!-- Encabezado Sidebar con Curva -->
-        <div class="sidebar-header-bg h-48 relative flex flex-col items-center justify-center text-white">
+    <aside id="sidebar">
+        <!-- Encabezado Sidebar -->
+        <div class="sidebar-header-bg">
             <!-- Contenedor del icono -->
-            <div class="w-16 h-16 rounded-xl mb-2 shadow-lg overflow-hidden flex items-center justify-center">
+            <div>
                 <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" 
-                     alt="App Icon" 
-                     class="w-full h-full object-cover">
+                     alt="App Icon">
             </div>
-            <h2 class="text-2xl font-bold mt-2">Masitaprex v3</h2>
-            
-            <!-- Decoración -->
-            <div class="absolute top-4 left-4 opacity-30">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-                    <path d="M12 2a10 10 0 1 0 10 10" stroke-linecap="round"></path>
-                    <path d="M16 6a6 6 0 1 0 6 6" stroke-linecap="round"></path>
-                </svg>
-            </div>
+            <h1>masitaprex</h1>
         </div>
 
-        <!-- Opciones del Menú -->
-        <nav class="mt-6">
-            <!-- Opción Inicio -->
-            <a href="home" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
-                <i data-lucide="home" class="w-6 h-6 mr-4"></i>
+        <!-- Opciones del Menú Actualizadas -->
+        <nav>
+            <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
+            <a href="home.html">
+                <i data-lucide="home"></i>
                 <span class="text-lg">Inicio</span>
             </a>
             
-            <!-- Opción Recargar -->
-            <a href="planes" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
-                <i data-lucide="credit-card" class="w-6 h-6 mr-4"></i>
-                <span class="text-lg">Recargar</span>
+            <a href="PeliPREX.html">
+                <i data-lucide="film"></i>
+                <span class="text-lg">PeliPREX</span>
             </a>
             
-            <!-- Opción PeliPREX HD -->
-            <a href="PeliPREX" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
-                <i data-lucide="film" class="w-6 h-6 mr-4"></i>
-                <span class="text-lg">PeliPREX HD</span>
+            <a href="api-key.html" class="active">
+                <i data-lucide="key"></i>
+                <span class="text-lg">Api Key</span>
             </a>
             
-            <!-- Opción actual activa -->
-            <div class="flex items-center px-6 py-4 border-l-4 border-red-600 bg-gray-50">
-                <i data-lucide="key" class="w-6 h-6 text-gray-800 mr-4"></i>
-                <span class="text-lg font-semibold text-gray-800">Api key</span>
-            </div>
-            
-            <!-- Opción Documentación APIs -->
-            <a href="API-Docs" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors">
-                <i data-lucide="book-open" class="w-6 h-6 mr-4"></i>
-                <span class="text-lg">Documentación APIs</span>
+            <a href="doc-apis.html">
+                <i data-lucide="book-open"></i>
+                <span class="text-lg">Doc. APIs</span>
             </a>
             
-            <!-- Opción Cerrar Sesión -->
-            <a href="#" id="logout-btn" class="flex items-center px-6 py-4 text-gray-500 hover:bg-gray-50 transition-colors mt-8">
-                <i data-lucide="log-out" class="w-6 h-6 mr-4"></i>
+            <a href="consultaPE-apk.html">
+                <i data-lucide="smartphone"></i>
+                <span class="text-lg">Consulta PE APK</span>
+            </a>
+            
+            <a href="#" id="logout-btn" style="margin-top: auto; margin-bottom: 16px;">
+                <i data-lucide="log-out"></i>
                 <span class="text-lg">Cerrar sesión</span>
             </a>
         </nav>
@@ -1383,8 +1512,20 @@
             const isOpen = sidebar.classList.toggle('open');
             if (isOpen) {
                 overlay.classList.remove('hidden');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
                 setTimeout(() => overlay.classList.add('opacity-100'), 10);
             } else {
+                overlay.classList.remove('opacity-100');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('open')) {
+                        overlay.classList.add('hidden');
+                        overlay.style.display = 'none';
+                    }
+                }, 300);
+            }
+        } else {
                 overlay.classList.remove('opacity-100');
                 setTimeout(() => {
                     if (!sidebar.classList.contains('open')) {
@@ -1406,6 +1547,7 @@
         });
 
         // Botón de compartir - abre el modal (NO automáticamente)
+        document.getElementById('profile-btn').addEventListener('click', function() { window.location.href = 'actividad.html'; });
         document.getElementById('share-btn').addEventListener('click', function() {
             document.getElementById('banner').style.display = 'flex';
         });
