@@ -1,0 +1,54 @@
+1️⃣ public/home.html (Página principal)
+
+Html
+<title>Masitaprex | Películas Gratis y Consultas Online</title>
+<meta name="description" content="Disfruta películas gratis en PeliPREX HD y accede a herramientas de consulta como DNI, RUC, vehículos y más desde una sola plataforma.">
+<meta name="robots" content="index, follow">
+🎬 2️⃣ public/PeliPREX.html (Catálogo de películas)
+
+Html
+<title>PeliPREX HD | Ver Películas Gratis Online</title>
+<meta name="description" content="Explora el catálogo de PeliPREX HD y disfruta películas online gratis en alta calidad desde cualquier dispositivo.">
+<meta name="robots" content="index, follow">
+❤️ 3️⃣ public/favoritos.html
+
+Html
+<title>Mis Películas Favoritas | PeliPREX</title>
+<meta name="description" content="Accede a tu lista de películas favoritas guardadas en PeliPREX y continúa viendo tu contenido preferido cuando quieras.">
+<meta name="robots" content="index, follow">
+🕘 4️⃣ public/historial.html
+
+Html
+<title>Historial de Películas Vistas | PeliPREX</title>
+<meta name="description" content="Consulta el historial de películas que has visto en PeliPREX y retoma tus contenidos desde donde los dejaste.">
+<meta name="robots" content="index, follow">
+👤 5️⃣ public/login.html
+
+Html
+<title>Iniciar Sesión | Registro y Recuperación de Cuenta</title>
+<meta name="description" content="Inicia sesión, regístrate o recupera tu contraseña para acceder a todas las funciones de tu cuenta en Masitaprex y PeliPREX.">
+<meta name="robots" content="index, follow">
+💳 6️⃣ public/planes.html (Compra de créditos)
+
+Html
+<title>Comprar Créditos y Planes Ilimitados | Masitaprex</title>
+<meta name="description" content="Adquiere créditos o accede a planes ilimitados para utilizar las consultas y servicios premium disponibles en la plataforma Masitaprex.">
+<meta name="robots" content="index, follow">
+🔑 7️⃣ public/api-key.html
+
+Html
+<title>Generar API Key | Documentación para Desarrolladores</title>
+<meta name="description" content="Crea tu API Key, gestiona tu token de acceso y consulta la documentación técnica para integrar nuestras APIs en tus proyectos.">
+<meta name="robots" content="index, follow">
+📊 8️⃣ public/actividad.html
+
+Html
+<title>Actividad Reciente | Mi Perfil</title>
+<meta name="description" content="Revisa tu actividad reciente, películas vistas y movimientos de tu cuenta dentro de la plataforma.">
+<meta name="robots" content="index, follow">
+🧠 9️⃣ public/API-Docs.html
+
+Html
+<title>Documentación de APIs | Consultas DNI, RUC y Más</title>
+<meta name="description" content="Consulta la documentación oficial de nuestras APIs para integrar servicios como consultas de DNI, RUC, vehículos y otros datos en tus sistemas.">
+<meta name="robots" content="index, follow">
