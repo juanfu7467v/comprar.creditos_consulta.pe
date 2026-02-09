@@ -1,17 +1,19 @@
-# Mensaje para todos los robots (Google, Bing, DuckDuckGo, etc.)
 User-agent: *
 
-# Páginas que NO queremos que aparezcan en los resultados de búsqueda
+# Proteger datos personales y documentos legales
+Disallow: /terminos-condiciones.html
+Disallow: /politica-privacidad.html
+Disallow: /politica.compras.html
+Disallow: /disclaimer-apis.html
+Disallow: /aviso-legal-peliprex.html
 Disallow: /checkout.html
 Disallow: /verify.html
-Disallow: /politica-privacidad.html
-Disallow: /terminos-condiciones.html
-Disallow: /aviso-legal-peliprex.html
-Disallow: /disclaimer-apis.html
-Disallow: /politica.compras.html
 
-# Permitir que rastreen todo lo demás (APIs, PeliPREX, home)
-Allow: /
+# Permitir lo que importa
+Allow: /home.html
+Allow: /PeliPREX.html
+Allow: /API-Docs.html
+Allow: /planes.html
+Allow: /login.html
 
-# Indicarle a Google dónde está tu mapa del sitio
 Sitemap: https://masitaprex.com/sitemap.xml
