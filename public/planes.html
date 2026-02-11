@@ -712,108 +712,6 @@
             font-size: 0.95rem;
         }
         
-        /* === NUEVOS ESTILOS PARA INPUT CON ÍCONO DE AYUDA === */
-        .input-wrapper {
-            display: flex;
-            align-items: stretch;
-            width: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            background: white;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: border-color 0.3s;
-        }
-        
-        .input-wrapper:focus-within {
-            border-color: var(--color-blue);
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.2);
-        }
-        
-        .input-wrapper input {
-            flex: 1;
-            border: none;
-            padding: 0.75rem;
-            font-size: 1rem;
-            outline: none;
-            width: 100%;
-            box-shadow: none !important;
-        }
-        
-        .help-icon-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45px;
-            background-color: #f8f9fa;
-            border-left: 1px solid var(--border-color);
-            cursor: pointer;
-            color: var(--color-blue);
-            font-size: 1.2rem;
-            transition: all 0.2s;
-        }
-        
-        .help-icon-btn:hover {
-            background-color: #e9ecef;
-            color: var(--color-green);
-        }
-        
-        /* Contenedor del tooltip */
-        .tooltip-container {
-            position: relative;
-            display: inline-block;
-        }
-        
-        /* Tooltip hacia la izquierda */
-        .help-tooltip {
-            position: absolute;
-            top: 50%;
-            right: 100%; /* Aparece a la izquierda del ícono */
-            margin-right: 10px;
-            transform: translateY(-50%);
-            background-color: #1e293b;
-            color: white;
-            font-size: 0.8rem;
-            padding: 10px 14px;
-            border-radius: 8px;
-            width: 260px;
-            text-align: left;
-            font-weight: normal;
-            line-height: 1.5;
-            word-wrap: break-word;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            pointer-events: none;
-            white-space: normal;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease;
-        }
-        
-        /* Flecha del tooltip (a la derecha) */
-        .help-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 100%; /* Borde derecho del tooltip */
-            margin-top: -6px;
-            border-width: 6px;
-            border-style: solid;
-            border-color: transparent transparent transparent #1e293b;
-        }
-        
-        .help-icon-btn:hover .help-tooltip {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* Estilo especial para el campo ID (editable) */
-        #userUid {
-            background-color: white !important;
-            color: var(--text-dark) !important;
-        }
-        /* ============================================== */
-
         .form-group input, .form-group select {
             width: 100%;
             padding: 0.75rem;
@@ -1142,6 +1040,89 @@
             opacity: 0;
             transform: scale(0.9);
         }
+
+        /* =====================================================================
+        ESTILOS PARA LOS TOOLTIPS DE AYUDA
+        ===================================================================== */
+        .help-icon-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .help-icon {
+            width: 18px;
+            height: 18px;
+            background-color: var(--color-blue);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .help-icon:hover {
+            background-color: var(--color-green);
+        }
+
+        .tooltip {
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 10px;
+            background-color: #1f2937;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            width: 280px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid #1f2937;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .help-icon-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Responsive para tooltips en pantallas pequeñas */
+        @media (max-width: 640px) {
+            .tooltip {
+                width: 220px;
+                font-size: 12px;
+                padding: 10px 12px;
+            }
+        }
+
+        /* Estilo para hacer el campo de ID editable visualmente */
+        #userUid.editable {
+            color: var(--text-dark) !important;
+            background-color: #ffffff !important;
+            cursor: text;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -1259,41 +1240,41 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="userEmail">Tu correo electrónico (para activar la compra):</label>
-                    <div class="input-wrapper">
-                        <input
-                            type="email"
-                            id="userEmail"
-                            name="userEmail"
-                            required
-                            placeholder="ejemplo@gmail.com"
-                        />
-                        <div class="help-icon-btn tooltip-container">
-                            <i class="fas fa-question-circle"></i>
-                            <span class="help-tooltip">
-                                Ingresa los datos correctos. Si deseas recargar tu propia cuenta, deja el correo e ID que aparecen por defecto. Si quieres recargar otra cuenta, reemplaza esos datos por los del usuario correspondiente.
-                            </span>
-                        </div>
-                    </div>
+                    <label for="userEmail">
+                        Tu correo electrónico (para activar la compra):
+                        <span class="help-icon-wrapper">
+                            <span class="help-icon">?</span>
+                            <div class="tooltip">
+                                Ingresa los datos correctos. Si deseas recargar tu propia cuenta, deja el correo e ID que aparecen por defecto. Si quieres recargar otra cuenta, reemplaza esos datos por los de la persona correspondiente.
+                            </div>
+                        </span>
+                    </label>
+                    <input
+                        type="email"
+                        id="userEmail"
+                        name="userEmail"
+                        required
+                        placeholder="ejemplo@gmail.com"
+                    />
                 </div>
                 
                 <div class="form-group">
-                    <label for="userUid">Tu ID de Usuario:</label>
-                    <div class="input-wrapper">
-                        <input
-                            type="text"
-                            id="userUid"
-                            name="userUid"
-                            required
-                            placeholder="ID de Usuario"
-                        />
-                        <div class="help-icon-btn tooltip-container">
-                            <i class="fas fa-question-circle"></i>
-                            <span class="help-tooltip">
-                                Ingresa los datos correctos. Si deseas recargar tu propia cuenta, deja el correo e ID que aparecen por defecto. Si quieres recargar otra cuenta, reemplaza esos datos por los del usuario correspondiente.
-                            </span>
-                        </div>
-                    </div>
+                    <label for="userUid">
+                        ID de usuario:
+                        <span class="help-icon-wrapper">
+                            <span class="help-icon">?</span>
+                            <div class="tooltip">
+                                Ingresa los datos correctos. Si deseas recargar tu propia cuenta, deja el correo e ID que aparecen por defecto. Si quieres recargar otra cuenta, reemplaza esos datos por los de la persona correspondiente.
+                            </div>
+                        </span>
+                    </label>
+                    <input
+                        type="text"
+                        id="userUid"
+                        name="userUid"
+                        required
+                        placeholder="ID de Usuario"
+                    />
                 </div>
 
                 <div class="form-group">
@@ -1642,6 +1623,10 @@
 
         let auth;
 
+        // Clave para localStorage
+        const STORAGE_KEY_EMAIL = 'masitaprex_user_email';
+        const STORAGE_KEY_UID = 'masitaprex_user_uid';
+
         // === FUNCIONES PARA EL MENÚ LATERAL ===
         // Inicializar iconos de Lucide
         lucide.createIcons();
@@ -1699,6 +1684,9 @@
             e.preventDefault();
             if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
                 auth.signOut().then(() => {
+                    // Limpiar localStorage al cerrar sesión
+                    localStorage.removeItem(STORAGE_KEY_EMAIL);
+                    localStorage.removeItem(STORAGE_KEY_UID);
                     alert('Sesión cerrada correctamente');
                     window.location.href = 'login.html';
                 }).catch((error) => {
@@ -1743,21 +1731,19 @@
                 // Configurar el observador de autenticación después de inicializar
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        // Solo establece los valores por defecto si no hay datos guardados previamente
-                        const savedEmail = localStorage.getItem('masitaprex_userEmail');
-                        const savedUid = localStorage.getItem('masitaprex_userUid');
+                        // Cargar datos guardados o usar los del usuario autenticado
+                        const savedEmail = localStorage.getItem(STORAGE_KEY_EMAIL);
+                        const savedUid = localStorage.getItem(STORAGE_KEY_UID);
                         
-                        if (savedEmail) {
-                            userEmailInput.value = savedEmail;
-                        } else {
-                            userEmailInput.value = user.email || "";
-                        }
+                        userEmailInput.value = savedEmail || user.email || "";
+                        userUidInput.value = savedUid || user.uid || "ID_NO_DISPONIBLE";
                         
-                        if (savedUid) {
-                            userUidInput.value = savedUid;
-                        } else {
-                            userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
-                        }
+                        // Hacer el campo UID editable
+                        userUidInput.removeAttribute('readonly');
+                        userUidInput.classList.add('editable');
+                        userUidInput.style.color = 'var(--text-dark)';
+                        userUidInput.style.backgroundColor = '#ffffff';
+                        userUidInput.style.cursor = 'text';
                     } else {
                         const currentPath = window.location.pathname + window.location.search;
                         window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
@@ -1793,8 +1779,20 @@
         const errorModalOverlay = document.getElementById("errorModalOverlay");
         const errorMessageDisplay = document.getElementById("errorMessage");
 
-
         let currentPurchaseType = 'CREDITOS'; // Estado inicial
+
+        // === GUARDAR DATOS EN LOCALSTORAGE ===
+        // Guardar correo cuando el usuario escribe
+        userEmailInput.addEventListener('input', function() {
+            localStorage.setItem(STORAGE_KEY_EMAIL, this.value.trim());
+            updatePaymentButtons();
+        });
+
+        // Guardar UID cuando el usuario escribe
+        userUidInput.addEventListener('input', function() {
+            localStorage.setItem(STORAGE_KEY_UID, this.value.trim());
+            updatePaymentButtons();
+        });
 
         // === F U N C I O N E S   D E   U T I L I D A D ===
 
@@ -1825,10 +1823,6 @@
             successModalBody.innerHTML = body.replace(/\n/g, '<br>');
             successModalOverlay.classList.add('active');
             successModalOverlay.style.display = "flex";
-            
-            // LIMPIAR LOS CAMPOS DESPUÉS DE PAGAR EXITOSAMENTE (según requerimiento)
-            localStorage.removeItem('masitaprex_userEmail');
-            localStorage.removeItem('masitaprex_userUid');
         }
 
         /** Cierra el Modal de Éxito */
@@ -1935,6 +1929,10 @@
                 return;
             }
             
+            // Guardar los datos antes de proceder al pago
+            localStorage.setItem(STORAGE_KEY_EMAIL, email);
+            localStorage.setItem(STORAGE_KEY_UID, uid);
+            
             let amount = 0;
             if (currentPurchaseType === 'CREDITOS') {
                 amount = selectedValue; 
@@ -1956,6 +1954,13 @@
             window.location.href = checkoutUrl;
         }
         
+        // === LIMPIAR LOCALSTORAGE DESPUÉS DEL PAGO ===
+        // Esta función se llama cuando el pago se completa exitosamente
+        function clearStorageAfterPayment() {
+            localStorage.removeItem(STORAGE_KEY_EMAIL);
+            localStorage.removeItem(STORAGE_KEY_UID);
+        }
+
         // === GESTIÓN DEL SELECTOR DE TIPO DE COMPRA (CRÉDITOS/ILIMITADO) ===
         function handleTypeSelection(event) {
             const selectedType = event.currentTarget.dataset.type;
@@ -1984,6 +1989,8 @@
                     
                     if (messageObj && messageObj.titulo && messageObj.cuerpo) {
                         showSuccessModal(messageObj.titulo, messageObj.cuerpo);
+                        // Limpiar localStorage después del pago exitoso
+                        clearStorageAfterPayment();
                     } else {
                         showErrorModal("Compra exitosa, pero el mensaje de confirmación del servidor está incompleto. Por favor, revisa tus créditos.");
                     }
@@ -2011,33 +2018,13 @@
             return false;
         }
 
-        // === PERSISTENCIA DE DATOS EN LOCALSTORAGE ===
-        function saveFormData() {
-            localStorage.setItem('masitaprex_userEmail', userEmailInput.value.trim());
-            localStorage.setItem('masitaprex_userUid', userUidInput.value.trim());
-        }
 
         // === EVENTOS PARA LA INTERFAZ DE PRECIOS Y PAGOS ===
         purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
-        
-        // Guardar datos cuando el usuario escribe
-        userEmailInput.addEventListener('input', function() {
-            saveFormData();
-            updatePaymentButtons();
-        });
-        
-        userUidInput.addEventListener('input', function() {
-            saveFormData();
-            updatePaymentButtons();
-        });
-        
         mpButton.addEventListener('click', startPayment);
         
         creditsTypeBtn.addEventListener('click', handleTypeSelection);
         unlimitedTypeBtn.addEventListener('click', handleTypeSelection);
-
-        // Limpiar localStorage cuando se hace clic en Pagar (se limpiará solo después del éxito)
-        // Pero no limpiamos aquí, solo en el éxito del pago.
 
         // === FUNCIONES PARA EL BOTÓN DE WHATSAPP FLOTANTE ===
         const whatsappMessage = "¡Comprar creditos por Whatsapp!";
