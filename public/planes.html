@@ -1069,38 +1069,35 @@
             background-color: var(--color-green);
         }
 
+        /* ===========================
+           ÚNICO CAMBIO: TOOLTIP CENTRADO Y ANCHO ALINEADO
+           =========================== */
         .tooltip {
-            position: absolute;
-            right: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-right: 10px;
+            position: fixed;              /* antes: absolute */
+            left: 50%;                    /* centrado horizontal en pantalla */
+            top: 50%;                     /* mantenemos altura centrada respecto a pantalla */
+            transform: translate(-50%, -50%); /* centra en ambos ejes */
+            right: auto;                  /* anula el comportamiento anterior */
+            margin-right: 0;              /* anula margen anterior */
             background-color: #1f2937;
             color: white;
             padding: 12px 16px;
             border-radius: 8px;
             font-size: 13px;
             line-height: 1.5;
-            width: 280px;
+            width: calc(100% - 2rem);     /* mismo ancho que el resto del contenido (main-content-container: padding 1rem) */
+            max-width: none;              /* sin límite fijo */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
             z-index: 1000;
             pointer-events: none;
+            box-sizing: border-box;
         }
 
         .tooltip::after {
-            content: '';
-            position: absolute;
-            right: -8px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid #1f2937;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
+            content: none; /* quitamos flecha para no desalinear y porque ya no “sale” desde el icono */
         }
 
         .help-icon-wrapper:hover .tooltip {
@@ -1111,9 +1108,9 @@
         /* Responsive para tooltips en pantallas pequeñas */
         @media (max-width: 640px) {
             .tooltip {
-                width: 220px;
                 font-size: 12px;
                 padding: 10px 12px;
+                width: calc(100% - 2rem); /* mantiene alineación */
             }
         }
 
