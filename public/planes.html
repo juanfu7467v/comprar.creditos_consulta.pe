@@ -712,6 +712,108 @@
             font-size: 0.95rem;
         }
         
+        /* === NUEVOS ESTILOS PARA INPUT CON ÍCONO DE AYUDA === */
+        .input-wrapper {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: white;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.3s;
+        }
+        
+        .input-wrapper:focus-within {
+            border-color: var(--color-blue);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.2);
+        }
+        
+        .input-wrapper input {
+            flex: 1;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            outline: none;
+            width: 100%;
+            box-shadow: none !important;
+        }
+        
+        .help-icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            background-color: #f8f9fa;
+            border-left: 1px solid var(--border-color);
+            cursor: pointer;
+            color: var(--color-blue);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        
+        .help-icon-btn:hover {
+            background-color: #e9ecef;
+            color: var(--color-green);
+        }
+        
+        /* Contenedor del tooltip */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        /* Tooltip hacia la izquierda */
+        .help-tooltip {
+            position: absolute;
+            top: 50%;
+            right: 100%; /* Aparece a la izquierda del ícono */
+            margin-right: 10px;
+            transform: translateY(-50%);
+            background-color: #1e293b;
+            color: white;
+            font-size: 0.8rem;
+            padding: 10px 14px;
+            border-radius: 8px;
+            width: 260px;
+            text-align: left;
+            font-weight: normal;
+            line-height: 1.5;
+            word-wrap: break-word;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            pointer-events: none;
+            white-space: normal;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        
+        /* Flecha del tooltip (a la derecha) */
+        .help-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%; /* Borde derecho del tooltip */
+            margin-top: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent transparent #1e293b;
+        }
+        
+        .help-icon-btn:hover .help-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Estilo especial para el campo ID (editable) */
+        #userUid {
+            background-color: white !important;
+            color: var(--text-dark) !important;
+        }
+        /* ============================================== */
+
         .form-group input, .form-group select {
             width: 100%;
             padding: 0.75rem;
@@ -1157,27 +1259,41 @@
                 </div>
 
                 <div class="form-group">
-                <label for="userEmail">Tu correo electrónico (para activar la compra):</label>
-                <input
-                    type="email"
-                    id="userEmail"
-                    name="userEmail"
-                    required
-                    placeholder="ejemplo@gmail.com"
-                />
+                    <label for="userEmail">Tu correo electrónico (para activar la compra):</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="userEmail"
+                            name="userEmail"
+                            required
+                            placeholder="ejemplo@gmail.com"
+                        />
+                        <div class="help-icon-btn tooltip-container">
+                            <i class="fas fa-question-circle"></i>
+                            <span class="help-tooltip">
+                                Ingresa los datos correctos. Si deseas recargar tu propia cuenta, deja el correo e ID que aparecen por defecto. Si quieres recargar otra cuenta, reemplaza esos datos por los del usuario correspondiente.
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                <label for="userUid">Tu ID de Usuario:</label>
-                <input
-                    type="text"
-                    id="userUid"
-                    name="userUid"
-                    required
-                    placeholder="ID de Usuario"
-                    readonly
-                    style="color: var(--text-medium); background-color: #e9ecef;"
-                />
+                    <label for="userUid">Tu ID de Usuario:</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="userUid"
+                            name="userUid"
+                            required
+                            placeholder="ID de Usuario"
+                        />
+                        <div class="help-icon-btn tooltip-container">
+                            <i class="fas fa-question-circle"></i>
+                            <span class="help-tooltip">
+                                Ingresa los datos correctos. Si deseas recargar tu propia cuenta, deja el correo e ID que aparecen por defecto. Si quieres recargar otra cuenta, reemplaza esos datos por los del usuario correspondiente.
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -1627,8 +1743,21 @@
                 // Configurar el observador de autenticación después de inicializar
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        userEmailInput.value = user.email || "";
-                        userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
+                        // Solo establece los valores por defecto si no hay datos guardados previamente
+                        const savedEmail = localStorage.getItem('masitaprex_userEmail');
+                        const savedUid = localStorage.getItem('masitaprex_userUid');
+                        
+                        if (savedEmail) {
+                            userEmailInput.value = savedEmail;
+                        } else {
+                            userEmailInput.value = user.email || "";
+                        }
+                        
+                        if (savedUid) {
+                            userUidInput.value = savedUid;
+                        } else {
+                            userUidInput.value = user.uid || "ID_NO_DISPONIBLE";
+                        }
                     } else {
                         const currentPath = window.location.pathname + window.location.search;
                         window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
@@ -1696,6 +1825,10 @@
             successModalBody.innerHTML = body.replace(/\n/g, '<br>');
             successModalOverlay.classList.add('active');
             successModalOverlay.style.display = "flex";
+            
+            // LIMPIAR LOS CAMPOS DESPUÉS DE PAGAR EXITOSAMENTE (según requerimiento)
+            localStorage.removeItem('masitaprex_userEmail');
+            localStorage.removeItem('masitaprex_userUid');
         }
 
         /** Cierra el Modal de Éxito */
@@ -1878,14 +2011,33 @@
             return false;
         }
 
+        // === PERSISTENCIA DE DATOS EN LOCALSTORAGE ===
+        function saveFormData() {
+            localStorage.setItem('masitaprex_userEmail', userEmailInput.value.trim());
+            localStorage.setItem('masitaprex_userUid', userUidInput.value.trim());
+        }
 
         // === EVENTOS PARA LA INTERFAZ DE PRECIOS Y PAGOS ===
         purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
-        userEmailInput.addEventListener('input', updatePaymentButtons);
+        
+        // Guardar datos cuando el usuario escribe
+        userEmailInput.addEventListener('input', function() {
+            saveFormData();
+            updatePaymentButtons();
+        });
+        
+        userUidInput.addEventListener('input', function() {
+            saveFormData();
+            updatePaymentButtons();
+        });
+        
         mpButton.addEventListener('click', startPayment);
         
         creditsTypeBtn.addEventListener('click', handleTypeSelection);
         unlimitedTypeBtn.addEventListener('click', handleTypeSelection);
+
+        // Limpiar localStorage cuando se hace clic en Pagar (se limpiará solo después del éxito)
+        // Pero no limpiamos aquí, solo en el éxito del pago.
 
         // === FUNCIONES PARA EL BOTÓN DE WHATSAPP FLOTANTE ===
         const whatsappMessage = "¡Comprar creditos por Whatsapp!";
@@ -1935,4 +2087,3 @@
     </script>
 </body>
 </html>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
