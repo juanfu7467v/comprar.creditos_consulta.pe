@@ -1069,37 +1069,46 @@
             background-color: var(--color-green);
         }
 
-        /* ===========================
-           ÚNICO CAMBIO: TOOLTIP CENTRADO Y ANCHO ALINEADO
-           =========================== */
+        /* === ÚNICO CAMBIO: POSICIONAMIENTO DEL TOOLTIP (centrado en pantalla, encima del ícono) === */
         .tooltip {
-            position: fixed;              /* antes: absolute */
-            left: 50%;                    /* centrado horizontal en pantalla */
-            top: 50%;                     /* mantenemos altura centrada respecto a pantalla */
-            transform: translate(-50%, -50%); /* centra en ambos ejes */
-            right: auto;                  /* anula el comportamiento anterior */
-            margin-right: 0;              /* anula margen anterior */
+            position: fixed;                /* antes: absolute */
+            left: 50%;                      /* centrado horizontal en pantalla */
+            top: auto;                      /* se calcula por JS */
+            right: auto;                    /* antes: right:100% */
+            transform: translateX(-50%);    /* centra respecto a left:50% */
+            margin: 0;                      /* sin desplazamientos laterales */
             background-color: #1f2937;
             color: white;
             padding: 12px 16px;
             border-radius: 8px;
             font-size: 13px;
             line-height: 1.5;
-            width: calc(100% - 2rem);     /* mismo ancho que el resto del contenido (main-content-container: padding 1rem) */
-            max-width: none;              /* sin límite fijo */
+            width: 280px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
             z-index: 1000;
             pointer-events: none;
-            box-sizing: border-box;
         }
 
         .tooltip::after {
-            content: none; /* quitamos flecha para no desalinear y porque ya no “sale” desde el icono */
+            content: '';
+            position: absolute;
+            left: 50%;                      /* flecha centrada en el tooltip */
+            bottom: -8px;                   /* flecha apuntando hacia abajo (al ícono) */
+            top: auto;                      /* anula el top anterior */
+            right: auto;                    /* anula el right anterior */
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #1f2937;  /* triángulo hacia abajo */
+            border-bottom: 0;
         }
 
+        /* Se mantiene el mismo disparador hover, solo cambia la posición (JS coloca top) */
         .help-icon-wrapper:hover .tooltip {
             opacity: 1;
             visibility: visible;
@@ -1108,9 +1117,9 @@
         /* Responsive para tooltips en pantallas pequeñas */
         @media (max-width: 640px) {
             .tooltip {
+                width: 220px;
                 font-size: 12px;
                 padding: 10px 12px;
-                width: calc(100% - 2rem); /* mantiene alineación */
             }
         }
 
@@ -2057,6 +2066,58 @@
             const prefilledMessage = encodeURIComponent('Hola, necesito ayuda para comprar créditos para Consulta PE.');
             window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
         }
+
+        /* === ÚNICO CAMBIO: lógica para posicionar el tooltip centrado en pantalla y encima del ícono === */
+        (function setupCenteredTooltips() {
+            function positionTooltip(wrapper) {
+                const tooltip = wrapper.querySelector('.tooltip');
+                const icon = wrapper.querySelector('.help-icon');
+                if (!tooltip || !icon) return;
+
+                // Medimos el ícono (elemento ancla)
+                const r = icon.getBoundingClientRect();
+
+                // Separación vertical entre tooltip y el ícono
+                const gap = 12;
+
+                // Colocar el tooltip encima del ícono
+                // (top = parte superior del tooltip)
+                const tooltipHeight = tooltip.offsetHeight || 0;
+                let top = (r.top - gap - tooltipHeight);
+
+                // Si no hay espacio arriba, lo mantenemos dentro de viewport (sin cambiar el diseño general)
+                const minTop = 8;
+                if (top < minTop) top = minTop;
+
+                tooltip.style.top = top + 'px';
+
+                // Flecha: que apunte al centro horizontal del ícono (pero dentro del tooltip)
+                const tooltipRect = tooltip.getBoundingClientRect();
+                const iconCenterX = r.left + (r.width / 2);
+                const arrowLeft = Math.max(12, Math.min(tooltipRect.width - 12, iconCenterX - tooltipRect.left));
+                tooltip.style.setProperty('--arrow-left', arrowLeft + 'px');
+            }
+
+            // Ajuste fino: usamos una variable CSS solo para mover la flecha (sin tocar nada más)
+            const style = document.createElement('style');
+            style.textContent = `
+                .tooltip::after { left: var(--arrow-left, 50%); }
+            `;
+            document.head.appendChild(style);
+
+            document.querySelectorAll('.help-icon-wrapper').forEach(wrapper => {
+                wrapper.addEventListener('mouseenter', () => positionTooltip(wrapper));
+                wrapper.addEventListener('touchstart', () => positionTooltip(wrapper), { passive: true });
+            });
+
+            window.addEventListener('scroll', () => {
+                document.querySelectorAll('.help-icon-wrapper:hover').forEach(positionTooltip);
+            }, { passive: true });
+
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.help-icon-wrapper:hover').forEach(positionTooltip);
+            });
+        })();
 
         // === INICIALIZACIÓN COMPLETA ===
         document.addEventListener("DOMContentLoaded", () => {
