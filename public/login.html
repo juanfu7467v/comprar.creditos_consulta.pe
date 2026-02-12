@@ -63,7 +63,7 @@
 
     .container {
         width: 100%;
-        max-width: 420px;
+        max-width: 480px;
         margin: 20px;
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
@@ -157,7 +157,7 @@
 
     button {
         width: 100%;
-        padding: 16px;
+        padding: 18px 24px;
         border: none;
         border-radius: 16px;
         font-size: 1.1rem;
@@ -169,19 +169,26 @@
         align-items: center;
         gap: 10px;
         margin-top: 10px;
+        min-height: 56px;
     }
 
     .primary-btn {
         background: var(--button-gradient);
         color: #fff;
         box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(0, 114, 255, 0.4);
     }
 
     .primary-btn:active {
         transform: scale(0.96);
     }
 
-    /* Estilo Deshabilitado */
     .primary-btn:disabled {
         background: #ccc;
         box-shadow: none;
@@ -192,8 +199,76 @@
     .register-btn {
         background: transparent;
         color: var(--primary);
-        border: 2px solid var(--primary);
+        border: 3px solid var(--primary);
         margin-top: 15px;
+        font-weight: 700;
+    }
+
+    .register-btn:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* 🆕 ESTILOS PARA BOTONES DE REDES SOCIALES */
+    .social-login-container {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .social-btn {
+        flex: 1;
+        padding: 16px 20px;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: 2px solid #e0e0e0;
+        background: white;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 54px;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .social-btn:active {
+        transform: scale(0.97);
+    }
+
+    .social-btn.github {
+        border-color: #333;
+    }
+
+    .social-btn.github:hover {
+        background: #333;
+        color: white;
+        border-color: #333;
+    }
+
+    .social-btn.google {
+        border-color: #db4437;
+    }
+
+    .social-btn.google:hover {
+        background: #db4437;
+        color: white;
+        border-color: #db4437;
+    }
+
+    .social-btn img {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
     }
 
     .separator {
@@ -245,7 +320,7 @@
         background: white;
         padding: 30px;
         border-radius: 28px;
-        max-width: 350px;
+        max-width: 420px;
         width: 100%;
         text-align: center;
         box-shadow: 0 20px 50px rgba(0,0,0,0.3);
@@ -370,26 +445,18 @@
         font-weight: 600;
     }
 
-    /* ESTILOS PARA reCAPTCHA - AJUSTADO PARA MISMO ANCHO */
+    /* ESTILOS PARA reCAPTCHA */
     .recaptcha-container {
         width: 100%;
         margin: 10px 0 20px 0;
-    }
-
-    #login-recaptcha, #register-recaptcha {
-        width: 100% !important;
         display: flex;
         justify-content: center;
     }
 
-    .g-recaptcha {
-        width: 100% !important;
-        transform: scale(1.0);
-        transform-origin: 0 0;
-    }
-
-    .g-recaptcha iframe {
-        width: 100% !important;
+    #login-recaptcha, #register-recaptcha {
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
 
     .help-bot-container {
@@ -430,21 +497,186 @@
         100% { transform: scale(1); }
     }
 
-    @media (max-width: 480px) {
-        .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        .help-bot-container { bottom: 20px; right: 20px; }
-        .help-bot-img { width: 65px; height: 65px; }
-        
-        /* Ajuste adicional para reCAPTCHA en móviles */
-        .g-recaptcha {
-            transform: scale(0.9);
+    /* 🆕 ADAPTACIÓN PARA TABLETS */
+    @media (min-width: 481px) and (max-width: 1024px) {
+        .container {
+            max-width: 600px;
+            padding: 50px 40px;
+        }
+
+        h3 {
+            font-size: 1.9rem;
+        }
+
+        p {
+            font-size: 1.05rem;
+        }
+
+        .input-field {
+            padding: 18px 22px 18px 55px;
+            font-size: 1.05rem;
+        }
+
+        button {
+            padding: 20px 28px;
+            font-size: 1.15rem;
+            min-height: 60px;
+        }
+
+        .social-btn {
+            padding: 18px 22px;
+            font-size: 1.05rem;
+            min-height: 58px;
         }
     }
 
-    /* Ajuste específico para reCAPTCHA en pantallas más pequeñas */
-    @media (max-width: 380px) {
-        .g-recaptcha {
+    /* 🆕 ADAPTACIÓN PARA LAPTOPS Y DESKTOPS */
+    @media (min-width: 1025px) {
+        .container {
+            max-width: 650px;
+            padding: 60px 50px;
+        }
+
+        h3 {
+            font-size: 2.1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+        }
+
+        .input-field {
+            padding: 20px 24px 20px 58px;
+            font-size: 1.1rem;
+        }
+
+        button {
+            padding: 22px 30px;
+            font-size: 1.2rem;
+            min-height: 64px;
+        }
+
+        .social-btn {
+            padding: 20px 24px;
+            font-size: 1.1rem;
+            min-height: 62px;
+        }
+
+        .field-icon {
+            font-size: 24px;
+            left: 20px;
+        }
+    }
+
+    /* 🆕 ADAPTACIÓN PARA MÓVILES */
+    @media (max-width: 480px) {
+        .container { 
+            margin: 0; 
+            border-radius: 0; 
+            min-height: 100vh; 
+            padding: 40px 20px;
+            max-width: 100%;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        p {
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            padding: 15px 18px 15px 48px;
+            font-size: 16px; /* Previene zoom en iOS */
+        }
+
+        button {
+            padding: 16px 20px;
+            font-size: 1rem;
+            min-height: 52px;
+        }
+
+        .social-btn {
+            padding: 14px 16px;
+            font-size: 0.95rem;
+            min-height: 50px;
+        }
+
+        .social-btn span {
+            display: none; /* Ocultar texto en móviles pequeños */
+        }
+
+        .social-login-container {
+            gap: 10px;
+        }
+
+        .help-bot-container { 
+            bottom: 20px; 
+            right: 20px; 
+        }
+
+        .help-bot-img { 
+            width: 65px; 
+            height: 65px; 
+        }
+
+        .modal-3d {
+            padding: 25px 20px;
+            max-width: 95%;
+        }
+
+        /* Ajuste reCAPTCHA para móviles */
+        .recaptcha-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #login-recaptcha > div,
+        #register-recaptcha > div {
+            transform: scale(0.95);
+            transform-origin: center center;
+        }
+    }
+
+    /* 🆕 PARA MÓVILES MUY PEQUEÑOS */
+    @media (max-width: 360px) {
+        .container {
+            padding: 30px 15px;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+        }
+
+        button {
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            min-height: 48px;
+        }
+
+        .social-btn {
+            padding: 12px 14px;
+            min-height: 46px;
+        }
+
+        .social-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        #login-recaptcha > div,
+        #register-recaptcha > div {
             transform: scale(0.85);
+        }
+    }
+
+    /* 🆕 PREVENIR ZOOM EN INPUTS EN iOS */
+    @media screen and (-webkit-min-device-pixel-ratio: 0) {
+        select,
+        textarea,
+        input {
+            font-size: 16px !important;
         }
     }
   </style>
@@ -507,7 +739,21 @@
         <div class="text-link">
             <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
         </div>
+        
+        <!-- 🆕 BOTONES DE REDES SOCIALES -->
         <div class="separator">ó</div>
+        <div class="social-login-container">
+            <button class="social-btn github" onclick="loginWithGitHub()">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
+                <span>GitHub</span>
+            </button>
+            <button class="social-btn google" onclick="loginWithGoogle()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google">
+                <span>Google</span>
+            </button>
+        </div>
+        
+        <div class="separator"></div>
         <button class="register-btn" onclick="showRegisterForm()">Crear una cuenta nueva</button>
     </div>
 
@@ -543,6 +789,20 @@
         <div class="register-policy-links">
             Al registrarte aceptas los <a href="go:terminos">Términos</a> y <a href="go:politica">Privacidad</a>.
         </div>
+        
+        <!-- 🆕 BOTONES DE REDES SOCIALES PARA REGISTRO -->
+        <div class="separator">ó</div>
+        <div class="social-login-container">
+            <button class="social-btn github" onclick="loginWithGitHub()">
+                <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
+                <span>GitHub</span>
+            </button>
+            <button class="social-btn google" onclick="loginWithGoogle()">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google">
+                <span>Google</span>
+            </button>
+        </div>
+        
         <div class="text-link">
             ¿Ya tienes cuenta? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
         </div>
@@ -569,7 +829,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-      onAuthStateChanged, sendPasswordResetEmail 
+      onAuthStateChanged, sendPasswordResetEmail,
+      GoogleAuthProvider, GithubAuthProvider, signInWithPopup
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
       getFirestore, doc, setDoc, serverTimestamp 
@@ -585,21 +846,23 @@
     let currentRecaptchaWidget = null;
     let recaptchaRefreshTimer = null;
 
-    // 🆕 Función para obtener parámetro de la URL
+    // 🆕 Proveedores de OAuth
+    let googleProvider;
+    let githubProvider;
+
+    // Función para obtener parámetro de la URL
     function getUrlParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
     }
 
-    // 🆕 Función para redirigir después del login/registro con returnTo
+    // Función para redirigir después del login/registro con returnTo
     function redirectAfterAuth() {
         const returnTo = getUrlParameter('returnTo');
         
         if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
-            // Decodificar y redirigir a la URL original
             try {
                 const decodedUrl = decodeURIComponent(returnTo);
-                // Validar que sea una URL relativa (por seguridad)
                 if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
                     window.location.href = decodedUrl;
                     return;
@@ -609,7 +872,6 @@
             }
         }
         
-        // Redirigir a actividad por defecto si no hay returnTo
         window.location.href = "actividad";
     }
 
@@ -621,14 +883,16 @@
         auth = getAuth(app);
         db = getFirestore(app);
 
-        // Usar la clave de reCAPTCHA del servidor si está disponible
+        // 🆕 Inicializar proveedores OAuth
+        googleProvider = new GoogleAuthProvider();
+        githubProvider = new GithubAuthProvider();
+
         if (appConfig.recaptchaSiteKey) {
             recaptchaSiteKey = appConfig.recaptchaSiteKey;
         }
 
         onAuthStateChanged(auth, (user) => {
           if (user) {
-            // 🔧 MODIFICACIÓN: Si el usuario ya tiene sesión iniciada, redirigir según returnTo
             redirectAfterAuth();
           } else {
             setTimeout(() => {
@@ -677,7 +941,6 @@
         const email = document.getElementById('register-email').value;
         const password = document.getElementById('register-password').value;
         
-        // Validar reCAPTCHA para registro
         const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
         if (!recaptchaResponse) {
             showMessage('Por favor, verifica que no eres un robot', 'error');
@@ -701,12 +964,10 @@
         closeTermsModal();
         registerNewAccount();
     });
-    /* FIN FUNCIONES MODAL */
 
-    // 🆕 Función para inicializar reCAPTCHA
+    // Función para inicializar reCAPTCHA
     window.recaptchaOnLoad = function() {
         console.log('reCAPTCHA cargado correctamente');
-        // Inicializar widgets cuando se cargue el script
         if (loginForm.style.display === 'flex') {
             initLoginRecaptcha();
         } else if (registerForm.style.display === 'flex') {
@@ -714,7 +975,7 @@
         }
     };
 
-    // 🆕 Función para inicializar reCAPTCHA de login
+    // Función para inicializar reCAPTCHA de login
     function initLoginRecaptcha() {
         if (loginRecaptchaWidgetId !== null) {
             grecaptcha.reset(loginRecaptchaWidgetId);
@@ -729,7 +990,6 @@
                 'size': 'normal',
                 'callback': function(response) {
                     console.log('reCAPTCHA de login verificado');
-                    // Iniciar temporizador para refrescar token
                     startRecaptchaRefreshTimer(loginRecaptchaWidgetId);
                 },
                 'expired-callback': function() {
@@ -745,7 +1005,7 @@
         }
     }
 
-    // 🆕 Función para inicializar reCAPTCHA de registro
+    // Función para inicializar reCAPTCHA de registro
     function initRegisterRecaptcha() {
         if (registerRecaptchaWidgetId !== null) {
             grecaptcha.reset(registerRecaptchaWidgetId);
@@ -760,7 +1020,6 @@
                 'size': 'normal',
                 'callback': function(response) {
                     console.log('reCAPTCHA de registro verificado');
-                    // Iniciar temporizador para refrescar token
                     startRecaptchaRefreshTimer(registerRecaptchaWidgetId);
                 },
                 'expired-callback': function() {
@@ -776,30 +1035,25 @@
         }
     }
 
-    // 🆕 Función para iniciar temporizador de refresco de reCAPTCHA
+    // Función para iniciar temporizador de refresco de reCAPTCHA
     function startRecaptchaRefreshTimer(widgetId) {
-        // Limpiar temporizador anterior
         if (recaptchaRefreshTimer) {
             clearTimeout(recaptchaRefreshTimer);
         }
         
-        // Establecer nuevo temporizador para refrescar cada 50 segundos
         recaptchaRefreshTimer = setTimeout(() => {
             if (widgetId !== null && window.grecaptcha) {
                 console.log('Refrescando token reCAPTCHA automáticamente');
                 grecaptcha.reset(widgetId);
-                
-                // Volver a iniciar el temporizador
                 startRecaptchaRefreshTimer(widgetId);
             }
-        }, 50000); // 50 segundos
+        }, 50000);
     }
 
     window.showRegisterForm = () => {
         hideAllForms();
         registerForm.style.display = 'flex';
         
-        // Inicializar reCAPTCHA para registro
         setTimeout(() => {
             initRegisterRecaptcha();
         }, 100);
@@ -809,7 +1063,6 @@
         hideAllForms();
         loginForm.style.display = 'flex';
         
-        // Inicializar reCAPTCHA para login
         setTimeout(() => {
             initLoginRecaptcha();
         }, 100);
@@ -819,7 +1072,6 @@
         hideAllForms();
         recoverPasswordForm.style.display = 'flex';
         
-        // Detener temporizador de reCAPTCHA si está activo
         if (recaptchaRefreshTimer) {
             clearTimeout(recaptchaRefreshTimer);
             recaptchaRefreshTimer = null;
@@ -837,7 +1089,7 @@
         }
     };
 
-    // 🆕 Función para validar reCAPTCHA con el backend
+    // Función para validar reCAPTCHA con el backend
     async function validateRecaptchaWithBackend(recaptchaResponse) {
         try {
             const response = await fetch('/api/validate-recaptcha', {
@@ -861,6 +1113,64 @@
         }
     }
 
+    // 🆕 FUNCIÓN PARA LOGIN CON GOOGLE
+    window.loginWithGoogle = async () => {
+        showLoadingOverlay();
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            await saveUserProfile(result.user);
+            
+            if (recaptchaRefreshTimer) {
+                clearTimeout(recaptchaRefreshTimer);
+                recaptchaRefreshTimer = null;
+            }
+            
+            redirectAfterAuth();
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('Error en login con Google:', error);
+            
+            if (error.code === 'auth/popup-closed-by-user') {
+                showMessage('Inicio de sesión cancelado', 'error');
+            } else if (error.code === 'auth/popup-blocked') {
+                showMessage('Permitir ventanas emergentes para iniciar sesión', 'error');
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                showMessage('Esta cuenta ya existe con otro método de acceso', 'error');
+            } else {
+                showMessage('Error al iniciar sesión con Google: ' + error.message, 'error');
+            }
+        }
+    };
+
+    // 🆕 FUNCIÓN PARA LOGIN CON GITHUB
+    window.loginWithGitHub = async () => {
+        showLoadingOverlay();
+        try {
+            const result = await signInWithPopup(auth, githubProvider);
+            await saveUserProfile(result.user);
+            
+            if (recaptchaRefreshTimer) {
+                clearTimeout(recaptchaRefreshTimer);
+                recaptchaRefreshTimer = null;
+            }
+            
+            redirectAfterAuth();
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('Error en login con GitHub:', error);
+            
+            if (error.code === 'auth/popup-closed-by-user') {
+                showMessage('Inicio de sesión cancelado', 'error');
+            } else if (error.code === 'auth/popup-blocked') {
+                showMessage('Permitir ventanas emergentes para iniciar sesión', 'error');
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                showMessage('Esta cuenta ya existe con otro método de acceso', 'error');
+            } else {
+                showMessage('Error al iniciar sesión con GitHub: ' + error.message, 'error');
+            }
+        }
+    };
+
     window.loginWithEmail = async () => {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
@@ -870,7 +1180,6 @@
           return;
       }
       
-      // Validar reCAPTCHA
       const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
       if (!recaptchaResponse) {
           showMessage('Por favor, verifica que no eres un robot', 'error');
@@ -880,26 +1189,20 @@
       showLoadingOverlay();
       
       try {
-          // Validar reCAPTCHA con el backend primero
           await validateRecaptchaWithBackend(recaptchaResponse);
-          
-          // Luego proceder con Firebase Auth
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user);
           
-          // Limpiar temporizador antes de redirigir
           if (recaptchaRefreshTimer) {
               clearTimeout(recaptchaRefreshTimer);
               recaptchaRefreshTimer = null;
           }
           
-          // 🔧 MODIFICACIÓN: Redirigir según returnTo después del login exitoso
           redirectAfterAuth();
           
       } catch (error) {
           hideLoadingOverlay();
           
-          // Reiniciar reCAPTCHA
           if (loginRecaptchaWidgetId !== null) {
               grecaptcha.reset(loginRecaptchaWidgetId);
           }
@@ -917,7 +1220,6 @@
           } else if (error.message.includes('reCAPTCHA')) {
               showMessage('Error de verificación de seguridad. Intenta nuevamente.', 'error');
           } else {
-              // Mensaje genérico para otros errores
               showMessage('Error al iniciar sesión: ' + error.message, 'error');
           }
       }
@@ -937,7 +1239,6 @@
           return;
       }
       
-      // Validar reCAPTCHA (ya se validó en openTermsModal, pero verificamos de nuevo)
       const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
       if (!recaptchaResponse) {
           showMessage('Por favor, verifica que no eres un robot', 'error');
@@ -946,26 +1247,20 @@
       
       showLoadingOverlay();
       try {
-          // Validar reCAPTCHA con el backend primero
           await validateRecaptchaWithBackend(recaptchaResponse);
-          
-          // Luego proceder con Firebase Auth
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
           
-          // Limpiar temporizador antes de redirigir
           if (recaptchaRefreshTimer) {
               clearTimeout(recaptchaRefreshTimer);
               recaptchaRefreshTimer = null;
           }
           
-          // 🔧 MODIFICACIÓN: Redirigir según returnTo después del registro exitoso
           redirectAfterAuth();
           
       } catch (error) {
           hideLoadingOverlay();
           
-          // Reiniciar reCAPTCHA
           if (registerRecaptchaWidgetId !== null) {
               grecaptcha.reset(registerRecaptchaWidgetId);
           }
