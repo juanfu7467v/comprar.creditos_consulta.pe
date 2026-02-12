@@ -63,7 +63,7 @@
 
     .container {
         width: 100%;
-        max-width: 480px;
+        max-width: 420px;
         margin: 20px;
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
@@ -155,12 +155,14 @@
         color: var(--primary);
     }
 
+    /* 🆕 MEJORAS EN BOTONES - Grosor, padding y apariencia profesional */
     button {
         width: 100%;
-        padding: 18px 24px;
+        padding: 18px 24px; /* ✅ Más padding */
+        min-height: 56px; /* ✅ Altura mínima adecuada */
         border: none;
         border-radius: 16px;
-        font-size: 1.1rem;
+        font-size: 1.05rem; /* ✅ Texto más grande */
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -169,15 +171,13 @@
         align-items: center;
         gap: 10px;
         margin-top: 10px;
-        min-height: 56px;
+        letter-spacing: 0.3px; /* ✅ Mejor legibilidad */
     }
 
     .primary-btn {
         background: var(--button-gradient);
         color: #fff;
         box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
-        font-weight: 700;
-        letter-spacing: 0.3px;
     }
 
     .primary-btn:hover {
@@ -189,6 +189,7 @@
         transform: scale(0.96);
     }
 
+    /* Estilo Deshabilitado */
     .primary-btn:disabled {
         background: #ccc;
         box-shadow: none;
@@ -199,76 +200,67 @@
     .register-btn {
         background: transparent;
         color: var(--primary);
-        border: 3px solid var(--primary);
+        border: 2px solid var(--primary);
         margin-top: 15px;
-        font-weight: 700;
     }
 
     .register-btn:hover {
         background: var(--primary);
-        color: white;
+        color: #fff;
         transform: translateY(-2px);
     }
 
-    /* 🆕 ESTILOS PARA BOTONES DE REDES SOCIALES */
-    .social-login-container {
-        display: flex;
-        gap: 12px;
-        margin-top: 15px;
-        width: 100%;
-    }
-
+    /* 🆕 BOTONES SOCIALES (GitHub y Google) */
     .social-btn {
-        flex: 1;
-        padding: 16px 20px;
+        width: 100%;
+        padding: 16px 24px;
+        min-height: 54px;
+        border: 2px solid #e0e0e0;
         border-radius: 14px;
         font-size: 1rem;
         font-weight: 600;
-        border: 2px solid #e0e0e0;
-        background: white;
-        color: #333;
         cursor: pointer;
         transition: all 0.3s ease;
         display: flex;
-        align-items: center;
         justify-content: center;
-        gap: 10px;
-        min-height: 54px;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        background: white;
+        color: var(--text-dark);
     }
 
     .social-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .social-btn:active {
-        transform: scale(0.97);
-    }
-
-    .social-btn.github {
-        border-color: #333;
-    }
-
-    .social-btn.github:hover {
-        background: #333;
-        color: white;
-        border-color: #333;
-    }
-
-    .social-btn.google {
-        border-color: #db4437;
-    }
-
-    .social-btn.google:hover {
-        background: #db4437;
-        color: white;
-        border-color: #db4437;
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     }
 
     .social-btn img {
         width: 22px;
         height: 22px;
-        object-fit: contain;
+    }
+
+    .github-btn {
+        border-color: #24292e;
+        color: #24292e;
+    }
+
+    .github-btn:hover {
+        background: #24292e;
+        color: white;
+        border-color: #24292e;
+    }
+
+    .google-btn {
+        border-color: #4285f4;
+        color: #4285f4;
+    }
+
+    .google-btn:hover {
+        background: #4285f4;
+        color: white;
+        border-color: #4285f4;
     }
 
     .separator {
@@ -320,7 +312,7 @@
         background: white;
         padding: 30px;
         border-radius: 28px;
-        max-width: 420px;
+        max-width: 350px;
         width: 100%;
         text-align: center;
         box-shadow: 0 20px 50px rgba(0,0,0,0.3);
@@ -445,18 +437,26 @@
         font-weight: 600;
     }
 
-    /* ESTILOS PARA reCAPTCHA */
+    /* ESTILOS PARA reCAPTCHA - AJUSTADO PARA MISMO ANCHO */
     .recaptcha-container {
         width: 100%;
         margin: 10px 0 20px 0;
+    }
+
+    #login-recaptcha, #register-recaptcha {
+        width: 100% !important;
         display: flex;
         justify-content: center;
     }
 
-    #login-recaptcha, #register-recaptcha {
-        width: 100%;
-        display: flex;
-        justify-content: center;
+    .g-recaptcha {
+        width: 100% !important;
+        transform: scale(1.0);
+        transform-origin: 0 0;
+    }
+
+    .g-recaptcha iframe {
+        width: 100% !important;
     }
 
     .help-bot-container {
@@ -497,191 +497,287 @@
         100% { transform: scale(1); }
     }
 
-    /* 🆕 ADAPTACIÓN PARA TABLETS */
-    @media (min-width: 481px) and (max-width: 1024px) {
+    /* 🆕 NUEVA INTERFAZ LANDING INICIAL */
+    #landing-interface {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        justify-content: center;
+        align-items: center;
+        z-index: 5000;
+        padding: 20px;
+    }
+
+    .landing-content {
+        text-align: center;
+        max-width: 450px;
+        width: 100%;
+    }
+
+    .landing-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 30px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .landing-icon img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .landing-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 15px;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .landing-description {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.9);
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }
+
+    /* Botón principal con borde degradado */
+    .landing-register-btn {
+        width: 100%;
+        padding: 20px 24px;
+        background: white;
+        color: #667eea;
+        border: 3px solid transparent;
+        background-image: linear-gradient(white, white), linear-gradient(135deg, #0072ff, #00e676);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        border-radius: 16px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .landing-register-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    .landing-google-btn, .landing-github-btn {
+        width: 100%;
+        padding: 18px 24px;
+        background: white;
+        color: var(--text-dark);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .landing-google-btn:hover, .landing-github-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Botón Iniciar sesión con borde rojo */
+    .landing-login-btn {
+        width: 100%;
+        padding: 18px 24px;
+        background: white;
+        color: #ff4444;
+        border: 3px solid #ff4444;
+        border-radius: 14px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .landing-login-btn:hover {
+        background: #ff4444;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(255, 68, 68, 0.3);
+    }
+
+    .landing-footer {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 10px;
+    }
+
+    .landing-footer a {
+        color: white;
+        text-decoration: underline;
+        margin: 0 8px;
+    }
+
+    /* 🆕 ADAPTACIÓN RESPONSIVE MEJORADA */
+    @media (min-width: 769px) {
+        /* En pantallas grandes, el contenedor llena más ancho */
         .container {
-            max-width: 600px;
-            padding: 50px 40px;
+            max-width: 90%;
+            width: 100%;
         }
-
-        h3 {
-            font-size: 1.9rem;
-        }
-
-        p {
-            font-size: 1.05rem;
-        }
-
-        .input-field {
-            padding: 18px 22px 18px 55px;
-            font-size: 1.05rem;
-        }
-
-        button {
-            padding: 20px 28px;
-            font-size: 1.15rem;
-            min-height: 60px;
-        }
-
-        .social-btn {
-            padding: 18px 22px;
-            font-size: 1.05rem;
-            min-height: 58px;
+        
+        body {
+            justify-content: center;
+            padding: 20px;
         }
     }
 
-    /* 🆕 ADAPTACIÓN PARA LAPTOPS Y DESKTOPS */
-    @media (min-width: 1025px) {
+    @media (max-width: 768px) {
+        /* Tablet - contenedor más ancho */
         .container {
-            max-width: 650px;
-            padding: 60px 50px;
-        }
-
-        h3 {
-            font-size: 2.1rem;
-        }
-
-        p {
-            font-size: 1.1rem;
-        }
-
-        .input-field {
-            padding: 20px 24px 20px 58px;
-            font-size: 1.1rem;
-        }
-
-        button {
-            padding: 22px 30px;
-            font-size: 1.2rem;
-            min-height: 64px;
-        }
-
-        .social-btn {
-            padding: 20px 24px;
-            font-size: 1.1rem;
-            min-height: 62px;
-        }
-
-        .field-icon {
-            font-size: 24px;
-            left: 20px;
+            max-width: 85%;
         }
     }
 
-    /* 🆕 ADAPTACIÓN PARA MÓVILES */
     @media (max-width: 480px) {
+        /* Móviles - ajustes específicos */
         .container { 
             margin: 0; 
             border-radius: 0; 
             min-height: 100vh; 
-            padding: 40px 20px;
+            padding: 50px 25px; 
             max-width: 100%;
+            width: 100%;
         }
-
+        
         h3 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
         }
-
-        p {
-            font-size: 0.9rem;
-        }
-
+        
         .input-field {
-            padding: 15px 18px 15px 48px;
-            font-size: 16px; /* Previene zoom en iOS */
+            padding: 14px 18px 14px 48px;
+            font-size: 0.95rem;
         }
-
+        
         button {
             padding: 16px 20px;
-            font-size: 1rem;
             min-height: 52px;
+            font-size: 1rem;
         }
-
+        
         .social-btn {
-            padding: 14px 16px;
-            font-size: 0.95rem;
+            padding: 14px 20px;
             min-height: 50px;
         }
-
-        .social-btn span {
-            display: none; /* Ocultar texto en móviles pequeños */
+        
+        .landing-title {
+            font-size: 2rem;
         }
-
-        .social-login-container {
-            gap: 10px;
+        
+        .landing-description {
+            font-size: 1rem;
         }
-
+        
         .help-bot-container { 
             bottom: 20px; 
             right: 20px; 
         }
-
+        
         .help-bot-img { 
             width: 65px; 
             height: 65px; 
         }
-
-        .modal-3d {
-            padding: 25px 20px;
-            max-width: 95%;
-        }
-
-        /* Ajuste reCAPTCHA para móviles */
-        .recaptcha-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        #login-recaptcha > div,
-        #register-recaptcha > div {
-            transform: scale(0.95);
-            transform-origin: center center;
+        
+        /* Ajuste adicional para reCAPTCHA en móviles */
+        .g-recaptcha {
+            transform: scale(0.9);
         }
     }
 
-    /* 🆕 PARA MÓVILES MUY PEQUEÑOS */
-    @media (max-width: 360px) {
-        .container {
-            padding: 30px 15px;
-        }
-
-        h3 {
-            font-size: 1.3rem;
-        }
-
-        button {
-            padding: 14px 18px;
-            font-size: 0.95rem;
-            min-height: 48px;
-        }
-
-        .social-btn {
-            padding: 12px 14px;
-            min-height: 46px;
-        }
-
-        .social-btn img {
-            width: 20px;
-            height: 20px;
-        }
-
-        #login-recaptcha > div,
-        #register-recaptcha > div {
+    /* Ajuste específico para reCAPTCHA en pantallas más pequeñas */
+    @media (max-width: 380px) {
+        .g-recaptcha {
             transform: scale(0.85);
         }
+        
+        .container {
+            padding: 40px 20px;
+        }
     }
 
-    /* 🆕 PREVENIR ZOOM EN INPUTS EN iOS */
-    @media screen and (-webkit-min-device-pixel-ratio: 0) {
-        select,
-        textarea,
-        input {
-            font-size: 16px !important;
+    @media (max-width: 360px) {
+        .landing-register-btn,
+        .landing-google-btn,
+        .landing-github-btn,
+        .landing-login-btn {
+            padding: 16px 20px;
+            font-size: 1rem;
         }
     }
   </style>
 </head>
 <body>
+
+  <!-- 🆕 NUEVA INTERFAZ LANDING INICIAL -->
+  <div id="landing-interface">
+    <div class="landing-content">
+      <div class="landing-icon">
+        <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex Icon">
+      </div>
+      
+      <h1 class="landing-title">Masitaprex</h1>
+      
+      <p class="landing-description">
+        Bienvenido a la infraestructura de élite. Gestiona tus APIs, créditos y servicios premium.
+      </p>
+      
+      <button class="landing-register-btn" onclick="showRegisterFromLanding()">
+        <span class="material-icons">person_add</span>
+        Regístrate gratis
+      </button>
+      
+      <button class="landing-google-btn" onclick="loginWithGoogle()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+        Iniciar sesión con Google
+      </button>
+      
+      <button class="landing-github-btn" onclick="loginWithGithub()">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+        Iniciar sesión con GitHub
+      </button>
+      
+      <button class="landing-login-btn" onclick="showLoginFromLanding()">
+        <span class="material-icons">login</span>
+        Iniciar sesión
+      </button>
+      
+      <div class="landing-footer">
+        <a href="go:politica">Política de privacidad</a> • 
+        <a href="go:terminos">Términos y condiciones</a>
+      </div>
+    </div>
+  </div>
 
   <div id="terms-modal" class="modal-overlay">
     <div class="modal-3d">
@@ -736,30 +832,44 @@
             <span>Entrar</span>
             <span class="material-icons">arrow_forward</span>
         </button>
+        
+        <!-- 🆕 Botones de autenticación social -->
+        <div class="separator">ó continúa con</div>
+        
+        <button class="social-btn google-btn" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            <span>Continuar con Google</span>
+        </button>
+        
+        <button class="social-btn github-btn" onclick="loginWithGithub()">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+            <span>Continuar con GitHub</span>
+        </button>
+        
         <div class="text-link">
             <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
         </div>
-        
-        <!-- 🆕 BOTONES DE REDES SOCIALES -->
         <div class="separator">ó</div>
-        <div class="social-login-container">
-            <button class="social-btn github" onclick="loginWithGitHub()">
-                <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
-                <span>GitHub</span>
-            </button>
-            <button class="social-btn google" onclick="loginWithGoogle()">
-                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google">
-                <span>Google</span>
-            </button>
-        </div>
-        
-        <div class="separator"></div>
         <button class="register-btn" onclick="showRegisterForm()">Crear una cuenta nueva</button>
     </div>
 
     <div id="register-form" class="register-form">
         <h3>Únete ahora</h3>
         <p>Crea tu cuenta en segundos</p>
+        
+        <!-- 🆕 Botones de registro social al inicio -->
+        <button class="social-btn google-btn" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            <span>Registrarse con Google</span>
+        </button>
+        
+        <button class="social-btn github-btn" onclick="loginWithGithub()">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
+            <span>Registrarse con GitHub</span>
+        </button>
+        
+        <div class="separator">ó con email</div>
+        
         <div class="input-group">
             <span class="material-icons field-icon">person</span>
             <input type="text" id="register-name" placeholder="Nombre completo" class="input-field">
@@ -789,20 +899,6 @@
         <div class="register-policy-links">
             Al registrarte aceptas los <a href="go:terminos">Términos</a> y <a href="go:politica">Privacidad</a>.
         </div>
-        
-        <!-- 🆕 BOTONES DE REDES SOCIALES PARA REGISTRO -->
-        <div class="separator">ó</div>
-        <div class="social-login-container">
-            <button class="social-btn github" onclick="loginWithGitHub()">
-                <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
-                <span>GitHub</span>
-            </button>
-            <button class="social-btn google" onclick="loginWithGoogle()">
-                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="Google">
-                <span>Google</span>
-            </button>
-        </div>
-        
         <div class="text-link">
             ¿Ya tienes cuenta? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
         </div>
@@ -846,9 +942,8 @@
     let currentRecaptchaWidget = null;
     let recaptchaRefreshTimer = null;
 
-    // 🆕 Proveedores de OAuth
-    let googleProvider;
-    let githubProvider;
+    // 🆕 Providers para autenticación social
+    let googleProvider, githubProvider;
 
     // Función para obtener parámetro de la URL
     function getUrlParameter(name) {
@@ -883,7 +978,7 @@
         auth = getAuth(app);
         db = getFirestore(app);
 
-        // 🆕 Inicializar proveedores OAuth
+        // 🆕 Inicializar providers de autenticación social
         googleProvider = new GoogleAuthProvider();
         githubProvider = new GithubAuthProvider();
 
@@ -896,7 +991,8 @@
             redirectAfterAuth();
           } else {
             setTimeout(() => {
-                showLoginForm();
+                // 🆕 Mostrar landing en lugar de login directamente
+                showLandingInterface();
                 hideLoadingOverlay();
             }, 500);
           }
@@ -913,7 +1009,9 @@
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const recoverPasswordForm = document.getElementById('recover-password-form');
-    const loadingIndicator = document.getElementById('loading-indicator'); 
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const landingInterface = document.getElementById('landing-interface');
+    const loginRegisterContainer = document.getElementById('login-register-container');
 
     // Elementos del Modal
     const termsModal = document.getElementById('terms-modal');
@@ -929,11 +1027,33 @@
     function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
     function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
 
+    // 🆕 Funciones para mostrar/ocultar interfaces
+    function showLandingInterface() {
+        landingInterface.style.display = 'flex';
+        loginRegisterContainer.style.display = 'none';
+    }
+
+    function hideLandingInterface() {
+        landingInterface.style.display = 'none';
+        loginRegisterContainer.style.display = 'flex';
+    }
+
     function hideAllForms() {
         loginForm.style.display = 'none';
         registerForm.style.display = 'none';
         recoverPasswordForm.style.display = 'none';
     }
+
+    // 🆕 Funciones para navegación desde landing
+    window.showLoginFromLanding = () => {
+        hideLandingInterface();
+        showLoginForm();
+    };
+
+    window.showRegisterFromLanding = () => {
+        hideLandingInterface();
+        showRegisterForm();
+    };
 
     /* FUNCIONES DEL MODAL 3D */
     window.openTermsModal = () => {
@@ -964,6 +1084,7 @@
         closeTermsModal();
         registerNewAccount();
     });
+    /* FIN FUNCIONES MODAL */
 
     // Función para inicializar reCAPTCHA
     window.recaptchaOnLoad = function() {
@@ -975,7 +1096,6 @@
         }
     };
 
-    // Función para inicializar reCAPTCHA de login
     function initLoginRecaptcha() {
         if (loginRecaptchaWidgetId !== null) {
             grecaptcha.reset(loginRecaptchaWidgetId);
@@ -1005,7 +1125,6 @@
         }
     }
 
-    // Función para inicializar reCAPTCHA de registro
     function initRegisterRecaptcha() {
         if (registerRecaptchaWidgetId !== null) {
             grecaptcha.reset(registerRecaptchaWidgetId);
@@ -1035,7 +1154,6 @@
         }
     }
 
-    // Función para iniciar temporizador de refresco de reCAPTCHA
     function startRecaptchaRefreshTimer(widgetId) {
         if (recaptchaRefreshTimer) {
             clearTimeout(recaptchaRefreshTimer);
@@ -1089,7 +1207,63 @@
         }
     };
 
-    // Función para validar reCAPTCHA con el backend
+    // 🆕 FUNCIONES DE AUTENTICACIÓN SOCIAL
+    window.loginWithGoogle = async () => {
+        showLoadingOverlay();
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            await saveUserProfile(result.user);
+            
+            if (recaptchaRefreshTimer) {
+                clearTimeout(recaptchaRefreshTimer);
+                recaptchaRefreshTimer = null;
+            }
+            
+            redirectAfterAuth();
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('Error con Google:', error);
+            
+            if (error.code === 'auth/popup-closed-by-user') {
+                showMessage('Autenticación cancelada', 'error');
+            } else if (error.code === 'auth/popup-blocked') {
+                showMessage('Permite ventanas emergentes para continuar', 'error');
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                showMessage('Ya existe una cuenta con este correo usando otro método', 'error');
+            } else {
+                showMessage('Error al conectar con Google: ' + error.message, 'error');
+            }
+        }
+    };
+
+    window.loginWithGithub = async () => {
+        showLoadingOverlay();
+        try {
+            const result = await signInWithPopup(auth, githubProvider);
+            await saveUserProfile(result.user);
+            
+            if (recaptchaRefreshTimer) {
+                clearTimeout(recaptchaRefreshTimer);
+                recaptchaRefreshTimer = null;
+            }
+            
+            redirectAfterAuth();
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('Error con GitHub:', error);
+            
+            if (error.code === 'auth/popup-closed-by-user') {
+                showMessage('Autenticación cancelada', 'error');
+            } else if (error.code === 'auth/popup-blocked') {
+                showMessage('Permite ventanas emergentes para continuar', 'error');
+            } else if (error.code === 'auth/account-exists-with-different-credential') {
+                showMessage('Ya existe una cuenta con este correo usando otro método', 'error');
+            } else {
+                showMessage('Error al conectar con GitHub: ' + error.message, 'error');
+            }
+        }
+    };
+
     async function validateRecaptchaWithBackend(recaptchaResponse) {
         try {
             const response = await fetch('/api/validate-recaptcha', {
@@ -1112,64 +1286,6 @@
             throw error;
         }
     }
-
-    // 🆕 FUNCIÓN PARA LOGIN CON GOOGLE
-    window.loginWithGoogle = async () => {
-        showLoadingOverlay();
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            await saveUserProfile(result.user);
-            
-            if (recaptchaRefreshTimer) {
-                clearTimeout(recaptchaRefreshTimer);
-                recaptchaRefreshTimer = null;
-            }
-            
-            redirectAfterAuth();
-        } catch (error) {
-            hideLoadingOverlay();
-            console.error('Error en login con Google:', error);
-            
-            if (error.code === 'auth/popup-closed-by-user') {
-                showMessage('Inicio de sesión cancelado', 'error');
-            } else if (error.code === 'auth/popup-blocked') {
-                showMessage('Permitir ventanas emergentes para iniciar sesión', 'error');
-            } else if (error.code === 'auth/account-exists-with-different-credential') {
-                showMessage('Esta cuenta ya existe con otro método de acceso', 'error');
-            } else {
-                showMessage('Error al iniciar sesión con Google: ' + error.message, 'error');
-            }
-        }
-    };
-
-    // 🆕 FUNCIÓN PARA LOGIN CON GITHUB
-    window.loginWithGitHub = async () => {
-        showLoadingOverlay();
-        try {
-            const result = await signInWithPopup(auth, githubProvider);
-            await saveUserProfile(result.user);
-            
-            if (recaptchaRefreshTimer) {
-                clearTimeout(recaptchaRefreshTimer);
-                recaptchaRefreshTimer = null;
-            }
-            
-            redirectAfterAuth();
-        } catch (error) {
-            hideLoadingOverlay();
-            console.error('Error en login con GitHub:', error);
-            
-            if (error.code === 'auth/popup-closed-by-user') {
-                showMessage('Inicio de sesión cancelado', 'error');
-            } else if (error.code === 'auth/popup-blocked') {
-                showMessage('Permitir ventanas emergentes para iniciar sesión', 'error');
-            } else if (error.code === 'auth/account-exists-with-different-credential') {
-                showMessage('Esta cuenta ya existe con otro método de acceso', 'error');
-            } else {
-                showMessage('Error al iniciar sesión con GitHub: ' + error.message, 'error');
-            }
-        }
-    };
 
     window.loginWithEmail = async () => {
       const email = document.getElementById('login-email').value;
