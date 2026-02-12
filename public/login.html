@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
   <title>Login Masitaprex | Registro y Acceso a la Infraestructura</title>
   <meta name="description" content="Acceso exclusivo a Masitaprex. Inicia sesión, realiza tu registro o recupera tu cuenta para gestionar créditos, APIs Dev y PeliPREX HD.">
   <meta name="keywords" content="login masitaprex, registro masitaprex, recuperar cuenta masitaprex, acceso masitaprex, comprar creditos masitaprex, paquetes masitaprex" />
@@ -23,9 +22,10 @@
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <!-- Google reCAPTCHA v2 -->
   <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
-
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Variables CSS Actualizadas con colores más fuertes y limpios */
@@ -157,24 +157,25 @@
 
     button {
         width: 100%;
-        padding: 16px;
+        padding: 18px; /* Aumentado de 16px */
         border: none;
         border-radius: 16px;
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: 1.15rem; /* Aumentado de 1.1rem */
+        font-weight: 700; /* Aumentado de 600 */
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         margin-top: 10px;
+        letter-spacing: 0.5px;
     }
 
     .primary-btn {
         background: var(--button-gradient);
         color: #fff;
-        box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 114, 255, 0.4); /* Sombra más fuerte */
     }
 
     .primary-btn:active {
@@ -192,9 +193,43 @@
     .register-btn {
         background: transparent;
         color: var(--primary);
-        border: 2px solid var(--primary);
+        border: 3px solid var(--primary); /* Borde más grueso */
         margin-top: 15px;
     }
+    
+    .register-btn:hover {
+        background: rgba(0, 123, 255, 0.05);
+    }
+
+    .social-btns {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .social-btn {
+        background: #fff;
+        color: var(--text-dark);
+        border: 1px solid #ddd;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 14px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .social-btn:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+
+    .social-btn i {
+        font-size: 1.2rem;
+    }
+
+    .google-btn i { color: #DB4437; }
+    .github-btn i { color: #333; }
 
     .separator {
         display: flex;
@@ -387,97 +422,48 @@
         transform: scale(1.0);
         transform-origin: 0 0;
     }
-
-    .g-recaptcha iframe {
-        width: 100% !important;
-    }
-
-    .help-bot-container {
-        position: fixed;
-        bottom: 30px;
-        right: 25px;
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .help-bot-img {
-        width: 75px; height: 75px;
-        object-fit: contain;
-        animation: floatBot 3s ease-in-out infinite;
-    }
-
-    .help-badge {
-        background: #25d366; 
-        color: white;
-        font-size: 10px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-top: 5px; 
-        animation: pulseBadge 2s infinite;
-    }
-
-    @keyframes floatBot {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-12px) rotate(5deg); }
-    }
-
-    @keyframes pulseBadge {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
-
-    @media (max-width: 480px) {
-        .container { margin: 0; border-radius: 0; min-height: 100vh; padding: 50px 25px; }
-        .help-bot-container { bottom: 20px; right: 20px; }
-        .help-bot-img { width: 65px; height: 65px; }
-        
-        /* Ajuste adicional para reCAPTCHA en móviles */
-        .g-recaptcha {
-            transform: scale(0.9);
-        }
-    }
-
-    /* Ajuste específico para reCAPTCHA en pantallas más pequeñas */
-    @media (max-width: 380px) {
-        .g-recaptcha {
-            transform: scale(0.85);
-        }
-    }
   </style>
 </head>
 <body>
 
-  <div id="terms-modal" class="modal-overlay">
-    <div class="modal-3d">
-        <span class="material-icons modal-icon">gavel</span>
-        <h3>Aviso Legal</h3>
-        <div class="terms-text">
-            Acepto los Términos y Condiciones y declaro que usaré esta información con un fin lícito e interés legítimo.
-        </div>
-        <label class="checkbox-container">
-            <input type="checkbox" id="accept-terms-check">
-            <span>He leído y acepto los términos para continuar.</span>
-        </label>
-        <button id="confirm-terms-btn" class="primary-btn" disabled>
-            Continuar Registro
-        </button>
-        <div class="text-link" style="margin-top: 15px;">
-            <a href="#" onclick="closeTermsModal()">Cancelar</a>
-        </div>
-    </div>
-  </div>
-
-  <div id="form-message-tooltip" class="form-message-tooltip"></div>
-
+  <!-- Overlay de Carga -->
   <div id="loading-indicator">
       <div class="circle-loader">
           <div></div>
           <div></div>
           <div></div>
+      </div>
+  </div>
+
+  <!-- Mensajes Tooltip -->
+  <div id="form-message-tooltip" class="form-message-tooltip"></div>
+
+  <!-- Modal de Términos -->
+  <div id="terms-modal" class="modal-overlay">
+      <div class="modal-3d">
+          <span class="material-icons modal-icon">verified</span>
+          <h3>Casi listo...</h3>
+          <p>Para crear tu cuenta, debes aceptar nuestras políticas de uso.</p>
+          
+          <div class="terms-text">
+              1. No usarás los datos para fines ilícitos.<br>
+              2. Tu cuenta es personal e intransferible.<br>
+              3. Respetarás los límites de consulta.
+          </div>
+
+          <label class="checkbox-container">
+              <input type="checkbox" id="accept-terms-check">
+              <span>He leído y acepto los términos y condiciones de Consulta PE.</span>
+          </label>
+
+          <button id="confirm-terms-btn" class="primary-btn" disabled>
+              <span>Confirmar y Crear</span>
+              <span class="material-icons">check_circle</span>
+          </button>
+          
+          <div class="text-link">
+              <a href="#" onclick="closeTermsModal(); return false;">Cancelar</a>
+          </div>
       </div>
   </div>
 
@@ -504,6 +490,20 @@
             <span>Entrar</span>
             <span class="material-icons">arrow_forward</span>
         </button>
+
+        <div class="separator">ó inicia con</div>
+
+        <div class="social-btns">
+            <button class="social-btn google-btn" onclick="loginWithGoogle()">
+                <i class="fab fa-google"></i>
+                <span>Google</span>
+            </button>
+            <button class="social-btn github-btn" onclick="loginWithGitHub()">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </button>
+        </div>
+
         <div class="text-link">
             <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
         </div>
@@ -569,7 +569,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-      onAuthStateChanged, sendPasswordResetEmail 
+      onAuthStateChanged, sendPasswordResetEmail,
+      GoogleAuthProvider, GithubAuthProvider, signInWithPopup
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
       getFirestore, doc, setDoc, serverTimestamp 
@@ -776,43 +777,37 @@
         }
     }
 
-    // 🆕 Función para iniciar temporizador de refresco de reCAPTCHA
+    // 🆕 Función para manejar temporizador de refresco de reCAPTCHA
     function startRecaptchaRefreshTimer(widgetId) {
-        // Limpiar temporizador anterior
         if (recaptchaRefreshTimer) {
             clearTimeout(recaptchaRefreshTimer);
         }
         
-        // Establecer nuevo temporizador para refrescar cada 50 segundos
+        // El token de reCAPTCHA v2 dura 2 minutos (120 segundos)
+        // Refrescamos a los 110 segundos para estar seguros
         recaptchaRefreshTimer = setTimeout(() => {
-            if (widgetId !== null && window.grecaptcha) {
-                console.log('Refrescando token reCAPTCHA automáticamente');
-                grecaptcha.reset(widgetId);
-                
-                // Volver a iniciar el temporizador
-                startRecaptchaRefreshTimer(widgetId);
-            }
-        }, 50000); // 50 segundos
+            console.log('Refrescando reCAPTCHA por tiempo límite');
+            grecaptcha.reset(widgetId);
+            showMessage('La sesión de seguridad ha expirado. Por favor, verifica nuevamente.', 'info');
+        }, 110000);
     }
-
-    window.showRegisterForm = () => {
-        hideAllForms();
-        registerForm.style.display = 'flex';
-        
-        // Inicializar reCAPTCHA para registro
-        setTimeout(() => {
-            initRegisterRecaptcha();
-        }, 100);
-    };
 
     window.showLoginForm = () => {
         hideAllForms();
         loginForm.style.display = 'flex';
-        
-        // Inicializar reCAPTCHA para login
-        setTimeout(() => {
-            initLoginRecaptcha();
-        }, 100);
+        // Inicializar reCAPTCHA si el script ya cargó
+        if (window.grecaptcha) {
+            setTimeout(initLoginRecaptcha, 100);
+        }
+    };
+
+    window.showRegisterForm = () => {
+        hideAllForms();
+        registerForm.style.display = 'flex';
+        // Inicializar reCAPTCHA si el script ya cargó
+        if (window.grecaptcha) {
+            setTimeout(initRegisterRecaptcha, 100);
+        }
     };
 
     window.showRecoverPasswordForm = () => {
@@ -921,6 +916,32 @@
               showMessage('Error al iniciar sesión: ' + error.message, 'error');
           }
       }
+    };
+
+    window.loginWithGoogle = async () => {
+        showLoadingOverlay();
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            await saveUserProfile(result.user);
+            redirectAfterAuth();
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error al iniciar con Google: ' + error.message, 'error');
+        }
+    };
+
+    window.loginWithGitHub = async () => {
+        showLoadingOverlay();
+        const provider = new GithubAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            await saveUserProfile(result.user);
+            redirectAfterAuth();
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error al iniciar con GitHub: ' + error.message, 'error');
+        }
     };
 
     window.registerNewAccount = async () => {
