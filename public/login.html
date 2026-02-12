@@ -298,11 +298,106 @@
         h3 { font-size: 2rem; }
         .screen { padding: 20px; }
     }
+
+    /* ----- NUEVA INTERFAZ: VERIFICACIÓN DE CORREO ----- */
+    /* Mismo fondo que después del registro - exactamente igual */
+    .email-verification-screen {
+        width: 100%;
+        max-width: 480px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: var(--bg-gradient); /* Mismo fondo exacto */
+    }
+
+    /* Contenido completamente centrado */
+    .email-verification-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        padding: 20px;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Ícono de éxito verde con animación */
+    .success-icon {
+        color: #10b981;
+        font-size: 80px;
+        margin-bottom: 24px;
+        animation: pulseScale 2s ease-in-out infinite;
+    }
+
+    @keyframes pulseScale {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    /* Texto claro con instrucciones */
+    .verification-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--text-dark);
+    }
+
+    .verification-message {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 32px;
+        max-width: 380px;
+    }
+
+    .resend-text {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin-top: 24px;
+    }
+
+    .resend-link {
+        color: var(--primary);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .resend-link:hover {
+        text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div id="app-container">
     
+    <!-- PANTALLA DE VERIFICACIÓN DE CORREO (NUEVA) -->
+    <div id="email-verification-screen" class="email-verification-screen" style="display: none;">
+        <div class="email-verification-content">
+            <!-- Ícono de éxito color verde con animación -->
+            <span class="material-icons success-icon">check_circle</span>
+            
+            <!-- Texto claro con instrucciones -->
+            <h2 class="verification-title">Verifica tu correo</h2>
+            <p class="verification-message">
+                Hemos enviado un correo de verificación a tu dirección de correo.<br><br>
+                Por favor revisa tu bandeja de entrada y abre el enlace para confirmar que el correo te pertenece.
+            </p>
+            
+            <!-- Opción para reenviar (funcionalidad completa) -->
+            <div class="resend-text">
+                ¿No recibiste el correo? 
+                <a id="resend-verification-link" class="resend-link" onclick="resendVerificationEmail()">Reenviar correo</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE BIENVENIDA (EXISTENTE, SIN MODIFICACIONES) -->
     <div id="welcome-screen" class="screen" style="display: flex;">
         <img src="https://cdn-icons-png.flaticon.com/128/17202/17202358.png" alt="Seguridad" style="width: 80px; height: 80px; margin-bottom: 20px;">
         <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Masitaprex</h1>
@@ -344,6 +439,7 @@
         </div>
     </div>
 
+    <!-- PANTALLA DE LOGIN (EXISTENTE, SIN MODIFICACIONES) -->
     <div id="login-screen" class="screen" style="display: none;">
       
       <div id="login-form" class="login-form">
@@ -441,6 +537,7 @@
     </div>
   </div>
 
+  <!-- MODAL DE TÉRMINOS (EXISTENTE, SIN MODIFICACIONES) -->
   <div id="terms-modal" class="modal-overlay fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[20000] hidden flex items-center justify-center p-4">
     <div class="modal-3d animate-in zoom-in duration-300">
         <div class="flex flex-col items-center text-center">
@@ -461,8 +558,10 @@
     </div>
   </div>
 
+  <!-- TOOLTIP DE MENSAJES (EXISTENTE, SIN MODIFICACIONES) -->
   <div id="form-message-tooltip" class="fixed top-6 left-1/2 -translate-x-1/2 z-[30000] px-6 py-4 rounded-2xl shadow-2xl transition-all duration-500 -translate-y-32 text-white font-medium flex items-center gap-3"></div>
   
+  <!-- INDICADOR DE CARGA (EXISTENTE, SIN MODIFICACIONES) -->
   <div id="loading-indicator" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[10000] hidden items-center justify-center">
       <div class="flex gap-2">
           <div class="w-4 h-4 rounded-full bg-blue-600 animate-bounce"></div>
@@ -476,7 +575,7 @@
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, 
-      GithubAuthProvider, signInWithPopup 
+      GithubAuthProvider, signInWithPopup, sendEmailVerification 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
       getFirestore, doc, setDoc, serverTimestamp 
@@ -494,6 +593,7 @@
     const loadingIndicator = document.getElementById('loading-indicator');
     const welcomeScreen = document.getElementById('welcome-screen');
     const loginScreen = document.getElementById('login-screen');
+    const emailVerificationScreen = document.getElementById('email-verification-screen');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const recoverPasswordForm = document.getElementById('recover-password-form');
@@ -535,9 +635,18 @@
             recaptchaSiteKey = appConfig.recaptchaSiteKey;
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
           if (user) {
-            redirectAfterAuth();
+            // Verificar si el correo está verificado
+            if (!user.emailVerified) {
+              // Si no está verificado, mostrar pantalla de verificación
+              await sendEmailVerification(user);
+              showEmailVerificationScreen();
+              hideLoadingOverlay();
+            } else {
+              // Si está verificado, proceder normalmente
+              redirectAfterAuth();
+            }
           } else {
             setTimeout(() => {
                 goToWelcomeScreen();
@@ -579,6 +688,7 @@
     window.goToWelcomeScreen = function() {
         welcomeScreen.style.display = 'flex';
         loginScreen.style.display = 'none';
+        if (emailVerificationScreen) emailVerificationScreen.style.display = 'none';
         hideAllForms();
     };
 
@@ -592,6 +702,32 @@
         welcomeScreen.style.display = 'none';
         loginScreen.style.display = 'flex';
         showRegisterForm();
+    };
+
+    // FUNCIÓN PARA MOSTRAR LA NUEVA PANTALLA DE VERIFICACIÓN
+    window.showEmailVerificationScreen = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'none';
+        if (emailVerificationScreen) {
+            emailVerificationScreen.style.display = 'flex';
+        }
+    };
+
+    // FUNCIÓN PARA REENVIAR CORREO DE VERIFICACIÓN
+    window.resendVerificationEmail = async function() {
+        if (!auth.currentUser) {
+            showMessage('No hay sesión activa', 'error');
+            return;
+        }
+        showLoadingOverlay();
+        try {
+            await sendEmailVerification(auth.currentUser);
+            hideLoadingOverlay();
+            showMessage('Correo de verificación reenviado', 'success');
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error al reenviar: ' + error.message, 'error');
+        }
     };
 
     window.openTermsModal = () => {
@@ -739,8 +875,16 @@
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            showMessage('Inicio de sesión exitoso', 'success');
-            setTimeout(() => redirectAfterAuth(), 1500);
+            
+            // Verificar si el correo está verificado (Google ya viene verificado)
+            if (!result.user.emailVerified) {
+                await sendEmailVerification(result.user);
+                showEmailVerificationScreen();
+            } else {
+                showMessage('Inicio de sesión exitoso', 'success');
+                setTimeout(() => redirectAfterAuth(), 1500);
+            }
+            hideLoadingOverlay();
         } catch (error) {
             hideLoadingOverlay();
             showMessage('Error con Google: ' + error.message, 'error');
@@ -754,8 +898,16 @@
             provider.setCustomParameters({ allow_signup: 'true' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            showMessage('Inicio de sesión exitoso', 'success');
-            setTimeout(() => redirectAfterAuth(), 1500);
+            
+            // Verificar si el correo está verificado (GitHub puede no tener correo verificado)
+            if (!result.user.emailVerified) {
+                await sendEmailVerification(result.user);
+                showEmailVerificationScreen();
+            } else {
+                showMessage('Inicio de sesión exitoso', 'success');
+                setTimeout(() => redirectAfterAuth(), 1500);
+            }
+            hideLoadingOverlay();
         } catch (error) {
             hideLoadingOverlay();
             showMessage('Error con GitHub: ' + error.message, 'error');
@@ -774,7 +926,15 @@
           await validateRecaptchaWithBackend(recaptchaResponse);
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user);
-          redirectAfterAuth();
+          
+          // Verificar si el correo está verificado
+          if (!userCredential.user.emailVerified) {
+              await sendEmailVerification(userCredential.user);
+              showEmailVerificationScreen();
+              hideLoadingOverlay();
+          } else {
+              redirectAfterAuth();
+          }
       } catch (error) {
           hideLoadingOverlay();
           if (loginRecaptchaWidgetId !== null) grecaptcha.reset(loginRecaptchaWidgetId);
@@ -797,7 +957,15 @@
           await validateRecaptchaWithBackend(recaptchaResponse);
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
-          redirectAfterAuth();
+          
+          // Enviar correo de verificación automáticamente después del registro
+          await sendEmailVerification(userCredential.user);
+          
+          // Mostrar pantalla de verificación de correo
+          showEmailVerificationScreen();
+          hideLoadingOverlay();
+          showMessage('Cuenta creada. Revisa tu correo para verificar.', 'success');
+          
       } catch (error) {
           hideLoadingOverlay();
           if (registerRecaptchaWidgetId !== null) grecaptcha.reset(registerRecaptchaWidgetId);
@@ -832,9 +1000,23 @@
       } catch (e) { console.error('Error perfil:', e); }
     }
 
+    // Verificar estado de verificación periódicamente
+    function checkEmailVerificationStatus() {
+        if (auth?.currentUser && !auth.currentUser.emailVerified) {
+            auth.currentUser.reload().then(() => {
+                if (auth.currentUser.emailVerified) {
+                    showMessage('Correo verificado exitosamente', 'success');
+                    setTimeout(() => redirectAfterAuth(), 1500);
+                }
+            });
+        }
+        setTimeout(checkEmailVerificationStatus, 3000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         hideAllForms();
         showLoadingOverlay();
+        setTimeout(checkEmailVerificationStatus, 3000);
     });
   </script>
 </body>
