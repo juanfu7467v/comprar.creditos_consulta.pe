@@ -8,6 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import axios from "axios";
+import { Resend } from "resend";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,24 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// ================================================================
+// ✉️ CONFIGURACIÓN DE RESEND (NUEVO)
+// ================================================================
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// ================================================================
+// 🌐 HELPERS DE IP (NUEVO)
+// ================================================================
+
+function getClientIp(req) {
+  const xForwardedFor = req.headers["x-forwarded-for"];
+  if (typeof xForwardedFor === "string" && xForwardedFor.length > 0) {
+    return xForwardedFor.split(",")[0].trim();
+  }
+  return req.ip;
+}
 
 // ================================================================
 // ðŸ” CONFIGURACIÃ“N DE RUTAS Y CONTROL DE ACCESO
@@ -103,7 +122,7 @@ const logger = {
   },
   error: (context, message, error = null, data = {}) => {
     const timestamp = new Date().toISOString();
-    console.error(`[${timestamp}] [ERROR] [${context}] ${message}`, 
+    console.error(`[${timestamp}] [ERROR] [${context}] ${message}`,
       error ? `Error: ${error.message} - Stack: ${error.stack}` : '',
       Object.keys(data).length ? data : ''
     );
@@ -120,21 +139,21 @@ const logger = {
 
 function buildServiceAccountFromEnv() {
   logger.info('FIREBASE_CONFIG', 'Construyendo service account desde variables de entorno individuales');
-  
+
   const requiredVars = [
     'FIREBASE_PRIVATE_KEY',
     'FIREBASE_CLIENT_EMAIL',
     'FIREBASE_PROJECT_ID',
     'FIREBASE_PRIVATE_KEY_ID'
   ];
-  
+
   const missingVars = requiredVars.filter(varName => !process.env[varName]);
-  
+
   if (missingVars.length > 0) {
     logger.error('FIREBASE_CONFIG', `Variables de Firebase faltantes: ${missingVars.join(', ')}`);
     return null;
   }
-  
+
   try {
     const serviceAccount = {
       "type": process.env.FIREBASE_TYPE || "service_account",
@@ -149,15 +168,15 @@ function buildServiceAccountFromEnv() {
       "client_x509_cert_url": process.env.FIREBASE_CLIENT_X509_CERT_URL,
       "universe_domain": process.env.FIREBASE_UNIVERSE_DOMAIN || "googleapis.com"
     };
-    
+
     logger.info('FIREBASE_CONFIG', 'Service account construido exitosamente', {
       project_id: serviceAccount.project_id,
       client_email: serviceAccount.client_email,
       has_private_key: !!serviceAccount.private_key
     });
-    
+
     return serviceAccount;
-    
+
   } catch (error) {
     logger.error('FIREBASE_CONFIG', 'Error construyendo service account', error);
     return null;
@@ -171,38 +190,38 @@ const serviceAccount = buildServiceAccountFromEnv();
 if (serviceAccount && !admin.apps.length) {
   try {
     logger.info('FIREBASE', 'Inicializando Firebase Admin...');
-    
+
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
       databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET
     });
-    
+
     db = admin.firestore();
     bucket = admin.storage().bucket();
-    
+
     db.settings({
       ignoreUndefinedProperties: true
     });
-    
+
     logger.info('FIREBASE', 'Firebase Admin inicializado correctamente', {
       projectId: serviceAccount.project_id,
       clientEmail: serviceAccount.client_email,
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET
     });
-    
+
     const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
       .then(() => ({ status: 'connected', message: 'ConexiÃ³n a Firestore exitosa' }))
       .catch(error => ({ status: 'error', message: error.message }));
-    
+
     logger.info('FIRESTORE', 'VerificaciÃ³n de conexiÃ³n', firestoreCheck);
-    
+
   } catch (error) {
     logger.error('FIREBASE', 'Error crÃ­tico al inicializar Firebase Admin', error, {
       projectId: serviceAccount?.project_id,
       clientEmail: serviceAccount?.client_email
     });
-    
+
     console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarÃ¡n disponibles.');
   }
 } else if (admin.apps.length) {
@@ -222,30 +241,30 @@ const RECAPTCHA_SITE_KEY = "6Lc4OGIsAAAAAPrAnOprbzd-ATbUOWHXK3Yl_bVy";
 
 async function validateRecaptcha(recaptchaResponse) {
   const context = 'RECAPTCHA_VALIDATION';
-  
+
   if (!RECAPTCHA_SECRET_KEY) {
     logger.error(context, 'Clave secreta de reCAPTCHA no configurada');
     throw new Error('Recaptcha secret key not configured');
   }
-  
+
   if (!recaptchaResponse) {
     throw new Error('reCAPTCHA response is required');
   }
-  
+
   try {
     logger.info(context, 'Validando reCAPTCHA con Google API');
-    
+
     const verificationUrl = 'https://www.google.com/recaptcha/api/siteverify';
     const params = new URLSearchParams();
     params.append('secret', RECAPTCHA_SECRET_KEY);
     params.append('response', recaptchaResponse);
-    
+
     const response = await axios.post(verificationUrl, params, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
-    
+
     const data = response.data;
-    
+
     logger.info(context, 'Respuesta de reCAPTCHA recibida', {
       success: data.success,
       score: data.score,
@@ -253,19 +272,19 @@ async function validateRecaptcha(recaptchaResponse) {
       hostname: data.hostname,
       challenge_ts: data.challenge_ts
     });
-    
+
     if (!data.success) {
       logger.warn(context, 'reCAPTCHA validation failed', {
         errorCodes: data['error-codes'] || []
       });
       throw new Error('reCAPTCHA validation failed: ' + (data['error-codes']?.join(', ') || 'Unknown error'));
     }
-    
+
     return {
       success: true,
       data: data
     };
-    
+
   } catch (error) {
     logger.error(context, 'Error validando reCAPTCHA', error);
     throw error;
@@ -284,7 +303,7 @@ if (!MERCADOPAGO_ACCESS_TOKEN) {
   console.warn('ADVERTENCIA: MERCADOPAGO_ACCESS_TOKEN no configurado. Pagos no disponibles.');
 }
 
-const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({ 
+const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({
   accessToken: MERCADOPAGO_ACCESS_TOKEN.trim(),
   options: { timeout: 10000 }
 }) : null;
@@ -306,30 +325,30 @@ const paymentLocks = new Map();
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
-  
+
   // Verificar si la ruta estÃ¡ excluida de autenticaciÃ³n
-  const isPublicRoute = PUBLIC_ROUTES.some(route => 
+  const isPublicRoute = PUBLIC_ROUTES.some(route =>
     req.path === route || req.path.startsWith(route)
   );
-  
-  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route => 
+
+  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route =>
     req.path.startsWith(route)
   );
-  
+
   // Archivos estÃ¡ticos excluidos
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
-  
+
   if (isPublicRoute || isPublicApiRoute || isStaticFile) {
     logger.info(context, 'Ruta pÃºblica o excluida', { path: req.path });
     return next();
   }
-  
+
   try {
     // Verificar token de Firebase desde cookie, localStorage o header
     const authHeader = req.headers.authorization;
     const cookies = req.headers.cookie;
     let idToken;
-    
+
     if (authHeader && authHeader.startsWith('Bearer ')) {
       idToken = authHeader.split('Bearer ')[1];
       logger.info(context, 'Token obtenido de header Authorization');
@@ -341,35 +360,35 @@ async function verifyFirebaseAuth(req, res, next) {
         logger.info(context, 'Token obtenido de cookie __session');
       }
     }
-    
+
     if (!idToken) {
-      logger.info(context, 'Token no encontrado, redirigiendo a login', { 
+      logger.info(context, 'Token no encontrado, redirigiendo a login', {
         path: req.path,
         originalUrl: req.originalUrl
       });
-      
+
       // Redirigir a login con parÃ¡metro returnTo para volver despuÃ©s del login
       const returnTo = encodeURIComponent(req.originalUrl);
       return res.redirect(`/login?returnTo=${returnTo}`);
     }
-    
+
     // Verificar token con Firebase Admin
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     req.user = decodedToken;
     req.uid = decodedToken.uid;
-    
-    logger.info(context, 'Usuario autenticado', { 
+
+    logger.info(context, 'Usuario autenticado', {
       uid: req.uid,
       email: decodedToken.email,
       path: req.path
     });
-    
+
     next();
   } catch (error) {
-    logger.error(context, 'Error de autenticaciÃ³n', error, { 
-      path: req.path 
+    logger.error(context, 'Error de autenticaciÃ³n', error, {
+      path: req.path
     });
-    
+
     // Redirigir a login con parÃ¡metro returnTo para volver despuÃ©s del login
     const returnTo = encodeURIComponent(req.originalUrl);
     return res.redirect(`/login?returnTo=${returnTo}`);
@@ -383,7 +402,7 @@ async function verifyFirebaseAuth(req, res, next) {
 async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
   const context = 'PAYMENT_LOCK';
   const startTime = Date.now();
-  
+
   while (paymentLocks.has(paymentRef)) {
     if (Date.now() - startTime > maxWaitMs) {
       logger.warn(context, 'Timeout esperando lock', { paymentRef, waitedMs: maxWaitMs });
@@ -391,7 +410,7 @@ async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
     }
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  
+
   paymentLocks.set(paymentRef, Date.now());
   logger.info(context, 'ðŸ”’ Lock adquirido', { paymentRef });
   return true;
@@ -405,27 +424,27 @@ function releasePaymentLock(paymentRef) {
 
 async function checkFileExistsInStorage(fileName) {
   const context = 'STORAGE_CHECK';
-  
+
   if (!bucket) {
     logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
     return { exists: false, url: null };
   }
-  
+
   try {
     const file = bucket.file(fileName);
     const [exists] = await file.exists();
-    
+
     if (exists) {
       const [metadata] = await file.getMetadata();
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      
+
       logger.info(context, 'Archivo ya existe en Storage', { fileName, publicUrl });
       return { exists: true, url: publicUrl, metadata };
     }
-    
+
     logger.info(context, 'Archivo no existe en Storage', { fileName });
     return { exists: false, url: null };
-    
+
   } catch (error) {
     logger.error(context, 'Error verificando existencia en Storage', error, { fileName });
     return { exists: false, url: null, error: error.message };
@@ -434,28 +453,28 @@ async function checkFileExistsInStorage(fileName) {
 
 async function uploadPDFToStorage(pdfPath, paymentId) {
   const context = 'UPLOAD_PDF';
-  
+
   if (!bucket) {
     logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
     throw new Error('Firebase Storage not initialized');
   }
-  
+
   try {
     logger.info(context, 'Intentando subir PDF a Firebase Storage', { pdfPath, paymentId });
-    
+
     const fileName = `invoices/${paymentId}.pdf`;
-    
+
     const fileCheck = await checkFileExistsInStorage(fileName);
     if (fileCheck.exists && fileCheck.url) {
-      logger.info(context, 'ðŸ“Œ PDF ya existe en Storage, devolviendo URL existente', { 
-        paymentId, 
-        url: fileCheck.url 
+      logger.info(context, 'ðŸ“Œ PDF ya existe en Storage, devolviendo URL existente', {
+        paymentId,
+        url: fileCheck.url
       });
       return fileCheck.url;
     }
-    
+
     const file = bucket.file(fileName);
-    
+
     await bucket.upload(pdfPath, {
       destination: fileName,
       metadata: {
@@ -468,20 +487,20 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
         }
       }
     });
-    
+
     await file.makePublic();
-    
+
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-    
-    logger.info(context, 'âœ… PDF subido exitosamente a Storage', { 
+
+    logger.info(context, 'âœ… PDF subido exitosamente a Storage', {
       paymentId,
       fileName,
       publicUrl,
-      size: fs.statSync(pdfPath).size 
+      size: fs.statSync(pdfPath).size
     });
-    
+
     return publicUrl;
-    
+
   } catch (error) {
     logger.error(context, 'âŒ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
     throw error;
@@ -490,30 +509,30 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 
 async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) {
   const context = 'OTORGAR_BENEFICIO';
-  
+
   if (!db) {
     logger.error(context, 'Firebase DB no estÃ¡ inicializado', null, { uid, paymentRef });
     return { status: 'error', message: 'Database not initialized' };
   }
-  
+
   if (!uid) {
     logger.error(context, 'UID no proporcionado', null, { paymentRef, montoPagado });
     return { status: 'error', message: 'No UID provided' };
   }
 
   const paymentRefString = String(paymentRef);
-  
+
   if (processedPaymentsCache.has(paymentRefString)) {
     const cachedData = processedPaymentsCache.get(paymentRefString);
-    logger.warn(context, 'ðŸš« Pago ya procesado en cache de memoria (idempotencia)', { 
-      uid, 
-      paymentRef: paymentRefString, 
+    logger.warn(context, 'ðŸš« Pago ya procesado en cache de memoria (idempotencia)', {
+      uid,
+      paymentRef: paymentRefString,
       processor,
       procesadoOriginalmentePor: cachedData.processor,
       procesadoEn: cachedData.timestamp
     });
-    return { 
-      status: 'already_processed', 
+    return {
+      status: 'already_processed',
       message: 'Payment already processed in memory cache',
       originalProcessor: cachedData.processor,
       processedAt: cachedData.timestamp
@@ -522,32 +541,32 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const lockAcquired = await acquirePaymentLock(paymentRefString);
   if (!lockAcquired) {
-    logger.error(context, 'âŒ No se pudo adquirir lock para procesar pago', null, { 
-      uid, paymentRef: paymentRefString 
+    logger.error(context, 'âŒ No se pudo adquirir lock para procesar pago', null, {
+      uid, paymentRef: paymentRefString
     });
-    return { 
-      status: 'error', 
-      message: 'Could not acquire payment lock - concurrent processing detected' 
+    return {
+      status: 'error',
+      message: 'Could not acquire payment lock - concurrent processing detected'
     };
   }
 
   const pagoDoc = db.collection("pagos_registrados").doc(paymentRefString);
-  
+
   try {
     const doc = await pagoDoc.get();
-    
+
     if (doc.exists) {
       const existingData = doc.data();
-      
+
       if (existingData.procesado === true && existingData.estado === "approved") {
-        logger.warn(context, 'ðŸš« Pago ya procesado anteriormente en Firestore (idempotencia)', { 
-          uid, 
-          paymentRef: paymentRefString, 
+        logger.warn(context, 'ðŸš« Pago ya procesado anteriormente en Firestore (idempotencia)', {
+          uid,
+          paymentRef: paymentRefString,
           procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
           processor: existingData.procesadoPor,
           pdfUrl: existingData.pdfUrl || null
         });
-        
+
         processedPaymentsCache.set(paymentRefString, {
           uid,
           timestamp: existingData.procesadoEn?.toDate?.()?.toISOString() || new Date().toISOString(),
@@ -555,11 +574,11 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           status: 'already_processed',
           pdfUrl: existingData.pdfUrl || null
         });
-        
+
         releasePaymentLock(paymentRefString);
-        
-        return { 
-          status: 'already_processed', 
+
+        return {
+          status: 'already_processed',
           data: existingData,
           message: 'Payment was already processed successfully',
           creditosOtorgados: existingData.creditosOtorgados || 0,
@@ -570,8 +589,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       }
     }
 
-    logger.info(context, 'âœ… Procesando nuevo pago', { 
-      uid, email, montoPagado, processor, paymentRef: paymentRefString 
+    logger.info(context, 'âœ… Procesando nuevo pago', {
+      uid, email, montoPagado, processor, paymentRef: paymentRefString
     });
 
     await pagoDoc.set({
@@ -586,29 +605,29 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     }, { merge: true });
 
     const userDoc = db.collection("usuarios").doc(uid);
-    
+
     const result = await db.runTransaction(async (t) => {
       const user = await t.get(userDoc);
       if (!user.exists) {
         logger.error(context, 'Usuario no encontrado en Firestore', null, { uid });
         throw new Error(`User ${uid} not found`);
       }
-      
+
       const userData = user.data();
       let descripcion = "";
       const montoNum = Number(montoPagado);
       let creditosOtorgados = 0;
       let planOtorgado = null;
-      
+
       const creditosActuales = userData.creditos || 0;
       const tipoPlanActual = userData.tipoPlan || "creditos";
       const duracionDiasActual = userData.duracionDias || 0;
       const fechaActivacionActual = userData.fechaActivacion;
       const planIlimitadoHastaActual = userData.planIlimitadoHasta;
-      
-      logger.info(context, 'ðŸ“Š Estado actual del usuario', { 
-        uid, 
-        creditosActuales, 
+
+      logger.info(context, 'ðŸ“Š Estado actual del usuario', {
+        uid,
+        creditosActuales,
         tipoPlanActual,
         duracionDiasActual,
         fechaActivacionActual: fechaActivacionActual?.toDate?.() || null,
@@ -618,42 +637,42 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       if (PAQUETES_CREDITOS[montoNum]) {
         creditosOtorgados = PAQUETES_CREDITOS[montoNum];
         const nuevosCreditos = creditosActuales + creditosOtorgados;
-        
-        t.update(userDoc, { 
+
+        t.update(userDoc, {
           creditos: nuevosCreditos,
           tipoPlan: "creditos",
           fechaActivacion: admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
-        
+
         descripcion = `${creditosOtorgados} CrÃ©ditos`;
-        logger.info(context, 'ðŸ’³ CrÃ©ditos otorgados', { 
-          uid, 
-          creditosOtorgados, 
+        logger.info(context, 'ðŸ’³ CrÃ©ditos otorgados', {
+          uid,
+          creditosOtorgados,
           montoPagado,
           creditosAnteriores: creditosActuales,
           creditosNuevos: nuevosCreditos,
           tipoPlanAnterior: tipoPlanActual,
           tipoPlanNuevo: "creditos"
         });
-        
+
       } else if (PLANES_ILIMITADOS[montoNum]) {
         const diasNuevos = PLANES_ILIMITADOS[montoNum];
         let duracionTotalDias;
         let fechaFinPlan;
         let fechaActivacion;
-        
+
         const ahora = new Date();
-        const tienePlanIlimitadoActivo = tipoPlanActual === "ilimitado" && 
-                                          fechaActivacionActual && 
-                                          planIlimitadoHastaActual &&
-                                          planIlimitadoHastaActual.toDate() > ahora;
-        
+        const tienePlanIlimitadoActivo = tipoPlanActual === "ilimitado" &&
+          fechaActivacionActual &&
+          planIlimitadoHastaActual &&
+          planIlimitadoHastaActual.toDate() > ahora;
+
         if (tienePlanIlimitadoActivo) {
           fechaActivacion = fechaActivacionActual.toDate();
           duracionTotalDias = duracionDiasActual + diasNuevos;
           fechaFinPlan = moment(fechaActivacion).add(duracionTotalDias, 'days').toDate();
-          
+
           logger.info(context, 'âž• Acumulando dÃ­as al plan ilimitado existente', {
             uid,
             diasAnteriores: duracionDiasActual,
@@ -663,12 +682,12 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
             fechaFinAnterior: planIlimitadoHastaActual.toDate().toISOString(),
             nuevaFechaFin: fechaFinPlan.toISOString()
           });
-          
+
         } else {
           fechaActivacion = ahora;
           duracionTotalDias = diasNuevos;
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
-          
+
           logger.info(context, 'ðŸ†• Creando nuevo plan ilimitado', {
             uid,
             diasNuevos,
@@ -677,27 +696,27 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
             razon: tienePlanIlimitadoActivo ? 'nuevo_plan' : 'plan_vencido_o_inexistente'
           });
         }
-        
-        t.update(userDoc, { 
+
+        t.update(userDoc, {
           duracionDias: duracionTotalDias,
           planIlimitadoHasta: fechaFinPlan,
           creditos: 0,
           tipoPlan: "ilimitado",
-          fechaActivacion: tienePlanIlimitadoActivo 
+          fechaActivacion: tienePlanIlimitadoActivo
             ? fechaActivacionActual
             : admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
-        
-        planOtorgado = { 
-          dias: duracionTotalDias, 
+
+        planOtorgado = {
+          dias: duracionTotalDias,
           diasAgregados: diasNuevos,
-          fechaFin: fechaFinPlan 
+          fechaFin: fechaFinPlan
         };
         descripcion = `Plan Ilimitado (${diasNuevos} dÃ­as${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' dÃ­as' : ''})`;
-        
-        logger.info(context, 'âœ¨ Plan ilimitado actualizado exitosamente', { 
-          uid, 
+
+        logger.info(context, 'âœ¨ Plan ilimitado actualizado exitosamente', {
+          uid,
           diasAgregados: diasNuevos,
           duracionTotal: duracionTotalDias,
           fechaFin: fechaFinPlan.toISOString(),
@@ -705,15 +724,15 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           tipoPlanAnterior: tipoPlanActual,
           tipoPlanNuevo: "ilimitado"
         });
-        
+
         creditosOtorgados = 0;
-        
+
       } else {
         logger.warn(context, 'âš ï¸ Monto no coincide con ningÃºn paquete', { montoPagado, uid });
         descripcion = `Pago de S/ ${montoPagado}`;
       }
-      
-      t.update(pagoDoc, { 
+
+      t.update(pagoDoc, {
         descripcion,
         procesado: true,
         estado: "approved",
@@ -726,10 +745,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         tipoPlanAnterior: tipoPlanActual,
         tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos"
       });
-      
-      return { 
-        status: 'success', 
-        creditosOtorgados, 
+
+      return {
+        status: 'success',
+        creditosOtorgados,
         creditosAnteriores: creditosActuales,
         creditosNuevos: PLANES_ILIMITADOS[montoNum] ? 0 : (creditosActuales + creditosOtorgados),
         planOtorgado,
@@ -741,7 +760,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
     try {
       logger.info(context, 'ðŸ“„ Generando Boleta ElectrÃ³nica automÃ¡ticamente', { paymentRef: paymentRefString });
-      
+
       const invoiceData = {
         orderId: paymentRefString,
         date: new Date().toLocaleString('es-PE'),
@@ -751,33 +770,33 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         description: result.descripcion || 'CrÃ©ditos Consulta PE',
         type: 'boleta'
       };
-      
+
       const pdfPath = await generateInvoicePDF(invoiceData);
       const localPdfPath = path.join(__dirname, 'public', pdfPath);
-      
+
       const storageUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
-      
+
       await pagoDoc.update({
         pdfUrl: storageUrl,
         pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
         tipoComprobante: 'boleta',
         storagePath: `invoices/${paymentRefString}.pdf`
       });
-      
+
       if (fs.existsSync(localPdfPath)) {
         fs.unlinkSync(localPdfPath);
       }
-      
+
       logger.info(context, 'âœ… Boleta generada y subida a Storage exitosamente', {
         paymentRef: paymentRefString,
         storageUrl
       });
-      
+
       result.pdfUrl = storageUrl;
-      
+
     } catch (pdfError) {
-      logger.error(context, 'âš ï¸ Error generando/subiendo PDF (no crÃ­tico)', pdfError, { 
-        paymentRef: paymentRefString 
+      logger.error(context, 'âš ï¸ Error generando/subiendo PDF (no crÃ­tico)', pdfError, {
+        paymentRef: paymentRefString
       });
     }
 
@@ -788,21 +807,21 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       status: 'processed',
       pdfUrl: result.pdfUrl || null
     });
-    
+
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
       logger.info(context, 'ðŸ§¹ Pago removido del cache', { paymentRef: paymentRefString });
     }, 2 * 60 * 60 * 1000);
-    
+
     logger.info(context, 'âœ… TransacciÃ³n completada exitosamente', { uid, result });
-    
+
     releasePaymentLock(paymentRefString);
-    
+
     return result;
 
   } catch (error) {
     logger.error(context, 'âŒ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
-    
+
     try {
       await pagoDoc.update({
         procesado: false,
@@ -814,9 +833,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     } catch (updateError) {
       logger.error(context, 'Error al actualizar estado de fallo', updateError, { paymentRef: paymentRefString });
     }
-    
+
     releasePaymentLock(paymentRefString);
-    
+
     return { status: 'error', message: error.message, error: error.stack };
   }
 }
@@ -851,15 +870,15 @@ app.use((req, res, next) => {
   if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
     return next();
   }
-  
-  const isHtmlRoute = !req.path.includes('.') && 
-                      !req.path.startsWith('/api/') &&
-                      req.path !== '/';
-  
+
+  const isHtmlRoute = !req.path.includes('.') &&
+    !req.path.startsWith('/api/') &&
+    req.path !== '/';
+
   if (isHtmlRoute) {
     const cleanPath = req.path.replace(/^\//, '');
     const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
-    
+
     if (fs.existsSync(htmlPath)) {
       logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
         path: req.path,
@@ -868,7 +887,7 @@ app.use((req, res, next) => {
       return res.sendFile(htmlPath);
     }
   }
-  
+
   next();
 });
 
@@ -1078,25 +1097,25 @@ createNewError404Page();
 app.use((req, res, next) => {
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
   const isApiRoute = req.path.startsWith('/api/');
-  
+
   if (!isStaticFile && !isApiRoute && req.path !== '/') {
     // Excluir las rutas problemÃ¡ticas que ya manejamos
     if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
       return next();
     }
-    
+
     const requestedPath = path.join(__dirname, 'public', req.path);
     const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
-    
-    const fileExists = fs.existsSync(requestedPath) || 
-                       fs.existsSync(requestedHtmlPath);
-    
+
+    const fileExists = fs.existsSync(requestedPath) ||
+      fs.existsSync(requestedHtmlPath);
+
     if (!fileExists) {
       logger.warn('404_REDIRECT', 'PÃ¡gina no encontrada, redirigiendo a error-404', {
         path: req.path,
         originalUrl: req.originalUrl
       });
-      
+
       // Servir directamente la nueva pÃ¡gina de error 404 personalizada
       const error404Path = path.join(__dirname, 'public', 'error-404.html');
       if (fs.existsSync(error404Path)) {
@@ -1108,7 +1127,7 @@ app.use((req, res, next) => {
       }
     }
   }
-  
+
   next();
 });
 
@@ -1161,7 +1180,7 @@ app.post("/api/analyze", async (req, res) => {
 // Endpoint de configuraciÃ³n
 app.get("/api/config", (req, res) => {
   logger.info('API_CONFIG', 'Solicitud de configuraciÃ³n recibida');
-  
+
   const firebaseClientConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -1171,7 +1190,7 @@ app.get("/api/config", (req, res) => {
     appId: process.env.FIREBASE_APP_ID,
     measurementId: process.env.FIREBASE_MEASUREMENT_ID
   };
-  
+
   res.json({
     mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
@@ -1185,30 +1204,30 @@ app.get("/api/config", (req, res) => {
 // Endpoint de validaciÃ³n de reCAPTCHA
 app.post("/api/validate-recaptcha", async (req, res) => {
   const context = 'RECAPTCHA_API';
-  
+
   try {
     const { recaptchaResponse } = req.body;
-    
+
     if (!recaptchaResponse) {
       return res.status(400).json({
         success: false,
         error: 'reCAPTCHA response is required'
       });
     }
-    
+
     const validationResult = await validateRecaptcha(recaptchaResponse);
-    
+
     logger.info(context, 'reCAPTCHA validado exitosamente');
-    
+
     res.json({
       success: true,
       message: 'reCAPTCHA validation successful',
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     logger.error(context, 'Error en validaciÃ³n reCAPTCHA', error);
-    
+
     res.status(400).json({
       success: false,
       error: error.message || 'reCAPTCHA validation failed',
@@ -1220,34 +1239,83 @@ app.post("/api/validate-recaptcha", async (req, res) => {
 // Endpoint de login - Ahora maneja el parÃ¡metro returnTo
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
-  
+
   try {
-    const { email, password, recaptchaResponse, returnTo } = req.body;
-    
+    const { email, password, recaptchaResponse, returnTo, deviceId } = req.body;
+
     if (!email || !password) {
       return res.status(400).json({
         success: false,
         error: 'Email and password are required'
       });
     }
-    
+
+    if (!deviceId) {
+      return res.status(400).json({
+        success: false,
+        error: 'deviceId is required'
+      });
+    }
+
     await validateRecaptcha(recaptchaResponse);
-    
+
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
-    
+
+    // ================================================================
+    // 🔐 SEGURIDAD DE SESIÓN POR DISPOSITIVO (NUEVO)
+    // ================================================================
+
+    if (db) {
+      const currentDeviceId = deviceId;
+      const currentIp = getClientIp(req);
+
+      // Obtener usuario desde Firestore por email (sin alterar tu flujo actual)
+      const userSnap = await db.collection("usuarios")
+        .where("email", "==", email)
+        .limit(1)
+        .get();
+
+      if (!userSnap.empty) {
+        const userDoc = userSnap.docs[0];
+        const userRef = userDoc.ref;
+        const userData = userDoc.data() || {};
+
+        if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
+          // Enviar alerta de inicio desde nuevo dispositivo
+          await resend.emails.send({
+            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            to: userData.email || email,
+            subject: '⚠️ ALERTA: Acceso desde un nuevo dispositivo',
+            template_id: 'alerta_inicio_de_seccion',
+            params: {
+              ip: currentIp,
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
+
+        // Actualizar rastro
+        await userRef.set({
+          lastDeviceId: currentDeviceId,
+          lastIp: currentIp,
+          lastLogin: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
+    }
+
     // Usar returnTo si estÃ¡ presente, de lo contrario ir a actividad
     const redirectPath = returnTo && returnTo !== 'undefined' ? returnTo : '/actividad';
-    
+
     res.json({
       success: true,
       message: 'Login successful (reCAPTCHA validated)',
       redirectTo: redirectPath,
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     logger.error(context, 'Error en login', error);
-    
+
     res.status(400).json({
       success: false,
       error: error.message || 'Login failed',
@@ -1259,34 +1327,94 @@ app.post("/api/login", async (req, res) => {
 // Endpoint de registro - Ahora maneja el parÃ¡metro returnTo
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
-  
+
   try {
-    const { name, email, password, recaptchaResponse, returnTo } = req.body;
-    
+    const { name, email, password, recaptchaResponse, returnTo, deviceId } = req.body;
+
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
         error: 'All fields are required'
       });
     }
-    
+
+    if (!deviceId) {
+      return res.status(400).json({
+        success: false,
+        error: 'deviceId is required'
+      });
+    }
+
     await validateRecaptcha(recaptchaResponse);
-    
+
+    // ================================================================
+    // 🧱 ANTI-MULTICUENTA POR deviceId (NUEVO)
+    // ================================================================
+
+    if (db) {
+      const existingSnap = await db.collection("usuarios")
+        .where("deviceId", "==", deviceId)
+        .limit(1)
+        .get();
+
+      if (!existingSnap.empty) {
+        const existingData = existingSnap.docs[0].data() || {};
+        const existingEmail = (existingData.email || "").toLowerCase();
+        const requestedEmail = email.toLowerCase();
+
+        if (existingEmail && existingEmail !== requestedEmail) {
+          const currentIp = getClientIp(req);
+
+          // Enviar rechazo (sin crear cuenta)
+          await resend.emails.send({
+            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            to: email,
+            subject: 'Registro rechazado',
+            template_id: 'rechaszo_sosio_duplicado',
+            params: {
+              ip: currentIp,
+              timestamp: new Date().toISOString()
+            }
+          });
+
+          return res.status(409).json({
+            success: false,
+            error: 'Registro bloqueado: deviceId ya existe con otro correo'
+          });
+        }
+      }
+    }
+
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
-    
+
+    // ================================================================
+    // ✉️ EMAIL DE BIENVENIDA (NUEVO)
+    // ================================================================
+
+    await resend.emails.send({
+      from: 'Masitaprex <no-reply@masitaprex.com>',
+      to: email,
+      subject: '¡Bienvenido!',
+      template_id: 'bienvenida_usuario_nuevo',
+      params: {
+        ip: getClientIp(req),
+        timestamp: new Date().toISOString()
+      }
+    });
+
     // Usar returnTo si estÃ¡ presente, de lo contrario ir a actividad
     const redirectPath = returnTo && returnTo !== 'undefined' ? returnTo : '/actividad';
-    
+
     res.json({
       success: true,
       message: 'Registration successful (reCAPTCHA validated)',
       redirectTo: redirectPath,
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     logger.error(context, 'Error en registro', error);
-    
+
     res.status(400).json({
       success: false,
       error: error.message || 'Registration failed',
@@ -1299,7 +1427,7 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/pay", async (req, res) => {
   const context = 'PAYMENT_PROCESS';
   const startTime = Date.now();
-  
+
   if (!mpClient) {
     logger.error(context, 'Mercado Pago no configurado');
     return res.status(503).json({
@@ -1307,11 +1435,11 @@ app.post("/api/pay", async (req, res) => {
       message: 'Por favor, contacte al administrador del sistema'
     });
   }
-  
+
   try {
-    const { 
-      token, amount, email, uid, description, installments, 
-      payment_method_id, issuer_id, identificationType, identificationNumber 
+    const {
+      token, amount, email, uid, description, installments,
+      payment_method_id, issuer_id, identificationType, identificationNumber
     } = req.body;
 
     logger.info(context, 'Procesando pago', {
@@ -1320,14 +1448,14 @@ app.post("/api/pay", async (req, res) => {
 
     if (!token || !amount || !uid) {
       logger.error(context, 'Datos de pago incompletos', null, req.body);
-      return res.status(400).json({ 
-        error: 'Datos incompletos', 
-        required: ['token', 'amount', 'uid'] 
+      return res.status(400).json({
+        error: 'Datos incompletos',
+        required: ['token', 'amount', 'uid']
       });
     }
 
     const payment = new Payment(mpClient);
-    
+
     const paymentData = {
       body: {
         transaction_amount: Number(amount),
@@ -1336,17 +1464,17 @@ app.post("/api/pay", async (req, res) => {
         installments: Number(installments) || 1,
         payment_method_id,
         issuer_id: issuer_id ? Number(issuer_id) : undefined,
-        payer: { 
+        payer: {
           email: email,
-          identification: { 
-            type: identificationType || 'DNI', 
-            number: identificationNumber 
+          identification: {
+            type: identificationType || 'DNI',
+            number: identificationNumber
           }
         },
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
-        metadata: { 
-          uid: uid, 
-          email: email, 
+        metadata: {
+          uid: uid,
+          email: email,
           amount: amount,
           timestamp: new Date().toISOString(),
           source: 'direct_payment'
@@ -1358,7 +1486,7 @@ app.post("/api/pay", async (req, res) => {
 
     const result = await payment.create(paymentData);
     const processingTime = Date.now() - startTime;
-    
+
     logger.info(context, 'Respuesta de Mercado Pago recibida', {
       paymentId: result.id,
       status: result.status,
@@ -1370,20 +1498,20 @@ app.post("/api/pay", async (req, res) => {
         paymentId: result.id,
         uid
       });
-      
+
       const beneficioResult = await otorgarBeneficio(
-        uid, 
-        email, 
-        Number(amount), 
-        'MP_CARD_INSTANT', 
+        uid,
+        email,
+        Number(amount),
+        'MP_CARD_INSTANT',
         result.id.toString()
       );
-      
+
       logger.info(context, 'Resultado de otorgar beneficio', beneficioResult);
-      
+
       result.beneficioOtorgado = beneficioResult.status === 'success' || beneficioResult.status === 'already_processed';
       result.beneficioStatus = beneficioResult.status;
-      
+
       if (beneficioResult.creditosOtorgados !== undefined) {
         result.creditosOtorgados = beneficioResult.creditosOtorgados;
         result.creditosNuevos = beneficioResult.creditosNuevos;
@@ -1415,11 +1543,11 @@ app.post("/api/pay", async (req, res) => {
 
     let errorMessage = 'Error procesando el pago';
     let errorDetails = {};
-    
+
     if (error.api_response?.body) {
       errorDetails = error.api_response.body;
       errorMessage = errorDetails.message || errorMessage;
-      
+
       if (errorDetails.cause) {
         logger.error(context, 'Error especÃ­fico de Mercado Pago', null, {
           cause: errorDetails.cause,
@@ -1441,7 +1569,7 @@ app.post("/api/pay", async (req, res) => {
 app.post("/api/webhook/mercadopago", async (req, res) => {
   const context = 'WEBHOOK_MP';
   const webhookData = req.body;
-  
+
   logger.info(context, 'ðŸ“© Webhook recibido', {
     action: webhookData.action,
     type: webhookData.type,
@@ -1457,11 +1585,11 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   }
 
   const isPaymentEvent = webhookData.action?.includes('payment') || webhookData.type === 'payment';
-  
+
   if (isPaymentEvent) {
     try {
       const paymentId = webhookData.data?.id || webhookData.id;
-      
+
       if (!paymentId) {
         logger.error(context, 'Payment ID no encontrado en webhook', null, webhookData);
         return;
@@ -1538,25 +1666,25 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
 app.get("/api/payment/:paymentId", async (req, res) => {
   const context = 'GET_PAYMENT_INFO';
   const { paymentId } = req.params;
-  
+
   try {
     logger.info(context, 'Obteniendo informaciÃ³n del pago', { paymentId });
-    
+
     if (!db) {
       return res.status(503).json({ error: 'Database not available' });
     }
-    
+
     const pagoDoc = await db.collection("pagos_registrados").doc(paymentId).get();
-    
+
     if (!pagoDoc.exists) {
       logger.warn(context, 'Pago no encontrado', { paymentId });
       return res.status(404).json({ error: 'Payment not found' });
     }
-    
+
     const pagoData = pagoDoc.data();
-    
+
     const fechaRegistro = pagoData.fechaRegistro?.toDate() || new Date();
-    
+
     res.json({
       id: paymentId,
       email: pagoData.email,
@@ -1571,7 +1699,7 @@ app.get("/api/payment/:paymentId", async (req, res) => {
       pdfUrl: pagoData.pdfUrl || null,
       storagePath: pagoData.storagePath || null
     });
-    
+
   } catch (error) {
     logger.error(context, 'Error obteniendo informaciÃ³n del pago', error, { paymentId });
     res.status(500).json({ error: 'Internal server error' });
@@ -1581,10 +1709,10 @@ app.get("/api/payment/:paymentId", async (req, res) => {
 // Endpoint para generar factura
 app.post("/api/generate-invoice", async (req, res) => {
   const context = 'GENERATE_INVOICE';
-  
+
   try {
-    const { 
-      paymentId, 
+    const {
+      paymentId,
       email,
       amount,
       credits,
@@ -1592,7 +1720,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       clientName,
       type = 'boleta'
     } = req.body;
-    
+
     if (!paymentId) {
       logger.error(context, 'Payment ID requerido', null, req.body);
       return res.status(400).json({ error: 'Payment ID es requerido' });
@@ -1602,21 +1730,21 @@ app.post("/api/generate-invoice", async (req, res) => {
 
     let existingPdfUrl = null;
     let responseSent = false;
-    
+
     if (db) {
       try {
         const doc = await db.collection("pagos_registrados").doc(String(paymentId)).get();
         if (doc.exists) {
           const pagoData = doc.data();
-          
+
           if (pagoData.pdfUrl) {
             existingPdfUrl = pagoData.pdfUrl;
-            logger.info(context, 'âœ… PDF ya existe en datos del pago', { 
-              paymentId, 
+            logger.info(context, 'âœ… PDF ya existe en datos del pago', {
+              paymentId,
               pdfUrl: existingPdfUrl,
               storagePath: pagoData.storagePath || 'N/A'
             });
-            
+
             res.json({
               success: true,
               pdfUrl: existingPdfUrl,
@@ -1626,7 +1754,7 @@ app.post("/api/generate-invoice", async (req, res) => {
               existed: true,
               cached: true
             });
-            
+
             responseSent = true;
             return;
           }
@@ -1640,13 +1768,13 @@ app.post("/api/generate-invoice", async (req, res) => {
 
     const fileName = `invoices/${paymentId}.pdf`;
     const storageCheck = await checkFileExistsInStorage(fileName);
-    
+
     if (storageCheck.exists && storageCheck.url) {
-      logger.info(context, 'âœ… PDF ya existe en Storage', { 
-        paymentId, 
-        url: storageCheck.url 
+      logger.info(context, 'âœ… PDF ya existe en Storage', {
+        paymentId,
+        url: storageCheck.url
       });
-      
+
       if (db) {
         await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageCheck.url,
@@ -1654,7 +1782,7 @@ app.post("/api/generate-invoice", async (req, res) => {
           pdfActualizadoEn: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
       }
-      
+
       res.json({
         success: true,
         pdfUrl: storageCheck.url,
@@ -1664,7 +1792,7 @@ app.post("/api/generate-invoice", async (req, res) => {
         existed: true,
         fromStorage: true
       });
-      
+
       return;
     }
 
@@ -1680,14 +1808,14 @@ app.post("/api/generate-invoice", async (req, res) => {
       clientName: clientName || '',
       type: 'boleta'
     };
-    
+
     const pdfPath = await generateInvoicePDF(invoiceData);
     const localPdfPath = path.join(__dirname, 'public', pdfPath);
-    
+
     let storageUrl = null;
     try {
       storageUrl = await uploadPDFToStorage(localPdfPath, paymentId);
-      
+
       if (db) {
         await db.collection("pagos_registrados").doc(String(paymentId)).set({
           pdfUrl: storageUrl,
@@ -1696,13 +1824,13 @@ app.post("/api/generate-invoice", async (req, res) => {
           tipoComprobante: 'boleta'
         }, { merge: true });
       }
-      
-      logger.info(context, 'âœ… PDF generado y almacenado en Storage', { 
-        paymentId, 
+
+      logger.info(context, 'âœ… PDF generado y almacenado en Storage', {
+        paymentId,
         storageUrl,
-        localPath: pdfPath 
+        localPath: pdfPath
       });
-      
+
       if (fs.existsSync(localPdfPath)) {
         fs.unlinkSync(localPdfPath);
       }
@@ -1710,7 +1838,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       logger.error(context, 'Error subiendo PDF a Storage', uploadError);
       storageUrl = `${HOST_URL}${pdfPath}`;
     }
-    
+
     logger.info(context, 'Comprobante generado exitosamente', {
       paymentId,
       pdfUrl: storageUrl,
@@ -1778,14 +1906,14 @@ app.get("/api/health", async (req, res) => {
       publicApiRoutes: PUBLIC_API_ROUTES
     }
   };
-  
+
   if (db) {
     try {
       await db.collection('_healthcheck').doc('ping').set({
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         status: 'ok'
       }, { merge: true });
-      
+
       health.services.firestore = 'connected';
     } catch (error) {
       health.services.firestore = 'error';
@@ -1793,7 +1921,7 @@ app.get("/api/health", async (req, res) => {
       health.status = 'degraded';
     }
   }
-  
+
   logger.info('HEALTH_CHECK', 'Health check solicitado', health);
   res.json(health);
 });
@@ -1810,11 +1938,11 @@ app.get("/api/debug/firebase", (req, res) => {
     FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? 'âœ“' : 'âœ—',
     FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? 'âœ“' : 'âœ—'
   };
-  
+
   const missingVars = Object.entries(firebaseVars)
     .filter(([key, value]) => value === 'âœ—')
     .map(([key]) => key);
-  
+
   res.json({
     firebaseVars,
     missingVars,
@@ -1828,19 +1956,19 @@ app.get("/api/debug/firebase", (req, res) => {
 // Limpiar cache
 app.post("/api/admin/clear-cache", (req, res) => {
   const context = 'ADMIN_CLEAR_CACHE';
-  
+
   try {
     const cacheSize = processedPaymentsCache.size;
     const locksSize = paymentLocks.size;
-    
+
     processedPaymentsCache.clear();
     paymentLocks.clear();
-    
+
     logger.info(context, 'ðŸ§¹ Cache limpiado manualmente', {
       paymentsRemoved: cacheSize,
       locksRemoved: locksSize
     });
-    
+
     res.json({
       success: true,
       message: 'Cache cleared successfully',
@@ -1908,7 +2036,7 @@ app.use((err, req, res, next) => {
     path: req.path,
     method: req.method
   });
-  
+
   res.status(500).json({
     error: 'Error interno del servidor',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Contacte al soporte',
@@ -1921,7 +2049,7 @@ app.get("*", (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
-  
+
   const error404Path = path.join(__dirname, 'public', 'error-404.html');
   if (fs.existsSync(error404Path)) {
     res.status(404).sendFile(error404Path);
