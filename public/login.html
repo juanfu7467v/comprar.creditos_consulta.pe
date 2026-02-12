@@ -294,9 +294,127 @@
         margin-bottom: 20px;
     }
 
+    /* Sistema de notificaciones modal profesional */
+    .notification-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 50000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        animation: fadeInOverlay 0.3s ease;
+    }
+
+    .notification-modal-overlay.show {
+        display: flex;
+    }
+
+    @keyframes fadeInOverlay {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInModal {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -60%) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    @keyframes slideOutModal {
+        from {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: translate(-50%, -60%) scale(0.9);
+        }
+    }
+
+    .notification-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 24px;
+        padding: 32px 28px;
+        max-width: 90%;
+        width: 340px;
+        box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.3);
+        animation: slideInModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 50001;
+    }
+
+    .notification-modal.hide {
+        animation: slideOutModal 0.3s ease forwards;
+    }
+
+    .notification-modal-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .notification-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+    }
+
+    .notification-icon.success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .notification-icon.error {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .notification-icon.warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .notification-icon.info {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .notification-icon .material-icons {
+        color: white;
+        font-size: 36px;
+    }
+
+    .notification-message {
+        font-size: 16px;
+        font-weight: 500;
+        color: #1e293b;
+        line-height: 1.5;
+        max-width: 280px;
+    }
+
     @media (max-width: 480px) {
         h3 { font-size: 2rem; }
         .screen { padding: 20px; }
+        .notification-modal {
+            width: 300px;
+            padding: 28px 24px;
+        }
+        .notification-message {
+            font-size: 15px;
+        }
     }
   </style>
 </head>
@@ -451,7 +569,17 @@
     </div>
   </div>
 
-  <div id="form-message-tooltip" class="fixed top-6 left-1/2 -translate-x-1/2 z-[30000] px-6 py-4 rounded-2xl shadow-2xl transition-all duration-500 -translate-y-32 text-white font-medium flex items-center gap-3"></div>
+  <!-- Sistema de notificaciones modal profesional -->
+  <div id="notification-modal-overlay" class="notification-modal-overlay">
+    <div id="notification-modal" class="notification-modal">
+      <div class="notification-modal-content">
+        <div id="notification-icon" class="notification-icon">
+          <span class="material-icons"></span>
+        </div>
+        <p id="notification-message" class="notification-message"></p>
+      </div>
+    </div>
+  </div>
   
   <div id="loading-indicator" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[10000] hidden items-center justify-center">
       <div class="flex gap-2">
@@ -480,7 +608,6 @@
     let registerRecaptchaWidgetId = null;
     let recaptchaRefreshTimer = null;
 
-    const formMessageTooltip = document.getElementById('form-message-tooltip'); 
     const loadingIndicator = document.getElementById('loading-indicator');
     const welcomeScreen = document.getElementById('welcome-screen');
     const loginScreen = document.getElementById('login-screen');
@@ -490,6 +617,87 @@
     const termsModal = document.getElementById('terms-modal');
     const termsCheck = document.getElementById('accept-terms-check');
     const confirmTermsBtn = document.getElementById('confirm-terms-btn');
+
+    // Sistema de notificaciones modal profesional
+    const notificationOverlay = document.getElementById('notification-modal-overlay');
+    const notificationModal = document.getElementById('notification-modal');
+    const notificationIcon = document.getElementById('notification-icon');
+    const notificationMessage = document.getElementById('notification-message');
+    let notificationTimeout;
+
+    function showNotification(message, type = 'info') {
+        // Limpiar timeout anterior si existe
+        if (notificationTimeout) {
+            clearTimeout(notificationTimeout);
+        }
+
+        // Configurar icono según tipo
+        const iconElement = notificationIcon.querySelector('.material-icons');
+        notificationIcon.className = 'notification-icon ' + type;
+        
+        switch(type) {
+            case 'success':
+                iconElement.textContent = 'check_circle';
+                break;
+            case 'error':
+                iconElement.textContent = 'error';
+                break;
+            case 'warning':
+                iconElement.textContent = 'warning';
+                break;
+            case 'info':
+                iconElement.textContent = 'info';
+                break;
+        }
+
+        // Configurar mensaje
+        notificationMessage.textContent = message;
+
+        // Mostrar modal
+        notificationOverlay.classList.add('show');
+        notificationModal.classList.remove('hide');
+
+        // Auto-cerrar después de 3 segundos
+        notificationTimeout = setTimeout(() => {
+            hideNotification();
+        }, 3000);
+    }
+
+    function hideNotification() {
+        notificationModal.classList.add('hide');
+        setTimeout(() => {
+            notificationOverlay.classList.remove('show');
+            notificationModal.classList.remove('hide');
+        }, 300);
+    }
+
+    // Cerrar modal al hacer clic en el overlay
+    notificationOverlay.addEventListener('click', (e) => {
+        if (e.target === notificationOverlay) {
+            hideNotification();
+        }
+    });
+
+    // Mapeo de errores de Firebase a mensajes amigables
+    function getFirebaseErrorMessage(errorCode) {
+        const errorMessages = {
+            'auth/email-already-in-use': 'Este correo ya está registrado. Intenta iniciar sesión o usa otro correo.',
+            'auth/invalid-email': 'El formato del correo electrónico no es válido.',
+            'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+            'auth/user-not-found': 'No existe una cuenta con este correo electrónico.',
+            'auth/wrong-password': 'La contraseña es incorrecta. Intenta nuevamente.',
+            'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde.',
+            'auth/network-request-failed': 'Error de conexión. Verifica tu internet.',
+            'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
+            'auth/operation-not-allowed': 'Operación no permitida. Contacta soporte.',
+            'auth/invalid-credential': 'Las credenciales proporcionadas no son válidas.',
+            'auth/account-exists-with-different-credential': 'Ya existe una cuenta con este correo usando otro método de inicio de sesión.',
+            'auth/popup-closed-by-user': 'La ventana de inicio de sesión fue cerrada.',
+            'auth/cancelled-popup-request': 'Operación cancelada.',
+        };
+
+        return errorMessages[errorCode] || 'Ocurrió un error inesperado. Por favor, intenta nuevamente.';
+    }
 
     function getUrlParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -554,17 +762,6 @@
 
     initFirebase();
 
-    function showMessage(msg, type) {
-        formMessageTooltip.textContent = msg;
-        formMessageTooltip.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
-        formMessageTooltip.classList.remove('-translate-y-32');
-        formMessageTooltip.classList.add('translate-y-0');
-        setTimeout(() => {
-            formMessageTooltip.classList.remove('translate-y-0');
-            formMessageTooltip.classList.add('-translate-y-32');
-        }, 4000);
-    }
-
     function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
     function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
 
@@ -599,12 +796,12 @@
         
         const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
         if (!recaptchaResponse) {
-            showMessage('Por favor, verifica que no eres un robot', 'error');
+            showNotification('Por favor, verifica que no eres un robot', 'warning');
             return;
         }
         
         if (!name || !email || !password) {
-            showMessage('Completa todos los campos primero', 'error');
+            showNotification('Completa todos los campos antes de continuar', 'warning');
             return;
         }
         
@@ -737,11 +934,12 @@
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            showMessage('Inicio de sesión exitoso', 'success');
+            showNotification('Has iniciado sesión correctamente', 'success');
             setTimeout(() => redirectAfterAuth(result.user), 1500);
         } catch (error) {
             hideLoadingOverlay();
-            showMessage('Error con Google: ' + error.message, 'error');
+            const friendlyMessage = getFirebaseErrorMessage(error.code);
+            showNotification(friendlyMessage, 'error');
         }
     };
 
@@ -752,20 +950,29 @@
             provider.setCustomParameters({ allow_signup: 'true' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            showMessage('Inicio de sesión exitoso', 'success');
+            showNotification('Has iniciado sesión correctamente', 'success');
             setTimeout(() => redirectAfterAuth(result.user), 1500);
         } catch (error) {
             hideLoadingOverlay();
-            showMessage('Error con GitHub: ' + error.message, 'error');
+            const friendlyMessage = getFirebaseErrorMessage(error.code);
+            showNotification(friendlyMessage, 'error');
         }
     };
 
     window.loginWithEmail = async () => {
       const email = document.getElementById('login-email')?.value;
       const password = document.getElementById('login-password')?.value;
-      if (!email || !password) { showMessage('Campos vacíos', 'error'); return; }
+      
+      if (!email || !password) { 
+          showNotification('Por favor completa todos los campos', 'warning');
+          return; 
+      }
+      
       const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
-      if (!recaptchaResponse) { showMessage('Verifica el reCAPTCHA', 'error'); return; }
+      if (!recaptchaResponse) { 
+          showNotification('Por favor verifica el reCAPTCHA', 'warning');
+          return; 
+      }
       
       showLoadingOverlay();
       try {
@@ -781,7 +988,8 @@
       } catch (error) {
           hideLoadingOverlay();
           if (loginRecaptchaWidgetId !== null) grecaptcha.reset(loginRecaptchaWidgetId);
-          showMessage('Credenciales inválidas o error de red', 'error');
+          const friendlyMessage = getFirebaseErrorMessage(error.code);
+          showNotification(friendlyMessage, 'error');
       }
     };
 
@@ -791,9 +999,16 @@
       const password = document.getElementById('register-password')?.value;
       const confirm = document.getElementById('register-confirm-password')?.value;
       
-      if (password !== confirm) { showMessage('Las contraseñas no coinciden', 'error'); return; }
+      if (password !== confirm) { 
+          showNotification('Las contraseñas no coinciden', 'error');
+          return; 
+      }
+      
       const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
-      if (!recaptchaResponse) { showMessage('Verifica el reCAPTCHA', 'error'); return; }
+      if (!recaptchaResponse) { 
+          showNotification('Por favor verifica el reCAPTCHA', 'warning');
+          return; 
+      }
       
       showLoadingOverlay();
       try {
@@ -803,29 +1018,36 @@
           
           await sendEmailVerification(userCredential.user);
           
-          showMessage('Cuenta creada. Verifica tu correo.', 'success');
+          showNotification('Cuenta creada exitosamente. Verifica tu correo electrónico.', 'success');
           setTimeout(() => {
               window.location.href = "verificacion.html";
           }, 2000);
       } catch (error) {
           hideLoadingOverlay();
           if (registerRecaptchaWidgetId !== null) grecaptcha.reset(registerRecaptchaWidgetId);
-          showMessage('Error al crear cuenta: ' + error.message, 'error');
+          const friendlyMessage = getFirebaseErrorMessage(error.code);
+          showNotification(friendlyMessage, 'error');
       }
     };
 
     window.recoverPassword = async () => {
         const email = document.getElementById('recover-email')?.value;
-        if (!email) { showMessage('Ingresa tu correo', 'error'); return; }
+        
+        if (!email) { 
+            showNotification('Por favor ingresa tu correo electrónico', 'warning');
+            return; 
+        }
+        
         showLoadingOverlay();
         try {
             await sendPasswordResetEmail(auth, email);
             hideLoadingOverlay();
-            showMessage('Enlace enviado. Revisa tu email.', 'success');
+            showNotification('Enlace de recuperación enviado. Revisa tu correo electrónico.', 'success');
             setTimeout(() => showLoginForm(), 3000);
         } catch (error) {
             hideLoadingOverlay();
-            showMessage('Error al procesar solicitud', 'error');
+            const friendlyMessage = getFirebaseErrorMessage(error.code);
+            showNotification(friendlyMessage, 'error');
         }
     };
 
@@ -838,7 +1060,9 @@
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         }, { merge: true });
-      } catch (e) { console.error('Error perfil:', e); }
+      } catch (e) { 
+          console.error('Error al guardar perfil:', e); 
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
