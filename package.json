@@ -24,5 +24,8 @@
   "license": "MIT",
   "optionalDependencies": {
     "pdfkit-table": "^0.1.99"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.6.0"
   }
 }

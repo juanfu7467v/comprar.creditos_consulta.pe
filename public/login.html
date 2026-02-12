@@ -298,11 +298,97 @@
         h3 { font-size: 2rem; }
         .screen { padding: 20px; }
     }
+
+    /* Estilos Verificación de Correo */
+    .verification-screen {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        max-width: 480px;
+        padding: 24px;
+        animation: fadeIn 0.5s ease-out;
+        background: transparent;
+    }
+
+    .success-icon-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin-bottom: 30px;
+    }
+
+    .success-icon-circle {
+        width: 100px;
+        height: 100px;
+        background: #10b981;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .success-icon-circle span {
+        color: white;
+        font-size: 60px;
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .timer-text {
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-top: 20px;
+    }
+
+    .resend-btn {
+        margin-top: 10px;
+        color: var(--primary);
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .resend-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
   </style>
+  <script>
+    // FingerprintJS Loader
+    const fpPromise = import('https://openfpcdn.io/fingerprintjs/v4')
+      .then(FingerprintJS => FingerprintJS.load());
+  </script>
 </head>
 <body>
   <div id="app-container">
     
+    <!-- Nueva interfaz: Verificación de correo -->
+    <div id="verification-screen" class="verification-screen">
+        <div class="success-icon-container">
+            <div class="success-icon-circle">
+                <span class="material-icons">check</span>
+            </div>
+        </div>
+        <h3 style="font-size: 2rem;">Verifica tu correo</h3>
+        <p class="form-subtitle px-4">
+            Hemos enviado un correo de verificación a tu dirección. Revisa tu bandeja de entrada y abre el enlace para confirmar que el correo te pertenece. Si te equivocaste de correo, <a href="#" onclick="showRegisterForm(); return false;" style="color: var(--primary); font-weight: 600;">ingresa aquí</a> para cambiarlo.
+        </p>
+        
+        <div id="timer-container">
+            <p class="timer-text">Podrás reenviar el enlace en <span id="countdown">50</span>s</p>
+            <button id="resend-verification-btn" class="resend-btn" disabled onclick="resendVerificationEmail()">
+                Reenviar correo de verificación
+            </button>
+        </div>
+    </div>
+
     <div id="welcome-screen" class="screen" style="display: flex;">
         <img src="https://cdn-icons-png.flaticon.com/128/17202/17202358.png" alt="Seguridad" style="width: 80px; height: 80px; margin-bottom: 20px;">
         <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Masitaprex</h1>
@@ -476,10 +562,10 @@
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
       onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, 
-      GithubAuthProvider, signInWithPopup 
+      GithubAuthProvider, signInWithPopup, sendEmailVerification 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
-      getFirestore, doc, setDoc, serverTimestamp 
+      getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, addDoc 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     let auth, db;
@@ -497,6 +583,9 @@
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const recoverPasswordForm = document.getElementById('recover-password-form');
+    const verificationScreen = document.getElementById('verification-screen');
+    const countdownEl = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resend-verification-btn');
     
     const termsModal = document.getElementById('terms-modal');
     const termsCheck = document.getElementById('accept-terms-check');
@@ -508,6 +597,12 @@
     }
 
     function redirectAfterAuth() {
+        const user = auth.currentUser;
+        if (user && !user.emailVerified) {
+            showVerificationInterface();
+            return;
+        }
+
         const returnTo = getUrlParameter('returnTo');
         if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
             try {
@@ -574,11 +669,13 @@
         if (loginForm) loginForm.style.display = 'none';
         if (registerForm) registerForm.style.display = 'none';
         if (recoverPasswordForm) recoverPasswordForm.style.display = 'none';
+        if (verificationScreen) verificationScreen.style.display = 'none';
     }
 
     window.goToWelcomeScreen = function() {
         welcomeScreen.style.display = 'flex';
         loginScreen.style.display = 'none';
+        if (verificationScreen) verificationScreen.style.display = 'none';
         hideAllForms();
     };
 
@@ -686,12 +783,18 @@
 
     window.showRegisterForm = () => {
         hideAllForms();
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (welcomeScreen) welcomeScreen.style.display = 'none';
+        if (verificationScreen) verificationScreen.style.display = 'none';
         if (registerForm) registerForm.style.display = 'flex';
         setTimeout(() => initRegisterRecaptcha(), 100);
     };
 
     window.showLoginForm = () => {
         hideAllForms();
+        if (loginScreen) loginScreen.style.display = 'flex';
+        if (welcomeScreen) welcomeScreen.style.display = 'none';
+        if (verificationScreen) verificationScreen.style.display = 'none';
         if (loginForm) loginForm.style.display = 'flex';
         setTimeout(() => initLoginRecaptcha(), 100);
     };
@@ -773,6 +876,11 @@
       try {
           await validateRecaptchaWithBackend(recaptchaResponse);
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          
+          // Verificar dispositivo para alerta de seguridad
+          const deviceId = await getDeviceId();
+          await registerDevice(userCredential.user.uid, deviceId);
+          
           await saveUserProfile(userCredential.user);
           redirectAfterAuth();
       } catch (error) {
@@ -794,10 +902,29 @@
       
       showLoadingOverlay();
       try {
+          // 2. Bloqueo de registros duplicados (Seguridad)
+          const deviceId = await getDeviceId();
+          const isDuplicate = await checkDuplicateAccount(deviceId);
+          
+          if (isDuplicate) {
+              hideLoadingOverlay();
+              showMessage('Nuestros sistemas han detectado múltiples identidades digitales asociadas a este dispositivo. En Masitaprex priorizamos la integridad. Acceso denegado.', 'error');
+              return;
+          }
+
           await validateRecaptchaWithBackend(recaptchaResponse);
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          
+          // Enviar correo de verificación
+          await sendEmailVerification(userCredential.user);
+          
+          // Registrar dispositivo
+          await registerDevice(userCredential.user.uid, deviceId);
+          
           await saveUserProfile(userCredential.user, name);
-          redirectAfterAuth();
+          
+          hideLoadingOverlay();
+          showVerificationInterface();
       } catch (error) {
           hideLoadingOverlay();
           if (registerRecaptchaWidgetId !== null) grecaptcha.reset(registerRecaptchaWidgetId);
@@ -820,6 +947,44 @@
         }
     };
 
+    async function getDeviceId() {
+        const fp = await fpPromise;
+        const result = await fp.get();
+        return result.visitorId;
+    }
+
+    async function checkDuplicateAccount(deviceId) {
+        // Buscar si este deviceId ya existe en la colección global de dispositivos
+        // Nota: En una implementación real, se buscaría en una colección que mapee deviceId -> userId
+        const deviceRef = doc(db, "registered_devices", deviceId);
+        const deviceSnap = await getDoc(deviceRef);
+        return deviceSnap.exists();
+    }
+
+    async function registerDevice(userId, deviceId) {
+        const userDeviceRef = doc(db, "users", userId, "devices", deviceId);
+        const deviceSnap = await getDoc(userDeviceRef);
+        
+        const deviceData = {
+            deviceId: deviceId,
+            browser: navigator.userAgent,
+            os: navigator.platform,
+            createdAt: serverTimestamp()
+        };
+
+        if (!deviceSnap.exists()) {
+            // Es un dispositivo nuevo para este usuario
+            await setDoc(userDeviceRef, deviceData);
+            // También registrar en la colección global para bloqueo de duplicados
+            await setDoc(doc(db, "registered_devices", deviceId), {
+                userId: userId,
+                createdAt: serverTimestamp()
+            });
+            return true; // Nuevo dispositivo
+        }
+        return false; // Dispositivo ya conocido
+    }
+
     async function saveUserProfile(user, name = null) {
       try {
         const userDocRef = doc(db, "users", user.uid);
@@ -830,6 +995,42 @@
           updatedAt: serverTimestamp(),
         }, { merge: true });
       } catch (e) { console.error('Error perfil:', e); }
+    }
+
+    window.resendVerificationEmail = async () => {
+        const user = auth.currentUser;
+        if (user) {
+            try {
+                await sendEmailVerification(user);
+                showMessage('Correo de verificación reenviado', 'success');
+                startVerificationTimer();
+            } catch (error) {
+                showMessage('Error al reenviar: ' + error.message, 'error');
+            }
+        }
+    };
+
+    function startVerificationTimer() {
+        let timeLeft = 50;
+        countdownEl.textContent = timeLeft;
+        resendBtn.disabled = true;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownEl.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                resendBtn.disabled = false;
+            }
+        }, 1000);
+    }
+
+    function showVerificationInterface() {
+        hideAllForms();
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (welcomeScreen) welcomeScreen.style.display = 'none';
+        if (verificationScreen) verificationScreen.style.display = 'flex';
+        startVerificationTimer();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
