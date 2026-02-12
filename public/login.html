@@ -224,7 +224,7 @@
     .btn-login-red { background: #fee2e2; border: none; color: #dc2626; }
 
     /* Forms container */
-    .login-form, .register-form, .recover-password-form {
+    .login-form, .register-form, .recover-password-form, .verification-form {
         display: none;
         flex-direction: column;
         width: 100%;
@@ -299,9 +299,10 @@
         .screen { padding: 20px; }
     }
 
-    /* ----- NUEVA INTERFAZ: VERIFICACIÓN DE CORREO ----- */
-    /* Mismo fondo que después del registro - exactamente igual */
-    .email-verification-screen {
+    /* -------------------- */
+    /* NUEVA INTERFAZ: VERIFICACIÓN DE CORREO */
+    /* -------------------- */
+    .verification-screen {
         width: 100%;
         max-width: 480px;
         padding: 24px;
@@ -310,94 +311,122 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: var(--bg-gradient); /* Mismo fondo exacto */
     }
 
-    /* Contenido completamente centrado */
-    .email-verification-content {
+    .verification-card {
+        background: white;
+        border-radius: 40px;
+        padding: 48px 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
         text-align: center;
-        width: 100%;
-        padding: 20px;
-        animation: fadeIn 0.5s ease-out;
+        border: 1px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(8px);
     }
 
-    /* Ícono de éxito verde con animación */
     .success-icon {
+        font-size: 92px;
         color: #10b981;
-        font-size: 80px;
+        background: rgba(16, 185, 129, 0.12);
+        border-radius: 50%;
+        padding: 8px;
         margin-bottom: 24px;
-        animation: pulseScale 2s ease-in-out infinite;
+        animation: pulse-green 2s infinite;
     }
 
-    @keyframes pulseScale {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
+    @keyframes pulse-green {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
-    /* Texto claro con instrucciones */
     .verification-title {
         font-size: 1.8rem;
         font-weight: 700;
-        margin-bottom: 16px;
-        color: var(--text-dark);
+        margin-bottom: 12px;
+        color: #0f172a;
     }
 
     .verification-message {
-        font-size: 1.1rem;
-        color: var(--text-muted);
+        color: #334155;
         line-height: 1.6;
-        margin-bottom: 32px;
-        max-width: 380px;
+        margin-bottom: 24px;
+        font-size: 1.1rem;
+        font-weight: 450;
+        max-width: 360px;
     }
 
-    .resend-text {
+    .resend-section {
+        margin-top: 28px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .timer-text {
         font-size: 0.95rem;
-        color: var(--text-muted);
-        margin-top: 24px;
+        color: #64748b;
+        font-weight: 500;
     }
 
-    .resend-link {
-        color: var(--primary);
+    .resend-btn {
+        background: transparent;
+        border: 2px solid #0072ff;
+        color: #0072ff;
+        padding: 14px 32px;
+        border-radius: 60px;
+        font-size: 1.1rem;
         font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
         cursor: pointer;
-        text-decoration: none;
+        width: 100%;
+        max-width: 280px;
     }
 
-    .resend-link:hover {
-        text-decoration: underline;
+    .resend-btn.active {
+        background: #0072ff;
+        color: white;
+        border-color: #0072ff;
+    }
+
+    .resend-btn.active:active {
+        transform: scale(0.96);
+    }
+
+    .resend-btn.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+        border-color: #94a3b8;
+        color: #94a3b8;
+    }
+
+    .change-email-link {
+        margin-top: 24px;
+        font-size: 0.95rem;
+    }
+
+    .change-email-link a {
+        color: #0072ff;
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 2px solid rgba(0,114,255,0.2);
+        padding-bottom: 2px;
     }
   </style>
 </head>
 <body>
   <div id="app-container">
     
-    <!-- PANTALLA DE VERIFICACIÓN DE CORREO (NUEVA) -->
-    <div id="email-verification-screen" class="email-verification-screen" style="display: none;">
-        <div class="email-verification-content">
-            <!-- Ícono de éxito color verde con animación -->
-            <span class="material-icons success-icon">check_circle</span>
-            
-            <!-- Texto claro con instrucciones -->
-            <h2 class="verification-title">Verifica tu correo</h2>
-            <p class="verification-message">
-                Hemos enviado un correo de verificación a tu dirección de correo.<br><br>
-                Por favor revisa tu bandeja de entrada y abre el enlace para confirmar que el correo te pertenece.
-            </p>
-            
-            <!-- Opción para reenviar (funcionalidad completa) -->
-            <div class="resend-text">
-                ¿No recibiste el correo? 
-                <a id="resend-verification-link" class="resend-link" onclick="resendVerificationEmail()">Reenviar correo</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- PANTALLA DE BIENVENIDA (EXISTENTE, SIN MODIFICACIONES) -->
+    <!-- PANTALLA DE BIENVENIDA (EXISTENTE) -->
     <div id="welcome-screen" class="screen" style="display: flex;">
         <img src="https://cdn-icons-png.flaticon.com/128/17202/17202358.png" alt="Seguridad" style="width: 80px; height: 80px; margin-bottom: 20px;">
         <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Masitaprex</h1>
@@ -439,7 +468,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA DE LOGIN (EXISTENTE, SIN MODIFICACIONES) -->
+    <!-- PANTALLA DE LOGIN / REGISTRO / RECUPERAR (EXISTENTE) -->
     <div id="login-screen" class="screen" style="display: none;">
       
       <div id="login-form" class="login-form">
@@ -535,9 +564,39 @@
       </div>
 
     </div>
+
+    <!-- NUEVA INTERFAZ: VERIFICACIÓN DE CORREO (SOLO SE CONECTA CON REGISTRO) -->
+    <div id="verification-screen" class="verification-screen" style="display: none;">
+        <div class="verification-card">
+            <span class="material-icons success-icon">check_circle</span>
+            <h2 class="verification-title">Verifica tu correo</h2>
+            <p class="verification-message">
+                Hemos enviado un correo de verificación a <strong id="verification-email-display">tu dirección de correo</strong>.<br><br>
+                Por favor revisa tu bandeja de entrada y abre el enlace para confirmar que el correo te pertenece.<br><br>
+                Si te equivocaste de correo, <a href="#" onclick="goToRegisterFromVerification(); return false;" style="color:#0072ff; font-weight:600;">ingresa aquí para cambiarlo</a>.
+            </p>
+            
+            <div class="resend-section">
+                <div id="timer-container" class="timer-text">
+                    <span id="timer-countdown">00:50</span> para reenviar
+                </div>
+                <button id="resend-verification-btn" class="resend-btn disabled" onclick="resendVerificationEmail()" disabled>
+                    <span class="material-icons" style="font-size: 20px;">refresh</span>
+                    Reenviar enlace
+                </button>
+            </div>
+
+            <div class="text-link" style="margin-top: 28px;">
+                <a href="#" onclick="handleVerificationLogout(); return false;" class="flex items-center justify-center gap-2">
+                    <span class="material-icons text-sm">logout</span> Cerrar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+
   </div>
 
-  <!-- MODAL DE TÉRMINOS (EXISTENTE, SIN MODIFICACIONES) -->
+  <!-- MODAL DE TÉRMINOS (EXISTENTE) -->
   <div id="terms-modal" class="modal-overlay fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[20000] hidden flex items-center justify-center p-4">
     <div class="modal-3d animate-in zoom-in duration-300">
         <div class="flex flex-col items-center text-center">
@@ -558,10 +617,10 @@
     </div>
   </div>
 
-  <!-- TOOLTIP DE MENSAJES (EXISTENTE, SIN MODIFICACIONES) -->
+  <!-- TOOLTIP DE MENSAJES (EXISTENTE) -->
   <div id="form-message-tooltip" class="fixed top-6 left-1/2 -translate-x-1/2 z-[30000] px-6 py-4 rounded-2xl shadow-2xl transition-all duration-500 -translate-y-32 text-white font-medium flex items-center gap-3"></div>
   
-  <!-- INDICADOR DE CARGA (EXISTENTE, SIN MODIFICACIONES) -->
+  <!-- LOADING INDICATOR (EXISTENTE) -->
   <div id="loading-indicator" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[10000] hidden items-center justify-center">
       <div class="flex gap-2">
           <div class="w-4 h-4 rounded-full bg-blue-600 animate-bounce"></div>
@@ -589,14 +648,22 @@
     let registerRecaptchaWidgetId = null;
     let recaptchaRefreshTimer = null;
 
+    // Variables para el temporizador de verificación
+    let verificationTimer = null;
+    let timeLeft = 50;
+    let currentVerificationUser = null;
+
     const formMessageTooltip = document.getElementById('form-message-tooltip'); 
     const loadingIndicator = document.getElementById('loading-indicator');
     const welcomeScreen = document.getElementById('welcome-screen');
     const loginScreen = document.getElementById('login-screen');
-    const emailVerificationScreen = document.getElementById('email-verification-screen');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const recoverPasswordForm = document.getElementById('recover-password-form');
+    const verificationScreen = document.getElementById('verification-screen');
+    const verificationEmailDisplay = document.getElementById('verification-email-display');
+    const resendBtn = document.getElementById('resend-verification-btn');
+    const timerContainer = document.getElementById('timer-countdown');
     
     const termsModal = document.getElementById('terms-modal');
     const termsCheck = document.getElementById('accept-terms-check');
@@ -635,21 +702,22 @@
             recaptchaSiteKey = appConfig.recaptchaSiteKey;
         }
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
           if (user) {
-            // Verificar si el correo está verificado
-            if (!user.emailVerified) {
-              // Si no está verificado, mostrar pantalla de verificación
-              await sendEmailVerification(user);
-              showEmailVerificationScreen();
-              hideLoadingOverlay();
-            } else {
-              // Si está verificado, proceder normalmente
+            // Solo redirigir si NO estamos en la pantalla de verificación y el correo está verificado
+            if (verificationScreen.style.display !== 'flex' && user.emailVerified) {
               redirectAfterAuth();
+            } else if (verificationScreen.style.display === 'flex' && user.emailVerified) {
+              // Si el usuario verifica el correo mientras está en esta pantalla, redirigimos
+              showMessage('¡Correo verificado! Redirigiendo...', 'success');
+              setTimeout(() => redirectAfterAuth(), 2000);
             }
           } else {
             setTimeout(() => {
-                goToWelcomeScreen();
+                // Si no hay usuario y estamos en verificación, volvemos a welcome
+                if (verificationScreen.style.display === 'flex') {
+                  goToWelcomeScreen();
+                }
                 hideLoadingOverlay();
             }, 500);
           }
@@ -688,46 +756,24 @@
     window.goToWelcomeScreen = function() {
         welcomeScreen.style.display = 'flex';
         loginScreen.style.display = 'none';
-        if (emailVerificationScreen) emailVerificationScreen.style.display = 'none';
+        verificationScreen.style.display = 'none';
         hideAllForms();
+        // Limpiar timer si existe
+        if (verificationTimer) clearInterval(verificationTimer);
     };
 
     window.showLoginFormFromWelcome = function() {
         welcomeScreen.style.display = 'none';
         loginScreen.style.display = 'flex';
+        verificationScreen.style.display = 'none';
         showLoginForm();
     };
 
     window.showRegisterFormFromWelcome = function() {
         welcomeScreen.style.display = 'none';
         loginScreen.style.display = 'flex';
+        verificationScreen.style.display = 'none';
         showRegisterForm();
-    };
-
-    // FUNCIÓN PARA MOSTRAR LA NUEVA PANTALLA DE VERIFICACIÓN
-    window.showEmailVerificationScreen = function() {
-        welcomeScreen.style.display = 'none';
-        loginScreen.style.display = 'none';
-        if (emailVerificationScreen) {
-            emailVerificationScreen.style.display = 'flex';
-        }
-    };
-
-    // FUNCIÓN PARA REENVIAR CORREO DE VERIFICACIÓN
-    window.resendVerificationEmail = async function() {
-        if (!auth.currentUser) {
-            showMessage('No hay sesión activa', 'error');
-            return;
-        }
-        showLoadingOverlay();
-        try {
-            await sendEmailVerification(auth.currentUser);
-            hideLoadingOverlay();
-            showMessage('Correo de verificación reenviado', 'success');
-        } catch (error) {
-            hideLoadingOverlay();
-            showMessage('Error al reenviar: ' + error.message, 'error');
-        }
     };
 
     window.openTermsModal = () => {
@@ -875,16 +921,8 @@
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            
-            // Verificar si el correo está verificado (Google ya viene verificado)
-            if (!result.user.emailVerified) {
-                await sendEmailVerification(result.user);
-                showEmailVerificationScreen();
-            } else {
-                showMessage('Inicio de sesión exitoso', 'success');
-                setTimeout(() => redirectAfterAuth(), 1500);
-            }
-            hideLoadingOverlay();
+            showMessage('Inicio de sesión exitoso', 'success');
+            setTimeout(() => redirectAfterAuth(), 1500);
         } catch (error) {
             hideLoadingOverlay();
             showMessage('Error con Google: ' + error.message, 'error');
@@ -898,16 +936,8 @@
             provider.setCustomParameters({ allow_signup: 'true' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            
-            // Verificar si el correo está verificado (GitHub puede no tener correo verificado)
-            if (!result.user.emailVerified) {
-                await sendEmailVerification(result.user);
-                showEmailVerificationScreen();
-            } else {
-                showMessage('Inicio de sesión exitoso', 'success');
-                setTimeout(() => redirectAfterAuth(), 1500);
-            }
-            hideLoadingOverlay();
+            showMessage('Inicio de sesión exitoso', 'success');
+            setTimeout(() => redirectAfterAuth(), 1500);
         } catch (error) {
             hideLoadingOverlay();
             showMessage('Error con GitHub: ' + error.message, 'error');
@@ -927,11 +957,10 @@
           const userCredential = await signInWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user);
           
-          // Verificar si el correo está verificado
+          // Si el correo no está verificado, mostrar pantalla de verificación
           if (!userCredential.user.emailVerified) {
               await sendEmailVerification(userCredential.user);
-              showEmailVerificationScreen();
-              hideLoadingOverlay();
+              showVerificationScreen(userCredential.user);
           } else {
               redirectAfterAuth();
           }
@@ -958,13 +987,11 @@
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
           
-          // Enviar correo de verificación automáticamente después del registro
+          // Enviar correo de verificación
           await sendEmailVerification(userCredential.user);
           
-          // Mostrar pantalla de verificación de correo
-          showEmailVerificationScreen();
-          hideLoadingOverlay();
-          showMessage('Cuenta creada. Revisa tu correo para verificar.', 'success');
+          // Mostrar pantalla de verificación
+          showVerificationScreen(userCredential.user);
           
       } catch (error) {
           hideLoadingOverlay();
@@ -1000,23 +1027,124 @@
       } catch (e) { console.error('Error perfil:', e); }
     }
 
-    // Verificar estado de verificación periódicamente
-    function checkEmailVerificationStatus() {
-        if (auth?.currentUser && !auth.currentUser.emailVerified) {
-            auth.currentUser.reload().then(() => {
-                if (auth.currentUser.emailVerified) {
-                    showMessage('Correo verificado exitosamente', 'success');
-                    setTimeout(() => redirectAfterAuth(), 1500);
+    // ----------------------------------------------------
+    // NUEVAS FUNCIONES PARA LA PANTALLA DE VERIFICACIÓN
+    // ----------------------------------------------------
+    window.showVerificationScreen = function(user) {
+        if (!user) return;
+        
+        currentVerificationUser = user;
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'none';
+        verificationScreen.style.display = 'flex';
+        
+        // Mostrar el correo del usuario
+        if (verificationEmailDisplay) {
+            verificationEmailDisplay.textContent = user.email;
+        }
+        
+        // Iniciar temporizador de 50 segundos
+        startVerificationTimer();
+        
+        hideLoadingOverlay();
+    };
+
+    function startVerificationTimer() {
+        // Limpiar timer existente
+        if (verificationTimer) clearInterval(verificationTimer);
+        
+        timeLeft = 50;
+        updateTimerDisplay();
+        
+        // Deshabilitar botón
+        if (resendBtn) {
+            resendBtn.classList.add('disabled');
+            resendBtn.classList.remove('active');
+            resendBtn.disabled = true;
+        }
+        
+        verificationTimer = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+            
+            if (timeLeft <= 0) {
+                clearInterval(verificationTimer);
+                // Habilitar botón
+                if (resendBtn) {
+                    resendBtn.classList.remove('disabled');
+                    resendBtn.classList.add('active');
+                    resendBtn.disabled = false;
                 }
+                if (timerContainer) {
+                    timerContainer.textContent = '00:00';
+                }
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        if (!timerContainer) return;
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        timerContainer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    window.resendVerificationEmail = async function() {
+        if (!currentVerificationUser) {
+            // Intentar obtener el usuario actual de Firebase
+            currentVerificationUser = auth.currentUser;
+        }
+        
+        if (!currentVerificationUser) {
+            showMessage('No hay sesión activa. Por favor, inicia sesión.', 'error');
+            goToWelcomeScreen();
+            return;
+        }
+        
+        try {
+            await sendEmailVerification(currentVerificationUser);
+            showMessage('Correo de verificación reenviado', 'success');
+            
+            // Reiniciar temporizador
+            startVerificationTimer();
+        } catch (error) {
+            showMessage('Error al reenviar: ' + error.message, 'error');
+        }
+    };
+
+    window.goToRegisterFromVerification = function() {
+        // Cerrar sesión actual para permitir registro con otro correo
+        if (auth) {
+            auth.signOut().then(() => {
+                goToWelcomeScreen();
+                showRegisterFormFromWelcome();
             });
         }
-        setTimeout(checkEmailVerificationStatus, 3000);
-    }
+    };
+
+    window.handleVerificationLogout = function() {
+        if (auth) {
+            auth.signOut().then(() => {
+                goToWelcomeScreen();
+                showMessage('Sesión cerrada correctamente', 'success');
+            });
+        }
+    };
+
+    // Verificar estado de verificación periódicamente
+    setInterval(async () => {
+        if (verificationScreen.style.display === 'flex' && auth.currentUser) {
+            await auth.currentUser.reload();
+            if (auth.currentUser.emailVerified) {
+                showMessage('¡Correo verificado! Redirigiendo...', 'success');
+                setTimeout(() => redirectAfterAuth(), 2000);
+            }
+        }
+    }, 3000);
 
     document.addEventListener('DOMContentLoaded', () => {
         hideAllForms();
         showLoadingOverlay();
-        setTimeout(checkEmailVerificationStatus, 3000);
     });
   </script>
 </body>
