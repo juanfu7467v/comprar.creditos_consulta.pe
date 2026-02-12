@@ -2,164 +2,452 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificación de Correo | Masitaprex</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  
+  <title>Verificación de correo | Masitaprex</title>
+  <meta name="description" content="Verifica tu dirección de correo electrónico para activar tu cuenta Masitaprex.">
+  
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root {
-        --primary: #007bff; 
-        --button-gradient: linear-gradient(135deg, #0072ff 0%, #00e676 100%);
-        --bg-gradient: radial-gradient(circle at top right, #fdfbfb 0%, #ebedee 100%);
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
     }
+
     body {
         font-family: 'Poppins', sans-serif;
-        background: var(--bg-gradient);
         min-height: 100vh;
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at top right, #fdfbfb 0%, #ebedee 100%);
         padding: 20px;
     }
-    .card {
-        background: white;
-        padding: 40px;
-        border-radius: 30px;
+
+    #verification-screen {
         width: 100%;
-        max-width: 450px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-        text-align: center;
+        max-width: 480px;
+        padding: 32px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
     }
-    .primary-btn {
+
+    .verification-container {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-icon-wrapper {
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 32px;
+        position: relative;
+    }
+
+    .success-icon {
+        font-size: 120px;
+        color: #10b981;
+        animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), pulse 2s ease-in-out infinite 0.5s;
+    }
+
+    @keyframes scaleIn {
+        0% { opacity: 0; transform: scale(0); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #0072ff 0%, #00e676 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    .verification-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #1a1e2e;
+        margin-bottom: 12px;
+        max-width: 400px;
+        font-weight: 500;
+    }
+
+    .instruction-text {
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #64748b;
+        margin-bottom: 32px;
+        max-width: 400px;
+        font-weight: 400;
+    }
+
+    .email-highlight {
+        background: linear-gradient(135deg, #0072ff15, #00e67615);
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-weight: 600;
+        color: #0072ff;
+        display: inline-block;
+        margin: 8px 0;
+        word-break: break-all;
+    }
+
+    .resend-section {
+        width: 100%;
+        max-width: 360px;
+        margin-top: 40px;
+    }
+
+    .resend-btn {
         width: 100%;
         height: 58px;
-        background: var(--button-gradient);
-        color: #fff;
+        background: linear-gradient(135deg, #0072ff 0%, #00e676 100%);
+        color: white;
         border: none;
         border-radius: 22px;
         font-size: 1.1rem;
         font-weight: 600;
-        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
         box-shadow: 0 12px 24px -6px rgba(0, 114, 255, 0.4);
         transition: all 0.3s ease;
         cursor: pointer;
+        font-family: 'Inter', sans-serif;
     }
-    .primary-btn:disabled {
-        background: #e2e8f0;
-        color: #94a3b8;
-        box-shadow: none;
+
+    .resend-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
+    }
+
+    .resend-btn.disabled {
+        opacity: 0.6;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 4px 12px rgba(0, 114, 255, 0.2);
+    }
+
+    .timer-text {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .timer-number {
+        background: #f1f5f9;
+        padding: 4px 12px;
+        border-radius: 100px;
+        font-weight: 700;
+        color: #0072ff;
+        font-family: 'Inter', monospace;
+        font-size: 1.1rem;
+    }
+
+    .change-email-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #0072ff;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 100px;
+        background: white;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s ease;
+        margin-top: 16px;
+        font-size: 0.95rem;
+    }
+
+    .sent-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #10b98115;
+        color: #10b981;
+        padding: 8px 20px;
+        border-radius: 100px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    #verification-message {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-100px);
+        background: #10b981;
+        color: white;
+        padding: 16px 28px;
+        border-radius: 100px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 10000;
+        font-size: 0.95rem;
+        max-width: 90%;
+    }
+
+    #verification-message.show {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    #verification-message.error {
+        background: #ef4444;
+    }
+
+    #loading-verification {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+    }
+
+    .loading-dots {
+        display: flex;
+        gap: 8px;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0072ff, #00e676);
+        animation: bounce 1.4s infinite ease-in-out both;
+    }
+
+    .dot:nth-child(1) { animation-delay: -0.32s; }
+    .dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="mb-6">
-        <span class="material-icons text-7xl text-blue-500">mark_email_unread</span>
-    </div>
-    <h2 class="text-3xl font-extrabold mb-4 text-slate-800">Verifica tu correo</h2>
-    <p class="text-slate-600 mb-6">
-        Hemos enviado un enlace de verificación a tu bandeja de entrada. Por favor, revisa tu correo para activar tu cuenta.
-    </p>
-    
-    <div id="timer-text" class="text-sm font-medium text-slate-500 mb-2">
-        Puedes reenviar el correo en <span id="seconds">50</span> segundos
-    </div>
-    
-    <button id="resend-btn" class="primary-btn" disabled onclick="resendVerification()">
-        Reenviar correo de verificación
-    </button>
-    
-    <div class="mt-8">
-        <a href="login.html" class="text-blue-600 font-semibold flex items-center justify-center gap-2">
-            <span class="material-icons text-sm">arrow_back</span> Volver al inicio
+  <div id="verification-screen">
+    <div class="verification-container">
+      <div class="success-icon-wrapper">
+        <span class="material-icons success-icon">mark_email_read</span>
+      </div>
+      <div class="sent-badge">
+        <span class="material-icons" style="font-size: 18px;">check_circle</span>
+        Correo enviado
+      </div>
+      <h1>Verifica tu correo</h1>
+      <p class="verification-text">
+        Hemos enviado un correo de verificación a tu dirección de correo.
+      </p>
+      <div class="email-highlight" id="user-email-display">
+        cargando...
+      </div>
+      <p class="instruction-text">
+        Por favor revisa tu bandeja de entrada y abre el enlace para confirmar que el correo te pertenece.
+      </p>
+      <div class="resend-section">
+        <div id="timer-container" class="timer-text">
+          <span>Puedes reenviar el correo en</span>
+          <span class="timer-number" id="timer-countdown">50</span>
+          <span>segundos</span>
+        </div>
+        <button id="resend-btn" class="resend-btn disabled" disabled onclick="resendVerificationEmail()">
+          <span class="material-icons">send</span>
+          Reenviar correo ahora
+        </button>
+        <a href="#" class="change-email-link" onclick="handleChangeEmail()">
+          <span class="material-icons" style="font-size: 20px;">edit</span>
+          Cambiar correo electrónico
         </a>
+      </div>
     </div>
   </div>
 
-  <div id="form-message-tooltip" class="fixed top-6 left-1/2 -translate-x-1/2 z-[30000] px-6 py-4 rounded-2xl shadow-2xl transition-all duration-500 -translate-y-32 text-white font-medium flex items-center gap-3"></div>
+  <div id="verification-message"></div>
+  <div id="loading-verification">
+    <div class="loading-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     let auth;
+    let countdownInterval = null;
+    let resendAttempts = 0;
+    
     const resendBtn = document.getElementById('resend-btn');
-    const secondsSpan = document.getElementById('seconds');
-    const timerText = document.getElementById('timer-text');
-    const formMessageTooltip = document.getElementById('form-message-tooltip');
-
-    function showMessage(msg, type) {
-        formMessageTooltip.textContent = msg;
-        formMessageTooltip.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
-        formMessageTooltip.classList.remove('-translate-y-32');
-        formMessageTooltip.classList.add('translate-y-0');
-        setTimeout(() => {
-            formMessageTooltip.classList.remove('translate-y-0');
-            formMessageTooltip.classList.add('-translate-y-32');
-        }, 4000);
+    const timerContainer = document.getElementById('timer-container');
+    const timerCountdown = document.getElementById('timer-countdown');
+    const userEmailDisplay = document.getElementById('user-email-display');
+    const messageEl = document.getElementById('verification-message');
+    const loadingEl = document.getElementById('loading-verification');
+    
+    function startResendTimer() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      let seconds = 50;
+      timerCountdown.textContent = seconds;
+      timerContainer.style.display = 'flex';
+      resendBtn.classList.add('disabled');
+      resendBtn.disabled = true;
+      
+      countdownInterval = setInterval(() => {
+        seconds--;
+        timerCountdown.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+          timerContainer.style.display = 'none';
+          resendBtn.classList.remove('disabled');
+          resendBtn.disabled = false;
+        }
+      }, 1000);
     }
-
-    async function initFirebase() {
-        try {
-            const response = await fetch('/api/config');
-            const appConfig = await response.json();
-            const app = initializeApp(appConfig.firebaseConfig);
-            auth = getAuth(app);
-
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    user.reload().then(() => {
-                        if (user.emailVerified) {
-                            window.location.href = "actividad";
-                        }
-                    });
-                }
-            });
-        } catch (error) {
-            console.error("Error:", error);
-        }
+    
+    function showMessage(text, isError = false) {
+      messageEl.textContent = text;
+      messageEl.classList.add('show');
+      messageEl.classList.toggle('error', isError);
+      setTimeout(() => messageEl.classList.remove('show'), 4000);
     }
-
-    initFirebase();
-
-    let timeLeft = 50;
-    const timer = setInterval(() => {
-        timeLeft--;
-        secondsSpan.textContent = timeLeft;
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            resendBtn.disabled = false;
-            timerText.style.display = 'none';
+    
+    function showLoading() { loadingEl.style.display = 'flex'; }
+    function hideLoading() { loadingEl.style.display = 'none'; }
+    
+    async function checkEmailVerificationStatus() {
+      const user = auth.currentUser;
+      if (!user) return false;
+      try {
+        await user.reload();
+        if (user.emailVerified) {
+          showMessage('¡Correo verificado! Redirigiendo...');
+          setTimeout(() => window.location.href = 'actividad', 1500);
+          return true;
         }
-    }, 1000);
-
-    window.resendVerification = async () => {
-        if (!auth.currentUser) {
-            showMessage("No se detectó una sesión activa. Inicia sesión de nuevo.", "error");
-            return;
+        return false;
+      } catch (error) {
+        console.error('Error al verificar:', error);
+        return false;
+      }
+    }
+    
+    window.resendVerificationEmail = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        showMessage('Sesión expirada. Inicia sesión de nuevo.', true);
+        setTimeout(() => window.location.href = 'login.html', 2000);
+        return;
+      }
+      if (resendAttempts >= 5) {
+        showMessage('Demasiados intentos. Espera unos minutos.', true);
+        return;
+      }
+      showLoading();
+      try {
+        await sendEmailVerification(user);
+        resendAttempts++;
+        showMessage('✅ Correo de verificación reenviado');
+        startResendTimer();
+      } catch (error) {
+        if (error.code === 'auth/too-many-requests') {
+          showMessage('Demasiados intentos. Espera 1 minuto.', true);
+          startResendTimer();
+        } else {
+          showMessage('Error al reenviar. Intenta de nuevo.', true);
         }
-        try {
-            await sendEmailVerification(auth.currentUser);
-            showMessage("Correo de verificación reenviado", "success");
-            resendBtn.disabled = true;
-            timeLeft = 50;
-            timerText.style.display = 'block';
-            secondsSpan.textContent = timeLeft;
-            const newTimer = setInterval(() => {
-                timeLeft--;
-                secondsSpan.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(newTimer);
-                    resendBtn.disabled = false;
-                    timerText.style.display = 'none';
-                }
-            }, 1000);
-        } catch (error) {
-            showMessage("Error al reenviar: " + error.message, "error");
-        }
+      } finally {
+        hideLoading();
+      }
     };
+    
+    window.handleChangeEmail = () => {
+      if (confirm('¿Quieres cambiar tu correo? Serás redirigido al login.')) {
+        signOut(auth).then(() => window.location.href = 'login.html');
+      }
+    };
+    
+    async function initVerificationScreen() {
+      showLoading();
+      try {
+        const response = await fetch('/api/config');
+        const appConfig = await response.json();
+        const app = initializeApp(appConfig.firebaseConfig);
+        auth = getAuth(app);
+        
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            window.location.href = 'login.html';
+            return;
+          }
+          userEmailDisplay.textContent = user.email || 'correo registrado';
+          await user.reload();
+          if (user.emailVerified) {
+            window.location.href = 'actividad';
+            return;
+          }
+          startResendTimer();
+          setInterval(checkEmailVerificationStatus, 3000);
+          hideLoading();
+        });
+      } catch (error) {
+        console.error('Error al inicializar:', error);
+        hideLoading();
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', initVerificationScreen);
   </script>
 </body>
 </html>
