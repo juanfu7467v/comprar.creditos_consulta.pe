@@ -1,161 +1,841 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  
+  <title>Login Masitaprex | Registro y Acceso a la Infraestructura</title>
+  <meta name="description" content="Acceso exclusivo a Masitaprex. Inicia sesión, realiza tu registro o recupera tu cuenta para gestionar créditos, APIs Dev y PeliPREX HD.">
+  <meta name="keywords" content="login masitaprex, registro masitaprex, recuperar cuenta masitaprex, acceso masitaprex, comprar creditos masitaprex, paquetes masitaprex" />
+  <meta name="robots" content="index, follow">
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+  <meta property="og:title" content="Acceso a Masitaprex | Gestión de Cuenta y Créditos" />
+  <meta property="og:description" content="Ingresa a tu panel de control. Gestiona tus APIs de consulta, tus créditos y tu suscripción a la infraestructura de élite." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://masitaprex.com/login" />
+  <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
+  <meta property="og:image:width" content="128" />
+  <meta property="og:image:height" content="128" />
 
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-        }
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
 
-        h3 {
-            color: #34495e;
-        }
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+  
+  <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
 
-        p {
-            line-height: 1.8;
-            text-align: justify;
-        }
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+        --primary: #007bff; 
+        --secondary: #00e676; 
+        --google-blue: #4285f4;
+        --github-dark: #24292e;
+        --accent: #ff4081;
+        --button-gradient: linear-gradient(135deg, #0072ff 0%, #00e676 100%);
+        --bg-gradient: radial-gradient(circle at top right, #fdfbfb 0%, #ebedee 100%);
+        --text-dark: #1a1e2e;
+        --text-muted: #64748b;
+        --input-bg: rgba(241, 245, 249, 0.8);
+        --btn-height: 58px;
+        --radius: 22px;
+    }
 
-        a {
-            color: #3498db;
-            text-decoration: none;
-        }
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        margin: 0;
+        padding: 0;
+    }
 
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
-    <title>Política de Privacidad</title>
-    <meta name="robots" content="noindex, nofollow">
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        background: var(--bg-gradient);
+        color: var(--text-dark);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    #app-container {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .screen {
+        width: 100%;
+        max-width: 480px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Estilos Títulos */
+    h3 {
+        font-weight: 800;
+        font-size: 2.4rem;
+        margin-bottom: 8px;
+        text-align: center;
+        background: var(--button-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+    }
+
+    .form-subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-bottom: 32px;
+        font-weight: 400;
+    }
+
+    /* Inputs Nativo-Style */
+    .input-group {
+        width: 100%;
+        margin-bottom: 16px;
+        position: relative;
+    }
+
+    .input-field {
+        width: 100%;
+        height: 62px;
+        padding: 0 20px 0 54px;
+        font-size: 1rem;
+        border: 2px solid transparent;
+        border-radius: var(--radius);
+        background: var(--input-bg);
+        color: var(--text-dark);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .input-field:focus {
+        background: #fff;
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px -5px rgba(0, 114, 255, 0.15);
+        outline: none;
+    }
+
+    .field-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 22px;
+        transition: color 0.3s;
+    }
+
+    .input-field:focus + .field-icon {
+        color: var(--primary);
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 4px;
+    }
+
+    /* Botones Pro */
+    .primary-btn, .recover-btn {
+        width: 100%;
+        height: var(--btn-height);
+        background: var(--button-gradient);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 12px 0;
+        box-shadow: 0 12px 24px -6px rgba(0, 114, 255, 0.4);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .primary-btn:active, .recover-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 4px 10px rgba(0, 114, 255, 0.2);
+    }
+
+    .register-btn {
+        width: 100%;
+        height: var(--btn-height);
+        background: white;
+        color: var(--primary);
+        border: 2px solid #e2e8f0;
+        border-radius: var(--radius);
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-top: 8px;
+    }
+
+    .register-btn:active {
+        background: #f8fafc;
+        border-color: var(--primary);
+    }
+
+    /* Welcome Screen Buttons */
+    .btn {
+        width: 100%;
+        height: var(--btn-height);
+        border-radius: var(--radius);
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-gradient {
+        background: #fff;
+        border: 2px solid #0072ff;
+        color: #0072ff;
+    }
+
+    .btn-google { background: white; border: 1px solid #e2e8f0; color: #444; }
+    .btn-github { background: #24292e; border: none; color: #fff; }
+    .btn-login-red { background: #fee2e2; border: none; color: #dc2626; }
+
+    /* Forms container */
+    .login-form, .register-form, .recover-password-form {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .separator {
+        display: flex;
+        align-items: center;
+        margin: 24px 0;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .separator::before, .separator::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e2e8f0;
+    }
+
+    .separator span { padding: 0 15px; }
+
+    .text-link {
+        text-align: center;
+        margin-top: 12px;
+        font-size: 0.95rem;
+    }
+
+    .text-link a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    /* ReCAPTCHA centering */
+    .recaptcha-container {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+        transform: scale(0.9);
+    }
+
+    /* Modal 3D modern */
+    .modal-3d {
+        background: white;
+        padding: 32px;
+        border-radius: 30px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .welcome-icon {
+        font-size: 80px;
+        background: var(--button-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+        h3 { font-size: 2rem; }
+        .screen { padding: 20px; }
+    }
+  </style>
 </head>
 <body>
-    <h1>TÉRMINOS Y CONDICIONES DE USO</h1>
+  <div id="app-container">
+    
+    <div id="welcome-screen" class="screen" style="display: flex;">
+        <img src="https://cdn-icons-png.flaticon.com/128/17202/17202358.png" alt="Seguridad" style="width: 80px; height: 80px; margin-bottom: 20px;">
+        <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Masitaprex</h1>
+        <p class="text-slate-500 mb-10 text-center px-6">Acceso exclusivo a la infraestructura de alto rendimiento.</p>
+        
+        <button class="btn btn-primary-gradient" onclick="showRegisterFormFromWelcome()">
+          <span class="material-icons">person_add</span>
+          <span>Crear cuenta gratis</span>
+        </button>
+        
+        <div class="w-full flex items-center my-4">
+            <div class="flex-1 h-px bg-slate-200"></div>
+            <span class="px-3 text-xs text-slate-400 font-bold uppercase">O accede con</span>
+            <div class="flex-1 h-px bg-slate-200"></div>
+        </div>
 
-<p><strong>Vigentes desde:</strong> 06 de Febrero de 2026 | <strong>Última actualización:</strong> 06 de Febrero de 2026</p>
+        <button class="btn btn-google" onclick="signInWithGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20">
+          <span>Continuar con Google</span>
+        </button>
+        
+        <button class="btn btn-github" onclick="signInWithGithub()">
+          <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          <span>Acceder con GitHub</span>
+        </button>
+        
+        <button class="btn btn-login-red" onclick="showLoginFormFromWelcome()">
+          <span class="material-icons">login</span>
+          <span>Ingreso tradicional</span>
+        </button>
 
-<p><strong>AVISO IMPORTANTE:</strong> Estos Términos y Condiciones constituyen un acuerdo legalmente vinculante entre usted (el "Usuario") y <strong>JOSE RENE CUBAS PEREZ</strong> (RUC 10736224351), propietario y operador de la plataforma <strong>MasitaPrex</strong> (sitio web <code>masitaprex.com</code>). Al acceder, navegar o utilizar cualquier parte de nuestros servicios, usted acepta expresamente todos los términos aquí establecidos. Si no está de acuerdo con alguna parte de estos términos, debe suspender inmediatamente el uso de nuestros servicios.</p>
+        <div class="mt-8 text-xs text-slate-400 font-medium text-center">
+            <p class="mb-2">Antes de iniciar sesión en nuestra infraestructura tecnológica, es importante que leas detenidamente nuestros Términos y Política de Privacidad.</p>
+            <div class="flex gap-4 justify-center">
+                <a href="politica-privacidad.html">Privacidad</a>
+                <span>•</span>
+                <a href="terminos-condiciones.html">Términos</a>
+            </div>
+        </div>
+    </div>
 
-<h2>1. NATURALEZA Y ALCANCE DEL SERVICIO</h2>
-<p><strong>MasitaPrex</strong> es una plataforma de <strong>infraestructura tecnológica intermediaria</strong>. Nuestra función se limita exclusivamente a:</p>
-<ul>
-<li>Facilitar el acceso y la interconexión tecnológica a diversos servicios en línea a través de una infraestructura unificada.</li>
-<li>Proporcionar una interfaz para consumir servicios de consulta a fuentes de datos externas (públicas o privadas).</li>
-<li>Permitir el acceso a contenidos multimedia mediante la organización y gestión de enlaces a servidores de terceros.</li>
-<li>Gestionar el acceso mediante un sistema unificado de créditos o planes.</li>
-</ul>
-<p><strong>Declaración Fundamental:</strong> MasitaPrex actúa como un <strong>intermediario tecnológico</strong>. NO genera, posee, valida ni es responsable del contenido, información o datos finales a los que el usuario accede a través de nuestra infraestructura. La exactitud, legalidad y disponibilidad de dicha información es responsabilidad exclusiva de los proveedores o fuentes externas finales.</p>
+    <div id="login-screen" class="screen" style="display: none;">
+      
+      <div id="login-form" class="login-form">
+          <h3 style="font-size: 2rem;">¡Hola de nuevo!</h3>
+          <p class="form-subtitle">Ingresa tus credenciales para acceder</p>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">alternate_email</span>
+              <input type="email" id="login-email" placeholder="Email" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">lock_outline</span>
+              <input type="password" id="login-password" placeholder="Contraseña" class="input-field">
+              <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
+          </div>
+          
+          <div class="recaptcha-container">
+              <div id="login-recaptcha"></div>
+          </div>
+          
+          <button class="primary-btn" onclick="loginWithEmail()">
+              <span>Iniciar Sesión</span>
+          </button>
+          
+          <div class="text-link">
+              <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Problemas para entrar? Recuperar</a>
+          </div>
+          
+          <div class="separator"><span>o</span></div>
+          
+          <button class="register-btn" onclick="showRegisterForm()">No tengo cuenta, registrarme</button>
+      </div>
 
-<h2>2. SISTEMA DE CRÉDITOS Y PLANES: DEFINICIÓN Y USO</h2>
-<p>El acceso a la infraestructura de MasitaPrex opera mediante un sistema de "Créditos" o "Planes Ilimitados". Es esencial comprender su naturaleza:</p>
+      <div id="register-form" class="register-form">
+          <h3 style="font-size: 2rem;">Crear cuenta</h3>
+          <p class="form-subtitle">Forma parte de nuestra comunidad</p>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">person_outline</span>
+              <input type="text" id="register-name" placeholder="Nombre completo" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">mail_outline</span>
+              <input type="email" id="register-email" placeholder="Email institucional" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">lock_open</span>
+              <input type="password" id="register-password" placeholder="Contraseña (mín. 6)" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">shield</span>
+              <input type="password" id="register-confirm-password" placeholder="Confirmar contraseña" class="input-field">
+          </div>
+          
+          <div class="recaptcha-container">
+              <div id="register-recaptcha"></div>
+          </div>
+          
+          <button class="primary-btn" onclick="openTermsModal()">
+              <span>Registrarse ahora</span>
+          </button>
+          
+          <div class="text-link">
+              ¿Ya eres miembro? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
+          </div>
+      </div>
 
-<p><strong>Naturaleza del Pago:</strong> Los "Créditos" o "Planes" adquiridos en MasitaPrex representan exclusivamente la contraprestación económica por el <strong>uso, procesamiento, mantenimiento y acceso a nuestra infraestructura tecnológica intermediaria</strong>, incluyendo servidores, ancho de banda, software de gestión y soporte técnico. En ningún caso constituyen un pago por la propiedad, licencia o adquisición de los datos, contenidos o información a los que se accede a través de la plataforma. Usted paga por el servicio de intermediación e infraestructura, no por los activos finales.</p>
+      <div id="recover-password-form" class="recover-password-form">
+          <div class="text-center mb-6">
+              <span class="material-icons text-blue-500 text-6xl">key</span>
+          </div>
+          <h3 style="font-size: 2rem;">¿Olvidaste tu clave?</h3>
+          <p class="form-subtitle">Enviaremos instrucciones a tu correo</p>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">mark_email_read</span>
+              <input type="email" id="recover-email" placeholder="Email registrado" class="input-field">
+          </div>
+          
+          <button class="recover-btn" onclick="recoverPassword()">
+              <span>Enviar enlace de recuperación</span>
+          </button>
+          
+          <div class="text-link">
+              <a href="#" onclick="showLoginForm(); return false;" class="flex items-center justify-center gap-2">
+                  <span class="material-icons text-sm">arrow_back</span> Volver al inicio
+              </a>
+          </div>
+      </div>
 
-<ul>
-<li><strong>Adquisición (Compras y Recargas):</strong> Los créditos y planes se adquieren mediante compras a través de los canales oficiales (web con Mercado Pago o coordinación por WhatsApp). El Usuario es el único responsable de:
-<ul>
-<li>Verificar los montos y detalles de la transacción antes de confirmar el pago.</li>
-<li>Comprobar que la compra se haya acreditado correctamente en su cuenta.</li>
-</ul>
-</li>
-<li><strong>Consumo y Uso Unificado:</strong> Los créditos y planes adquiridos tienen el mismo valor y son válidos para todos los servicios disponibles en la plataforma MasitaPrex (consultas, APIs, visualización de contenido, etc.). Su consumo es automático según el servicio utilizado.</li>
-<li><strong>Intransferibilidad:</strong> Los créditos y planes están asociados únicamente a la cuenta del Usuario que los adquirió y no son transferibles a otras cuentas, salvo a través de la funcionalidad de "recargar a un tercero" explícitamente provista en la plataforma.</li>
-<li><strong>Caducidad e Inactividad:</strong> Los créditos no tienen fecha de caducidad predefinida. Sin embargo, MasitaPrex se reserva el derecho de revisar y, en casos extremos, inactivar cuentas que permanezcan absolutamente inactivas (sin acceso ni consumo) por un período prolongado (ej. 24 meses o más).</li>
-</ul>
+    </div>
+  </div>
 
-<h2>3. POLÍTICA DE REEMBOLSOS (DEVOLUCIONES)</h2>
-<p>Las solicitudes de reembolso se rigen por nuestra <strong>Política de Compras, Créditos y Reembolsos</strong>, la cual forma parte integral de estos Términos. En resumen:</p>
-<ul>
-<li><strong>Reembolso Completo:</strong> Solo aplica si los créditos o el plan adquirido NO han sido utilizados en absoluto.</li>
-<li><strong>Reembolso Parcial:</strong> Si se ha consumido una parte, solo se reembolsa el valor proporcional a la parte no utilizada.</li>
-<li><strong>Comisiones no Reembolsables:</strong> Las comisiones cobradas por las pasarelas de pago (como Mercado Pago) no son reembolsables.</li>
-<li><strong>Plazo y Condiciones:</strong> Los reembolsos deben solicitarse dentro de las primeras 12 horas posteriores a la acreditación del pago y están sujetos a verificación. Ciertas condiciones pueden excluir el reembolso (ver política completa).</li>
-</ul>
-<p><strong>El derecho de retracto para bienes digitales y servicios de suministro inmediato puede estar limitado por la normativa de protección al consumidor peruana, siendo aplicable nuestra política específica como parte del acuerdo.</strong></p>
+  <div id="terms-modal" class="modal-overlay fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[20000] hidden flex items-center justify-center p-4">
+    <div class="modal-3d animate-in zoom-in duration-300">
+        <div class="flex flex-col items-center text-center">
+            <span class="material-icons text-5xl text-emerald-500 mb-4">verified</span>
+            <h4 class="text-xl font-bold mb-2">Términos de Servicio</h4>
+            <div class="bg-slate-50 p-4 rounded-2xl text-sm text-slate-600 mb-6 text-left border border-slate-100">
+                Al registrarte, confirmas que eres mayor de edad y que harás un uso responsable de los servicios de Masitaprex. No se permiten actividades ilícitas.
+            </div>
+            <label class="flex items-start gap-3 mb-6 cursor-pointer group">
+                <input type="checkbox" id="accept-terms-check" class="mt-1 w-5 h-5 accent-blue-600 rounded">
+                <span class="text-sm text-slate-500 text-left group-hover:text-slate-700 transition-colors">Acepto los términos y el aviso de privacidad de datos.</span>
+            </label>
+            <button id="confirm-terms-btn" class="primary-btn !m-0 disabled:opacity-50 disabled:shadow-none" disabled>
+                Confirmar Registro
+            </button>
+            <button onclick="closeTermsModal()" class="mt-4 text-sm font-semibold text-slate-400">Quizás más tarde</button>
+        </div>
+    </div>
+  </div>
 
-<h2>4. CONDICIONES DE USO GENERAL Y PROHIBICIONES</h2>
-<p>El Usuario se compromete a utilizar la infraestructura de MasitaPrex de manera lícita, ética y responsable. Queda <strong>terminantemente prohibido</strong>:</p>
-<ul>
-<li>Utilizar la plataforma para fines ilícitos, fraudulentos, o que infrinjan derechos de terceros.</li>
-<li>Realizar consultas masivas automatizadas (scraping) o acciones que puedan saturar, sobrecargar o dañar nuestra infraestructura o la de los proveedores externos.</li>
-<li>Intentar eludir sistemas de seguridad, acceder a áreas no autorizadas o interferir con el funcionamiento de la plataforma.</li>
-<li>Utilizar la información obtenida para actividades de acoso, suplantación de identidad, spam o cualquier acción que atente contra la privacidad de las personas, respetando siempre la Ley de Protección de Datos Personales (Ley N° 29733).</li>
-<li>Compartir, vender o revender el acceso a su cuenta, tokens de API o créditos de manera no autorizada.</li>
-</ul>
+  <div id="form-message-tooltip" class="fixed top-6 left-1/2 -translate-x-1/2 z-[30000] px-6 py-4 rounded-2xl shadow-2xl transition-all duration-500 -translate-y-32 text-white font-medium flex items-center gap-3"></div>
+  
+  <div id="loading-indicator" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[10000] hidden items-center justify-center">
+      <div class="flex gap-2">
+          <div class="w-4 h-4 rounded-full bg-blue-600 animate-bounce"></div>
+          <div class="w-4 h-4 rounded-full bg-emerald-500 animate-bounce [animation-delay:-.3s]"></div>
+          <div class="w-4 h-4 rounded-full bg-blue-600 animate-bounce [animation-delay:-.5s]"></div>
+      </div>
+  </div>
 
-<h2>5. ACLARACIÓN SOBRE EL CONTENIDO Y SERVICIOS DE TERCEROS</h2>
-<p><strong>MasitaPrex opera como intermediario tecnológico.</strong> Esto significa que facilitamos el acceso a servicios y contenidos proporcionados por fuentes externas.</p>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+      onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, 
+      GithubAuthProvider, signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, setDoc, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<ul>
-<li><strong>Para Servicios de Consulta (APIs):</strong> Actuamos como infraestructura intermediaria entre su solicitud y el proveedor final de los datos. No somos responsables por la exactitud, legalidad o actualización de la información devuelta por dichos proveedores.</li>
-<li><strong>Para Contenido Multimedia (Streaming):</strong> La plataforma facilita el acceso a enlaces de contenido alojado en servidores de terceros (como YouTube, Google Drive u otros). MasitaPrex NO aloja, reproduce ni es propietario de dicho contenido audiovisual. El Usuario accede bajo su exclusiva responsabilidad y debe verificar la legalidad del contenido en su jurisdicción. Los créditos consumidos pagan por el uso de nuestra infraestructura de búsqueda, gestión de enlaces y conectividad, no por el contenido en sí.</li>
-</ul>
-<p>Si usted es titular de derechos de autor y considera que algún enlace indexado infringe sus derechos, puede solicitar su retiro contactando nuestro soporte oficial, proporcionando la información necesaria para una acción efectiva.</p>
+    let auth, db;
+    let recaptchaSiteKey = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
+    let appConfig;
+    
+    let loginRecaptchaWidgetId = null;
+    let registerRecaptchaWidgetId = null;
+    let recaptchaRefreshTimer = null;
 
-<h2>6. PROPIEDAD INTELECTUAL DE LA PLATAFORMA</h2>
-<p>El software, diseño, interfaz, código (excepto bibliotecas de terceros), marcas, logotipos y la estructura de la infraestructura tecnológica de <strong>MasitaPrex</strong> son propiedad exclusiva de <strong>JOSE RENE CUBAS PEREZ</strong> o se utilizan bajo licencia correspondiente. Queda prohibida la reproducción, distribución, descompilación o uso no autorizado de cualquier elemento de la plataforma.</p>
+    const formMessageTooltip = document.getElementById('form-message-tooltip'); 
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const loginScreen = document.getElementById('login-screen');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const recoverPasswordForm = document.getElementById('recover-password-form');
+    
+    const termsModal = document.getElementById('terms-modal');
+    const termsCheck = document.getElementById('accept-terms-check');
+    const confirmTermsBtn = document.getElementById('confirm-terms-btn');
 
-<h2>7. LIMITACIÓN DE RESPONSABILIDAD</h2>
-<p>En la máxima medida permitida por la ley peruana, <strong>MasitaPrex y su titular NO serán responsables</strong> por:</p>
-<ol>
-<li><strong>Información y Contenido de Terceros:</strong> Cualquier error, ilegalidad o problema relacionado con los datos, información o contenido multimedia proporcionado por fuentes o servidores externos a los que nuestra infraestructura permite acceder.</li>
-<li><strong>Disponibilidad del Servicio:</strong> Interrupciones, suspensiones o fallos en el servicio debido a mantenimiento, fallos de proveedores de hosting o conectividad, ataques informáticos o casos de fuerza mayor.</li>
-<li><strong>Uso Indebido por el Usuario:</strong> Los actos realizados por el Usuario que violen estos términos o la ley. El Usuario se obliga a mantener indemne a MasitaPrex por cualquier reclamo derivado de su mal uso.</li>
-<li><strong>Pérdida de Créditos o Acceso:</strong> La pérdida derivada de mal uso de la cuenta, negligencia en la custodia de credenciales o acciones del Usuario.</li>
-</ol>
-<p>En ningún caso la responsabilidad total acumulada de MasitaPrex excederá el monto total pagado por el Usuario en los últimos 6 meses por concepto de créditos o planes.</p>
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
 
-<h2>8. PRIVACIDAD Y PROTECCIÓN DE DATOS</h2>
-<p>El tratamiento de los datos personales del Usuario se rige por nuestra <strong>Política de Privacidad</strong>, la cual forma parte integral de estos Términos. Nos comprometemos a manejar su información con confidencialidad y en cumplimiento de la Ley N° 29733 y su reglamento.</p>
-
-<h2>9. MODIFICACIÓN DE LOS TÉRMINOS</h2>
-<p><strong>MasitaPrex se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento</strong>. Las versiones actualizadas se publicarán en <code>masitaprex.com</code>. El uso continuado de la plataforma después de la publicación de los cambios constituye la aceptación de los nuevos términos. Es responsabilidad del Usuario revisar periódicamente esta página.</p>
-
-<h2>10. SUSPENSIÓN Y TERMINACIÓN</h2>
-<p>MasitaPrex puede suspender o terminar el acceso de un Usuario a la plataforma, sin responsabilidad y sin reembolso de créditos remanentes, si determina razonablemente que el Usuario ha violado estos Términos, ha incurrido en conductas ilícitas o su uso pone en riesgo la seguridad o estabilidad de la infraestructura.</p>
-
-<h2>11. LEY APLICABLE Y JURISDICCIÓN</h2>
-<p>Estos Términos se rigen e interpretan conforme a las leyes de la República del Perú. Para cualquier controversia, las partes se someten a la competencia exclusiva de los Jueces y Tribunales de la Ciudad de <strong>Cajamarca, Perú</strong>.</p>
-
-<p><strong>Nota Final:</strong> Este documento es contractual. No constituye asesoría legal. El hecho de que MasitaPrex no exija el cumplimiento de alguna disposición en un momento dado no constituirá una renuncia a dicho derecho en el futuro.</p>
-
-<p><strong>MasitaPrex - Infraestructura Tecnológica Intermediaria</strong></p>
-<p><strong>Propietario y Representante:</strong> JOSE RENE CUBAS PEREZ</p>
-<p><strong>RUC:</strong> 10736224351</p>
-<p><strong>Contacto Oficial:</strong> A través del canal de WhatsApp de soporte.</p>
-    </footer>
-</div>
-
-<script type="text/javascript">
-    // Script para prevenir acciones no deseadas (opcional, refuerza el oncontextmenu del body)
-    document.addEventListener('keydown', function(e) {
-        // Bloquea Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U (comentar si no se desea)
-        if (
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-            (e.ctrlKey && e.key === 'U')
-        ) {
-            e.preventDefault();
+    function redirectAfterAuth() {
+        const returnTo = getUrlParameter('returnTo');
+        if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
+            try {
+                const decodedUrl = decodeURIComponent(returnTo);
+                if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+                    window.location.href = decodedUrl;
+                    return;
+                }
+            } catch (e) {
+                console.warn('URL de retorno inválida:', e);
+            }
         }
-    });
-</script>
+        window.location.href = "actividad";
+    }
 
+    async function initFirebase() {
+      try {
+        const response = await fetch('/api/config');
+        appConfig = await response.json();
+        const app = initializeApp(appConfig.firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (appConfig.recaptchaSiteKey) {
+            recaptchaSiteKey = appConfig.recaptchaSiteKey;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            redirectAfterAuth();
+          } else {
+            setTimeout(() => {
+                goToWelcomeScreen();
+                hideLoadingOverlay();
+            }, 500);
+          }
+        });
+      } catch (error) {
+        console.error("Error al cargar configuración:", error);
+        setTimeout(() => {
+            goToWelcomeScreen();
+            hideLoadingOverlay();
+        }, 500);
+      }
+    }
+
+    initFirebase();
+
+    function showMessage(msg, type) {
+        formMessageTooltip.textContent = msg;
+        formMessageTooltip.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
+        formMessageTooltip.classList.remove('-translate-y-32');
+        formMessageTooltip.classList.add('translate-y-0');
+        setTimeout(() => {
+            formMessageTooltip.classList.remove('translate-y-0');
+            formMessageTooltip.classList.add('-translate-y-32');
+        }, 4000);
+    }
+
+    function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
+    function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
+
+    function hideAllForms() {
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'none';
+        if (recoverPasswordForm) recoverPasswordForm.style.display = 'none';
+    }
+
+    window.goToWelcomeScreen = function() {
+        welcomeScreen.style.display = 'flex';
+        loginScreen.style.display = 'none';
+        hideAllForms();
+    };
+
+    window.showLoginFormFromWelcome = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        showLoginForm();
+    };
+
+    window.showRegisterFormFromWelcome = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        showRegisterForm();
+    };
+
+    window.openTermsModal = () => {
+        const name = document.getElementById('register-name')?.value;
+        const email = document.getElementById('register-email')?.value;
+        const password = document.getElementById('register-password')?.value;
+        
+        const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
+        if (!recaptchaResponse) {
+            showMessage('Por favor, verifica que no eres un robot', 'error');
+            return;
+        }
+        
+        if (!name || !email || !password) {
+            showMessage('Completa todos los campos primero', 'error');
+            return;
+        }
+        
+        termsModal.style.display = 'flex';
+    };
+
+    window.closeTermsModal = () => {
+        termsModal.style.display = 'none';
+    };
+
+    window.showTermsModal = function() {
+        termsModal.style.display = 'flex';
+        if (termsCheck) termsCheck.checked = false;
+        if (confirmTermsBtn) confirmTermsBtn.disabled = true;
+    };
+
+    if (termsCheck) {
+        termsCheck.addEventListener('change', () => {
+            if (confirmTermsBtn) confirmTermsBtn.disabled = !termsCheck.checked;
+        });
+    }
+
+    if (confirmTermsBtn) {
+        confirmTermsBtn.addEventListener('click', () => {
+            closeTermsModal();
+            registerNewAccount();
+        });
+    }
+
+    window.recaptchaOnLoad = function() {
+        if (loginForm?.style.display === 'flex') {
+            initLoginRecaptcha();
+        } else if (registerForm?.style.display === 'flex') {
+            initRegisterRecaptcha();
+        }
+    };
+
+    function initLoginRecaptcha() {
+        if (loginRecaptchaWidgetId !== null) {
+            grecaptcha.reset(loginRecaptchaWidgetId);
+            return;
+        }
+        const container = document.getElementById('login-recaptcha');
+        if (container && window.grecaptcha) {
+            loginRecaptchaWidgetId = grecaptcha.render(container, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'callback': () => startRecaptchaRefreshTimer(loginRecaptchaWidgetId)
+            });
+        }
+    }
+
+    function initRegisterRecaptcha() {
+        if (registerRecaptchaWidgetId !== null) {
+            grecaptcha.reset(registerRecaptchaWidgetId);
+            return;
+        }
+        const container = document.getElementById('register-recaptcha');
+        if (container && window.grecaptcha) {
+            registerRecaptchaWidgetId = grecaptcha.render(container, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'callback': () => startRecaptchaRefreshTimer(registerRecaptchaWidgetId)
+            });
+        }
+    }
+
+    function startRecaptchaRefreshTimer(widgetId) {
+        if (recaptchaRefreshTimer) clearTimeout(recaptchaRefreshTimer);
+        recaptchaRefreshTimer = setTimeout(() => {
+            if (widgetId !== null && window.grecaptcha) {
+                grecaptcha.reset(widgetId);
+                startRecaptchaRefreshTimer(widgetId);
+            }
+        }, 50000);
+    }
+
+    window.showRegisterForm = () => {
+        hideAllForms();
+        if (registerForm) registerForm.style.display = 'flex';
+        setTimeout(() => initRegisterRecaptcha(), 100);
+    };
+
+    window.showLoginForm = () => {
+        hideAllForms();
+        if (loginForm) loginForm.style.display = 'flex';
+        setTimeout(() => initLoginRecaptcha(), 100);
+    };
+
+    window.showRecoverPasswordForm = () => {
+        hideAllForms();
+        if (recoverPasswordForm) recoverPasswordForm.style.display = 'flex';
+        if (recaptchaRefreshTimer) {
+            clearTimeout(recaptchaRefreshTimer);
+            recaptchaRefreshTimer = null;
+        }
+    };
+
+    window.togglePasswordVisibility = (inputId, icon) => {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    };
+
+    async function validateRecaptchaWithBackend(recaptchaResponse) {
+        try {
+            const response = await fetch('/api/validate-recaptcha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recaptchaResponse })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Error validando reCAPTCHA');
+            return data.success;
+        } catch (error) {
+            console.error('Error validando reCAPTCHA:', error);
+            throw error;
+        }
+    }
+
+    window.signInWithGoogle = async function() {
+        try {
+            showLoadingOverlay();
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const result = await signInWithPopup(auth, provider);
+            await saveUserProfile(result.user, result.user.displayName);
+            showMessage('Inicio de sesión exitoso', 'success');
+            setTimeout(() => redirectAfterAuth(), 1500);
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error con Google: ' + error.message, 'error');
+        }
+    };
+
+    window.signInWithGithub = async function() {
+        try {
+            showLoadingOverlay();
+            const provider = new GithubAuthProvider();
+            provider.setCustomParameters({ allow_signup: 'true' });
+            const result = await signInWithPopup(auth, provider);
+            await saveUserProfile(result.user, result.user.displayName);
+            showMessage('Inicio de sesión exitoso', 'success');
+            setTimeout(() => redirectAfterAuth(), 1500);
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error con GitHub: ' + error.message, 'error');
+        }
+    };
+
+    window.loginWithEmail = async () => {
+      const email = document.getElementById('login-email')?.value;
+      const password = document.getElementById('login-password')?.value;
+      if (!email || !password) { showMessage('Campos vacíos', 'error'); return; }
+      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
+      if (!recaptchaResponse) { showMessage('Verifica el reCAPTCHA', 'error'); return; }
+      
+      showLoadingOverlay();
+      try {
+          await validateRecaptchaWithBackend(recaptchaResponse);
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          await saveUserProfile(userCredential.user);
+          redirectAfterAuth();
+      } catch (error) {
+          hideLoadingOverlay();
+          if (loginRecaptchaWidgetId !== null) grecaptcha.reset(loginRecaptchaWidgetId);
+          showMessage('Credenciales inválidas o error de red', 'error');
+      }
+    };
+
+    window.registerNewAccount = async () => {
+      const name = document.getElementById('register-name')?.value;
+      const email = document.getElementById('register-email')?.value;
+      const password = document.getElementById('register-password')?.value;
+      const confirm = document.getElementById('register-confirm-password')?.value;
+      
+      if (password !== confirm) { showMessage('Las contraseñas no coinciden', 'error'); return; }
+      const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
+      if (!recaptchaResponse) { showMessage('Verifica el reCAPTCHA', 'error'); return; }
+      
+      showLoadingOverlay();
+      try {
+          await validateRecaptchaWithBackend(recaptchaResponse);
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          await saveUserProfile(userCredential.user, name);
+          redirectAfterAuth();
+      } catch (error) {
+          hideLoadingOverlay();
+          if (registerRecaptchaWidgetId !== null) grecaptcha.reset(registerRecaptchaWidgetId);
+          showMessage('Error al crear cuenta: ' + error.message, 'error');
+      }
+    };
+
+    window.recoverPassword = async () => {
+        const email = document.getElementById('recover-email')?.value;
+        if (!email) { showMessage('Ingresa tu correo', 'error'); return; }
+        showLoadingOverlay();
+        try {
+            await sendPasswordResetEmail(auth, email);
+            hideLoadingOverlay();
+            showMessage('Enlace enviado. Revisa tu email.', 'success');
+            setTimeout(() => showLoginForm(), 3000);
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessage('Error al procesar solicitud', 'error');
+        }
+    };
+
+    async function saveUserProfile(user, name = null) {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+          email: user.email,
+          name: name || user.displayName || user.email.split('@')[0],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (e) { console.error('Error perfil:', e); }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        hideAllForms();
+        showLoadingOverlay();
+    });
+  </script>
 </body>
 </html>
