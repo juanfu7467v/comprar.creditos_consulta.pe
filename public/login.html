@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   
   <title>Login Masitaprex | Registro y Acceso a la Infraestructura</title>
   <meta name="description" content="Acceso exclusivo a Masitaprex. Inicia sesión, realiza tu registro o recupera tu cuenta para gestionar créditos, APIs Dev y PeliPREX HD.">
@@ -22,7 +22,11 @@
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
   
   <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
 
@@ -31,27 +35,36 @@
     /* Variables CSS Actualizadas con colores más fuertes y limpios */
     :root {
         --primary: #007bff; 
-        --secondary: #00ff88; 
+        --secondary: #00e676; 
+        --google-blue: #4285f4;
+        --github-dark: #24292e;
+        --github-black: #1a1e22;
         --accent: #ff4081;
         --button-gradient: linear-gradient(135deg, #0072ff 0%, #00e676 100%);
         --bg-gradient: radial-gradient(circle at top right, #fdfbfb 0%, #ebedee 100%);
-        --glass-bg: rgba(255, 255, 255, 0.9);
         --text-dark: #2c3e50;
-        --text-muted: #7f8c8d;
-        --shadow-3d: 0 10px 25px rgba(0, 0, 0, 0.1), 0 5px 10px rgba(0, 0, 0, 0.05);
-        --border-radius: 24px;
+        --text-muted: #5e6f7d;
+        --shadow-3d: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+        --border-radius: 28px;
+        --border-radius-sm: 20px;
         --input-bg: #f1f3f6;
+        --btn-padding: 16px 24px;
+        --btn-height: 56px;
+        --btn-font-size: 1.1rem;
+        --spacing-mobile: 16px;
     }
 
     * {
         box-sizing: border-box;
         -webkit-tap-highlight-color: transparent;
+        margin: 0;
+        padding: 0;
     }
 
     body {
         margin: 0;
         padding: 0;
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Poppins', 'Inter', sans-serif;
         background: var(--bg-gradient);
         color: var(--text-dark);
         min-height: 100vh;
@@ -59,22 +72,265 @@
         justify-content: center;
         align-items: center;
         overflow-x: hidden;
+        width: 100%;
     }
 
-    .container {
+    /* Contenedor principal - SIN fondo adicional, solo transparencia */
+    #app-container {
         width: 100%;
-        max-width: 420px;
-        margin: 20px;
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-radius: var(--border-radius);
-        padding: 40px 30px;
-        box-shadow: var(--shadow-3d);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    /* Pantallas - todas usan el mismo estilo base sin contenedores de fondo */
+    .screen {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        background: transparent;
+    }
+
+    /* Contenedor de contenido para cada pantalla - SIN fondo */
+    .content-wrapper {
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+    }
+
+    /* Pantalla de bienvenida - NUEVA INTERFAZ PRINCIPAL */
+    #welcome-screen {
+        display: flex;
+    }
+
+    .welcome-icon {
+        font-size: 72px;
+        color: var(--primary);
+        margin-bottom: 24px;
+        background: linear-gradient(135deg, #0072ff, #00e676);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .welcome-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 16px;
+        background: var(--button-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.2;
+    }
+
+    .welcome-subtitle {
+        font-size: 1.1rem;
+        text-align: center;
+        color: var(--text-muted);
+        margin-bottom: 48px;
+        max-width: 320px;
+        font-weight: 400;
+    }
+
+    /* Estilos de botones mejorados - MÁS GROSOR, ALTURA ADECUADA, BUEN PADDING */
+    .btn {
+        width: 100%;
+        height: var(--btn-height);
+        padding: var(--btn-padding);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-size: var(--btn-font-size);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 2px solid transparent;
+    }
+
+    .btn:active {
+        transform: scale(0.98);
+    }
+
+    /* Botón principal con degradado azul/verde y fondo blanco */
+    .btn-primary-gradient {
+        background: white;
+        color: var(--primary);
+        border: 2px solid;
+        border-image: linear-gradient(135deg, #0072ff, #00e676) 1;
+        border-radius: var(--border-radius-sm);
+        position: relative;
+        box-shadow: 0 8px 20px rgba(0, 114, 255, 0.15);
+    }
+
+    .btn-primary-gradient span {
+        background: linear-gradient(135deg, #0072ff, #00e676);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    /* Botón Google - bordes y texto azul */
+    .btn-google {
+        background: white;
+        color: var(--google-blue);
+        border: 2px solid var(--google-blue);
+        box-shadow: 0 4px 10px rgba(66, 133, 244, 0.1);
+    }
+
+    .btn-google:hover, .btn-google:active {
+        background: rgba(66, 133, 244, 0.04);
+    }
+
+    /* Botón GitHub - bordes y texto negro */
+    .btn-github {
+        background: white;
+        color: var(--github-dark);
+        border: 2px solid var(--github-dark);
+        box-shadow: 0 4px 10px rgba(36, 41, 46, 0.05);
+    }
+
+    .btn-github:hover, .btn-github:active {
+        background: rgba(36, 41, 46, 0.04);
+    }
+
+    /* Botón login normal - bordes rojos */
+    .btn-login-red {
+        background: white;
+        color: #dc3545;
+        border: 2px solid #dc3545;
+        box-shadow: 0 4px 10px rgba(220, 53, 69, 0.08);
+    }
+
+    /* Botones originales MEJORADOS con más grosor, altura y padding */
+    .primary-btn {
+        width: 100%;
+        height: 56px;
+        padding: 16px 28px;
+        background: var(--button-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
+        letter-spacing: 0.5px;
+    }
+
+    .primary-btn:active {
+        transform: scale(0.96);
+    }
+
+    .primary-btn:disabled {
+        background: #b0bec5;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .register-btn {
+        width: 100%;
+        height: 56px;
+        padding: 16px 28px;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.1);
+    }
+
+    .recover-btn {
+        width: 100%;
+        height: 56px;
+        padding: 16px 28px;
+        background: var(--button-gradient);
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
+    }
+
+    /* Enlaces legales - texto pequeño */
+    .legal-links {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 32px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        flex-wrap: wrap;
+    }
+
+    .legal-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .legal-links a:hover {
+        color: var(--primary);
+    }
+
+    /* Formularios - SIN FONDO, completamente transparentes */
+    .login-form, .register-form, .recover-password-form {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        max-width: 480px;
+        margin: 20px auto;
+        padding: 40px 32px;
         position: relative;
         animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-        z-index: 1;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
+        border: none;
     }
 
     @keyframes slideUp {
@@ -82,56 +338,48 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    .avatar {
-        width: 110px;
-        height: 110px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin: 0 auto 20px;
-        display: none; 
-        border: 4px solid #fff;
-        box-shadow: 0 8px 20px rgba(0,230,118,0.2);
-        animation: float 4s ease-in-out infinite;
-    }
-
     @keyframes float {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-10px); }
     }
 
+    /* Títulos y descripciones MEJORADOS para móvil */
     h3 {
         font-weight: 700;
-        font-size: 1.6rem;
-        margin-bottom: 10px;
+        font-size: 1.9rem;
+        margin-bottom: 12px;
         text-align: center;
         background: var(--button-gradient);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        line-height: 1.2;
     }
 
     p {
         text-align: center;
         color: var(--text-muted);
-        font-size: 0.95rem;
-        margin-bottom: 25px;
+        font-size: 1.1rem;
+        margin-bottom: 32px;
+        font-weight: 400;
     }
 
     .input-group {
         width: 100%;
-        margin-bottom: 18px;
+        margin-bottom: 20px;
         position: relative;
     }
 
     .input-field {
         width: 100%;
-        padding: 16px 20px 16px 50px;
+        padding: 18px 20px 18px 52px;
         font-size: 1rem;
         border: 2px solid transparent;
-        border-radius: 16px;
+        border-radius: 18px;
         background: var(--input-bg);
         color: var(--text-dark);
         transition: all 0.3s ease;
         font-family: inherit;
+        height: 60px;
     }
 
     .input-field:focus {
@@ -147,7 +395,7 @@
         top: 50%;
         transform: translateY(-50%);
         color: var(--text-muted);
-        font-size: 20px;
+        font-size: 22px;
         transition: color 0.3s;
     }
 
@@ -155,138 +403,41 @@
         color: var(--primary);
     }
 
-    /* 🆕 MEJORAS EN BOTONES - Grosor, padding y apariencia profesional */
-    button {
-        width: 100%;
-        padding: 18px 24px; /* ✅ Más padding */
-        min-height: 56px; /* ✅ Altura mínima adecuada */
-        border: none;
-        border-radius: 16px;
-        font-size: 1.05rem; /* ✅ Texto más grande */
-        font-weight: 600;
+    .password-toggle {
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 10px;
-        letter-spacing: 0.3px; /* ✅ Mejor legibilidad */
-    }
-
-    .primary-btn {
-        background: var(--button-gradient);
-        color: #fff;
-        box-shadow: 0 8px 20px rgba(0, 114, 255, 0.3);
-    }
-
-    .primary-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(0, 114, 255, 0.4);
-    }
-
-    .primary-btn:active {
-        transform: scale(0.96);
-    }
-
-    /* Estilo Deshabilitado */
-    .primary-btn:disabled {
-        background: #ccc;
-        box-shadow: none;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .register-btn {
-        background: transparent;
-        color: var(--primary);
-        border: 2px solid var(--primary);
-        margin-top: 15px;
-    }
-
-    .register-btn:hover {
-        background: var(--primary);
-        color: #fff;
-        transform: translateY(-2px);
-    }
-
-    /* 🆕 BOTONES SOCIALES (GitHub y Google) */
-    .social-btn {
-        width: 100%;
-        padding: 16px 24px;
-        min-height: 54px;
-        border: 2px solid #e0e0e0;
-        border-radius: 14px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-        margin-top: 12px;
-        background: white;
-        color: var(--text-dark);
-    }
-
-    .social-btn:hover {
-        border-color: var(--primary);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .social-btn img {
-        width: 22px;
-        height: 22px;
-    }
-
-    .github-btn {
-        border-color: #24292e;
-        color: #24292e;
-    }
-
-    .github-btn:hover {
-        background: #24292e;
-        color: white;
-        border-color: #24292e;
-    }
-
-    .google-btn {
-        border-color: #4285f4;
-        color: #4285f4;
-    }
-
-    .google-btn:hover {
-        background: #4285f4;
-        color: white;
-        border-color: #4285f4;
+        color: var(--text-muted);
+        padding: 8px;
+        font-size: 22px;
     }
 
     .separator {
         display: flex;
         align-items: center;
         text-align: center;
-        margin: 25px 0;
+        margin: 28px 0;
         color: var(--text-muted);
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }
 
     .separator::before, .separator::after {
         content: '';
         flex: 1;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #e0e0e0;
     }
 
-    .separator:not(:empty)::before { margin-right: 15px; }
-    .separator:not(:empty)::after { margin-left: 15px; }
+    .separator:not(:empty)::before { margin-right: 16px; }
+    .separator:not(:empty)::after { margin-left: 16px; }
 
     .text-link {
         text-align: center;
-        margin-top: 20px;
-        font-size: 0.9rem;
+        margin-top: 24px;
+        font-size: 1rem;
     }
 
     .text-link a {
@@ -332,14 +483,14 @@
     }
 
     .terms-text {
-        font-size: 0.9rem;
-        line-height: 1.5;
+        font-size: 0.95rem;
+        line-height: 1.6;
         color: var(--text-dark);
         margin-bottom: 20px;
         text-align: left;
         background: #f8f9fa;
-        padding: 15px;
-        border-radius: 12px;
+        padding: 18px;
+        border-radius: 16px;
         border-left: 4px solid var(--secondary);
     }
 
@@ -354,12 +505,11 @@
     }
 
     .checkbox-container input {
-        width: 20px;
-        height: 20px;
-        margin-top: 3px;
+        width: 22px;
+        height: 22px;
+        margin-top: 2px;
+        accent-color: var(--primary);
     }
-
-    /* FIN MODAL 3D */
 
     .form-message-tooltip {
         position: fixed;
@@ -367,15 +517,16 @@
         left: 50%;
         transform: translateX(-50%) translateY(-100px);
         width: 90%;
-        max-width: 350px;
-        padding: 15px 20px;
-        border-radius: 15px;
+        max-width: 380px;
+        padding: 16px 24px;
+        border-radius: 20px;
         color: white;
         font-weight: 600;
         text-align: center;
         z-index: 30000;
         transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        font-size: 1rem;
     }
 
     .form-message-tooltip.active { transform: translateX(-50%) translateY(0); }
@@ -385,17 +536,17 @@
     #loading-indicator {
         position: fixed;
         inset: 0;
-        background: #ffffff; 
+        background: rgba(255, 255, 255, 0.95);
         display: none;
         justify-content: center;
         align-items: center;
         z-index: 10000;
     }
 
-    .circle-loader { display: flex; gap: 15px; }
+    .circle-loader { display: flex; gap: 18px; }
     .circle-loader div {
-        width: 22px; 
-        height: 22px; 
+        width: 24px; 
+        height: 24px; 
         border-radius: 50%;
         background: var(--button-gradient); 
         animation: bounce 0.6s infinite alternate;
@@ -405,29 +556,13 @@
 
     @keyframes bounce {
         from { transform: translateY(0); opacity: 1; }
-        to { transform: translateY(-20px); opacity: 0.7; }
-    }
-
-    .login-form, .register-form, .recover-password-form {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .password-toggle {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: var(--text-muted);
-        padding: 5px;
+        to { transform: translateY(-25px); opacity: 0.7; }
     }
 
     .register-policy-links {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         text-align: center;
-        margin: 15px 0;
+        margin: 20px 0 10px;
         color: var(--text-muted);
     }
 
@@ -437,10 +572,12 @@
         font-weight: 600;
     }
 
-    /* ESTILOS PARA reCAPTCHA - AJUSTADO PARA MISMO ANCHO */
+    /* ESTILOS PARA reCAPTCHA */
     .recaptcha-container {
         width: 100%;
-        margin: 10px 0 20px 0;
+        margin: 16px 0 24px 0;
+        display: flex;
+        justify-content: center;
     }
 
     #login-recaptcha, #register-recaptcha {
@@ -451,7 +588,7 @@
 
     .g-recaptcha {
         width: 100% !important;
-        transform: scale(1.0);
+        transform: scale(1);
         transform-origin: 0 0;
     }
 
@@ -459,322 +596,264 @@
         width: 100% !important;
     }
 
-    .help-bot-container {
-        position: fixed;
-        bottom: 30px;
-        right: 25px;
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
+    /* ADAPTACIÓN RESPONSIVE - Pantallas grandes */
+    @media (min-width: 1024px) {
+        .content-wrapper {
+            max-width: 100%;
+            padding: 40px 80px;
+        }
+        
+        .welcome-title {
+            font-size: 2.8rem;
+        }
+        
+        .btn {
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        #welcome-screen .content-wrapper {
+            max-width: 600px;
+        }
+        
+        .login-form, .register-form, .recover-password-form {
+            max-width: 600px;
+            padding: 50px 48px;
+        }
     }
 
-    .help-bot-img {
-        width: 75px; height: 75px;
-        object-fit: contain;
-        animation: floatBot 3s ease-in-out infinite;
-    }
-
-    .help-badge {
-        background: #25d366; 
-        color: white;
-        font-size: 10px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        margin-top: 5px; 
-        animation: pulseBadge 2s infinite;
-    }
-
-    @keyframes floatBot {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-12px) rotate(5deg); }
-    }
-
-    @keyframes pulseBadge {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
-
-    /* 🆕 NUEVA INTERFAZ LANDING INICIAL */
-    #landing-interface {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        justify-content: center;
-        align-items: center;
-        z-index: 5000;
-        padding: 20px;
-    }
-
-    .landing-content {
-        text-align: center;
-        max-width: 450px;
-        width: 100%;
-    }
-
-    .landing-icon {
-        width: 100px;
-        height: 100px;
-        margin: 0 auto 30px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        animation: float 3s ease-in-out infinite;
-    }
-
-    .landing-icon img {
-        width: 60px;
-        height: 60px;
-    }
-
-    .landing-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 15px;
-        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .landing-description {
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 40px;
-        line-height: 1.6;
-    }
-
-    /* Botón principal con borde degradado */
-    .landing-register-btn {
-        width: 100%;
-        padding: 20px 24px;
-        background: white;
-        color: #667eea;
-        border: 3px solid transparent;
-        background-image: linear-gradient(white, white), linear-gradient(135deg, #0072ff, #00e676);
-        background-origin: border-box;
-        background-clip: padding-box, border-box;
-        border-radius: 16px;
-        font-size: 1.15rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .landing-register-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    }
-
-    .landing-google-btn, .landing-github-btn {
-        width: 100%;
-        padding: 18px 24px;
-        background: white;
-        color: var(--text-dark);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 14px;
-        font-size: 1.05rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-    }
-
-    .landing-google-btn:hover, .landing-github-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Botón Iniciar sesión con borde rojo */
-    .landing-login-btn {
-        width: 100%;
-        padding: 18px 24px;
-        background: white;
-        color: #ff4444;
-        border: 3px solid #ff4444;
-        border-radius: 14px;
-        font-size: 1.05rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 25px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .landing-login-btn:hover {
-        background: #ff4444;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(255, 68, 68, 0.3);
-    }
-
-    .landing-footer {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.8);
-        margin-top: 10px;
-    }
-
-    .landing-footer a {
-        color: white;
-        text-decoration: underline;
-        margin: 0 8px;
-    }
-
-    /* 🆕 ADAPTACIÓN RESPONSIVE MEJORADA */
-    @media (min-width: 769px) {
-        /* En pantallas grandes, el contenedor llena más ancho */
-        .container {
+    /* ADAPTACIÓN RESPONSIVE - Tablets */
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .content-wrapper {
             max-width: 90%;
+        }
+        
+        .welcome-title {
+            font-size: 2.5rem;
+        }
+        
+        .login-form, .register-form, .recover-password-form {
+            max-width: 550px;
+        }
+    }
+
+    /* ADAPTACIÓN RESPONSIVE - Móviles - SIN DESPLAZAMIENTO HORIZONTAL */
+    @media (max-width: 480px) {
+        body {
+            padding: 0;
+        }
+        
+        .screen {
+            padding: 20px 16px;
+        }
+        
+        .content-wrapper {
+            max-width: 100%;
+            padding: 0;
+        }
+        
+        .login-form, .register-form, .recover-password-form { 
+            margin: 0; 
+            border-radius: 24px; 
+            padding: 32px 24px; 
             width: 100%;
         }
         
-        body {
-            justify-content: center;
-            padding: 20px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        /* Tablet - contenedor más ancho */
-        .container {
-            max-width: 85%;
-        }
-    }
-
-    @media (max-width: 480px) {
-        /* Móviles - ajustes específicos */
-        .container { 
-            margin: 0; 
-            border-radius: 0; 
-            min-height: 100vh; 
-            padding: 50px 25px; 
-            max-width: 100%;
-            width: 100%;
+        .g-recaptcha {
+            transform: scale(0.88);
+            transform-origin: center;
         }
         
         h3 {
-            font-size: 1.4rem;
+            font-size: 1.7rem;
         }
         
-        .input-field {
-            padding: 14px 18px 14px 48px;
-            font-size: 0.95rem;
-        }
-        
-        button {
-            padding: 16px 20px;
-            min-height: 52px;
+        p {
             font-size: 1rem;
+            margin-bottom: 28px;
         }
         
-        .social-btn {
-            padding: 14px 20px;
-            min-height: 50px;
-        }
-        
-        .landing-title {
+        .welcome-title {
             font-size: 2rem;
         }
         
-        .landing-description {
+        .welcome-subtitle {
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+        
+        .btn {
+            height: 54px;
+            padding: 14px 20px;
             font-size: 1rem;
         }
         
-        .help-bot-container { 
-            bottom: 20px; 
-            right: 20px; 
+        .primary-btn, .register-btn, .recover-btn {
+            height: 54px;
+            padding: 14px 24px;
+            font-size: 1rem;
         }
         
-        .help-bot-img { 
-            width: 65px; 
-            height: 65px; 
-        }
-        
-        /* Ajuste adicional para reCAPTCHA en móviles */
-        .g-recaptcha {
-            transform: scale(0.9);
-        }
-    }
-
-    /* Ajuste específico para reCAPTCHA en pantallas más pequeñas */
-    @media (max-width: 380px) {
-        .g-recaptcha {
-            transform: scale(0.85);
-        }
-        
-        .container {
-            padding: 40px 20px;
+        .legal-links {
+            gap: 16px;
+            font-size: 0.8rem;
+            margin-top: 28px;
         }
     }
 
     @media (max-width: 360px) {
-        .landing-register-btn,
-        .landing-google-btn,
-        .landing-github-btn,
-        .landing-login-btn {
-            padding: 16px 20px;
-            font-size: 1rem;
+        .g-recaptcha {
+            transform: scale(0.82);
+        }
+        
+        .login-form, .register-form, .recover-password-form {
+            padding: 24px 18px;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+        }
+        
+        .btn, .primary-btn, .register-btn, .recover-btn {
+            height: 52px;
+            padding: 12px 20px;
         }
     }
   </style>
 </head>
 <body>
-
-  <!-- 🆕 NUEVA INTERFAZ LANDING INICIAL -->
-  <div id="landing-interface">
-    <div class="landing-content">
-      <div class="landing-icon">
-        <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex Icon">
+  <div id="app-container">
+    <!-- NUEVA PANTALLA DE BIENVENIDA - Primera interfaz que se muestra -->
+    <div id="welcome-screen" class="screen" style="display: flex;">
+      <div class="content-wrapper">
+        <span class="material-icons welcome-icon">security</span>
+        <h1 class="welcome-title">Masitaprex</h1>
+        <p class="welcome-subtitle">Infraestructura premium para desarrolladores y empresas</p>
+        
+        <!-- Botón principal - Bordes degradado azul/verde, fondo blanco -->
+        <button class="btn btn-primary-gradient" onclick="showRegisterFormFromWelcome()">
+          <span class="material-icons">person_add</span>
+          <span>Regístrate gratis</span>
+        </button>
+        
+        <!-- Botón Iniciar sesión con Google - Bordes y texto azul -->
+        <button class="btn btn-google" onclick="signInWithGoogle()">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' width='24' height='24'%3E%3Cpath fill='%23FFC107' d='M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z' /%3E%3Cpath fill='%23FF3D00' d='M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z' /%3E%3Cpath fill='%234CAF50' d='M24,44c5.166,0,10.136-1.768,13.968-4.757l-6.464-5.464C29.896,35.104,26.991,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z' /%3E%3Cpath fill='%231976D2' d='M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.464,5.464C42.037,39.222,44,33.022,44,24C44,22.659,43.862,21.35,43.611,20.083z' /%3E%3C/svg%3E" alt="Google" width="24" height="24">
+          <span>Iniciar sesión con Google</span>
+        </button>
+        
+        <!-- Botón Iniciar sesión con GitHub - Bordes y texto negro -->
+        <button class="btn btn-github" onclick="signInWithGithub()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.682-.103-.253-.447-1.27.098-2.646 0 0 .84-.269 2.75 1.025.8-.223 1.65-.334 2.5-.334.85 0 1.7.111 2.5.334 1.91-1.294 2.75-1.025 2.75-1.025.545 1.376.201 2.393.099 2.646.64.698 1.03 1.591 1.03 2.682 0 3.841-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          <span>Iniciar sesión con GitHub</span>
+        </button>
+        
+        <!-- Botón Iniciar sesión - bordes rojos -->
+        <button class="btn btn-login-red" onclick="showLoginFormFromWelcome()">
+          <span class="material-icons">login</span>
+          <span>Iniciar sesión</span>
+        </button>
+        
+        <!-- Enlaces legales -->
+        <div class="legal-links">
+          <a href="#" onclick="showTermsModal(); return false;">Política de privacidad</a>
+          <a href="#" onclick="showTermsModal(); return false;">Términos y condiciones</a>
+        </div>
       </div>
-      
-      <h1 class="landing-title">Masitaprex</h1>
-      
-      <p class="landing-description">
-        Bienvenido a la infraestructura de élite. Gestiona tus APIs, créditos y servicios premium.
-      </p>
-      
-      <button class="landing-register-btn" onclick="showRegisterFromLanding()">
-        <span class="material-icons">person_add</span>
-        Regístrate gratis
-      </button>
-      
-      <button class="landing-google-btn" onclick="loginWithGoogle()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        Iniciar sesión con Google
-      </button>
-      
-      <button class="landing-github-btn" onclick="loginWithGithub()">
-        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
-        Iniciar sesión con GitHub
-      </button>
-      
-      <button class="landing-login-btn" onclick="showLoginFromLanding()">
-        <span class="material-icons">login</span>
-        Iniciar sesión
-      </button>
-      
-      <div class="landing-footer">
-        <a href="go:politica">Política de privacidad</a> • 
-        <a href="go:terminos">Términos y condiciones</a>
+    </div>
+
+    <!-- Pantalla de Login (sin botones Google/GitHub) - SIN FONDO COMPLETAMENTE -->
+    <div id="login-screen" class="screen" style="display: none;">
+      <div id="login-form" class="login-form">
+          <h3>Bienvenido</h3>
+          <p>Inicia sesión para continuar</p>
+          <div class="input-group">
+              <span class="material-icons field-icon">email</span>
+              <input type="email" id="login-email" placeholder="Correo electrónico" class="input-field" autocomplete="email">
+          </div>
+          <div class="input-group">
+              <span class="material-icons field-icon">lock</span>
+              <input type="password" id="login-password" placeholder="Contraseña" class="input-field" autocomplete="current-password">
+              <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
+          </div>
+          
+          <div class="recaptcha-container">
+              <div id="login-recaptcha"></div>
+          </div>
+          
+          <button class="primary-btn" onclick="loginWithEmail()">
+              <span>Entrar</span>
+              <span class="material-icons">arrow_forward</span>
+          </button>
+          <div class="text-link">
+              <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
+          </div>
+          <div class="separator">ó</div>
+          <button class="register-btn" onclick="showRegisterForm()">Crear una cuenta nueva</button>
+          <div class="text-link" style="margin-top: 20px;">
+              <a href="#" onclick="goToWelcomeScreen(); return false;">← Volver al inicio</a>
+          </div>
+      </div>
+
+      <div id="register-form" class="register-form">
+          <h3>Únete ahora</h3>
+          <p>Crea tu cuenta en segundos</p>
+          <div class="input-group">
+              <span class="material-icons field-icon">person</span>
+              <input type="text" id="register-name" placeholder="Nombre completo" class="input-field">
+          </div>
+          <div class="input-group">
+              <span class="material-icons field-icon">alternate_email</span>
+              <input type="email" id="register-email" placeholder="Correo electrónico" class="input-field">
+          </div>
+          <div class="input-group">
+              <span class="material-icons field-icon">lock_open</span>
+              <input type="password" id="register-password" placeholder="Contraseña (mín. 6)" class="input-field">
+          </div>
+          <div class="input-group">
+              <span class="material-icons field-icon">verified_user</span>
+              <input type="password" id="register-confirm-password" placeholder="Repetir contraseña" class="input-field">
+          </div>
+          
+          <div class="recaptcha-container">
+              <div id="register-recaptcha"></div>
+          </div>
+          
+          <button class="primary-btn" onclick="openTermsModal()">
+              <span>Registrarme</span>
+              <span class="material-icons">person_add</span>
+          </button>
+          <div class="register-policy-links">
+              Al registrarte aceptas los <a href="#" onclick="showTermsModal(); return false;">Términos</a> y <a href="#" onclick="showTermsModal(); return false;">Privacidad</a>.
+          </div>
+          <div class="text-link">
+              ¿Ya tienes cuenta? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
+          </div>
+          <div class="text-link" style="margin-top: 16px;">
+              <a href="#" onclick="goToWelcomeScreen(); return false;">← Volver al inicio</a>
+          </div>
+      </div>
+
+      <div id="recover-password-form" class="recover-password-form">
+          <h3>Recuperar</h3>
+          <p>Te enviaremos un enlace de acceso</p>
+          <div class="input-group">
+              <span class="material-icons field-icon">mark_email_read</span>
+              <input type="email" id="recover-email" placeholder="Tu correo registrado" class="input-field">
+          </div>
+          <button class="recover-btn" onclick="recoverPassword()">
+              <span>Enviar enlace</span>
+              <span class="material-icons">send</span>
+          </button>
+          <div class="text-link">
+              <a href="#" onclick="showLoginForm(); return false;">Volver atrás</a>
+          </div>
+          <div class="text-link" style="margin-top: 16px;">
+              <a href="#" onclick="goToWelcomeScreen(); return false;">← Volver al inicio</a>
+          </div>
       </div>
     </div>
   </div>
@@ -782,15 +861,15 @@
   <div id="terms-modal" class="modal-overlay">
     <div class="modal-3d">
         <span class="material-icons modal-icon">gavel</span>
-        <h3>Aviso Legal</h3>
+        <h3 style="-webkit-text-fill-color: var(--text-dark); background: none; color: var(--text-dark);">Aviso Legal</h3>
         <div class="terms-text">
             Acepto los Términos y Condiciones y declaro que usaré esta información con un fin lícito e interés legítimo.
         </div>
         <label class="checkbox-container">
             <input type="checkbox" id="accept-terms-check">
-            <span>He leído y acepto los términos para continuar.</span>
+            <span style="color: var(--text-dark);">He leído y acepto los términos para continuar.</span>
         </label>
-        <button id="confirm-terms-btn" class="primary-btn" disabled>
+        <button id="confirm-terms-btn" class="primary-btn" style="background: var(--button-gradient); color: white; -webkit-text-fill-color: white;" disabled>
             Continuar Registro
         </button>
         <div class="text-link" style="margin-top: 15px;">
@@ -809,124 +888,12 @@
       </div>
   </div>
 
-  <div id="login-register-container" class="container">
-    <div id="login-form" class="login-form">
-        <h3>Bienvenido</h3>
-        <p>Inicia sesión para continuar</p>
-        <div class="input-group">
-            <span class="material-icons field-icon">email</span>
-            <input type="email" id="login-email" placeholder="Correo electrónico" class="input-field" autocomplete="email">
-        </div>
-        <div class="input-group">
-            <span class="material-icons field-icon">lock</span>
-            <input type="password" id="login-password" placeholder="Contraseña" class="input-field" autocomplete="current-password">
-            <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
-        </div>
-        
-        <!-- reCAPTCHA para login -->
-        <div class="recaptcha-container">
-            <div id="login-recaptcha"></div>
-        </div>
-        
-        <button class="primary-btn" onclick="loginWithEmail()">
-            <span>Entrar</span>
-            <span class="material-icons">arrow_forward</span>
-        </button>
-        
-        <!-- 🆕 Botones de autenticación social -->
-        <div class="separator">ó continúa con</div>
-        
-        <button class="social-btn google-btn" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            <span>Continuar con Google</span>
-        </button>
-        
-        <button class="social-btn github-btn" onclick="loginWithGithub()">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
-            <span>Continuar con GitHub</span>
-        </button>
-        
-        <div class="text-link">
-            <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Olvidaste tu contraseña?</a>
-        </div>
-        <div class="separator">ó</div>
-        <button class="register-btn" onclick="showRegisterForm()">Crear una cuenta nueva</button>
-    </div>
-
-    <div id="register-form" class="register-form">
-        <h3>Únete ahora</h3>
-        <p>Crea tu cuenta en segundos</p>
-        
-        <!-- 🆕 Botones de registro social al inicio -->
-        <button class="social-btn google-btn" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            <span>Registrarse con Google</span>
-        </button>
-        
-        <button class="social-btn github-btn" onclick="loginWithGithub()">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub">
-            <span>Registrarse con GitHub</span>
-        </button>
-        
-        <div class="separator">ó con email</div>
-        
-        <div class="input-group">
-            <span class="material-icons field-icon">person</span>
-            <input type="text" id="register-name" placeholder="Nombre completo" class="input-field">
-        </div>
-        <div class="input-group">
-            <span class="material-icons field-icon">alternate_email</span>
-            <input type="email" id="register-email" placeholder="Correo electrónico" class="input-field">
-        </div>
-        <div class="input-group">
-            <span class="material-icons field-icon">lock_open</span>
-            <input type="password" id="register-password" placeholder="Contraseña (mín. 6)" class="input-field">
-        </div>
-        <div class="input-group">
-            <span class="material-icons field-icon">verified_user</span>
-            <input type="password" id="register-confirm-password" placeholder="Repetir contraseña" class="input-field">
-        </div>
-        
-        <!-- reCAPTCHA para registro -->
-        <div class="recaptcha-container">
-            <div id="register-recaptcha"></div>
-        </div>
-        
-        <button class="primary-btn" onclick="openTermsModal()">
-            <span>Registrarme</span>
-            <span class="material-icons">person_add</span>
-        </button>
-        <div class="register-policy-links">
-            Al registrarte aceptas los <a href="go:terminos">Términos</a> y <a href="go:politica">Privacidad</a>.
-        </div>
-        <div class="text-link">
-            ¿Ya tienes cuenta? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
-        </div>
-    </div>
-
-    <div id="recover-password-form" class="recover-password-form">
-        <h3>Recuperar</h3>
-        <p>Te enviaremos un enlace de acceso</p>
-        <div class="input-group">
-            <span class="material-icons field-icon">mark_email_read</span>
-            <input type="email" id="recover-email" placeholder="Tu correo registrado" class="input-field">
-        </div>
-        <button class="primary-btn" onclick="recoverPassword()">
-            <span>Enviar enlace</span>
-            <span class="material-icons">send</span>
-        </button>
-        <div class="text-link">
-            <a href="#" onclick="showLoginForm(); return false;">Volver atrás</a>
-        </div>
-    </div>
-  </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { 
       getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
-      onAuthStateChanged, sendPasswordResetEmail,
-      GoogleAuthProvider, GithubAuthProvider, signInWithPopup
+      onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, 
+      GithubAuthProvider, signInWithPopup 
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { 
       getFirestore, doc, setDoc, serverTimestamp 
@@ -936,25 +903,29 @@
     let recaptchaSiteKey = "6LeV3losAAAAALQDaPn_mVmUP7Z6el879PcfRmzo";
     let appConfig;
     
-    // Variables para manejo de reCAPTCHA
     let loginRecaptchaWidgetId = null;
     let registerRecaptchaWidgetId = null;
-    let currentRecaptchaWidget = null;
     let recaptchaRefreshTimer = null;
 
-    // 🆕 Providers para autenticación social
-    let googleProvider, githubProvider;
+    const formMessageTooltip = document.getElementById('form-message-tooltip'); 
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const loginScreen = document.getElementById('login-screen');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const recoverPasswordForm = document.getElementById('recover-password-form');
+    
+    const termsModal = document.getElementById('terms-modal');
+    const termsCheck = document.getElementById('accept-terms-check');
+    const confirmTermsBtn = document.getElementById('confirm-terms-btn');
 
-    // Función para obtener parámetro de la URL
     function getUrlParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
     }
 
-    // Función para redirigir después del login/registro con returnTo
     function redirectAfterAuth() {
         const returnTo = getUrlParameter('returnTo');
-        
         if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
             try {
                 const decodedUrl = decodeURIComponent(returnTo);
@@ -966,7 +937,6 @@
                 console.warn('URL de retorno inválida:', e);
             }
         }
-        
         window.location.href = "actividad";
     }
 
@@ -978,10 +948,6 @@
         auth = getAuth(app);
         db = getFirestore(app);
 
-        // 🆕 Inicializar providers de autenticación social
-        googleProvider = new GoogleAuthProvider();
-        githubProvider = new GithubAuthProvider();
-
         if (appConfig.recaptchaSiteKey) {
             recaptchaSiteKey = appConfig.recaptchaSiteKey;
         }
@@ -991,32 +957,21 @@
             redirectAfterAuth();
           } else {
             setTimeout(() => {
-                // 🆕 Mostrar landing en lugar de login directamente
-                showLandingInterface();
+                goToWelcomeScreen();
                 hideLoadingOverlay();
             }, 500);
           }
         });
       } catch (error) {
         console.error("Error al cargar configuración:", error);
-        showMessage('Error al conectar con el servidor.', 'error');
+        setTimeout(() => {
+            goToWelcomeScreen();
+            hideLoadingOverlay();
+        }, 500);
       }
     }
 
     initFirebase();
-
-    const formMessageTooltip = document.getElementById('form-message-tooltip'); 
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const recoverPasswordForm = document.getElementById('recover-password-form');
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const landingInterface = document.getElementById('landing-interface');
-    const loginRegisterContainer = document.getElementById('login-register-container');
-
-    // Elementos del Modal
-    const termsModal = document.getElementById('terms-modal');
-    const termsCheck = document.getElementById('accept-terms-check');
-    const confirmTermsBtn = document.getElementById('confirm-terms-btn');
 
     function showMessage(msg, type) {
         formMessageTooltip.textContent = msg;
@@ -1027,39 +982,35 @@
     function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
     function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
 
-    // 🆕 Funciones para mostrar/ocultar interfaces
-    function showLandingInterface() {
-        landingInterface.style.display = 'flex';
-        loginRegisterContainer.style.display = 'none';
-    }
-
-    function hideLandingInterface() {
-        landingInterface.style.display = 'none';
-        loginRegisterContainer.style.display = 'flex';
-    }
-
     function hideAllForms() {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'none';
-        recoverPasswordForm.style.display = 'none';
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'none';
+        if (recoverPasswordForm) recoverPasswordForm.style.display = 'none';
     }
 
-    // 🆕 Funciones para navegación desde landing
-    window.showLoginFromLanding = () => {
-        hideLandingInterface();
+    // Navegación entre pantallas
+    window.goToWelcomeScreen = function() {
+        welcomeScreen.style.display = 'flex';
+        loginScreen.style.display = 'none';
+        hideAllForms();
+    };
+
+    window.showLoginFormFromWelcome = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
         showLoginForm();
     };
 
-    window.showRegisterFromLanding = () => {
-        hideLandingInterface();
+    window.showRegisterFormFromWelcome = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
         showRegisterForm();
     };
 
-    /* FUNCIONES DEL MODAL 3D */
     window.openTermsModal = () => {
-        const name = document.getElementById('register-name').value;
-        const email = document.getElementById('register-email').value;
-        const password = document.getElementById('register-password').value;
+        const name = document.getElementById('register-name')?.value;
+        const email = document.getElementById('register-email')?.value;
+        const password = document.getElementById('register-password')?.value;
         
         const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
         if (!recaptchaResponse) {
@@ -1067,7 +1018,10 @@
             return;
         }
         
-        if (!name || !email || !password) return showMessage('Completa todos los campos primero', 'error');
+        if (!name || !email || !password) {
+            showMessage('Completa todos los campos primero', 'error');
+            return;
+        }
         
         termsModal.style.display = 'flex';
     };
@@ -1076,22 +1030,30 @@
         termsModal.style.display = 'none';
     };
 
-    termsCheck.addEventListener('change', () => {
-        confirmTermsBtn.disabled = !termsCheck.checked;
-    });
+    window.showTermsModal = function() {
+        termsModal.style.display = 'flex';
+        if (termsCheck) termsCheck.checked = false;
+        if (confirmTermsBtn) confirmTermsBtn.disabled = true;
+    };
 
-    confirmTermsBtn.addEventListener('click', () => {
-        closeTermsModal();
-        registerNewAccount();
-    });
-    /* FIN FUNCIONES MODAL */
+    if (termsCheck) {
+        termsCheck.addEventListener('change', () => {
+            if (confirmTermsBtn) confirmTermsBtn.disabled = !termsCheck.checked;
+        });
+    }
 
-    // Función para inicializar reCAPTCHA
+    if (confirmTermsBtn) {
+        confirmTermsBtn.addEventListener('click', () => {
+            closeTermsModal();
+            registerNewAccount();
+        });
+    }
+
     window.recaptchaOnLoad = function() {
         console.log('reCAPTCHA cargado correctamente');
-        if (loginForm.style.display === 'flex') {
+        if (loginForm?.style.display === 'flex') {
             initLoginRecaptcha();
-        } else if (registerForm.style.display === 'flex') {
+        } else if (registerForm?.style.display === 'flex') {
             initRegisterRecaptcha();
         }
     };
@@ -1113,15 +1075,12 @@
                     startRecaptchaRefreshTimer(loginRecaptchaWidgetId);
                 },
                 'expired-callback': function() {
-                    console.log('reCAPTCHA de login expirado');
                     showMessage('La verificación expiró. Por favor, márcalo nuevamente.', 'error');
                 },
                 'error-callback': function() {
-                    console.log('Error en reCAPTCHA de login');
                     showMessage('Error en la verificación. Intenta nuevamente.', 'error');
                 }
             });
-            currentRecaptchaWidget = loginRecaptchaWidgetId;
         }
     }
 
@@ -1142,15 +1101,12 @@
                     startRecaptchaRefreshTimer(registerRecaptchaWidgetId);
                 },
                 'expired-callback': function() {
-                    console.log('reCAPTCHA de registro expirado');
                     showMessage('La verificación expiró. Por favor, márcalo nuevamente.', 'error');
                 },
                 'error-callback': function() {
-                    console.log('Error en reCAPTCHA de registro');
                     showMessage('Error en la verificación. Intenta nuevamente.', 'error');
                 }
             });
-            currentRecaptchaWidget = registerRecaptchaWidgetId;
         }
     }
 
@@ -1170,8 +1126,7 @@
 
     window.showRegisterForm = () => {
         hideAllForms();
-        registerForm.style.display = 'flex';
-        
+        if (registerForm) registerForm.style.display = 'flex';
         setTimeout(() => {
             initRegisterRecaptcha();
         }, 100);
@@ -1179,8 +1134,7 @@
 
     window.showLoginForm = () => {
         hideAllForms();
-        loginForm.style.display = 'flex';
-        
+        if (loginForm) loginForm.style.display = 'flex';
         setTimeout(() => {
             initLoginRecaptcha();
         }, 100);
@@ -1188,8 +1142,7 @@
 
     window.showRecoverPasswordForm = () => {
         hideAllForms();
-        recoverPasswordForm.style.display = 'flex';
-        
+        if (recoverPasswordForm) recoverPasswordForm.style.display = 'flex';
         if (recaptchaRefreshTimer) {
             clearTimeout(recaptchaRefreshTimer);
             recaptchaRefreshTimer = null;
@@ -1204,63 +1157,6 @@
         } else {
             input.type = 'password';
             icon.textContent = 'visibility';
-        }
-    };
-
-    // 🆕 FUNCIONES DE AUTENTICACIÓN SOCIAL
-    window.loginWithGoogle = async () => {
-        showLoadingOverlay();
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            await saveUserProfile(result.user);
-            
-            if (recaptchaRefreshTimer) {
-                clearTimeout(recaptchaRefreshTimer);
-                recaptchaRefreshTimer = null;
-            }
-            
-            redirectAfterAuth();
-        } catch (error) {
-            hideLoadingOverlay();
-            console.error('Error con Google:', error);
-            
-            if (error.code === 'auth/popup-closed-by-user') {
-                showMessage('Autenticación cancelada', 'error');
-            } else if (error.code === 'auth/popup-blocked') {
-                showMessage('Permite ventanas emergentes para continuar', 'error');
-            } else if (error.code === 'auth/account-exists-with-different-credential') {
-                showMessage('Ya existe una cuenta con este correo usando otro método', 'error');
-            } else {
-                showMessage('Error al conectar con Google: ' + error.message, 'error');
-            }
-        }
-    };
-
-    window.loginWithGithub = async () => {
-        showLoadingOverlay();
-        try {
-            const result = await signInWithPopup(auth, githubProvider);
-            await saveUserProfile(result.user);
-            
-            if (recaptchaRefreshTimer) {
-                clearTimeout(recaptchaRefreshTimer);
-                recaptchaRefreshTimer = null;
-            }
-            
-            redirectAfterAuth();
-        } catch (error) {
-            hideLoadingOverlay();
-            console.error('Error con GitHub:', error);
-            
-            if (error.code === 'auth/popup-closed-by-user') {
-                showMessage('Autenticación cancelada', 'error');
-            } else if (error.code === 'auth/popup-blocked') {
-                showMessage('Permite ventanas emergentes para continuar', 'error');
-            } else if (error.code === 'auth/account-exists-with-different-credential') {
-                showMessage('Ya existe una cuenta con este correo usando otro método', 'error');
-            } else {
-                showMessage('Error al conectar con GitHub: ' + error.message, 'error');
-            }
         }
     };
 
@@ -1287,9 +1183,47 @@
         }
     }
 
+    // AUTENTICACIÓN CON GOOGLE (funcional)
+    window.signInWithGoogle = async function() {
+        try {
+            showLoadingOverlay();
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            const result = await signInWithPopup(auth, provider);
+            await saveUserProfile(result.user, result.user.displayName);
+            showMessage('Inicio de sesión exitoso', 'success');
+            setTimeout(() => redirectAfterAuth(), 1500);
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('Error con Google:', error);
+            showMessage('Error al iniciar sesión con Google: ' + error.message, 'error');
+        }
+    };
+
+    // AUTENTICACIÓN CON GITHUB (funcional)
+    window.signInWithGithub = async function() {
+        try {
+            showLoadingOverlay();
+            const provider = new GithubAuthProvider();
+            provider.setCustomParameters({
+                allow_signup: 'true'
+            });
+            const result = await signInWithPopup(auth, provider);
+            await saveUserProfile(result.user, result.user.displayName);
+            showMessage('Inicio de sesión exitoso', 'success');
+            setTimeout(() => redirectAfterAuth(), 1500);
+        } catch (error) {
+            hideLoadingOverlay();
+            console.error('Error con GitHub:', error);
+            showMessage('Error al iniciar sesión con GitHub: ' + error.message, 'error');
+        }
+    };
+
     window.loginWithEmail = async () => {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
+      const email = document.getElementById('login-email')?.value;
+      const password = document.getElementById('login-password')?.value;
       
       if (!email || !password) {
           showMessage('Campos vacíos', 'error');
@@ -1315,7 +1249,6 @@
           }
           
           redirectAfterAuth();
-          
       } catch (error) {
           hideLoadingOverlay();
           
@@ -1323,18 +1256,12 @@
               grecaptcha.reset(loginRecaptchaWidgetId);
           }
           
-          if (error.code === 'auth/invalid-credential') {
-              showMessage('Correo o contraseña incorrectos. Verifica tus datos.', 'error');
-          } else if (error.code === 'auth/user-not-found') {
-              showMessage('No existe una cuenta con este correo.', 'error');
-          } else if (error.code === 'auth/wrong-password') {
-              showMessage('Contraseña incorrecta. Intenta nuevamente.', 'error');
+          if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+              showMessage('Correo o contraseña incorrectos.', 'error');
           } else if (error.code === 'auth/too-many-requests') {
               showMessage('Demasiados intentos fallidos. Intenta más tarde.', 'error');
           } else if (error.code === 'auth/user-disabled') {
               showMessage('Esta cuenta ha sido deshabilitada.', 'error');
-          } else if (error.message.includes('reCAPTCHA')) {
-              showMessage('Error de verificación de seguridad. Intenta nuevamente.', 'error');
           } else {
               showMessage('Error al iniciar sesión: ' + error.message, 'error');
           }
@@ -1342,10 +1269,10 @@
     };
 
     window.registerNewAccount = async () => {
-      const name = document.getElementById('register-name').value;
-      const email = document.getElementById('register-email').value;
-      const password = document.getElementById('register-password').value;
-      const confirm = document.getElementById('register-confirm-password').value;
+      const name = document.getElementById('register-name')?.value;
+      const email = document.getElementById('register-email')?.value;
+      const password = document.getElementById('register-password')?.value;
+      const confirm = document.getElementById('register-confirm-password')?.value;
       
       if (password !== confirm) {
           showMessage('Las contraseñas no coinciden', 'error');
@@ -1373,7 +1300,6 @@
           }
           
           redirectAfterAuth();
-          
       } catch (error) {
           hideLoadingOverlay();
           
@@ -1384,9 +1310,7 @@
           if (error.code === 'auth/email-already-in-use') {
               showMessage('Este correo ya está registrado', 'error');
           } else if (error.code === 'auth/weak-password') {
-              showMessage('La contraseña es muy débil', 'error');
-          } else if (error.message.includes('reCAPTCHA')) {
-              showMessage('Error de verificación de seguridad. Intenta nuevamente.', 'error');
+              showMessage('La contraseña es muy débil (mínimo 6 caracteres)', 'error');
           } else {
               showMessage('Error al crear cuenta: ' + error.message, 'error');
           }
@@ -1394,7 +1318,7 @@
     };
 
     window.recoverPassword = async () => {
-        const email = document.getElementById('recover-email').value;
+        const email = document.getElementById('recover-email')?.value;
         if (!email) {
             showMessage('Ingresa tu correo', 'error');
             return;
@@ -1405,7 +1329,7 @@
             await sendPasswordResetEmail(auth, email);
             hideLoadingOverlay();
             showMessage('Correo enviado. Revisa tu bandeja.', 'success');
-            setTimeout(showLoginForm, 3000);
+            setTimeout(() => showLoginForm(), 3000);
         } catch (error) {
             hideLoadingOverlay();
             if (error.code === 'auth/user-not-found') {
@@ -1432,6 +1356,7 @@
       }
     }
 
+    // Inicialización
     document.addEventListener('DOMContentLoaded', () => {
         hideAllForms();
         showLoadingOverlay();
