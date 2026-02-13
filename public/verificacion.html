@@ -341,14 +341,35 @@
     const resendBtn = document.getElementById('resend-btn');
     const changeEmailBtn = document.getElementById('change-email-btn');
     const timerContainer = document.getElementById('timer-container');
-    const timerCountdown = document.getElementById('timer-countdown');
     const userEmailDisplay = document.getElementById('user-email-display');
+    const timerCountdown = document.getElementById('timer-countdown');
     const messageEl = document.getElementById('verification-message');
     const loadingEl = document.getElementById('loading-verification');
 
     // --- FUNCIONES DE UI ---
     function showLoading() { loadingEl.style.display = 'flex'; }
     function hideLoading() { loadingEl.style.display = 'none'; }
+
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    function redirectAfterVerification() {
+      const returnTo = getUrlParameter('returnTo');
+      if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
+        try {
+          const decodedUrl = decodeURIComponent(returnTo);
+          if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+            window.location.href = decodedUrl;
+            return;
+          }
+        } catch (e) {
+          console.warn('URL de retorno inválida:', e);
+        }
+      }
+      window.location.href = '/actividad';
+    }
     
     function showMessage(text, isError = false) {
       messageEl.textContent = text;
@@ -389,7 +410,7 @@
           clearInterval(verificationCheckInterval); // Detener el chequeo
           showMessage('¡Correo verificado! Redirigiendo...');
           setTimeout(() => {
-              window.location.href = '/actividad'; 
+              redirectAfterVerification();
           }, 1500);
         }
       } catch (error) {
@@ -467,7 +488,7 @@
           // Revisar si ya está verificado antes de hacer nada
           await user.reload();
           if (user.emailVerified) {
-            window.location.href = '/actividad';
+            redirectAfterVerification();
             return;
           }
           
