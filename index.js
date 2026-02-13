@@ -29,8 +29,14 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function enviarBienvenida(email, nombre) {
   const context = 'EMAIL_BIENVENIDA';
+  console.log(`[${context}] Iniciando proceso de envÃ­o para: ${email}`);
   try {
-    await resend.emails.send({
+    if (!process.env.RESEND_API_KEY) {
+      console.error(`[${context}] ERROR: RESEND_API_KEY no estÃ¡ configurada en las variables de entorno`);
+      return;
+    }
+    console.log(`[${context}] [EMAIL] Enviando correo de bienvenida a: ${email}`);
+    const { data, error } = await resend.emails.send({
       from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
       subject: 'Bienvenido a Masitaprex',
@@ -39,16 +45,30 @@ async function enviarBienvenida(email, nombre) {
         nombre: nombre
       }
     });
-    logger.info(context, 'Correo de bienvenida enviado', { email });
+
+    if (error) {
+      console.error(`[${context}] Error devuelto por Resend:`, error);
+      logger.error(context, 'Error devuelto por Resend', error, { email });
+    } else {
+      console.log(`[${context}] Correo de bienvenida enviado exitosamente a: ${email}`, data);
+      logger.info(context, 'Correo de bienvenida enviado exitosamente', { email, id: data?.id });
+    }
   } catch (error) {
-    logger.error(context, 'Error enviando bienvenida', error, { email });
+    console.error(`[${context}] ExcepciÃ³n al enviar bienvenida a ${email}:`, error);
+    logger.error(context, 'ExcepciÃ³n enviando bienvenida', error, { email });
   }
 }
 
 async function alertaLogin(email, nombre) {
   const context = 'EMAIL_ALERTA_LOGIN';
+  console.log(`[${context}] Iniciando proceso de envÃ­o para: ${email}`);
   try {
-    await resend.emails.send({
+    if (!process.env.RESEND_API_KEY) {
+      console.error(`[${context}] ERROR: RESEND_API_KEY no estÃ¡ configurada en las variables de entorno`);
+      return;
+    }
+    console.log(`[${context}] [EMAIL] Enviando alerta de login a: ${email}`);
+    const { data, error } = await resend.emails.send({
       from: 'Seguridad <seguridad@masitaprex.com>',
       to: email,
       subject: 'Nuevo inicio de sesión',
@@ -57,24 +77,46 @@ async function alertaLogin(email, nombre) {
         nombre: nombre
       }
     });
-    logger.info(context, 'Alerta de login enviada', { email });
+
+    if (error) {
+      console.error(`[${context}] Error devuelto por Resend:`, error);
+      logger.error(context, 'Error devuelto por Resend', error, { email });
+    } else {
+      console.log(`[${context}] Alerta de login enviada exitosamente a: ${email}`, data);
+      logger.info(context, 'Alerta de login enviada exitosamente', { email, id: data?.id });
+    }
   } catch (error) {
-    logger.error(context, 'Error enviando alerta de login', error, { email });
+    console.error(`[${context}] ExcepciÃ³n al enviar alerta de login a ${email}:`, error);
+    logger.error(context, 'ExcepciÃ³n enviando alerta de login', error, { email });
   }
 }
 
 async function socioDuplicado(email) {
   const context = 'EMAIL_SOCIO_DUPLICADO';
+  console.log(`[${context}] Iniciando proceso de envÃ­o para: ${email}`);
   try {
-    await resend.emails.send({
+    if (!process.env.RESEND_API_KEY) {
+      console.error(`[${context}] ERROR: RESEND_API_KEY no estÃ¡ configurada en las variables de entorno`);
+      return;
+    }
+    console.log(`[${context}] [EMAIL] Enviando alerta de socio duplicado a: ${email}`);
+    const { data, error } = await resend.emails.send({
       from: 'Masitaprex <system@masitaprex.com>',
       to: email,
       subject: 'Registro duplicado detectado',
       template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763'
     });
-    logger.info(context, 'Correo de duplicado enviado', { email });
+
+    if (error) {
+      console.error(`[${context}] Error devuelto por Resend:`, error);
+      logger.error(context, 'Error devuelto por Resend', error, { email });
+    } else {
+      console.log(`[${context}] Alerta de socio duplicado enviada exitosamente a: ${email}`, data);
+      logger.info(context, 'Alerta de socio duplicado enviada exitosamente', { email, id: data?.id });
+    }
   } catch (error) {
-    logger.error(context, 'Error enviando alerta de duplicado', error, { email });
+    console.error(`[${context}] ExcepciÃ³n al enviar alerta de duplicado a ${email}:`, error);
+    logger.error(context, 'ExcepciÃ³n enviando alerta de duplicado', error, { email });
   }
 }
 
