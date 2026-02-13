@@ -107,23 +107,21 @@ async function socioDuplicado(email) {
 }
 
 async function enviarEmailVerificacion(email, nombre) {
+  console.log('[EMAIL] Ejecutando enviarEmailVerificacion para:', email);
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error('ERROR: RESEND_API_KEY no configurada');
+      console.error('[EMAIL ERROR] RESEND_API_KEY no configurada');
       return;
     }
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
-      subject: 'Bienvenido a Masitaprex',
-      templateId: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
-      templateData: {
-        nombre: nombre
-      }
+      subject: 'Bienvenido',
+      html: `<p>Bienvenido a la app, ${nombre}</p>`
     });
-    console.log(`[EMAIL] Bienvenida enviada a ${email}`);
+    console.log('[EMAIL] Bienvenida enviada OK:', result);
   } catch (error) {
-    console.error('Error bienvenida:', error);
+    console.error('[EMAIL ERROR] Falló el envío:', error);
   }
 }
 
@@ -1441,7 +1439,7 @@ app.post("/api/login", async (req, res) => {
 
 // âœ… MODIFICADO: Endpoint de registro - Ahora maneja el parÃ¡metro returnTo
 app.post("/api/register", async (req, res) => {
-  console.log('[REGISTER] endpoint /api/register ejecutado');
+  console.log('[REGISTER] endpoint /api/register ejecutado (Legacy/Backend-only)');
   const context = 'REGISTER_API';
 
   try {
@@ -2156,6 +2154,7 @@ app.use((err, req, res, next) => {
 
 // Endpoint para enviar email de verificación vía Resend
 app.post('/api/send-verification-email', (req, res) => {
+  console.log('[REGISTER] endpoint /api/send-verification-email ejecutado');
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email requerido' });
   
