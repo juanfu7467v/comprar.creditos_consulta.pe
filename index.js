@@ -28,106 +28,72 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // ================================================================
 
 async function enviarBienvenida(email, nombre) {
-  const context = 'EMAIL_BIENVENIDA';
-  console.log(`[${context}] Iniciando proceso de envÃ­o para: ${email}`);
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error(`[${context}] ERROR: RESEND_API_KEY no estÃ¡ configurada en las variables de entorno`);
+      console.error('ERROR: RESEND_API_KEY no configurada');
       return;
     }
-    console.log(`[${context}] [EMAIL] Enviando correo de bienvenida a: ${email}`);
-    const { data, error } = await resend.emails.send({
+    await resend.emails.send({
       from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
       subject: 'Bienvenido a Masitaprex',
-      template_id: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
-      variables: {
+      templateId: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
+      templateData: {
         nombre: nombre
       }
     });
-
-    if (error) {
-      console.error(`[${context}] Error devuelto por Resend:`, error);
-      logger.error(context, 'Error devuelto por Resend', error, { email });
-    } else {
-      console.log(`[${context}] Correo de bienvenida enviado exitosamente a: ${email}`, data);
-      logger.info(context, 'Correo de bienvenida enviado exitosamente', { email, id: data?.id });
-    }
+    console.log('Bienvenida enviada');
   } catch (error) {
-    console.error(`[${context}] ExcepciÃ³n al enviar bienvenida a ${email}:`, error);
-    logger.error(context, 'ExcepciÃ³n enviando bienvenida', error, { email });
+    console.error('Error bienvenida:', error);
   }
 }
 
 async function alertaLogin(email, nombre) {
-  const context = 'EMAIL_ALERTA_LOGIN';
-  console.log(`[${context}] Iniciando proceso de envÃ­o para: ${email}`);
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error(`[${context}] ERROR: RESEND_API_KEY no estÃ¡ configurada en las variables de entorno`);
+      console.error('ERROR: RESEND_API_KEY no configurada');
       return;
     }
-    console.log(`[${context}] [EMAIL] Enviando alerta de login a: ${email}`);
-    const { data, error } = await resend.emails.send({
+    await resend.emails.send({
       from: 'Seguridad <seguridad@masitaprex.com>',
       to: email,
       subject: 'Nuevo inicio de sesión',
-      template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
-      variables: {
+      templateId: '933e5952-6373-4b2c-8cde-db9e332e444e',
+      templateData: {
         nombre: nombre
       }
     });
-
-    if (error) {
-      console.error(`[${context}] Error devuelto por Resend:`, error);
-      logger.error(context, 'Error devuelto por Resend', error, { email });
-    } else {
-      console.log(`[${context}] Alerta de login enviada exitosamente a: ${email}`, data);
-      logger.info(context, 'Alerta de login enviada exitosamente', { email, id: data?.id });
-    }
+    console.log('Alerta enviada');
   } catch (error) {
-    console.error(`[${context}] ExcepciÃ³n al enviar alerta de login a ${email}:`, error);
-    logger.error(context, 'ExcepciÃ³n enviando alerta de login', error, { email });
+    console.error('Error alerta:', error);
   }
 }
 
 async function socioDuplicado(email) {
-  const context = 'EMAIL_SOCIO_DUPLICADO';
-  console.log(`[${context}] Iniciando proceso de envÃ­o para: ${email}`);
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error(`[${context}] ERROR: RESEND_API_KEY no estÃ¡ configurada en las variables de entorno`);
+      console.error('ERROR: RESEND_API_KEY no configurada');
       return;
     }
-    console.log(`[${context}] [EMAIL] Enviando alerta de socio duplicado a: ${email}`);
-    const { data, error } = await resend.emails.send({
+    await resend.emails.send({
       from: 'Masitaprex <system@masitaprex.com>',
       to: email,
       subject: 'Registro duplicado detectado',
-      template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763'
+      templateId: '6767bd1b-6b6a-4488-bed7-ad185513d763'
     });
-
-    if (error) {
-      console.error(`[${context}] Error devuelto por Resend:`, error);
-      logger.error(context, 'Error devuelto por Resend', error, { email });
-    } else {
-      console.log(`[${context}] Alerta de socio duplicado enviada exitosamente a: ${email}`, data);
-      logger.info(context, 'Alerta de socio duplicado enviada exitosamente', { email, id: data?.id });
-    }
+    console.log('Duplicado enviado');
   } catch (error) {
-    console.error(`[${context}] ExcepciÃ³n al enviar alerta de duplicado a ${email}:`, error);
-    logger.error(context, 'ExcepciÃ³n enviando alerta de duplicado', error, { email });
+    console.error('Error duplicado:', error);
   }
 }
 
 async function enviarEmailVerificacion(email, nombre) {
-  const context = 'EMAIL_VERIFICACION';
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error(`[${context}] ERROR: RESEND_API_KEY no configurada`);
+      console.error('ERROR: RESEND_API_KEY no configurada');
       return;
     }
-    const { data, error } = await resend.emails.send({
+    await resend.emails.send({
       from: 'Masitaprex <verificacion@masitaprex.com>',
       to: email,
       subject: 'Verifica tu cuenta en Masitaprex',
@@ -144,13 +110,9 @@ async function enviarEmailVerificacion(email, nombre) {
         </div>
       `
     });
-    if (error) {
-      logger.error(context, 'Error Resend', error, { email });
-    } else {
-      logger.info(context, 'Email enviado', { email, id: data?.id });
-    }
+    console.log('Email de verificación enviado');
   } catch (error) {
-    logger.error(context, 'Excepción', error, { email });
+    console.error('Error email verificación:', error);
   }
 }
 
@@ -2179,16 +2141,14 @@ app.use((err, req, res, next) => {
 });
 
 // Endpoint para enviar email de verificación vía Resend
-app.post('/api/send-verification-email', async (req, res) => {
+app.post('/api/send-verification-email', (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email requerido' });
   
-  try {
-    await enviarEmailVerificacion(email, name || 'Usuario');
-    res.json({ success: true, message: 'Email enviado' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al enviar email' });
-  }
+  // Llamada no bloqueante
+  enviarEmailVerificacion(email, name || 'Usuario').catch(console.error);
+  
+  res.json({ success: true, message: 'Proceso de envío iniciado' });
 });
 
 // Catch-all final para rutas no encontradas
