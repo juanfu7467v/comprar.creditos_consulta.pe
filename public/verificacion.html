@@ -300,19 +300,19 @@
         Por favor revisa tu bandeja de entrada y abre el enlace para confirmar que el correo te pertenece.
       </p>
       <div class="resend-section">
-        <div id="timer-container" class="timer-text">
+        <div id="timer-container" class="timer-text" style="display: none;">
           <span>Puedes reenviar el correo en</span>
           <span class="timer-number" id="timer-countdown">50</span>
           <span>segundos</span>
         </div>
-        <button id="resend-btn" class="resend-btn disabled" disabled onclick="resendVerificationEmail()">
+        <button id="resend-btn" class="resend-btn disabled" disabled>
           <span class="material-icons">send</span>
           Reenviar correo ahora
         </button>
-        <a href="#" class="change-email-link" onclick="handleChangeEmail()">
+        <button id="change-email-btn" class="change-email-link" style="background: none; border: none; cursor: pointer; width: 100%; justify-content: center;">
           <span class="material-icons" style="font-size: 20px;">edit</span>
           Cambiar correo electrónico
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -330,23 +330,39 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // --- VARIABLES GLOBALES ---
     let auth;
     let countdownInterval = null;
     let resendAttempts = 0;
     let autoResendExecuted = false;
+    let verificationCheckInterval = null;
     
+    // --- ELEMENTOS DEL DOM ---
     const resendBtn = document.getElementById('resend-btn');
+    const changeEmailBtn = document.getElementById('change-email-btn');
     const timerContainer = document.getElementById('timer-container');
     const timerCountdown = document.getElementById('timer-countdown');
     const userEmailDisplay = document.getElementById('user-email-display');
     const messageEl = document.getElementById('verification-message');
     const loadingEl = document.getElementById('loading-verification');
+
+    // --- FUNCIONES DE UI ---
+    function showLoading() { loadingEl.style.display = 'flex'; }
+    function hideLoading() { loadingEl.style.display = 'none'; }
     
+    function showMessage(text, isError = false) {
+      messageEl.textContent = text;
+      messageEl.classList.add('show');
+      messageEl.classList.toggle('error', isError);
+      setTimeout(() => messageEl.classList.remove('show'), 4000);
+    }
+
     function startResendTimer() {
       if (countdownInterval) clearInterval(countdownInterval);
       let seconds = 50;
       timerCountdown.textContent = seconds;
       timerContainer.style.display = 'flex';
+      
       resendBtn.classList.add('disabled');
       resendBtn.disabled = true;
       
@@ -362,45 +378,38 @@
         }
       }, 1000);
     }
-    
-    function showMessage(text, isError = false) {
-      messageEl.textContent = text;
-      messageEl.classList.add('show');
-      messageEl.classList.toggle('error', isError);
-      setTimeout(() => messageEl.classList.remove('show'), 4000);
-    }
-    
-    function showLoading() { loadingEl.style.display = 'flex'; }
-    function hideLoading() { loadingEl.style.display = 'none'; }
-    
+
+    // --- LÓGICA DE FIREBASE ---
     async function checkEmailVerificationStatus() {
-      const user = auth.currentUser;
-      if (!user) return false;
+      if (!auth || !auth.currentUser) return;
+      
       try {
-        await user.reload();
-        if (user.emailVerified) {
+        await auth.currentUser.reload();
+        if (auth.currentUser.emailVerified) {
+          clearInterval(verificationCheckInterval); // Detener el chequeo
           showMessage('¡Correo verificado! Redirigiendo...');
-          setTimeout(() => window.location.href = 'actividad', 1500);
-          return true;
+          setTimeout(() => {
+              window.location.href = '/actividad'; 
+          }, 1500);
         }
-        return false;
       } catch (error) {
-        console.error('Error al verificar:', error);
-        return false;
+        console.error('Error al verificar estado:', error);
       }
     }
-    
-    window.resendVerificationEmail = async () => {
+
+    async function handleResendEmail() {
       const user = auth.currentUser;
       if (!user) {
         showMessage('Sesión expirada. Inicia sesión de nuevo.', true);
-        setTimeout(() => window.location.href = 'login.html', 2000);
+        setTimeout(() => window.location.href = '/login', 2000);
         return;
       }
+
       if (resendAttempts >= 5) {
         showMessage('Demasiados intentos. Espera unos minutos.', true);
         return;
       }
+
       showLoading();
       try {
         await sendEmailVerification(user);
@@ -408,6 +417,7 @@
         showMessage('Correo de verificación reenviado');
         startResendTimer();
       } catch (error) {
+        console.error("Error enviando correo:", error);
         if (error.code === 'auth/too-many-requests') {
           showMessage('Demasiados intentos. Espera 1 minuto.', true);
           startResendTimer();
@@ -417,35 +427,51 @@
       } finally {
         hideLoading();
       }
-    };
-    
-    window.handleChangeEmail = () => {
+    }
+
+    async function handleChangeEmail() {
       if (confirm('¿Quieres cambiar tu correo? Serás redirigido al login.')) {
-        signOut(auth).then(() => window.location.href = 'login.html');
+        if(auth) {
+            await signOut(auth);
+        }
+        window.location.href = '/login';
       }
-    };
-    
-    async function initVerificationScreen() {
+    }
+
+    // --- INICIALIZACIÓN PRINCIPAL ---
+    async function initApp() {
       showLoading();
       try {
+        // 1. Obtener configuración del servidor
         const response = await fetch('/api/config');
+        if (!response.ok) throw new Error('No se pudo obtener la configuración');
         const appConfig = await response.json();
+        
+        // 2. Inicializar Firebase
         const app = initializeApp(appConfig.firebaseConfig);
         auth = getAuth(app);
-        
+
+        // 3. Asignar Event Listeners a los botones (ahora que auth existe)
+        resendBtn.addEventListener('click', handleResendEmail);
+        changeEmailBtn.addEventListener('click', handleChangeEmail);
+
+        // 4. Observar estado de autenticación
         onAuthStateChanged(auth, async (user) => {
           if (!user) {
-            window.location.href = 'login.html';
-            return;
+             window.location.href = '/login';
+             return;
           }
+
           userEmailDisplay.textContent = user.email || 'correo registrado';
+          
+          // Revisar si ya está verificado antes de hacer nada
           await user.reload();
           if (user.emailVerified) {
-            window.location.href = 'actividad';
+            window.location.href = '/actividad';
             return;
           }
           
-          // Auto-resend en el primer segundo sin mostrar mensaje
+          // Enviar el primer correo automáticamente si no se ha hecho
           if (!autoResendExecuted) {
             autoResendExecuted = true;
             try {
@@ -457,16 +483,23 @@
           }
           
           startResendTimer();
-          setInterval(checkEmailVerificationStatus, 3000);
+          
+          // Iniciar el chequeo periódico (cada 4 segundos para no saturar)
+          if(verificationCheckInterval) clearInterval(verificationCheckInterval);
+          verificationCheckInterval = setInterval(checkEmailVerificationStatus, 4000);
+          
           hideLoading();
         });
+
       } catch (error) {
-        console.error('Error al inicializar:', error);
+        console.error('Error crítico de inicialización:', error);
+        showMessage('Error conectando con el servidor.', true);
         hideLoading();
       }
     }
-    
-    document.addEventListener('DOMContentLoaded', initVerificationScreen);
+
+    // Arrancar la aplicación cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>
