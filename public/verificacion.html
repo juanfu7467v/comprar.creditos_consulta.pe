@@ -407,8 +407,8 @@
       try {
         await auth.currentUser.reload();
         if (auth.currentUser.emailVerified) {
-          clearInterval(verificationCheckInterval); // Detener el chequeo
-          showMessage('¡Correo verificado! Redirigiendo...');
+          clearInterval(verificationCheckInterval);
+          showMessage('¡Correo verificado!');
           setTimeout(() => {
               redirectAfterVerification();
           }, 1500);
