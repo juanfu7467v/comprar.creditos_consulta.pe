@@ -216,28 +216,28 @@
         position: fixed;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) scale(0.9);
         background: #10b981;
         color: white;
-        padding: 16px 28px;
-        border-radius: 100px;
+        padding: 18px 32px;
+        border-radius: 16px;
         font-weight: 500;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
         box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.2);
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
         z-index: 10000;
-        font-size: 0.95rem;
+        font-size: 1rem;
         max-width: 90%;
+        text-align: center;
         opacity: 0;
         visibility: hidden;
-        text-align: center;
-        line-height: 1.5;
     }
 
     #verification-message.show {
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
         visibility: visible;
     }
@@ -305,7 +305,7 @@
           <span class="timer-number" id="timer-countdown">50</span>
           <span>segundos</span>
         </div>
-        <button id="resend-btn" class="resend-btn disabled" disabled>
+        <button id="resend-btn" class="resend-btn disabled" disabled onclick="resendVerificationEmail()">
           <span class="material-icons">send</span>
           Reenviar correo ahora
         </button>
@@ -333,7 +333,7 @@
     let auth;
     let countdownInterval = null;
     let resendAttempts = 0;
-    let initialAutoResendDone = false;
+    let autoResendExecuted = false;
     
     const resendBtn = document.getElementById('resend-btn');
     const timerContainer = document.getElementById('timer-container');
@@ -364,7 +364,7 @@
     }
     
     function showMessage(text, isError = false) {
-      messageEl.innerHTML = text;
+      messageEl.textContent = text;
       messageEl.classList.add('show');
       messageEl.classList.toggle('error', isError);
       setTimeout(() => messageEl.classList.remove('show'), 4000);
@@ -390,7 +390,7 @@
       }
     }
     
-    async function sendVerificationEmail() {
+    window.resendVerificationEmail = async () => {
       const user = auth.currentUser;
       if (!user) {
         showMessage('Sesión expirada. Inicia sesión de nuevo.', true);
@@ -405,20 +405,18 @@
       try {
         await sendEmailVerification(user);
         resendAttempts++;
-        showMessage('✅ Correo de verificación reenviado');
+        showMessage('Correo de verificación reenviado');
+        startResendTimer();
       } catch (error) {
         if (error.code === 'auth/too-many-requests') {
           showMessage('Demasiados intentos. Espera 1 minuto.', true);
+          startResendTimer();
         } else {
           showMessage('Error al reenviar. Intenta de nuevo.', true);
         }
       } finally {
         hideLoading();
       }
-    }
-    
-    window.resendVerificationEmail = async () => {
-      await sendVerificationEmail();
     };
     
     window.handleChangeEmail = () => {
@@ -447,18 +445,18 @@
             return;
           }
           
-          // Iniciar timer
-          startResendTimer();
-          
-          // Auto reenviar en el primer segundo
-          if (!initialAutoResendDone) {
-            initialAutoResendDone = true;
-            // Pequeño retraso para asegurar que todo esté listo
-            setTimeout(async () => {
-              await sendVerificationEmail();
-            }, 100);
+          // Auto-resend en el primer segundo sin mostrar mensaje
+          if (!autoResendExecuted) {
+            autoResendExecuted = true;
+            try {
+              await sendEmailVerification(user);
+              resendAttempts++;
+            } catch (error) {
+              console.error('Error en reenvío automático:', error);
+            }
           }
           
+          startResendTimer();
           setInterval(checkEmailVerificationStatus, 3000);
           hideLoading();
         });
@@ -467,9 +465,6 @@
         hideLoading();
       }
     }
-    
-    // Asignar evento al botón
-    resendBtn.onclick = resendVerificationEmail;
     
     document.addEventListener('DOMContentLoaded', initVerificationScreen);
   </script>
