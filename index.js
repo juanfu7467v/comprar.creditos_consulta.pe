@@ -24,6 +24,61 @@ app.use(express.json());
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================================================================
+// âœ‰ï¸ FUNCIONES DE ENVÃO DE CORREO (RESEND)
+// ================================================================
+
+async function enviarBienvenida(email, nombre) {
+  const context = 'EMAIL_BIENVENIDA';
+  try {
+    await resend.emails.send({
+      from: 'Masitaprex <bienvenida@masitaprex.com>',
+      to: email,
+      subject: 'Bienvenido a Masitaprex',
+      template_id: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
+      variables: {
+        nombre: nombre
+      }
+    });
+    logger.info(context, 'Correo de bienvenida enviado', { email });
+  } catch (error) {
+    logger.error(context, 'Error enviando bienvenida', error, { email });
+  }
+}
+
+async function alertaLogin(email, nombre) {
+  const context = 'EMAIL_ALERTA_LOGIN';
+  try {
+    await resend.emails.send({
+      from: 'Seguridad <seguridad@masitaprex.com>',
+      to: email,
+      subject: 'Nuevo inicio de sesión',
+      template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
+      variables: {
+        nombre: nombre
+      }
+    });
+    logger.info(context, 'Alerta de login enviada', { email });
+  } catch (error) {
+    logger.error(context, 'Error enviando alerta de login', error, { email });
+  }
+}
+
+async function socioDuplicado(email) {
+  const context = 'EMAIL_SOCIO_DUPLICADO';
+  try {
+    await resend.emails.send({
+      from: 'Masitaprex <system@masitaprex.com>',
+      to: email,
+      subject: 'Registro duplicado detectado',
+      template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763'
+    });
+    logger.info(context, 'Correo de duplicado enviado', { email });
+  } catch (error) {
+    logger.error(context, 'Error enviando alerta de duplicado', error, { email });
+  }
+}
+
+// ================================================================
 // ðŸŒ HELPERS DE IP (NUEVO)
 // ================================================================
 
@@ -1299,16 +1354,8 @@ app.post("/api/login", async (req, res) => {
         const userData = userDoc.data() || {};
 
         if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
-          await resend.emails.send({
-            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
-            to: userData.email || email,
-            subject: 'âš ï¸ ALERTA: Acceso desde un nuevo dispositivo',
-            template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
-            params: {
-              ip: currentIp,
-              timestamp: new Date().toISOString()
-            }
-          });
+          // âœ… INTEGRADO: Alerta de inicio de sesiÃ³n desde nuevo dispositivo
+          await alertaLogin(userData.email || email, userData.name || email.split('@')[0]);
         }
 
         await userRef.set({
@@ -1383,18 +1430,8 @@ app.post("/api/register", async (req, res) => {
         const requestedEmail = email.toLowerCase();
 
         if (existingEmail && existingEmail !== requestedEmail) {
-          const currentIp = getClientIp(req);
-
-          await resend.emails.send({
-            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
-            to: email,
-            subject: 'Registro rechazado',
-            template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763',
-            params: {
-              ip: currentIp,
-              timestamp: new Date().toISOString()
-            }
-          });
+          // âœ… INTEGRADO: Alerta de socio duplicado
+          await socioDuplicado(email);
 
           return res.status(409).json({
             success: false,
@@ -1408,16 +1445,8 @@ app.post("/api/register", async (req, res) => {
     // âœ‰ï¸ EMAIL DE BIENVENIDA
     // ================================================================
 
-    await resend.emails.send({
-      from: 'Masitaprex <no-reply@masitaprex.com>',
-      to: email,
-      subject: 'Â¡Bienvenido!',
-      template_id: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
-      params: {
-        ip: getClientIp(req),
-        timestamp: new Date().toISOString()
-      }
-    });
+    // âœ… INTEGRADO: Correo de bienvenida
+    await enviarBienvenida(email, name);
 
     // âœ… MEJORA: Guardar returnTo en localStorage del cliente para usarlo despuÃ©s de verificaciÃ³n
     // El cliente debe manejar esto, aquÃ­ solo lo pasamos de vuelta
