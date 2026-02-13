@@ -1286,7 +1286,7 @@ app.post("/api/login", async (req, res) => {
             from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
             to: userData.email || email,
             subject: '⚠️ ALERTA: Acceso desde un nuevo dispositivo',
-            template_id: 'alerta_inicio_de_seccion',
+            template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
             params: {
               ip: currentIp,
               timestamp: new Date().toISOString()
@@ -1370,7 +1370,7 @@ app.post("/api/register", async (req, res) => {
             from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
             to: email,
             subject: 'Registro rechazado',
-            template_id: 'rechaszo_sosio_duplicado',
+            template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763',
             params: {
               ip: currentIp,
               timestamp: new Date().toISOString()
@@ -1395,7 +1395,7 @@ app.post("/api/register", async (req, res) => {
       from: 'Masitaprex <no-reply@masitaprex.com>',
       to: email,
       subject: '¡Bienvenido!',
-      template_id: 'bienvenida_usuario_nuevo',
+      template_id: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
       params: {
         ip: getClientIp(req),
         timestamp: new Date().toISOString()
