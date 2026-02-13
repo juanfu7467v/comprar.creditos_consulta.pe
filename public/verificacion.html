@@ -337,6 +337,31 @@
     let autoResendExecuted = false;
     let verificationCheckInterval = null;
     
+    // --- GESTIÓN ROBUSTA DE LA URL DE RETORNO ---
+    const urlParams = new URLSearchParams(window.location.search);
+    let intendedRoute = urlParams.get('returnTo');
+
+    // Salvaguardar la ruta desde el primer milisegundo de carga
+    if (intendedRoute && intendedRoute !== 'undefined' && intendedRoute !== 'null') {
+        localStorage.setItem('returnTo', intendedRoute);
+    } else {
+        intendedRoute = localStorage.getItem('returnTo');
+    }
+
+    function getRedirectUrl() {
+        if (intendedRoute && intendedRoute !== 'undefined' && intendedRoute !== 'null' && !intendedRoute.includes('login')) {
+            return intendedRoute;
+        }
+        return '/actividad'; // Fallback por defecto solo si no hay nada guardado
+    }
+
+    function executeRedirect() {
+        const finalUrl = getRedirectUrl();
+        // Solo limpiamos el localStorage en el instante de hacer la redirección definitiva
+        localStorage.removeItem('returnTo');
+        window.location.href = finalUrl;
+    }
+    
     // --- ELEMENTOS DEL DOM ---
     const resendBtn = document.getElementById('resend-btn');
     const changeEmailBtn = document.getElementById('change-email-btn');
@@ -379,26 +404,6 @@
       }, 1000);
     }
 
-    // --- FUNCIÓN PARA OBTENER LA URL DE RETORNO ---
-    function getRedirectUrl() {
-        const urlParams = new URLSearchParams(window.location.search);
-        let returnTo = urlParams.get('returnTo');
-        
-        // Si no está en la URL, comprobamos el localStorage (por si el registro lo guardó ahí)
-        if (!returnTo || returnTo === 'undefined' || returnTo === 'null') {
-            returnTo = localStorage.getItem('returnTo');
-        }
-
-        if (returnTo && returnTo !== 'undefined' && returnTo !== 'null') {
-            // Limpiamos el localStorage para no tener redirecciones raras en el futuro
-            localStorage.removeItem('returnTo');
-            return returnTo;
-        }
-        
-        // Fallback por defecto si no hay ruta original
-        return '/actividad';
-    }
-
     // --- LÓGICA DE FIREBASE ---
     async function checkEmailVerificationStatus() {
       if (!auth || !auth.currentUser) return;
@@ -406,10 +411,10 @@
       try {
         await auth.currentUser.reload();
         if (auth.currentUser.emailVerified) {
-          clearInterval(verificationCheckInterval); // Detener el chequeo
+          clearInterval(verificationCheckInterval);
           showMessage('¡Correo verificado! Redirigiendo...');
           setTimeout(() => {
-              window.location.href = getRedirectUrl(); 
+              executeRedirect(); // Usamos la nueva función segura
           }, 1500);
         }
       } catch (error) {
@@ -454,7 +459,9 @@
         if(auth) {
             await signOut(auth);
         }
-        window.location.href = '/login';
+        // Nos llevamos la ruta de vuelta al login para no perderla después de cambiar de correo
+        const urlToKeep = getRedirectUrl();
+        window.location.href = `/login?returnTo=${encodeURIComponent(urlToKeep)}`;
       }
     }
 
@@ -471,7 +478,7 @@
         const app = initializeApp(appConfig.firebaseConfig);
         auth = getAuth(app);
 
-        // 3. Asignar Event Listeners a los botones (ahora que auth existe)
+        // 3. Asignar Event Listeners a los botones
         resendBtn.addEventListener('click', handleResendEmail);
         changeEmailBtn.addEventListener('click', handleChangeEmail);
 
@@ -484,14 +491,12 @@
 
           userEmailDisplay.textContent = user.email || 'correo registrado';
           
-          // Revisar si ya está verificado antes de hacer nada
           await user.reload();
           if (user.emailVerified) {
-            window.location.href = getRedirectUrl();
+            executeRedirect(); // Usamos la función segura
             return;
           }
           
-          // Enviar el primer correo automáticamente si no se ha hecho
           if (!autoResendExecuted) {
             autoResendExecuted = true;
             try {
@@ -504,7 +509,6 @@
           
           startResendTimer();
           
-          // Iniciar el chequeo periódico (cada 4 segundos para no saturar)
           if(verificationCheckInterval) clearInterval(verificationCheckInterval);
           verificationCheckInterval = setInterval(checkEmailVerificationStatus, 4000);
           
@@ -518,7 +522,6 @@
       }
     }
 
-    // Arrancar la aplicación cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
