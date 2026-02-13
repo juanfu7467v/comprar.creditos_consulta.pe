@@ -346,35 +346,6 @@
     const messageEl = document.getElementById('verification-message');
     const loadingEl = document.getElementById('loading-verification');
 
-    // ✅ Función para obtener el returnTo de la URL
-    function getReturnTo() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const returnTo = urlParams.get('returnTo');
-        
-        // Validar que returnTo sea una URL relativa válida
-        if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
-            try {
-                const decodedUrl = decodeURIComponent(returnTo);
-                // Solo aceptar rutas relativas que empiecen con / y no tengan doble slash
-                if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
-                    return decodedUrl;
-                }
-            } catch (e) {
-                console.warn('URL de retorno inválida:', e);
-            }
-        }
-        
-        // Fallback a actividad si no hay returnTo válido
-        return '/actividad';
-    }
-
-    // ✅ Función para redirigir después de la verificación exitosa
-    function redirectAfterVerification() {
-        const returnTo = getReturnTo();
-        console.log('Redirigiendo después de verificación a:', returnTo);
-        window.location.href = returnTo;
-    }
-
     // --- FUNCIONES DE UI ---
     function showLoading() { loadingEl.style.display = 'flex'; }
     function hideLoading() { loadingEl.style.display = 'none'; }
@@ -408,6 +379,26 @@
       }, 1000);
     }
 
+    // --- FUNCIÓN PARA OBTENER LA URL DE RETORNO ---
+    function getRedirectUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let returnTo = urlParams.get('returnTo');
+        
+        // Si no está en la URL, comprobamos el localStorage (por si el registro lo guardó ahí)
+        if (!returnTo || returnTo === 'undefined' || returnTo === 'null') {
+            returnTo = localStorage.getItem('returnTo');
+        }
+
+        if (returnTo && returnTo !== 'undefined' && returnTo !== 'null') {
+            // Limpiamos el localStorage para no tener redirecciones raras en el futuro
+            localStorage.removeItem('returnTo');
+            return returnTo;
+        }
+        
+        // Fallback por defecto si no hay ruta original
+        return '/actividad';
+    }
+
     // --- LÓGICA DE FIREBASE ---
     async function checkEmailVerificationStatus() {
       if (!auth || !auth.currentUser) return;
@@ -418,8 +409,7 @@
           clearInterval(verificationCheckInterval); // Detener el chequeo
           showMessage('¡Correo verificado! Redirigiendo...');
           setTimeout(() => {
-              // ✅ MODIFICADO: Usar la nueva función de redirección
-              redirectAfterVerification();
+              window.location.href = getRedirectUrl(); 
           }, 1500);
         }
       } catch (error) {
@@ -497,8 +487,7 @@
           // Revisar si ya está verificado antes de hacer nada
           await user.reload();
           if (user.emailVerified) {
-            // ✅ MODIFICADO: Usar la nueva función de redirección
-            redirectAfterVerification();
+            window.location.href = getRedirectUrl();
             return;
           }
           
