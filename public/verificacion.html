@@ -356,11 +356,16 @@
     }
 
     function redirectAfterVerification() {
-      const returnTo = getUrlParameter('returnTo');
-      if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
+      let returnTo = getUrlParameter('returnTo');
+      if (!returnTo || returnTo === 'null' || returnTo === 'undefined') {
+        returnTo = sessionStorage.getItem('returnTo');
+      }
+
+      if (returnTo) {
         try {
           const decodedUrl = decodeURIComponent(returnTo);
           if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+            sessionStorage.removeItem('returnTo');
             window.location.href = decodedUrl;
             return;
           }

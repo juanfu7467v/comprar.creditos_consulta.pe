@@ -592,19 +592,23 @@
         return urlParams.get(name);
     }
 
-    // ✅ MODIFICADO: Función de redirección usando returnTo
+    // ✅ MODIFICADO: Función de redirección usando returnTo y sessionStorage
     function redirectAfterAuth(user) {
         if (user && !user.emailVerified) {
             window.location.href = "verificacion.html";
             return;
         }
 
-        const returnTo = getUrlParameter('returnTo');
-        if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
+        let returnTo = getUrlParameter('returnTo');
+        if (!returnTo || returnTo === 'null' || returnTo === 'undefined') {
+            returnTo = sessionStorage.getItem('returnTo');
+        }
+
+        if (returnTo) {
             try {
                 const decodedUrl = decodeURIComponent(returnTo);
-                // Validar que sea una URL relativa (empieza con / y no tiene doble slash)
                 if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+                    sessionStorage.removeItem('returnTo');
                     window.location.href = decodedUrl;
                     return;
                 }
@@ -613,7 +617,6 @@
             }
         }
         
-        // Fallback a actividad si no hay returnTo válido
         window.location.href = "actividad";
     }
 
@@ -990,13 +993,29 @@
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
           
-          await sendEmailVerification(userCredential.user);
+          // Guardar returnTo en sessionStorage antes de redirigir
+          const returnTo = getUrlParameter('returnTo');
+          if (returnTo) {
+              sessionStorage.setItem('returnTo', returnTo);
+          }
+          
+          // Llamar al nuevo endpoint de verificación
+          try {
+              await fetch('/api/send-verification-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ 
+                      email: userCredential.user.email,
+                      name: name || userCredential.user.displayName || userCredential.user.email.split('@')[0]
+                  })
+              });
+          } catch (emailError) {
+              console.error('Error al enviar email de verificación:', emailError);
+          }
           
           showMessageModal('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.', 'success');
           setTimeout(() => {
-              const returnTo = getUrlParameter('returnTo');
-              const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
-              window.location.href = verificationUrl;
+              window.location.href = "verificacion.html";
           }, 2000);
       } catch (error) {
           hideLoadingOverlay();
@@ -1040,6 +1059,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Guardar ruta antes de login si viene en el parámetro returnTo
+        const returnTo = getUrlParameter('returnTo');
+        if (returnTo) {
+            sessionStorage.setItem('returnTo', returnTo);
+        }
+        
         hideAllForms();
         showLoadingOverlay();
     });

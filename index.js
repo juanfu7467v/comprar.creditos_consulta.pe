@@ -120,6 +120,40 @@ async function socioDuplicado(email) {
   }
 }
 
+async function enviarEmailVerificacion(email, nombre) {
+  const context = 'EMAIL_VERIFICACION';
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.error(`[${context}] ERROR: RESEND_API_KEY no configurada`);
+      return;
+    }
+    const { data, error } = await resend.emails.send({
+      from: 'Masitaprex <verificacion@masitaprex.com>',
+      to: email,
+      subject: 'Verifica tu cuenta en Masitaprex',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #0072ff;">Hola ${nombre},</h2>
+          <p>¡Gracias por unirte a Masitaprex! Por favor, verifica tu correo electrónico para comenzar a usar todas nuestras herramientas.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <p>Para verificar tu cuenta, simplemente revisa el enlace de verificación enviado por Firebase o haz clic en el botón de abajo si necesitas ayuda.</p>
+          </div>
+          <p>Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+          <p style="font-size: 12px; color: #666;">Masitaprex - Infraestructura de élite para desarrolladores</p>
+        </div>
+      `
+    });
+    if (error) {
+      logger.error(context, 'Error Resend', error, { email });
+    } else {
+      logger.info(context, 'Email enviado', { email, id: data?.id });
+    }
+  } catch (error) {
+    logger.error(context, 'Excepción', error, { email });
+  }
+}
+
 // ================================================================
 // ðŸŒ HELPERS DE IP (NUEVO)
 // ================================================================
@@ -207,7 +241,8 @@ const PUBLIC_API_ROUTES = [
   '/api/invoice-options',
   '/api/debug/firebase',
   '/api/admin/clear-cache',
-  '/api/analyze'
+  '/api/analyze',
+  '/api/send-verification-email'
 ];
 
 // ================================================================
@@ -2141,6 +2176,19 @@ app.use((err, req, res, next) => {
     message: process.env.NODE_ENV === 'development' ? err.message : 'Contacte al soporte',
     requestId: Date.now().toString(36)
   });
+});
+
+// Endpoint para enviar email de verificación vía Resend
+app.post('/api/send-verification-email', async (req, res) => {
+  const { email, name } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email requerido' });
+  
+  try {
+    await enviarEmailVerificacion(email, name || 'Usuario');
+    res.json({ success: true, message: 'Email enviado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al enviar email' });
+  }
 });
 
 // Catch-all final para rutas no encontradas
