@@ -380,6 +380,27 @@
     }
 
     // --- LÓGICA DE FIREBASE ---
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    function redirectAfterVerification() {
+      const returnTo = getUrlParameter('returnTo');
+      if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
+        try {
+          const decodedUrl = decodeURIComponent(returnTo);
+          if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+            window.location.href = decodedUrl;
+            return;
+          }
+        } catch (e) {
+          console.warn('URL de retorno inválida:', e);
+        }
+      }
+      window.location.href = '/actividad';
+    }
+
     async function checkEmailVerificationStatus() {
       if (!auth || !auth.currentUser) return;
       
@@ -389,7 +410,7 @@
           clearInterval(verificationCheckInterval); // Detener el chequeo
           showMessage('¡Correo verificado! Redirigiendo...');
           setTimeout(() => {
-              window.location.href = '/actividad'; 
+              redirectAfterVerification();
           }, 1500);
         }
       } catch (error) {
@@ -467,7 +488,7 @@
           // Revisar si ya está verificado antes de hacer nada
           await user.reload();
           if (user.emailVerified) {
-            window.location.href = '/actividad';
+            redirectAfterVerification();
             return;
           }
           

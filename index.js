@@ -2021,7 +2021,7 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.2.0 - Redirección Automática después del Login/Registro",
+    version: "3.3.0 - Redirección Completa (Login/Registro/Verificación)",
     features: {
       cleanUrls: "✅ URLs sin .html",
       custom404: "✅ Página error-404 personalizada",
@@ -2146,7 +2146,7 @@ app.listen(PORT, "0.0.0.0", () => {
       autoRedirectToLogin: '✅ Activado',
       returnAfterLogin: '✅ Implementado',
       returnAfterRegister: '✅ Implementado con verify.html',
-      returnAfterVerify: '✅ Debe implementarse en frontend'
+      returnAfterVerify: '✅ Implementado en frontend'
     },
     timestamp: new Date().toISOString()
   });

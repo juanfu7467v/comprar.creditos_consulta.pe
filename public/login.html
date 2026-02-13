@@ -878,7 +878,9 @@
             if (user.emailVerified) {
                 redirectAfterAuth(user);
             } else {
-                window.location.href = "verificacion.html";
+                const returnTo = getUrlParameter('returnTo');
+                const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
+                window.location.href = verificationUrl;
             }
           } else {
             setTimeout(() => {
@@ -951,7 +953,9 @@
           await saveUserProfile(userCredential.user);
           
           if (!userCredential.user.emailVerified) {
-              window.location.href = "verificacion.html";
+              const returnTo = getUrlParameter('returnTo');
+              const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
+              window.location.href = verificationUrl;
           } else {
               // ✅ Usa la función de redirección que maneja returnTo
               redirectAfterAuth(userCredential.user);
@@ -990,7 +994,9 @@
           
           showMessageModal('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.', 'success');
           setTimeout(() => {
-              window.location.href = "verificacion.html";
+              const returnTo = getUrlParameter('returnTo');
+              const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
+              window.location.href = verificationUrl;
           }, 2000);
       } catch (error) {
           hideLoadingOverlay();
