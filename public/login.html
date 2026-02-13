@@ -592,16 +592,23 @@
         return urlParams.get(name);
     }
 
+    // ================================================================
+    // 🎯 FUNCIÓN MODIFICADA: Redirige a la página original (returnTo)
+    // ================================================================
     function redirectAfterAuth(user) {
         if (user && !user.emailVerified) {
             window.location.href = "verificacion.html";
             return;
         }
 
+        // Obtener la URL de retorno de los parámetros de la URL
         const returnTo = getUrlParameter('returnTo');
+        
+        // Si existe un returnTo válido, redirigir a esa página
         if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
             try {
                 const decodedUrl = decodeURIComponent(returnTo);
+                // Validar que sea una URL relativa (seguridad)
                 if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
                     window.location.href = decodedUrl;
                     return;
@@ -610,6 +617,8 @@
                 console.warn('URL de retorno inválida:', e);
             }
         }
+        
+        // Fallback: Ir a la página de actividad
         window.location.href = "actividad";
     }
 
