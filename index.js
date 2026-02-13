@@ -94,25 +94,17 @@ async function enviarEmailVerificacion(email, nombre) {
       return;
     }
     await resend.emails.send({
-      from: 'Masitaprex <verificacion@masitaprex.com>',
+      from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
-      subject: 'Verifica tu cuenta en Masitaprex',
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-          <h2 style="color: #0072ff;">Hola ${nombre},</h2>
-          <p>¡Gracias por unirte a Masitaprex! Por favor, verifica tu correo electrónico para comenzar a usar todas nuestras herramientas.</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <p>Para verificar tu cuenta, simplemente revisa el enlace de verificación enviado por Firebase o haz clic en el botón de abajo si necesitas ayuda.</p>
-          </div>
-          <p>Si no creaste esta cuenta, puedes ignorar este mensaje.</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="font-size: 12px; color: #666;">Masitaprex - Infraestructura de élite para desarrolladores</p>
-        </div>
-      `
+      subject: 'Bienvenido a Masitaprex',
+      templateId: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
+      templateData: {
+        nombre: nombre
+      }
     });
-    console.log('Email de verificación enviado');
+    console.log(`[EMAIL] Bienvenida enviada a ${email}`);
   } catch (error) {
-    console.error('Error email verificación:', error);
+    console.error('Error bienvenida:', error);
   }
 }
 

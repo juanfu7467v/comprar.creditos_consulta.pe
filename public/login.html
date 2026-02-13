@@ -999,19 +999,15 @@
               sessionStorage.setItem('returnTo', returnTo);
           }
           
-          // Llamar al nuevo endpoint de verificación
-          try {
-              await fetch('/api/send-verification-email', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ 
-                      email: userCredential.user.email,
-                      name: name || userCredential.user.displayName || userCredential.user.email.split('@')[0]
-                  })
-              });
-          } catch (emailError) {
-              console.error('Error al enviar email de verificación:', emailError);
-          }
+          // Llamar al endpoint de envío de correo (Bienvenida)
+          fetch('/api/send-verification-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                  email: userCredential.user.email,
+                  name: name || userCredential.user.displayName || userCredential.user.email.split('@')[0]
+              })
+          }).catch(err => console.error('Error fetch email:', err));
           
           showMessageModal('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.', 'success');
           setTimeout(() => {
