@@ -1,4 +1,5 @@
 import express from "express";
+import "dotenv/config";
 import admin from "firebase-admin";
 import cors from "cors";
 import moment from "moment-timezone";
@@ -33,18 +34,15 @@ async function enviarBienvenida(email, nombre) {
       console.error('ERROR: RESEND_API_KEY no configurada');
       return;
     }
-    await resend.emails.send({
-      from: 'Masitaprex <bienvenida@masitaprex.com>',
+    const result = await resend.emails.send({
+      from: 'Tu App <no-reply@tudominio.com>',
       to: email,
-      subject: 'Bienvenido a Masitaprex',
-      templateId: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
-      templateData: {
-        nombre: nombre
-      }
+      subject: 'Bienvenido',
+      html: '<p>Bienvenido a la app</p>'
     });
-    console.log('Bienvenida enviada');
+    console.log('[EMAIL] Bienvenida enviada', result);
   } catch (error) {
-    console.error('Error bienvenida:', error);
+    console.error('[EMAIL_ERROR]', error);
   }
 }
 
