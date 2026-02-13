@@ -294,21 +294,21 @@
         margin-bottom: 20px;
     }
 
-    /* Sistema de notificaciones modal profesional */
-    .notification-modal-overlay {
+    /* NUEVO: Modal de mensajes profesional */
+    .message-modal-overlay {
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(4px);
         z-index: 50000;
         display: none;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         padding: 20px;
-        animation: fadeInOverlay 0.3s ease;
+        animation: fadeInOverlay 0.3s ease-out;
     }
 
-    .notification-modal-overlay.show {
+    .message-modal-overlay.show {
         display: flex;
     }
 
@@ -320,7 +320,7 @@
     @keyframes slideInModal {
         from {
             opacity: 0;
-            transform: translate(-50%, -60%) scale(0.9);
+            transform: translate(-50%, -48%) scale(0.9);
         }
         to {
             opacity: 1;
@@ -335,86 +335,45 @@
         }
         to {
             opacity: 0;
-            transform: translate(-50%, -60%) scale(0.9);
+            transform: translate(-50%, -48%) scale(0.9);
         }
     }
 
-    .notification-modal {
+    .message-modal-content {
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         background: white;
         border-radius: 24px;
-        padding: 32px 28px;
-        max-width: 90%;
-        width: 340px;
-        box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.3);
-        animation: slideInModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        z-index: 50001;
-    }
-
-    .notification-modal.hide {
-        animation: slideOutModal 0.3s ease forwards;
-    }
-
-    .notification-modal-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        padding: 32px 24px;
+        width: 90%;
+        max-width: 360px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         text-align: center;
-        gap: 16px;
+        animation: slideInModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .notification-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 8px;
+    .message-modal-content.closing {
+        animation: slideOutModal 0.3s ease-out forwards;
     }
 
-    .notification-icon.success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    .message-modal-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
     }
 
-    .notification-icon.error {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-
-    .notification-icon.warning {
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    }
-
-    .notification-icon.info {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    }
-
-    .notification-icon .material-icons {
-        color: white;
-        font-size: 36px;
-    }
-
-    .notification-message {
+    .message-modal-text {
         font-size: 16px;
         font-weight: 500;
-        color: #1e293b;
+        color: #334155;
         line-height: 1.5;
-        max-width: 280px;
+        margin: 0;
     }
 
     @media (max-width: 480px) {
         h3 { font-size: 2rem; }
         .screen { padding: 20px; }
-        .notification-modal {
-            width: 300px;
-            padding: 28px 24px;
-        }
-        .notification-message {
-            font-size: 15px;
-        }
     }
   </style>
 </head>
@@ -443,14 +402,23 @@
         </button>
         
         <button class="btn btn-github" onclick="signInWithGithub()">
-          <img src="https://cdn-icons-png.flaticon.com/128/733/733553.png" alt="GitHub" width="20" class="invert">
-          <span>Continuar con GitHub</span>
+          <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          <span>Acceder con GitHub</span>
+        </button>
+        
+        <button class="btn btn-login-red" onclick="showLoginFormFromWelcome()">
+          <span class="material-icons">login</span>
+          <span>Ingreso tradicional</span>
         </button>
 
-        <button class="btn btn-login-red" onclick="showLoginFormFromWelcome()">
-            <span class="material-icons">login</span>
-            <span>Usar correo electrónico</span>
-        </button>
+        <div class="mt-8 text-xs text-slate-400 font-medium text-center">
+            <p class="mb-2">Antes de iniciar sesión en nuestra infraestructura tecnológica, es importante que leas detenidamente nuestros Términos y Política de Privacidad.</p>
+            <div class="flex gap-4 justify-center">
+                <a href="politica-privacidad.html">Privacidad</a>
+                <span>•</span>
+                <a href="terminos-condiciones.html">Términos</a>
+            </div>
+        </div>
     </div>
 
     <div id="login-screen" class="screen" style="display: none;">
@@ -545,7 +513,6 @@
               </a>
           </div>
       </div>
-
     </div>
   </div>
 
@@ -569,15 +536,11 @@
     </div>
   </div>
 
-  <!-- Sistema de notificaciones modal profesional -->
-  <div id="notification-modal-overlay" class="notification-modal-overlay">
-    <div id="notification-modal" class="notification-modal">
-      <div class="notification-modal-content">
-        <div id="notification-icon" class="notification-icon">
-          <span class="material-icons"></span>
-        </div>
-        <p id="notification-message" class="notification-message"></p>
-      </div>
+  <!-- NUEVO: Modal de mensajes amigables -->
+  <div id="message-modal" class="message-modal-overlay">
+    <div id="message-modal-content" class="message-modal-content">
+      <div id="message-modal-icon" class="message-modal-icon">ℹ️</div>
+      <p id="message-modal-text" class="message-modal-text"></p>
     </div>
   </div>
   
@@ -618,86 +581,11 @@
     const termsCheck = document.getElementById('accept-terms-check');
     const confirmTermsBtn = document.getElementById('confirm-terms-btn');
 
-    // Sistema de notificaciones modal profesional
-    const notificationOverlay = document.getElementById('notification-modal-overlay');
-    const notificationModal = document.getElementById('notification-modal');
-    const notificationIcon = document.getElementById('notification-icon');
-    const notificationMessage = document.getElementById('notification-message');
-    let notificationTimeout;
-
-    function showNotification(message, type = 'info') {
-        // Limpiar timeout anterior si existe
-        if (notificationTimeout) {
-            clearTimeout(notificationTimeout);
-        }
-
-        // Configurar icono según tipo
-        const iconElement = notificationIcon.querySelector('.material-icons');
-        notificationIcon.className = 'notification-icon ' + type;
-        
-        switch(type) {
-            case 'success':
-                iconElement.textContent = 'check_circle';
-                break;
-            case 'error':
-                iconElement.textContent = 'error';
-                break;
-            case 'warning':
-                iconElement.textContent = 'warning';
-                break;
-            case 'info':
-                iconElement.textContent = 'info';
-                break;
-        }
-
-        // Configurar mensaje
-        notificationMessage.textContent = message;
-
-        // Mostrar modal
-        notificationOverlay.classList.add('show');
-        notificationModal.classList.remove('hide');
-
-        // Auto-cerrar después de 3 segundos
-        notificationTimeout = setTimeout(() => {
-            hideNotification();
-        }, 3000);
-    }
-
-    function hideNotification() {
-        notificationModal.classList.add('hide');
-        setTimeout(() => {
-            notificationOverlay.classList.remove('show');
-            notificationModal.classList.remove('hide');
-        }, 300);
-    }
-
-    // Cerrar modal al hacer clic en el overlay
-    notificationOverlay.addEventListener('click', (e) => {
-        if (e.target === notificationOverlay) {
-            hideNotification();
-        }
-    });
-
-    // Mapeo de errores de Firebase a mensajes amigables
-    function getFirebaseErrorMessage(errorCode) {
-        const errorMessages = {
-            'auth/email-already-in-use': 'Este correo ya está registrado. Intenta iniciar sesión o usa otro correo.',
-            'auth/invalid-email': 'El formato del correo electrónico no es válido.',
-            'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
-            'auth/user-not-found': 'No existe una cuenta con este correo electrónico.',
-            'auth/wrong-password': 'La contraseña es incorrecta. Intenta nuevamente.',
-            'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde.',
-            'auth/network-request-failed': 'Error de conexión. Verifica tu internet.',
-            'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
-            'auth/operation-not-allowed': 'Operación no permitida. Contacta soporte.',
-            'auth/invalid-credential': 'Las credenciales proporcionadas no son válidas.',
-            'auth/account-exists-with-different-credential': 'Ya existe una cuenta con este correo usando otro método de inicio de sesión.',
-            'auth/popup-closed-by-user': 'La ventana de inicio de sesión fue cerrada.',
-            'auth/cancelled-popup-request': 'Operación cancelada.',
-        };
-
-        return errorMessages[errorCode] || 'Ocurrió un error inesperado. Por favor, intenta nuevamente.';
-    }
+    // NUEVO: Sistema de mensajes amigables
+    const messageModal = document.getElementById('message-modal');
+    const messageModalContent = document.getElementById('message-modal-content');
+    const messageModalIcon = document.getElementById('message-modal-icon');
+    const messageModalText = document.getElementById('message-modal-text');
 
     function getUrlParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
@@ -725,42 +613,84 @@
         window.location.href = "actividad";
     }
 
-    async function initFirebase() {
-      try {
-        const response = await fetch('/api/config');
-        appConfig = await response.json();
-        const app = initializeApp(appConfig.firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
+    // NUEVO: Función para convertir errores técnicos a mensajes amigables
+    function getFriendlyErrorMessage(error) {
+        const errorCode = error.code || '';
+        const errorMessage = error.message || '';
+        
+        const errorMessages = {
+            'auth/email-already-in-use': 'Este correo ya está registrado. Intenta iniciar sesión o usa otro correo.',
+            'auth/invalid-email': 'El formato del correo electrónico no es válido.',
+            'auth/operation-not-allowed': 'Esta operación no está permitida en este momento.',
+            'auth/weak-password': 'La contraseña es muy débil. Usa al menos 6 caracteres.',
+            'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
+            'auth/user-not-found': 'No existe una cuenta con este correo electrónico.',
+            'auth/wrong-password': 'Contraseña incorrecta. Por favor verifica tus datos.',
+            'auth/invalid-credential': 'Las credenciales proporcionadas son incorrectas.',
+            'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde.',
+            'auth/network-request-failed': 'Error de conexión. Verifica tu internet e intenta nuevamente.',
+            'auth/popup-closed-by-user': 'Has cerrado la ventana de autenticación.',
+            'auth/cancelled-popup-request': 'Operación cancelada.',
+            'auth/popup-blocked': 'El navegador bloqueó la ventana emergente. Permite ventanas emergentes e intenta nuevamente.',
+            'auth/account-exists-with-different-credential': 'Ya existe una cuenta con este correo usando otro método de acceso.',
+            'auth/invalid-verification-code': 'El código de verificación no es válido.',
+            'auth/invalid-verification-id': 'El ID de verificación no es válido.',
+            'auth/missing-verification-code': 'Falta el código de verificación.',
+            'auth/missing-verification-id': 'Falta el ID de verificación.',
+            'auth/requires-recent-login': 'Por seguridad, debes iniciar sesión nuevamente.',
+            'auth/expired-action-code': 'El código ha expirado. Solicita uno nuevo.',
+            'auth/invalid-action-code': 'El código no es válido. Solicita uno nuevo.',
+        };
 
-        if (appConfig.recaptchaSiteKey) {
-            recaptchaSiteKey = appConfig.recaptchaSiteKey;
+        // Buscar mensaje específico para el código de error
+        if (errorMessages[errorCode]) {
+            return errorMessages[errorCode];
         }
 
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            if (user.emailVerified) {
-                redirectAfterAuth(user);
-            } else {
-                window.location.href = "verificacion.html";
-            }
-          } else {
-            setTimeout(() => {
-                goToWelcomeScreen();
-                hideLoadingOverlay();
-            }, 500);
-          }
-        });
-      } catch (error) {
-        console.error("Error al cargar configuración:", error);
-        setTimeout(() => {
-            goToWelcomeScreen();
-            hideLoadingOverlay();
-        }, 500);
-      }
+        // Detectar mensajes genéricos de Firebase
+        if (errorMessage.toLowerCase().includes('firebase')) {
+            return 'Ocurrió un error inesperado. Por favor intenta nuevamente.';
+        }
+
+        // Mensaje genérico para otros errores
+        return 'Ha ocurrido un problema. Intenta nuevamente en unos momentos.';
     }
 
-    initFirebase();
+    // NUEVO: Función para mostrar modal de mensajes
+    function showMessageModal(message, type = 'info') {
+        const icons = {
+            'success': '✅',
+            'error': '⚠️',
+            'info': 'ℹ️',
+            'warning': '⚠️'
+        };
+
+        messageModalIcon.textContent = icons[type] || icons.info;
+        messageModalText.textContent = message;
+        messageModal.classList.add('show');
+        messageModalContent.classList.remove('closing');
+
+        // Auto-cerrar después de 3 segundos
+        setTimeout(() => {
+            closeMessageModal();
+        }, 3000);
+    }
+
+    // NUEVO: Función para cerrar el modal
+    function closeMessageModal() {
+        messageModalContent.classList.add('closing');
+        setTimeout(() => {
+            messageModal.classList.remove('show');
+            messageModalContent.classList.remove('closing');
+        }, 300);
+    }
+
+    // Permitir cerrar al hacer clic en el overlay
+    messageModal.addEventListener('click', (e) => {
+        if (e.target === messageModal) {
+            closeMessageModal();
+        }
+    });
 
     function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
     function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
@@ -796,12 +726,12 @@
         
         const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
         if (!recaptchaResponse) {
-            showNotification('Por favor, verifica que no eres un robot', 'warning');
+            showMessageModal('Por favor, verifica que no eres un robot', 'warning');
             return;
         }
         
         if (!name || !email || !password) {
-            showNotification('Completa todos los campos antes de continuar', 'warning');
+            showMessageModal('Completa todos los campos antes de continuar', 'warning');
             return;
         }
         
@@ -927,6 +857,44 @@
         }
     }
 
+    async function initFirebase() {
+      try {
+        const response = await fetch('/api/config');
+        appConfig = await response.json();
+        const app = initializeApp(appConfig.firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (appConfig.recaptchaSiteKey) {
+            recaptchaSiteKey = appConfig.recaptchaSiteKey;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            if (user.emailVerified) {
+                redirectAfterAuth(user);
+            } else {
+                window.location.href = "verificacion.html";
+            }
+          } else {
+            setTimeout(() => {
+                goToWelcomeScreen();
+                hideLoadingOverlay();
+            }, 500);
+          }
+        });
+      } catch (error) {
+        console.error("Error al cargar configuración:", error);
+        setTimeout(() => {
+            goToWelcomeScreen();
+            hideLoadingOverlay();
+        }, 500);
+      }
+    }
+
+    initFirebase();
+
+    // MODIFICADO: Usar el nuevo sistema de mensajes
     window.signInWithGoogle = async function() {
         try {
             showLoadingOverlay();
@@ -934,12 +902,11 @@
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            showNotification('Has iniciado sesión correctamente', 'success');
+            showMessageModal('Inicio de sesión exitoso', 'success');
             setTimeout(() => redirectAfterAuth(result.user), 1500);
         } catch (error) {
             hideLoadingOverlay();
-            const friendlyMessage = getFirebaseErrorMessage(error.code);
-            showNotification(friendlyMessage, 'error');
+            showMessageModal(getFriendlyErrorMessage(error), 'error');
         }
     };
 
@@ -950,12 +917,11 @@
             provider.setCustomParameters({ allow_signup: 'true' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            showNotification('Has iniciado sesión correctamente', 'success');
+            showMessageModal('Inicio de sesión exitoso', 'success');
             setTimeout(() => redirectAfterAuth(result.user), 1500);
         } catch (error) {
             hideLoadingOverlay();
-            const friendlyMessage = getFirebaseErrorMessage(error.code);
-            showNotification(friendlyMessage, 'error');
+            showMessageModal(getFriendlyErrorMessage(error), 'error');
         }
     };
 
@@ -964,13 +930,13 @@
       const password = document.getElementById('login-password')?.value;
       
       if (!email || !password) { 
-          showNotification('Por favor completa todos los campos', 'warning');
+          showMessageModal('Por favor completa todos los campos', 'warning');
           return; 
       }
       
       const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
       if (!recaptchaResponse) { 
-          showNotification('Por favor verifica el reCAPTCHA', 'warning');
+          showMessageModal('Por favor, verifica que no eres un robot', 'warning');
           return; 
       }
       
@@ -988,8 +954,7 @@
       } catch (error) {
           hideLoadingOverlay();
           if (loginRecaptchaWidgetId !== null) grecaptcha.reset(loginRecaptchaWidgetId);
-          const friendlyMessage = getFirebaseErrorMessage(error.code);
-          showNotification(friendlyMessage, 'error');
+          showMessageModal(getFriendlyErrorMessage(error), 'error');
       }
     };
 
@@ -1000,13 +965,13 @@
       const confirm = document.getElementById('register-confirm-password')?.value;
       
       if (password !== confirm) { 
-          showNotification('Las contraseñas no coinciden', 'error');
+          showMessageModal('Las contraseñas no coinciden. Verifica e intenta nuevamente.', 'error');
           return; 
       }
       
       const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
       if (!recaptchaResponse) { 
-          showNotification('Por favor verifica el reCAPTCHA', 'warning');
+          showMessageModal('Por favor, verifica que no eres un robot', 'warning');
           return; 
       }
       
@@ -1018,15 +983,14 @@
           
           await sendEmailVerification(userCredential.user);
           
-          showNotification('Cuenta creada exitosamente. Verifica tu correo electrónico.', 'success');
+          showMessageModal('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.', 'success');
           setTimeout(() => {
               window.location.href = "verificacion.html";
           }, 2000);
       } catch (error) {
           hideLoadingOverlay();
           if (registerRecaptchaWidgetId !== null) grecaptcha.reset(registerRecaptchaWidgetId);
-          const friendlyMessage = getFirebaseErrorMessage(error.code);
-          showNotification(friendlyMessage, 'error');
+          showMessageModal(getFriendlyErrorMessage(error), 'error');
       }
     };
 
@@ -1034,7 +998,7 @@
         const email = document.getElementById('recover-email')?.value;
         
         if (!email) { 
-            showNotification('Por favor ingresa tu correo electrónico', 'warning');
+            showMessageModal('Por favor ingresa tu correo electrónico', 'warning');
             return; 
         }
         
@@ -1042,12 +1006,11 @@
         try {
             await sendPasswordResetEmail(auth, email);
             hideLoadingOverlay();
-            showNotification('Enlace de recuperación enviado. Revisa tu correo electrónico.', 'success');
+            showMessageModal('Hemos enviado un enlace de recuperación a tu correo. Revisa tu bandeja de entrada.', 'success');
             setTimeout(() => showLoginForm(), 3000);
         } catch (error) {
             hideLoadingOverlay();
-            const friendlyMessage = getFirebaseErrorMessage(error.code);
-            showNotification(friendlyMessage, 'error');
+            showMessageModal(getFriendlyErrorMessage(error), 'error');
         }
     };
 
@@ -1061,7 +1024,7 @@
           updatedAt: serverTimestamp(),
         }, { merge: true });
       } catch (e) { 
-          console.error('Error al guardar perfil:', e); 
+          console.error('Error perfil:', e); 
       }
     }
 
