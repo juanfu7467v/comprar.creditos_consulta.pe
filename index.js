@@ -1,5 +1,4 @@
 import express from "express";
-import "dotenv/config";
 import admin from "firebase-admin";
 import cors from "cors";
 import moment from "moment-timezone";
@@ -19,114 +18,13 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// âœ‰ï¸ CONFIGURACIÃ“N DE RESEND (NUEVO)
+// Ã¢Å“â€°Ã¯Â¸Â CONFIGURACIÃƒâ€œN DE RESEND (NUEVO)
 // ================================================================
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// PRUEBA DIRECTA (Temporal para depuración)
-setTimeout(async () => {
-  try {
-    console.log('[TEST EMAIL] Ejecutando prueba inicial de Resend...');
-    if (!process.env.RESEND_API_KEY) {
-      console.error('[TEST EMAIL] ERROR: RESEND_API_KEY no definida en process.env');
-      return;
-    }
-    const result = await resend.emails.send({
-      from: 'Masitaprex <bienvenida@masitaprex.com>',
-      to: 'delivered@resend.dev', // Cambiar a correo real si es necesario para prueba externa
-      subject: 'Test de Arranque',
-      html: '<p>Si llega este log, Resend está configurado correctamente en el servidor.</p>'
-    });
-    console.log('[TEST EMAIL] Resultado:', result);
-  } catch (err) {
-    console.error('[TEST EMAIL ERROR]:', err);
-  }
-}, 5000);
-
 // ================================================================
-// âœ‰ï¸ FUNCIONES DE ENVÃO DE CORREO (RESEND)
-// ================================================================
-
-async function enviarBienvenida(email, nombre) {
-  console.log('[EMAIL] Ejecutando enviarBienvenida para:', email);
-  try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error('[EMAIL ERROR] RESEND_API_KEY no configurada');
-      return;
-    }
-    const result = await resend.emails.send({
-      from: 'Masitaprex <bienvenida@masitaprex.com>',
-      to: email,
-      subject: 'Bienvenido',
-      html: '<p>Bienvenido a la app</p>'
-    });
-    console.log('[EMAIL] Bienvenida enviada OK:', result);
-  } catch (error) {
-    console.error('[EMAIL ERROR] Falló el envío:', error);
-  }
-}
-
-async function alertaLogin(email, nombre) {
-  try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error('ERROR: RESEND_API_KEY no configurada');
-      return;
-    }
-    await resend.emails.send({
-      from: 'Seguridad <seguridad@masitaprex.com>',
-      to: email,
-      subject: 'Nuevo inicio de sesión',
-      templateId: '933e5952-6373-4b2c-8cde-db9e332e444e',
-      templateData: {
-        nombre: nombre
-      }
-    });
-    console.log('Alerta enviada');
-  } catch (error) {
-    console.error('Error alerta:', error);
-  }
-}
-
-async function socioDuplicado(email) {
-  try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error('ERROR: RESEND_API_KEY no configurada');
-      return;
-    }
-    await resend.emails.send({
-      from: 'Masitaprex <system@masitaprex.com>',
-      to: email,
-      subject: 'Registro duplicado detectado',
-      templateId: '6767bd1b-6b6a-4488-bed7-ad185513d763'
-    });
-    console.log('Duplicado enviado');
-  } catch (error) {
-    console.error('Error duplicado:', error);
-  }
-}
-
-async function enviarEmailVerificacion(email, nombre) {
-  console.log('[EMAIL] Ejecutando enviarEmailVerificacion para:', email);
-  try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error('[EMAIL ERROR] RESEND_API_KEY no configurada');
-      return;
-    }
-    const result = await resend.emails.send({
-      from: 'Masitaprex <bienvenida@masitaprex.com>',
-      to: email,
-      subject: 'Bienvenido',
-      html: `<p>Bienvenido a la app, ${nombre}</p>`
-    });
-    console.log('[EMAIL] Bienvenida enviada OK:', result);
-  } catch (error) {
-    console.error('[EMAIL ERROR] Falló el envío:', error);
-  }
-}
-
-// ================================================================
-// ðŸŒ HELPERS DE IP (NUEVO)
+// Ã°Å¸Å’Â HELPERS DE IP (NUEVO)
 // ================================================================
 
 function getClientIp(req) {
@@ -138,12 +36,12 @@ function getClientIp(req) {
 }
 
 // ================================================================
-// ðŸ” CONFIGURACIÃ“N DE RUTAS Y CONTROL DE ACCESO
+// Ã°Å¸â€Â CONFIGURACIÃƒâ€œN DE RUTAS Y CONTROL DE ACCESO
 // ================================================================
 
 /**
- * Rutas pÃºblicas que NO requieren autenticaciÃ³n
- * Agregar aquÃ­ nuevas pÃ¡ginas pÃºblicas
+ * Rutas pÃƒÂºblicas que NO requieren autenticaciÃƒÂ³n
+ * Agregar aquÃƒÂ­ nuevas pÃƒÂ¡ginas pÃƒÂºblicas
  */
 const PUBLIC_ROUTES = [
   '/login',
@@ -172,8 +70,8 @@ const PUBLIC_ROUTES = [
 ];
 
 /**
- * Rutas protegidas que requieren autenticaciÃ³n
- * âœ… ACTUALIZADO: Agregadas /user/activity y /peliculas
+ * Rutas protegidas que requieren autenticaciÃƒÂ³n
+ * Ã¢Å“â€¦ ACTUALIZADO: Agregadas /user/activity y /peliculas
  */
 const PROTECTED_ROUTES = [
   '/favoritos',
@@ -195,7 +93,7 @@ const PROTECTED_ROUTES = [
 ];
 
 /**
- * Rutas de API que NO requieren middleware de autenticaciÃ³n
+ * Rutas de API que NO requieren middleware de autenticaciÃƒÂ³n
  */
 const PUBLIC_API_ROUTES = [
   '/api/auth',
@@ -212,12 +110,11 @@ const PUBLIC_API_ROUTES = [
   '/api/invoice-options',
   '/api/debug/firebase',
   '/api/admin/clear-cache',
-  '/api/analyze',
-  '/api/send-verification-email'
+  '/api/analyze'
 ];
 
 // ================================================================
-// ðŸ“‹ LOGS MEJORADOS
+// Ã°Å¸â€œâ€¹ LOGS MEJORADOS
 // ================================================================
 
 const logger = {
@@ -239,7 +136,7 @@ const logger = {
 };
 
 // ================================================================
-// ðŸ”¥ CONFIGURACIÃ“N DE FIREBASE
+// Ã°Å¸â€Â¥ CONFIGURACIÃƒâ€œN DE FIREBASE
 // ================================================================
 
 function buildServiceAccountFromEnv() {
@@ -316,18 +213,18 @@ if (serviceAccount && !admin.apps.length) {
     });
 
     const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
-      .then(() => ({ status: 'connected', message: 'ConexiÃ³n a Firestore exitosa' }))
+      .then(() => ({ status: 'connected', message: 'ConexiÃƒÂ³n a Firestore exitosa' }))
       .catch(error => ({ status: 'error', message: error.message }));
 
-    logger.info('FIRESTORE', 'VerificaciÃ³n de conexiÃ³n', firestoreCheck);
+    logger.info('FIRESTORE', 'VerificaciÃƒÂ³n de conexiÃƒÂ³n', firestoreCheck);
 
   } catch (error) {
-    logger.error('FIREBASE', 'Error crÃ­tico al inicializar Firebase Admin', error, {
+    logger.error('FIREBASE', 'Error crÃƒÂ­tico al inicializar Firebase Admin', error, {
       projectId: serviceAccount?.project_id,
       clientEmail: serviceAccount?.client_email
     });
 
-    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarÃ¡n disponibles.');
+    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarÃƒÂ¡n disponibles.');
   }
 } else if (admin.apps.length) {
   db = admin.firestore();
@@ -338,7 +235,7 @@ if (serviceAccount && !admin.apps.length) {
 }
 
 // ================================================================
-// ðŸ” CONFIGURACIÃ“N DE RECAPTCHA
+// Ã°Å¸â€Â CONFIGURACIÃƒâ€œN DE RECAPTCHA
 // ================================================================
 
 const RECAPTCHA_SECRET_KEY = process.env.RECAPCHA_CLAVE_SECRETA;
@@ -397,14 +294,14 @@ async function validateRecaptcha(recaptchaResponse) {
 }
 
 // ================================================================
-// ðŸ’³ CONFIGURACIÃ“N DE MERCADO PAGO
+// Ã°Å¸â€™Â³ CONFIGURACIÃƒâ€œN DE MERCADO PAGO
 // ================================================================
 
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
 
 if (!MERCADOPAGO_ACCESS_TOKEN) {
-  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no estÃ¡ configurado');
+  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no estÃƒÂ¡ configurado');
   console.warn('ADVERTENCIA: MERCADOPAGO_ACCESS_TOKEN no configurado. Pagos no disponibles.');
 }
 
@@ -420,18 +317,18 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 // ================================================================
-// ðŸ” MIDDLEWARE DE AUTENTICACIÃ“N MEJORADO
+// Ã°Å¸â€Â MIDDLEWARE DE AUTENTICACIÃƒâ€œN MEJORADO
 // ================================================================
 
 /**
- * Middleware para verificar autenticaciÃ³n Firebase
- * Protege rutas y redirige a login si no estÃ¡ autenticado
- * âœ… MEJORADO: Guarda la URL original para redirigir despuÃ©s del login
+ * Middleware para verificar autenticaciÃƒÂ³n Firebase
+ * Protege rutas y redirige a login si no estÃƒÂ¡ autenticado
+ * Ã¢Å“â€¦ MEJORADO: Guarda la URL original para redirigir despuÃƒÂ©s del login
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
 
-  // Verificar si la ruta estÃ¡ excluida de autenticaciÃ³n
+  // Verificar si la ruta estÃƒÂ¡ excluida de autenticaciÃƒÂ³n
   const isPublicRoute = PUBLIC_ROUTES.some(route =>
     req.path === route || req.path.startsWith(route)
   );
@@ -440,11 +337,11 @@ async function verifyFirebaseAuth(req, res, next) {
     req.path.startsWith(route)
   );
 
-  // Archivos estÃ¡ticos excluidos
+  // Archivos estÃƒÂ¡ticos excluidos
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
 
   if (isPublicRoute || isPublicApiRoute || isStaticFile) {
-    logger.info(context, 'Ruta pÃºblica o excluida', { path: req.path });
+    logger.info(context, 'Ruta pÃƒÂºblica o excluida', { path: req.path });
     return next();
   }
 
@@ -472,7 +369,7 @@ async function verifyFirebaseAuth(req, res, next) {
         originalUrl: req.originalUrl
       });
 
-      // âœ… MEJORA: Redirigir a login con parÃ¡metro returnTo para volver despuÃ©s del login
+      // Ã¢Å“â€¦ MEJORA: Redirigir a login con parÃƒÂ¡metro returnTo para volver despuÃƒÂ©s del login
       const returnTo = encodeURIComponent(req.originalUrl);
       return res.redirect(`/login?returnTo=${returnTo}`);
     }
@@ -490,18 +387,18 @@ async function verifyFirebaseAuth(req, res, next) {
 
     next();
   } catch (error) {
-    logger.error(context, 'Error de autenticaciÃ³n', error, {
+    logger.error(context, 'Error de autenticaciÃƒÂ³n', error, {
       path: req.path
     });
 
-    // âœ… MEJORA: Redirigir a login con parÃ¡metro returnTo para volver despuÃ©s del login
+    // Ã¢Å“â€¦ MEJORA: Redirigir a login con parÃƒÂ¡metro returnTo para volver despuÃƒÂ©s del login
     const returnTo = encodeURIComponent(req.originalUrl);
     return res.redirect(`/login?returnTo=${returnTo}`);
   }
 }
 
 // ================================================================
-// ðŸ”§ FUNCIONES DE PAGO Y BENEFICIOS
+// Ã°Å¸â€Â§ FUNCIONES DE PAGO Y BENEFICIOS
 // ================================================================
 
 async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
@@ -517,21 +414,21 @@ async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
   }
 
   paymentLocks.set(paymentRef, Date.now());
-  logger.info(context, 'ðŸ”’ Lock adquirido', { paymentRef });
+  logger.info(context, 'Ã°Å¸â€â€™ Lock adquirido', { paymentRef });
   return true;
 }
 
 function releasePaymentLock(paymentRef) {
   const context = 'PAYMENT_LOCK';
   paymentLocks.delete(paymentRef);
-  logger.info(context, 'ðŸ”“ Lock liberado', { paymentRef });
+  logger.info(context, 'Ã°Å¸â€â€œ Lock liberado', { paymentRef });
 }
 
 async function checkFileExistsInStorage(fileName) {
   const context = 'STORAGE_CHECK';
 
   if (!bucket) {
-    logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
+    logger.error(context, 'Firebase Storage no estÃƒÂ¡ inicializado');
     return { exists: false, url: null };
   }
 
@@ -560,7 +457,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
   const context = 'UPLOAD_PDF';
 
   if (!bucket) {
-    logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
+    logger.error(context, 'Firebase Storage no estÃƒÂ¡ inicializado');
     throw new Error('Firebase Storage not initialized');
   }
 
@@ -571,7 +468,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 
     const fileCheck = await checkFileExistsInStorage(fileName);
     if (fileCheck.exists && fileCheck.url) {
-      logger.info(context, 'ðŸ“Œ PDF ya existe en Storage, devolviendo URL existente', {
+      logger.info(context, 'Ã°Å¸â€œÅ’ PDF ya existe en Storage, devolviendo URL existente', {
         paymentId,
         url: fileCheck.url
       });
@@ -597,7 +494,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
 
-    logger.info(context, 'âœ… PDF subido exitosamente a Storage', {
+    logger.info(context, 'Ã¢Å“â€¦ PDF subido exitosamente a Storage', {
       paymentId,
       fileName,
       publicUrl,
@@ -607,7 +504,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
     return publicUrl;
 
   } catch (error) {
-    logger.error(context, 'âŒ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
+    logger.error(context, 'Ã¢ÂÅ’ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
     throw error;
   }
 }
@@ -616,7 +513,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
   const context = 'OTORGAR_BENEFICIO';
 
   if (!db) {
-    logger.error(context, 'Firebase DB no estÃ¡ inicializado', null, { uid, paymentRef });
+    logger.error(context, 'Firebase DB no estÃƒÂ¡ inicializado', null, { uid, paymentRef });
     return { status: 'error', message: 'Database not initialized' };
   }
 
@@ -629,7 +526,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   if (processedPaymentsCache.has(paymentRefString)) {
     const cachedData = processedPaymentsCache.get(paymentRefString);
-    logger.warn(context, 'ðŸš« Pago ya procesado en cache de memoria (idempotencia)', {
+    logger.warn(context, 'Ã°Å¸Å¡Â« Pago ya procesado en cache de memoria (idempotencia)', {
       uid,
       paymentRef: paymentRefString,
       processor,
@@ -646,7 +543,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const lockAcquired = await acquirePaymentLock(paymentRefString);
   if (!lockAcquired) {
-    logger.error(context, 'âŒ No se pudo adquirir lock para procesar pago', null, {
+    logger.error(context, 'Ã¢ÂÅ’ No se pudo adquirir lock para procesar pago', null, {
       uid, paymentRef: paymentRefString
     });
     return {
@@ -664,7 +561,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const existingData = doc.data();
 
       if (existingData.procesado === true && existingData.estado === "approved") {
-        logger.warn(context, 'ðŸš« Pago ya procesado anteriormente en Firestore (idempotencia)', {
+        logger.warn(context, 'Ã°Å¸Å¡Â« Pago ya procesado anteriormente en Firestore (idempotencia)', {
           uid,
           paymentRef: paymentRefString,
           procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
@@ -694,7 +591,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       }
     }
 
-    logger.info(context, 'âœ… Procesando nuevo pago', {
+    logger.info(context, 'Ã¢Å“â€¦ Procesando nuevo pago', {
       uid, email, montoPagado, processor, paymentRef: paymentRefString
     });
 
@@ -730,7 +627,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const fechaActivacionActual = userData.fechaActivacion;
       const planIlimitadoHastaActual = userData.planIlimitadoHasta;
 
-      logger.info(context, 'ðŸ“Š Estado actual del usuario', {
+      logger.info(context, 'Ã°Å¸â€œÅ  Estado actual del usuario', {
         uid,
         creditosActuales,
         tipoPlanActual,
@@ -750,8 +647,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        descripcion = `${creditosOtorgados} CrÃ©ditos`;
-        logger.info(context, 'ðŸ’³ CrÃ©ditos otorgados', {
+        descripcion = `${creditosOtorgados} CrÃƒÂ©ditos`;
+        logger.info(context, 'Ã°Å¸â€™Â³ CrÃƒÂ©ditos otorgados', {
           uid,
           creditosOtorgados,
           montoPagado,
@@ -778,7 +675,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           duracionTotalDias = duracionDiasActual + diasNuevos;
           fechaFinPlan = moment(fechaActivacion).add(duracionTotalDias, 'days').toDate();
 
-          logger.info(context, 'âž• Acumulando dÃ­as al plan ilimitado existente', {
+          logger.info(context, 'Ã¢Å¾â€¢ Acumulando dÃƒÂ­as al plan ilimitado existente', {
             uid,
             diasAnteriores: duracionDiasActual,
             diasNuevos,
@@ -793,7 +690,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           duracionTotalDias = diasNuevos;
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
 
-          logger.info(context, 'ðŸ†• Creando nuevo plan ilimitado', {
+          logger.info(context, 'Ã°Å¸â€ â€¢ Creando nuevo plan ilimitado', {
             uid,
             diasNuevos,
             fechaInicio: fechaActivacion.toISOString(),
@@ -818,9 +715,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           diasAgregados: diasNuevos,
           fechaFin: fechaFinPlan
         };
-        descripcion = `Plan Ilimitado (${diasNuevos} dÃ­as${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' dÃ­as' : ''})`;
+        descripcion = `Plan Ilimitado (${diasNuevos} dÃƒÂ­as${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' dÃƒÂ­as' : ''})`;
 
-        logger.info(context, 'âœ¨ Plan ilimitado actualizado exitosamente', {
+        logger.info(context, 'Ã¢Å“Â¨ Plan ilimitado actualizado exitosamente', {
           uid,
           diasAgregados: diasNuevos,
           duracionTotal: duracionTotalDias,
@@ -833,7 +730,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         creditosOtorgados = 0;
 
       } else {
-        logger.warn(context, 'âš ï¸ Monto no coincide con ningÃºn paquete', { montoPagado, uid });
+        logger.warn(context, 'Ã¢Å¡ Ã¯Â¸Â Monto no coincide con ningÃƒÂºn paquete', { montoPagado, uid });
         descripcion = `Pago de S/ ${montoPagado}`;
       }
 
@@ -864,7 +761,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     });
 
     try {
-      logger.info(context, 'ðŸ“„ Generando Boleta ElectrÃ³nica automÃ¡ticamente', { paymentRef: paymentRefString });
+      logger.info(context, 'Ã°Å¸â€œâ€ž Generando Boleta ElectrÃƒÂ³nica automÃƒÂ¡ticamente', { paymentRef: paymentRefString });
 
       const invoiceData = {
         orderId: paymentRefString,
@@ -872,7 +769,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         email: email || 'cliente@example.com',
         amount: montoPagado,
         credits: result.creditosOtorgados || 0,
-        description: result.descripcion || 'CrÃ©ditos Consulta PE',
+        description: result.descripcion || 'CrÃƒÂ©ditos Consulta PE',
         type: 'boleta'
       };
 
@@ -892,7 +789,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         fs.unlinkSync(localPdfPath);
       }
 
-      logger.info(context, 'âœ… Boleta generada y subida a Storage exitosamente', {
+      logger.info(context, 'Ã¢Å“â€¦ Boleta generada y subida a Storage exitosamente', {
         paymentRef: paymentRefString,
         storageUrl
       });
@@ -900,7 +797,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       result.pdfUrl = storageUrl;
 
     } catch (pdfError) {
-      logger.error(context, 'âš ï¸ Error generando/subiendo PDF (no crÃ­tico)', pdfError, {
+      logger.error(context, 'Ã¢Å¡ Ã¯Â¸Â Error generando/subiendo PDF (no crÃƒÂ­tico)', pdfError, {
         paymentRef: paymentRefString
       });
     }
@@ -915,17 +812,17 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
-      logger.info(context, 'ðŸ§¹ Pago removido del cache', { paymentRef: paymentRefString });
+      logger.info(context, 'Ã°Å¸Â§Â¹ Pago removido del cache', { paymentRef: paymentRefString });
     }, 2 * 60 * 60 * 1000);
 
-    logger.info(context, 'âœ… TransacciÃ³n completada exitosamente', { uid, result });
+    logger.info(context, 'Ã¢Å“â€¦ TransacciÃƒÂ³n completada exitosamente', { uid, result });
 
     releasePaymentLock(paymentRefString);
 
     return result;
 
   } catch (error) {
-    logger.error(context, 'âŒ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
+    logger.error(context, 'Ã¢ÂÅ’ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
 
     try {
       await pagoDoc.update({
@@ -946,10 +843,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// ðŸš¨ SOLUCIÃ“N DEFINITIVA - RUTAS PROBLEMÃTICAS ARRIBA DE TODO
+// Ã°Å¸Å¡Â¨ SOLUCIÃƒâ€œN DEFINITIVA - RUTAS PROBLEMÃƒÂTICAS ARRIBA DE TODO
 // ================================================================
 
-// 1ï¸âƒ£ Forzar que estas rutas respondan como HTML ANTES de cualquier generador PDF
+// 1Ã¯Â¸ÂÃ¢Æ’Â£ Forzar que estas rutas respondan como HTML ANTES de cualquier generador PDF
 // Esto debe ir ARRIBA de cualquier otra ruta
 
 app.get("/disclaimer-apis", (req, res) => {
@@ -963,36 +860,36 @@ app.get("/API-Docs", (req, res) => {
 });
 
 // ================================================================
-// ðŸŒ MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÃTICOS
+// Ã°Å¸Å’Â MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÃƒÂTICOS
 // ================================================================
 
-// Servir archivos estÃ¡ticos ANTES de aplicar el middleware de autenticaciÃ³n
+// Servir archivos estÃƒÂ¡ticos ANTES de aplicar el middleware de autenticaciÃƒÂ³n
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ================================================================
-// âœ… MAPEO LÃ“GICO DE RUTAS (SOLUCIÃ“N AL 404)
+// Ã¢Å“â€¦ MAPEO LÃƒâ€œGICO DE RUTAS (SOLUCIÃƒâ€œN AL 404)
 // ================================================================
 
 app.use((req, res, next) => {
   const pathName = req.path;
 
-  // ðŸ—ºï¸ Mapeo explÃ­cito de rutas que no coinciden con el nombre del archivo
+  // Ã°Å¸â€”ÂºÃ¯Â¸Â Mapeo explÃƒÂ­cito de rutas que no coinciden con el nombre del archivo
   const routeMap = {
     '/user/activity': 'actividad.html',
     '/actividad': 'actividad.html',
     '/peliculas': 'PeliPREX.html'
   };
 
-  // Si la ruta estÃ¡ en el mapeo, servir el archivo correspondiente
+  // Si la ruta estÃƒÂ¡ en el mapeo, servir el archivo correspondiente
   if (routeMap[pathName]) {
     const filePath = path.join(__dirname, 'public', routeMap[pathName]);
     if (fs.existsSync(filePath)) {
-      logger.info('ROUTE_MAPPING', `âœ… Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
+      logger.info('ROUTE_MAPPING', `Ã¢Å“â€¦ Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
       return res.sendFile(filePath);
     }
   }
 
-  // Fallback para Clean URLs estÃ¡ndar (ej: /login -> login.html)
+  // Fallback para Clean URLs estÃƒÂ¡ndar (ej: /login -> login.html)
   const isHtmlRoute = !pathName.includes('.') && 
     !pathName.startsWith('/api/') && 
     pathName !== '/';
@@ -1013,7 +910,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Crear y guardar la nueva pÃ¡gina de error 404 personalizada
+// Crear y guardar la nueva pÃƒÂ¡gina de error 404 personalizada
 const createNewError404Page = () => {
   const error404HTML = `<!DOCTYPE html>
 <html lang="es">
@@ -1039,7 +936,7 @@ async function secureDownload(url, filename) {
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PÃ¡gina No Encontrada - Masitaprex</title>
+    <title>PÃƒÂ¡gina No Encontrada - Masitaprex</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1103,7 +1000,7 @@ async function secureDownload(url, filename) {
         </div>
         <div class="absolute inset-0 flex items-end justify-center pb-12 bg-black/30">
             <a href="home" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
-                Ir a la PÃ¡gina Principal
+                Ir a la PÃƒÂ¡gina Principal
             </a>
         </div>
     </header>
@@ -1120,10 +1017,10 @@ async function secureDownload(url, filename) {
                 </div>
                 <div class="content-container">
                     <h3 class="text-xl font-bold text-purple-600 mb-2">
-                        Consulta Pe <span class="text-sm font-normal text-gray-500 block">Consulta RÃ¡pida de Datos PÃºblicos</span>
+                        Consulta Pe <span class="text-sm font-normal text-gray-500 block">Consulta RÃƒÂ¡pida de Datos PÃƒÂºblicos</span>
                     </h3>
                     <p class="text-gray-600 mb-4 text-sm flex-grow">
-                        Una herramienta de consulta rÃ¡pida y confiable. ObtÃ©n datos pÃºblicos asociados a DNI y RUC, utilizando en ciertos casos solo tu nombre completo. La visualizaciÃ³n de resultados es clara y utiliza elementos visuales para un mejor entendimiento de la informaciÃ³n.
+                        Una herramienta de consulta rÃƒÂ¡pida y confiable. ObtÃƒÂ©n datos pÃƒÂºblicos asociados a DNI y RUC, utilizando en ciertos casos solo tu nombre completo. La visualizaciÃƒÂ³n de resultados es clara y utiliza elementos visuales para un mejor entendimiento de la informaciÃƒÂ³n.
                     </p>
                     <a href="https://com-masitaorex.uptodown.com/android" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
                         Instalar aplicaciones apk
@@ -1144,7 +1041,7 @@ async function secureDownload(url, filename) {
                         PeliPREX HD <span class="text-sm font-normal text-gray-500 block">Acceso Digital mediante Infraestructura Intermediaria</span>
                     </h3>
                     <p class="text-gray-600 mb-4 text-sm flex-grow">
-                        Plataforma basada en infraestructura intermediaria que facilita el acceso organizado a contenidos digitales disponibles en lÃ­nea. Explora, descubre y conÃ©ctate fÃ¡cilmente desde una interfaz rÃ¡pida y moderna.
+                        Plataforma basada en infraestructura intermediaria que facilita el acceso organizado a contenidos digitales disponibles en lÃƒÂ­nea. Explora, descubre y conÃƒÂ©ctate fÃƒÂ¡cilmente desde una interfaz rÃƒÂ¡pida y moderna.
                     </p>
                     <a href="peliPREX" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
                         Acceder a PeliPREX
@@ -1158,14 +1055,14 @@ async function secureDownload(url, filename) {
                     Servicio
                 </div>
                 <div class="image-container">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifNMAy4k9FFdDT96JpFiktrjRpRJz_Quq3lIrHz1t_NdKTZtU6NfMYzmkNGOVtwUg2hdfSZm0lN5SFp5j4LvDZCSd9QUNP8UUS9k_aGvdZ3Tj9W8DhzDFSdTWZJlRHsJ_OraOpFHWtX8wvKVM1oCpj3ggPZKEYMbuGSav51DbbTnZ3dUYSZTnipiJ57nyq/s1408/1000089677.png" alt="Imagen de ConexiÃ³n API" class="w-full h-full object-cover">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifNMAy4k9FFdDT96JpFiktrjRpRJz_Quq3lIrHz1t_NdKTZtU6NfMYzmkNGOVtwUg2hdfSZm0lN5SFp5j4LvDZCSd9QUNP8UUS9k_aGvdZ3Tj9W8DhzDFSdTWZJlRHsJ_OraOpFHWtX8wvKVM1oCpj3ggPZKEYMbuGSav51DbbTnZ3dUYSZTnipiJ57nyq/s1408/1000089677.png" alt="Imagen de ConexiÃƒÂ³n API" class="w-full h-full object-cover">
                 </div>
                 <div class="content-container">
                     <h3 class="text-xl font-bold text-blue-600 mb-2">
-                        ConexiÃ³n API <span class="text-sm font-normal text-gray-500 block">Infraestructura Intermediaria para APIs</span>
+                        ConexiÃƒÂ³n API <span class="text-sm font-normal text-gray-500 block">Infraestructura Intermediaria para APIs</span>
                     </h3>
                     <p class="text-gray-600 mb-4 text-sm flex-grow">
-                        Servicio digital basado en infraestructura intermediaria que facilita la conexiÃ³n tÃ©cnica con diversas fuentes de datos mediante APIs, sin almacenar ni modificar la informaciÃ³n consultada.
+                        Servicio digital basado en infraestructura intermediaria que facilita la conexiÃƒÂ³n tÃƒÂ©cnica con diversas fuentes de datos mediante APIs, sin almacenar ni modificar la informaciÃƒÂ³n consultada.
                     </p>
                     <a href="api-key" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
                         Gestionar API Key
@@ -1177,7 +1074,7 @@ async function secureDownload(url, filename) {
     </main>
     <footer class="bg-gray-900 text-gray-400 py-10 px-6">
         <div class="max-w-4xl mx-auto text-center">
-            <h3 class="text-xl font-bold text-white mb-6">SÃ­guenos en nuestras redes sociales</h3>
+            <h3 class="text-xl font-bold text-white mb-6">SÃƒÂ­guenos en nuestras redes sociales</h3>
             <div class="social-icons mb-8">
                 <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
                     <i class="fab fa-facebook-square"></i>
@@ -1186,11 +1083,11 @@ async function secureDownload(url, filename) {
                     <i class="fab fa-youtube-square"></i>
                 </a>
             </div>
-            <p class="mb-6 text-lg">Consulta PE Â© 2024 - Todos los derechos reservados</p>
+            <p class="mb-6 text-lg">Consulta PE Ã‚Â© 2024 - Todos los derechos reservados</p>
             <div class="mb-8 flex flex-wrap justify-center gap-4 text-sm">
-                <a href="terminos-condiciones" class="hover:text-indigo-400 transition hover:underline">TÃ©rminos y condiciones</a>
+                <a href="terminos-condiciones" class="hover:text-indigo-400 transition hover:underline">TÃƒÂ©rminos y condiciones</a>
                 <span class="text-gray-600">|</span>
-                <a href="politica-privacidad" class="hover:text-indigo-400 transition hover:underline">PolÃ­tica de privacidad</a>
+                <a href="politica-privacidad" class="hover:text-indigo-400 transition hover:underline">PolÃƒÂ­tica de privacidad</a>
                 <span class="text-gray-600">|</span>
                 <a href="aviso-legal-peliprex" class="hover:text-indigo-400 transition hover:underline">Aviso legal peliPREX</a>
                 <span class="text-gray-600">|</span>
@@ -1199,8 +1096,8 @@ async function secureDownload(url, filename) {
                 <a href="disclaimer-apis" class="hover:text-indigo-400 transition hover:underline">Descargo de responsabilidad</a>
             </div>
             <p class="text-sm max-w-3xl mx-auto leading-relaxed">
-                Esta aplicaciÃ³n utiliza servicios de intermediaciÃ³n para facilitar el acceso a informaciÃ³n pÃºblica. 
-                <strong class="text-white">No somos los propietarios, custodios ni responsables directos de la informaciÃ³n o de las APIs de las entidades de origen.</strong>
+                Esta aplicaciÃƒÂ³n utiliza servicios de intermediaciÃƒÂ³n para facilitar el acceso a informaciÃƒÂ³n pÃƒÂºblica. 
+                <strong class="text-white">No somos los propietarios, custodios ni responsables directos de la informaciÃƒÂ³n o de las APIs de las entidades de origen.</strong>
             </p>
         </div>
     </footer>
@@ -1209,19 +1106,19 @@ async function secureDownload(url, filename) {
 
   const error404Path = path.join(__dirname, 'public', 'error-404.html');
   fs.writeFileSync(error404Path, error404HTML);
-  logger.info('ERROR_404', 'Nueva pÃ¡gina de error 404 creada exitosamente', { path: error404Path });
+  logger.info('ERROR_404', 'Nueva pÃƒÂ¡gina de error 404 creada exitosamente', { path: error404Path });
 };
 
-// Crear la pÃ¡gina de error 404 al iniciar
+// Crear la pÃƒÂ¡gina de error 404 al iniciar
 createNewError404Page();
 
-// Middleware para detectar pÃ¡ginas inexistentes y redirigir a error-404
+// Middleware para detectar pÃƒÂ¡ginas inexistentes y redirigir a error-404
 app.use((req, res, next) => {
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
   const isApiRoute = req.path.startsWith('/api/');
 
   if (!isStaticFile && !isApiRoute && req.path !== '/') {
-    // Excluir las rutas problemÃ¡ticas que ya manejamos
+    // Excluir las rutas problemÃƒÂ¡ticas que ya manejamos
     if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
       return next();
     }
@@ -1233,17 +1130,17 @@ app.use((req, res, next) => {
       fs.existsSync(requestedHtmlPath);
 
     if (!fileExists) {
-      logger.warn('404_REDIRECT', 'PÃ¡gina no encontrada, redirigiendo a error-404', {
+      logger.warn('404_REDIRECT', 'PÃƒÂ¡gina no encontrada, redirigiendo a error-404', {
         path: req.path,
         originalUrl: req.originalUrl
       });
 
-      // Servir directamente la nueva pÃ¡gina de error 404 personalizada
+      // Servir directamente la nueva pÃƒÂ¡gina de error 404 personalizada
       const error404Path = path.join(__dirname, 'public', 'error-404.html');
       if (fs.existsSync(error404Path)) {
         return res.status(404).sendFile(error404Path);
       } else {
-        // Si por alguna razÃ³n no existe, crear nuevamente y servir
+        // Si por alguna razÃƒÂ³n no existe, crear nuevamente y servir
         createNewError404Page();
         return res.status(404).sendFile(error404Path);
       }
@@ -1253,14 +1150,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Aplicar middleware de autenticaciÃ³n DESPUÃ‰S de servir archivos estÃ¡ticos
+// Aplicar middleware de autenticaciÃƒÂ³n DESPUÃƒâ€°S de servir archivos estÃƒÂ¡ticos
 app.use(verifyFirebaseAuth);
 
 // ================================================================
-// ðŸ“¡ API ENDPOINTS
+// Ã°Å¸â€œÂ¡ API ENDPOINTS
 // ================================================================
 
-// Endpoint de anÃ¡lisis con Gemini
+// Endpoint de anÃƒÂ¡lisis con Gemini
 app.post("/api/analyze", async (req, res) => {
   const { movieTitle, movieDescription } = req.body;
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -1270,12 +1167,12 @@ app.post("/api/analyze", async (req, res) => {
     return res.status(500).json({ error: "GEMINI_API_KEY no configurada en el servidor" });
   }
 
-  const prompt = `ActÃºa como un crÃ­tico de cine experto y redacta un anÃ¡lisis completo y objetivo para la pelÃ­cula "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El anÃ¡lisis debe ser excelente, ordenado y adecuado para una aplicaciÃ³n mÃ³vil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
-  1. Un pÃ¡rrafo introductorio.
-  2. Un subtÃ­tulo: "Trama y Desarrollo".
-  3. Un subtÃ­tulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuaciÃ³n, direcciÃ³n, fotografÃ­a, etc.).
-  4. Un subtÃ­tulo: "Veredicto Final" con un pÃ¡rrafo de conclusiÃ³n.
-  AsegÃºrate de que todo el texto generado fluya de manera natural y estÃ© formateado con subtÃ­tulos y listas.`;
+  const prompt = `ActÃƒÂºa como un crÃƒÂ­tico de cine experto y redacta un anÃƒÂ¡lisis completo y objetivo para la pelÃƒÂ­cula "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El anÃƒÂ¡lisis debe ser excelente, ordenado y adecuado para una aplicaciÃƒÂ³n mÃƒÂ³vil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
+  1. Un pÃƒÂ¡rrafo introductorio.
+  2. Un subtÃƒÂ­tulo: "Trama y Desarrollo".
+  3. Un subtÃƒÂ­tulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuaciÃƒÂ³n, direcciÃƒÂ³n, fotografÃƒÂ­a, etc.).
+  4. Un subtÃƒÂ­tulo: "Veredicto Final" con un pÃƒÂ¡rrafo de conclusiÃƒÂ³n.
+  AsegÃƒÂºrate de que todo el texto generado fluya de manera natural y estÃƒÂ© formateado con subtÃƒÂ­tulos y listas.`;
 
   try {
     const response = await axios.post(
@@ -1295,13 +1192,13 @@ app.post("/api/analyze", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     logger.error('GEMINI_API', 'Error al llamar a Gemini API', error);
-    res.status(500).json({ error: "Error al procesar el anÃ¡lisis con Gemini" });
+    res.status(500).json({ error: "Error al procesar el anÃƒÂ¡lisis con Gemini" });
   }
 });
 
-// Endpoint de configuraciÃ³n
+// Endpoint de configuraciÃƒÂ³n
 app.get("/api/config", (req, res) => {
-  logger.info('API_CONFIG', 'Solicitud de configuraciÃ³n recibida');
+  logger.info('API_CONFIG', 'Solicitud de configuraciÃƒÂ³n recibida');
 
   const firebaseClientConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -1323,7 +1220,7 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// Endpoint de validaciÃ³n de reCAPTCHA
+// Endpoint de validaciÃƒÂ³n de reCAPTCHA
 app.post("/api/validate-recaptcha", async (req, res) => {
   const context = 'RECAPTCHA_API';
 
@@ -1348,7 +1245,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'Error en validaciÃ³n reCAPTCHA', error);
+    logger.error(context, 'Error en validaciÃƒÂ³n reCAPTCHA', error);
 
     res.status(400).json({
       success: false,
@@ -1358,7 +1255,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
   }
 });
 
-// âœ… MODIFICADO: Endpoint de login - Ahora maneja el parÃ¡metro returnTo
+// Ã¢Å“â€¦ MODIFICADO: Endpoint de login - Ahora maneja el parÃƒÂ¡metro returnTo
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
 
@@ -1384,7 +1281,7 @@ app.post("/api/login", async (req, res) => {
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email, returnTo });
 
     // ================================================================
-    // ðŸ” SEGURIDAD DE SESIÃ“N POR DISPOSITIVO
+    // Ã°Å¸â€Â SEGURIDAD DE SESIÃƒâ€œN POR DISPOSITIVO
     // ================================================================
 
     if (db) {
@@ -1402,8 +1299,16 @@ app.post("/api/login", async (req, res) => {
         const userData = userDoc.data() || {};
 
         if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
-          // âœ… INTEGRADO: Alerta de inicio de sesiÃ³n desde nuevo dispositivo
-          await alertaLogin(userData.email || email, userData.name || email.split('@')[0]);
+          await resend.emails.send({
+            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            to: userData.email || email,
+            subject: 'Ã¢Å¡ Ã¯Â¸Â ALERTA: Acceso desde un nuevo dispositivo',
+            template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
+            params: {
+              ip: currentIp,
+              timestamp: new Date().toISOString()
+            }
+          });
         }
 
         await userRef.set({
@@ -1414,7 +1319,7 @@ app.post("/api/login", async (req, res) => {
       }
     }
 
-    // âœ… MEJORA: Usar returnTo si estÃ¡ presente, de lo contrario ir a actividad
+    // Ã¢Å“â€¦ MEJORA: Usar returnTo si estÃƒÂ¡ presente, de lo contrario ir a actividad
     const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
 
     logger.info(context, 'Login exitoso, redirigiendo', { email, redirectPath });
@@ -1437,9 +1342,8 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// âœ… MODIFICADO: Endpoint de registro - Ahora maneja el parÃ¡metro returnTo
+// Ã¢Å“â€¦ MODIFICADO: Endpoint de registro - Ahora maneja el parÃƒÂ¡metro returnTo
 app.post("/api/register", async (req, res) => {
-  console.log('[REGISTER] endpoint /api/register ejecutado (Legacy/Backend-only)');
   const context = 'REGISTER_API';
 
   try {
@@ -1464,7 +1368,7 @@ app.post("/api/register", async (req, res) => {
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name, returnTo });
 
     // ================================================================
-    // ðŸ§± ANTI-MULTICUENTA POR deviceId
+    // Ã°Å¸Â§Â± ANTI-MULTICUENTA POR deviceId
     // ================================================================
 
     if (db) {
@@ -1479,8 +1383,18 @@ app.post("/api/register", async (req, res) => {
         const requestedEmail = email.toLowerCase();
 
         if (existingEmail && existingEmail !== requestedEmail) {
-          // âœ… INTEGRADO: Alerta de socio duplicado
-          await socioDuplicado(email);
+          const currentIp = getClientIp(req);
+
+          await resend.emails.send({
+            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            to: email,
+            subject: 'Registro rechazado',
+            template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763',
+            params: {
+              ip: currentIp,
+              timestamp: new Date().toISOString()
+            }
+          });
 
           return res.status(409).json({
             success: false,
@@ -1491,16 +1405,22 @@ app.post("/api/register", async (req, res) => {
     }
 
     // ================================================================
-    // âœ‰ï¸ EMAIL DE BIENVENIDA
+    // Ã¢Å“â€°Ã¯Â¸Â EMAIL DE BIENVENIDA
     // ================================================================
 
-    // âœ… INTEGRADO: Correo de bienvenida
-    console.log('[EMAIL] Llamando a enviarBienvenida para:', email);
-    await enviarBienvenida(email, name);
-    console.log('[EMAIL] Finalizada llamada a enviarBienvenida');
+    await resend.emails.send({
+      from: 'Masitaprex <no-reply@masitaprex.com>',
+      to: email,
+      subject: 'Ã‚Â¡Bienvenido!',
+      template_id: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
+      params: {
+        ip: getClientIp(req),
+        timestamp: new Date().toISOString()
+      }
+    });
 
-    // âœ… MEJORA: Guardar returnTo en localStorage del cliente para usarlo despuÃ©s de verificaciÃ³n
-    // El cliente debe manejar esto, aquÃ­ solo lo pasamos de vuelta
+    // Ã¢Å“â€¦ MEJORA: Guardar returnTo en localStorage del cliente para usarlo despuÃƒÂ©s de verificaciÃƒÂ³n
+    // El cliente debe manejar esto, aquÃƒÂ­ solo lo pasamos de vuelta
     const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
 
     logger.info(context, 'Registro exitoso, redirigiendo a verify con returnTo', { email, redirectPath });
@@ -1560,7 +1480,7 @@ app.post("/api/pay", async (req, res) => {
       body: {
         transaction_amount: Number(amount),
         token,
-        description: description || 'CrÃ©ditos Consulta PE',
+        description: description || 'CrÃƒÂ©ditos Consulta PE',
         installments: Number(installments) || 1,
         payment_method_id,
         issuer_id: issuer_id ? Number(issuer_id) : undefined,
@@ -1594,7 +1514,7 @@ app.post("/api/pay", async (req, res) => {
     });
 
     if (result.status === 'approved') {
-      logger.info(context, 'ðŸ’³ Pago aprobado instantÃ¡neamente, otorgando beneficios', {
+      logger.info(context, 'Ã°Å¸â€™Â³ Pago aprobado instantÃƒÂ¡neamente, otorgando beneficios', {
         paymentId: result.id,
         uid
       });
@@ -1625,7 +1545,7 @@ app.post("/api/pay", async (req, res) => {
       }
       result.tipoPlanNuevo = beneficioResult.tipoPlanNuevo;
     } else {
-      logger.info(context, 'â³ Pago no aprobado instantÃ¡neamente, esperando webhook', {
+      logger.info(context, 'Ã¢ÂÂ³ Pago no aprobado instantÃƒÂ¡neamente, esperando webhook', {
         paymentId: result.id,
         status: result.status,
         statusDetail: result.status_detail
@@ -1649,7 +1569,7 @@ app.post("/api/pay", async (req, res) => {
       errorMessage = errorDetails.message || errorMessage;
 
       if (errorDetails.cause) {
-        logger.error(context, 'Error especÃ­fico de Mercado Pago', null, {
+        logger.error(context, 'Error especÃƒÂ­fico de Mercado Pago', null, {
           cause: errorDetails.cause,
           code: errorDetails.error,
           status: errorDetails.status
@@ -1670,7 +1590,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   const context = 'WEBHOOK_MP';
   const webhookData = req.body;
 
-  logger.info(context, 'ðŸ“© Webhook recibido', {
+  logger.info(context, 'Ã°Å¸â€œÂ© Webhook recibido', {
     action: webhookData.action,
     type: webhookData.type,
     id: webhookData.data?.id,
@@ -1695,12 +1615,12 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         return;
       }
 
-      logger.info(context, 'ðŸ” Consultando informaciÃ³n del pago', { paymentId });
+      logger.info(context, 'Ã°Å¸â€Â Consultando informaciÃƒÂ³n del pago', { paymentId });
 
       const payment = new Payment(mpClient);
       const paymentInfo = await payment.get({ id: paymentId });
 
-      logger.info(context, 'ðŸ“„ InformaciÃ³n del pago obtenida', {
+      logger.info(context, 'Ã°Å¸â€œâ€ž InformaciÃƒÂ³n del pago obtenida', {
         paymentId,
         status: paymentInfo.status,
         statusDetail: paymentInfo.status_detail
@@ -1713,7 +1633,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         const amount = metadata.amount || paymentInfo.transaction_amount;
 
         if (uid) {
-          logger.info(context, 'âœ… Procesando pago aprobado via webhook', {
+          logger.info(context, 'Ã¢Å“â€¦ Procesando pago aprobado via webhook', {
             paymentId, uid, email, amount
           });
 
@@ -1725,7 +1645,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             paymentId.toString()
           );
 
-          logger.info(context, 'ðŸ“Š Resultado del webhook', {
+          logger.info(context, 'Ã°Å¸â€œÅ  Resultado del webhook', {
             paymentId,
             uid,
             beneficioStatus: beneficioResult.status,
@@ -1735,40 +1655,40 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
           });
 
         } else {
-          logger.error(context, 'âŒ UID no encontrado en metadatos del pago', null, {
+          logger.error(context, 'Ã¢ÂÅ’ UID no encontrado en metadatos del pago', null, {
             paymentId,
             metadata,
             payer: paymentInfo.payer
           });
         }
       } else {
-        logger.info(context, 'â¸ï¸ Pago no estÃ¡ aprobado, ignorando', {
+        logger.info(context, 'Ã¢ÂÂ¸Ã¯Â¸Â Pago no estÃƒÂ¡ aprobado, ignorando', {
           paymentId,
           status: paymentInfo.status
         });
       }
 
     } catch (error) {
-      logger.error(context, 'âŒ Error procesando webhook', error, {
+      logger.error(context, 'Ã¢ÂÅ’ Error procesando webhook', error, {
         paymentId: webhookData.data?.id,
         action: webhookData.action
       });
     }
   } else {
-    logger.info(context, 'â„¹ï¸ Evento no relevante ignorado', {
+    logger.info(context, 'Ã¢â€žÂ¹Ã¯Â¸Â Evento no relevante ignorado', {
       action: webhookData.action,
       type: webhookData.type
     });
   }
 });
 
-// Endpoint para obtener informaciÃ³n del pago
+// Endpoint para obtener informaciÃƒÂ³n del pago
 app.get("/api/payment/:paymentId", async (req, res) => {
   const context = 'GET_PAYMENT_INFO';
   const { paymentId } = req.params;
 
   try {
-    logger.info(context, 'Obteniendo informaciÃ³n del pago', { paymentId });
+    logger.info(context, 'Obteniendo informaciÃƒÂ³n del pago', { paymentId });
 
     if (!db) {
       return res.status(503).json({ error: 'Database not available' });
@@ -1801,7 +1721,7 @@ app.get("/api/payment/:paymentId", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'Error obteniendo informaciÃ³n del pago', error, { paymentId });
+    logger.error(context, 'Error obteniendo informaciÃƒÂ³n del pago', error, { paymentId });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -1826,7 +1746,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       return res.status(400).json({ error: 'Payment ID es requerido' });
     }
 
-    logger.info(context, 'Solicitud para generar boleta electrÃ³nica', { paymentId });
+    logger.info(context, 'Solicitud para generar boleta electrÃƒÂ³nica', { paymentId });
 
     let existingPdfUrl = null;
     let responseSent = false;
@@ -1839,7 +1759,7 @@ app.post("/api/generate-invoice", async (req, res) => {
 
           if (pagoData.pdfUrl) {
             existingPdfUrl = pagoData.pdfUrl;
-            logger.info(context, 'âœ… PDF ya existe en datos del pago', {
+            logger.info(context, 'Ã¢Å“â€¦ PDF ya existe en datos del pago', {
               paymentId,
               pdfUrl: existingPdfUrl,
               storagePath: pagoData.storagePath || 'N/A'
@@ -1870,7 +1790,7 @@ app.post("/api/generate-invoice", async (req, res) => {
     const storageCheck = await checkFileExistsInStorage(fileName);
 
     if (storageCheck.exists && storageCheck.url) {
-      logger.info(context, 'âœ… PDF ya existe en Storage', {
+      logger.info(context, 'Ã¢Å“â€¦ PDF ya existe en Storage', {
         paymentId,
         url: storageCheck.url
       });
@@ -1896,7 +1816,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       return;
     }
 
-    logger.info(context, 'ðŸ“„ Generando nuevo comprobante', { paymentId });
+    logger.info(context, 'Ã°Å¸â€œâ€ž Generando nuevo comprobante', { paymentId });
 
     const invoiceData = {
       orderId: String(paymentId),
@@ -1904,7 +1824,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       email: email || 'cliente@example.com',
       amount: amount || 10,
       credits: credits || 60,
-      description: description || 'CrÃ©ditos Consulta PE',
+      description: description || 'CrÃƒÂ©ditos Consulta PE',
       clientName: clientName || '',
       type: 'boleta'
     };
@@ -1925,7 +1845,7 @@ app.post("/api/generate-invoice", async (req, res) => {
         }, { merge: true });
       }
 
-      logger.info(context, 'âœ… PDF generado y almacenado en Storage', {
+      logger.info(context, 'Ã¢Å“â€¦ PDF generado y almacenado en Storage', {
         paymentId,
         storageUrl,
         localPath: pdfPath
@@ -1956,7 +1876,7 @@ app.post("/api/generate-invoice", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'âŒ Error generando comprobante', error, req.body);
+    logger.error(context, 'Ã¢ÂÅ’ Error generando comprobante', error, req.body);
     res.status(500).json({
       success: false,
       error: 'Error generando comprobante',
@@ -1966,9 +1886,9 @@ app.post("/api/generate-invoice", async (req, res) => {
   }
 });
 
-// Endpoint para opciones de facturaciÃ³n
+// Endpoint para opciones de facturaciÃƒÂ³n
 app.get("/api/invoice-options", (req, res) => {
-  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturaciÃ³n');
+  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturaciÃƒÂ³n');
   res.json({
     options: [
       { value: 'boleta', label: 'Boleta de Venta', description: 'Para personas naturales' },
@@ -2029,18 +1949,18 @@ app.get("/api/health", async (req, res) => {
 // Debug Firebase
 app.get("/api/debug/firebase", (req, res) => {
   const firebaseVars = {
-    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? 'âœ”' : 'âœ—',
-    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? 'âœ”' : 'âœ—',
-    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? 'âœ”' : 'âœ—',
-    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? 'âœ” (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : 'âœ—',
-    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? 'âœ”' : 'âœ—',
-    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? 'âœ”' : 'âœ—',
-    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? 'âœ”' : 'âœ—',
-    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? 'âœ”' : 'âœ—'
+    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? 'Ã¢Å“â€' : 'Ã¢Å“â€”',
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? 'Ã¢Å“â€' : 'Ã¢Å“â€”',
+    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? 'Ã¢Å“â€' : 'Ã¢Å“â€”',
+    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? 'Ã¢Å“â€ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : 'Ã¢Å“â€”',
+    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? 'Ã¢Å“â€' : 'Ã¢Å“â€”',
+    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? 'Ã¢Å“â€' : 'Ã¢Å“â€”',
+    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? 'Ã¢Å“â€' : 'Ã¢Å“â€”',
+    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? 'Ã¢Å“â€' : 'Ã¢Å“â€”'
   };
 
   const missingVars = Object.entries(firebaseVars)
-    .filter(([key, value]) => value === 'âœ—')
+    .filter(([key, value]) => value === 'Ã¢Å“â€”')
     .map(([key]) => key);
 
   res.json({
@@ -2064,7 +1984,7 @@ app.post("/api/admin/clear-cache", (req, res) => {
     processedPaymentsCache.clear();
     paymentLocks.clear();
 
-    logger.info(context, 'ðŸ§¹ Cache limpiado manualmente', {
+    logger.info(context, 'Ã°Å¸Â§Â¹ Cache limpiado manualmente', {
       paymentsRemoved: cacheSize,
       locksRemoved: locksSize
     });
@@ -2082,12 +2002,12 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================================
-// ðŸ  RUTAS PRINCIPALES
+// Ã°Å¸Â  RUTAS PRINCIPALES
 // ================================================================
 
-// PÃ¡gina principal: Servir home.html
+// PÃƒÂ¡gina principal: Servir home.html
 app.get("/", (req, res) => {
-  logger.info('ROOT_HOME', 'Sirviendo home.html como pÃ¡gina principal');
+  logger.info('ROOT_HOME', 'Sirviendo home.html como pÃƒÂ¡gina principal');
   const homePath = path.join(__dirname, 'public', 'home.html');
   if (fs.existsSync(homePath)) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -2097,22 +2017,22 @@ app.get("/", (req, res) => {
   }
 });
 
-// Ruta de informaciÃ³n de la API
+// Ruta de informaciÃƒÂ³n de la API
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.2.0 - RedirecciÃ³n AutomÃ¡tica despuÃ©s del Login/Registro",
+    version: "3.2.0 - RedirecciÃƒÂ³n AutomÃƒÂ¡tica despuÃƒÂ©s del Login/Registro",
     features: {
-      cleanUrls: "âœ… URLs sin .html",
-      custom404: "âœ… PÃ¡gina error-404 personalizada",
-      authMiddleware: "âœ… Control de acceso con Firebase",
-      autoRedirect: "âœ… RedirecciÃ³n automÃ¡tica a login",
-      returnTo: "âœ… RedirecciÃ³n despuÃ©s del login/registro a pÃ¡gina original",
-      returnAfterVerify: "âœ… RedirecciÃ³n despuÃ©s de verificar correo",
-      publicRoutes: "âœ… Rutas pÃºblicas configurables",
-      protectedRoutes: "âœ… Rutas protegidas configurables",
-      routeMapping: "âœ… Mapeo lÃ³gico de rutas implementado",
-      easyToExpand: "âœ… FÃ¡cil de agregar nuevas pÃ¡ginas"
+      cleanUrls: "Ã¢Å“â€¦ URLs sin .html",
+      custom404: "Ã¢Å“â€¦ PÃƒÂ¡gina error-404 personalizada",
+      authMiddleware: "Ã¢Å“â€¦ Control de acceso con Firebase",
+      autoRedirect: "Ã¢Å“â€¦ RedirecciÃƒÂ³n automÃƒÂ¡tica a login",
+      returnTo: "Ã¢Å“â€¦ RedirecciÃƒÂ³n despuÃƒÂ©s del login/registro a pÃƒÂ¡gina original",
+      returnAfterVerify: "Ã¢Å“â€¦ RedirecciÃƒÂ³n despuÃƒÂ©s de verificar correo",
+      publicRoutes: "Ã¢Å“â€¦ Rutas pÃƒÂºblicas configurables",
+      protectedRoutes: "Ã¢Å“â€¦ Rutas protegidas configurables",
+      routeMapping: "Ã¢Å“â€¦ Mapeo lÃƒÂ³gico de rutas implementado",
+      easyToExpand: "Ã¢Å“â€¦ FÃƒÂ¡cil de agregar nuevas pÃƒÂ¡ginas"
     },
     routes: {
       public: PUBLIC_ROUTES,
@@ -2136,7 +2056,7 @@ app.get("/api", (req, res) => {
 });
 
 // ================================================================
-// âš ï¸ MANEJO DE ERRORES GLOBAL
+// Ã¢Å¡ Ã¯Â¸Â MANEJO DE ERRORES GLOBAL
 // ================================================================
 
 app.use((err, req, res, next) => {
@@ -2150,18 +2070,6 @@ app.use((err, req, res, next) => {
     message: process.env.NODE_ENV === 'development' ? err.message : 'Contacte al soporte',
     requestId: Date.now().toString(36)
   });
-});
-
-// Endpoint para enviar email de verificación vía Resend
-app.post('/api/send-verification-email', (req, res) => {
-  console.log('[REGISTER] endpoint /api/send-verification-email ejecutado');
-  const { email, name } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email requerido' });
-  
-  // Llamada no bloqueante
-  enviarEmailVerificacion(email, name || 'Usuario').catch(console.error);
-  
-  res.json({ success: true, message: 'Proceso de envío iniciado' });
 });
 
 // Catch-all final para rutas no encontradas
@@ -2180,7 +2088,7 @@ app.get("*", (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>404 - PÃ¡gina no encontrada</title>
+        <title>404 - PÃƒÂ¡gina no encontrada</title>
         <style>
           body { 
             font-family: Arial, sans-serif; 
@@ -2205,8 +2113,8 @@ app.get("*", (req, res) => {
       </head>
       <body>
         <h1>404</h1>
-        <p>PÃ¡gina no encontrada</p>
-        <p>Lo sentimos, la pÃ¡gina que buscas no existe.</p>
+        <p>PÃƒÂ¡gina no encontrada</p>
+        <p>Lo sentimos, la pÃƒÂ¡gina que buscas no existe.</p>
         <a href="/">Volver al inicio</a>
       </body>
       </html>
@@ -2215,12 +2123,12 @@ app.get("*", (req, res) => {
 });
 
 // ================================================================
-// ðŸš€ INICIO DEL SERVIDOR
+// Ã°Å¸Å¡â‚¬ INICIO DEL SERVIDOR
 // ================================================================
 
 const PORT = process.env.PORT || 80;
 app.listen(PORT, "0.0.0.0", () => {
-  logger.info('SERVER', `ðŸš€ Servidor iniciado en puerto ${PORT}`, {
+  logger.info('SERVER', `Ã°Å¸Å¡â‚¬ Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
@@ -2234,11 +2142,11 @@ app.listen(PORT, "0.0.0.0", () => {
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo',
       cleanUrls: 'Activo',
-      routeMapping: 'âœ… Implementado',
-      autoRedirectToLogin: 'âœ… Activado',
-      returnAfterLogin: 'âœ… Implementado',
-      returnAfterRegister: 'âœ… Implementado con verify.html',
-      returnAfterVerify: 'âœ… Debe implementarse en frontend'
+      routeMapping: 'Ã¢Å“â€¦ Implementado',
+      autoRedirectToLogin: 'Ã¢Å“â€¦ Activado',
+      returnAfterLogin: 'Ã¢Å“â€¦ Implementado',
+      returnAfterRegister: 'Ã¢Å“â€¦ Implementado con verify.html',
+      returnAfterVerify: 'Ã¢Å“â€¦ Debe implementarse en frontend'
     },
     timestamp: new Date().toISOString()
   });
