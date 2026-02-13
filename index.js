@@ -24,25 +24,46 @@ app.use(express.json());
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// PRUEBA DIRECTA (Temporal para depuración)
+setTimeout(async () => {
+  try {
+    console.log('[TEST EMAIL] Ejecutando prueba inicial de Resend...');
+    if (!process.env.RESEND_API_KEY) {
+      console.error('[TEST EMAIL] ERROR: RESEND_API_KEY no definida en process.env');
+      return;
+    }
+    const result = await resend.emails.send({
+      from: 'Masitaprex <bienvenida@masitaprex.com>',
+      to: 'delivered@resend.dev', // Cambiar a correo real si es necesario para prueba externa
+      subject: 'Test de Arranque',
+      html: '<p>Si llega este log, Resend está configurado correctamente en el servidor.</p>'
+    });
+    console.log('[TEST EMAIL] Resultado:', result);
+  } catch (err) {
+    console.error('[TEST EMAIL ERROR]:', err);
+  }
+}, 5000);
+
 // ================================================================
 // âœ‰ï¸ FUNCIONES DE ENVÃO DE CORREO (RESEND)
 // ================================================================
 
 async function enviarBienvenida(email, nombre) {
+  console.log('[EMAIL] Ejecutando enviarBienvenida para:', email);
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.error('ERROR: RESEND_API_KEY no configurada');
+      console.error('[EMAIL ERROR] RESEND_API_KEY no configurada');
       return;
     }
     const result = await resend.emails.send({
-      from: 'Tu App <no-reply@tudominio.com>',
+      from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
       subject: 'Bienvenido',
       html: '<p>Bienvenido a la app</p>'
     });
-    console.log('[EMAIL] Bienvenida enviada', result);
+    console.log('[EMAIL] Bienvenida enviada OK:', result);
   } catch (error) {
-    console.error('[EMAIL_ERROR]', error);
+    console.error('[EMAIL ERROR] Falló el envío:', error);
   }
 }
 
@@ -1420,6 +1441,7 @@ app.post("/api/login", async (req, res) => {
 
 // âœ… MODIFICADO: Endpoint de registro - Ahora maneja el parÃ¡metro returnTo
 app.post("/api/register", async (req, res) => {
+  console.log('[REGISTER] endpoint /api/register ejecutado');
   const context = 'REGISTER_API';
 
   try {
@@ -1475,7 +1497,9 @@ app.post("/api/register", async (req, res) => {
     // ================================================================
 
     // âœ… INTEGRADO: Correo de bienvenida
+    console.log('[EMAIL] Llamando a enviarBienvenida para:', email);
     await enviarBienvenida(email, name);
+    console.log('[EMAIL] Finalizada llamada a enviarBienvenida');
 
     // âœ… MEJORA: Guardar returnTo en localStorage del cliente para usarlo despuÃ©s de verificaciÃ³n
     // El cliente debe manejar esto, aquÃ­ solo lo pasamos de vuelta
