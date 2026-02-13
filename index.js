@@ -64,7 +64,9 @@ const PUBLIC_ROUTES = [
   '/disclaimer-apis',
   '/disclaimer-apis.html',
   '/API-Docs',
-  '/API-Docs.html'
+  '/API-Docs.html',
+  '/verify',
+  '/verify.html'
 ];
 
 /**
@@ -78,14 +80,12 @@ const PROTECTED_ROUTES = [
   '/historial.html',
   '/planes',
   '/planes.html',
-  '/verify',
-  '/verify.html',
   '/PeliPREX',
   '/PeliPREX.html',
-  '/peliculas',  // ✅ AGREGADO
+  '/peliculas',
   '/actividad',
   '/actividad.html',
-  '/user/activity',  // ✅ AGREGADO
+  '/user/activity',
   '/api-key',
   '/api-key.html',
   '/checkout',
@@ -323,7 +323,7 @@ const paymentLocks = new Map();
 /**
  * Middleware para verificar autenticación Firebase
  * Protege rutas y redirige a login si no está autenticado
- * Guarda la URL original para redirigir después del login
+ * ✅ MEJORADO: Guarda la URL original para redirigir después del login
  */
 async function verifyFirebaseAuth(req, res, next) {
   const context = 'AUTH_MIDDLEWARE';
@@ -369,7 +369,7 @@ async function verifyFirebaseAuth(req, res, next) {
         originalUrl: req.originalUrl
       });
 
-      // Redirigir a login con parámetro returnTo para volver después del login
+      // ✅ MEJORA: Redirigir a login con parámetro returnTo para volver después del login
       const returnTo = encodeURIComponent(req.originalUrl);
       return res.redirect(`/login?returnTo=${returnTo}`);
     }
@@ -391,7 +391,7 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path
     });
 
-    // Redirigir a login con parámetro returnTo para volver después del login
+    // ✅ MEJORA: Redirigir a login con parámetro returnTo para volver después del login
     const returnTo = encodeURIComponent(req.originalUrl);
     return res.redirect(`/login?returnTo=${returnTo}`);
   }
@@ -1255,7 +1255,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
   }
 });
 
-// Endpoint de login - Ahora maneja el parámetro returnTo
+// ✅ MODIFICADO: Endpoint de login - Ahora maneja el parámetro returnTo
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
 
@@ -1278,17 +1278,16 @@ app.post("/api/login", async (req, res) => {
 
     await validateRecaptcha(recaptchaResponse);
 
-    logger.info(context, 'Login iniciado con reCAPTCHA validado', { email });
+    logger.info(context, 'Login iniciado con reCAPTCHA validado', { email, returnTo });
 
     // ================================================================
-    // 🔐 SEGURIDAD DE SESIÓN POR DISPOSITIVO (NUEVO)
+    // 🔐 SEGURIDAD DE SESIÓN POR DISPOSITIVO
     // ================================================================
 
     if (db) {
       const currentDeviceId = deviceId;
       const currentIp = getClientIp(req);
 
-      // Obtener usuario desde Firestore por email (sin alterar tu flujo actual)
       const userSnap = await db.collection("usuarios")
         .where("email", "==", email)
         .limit(1)
@@ -1300,7 +1299,6 @@ app.post("/api/login", async (req, res) => {
         const userData = userDoc.data() || {};
 
         if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
-          // Enviar alerta de inicio desde nuevo dispositivo
           await resend.emails.send({
             from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
             to: userData.email || email,
@@ -1313,7 +1311,6 @@ app.post("/api/login", async (req, res) => {
           });
         }
 
-        // Actualizar rastro
         await userRef.set({
           lastDeviceId: currentDeviceId,
           lastIp: currentIp,
@@ -1322,8 +1319,10 @@ app.post("/api/login", async (req, res) => {
       }
     }
 
-    // Usar returnTo si está presente, de lo contrario ir a actividad
-    const redirectPath = returnTo && returnTo !== 'undefined' ? returnTo : '/actividad';
+    // ✅ MEJORA: Usar returnTo si está presente, de lo contrario ir a actividad
+    const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
+
+    logger.info(context, 'Login exitoso, redirigiendo', { email, redirectPath });
 
     res.json({
       success: true,
@@ -1343,7 +1342,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Endpoint de registro - Ahora maneja el parámetro returnTo
+// ✅ MODIFICADO: Endpoint de registro - Ahora maneja el parámetro returnTo
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
 
@@ -1366,8 +1365,10 @@ app.post("/api/register", async (req, res) => {
 
     await validateRecaptcha(recaptchaResponse);
 
+    logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name, returnTo });
+
     // ================================================================
-    // 🧱 ANTI-MULTICUENTA POR deviceId (NUEVO)
+    // 🧱 ANTI-MULTICUENTA POR deviceId
     // ================================================================
 
     if (db) {
@@ -1384,7 +1385,6 @@ app.post("/api/register", async (req, res) => {
         if (existingEmail && existingEmail !== requestedEmail) {
           const currentIp = getClientIp(req);
 
-          // Enviar rechazo (sin crear cuenta)
           await resend.emails.send({
             from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
             to: email,
@@ -1404,10 +1404,8 @@ app.post("/api/register", async (req, res) => {
       }
     }
 
-    logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name });
-
     // ================================================================
-    // ✉️ EMAIL DE BIENVENIDA (NUEVO)
+    // ✉️ EMAIL DE BIENVENIDA
     // ================================================================
 
     await resend.emails.send({
@@ -1421,13 +1419,16 @@ app.post("/api/register", async (req, res) => {
       }
     });
 
-    // Usar returnTo si está presente, de lo contrario ir a actividad
-    const redirectPath = returnTo && returnTo !== 'undefined' ? returnTo : '/actividad';
+    // ✅ MEJORA: Guardar returnTo en localStorage del cliente para usarlo después de verificación
+    // El cliente debe manejar esto, aquí solo lo pasamos de vuelta
+    const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
+
+    logger.info(context, 'Registro exitoso, redirigiendo a verify con returnTo', { email, redirectPath });
 
     res.json({
       success: true,
       message: 'Registration successful (reCAPTCHA validated)',
-      redirectTo: redirectPath,
+      redirectTo: `/verify?returnTo=${encodeURIComponent(redirectPath)}`,
       timestamp: new Date().toISOString()
     });
 
@@ -2020,15 +2021,16 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.1.0 - Rutas Problemáticas Solucionadas",
+    version: "3.2.0 - Redirección Automática después del Login/Registro",
     features: {
       cleanUrls: "✅ URLs sin .html",
       custom404: "✅ Página error-404 personalizada",
       authMiddleware: "✅ Control de acceso con Firebase",
       autoRedirect: "✅ Redirección automática a login",
-      returnTo: "✅ Redirección después del login a página original",
+      returnTo: "✅ Redirección después del login/registro a página original",
+      returnAfterVerify: "✅ Redirección después de verificar correo",
       publicRoutes: "✅ Rutas públicas configurables",
-      protectedRoutes: "✅ Rutas protegidas configurables (/user/activity, /peliculas agregadas)",
+      protectedRoutes: "✅ Rutas protegidas configurables",
       routeMapping: "✅ Mapeo lógico de rutas implementado",
       easyToExpand: "✅ Fácil de agregar nuevas páginas"
     },
@@ -2132,7 +2134,7 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.1.0',
+    version: '3.2.0',
     features: {
       authMiddleware: 'Activo',
       publicRoutes: PUBLIC_ROUTES.length,
@@ -2141,10 +2143,10 @@ app.listen(PORT, "0.0.0.0", () => {
       custom404: 'Activo',
       cleanUrls: 'Activo',
       routeMapping: '✅ Implementado',
-      specialRoutesFixed: '✅ Solución definitiva aplicada',
       autoRedirectToLogin: '✅ Activado',
       returnAfterLogin: '✅ Implementado',
-      problemRoutesSolved: '✅ /user/activity y /peliculas funcionando'
+      returnAfterRegister: '✅ Implementado con verify.html',
+      returnAfterVerify: '✅ Debe implementarse en frontend'
     },
     timestamp: new Date().toISOString()
   });
