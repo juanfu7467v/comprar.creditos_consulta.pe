@@ -592,23 +592,18 @@
         return urlParams.get(name);
     }
 
-    // ================================================================
-    // 🎯 FUNCIÓN MODIFICADA: Redirige a la página original (returnTo)
-    // ================================================================
+    // ✅ MODIFICADO: Función de redirección usando returnTo
     function redirectAfterAuth(user) {
         if (user && !user.emailVerified) {
             window.location.href = "verificacion.html";
             return;
         }
 
-        // Obtener la URL de retorno de los parámetros de la URL
         const returnTo = getUrlParameter('returnTo');
-        
-        // Si existe un returnTo válido, redirigir a esa página
         if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
             try {
                 const decodedUrl = decodeURIComponent(returnTo);
-                // Validar que sea una URL relativa (seguridad)
+                // Validar que sea una URL relativa (empieza con / y no tiene doble slash)
                 if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
                     window.location.href = decodedUrl;
                     return;
@@ -618,7 +613,7 @@
             }
         }
         
-        // Fallback: Ir a la página de actividad
+        // Fallback a actividad si no hay returnTo válido
         window.location.href = "actividad";
     }
 
@@ -958,6 +953,7 @@
           if (!userCredential.user.emailVerified) {
               window.location.href = "verificacion.html";
           } else {
+              // ✅ Usa la función de redirección que maneja returnTo
               redirectAfterAuth(userCredential.user);
           }
       } catch (error) {
