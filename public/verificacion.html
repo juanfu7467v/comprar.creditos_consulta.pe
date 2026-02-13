@@ -464,6 +464,54 @@
       }
     }
 
+    // --- EVENTO DEL BOTÓN CONFIRMAR TÉRMINOS (REGISTRO) ---
+    // Este es el código que me proporcionaste para agregar
+    confirmTermsBtn.addEventListener('click', async () => {
+        try {
+            loadingIndicator.classList.remove('hidden');
+
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            console.log('[REGISTER] Iniciando registro');
+
+            // 🔥 REGISTRO FIREBASE
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Guardar datos
+            await setDoc(doc(db, "users", user.uid), {
+                name,
+                email,
+                createdAt: serverTimestamp()
+            });
+
+            console.log('[REGISTER] Usuario creado en Firebase');
+
+            // 🔥 LLAMAR BACKEND (EMAIL BIENVENIDA)
+            await fetch('https://masitaprex.com/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+
+            console.log('[REGISTER] API llamada correctamente');
+
+            await sendEmailVerification(user);
+
+            showMessage('Cuenta creada correctamente. Revisa tu correo 📩', 'success');
+
+            closeTermsModal();
+
+        } catch (error) {
+            console.error('[REGISTER ERROR]', error);
+            showMessage(getFriendlyErrorMessage(error), 'error');
+        } finally {
+            loadingIndicator.classList.add('hidden');
+        }
+    });
+
     // --- INICIALIZACIÓN PRINCIPAL ---
     async function initApp() {
       showLoading();
