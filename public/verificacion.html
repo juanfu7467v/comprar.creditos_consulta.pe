@@ -336,6 +336,7 @@
     let resendAttempts = 0;
     let autoResendExecuted = false;
     let verificationCheckInterval = null;
+    let welcomeEmailSent = false; // 🔥 NUEVO: Bandera para evitar duplicados
     
     // --- ELEMENTOS DEL DOM ---
     const resendBtn = document.getElementById('resend-btn');
@@ -400,6 +401,41 @@
       }, 1000);
     }
 
+    // 🔥 NUEVA FUNCIÓN: Notificar al backend para envío de bienvenida
+    async function notifyVerificationComplete(user) {
+      if (welcomeEmailSent) {
+        console.log('✅ Correo de bienvenida ya fue enviado previamente');
+        return;
+      }
+
+      try {
+        console.log('📧 Notificando al backend para envío de correo de bienvenida...');
+        
+        const response = await fetch('/api/notify-verification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName || user.email.split('@')[0]
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('✅ Correo de bienvenida enviado correctamente');
+          welcomeEmailSent = true;
+        } else {
+          console.warn('⚠️ No se pudo enviar el correo de bienvenida:', result.error);
+        }
+      } catch (error) {
+        console.error('❌ Error al notificar verificación al backend:', error);
+      }
+    }
+
     // --- LÓGICA DE FIREBASE ---
     async function checkEmailVerificationStatus() {
       if (!auth || !auth.currentUser) return;
@@ -409,6 +445,10 @@
         if (auth.currentUser.emailVerified) {
           clearInterval(verificationCheckInterval);
           showMessage('¡Correo verificado!');
+          
+          // 🔥 AQUÍ SE ACTIVA EL ENVÍO AUTOMÁTICO
+          await notifyVerificationComplete(auth.currentUser);
+          
           setTimeout(() => {
               redirectAfterVerification();
           }, 1500);
@@ -488,6 +528,8 @@
           // Revisar si ya está verificado antes de hacer nada
           await user.reload();
           if (user.emailVerified) {
+            // 🔥 Si ya estaba verificado al cargar, también enviar bienvenida
+            await notifyVerificationComplete(user);
             redirectAfterVerification();
             return;
           }
