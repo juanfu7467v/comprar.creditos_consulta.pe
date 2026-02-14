@@ -592,7 +592,7 @@
         return urlParams.get(name);
     }
 
-    // ✅ MODIFICADO: Función de redirección usando returnTo y sessionStorage
+    // ✅ Función de redirección usando returnTo y sessionStorage
     function redirectAfterAuth(user) {
         if (user && !user.emailVerified) {
             window.location.href = "verificacion.html";
@@ -620,7 +620,7 @@
         window.location.href = "actividad";
     }
 
-    // NUEVO: Función para convertir errores técnicos a mensajes amigables
+    // Función para convertir errores técnicos a mensajes amigables
     function getFriendlyErrorMessage(error) {
         const errorCode = error.code || '';
         const errorMessage = error.message || '';
@@ -649,21 +649,18 @@
             'auth/invalid-action-code': 'El código no es válido. Solicita uno nuevo.',
         };
 
-        // Buscar mensaje específico para el código de error
         if (errorMessages[errorCode]) {
             return errorMessages[errorCode];
         }
 
-        // Detectar mensajes genéricos de Firebase
         if (errorMessage.toLowerCase().includes('firebase')) {
             return 'Ocurrió un error inesperado. Por favor intenta nuevamente.';
         }
 
-        // Mensaje genérico para otros errores
         return 'Ha ocurrido un problema. Intenta nuevamente en unos momentos.';
     }
 
-    // NUEVO: Función para mostrar modal de mensajes
+    // Función para mostrar modal de mensajes
     function showMessageModal(message, type = 'info') {
         const icons = {
             'success': '✅',
@@ -677,13 +674,12 @@
         messageModal.classList.add('show');
         messageModalContent.classList.remove('closing');
 
-        // Auto-cerrar después de 3 segundos
         setTimeout(() => {
             closeMessageModal();
         }, 3000);
     }
 
-    // NUEVO: Función para cerrar el modal
+    // Función para cerrar el modal
     function closeMessageModal() {
         messageModalContent.classList.add('closing');
         setTimeout(() => {
@@ -692,7 +688,6 @@
         }, 300);
     }
 
-    // Permitir cerrar al hacer clic en el overlay
     messageModal.addEventListener('click', (e) => {
         if (e.target === messageModal) {
             closeMessageModal();
@@ -904,10 +899,10 @@
     initFirebase();
 
     // ================================================================
-    // ✅ CORREGIDO: Función async/await completa con logs y timeout
+    // ✅ SOLUCIÓN DEFINITIVA: keepalive: true + await + delays
     // ================================================================
     async function notifyBackendWelcomeEmail(user) {
-        console.log('[🔔 FRONTEND] Iniciando notificación de bienvenida al backend...', {
+        console.log('[🔔 NOTIFY] Iniciando notificación backend', {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName
@@ -915,12 +910,12 @@
 
         try {
             if (!user || !user.uid || !user.email) {
-                console.warn('[⚠️ FRONTEND] Datos de usuario incompletos, abortando notificación');
+                console.warn('[⚠️ NOTIFY] Datos incompletos');
                 return;
             }
 
-            // ✅ Crear promesa con timeout de 10 segundos
-            const fetchPromise = fetch('/api/notify-verification', {
+            // ✅ keepalive: true asegura que la petición NO se cancele al redirigir
+            const response = await fetch('/api/notify-verification', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -930,47 +925,29 @@
                     uid: user.uid,
                     email: user.email,
                     displayName: user.displayName || null
-                })
+                }),
+                keepalive: true  // ✅ CLAVE: Mantiene la petición viva después de redirect
             });
 
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Timeout después de 10 segundos')), 10000)
-            );
-
-            console.log('[📤 FRONTEND] Enviando solicitud POST a /api/notify-verification...');
-
-            // ✅ Esperar respuesta del backend con timeout
-            const response = await Promise.race([fetchPromise, timeoutPromise]);
-
-            console.log('[📥 FRONTEND] Respuesta recibida del backend:', {
+            console.log('[📥 NOTIFY] Respuesta recibida', {
                 status: response.status,
-                statusText: response.statusText,
                 ok: response.ok
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('[❌ FRONTEND] Error del backend:', errorData);
-                throw new Error(`Backend respondió con error: ${response.status}`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log('[✅ NOTIFY] Correo enviado exitosamente', data);
+            } else {
+                console.error('[❌ NOTIFY] Error del servidor:', response.status);
             }
 
-            const data = await response.json();
-            console.log('[✅ FRONTEND] Notificación procesada exitosamente por el backend:', data);
-
         } catch (err) {
-            // ✅ NO interrumpir el flujo de login si el correo falla
-            console.error('[❌ FRONTEND] Error al notificar bienvenida al backend:', {
-                message: err.message,
-                name: err.name,
-                stack: err.stack
-            });
+            console.error('[❌ NOTIFY] Error en petición:', err.message);
         }
-
-        console.log('[✔️ FRONTEND] Proceso de notificación completado (éxito o fallo silencioso)');
     }
 
     // ================================================================
-    // ✅ CORREGIDO: Esperar notificación ANTES de redirigir (Google)
+    // ✅ GOOGLE LOGIN: await + delay 500ms + delay 1000ms
     // ================================================================
     window.signInWithGoogle = async function() {
         try {
@@ -978,35 +955,42 @@
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             
-            console.log('[🔵 GOOGLE] Iniciando autenticación con Google...');
+            console.log('[🔵 GOOGLE] Iniciando autenticación...');
             const result = await signInWithPopup(auth, provider);
-            console.log('[🔵 GOOGLE] Autenticación exitosa:', result.user.email);
+            console.log('[🔵 GOOGLE] Login exitoso:', result.user.email);
 
+            // 1. Guardar perfil
             await saveUserProfile(result.user, result.user.displayName);
-            console.log('[🔵 GOOGLE] Perfil guardado en Firestore');
+            console.log('[🔵 GOOGLE] Perfil guardado');
 
-            // ✅ ESPERAR la notificación al backend ANTES de redirigir
-            console.log('[🔵 GOOGLE] Esperando notificación al backend...');
+            // 2. ✅ Notificar al backend (con keepalive)
+            console.log('[🔵 GOOGLE] Notificando backend...');
             await notifyBackendWelcomeEmail(result.user);
-            console.log('[🔵 GOOGLE] Notificación completada, procediendo a redirección');
+            
+            // 3. ✅ Delay de seguridad 500ms
+            console.log('[🔵 GOOGLE] Delay seguridad 500ms...');
+            await new Promise(resolve => setTimeout(resolve, 500));
 
+            // 4. Mostrar mensaje
             showMessageModal('Inicio de sesión exitoso', 'success');
             
-            // ✅ Esperar 1.5 segundos para que el usuario vea el mensaje
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // 5. ✅ Delay antes de redirección 1000ms
+            console.log('[🔵 GOOGLE] Delay pre-redirect 1000ms...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('[🔵 GOOGLE] Redirigiendo usuario...');
+            // 6. Redirigir
+            console.log('[🔵 GOOGLE] Redirigiendo...');
             redirectAfterAuth(result.user);
             
         } catch (error) {
-            console.error('[❌ GOOGLE] Error en autenticación:', error);
+            console.error('[❌ GOOGLE] Error:', error);
             hideLoadingOverlay();
             showMessageModal(getFriendlyErrorMessage(error), 'error');
         }
     };
 
     // ================================================================
-    // ✅ CORREGIDO: Esperar notificación ANTES de redirigir (GitHub)
+    // ✅ GITHUB LOGIN: await + delay 500ms + delay 1000ms
     // ================================================================
     window.signInWithGithub = async function() {
         try {
@@ -1014,28 +998,35 @@
             const provider = new GithubAuthProvider();
             provider.setCustomParameters({ allow_signup: 'true' });
             
-            console.log('[⚫ GITHUB] Iniciando autenticación con GitHub...');
+            console.log('[⚫ GITHUB] Iniciando autenticación...');
             const result = await signInWithPopup(auth, provider);
-            console.log('[⚫ GITHUB] Autenticación exitosa:', result.user.email);
+            console.log('[⚫ GITHUB] Login exitoso:', result.user.email);
 
+            // 1. Guardar perfil
             await saveUserProfile(result.user, result.user.displayName);
-            console.log('[⚫ GITHUB] Perfil guardado en Firestore');
+            console.log('[⚫ GITHUB] Perfil guardado');
 
-            // ✅ ESPERAR la notificación al backend ANTES de redirigir
-            console.log('[⚫ GITHUB] Esperando notificación al backend...');
+            // 2. ✅ Notificar al backend (con keepalive)
+            console.log('[⚫ GITHUB] Notificando backend...');
             await notifyBackendWelcomeEmail(result.user);
-            console.log('[⚫ GITHUB] Notificación completada, procediendo a redirección');
+            
+            // 3. ✅ Delay de seguridad 500ms
+            console.log('[⚫ GITHUB] Delay seguridad 500ms...');
+            await new Promise(resolve => setTimeout(resolve, 500));
 
+            // 4. Mostrar mensaje
             showMessageModal('Inicio de sesión exitoso', 'success');
             
-            // ✅ Esperar 1.5 segundos para que el usuario vea el mensaje
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // 5. ✅ Delay antes de redirección 1000ms
+            console.log('[⚫ GITHUB] Delay pre-redirect 1000ms...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
-            console.log('[⚫ GITHUB] Redirigiendo usuario...');
+            // 6. Redirigir
+            console.log('[⚫ GITHUB] Redirigiendo...');
             redirectAfterAuth(result.user);
             
         } catch (error) {
-            console.error('[❌ GITHUB] Error en autenticación:', error);
+            console.error('[❌ GITHUB] Error:', error);
             hideLoadingOverlay();
             showMessageModal(getFriendlyErrorMessage(error), 'error');
         }
@@ -1067,7 +1058,6 @@
               const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
               window.location.href = verificationUrl;
           } else {
-              // ✅ Usa la función de redirección que maneja returnTo
               redirectAfterAuth(userCredential.user);
           }
       } catch (error) {
@@ -1100,13 +1090,11 @@
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
           
-          // Guardar returnTo en sessionStorage antes de redirigir
           const returnTo = getUrlParameter('returnTo');
           if (returnTo) {
               sessionStorage.setItem('returnTo', returnTo);
           }
           
-          // Llamar al endpoint de envío de correo (Bienvenida)
           fetch('/api/send-verification-email', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -1162,7 +1150,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Guardar ruta antes de login si viene en el parámetro returnTo
         const returnTo = getUrlParameter('returnTo');
         if (returnTo) {
             sessionStorage.setItem('returnTo', returnTo);
