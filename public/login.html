@@ -620,29 +620,6 @@
         window.location.href = "actividad";
     }
 
-    // NUEVO: Función para notificar verificación al backend
-    async function notifyVerificationToBackend(user) {
-        try {
-            const response = await fetch('/api/notify-verification', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName || user.email.split('@')[0]
-                })
-            });
-            
-            if (!response.ok) {
-                console.error('Error notificando verificación:', await response.text());
-            } else {
-                console.log('Verificación notificada exitosamente al backend');
-            }
-        } catch (error) {
-            console.error('Error en notifyVerificationToBackend:', error);
-        }
-    }
-
     // NUEVO: Función para convertir errores técnicos a mensajes amigables
     function getFriendlyErrorMessage(error) {
         const errorCode = error.code || '';
@@ -926,7 +903,30 @@
 
     initFirebase();
 
-    // ✅ MODIFICADO: signInWithGoogle con notificación al backend
+    // ================================================================
+    // ✅ NUEVO (SOLO LO PEDIDO): Notificar a index.js tras login Google/GitHub
+    // ================================================================
+    async function notifyBackendWelcomeEmail(user) {
+        try {
+            if (!user || !user.uid || !user.email) return;
+
+            // Notificar al backend para que envíe el correo de bienvenida
+            await fetch('/api/notify-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || null
+                })
+            });
+        } catch (err) {
+            // No interrumpir el flujo de login si el correo falla
+            console.error('Error notificando bienvenida al backend:', err);
+        }
+    }
+
+    // MODIFICADO: Usar el nuevo sistema de mensajes
     window.signInWithGoogle = async function() {
         try {
             showLoadingOverlay();
@@ -934,12 +934,10 @@
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            
-            // Notificar al backend sobre la verificación completada (si el correo ya está verificado)
-            if (result.user.emailVerified) {
-                await notifyVerificationToBackend(result.user);
-            }
-            
+
+            // ✅ NUEVO: Notificar a index.js (backend) para enviar bienvenida con plantilla existente
+            await notifyBackendWelcomeEmail(result.user);
+
             showMessageModal('Inicio de sesión exitoso', 'success');
             setTimeout(() => redirectAfterAuth(result.user), 1500);
         } catch (error) {
@@ -948,7 +946,6 @@
         }
     };
 
-    // ✅ MODIFICADO: signInWithGithub con notificación al backend
     window.signInWithGithub = async function() {
         try {
             showLoadingOverlay();
@@ -956,12 +953,10 @@
             provider.setCustomParameters({ allow_signup: 'true' });
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
-            
-            // Notificar al backend sobre la verificación completada (si el correo ya está verificado)
-            if (result.user.emailVerified) {
-                await notifyVerificationToBackend(result.user);
-            }
-            
+
+            // ✅ NUEVO: Notificar a index.js (backend) para enviar bienvenida con plantilla existente
+            await notifyBackendWelcomeEmail(result.user);
+
             showMessageModal('Inicio de sesión exitoso', 'success');
             setTimeout(() => redirectAfterAuth(result.user), 1500);
         } catch (error) {
