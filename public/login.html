@@ -620,6 +620,29 @@
         window.location.href = "actividad";
     }
 
+    // NUEVO: Función para notificar verificación al backend
+    async function notifyVerificationToBackend(user) {
+        try {
+            const response = await fetch('/api/notify-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0]
+                })
+            });
+            
+            if (!response.ok) {
+                console.error('Error notificando verificación:', await response.text());
+            } else {
+                console.log('Verificación notificada exitosamente al backend');
+            }
+        } catch (error) {
+            console.error('Error en notifyVerificationToBackend:', error);
+        }
+    }
+
     // NUEVO: Función para convertir errores técnicos a mensajes amigables
     function getFriendlyErrorMessage(error) {
         const errorCode = error.code || '';
@@ -864,27 +887,6 @@
         }
     }
 
-    // ✅ NUEVO: Función para notificar verificación al backend
-    async function notifyVerificationToBackend(user) {
-        try {
-            const response = await fetch('/api/notify-verification', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    email: user.email,
-                    uid: user.uid,
-                    name: user.displayName || user.email.split('@')[0]
-                })
-            });
-            
-            if (!response.ok) {
-                console.warn('Error notificando verificación al backend:', await response.text());
-            }
-        } catch (error) {
-            console.error('Error en notifyVerificationToBackend:', error);
-        }
-    }
-
     async function initFirebase() {
       try {
         const response = await fetch('/api/config');
@@ -924,7 +926,7 @@
 
     initFirebase();
 
-    // ✅ MODIFICADO: Notificar al backend después de login con Google
+    // ✅ MODIFICADO: signInWithGoogle con notificación al backend
     window.signInWithGoogle = async function() {
         try {
             showLoadingOverlay();
@@ -933,7 +935,7 @@
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
             
-            // ✅ NUEVO: Notificar verificación al backend
+            // Notificar al backend sobre la verificación completada (si el correo ya está verificado)
             if (result.user.emailVerified) {
                 await notifyVerificationToBackend(result.user);
             }
@@ -946,7 +948,7 @@
         }
     };
 
-    // ✅ MODIFICADO: Notificar al backend después de login con GitHub
+    // ✅ MODIFICADO: signInWithGithub con notificación al backend
     window.signInWithGithub = async function() {
         try {
             showLoadingOverlay();
@@ -955,7 +957,7 @@
             const result = await signInWithPopup(auth, provider);
             await saveUserProfile(result.user, result.user.displayName);
             
-            // ✅ NUEVO: Notificar verificación al backend
+            // Notificar al backend sobre la verificación completada (si el correo ya está verificado)
             if (result.user.emailVerified) {
                 await notifyVerificationToBackend(result.user);
             }
@@ -994,6 +996,7 @@
               const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
               window.location.href = verificationUrl;
           } else {
+              // ✅ Usa la función de redirección que maneja returnTo
               redirectAfterAuth(userCredential.user);
           }
       } catch (error) {
