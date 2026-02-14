@@ -853,21 +853,48 @@ async function enviarBienvenida(email, nombre) {
   try {
     logger.info(context, '📧 Enviando correo de bienvenida', { email, nombre });
     
-    await resend.emails.send({
+    // Leer la plantilla HTML local
+    const templatePath = path.join(__dirname, 'emails', 'bienvenida-usuario-nuevo.html');
+    
+    if (!fs.existsSync(templatePath)) {
+      logger.error(context, 'Plantilla de correo no encontrada', null, { templatePath });
+      throw new Error('Plantilla de correo no encontrada');
+    }
+    
+    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
+    
+    // Reemplazar variables dinámicas
+    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre);
+    
+    // Log del contenido para depuración
+    logger.info(context, 'Contenido HTML cargado correctamente', {
+      templatePath,
+      contentLength: htmlContent.length,
+      nombre
+    });
+    
+    // Enviar el correo con el campo html
+    const result = await resend.emails.send({
       from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
       subject: 'Bienvenido a Masitaprex',
-      template_id: '9a5bd01c-b50b-4d1e-aa80-98905228b4af',
-      params: {
-        nombre: nombre
-      }
+      html: htmlContent
     });
 
-    logger.info(context, '✅ Correo de bienvenida enviado exitosamente', { email });
-    return { success: true };
+    logger.info(context, '✅ Correo de bienvenida enviado exitosamente', { 
+      email, 
+      resendId: result.id 
+    });
+    
+    return { success: true, id: result.id };
     
   } catch (error) {
-    logger.error(context, '❌ Error enviando correo de bienvenida', error, { email, nombre });
+    logger.error(context, '❌ Error enviando correo de bienvenida', error, { 
+      email, 
+      nombre,
+      errorMessage: error.message,
+      errorResponse: error.response?.data || error.response?.body || null
+    });
     return { success: false, error: error.message };
   }
 }
@@ -2092,7 +2119,7 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.3.0 - Correo de Bienvenida Post-Verificación",
+    version: "3.3.0 - Correo de Bienvenida Post-Verificación con Plantilla Local",
     features: {
       cleanUrls: "✅ URLs sin .html",
       custom404: "✅ Página error-404 personalizada",
@@ -2100,7 +2127,7 @@ app.get("/api", (req, res) => {
       autoRedirect: "✅ Redirección automática a login",
       returnTo: "✅ Redirección después del login/registro a página original",
       returnAfterVerify: "✅ Redirección después de verificar correo",
-      welcomeEmailOnVerify: "🔥 Correo de bienvenida automático post-verificación",
+      welcomeEmailOnVerify: "🔥 Correo de bienvenida con plantilla HTML local",
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       routeMapping: "✅ Mapeo lógico de rutas implementado",
@@ -2219,7 +2246,7 @@ app.listen(PORT, "0.0.0.0", () => {
       returnAfterLogin: '✅ Implementado',
       returnAfterRegister: '✅ Implementado con verify.html',
       returnAfterVerify: '✅ Implementado',
-      welcomeEmailOnVerify: '🔥 NUEVO: Activado'
+      welcomeEmailOnVerify: '🔥 NUEVO: Plantilla HTML local'
     },
     timestamp: new Date().toISOString()
   });
