@@ -620,8 +620,8 @@
         window.location.href = "actividad";
     }
 
-    // 🔥 NUEVO: Notificar verificación completada al backend
-    async function notifyVerificationCompleted(user) {
+    // NUEVO: Función para notificar verificación al backend
+    async function notifyVerificationToBackend(user) {
         try {
             const response = await fetch('/api/notify-verification', {
                 method: 'POST',
@@ -633,15 +633,13 @@
                 })
             });
             
-            const data = await response.json();
-            
-            if (data.success) {
-                console.log('✅ Correo de bienvenida enviado correctamente');
+            if (!response.ok) {
+                console.error('Error notificando verificación:', await response.text());
             } else {
-                console.warn('⚠️ No se pudo enviar el correo de bienvenida:', data.error);
+                console.log('Verificación notificada exitosamente al backend');
             }
         } catch (error) {
-            console.error('❌ Error notificando verificación:', error);
+            console.error('Error en notifyVerificationToBackend:', error);
         }
     }
 
@@ -928,19 +926,18 @@
 
     initFirebase();
 
-    // 🔥 MODIFICADO: Login con Google + Notificación de bienvenida
+    // ✅ MODIFICADO: signInWithGoogle con notificación al backend
     window.signInWithGoogle = async function() {
         try {
             showLoadingOverlay();
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
-            
             await saveUserProfile(result.user, result.user.displayName);
             
-            // 🔥 NUEVO: Notificar al backend para enviar correo de bienvenida
+            // Notificar al backend sobre la verificación completada (si el correo ya está verificado)
             if (result.user.emailVerified) {
-                await notifyVerificationCompleted(result.user);
+                await notifyVerificationToBackend(result.user);
             }
             
             showMessageModal('Inicio de sesión exitoso', 'success');
@@ -951,19 +948,18 @@
         }
     };
 
-    // 🔥 MODIFICADO: Login con GitHub + Notificación de bienvenida
+    // ✅ MODIFICADO: signInWithGithub con notificación al backend
     window.signInWithGithub = async function() {
         try {
             showLoadingOverlay();
             const provider = new GithubAuthProvider();
             provider.setCustomParameters({ allow_signup: 'true' });
             const result = await signInWithPopup(auth, provider);
-            
             await saveUserProfile(result.user, result.user.displayName);
             
-            // 🔥 NUEVO: Notificar al backend para enviar correo de bienvenida
+            // Notificar al backend sobre la verificación completada (si el correo ya está verificado)
             if (result.user.emailVerified) {
-                await notifyVerificationCompleted(result.user);
+                await notifyVerificationToBackend(result.user);
             }
             
             showMessageModal('Inicio de sesión exitoso', 'success');
