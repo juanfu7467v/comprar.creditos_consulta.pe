@@ -9,13 +9,64 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import axios from "axios";
 import { Resend } from "resend";
+import helmet from "helmet";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json());
+
+// ================================================================
+// 🔒 SEGURIDAD - CABECERAS CON HELMET
+// ================================================================
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.gstatic.com", "https://www.googleapis.com", "https://cdn.jsdelivr.net", "https://www.google.com", "https://www.recaptcha.net", "https://www.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:", "https://storage.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://firestore.googleapis.com", "https://www.google.com", "https://www.recaptcha.net", "https://generativelanguage.googleapis.com", "https://api.mercadopago.com"],
+      frameSrc: ["'self'", "https://www.google.com", "https://www.recaptcha.net"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+      frameAncestors: ["'self'"]
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  dnsPrefetchControl: { allow: false },
+  frameguard: { action: 'deny' },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  ieNoOpen: true,
+  noSniff: true,
+  originAgentCluster: true,
+  permittedCrossDomainPolicies: { permittedPolicies: 'none' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xssFilter: true
+}));
+
+// Middleware para ocultar tecnología
+app.use((req, res, next) => {
+  res.setHeader('Server', 'Nginx');
+  res.setHeader('X-Powered-By', 'PHP/8.2.0');
+  next();
+});
+
+// Desactivar CSP en rutas de API para evitar problemas
+app.use('/api', (req, res, next) => {
+  res.removeHeader('Content-Security-Policy');
+  next();
+});
 
 // ================================================================
 // ✉️ CONFIGURACIÓN DE RESEND
@@ -1921,43 +1972,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api", (req, res) => {
-  res.json({
-    message: "API de Pagos Consulta PE",
-    version: "3.3.0 - Correo de Bienvenida Post-Verificación con Plantilla Local",
-    features: {
-      cleanUrls: "✅ URLs sin .html",
-      custom404: "✅ Página error-404 personalizada (archivo estático)",
-      authMiddleware: "✅ Control de acceso con Firebase (ubicado correctamente)",
-      autoRedirect: "✅ Redirección automática a login",
-      returnTo: "✅ Redirección después del login/registro a página original",
-      returnAfterVerify: "✅ Redirección después de verificar correo",
-      welcomeEmailOnVerify: "🔥 Correo de bienvenida con plantilla HTML local",
-      publicRoutes: "✅ Rutas públicas configurables",
-      protectedRoutes: "✅ Rutas protegidas configurables",
-      routeMapping: "✅ Mapeo lógico de rutas implementado",
-      easyToExpand: "✅ Fácil de agregar nuevas páginas",
-      secureConfig: "✅ /api/config solo expone variables de cliente",
-      recaptchaVar: "✅ Variable reCAPTCHA corregida (RECAPTCHA_CLAVE_SECRETA)"
-    },
-    routes: {
-      public: PUBLIC_ROUTES,
-      protected: PROTECTED_ROUTES,
-      publicApi: PUBLIC_API_ROUTES
-    },
-    routeMapping: {
-      '/user/activity': 'actividad.html',
-      '/actividad': 'actividad.html',
-      '/peliculas': 'PeliPREX.html'
-    },
-    howToAddPages: {
-      publicPage: "Agregar ruta a PUBLIC_ROUTES array",
-      protectedPage: "Agregar ruta a PROTECTED_ROUTES array (requiere login)",
-      publicApi: "Agregar ruta a PUBLIC_API_ROUTES array",
-      customMapping: "Agregar mapeo en routeMap objeto dentro del middleware"
-    },
-    status: "online",
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: "ok" });
 });
 
 // ================================================================
