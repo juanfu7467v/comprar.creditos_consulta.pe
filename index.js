@@ -18,13 +18,13 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// ✉️ CONFIGURACIÓN DE RESEND (NUEVO)
+// ✉️ CONFIGURACIÓN DE RESEND
 // ================================================================
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================================================================
-// 🔍 HELPERS DE IP (NUEVO)
+// 🔍 HELPERS DE IP
 // ================================================================
 
 function getClientIp(req) {
@@ -41,7 +41,6 @@ function getClientIp(req) {
 
 /**
  * Rutas públicas que NO requieren autenticación
- * Agregar aquí nuevas páginas públicas
  */
 const PUBLIC_ROUTES = [
   '/login',
@@ -71,7 +70,6 @@ const PUBLIC_ROUTES = [
 
 /**
  * Rutas protegidas que requieren autenticación
- * ✅ ACTUALIZADO: Agregadas /user/activity y /peliculas
  */
 const PROTECTED_ROUTES = [
   '/favoritos',
@@ -111,7 +109,7 @@ const PUBLIC_API_ROUTES = [
   '/api/debug/firebase',
   '/api/admin/clear-cache',
   '/api/analyze',
-  '/api/notify-verification' // 🔥 NUEVA RUTA PÚBLICA
+  '/api/notify-verification'
 ];
 
 // ================================================================
@@ -236,10 +234,10 @@ if (serviceAccount && !admin.apps.length) {
 }
 
 // ================================================================
-// 🔐 CONFIGURACIÓN DE RECAPTCHA
+// 🔐 CONFIGURACIÓN DE RECAPTCHA - CORREGIDO
 // ================================================================
 
-const RECAPTCHA_SECRET_KEY = process.env.RECAPCHA_CLAVE_SECRETA;
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_CLAVE_SECRETA; // CORREGIDO: RECAPCHA_CLAVE_SECRETA -> RECAPTCHA_CLAVE_SECRETA
 const RECAPTCHA_SITE_KEY = "6Lc4OGIsAAAAAPrAnOprbzd-ATbUOWHXK3Yl_bVy";
 
 async function validateRecaptcha(recaptchaResponse) {
@@ -316,87 +314,6 @@ const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
 
 const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
-
-// ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN MEJORADO
-// ================================================================
-
-/**
- * Middleware para verificar autenticación Firebase
- * Protege rutas y redirige a login si no está autenticado
- * ✅ MEJORADO: Guarda la URL original para redirigir después del login
- */
-async function verifyFirebaseAuth(req, res, next) {
-  const context = 'AUTH_MIDDLEWARE';
-
-  // Verificar si la ruta está excluida de autenticación
-  const isPublicRoute = PUBLIC_ROUTES.some(route =>
-    req.path === route || req.path.startsWith(route)
-  );
-
-  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route =>
-    req.path.startsWith(route)
-  );
-
-  // Archivos estáticos excluidos
-  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
-
-  if (isPublicRoute || isPublicApiRoute || isStaticFile) {
-    logger.info(context, 'Ruta pública o excluida', { path: req.path });
-    return next();
-  }
-
-  try {
-    // Verificar token de Firebase desde cookie, localStorage o header
-    const authHeader = req.headers.authorization;
-    const cookies = req.headers.cookie;
-    let idToken;
-
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      idToken = authHeader.split('Bearer ')[1];
-      logger.info(context, 'Token obtenido de header Authorization');
-    } else if (cookies) {
-      const cookiesArray = cookies.split(';');
-      const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
-      if (sessionCookie) {
-        idToken = sessionCookie.split('=')[1].trim();
-        logger.info(context, 'Token obtenido de cookie __session');
-      }
-    }
-
-    if (!idToken) {
-      logger.info(context, 'Token no encontrado, redirigiendo a login', {
-        path: req.path,
-        originalUrl: req.originalUrl
-      });
-
-      // ✅ MEJORA: Redirigir a login con parámetro returnTo para volver después del login
-      const returnTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login?returnTo=${returnTo}`);
-    }
-
-    // Verificar token con Firebase Admin
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken;
-    req.uid = decodedToken.uid;
-
-    logger.info(context, 'Usuario autenticado', {
-      uid: req.uid,
-      email: decodedToken.email,
-      path: req.path
-    });
-
-    next();
-  } catch (error) {
-    logger.error(context, 'Error de autenticación', error, {
-      path: req.path
-    });
-
-    // ✅ MEJORA: Redirigir a login con parámetro returnTo para volver después del login
-    const returnTo = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/login?returnTo=${returnTo}`);
-  }
-}
 
 // ================================================================
 // 💰 FUNCIONES DE PAGO Y BENEFICIOS
@@ -844,7 +761,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// 🔥 NUEVA FUNCIÓN: ENVÍO DE CORREO DE BIENVENIDA POST-VERIFICACIÓN
+// 🔥 FUNCIÓN: ENVÍO DE CORREO DE BIENVENIDA POST-VERIFICACIÓN
 // ================================================================
 
 async function enviarBienvenida(email, nombre) {
@@ -853,7 +770,6 @@ async function enviarBienvenida(email, nombre) {
   try {
     logger.info(context, '📧 Enviando correo de bienvenida', { email, nombre });
     
-    // Leer la plantilla HTML local
     const templatePath = path.join(__dirname, 'emails', 'bienvenida-usuario-nuevo.html');
     
     if (!fs.existsSync(templatePath)) {
@@ -863,17 +779,14 @@ async function enviarBienvenida(email, nombre) {
     
     let htmlContent = fs.readFileSync(templatePath, 'utf-8');
     
-    // Reemplazar variables dinámicas
     htmlContent = htmlContent.replace(/{{nombre}}/g, nombre);
     
-    // Log del contenido para depuración
     logger.info(context, 'Contenido HTML cargado correctamente', {
       templatePath,
       contentLength: htmlContent.length,
       nombre
     });
     
-    // Enviar el correo con el campo html
     const result = await resend.emails.send({
       from: 'Masitaprex <bienvenida@masitaprex.com>',
       to: email,
@@ -900,320 +813,80 @@ async function enviarBienvenida(email, nombre) {
 }
 
 // ================================================================
-// 🚨 SOLUCIÓN DEFINITIVA - RUTAS PROBLEMÁTICAS ARRIBA DE TODO
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN - MOVIDO DESPUÉS DE RUTAS PÚBLICAS
 // ================================================================
 
-// 1️⃣ Forzar que estas rutas respondan como HTML ANTES de cualquier generador PDF
-// Esto debe ir ARRIBA de cualquier otra ruta
+async function verifyFirebaseAuth(req, res, next) {
+  const context = 'AUTH_MIDDLEWARE';
 
-app.get("/disclaimer-apis", (req, res) => {
-  res.type("html");
-  res.sendFile(path.join(__dirname, "public", "disclaimer-apis.html"));
-});
+  const isPublicRoute = PUBLIC_ROUTES.some(route =>
+    req.path === route || req.path.startsWith(route)
+  );
 
-app.get("/API-Docs", (req, res) => {
-  res.type("html");
-  res.sendFile(path.join(__dirname, "public", "API-Docs.html"));
-});
+  const isPublicApiRoute = PUBLIC_API_ROUTES.some(route =>
+    req.path.startsWith(route)
+  );
 
-// ================================================================
-// 🗂 MIDDLEWARE DE RUTAS Y ARCHIVOS ESTÁTICOS
-// ================================================================
-
-// Servir archivos estáticos ANTES de aplicar el middleware de autenticación
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ================================================================
-// ✅ MAPEO LÓGICO DE RUTAS (SOLUCIÓN AL 404)
-// ================================================================
-
-app.use((req, res, next) => {
-  const pathName = req.path;
-
-  // 📺️ Mapeo explícito de rutas que no coinciden con el nombre del archivo
-  const routeMap = {
-    '/user/activity': 'actividad.html',
-    '/actividad': 'actividad.html',
-    '/peliculas': 'PeliPREX.html'
-  };
-
-  // Si la ruta está en el mapeo, servir el archivo correspondiente
-  if (routeMap[pathName]) {
-    const filePath = path.join(__dirname, 'public', routeMap[pathName]);
-    if (fs.existsSync(filePath)) {
-      logger.info('ROUTE_MAPPING', `✅ Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
-      return res.sendFile(filePath);
-    }
-  }
-
-  // Fallback para Clean URLs estándar (ej: /login -> login.html)
-  const isHtmlRoute = !pathName.includes('.') && 
-    !pathName.startsWith('/api/') && 
-    pathName !== '/';
-
-  if (isHtmlRoute) {
-    const cleanPath = pathName.replace(/^\//, '');
-    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
-    
-    if (fs.existsSync(htmlPath)) {
-      logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
-        path: pathName,
-        htmlFile: `${cleanPath}.html`
-      });
-      return res.sendFile(htmlPath);
-    }
-  }
-
-  next();
-});
-
-// Crear y guardar la nueva página de error 404 personalizada
-const createNewError404Page = () => {
-  const error404HTML = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <script src="global-consultas.js">
-async function secureDownload(url, filename) {
-    try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename || 'archivo';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(blobUrl);
-        document.body.removeChild(a);
-    } catch (e) {
-        console.error('Download failed', e);
-        window.open(url, '_blank');
-    }
-}
-</script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página No Encontrada - Masitaprex</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .app-card {
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            height: 520px;
-        }
-        .image-container {
-            flex: 0 0 auto;
-            width: 100%;
-            height: 180px;
-            overflow: hidden;
-            border-radius: 1rem 1rem 0 0;
-        }
-        .content-container {
-            flex: 1;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-        .badge {
-            position: absolute;
-            top: 1rem;
-            right: -40px;
-            width: 160px;
-            text-align: center;
-            padding: 0.375rem 0;
-            transform: rotate(45deg);
-            background: linear-gradient(to right, var(--from-color), var(--to-color));
-            color: white;
-            font-weight: 800;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            z-index: 10;
-        }
-        .social-icons a {
-            font-size: 1.8rem;
-            margin: 0 10px;
-            transition: all 0.3s ease;
-        }
-        .social-icons a:hover {
-            transform: scale(1.1);
-        }
-        .social-icons .fa-facebook-square {
-            color: #1877F2;
-        }
-        .social-icons .fa-youtube-square {
-            color: #FF0000;
-        }
-    </style>
-</head>
-<body class="bg-white min-h-screen text-gray-800">
-    <header class="w-full relative h-[80vh] md:h-[48rem] overflow-hidden">
-        <div 
-            class="absolute inset-0 bg-cover bg-center" 
-            style="background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFvN-s_wpJUIYTsv5JH1Rs37S7ZXWefZfI-Odk6iBG0cJOtmZ0pzgoDXBLsmidMg-ZvXgxVaffJ1iybh0ws1p3CcWNtH3o_REOqcSeBqGqqYBWOyJS5EWfvE9RRwLxba_txfZM5oE2_2HKtSug1LExyEqIGoxC_h7vIelPv3KQtBb4Dln17k-0WA0Z690J/s1536/1000037253.png');"
-        >
-        </div>
-        <div class="absolute inset-0 flex items-end justify-center pb-12 bg-black/30">
-            <a href="home" class="px-8 py-4 text-xl bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition duration-300 shadow-2xl transform hover:scale-105">
-                Ir a la Página Principal
-            </a>
-        </div>
-    </header>
-    <main class="py-12 px-4 md:px-8">
-        <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-8 text-indigo-700">Nuestras Soluciones Destacadas</h2>
-        <div class="flex overflow-x-scroll snap-x snap-mandatory space-x-6 pb-6 md:justify-center md:flex-wrap md:space-x-0 md:gap-6">
-            
-            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl border-t-4 border-purple-500 transform transition hover:scale-[1.02] relative overflow-hidden">
-                <div class="badge" style="--from-color: #dc2626; --to-color: #ef4444;">
-                    Plataforma 
-                </div>
-                <div class="image-container">
-                    <img src="https://image.winudf.com/v2/image1/ZGV2X2ltYWdlXzM2ODcwNDYzXzIyNjg1OF8yMDI1MTAzMDE5NTI1MjEzOA/icon.webp?w=280&fakeurl=1&type=.webp" alt="Icono de Consulta Pe" class="w-full h-full object-cover">
-                </div>
-                <div class="content-container">
-                    <h3 class="text-xl font-bold text-purple-600 mb-2">
-                        Consulta Pe <span class="text-sm font-normal text-gray-500 block">Consulta Rápida de Datos Públicos</span>
-                    </h3>
-                    <p class="text-gray-600 mb-4 text-sm flex-grow">
-                        Una herramienta de consulta rápida y confiable. Obtén datos públicos asociados a DNI y RUC, utilizando en ciertos casos solo tu nombre completo. La visualización de resultados es clara y utiliza elementos visuales para un mejor entendimiento de la información.
-                    </p>
-                    <a href="https://com-masitaorex.uptodown.com/android" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
-                        Instalar aplicaciones apk
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl border-t-4 border-indigo-500 transform transition hover:scale-[1.02] relative overflow-hidden">
-                <div class="badge" style="--from-color: #4f46e5; --to-color: #6366f1;">
-                    Plataforma
-                </div>
-                <div class="image-container">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh3YIrB2BVkYPGxA41eZD5b_ZRtb6P8rQxh35guBZPGVQEtZU0b-AVmFNOwSuxJNvXKYWQXR5fZIeGXSxqbKKcfdGq5a4c40MM4IItcEp9E9vmKXLEDVgRYHu3JProhz5GwbTzDR0xTC171AOMDK4e6RKLsamFSZB2iBZXpSG7awMsRkBMPyMoUB733bPq8/s612/1000038813.jpg" alt="Imagen de PeliPREX HD" class="w-full h-full object-cover">
-                </div>
-                <div class="content-container">
-                    <h3 class="text-xl font-bold text-indigo-600 mb-2">
-                        PeliPREX HD <span class="text-sm font-normal text-gray-500 block">Acceso Digital mediante Infraestructura Intermediaria</span>
-                    </h3>
-                    <p class="text-gray-600 mb-4 text-sm flex-grow">
-                        Plataforma basada en infraestructura intermediaria que facilita el acceso organizado a contenidos digitales disponibles en línea. Explora, descubre y conéctate fácilmente desde una interfaz rápida y moderna.
-                    </p>
-                    <a href="peliPREX" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
-                        Acceder a PeliPREX
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="app-card w-[85vw] sm:w-80 flex-shrink-0 bg-white shadow-2xl rounded-2xl border-t-4 border-blue-500 transform transition hover:scale-[1.02] relative overflow-hidden">
-                <div class="badge" style="--from-color: #2563eb; --to-color: #60a5fa;">
-                    Servicio
-                </div>
-                <div class="image-container">
-                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifNMAy4k9FFdDT96JpFiktrjRpRJz_Quq3lIrHz1t_NdKTZtU6NfMYzmkNGOVtwUg2hdfSZm0lN5SFp5j4LvDZCSd9QUNP8UUS9k_aGvdZ3Tj9W8DhzDFSdTWZJlRHsJ_OraOpFHWtX8wvKVM1oCpj3ggPZKEYMbuGSav51DbbTnZ3dUYSZTnipiJ57nyq/s1408/1000089677.png" alt="Imagen de Conexión API" class="w-full h-full object-cover">
-                </div>
-                <div class="content-container">
-                    <h3 class="text-xl font-bold text-blue-600 mb-2">
-                        Conexión API <span class="text-sm font-normal text-gray-500 block">Infraestructura Intermediaria para APIs</span>
-                    </h3>
-                    <p class="text-gray-600 mb-4 text-sm flex-grow">
-                        Servicio digital basado en infraestructura intermediaria que facilita la conexión técnica con diversas fuentes de datos mediante APIs, sin almacenar ni modificar la información consultada.
-                    </p>
-                    <a href="api-key" class="text-indigo-600 font-bold hover:text-pink-600 flex items-center transition duration-200 mt-4">
-                        Gestionar API Key
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </main>
-    <footer class="bg-gray-900 text-gray-400 py-10 px-6">
-        <div class="max-w-4xl mx-auto text-center">
-            <h3 class="text-xl font-bold text-white mb-6">Síguenos en nuestras redes sociales</h3>
-            <div class="social-icons mb-8">
-                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
-                    <i class="fab fa-facebook-square"></i>
-                </a>
-                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
-                    <i class="fab fa-youtube-square"></i>
-                </a>
-            </div>
-            <p class="mb-6 text-lg">Consulta PE © 2024 - Todos los derechos reservados</p>
-            <div class="mb-8 flex flex-wrap justify-center gap-4 text-sm">
-                <a href="terminos-condiciones" class="hover:text-indigo-400 transition hover:underline">Términos y condiciones</a>
-                <span class="text-gray-600">|</span>
-                <a href="politica-privacidad" class="hover:text-indigo-400 transition hover:underline">Política de privacidad</a>
-                <span class="text-gray-600">|</span>
-                <a href="aviso-legal-peliprex" class="hover:text-indigo-400 transition hover:underline">Aviso legal peliPREX</a>
-                <span class="text-gray-600">|</span>
-                <a href="disclaimer-apis" class="hover:text-indigo-400 transition hover:underline">Aviso legal apis</a>
-                <span class="text-gray-600">|</span>
-                <a href="disclaimer-apis" class="hover:text-indigo-400 transition hover:underline">Descargo de responsabilidad</a>
-            </div>
-            <p class="text-sm max-w-3xl mx-auto leading-relaxed">
-                Esta aplicación utiliza servicios de intermediación para facilitar el acceso a información pública. 
-                <strong class="text-white">No somos los propietarios, custodios ni responsables directos de la información o de las APIs de las entidades de origen.</strong>
-            </p>
-        </div>
-    </footer>
-</body>
-</html>`;
-
-  const error404Path = path.join(__dirname, 'public', 'error-404.html');
-  fs.writeFileSync(error404Path, error404HTML);
-  logger.info('ERROR_404', 'Nueva página de error 404 creada exitosamente', { path: error404Path });
-};
-
-// Crear la página de error 404 al iniciar
-createNewError404Page();
-
-// Middleware para detectar páginas inexistentes y redirigir a error-404
-app.use((req, res, next) => {
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
-  const isApiRoute = req.path.startsWith('/api/');
 
-  if (!isStaticFile && !isApiRoute && req.path !== '/') {
-    // Excluir las rutas problemáticas que ya manejamos
-    if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
-      return next();
+  if (isPublicRoute || isPublicApiRoute || isStaticFile) {
+    logger.info(context, 'Ruta pública o excluida', { path: req.path });
+    return next();
+  }
+
+  try {
+    const authHeader = req.headers.authorization;
+    const cookies = req.headers.cookie;
+    let idToken;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      idToken = authHeader.split('Bearer ')[1];
+      logger.info(context, 'Token obtenido de header Authorization');
+    } else if (cookies) {
+      const cookiesArray = cookies.split(';');
+      const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
+      if (sessionCookie) {
+        idToken = sessionCookie.split('=')[1].trim();
+        logger.info(context, 'Token obtenido de cookie __session');
+      }
     }
 
-    const requestedPath = path.join(__dirname, 'public', req.path);
-    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
-
-    const fileExists = fs.existsSync(requestedPath) ||
-      fs.existsSync(requestedHtmlPath);
-
-    if (!fileExists) {
-      logger.warn('404_REDIRECT', 'Página no encontrada, redirigiendo a error-404', {
+    if (!idToken) {
+      logger.info(context, 'Token no encontrado, redirigiendo a login', {
         path: req.path,
         originalUrl: req.originalUrl
       });
 
-      // Servir directamente la nueva página de error 404 personalizada
-      const error404Path = path.join(__dirname, 'public', 'error-404.html');
-      if (fs.existsSync(error404Path)) {
-        return res.status(404).sendFile(error404Path);
-      } else {
-        // Si por alguna razón no existe, crear nuevamente y servir
-        createNewError404Page();
-        return res.status(404).sendFile(error404Path);
-      }
+      const returnTo = encodeURIComponent(req.originalUrl);
+      return res.redirect(`/login?returnTo=${returnTo}`);
     }
+
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.user = decodedToken;
+    req.uid = decodedToken.uid;
+
+    logger.info(context, 'Usuario autenticado', {
+      uid: req.uid,
+      email: decodedToken.email,
+      path: req.path
+    });
+
+    next();
+  } catch (error) {
+    logger.error(context, 'Error de autenticación', error, {
+      path: req.path
+    });
+
+    const returnTo = encodeURIComponent(req.originalUrl);
+    return res.redirect(`/login?returnTo=${returnTo}`);
   }
-
-  next();
-});
-
-// Aplicar middleware de autenticación DESPUÉS de servir archivos estáticos
-app.use(verifyFirebaseAuth);
+}
 
 // ================================================================
-// 🔥 NUEVO ENDPOINT: NOTIFICAR VERIFICACIÓN COMPLETADA
+// 🚨 RUTAS DE API PÚBLICAS (PRIMERO - ANTES DEL MIDDLEWARE)
 // ================================================================
 
+// Endpoint de notificación de verificación
 app.post("/api/notify-verification", async (req, res) => {
   const context = 'NOTIFY_VERIFICATION';
   
@@ -1232,11 +905,9 @@ app.post("/api/notify-verification", async (req, res) => {
       uid, email, displayName
     });
 
-    // Enviar correo de bienvenida automáticamente
     const result = await enviarBienvenida(email, displayName || email.split('@')[0]);
 
     if (result.success) {
-      // Opcional: Registrar en Firestore que se envió el correo
       if (db) {
         await db.collection("usuarios").doc(uid).set({
           welcomeEmailSent: true,
@@ -1264,10 +935,6 @@ app.post("/api/notify-verification", async (req, res) => {
     });
   }
 });
-
-// ================================================================
-// 🗂 API ENDPOINTS
-// ================================================================
 
 // Endpoint de análisis con Gemini
 app.post("/api/analyze", async (req, res) => {
@@ -1308,10 +975,11 @@ app.post("/api/analyze", async (req, res) => {
   }
 });
 
-// Endpoint de configuración
+// Endpoint de configuración - MODIFICADO: Solo variables de cliente
 app.get("/api/config", (req, res) => {
   logger.info('API_CONFIG', 'Solicitud de configuración recibida');
 
+  // SOLO variables de cliente de Firebase, NO credenciales de Admin SDK
   const firebaseClientConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -1323,7 +991,7 @@ app.get("/api/config", (req, res) => {
   };
 
   res.json({
-    mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
+    mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY, // Solo clave pública, no token de acceso
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     firebaseConfig: firebaseClientConfig,
     environment: process.env.NODE_ENV || 'production',
@@ -1367,7 +1035,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
   }
 });
 
-// ✅ MODIFICADO: Endpoint de login - Ahora maneja el parámetro returnTo
+// Endpoint de login
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
 
@@ -1391,10 +1059,6 @@ app.post("/api/login", async (req, res) => {
     await validateRecaptcha(recaptchaResponse);
 
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email, returnTo });
-
-    // ================================================================
-    // 🔐 SEGURIDAD DE SESIÓN POR DISPOSITIVO
-    // ================================================================
 
     if (db) {
       const currentDeviceId = deviceId;
@@ -1431,7 +1095,6 @@ app.post("/api/login", async (req, res) => {
       }
     }
 
-    // ✅ MEJORA: Usar returnTo si está presente, de lo contrario ir a actividad
     const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
 
     logger.info(context, 'Login exitoso, redirigiendo', { email, redirectPath });
@@ -1454,7 +1117,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// ✅ MODIFICADO: Endpoint de registro - Ahora maneja el parámetro returnTo
+// Endpoint de registro
 app.post("/api/register", async (req, res) => {
   const context = 'REGISTER_API';
 
@@ -1478,10 +1141,6 @@ app.post("/api/register", async (req, res) => {
     await validateRecaptcha(recaptchaResponse);
 
     logger.info(context, 'Registro iniciado con reCAPTCHA validado', { email, name, returnTo });
-
-    // ================================================================
-    // 🛡️ ANTI-MULTICUENTA POR deviceId
-    // ================================================================
 
     if (db) {
       const existingSnap = await db.collection("usuarios")
@@ -1516,8 +1175,6 @@ app.post("/api/register", async (req, res) => {
       }
     }
 
-    // ✅ MEJORA: Guardar returnTo en localStorage del cliente para usarlo después de verificación
-    // El cliente debe manejar esto, aquí solo lo pasamos de vuelta
     const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
 
     logger.info(context, 'Registro exitoso, redirigiendo a verify con returnTo', { email, redirectPath });
@@ -2007,7 +1664,7 @@ app.get("/api/health", async (req, res) => {
       firebaseInitialized: !!admin.apps.length,
       recaptcha: !!RECAPTCHA_SECRET_KEY,
       pdfGenerator: true,
-      resend: !!resend // 🔥 NUEVO
+      resend: !!resend
     },
     environment: process.env.NODE_ENV || 'development',
     hostUrl: HOST_URL,
@@ -2100,10 +1757,158 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================================
+// 🚨 RUTAS ESPECÍFICAS (SEGUNDO)
+// ================================================================
+
+app.get("/disclaimer-apis", (req, res) => {
+  res.type("html");
+  res.sendFile(path.join(__dirname, "public", "disclaimer-apis.html"));
+});
+
+app.get("/API-Docs", (req, res) => {
+  res.type("html");
+  res.sendFile(path.join(__dirname, "public", "API-Docs.html"));
+});
+
+// ================================================================
+// 🗺️ MAPEO DE RUTAS (TERCERO)
+// ================================================================
+
+app.use((req, res, next) => {
+  const pathName = req.path;
+
+  const routeMap = {
+    '/user/activity': 'actividad.html',
+    '/actividad': 'actividad.html',
+    '/peliculas': 'PeliPREX.html'
+  };
+
+  if (routeMap[pathName]) {
+    const filePath = path.join(__dirname, 'public', routeMap[pathName]);
+    if (fs.existsSync(filePath)) {
+      logger.info('ROUTE_MAPPING', `✅ Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
+      return res.sendFile(filePath);
+    }
+  }
+
+  next();
+});
+
+// ================================================================
+// 🧹 CLEAN URLs (CUARTO)
+// ================================================================
+
+app.use((req, res, next) => {
+  const pathName = req.path;
+
+  const isHtmlRoute = !pathName.includes('.') && 
+    !pathName.startsWith('/api/') && 
+    pathName !== '/';
+
+  if (isHtmlRoute) {
+    const cleanPath = pathName.replace(/^\//, '');
+    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
+    
+    if (fs.existsSync(htmlPath)) {
+      logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
+        path: pathName,
+        htmlFile: `${cleanPath}.html`
+      });
+      return res.sendFile(htmlPath);
+    }
+  }
+
+  next();
+});
+
+// ================================================================
+// 📁 ARCHIVOS ESTÁTICOS (QUINTO)
+// ================================================================
+
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    // Evitar que archivos estáticos interfieran con rutas personalizadas
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    }
+  }
+}));
+
+// ================================================================
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN (SEXTO - DESPUÉS DE RUTAS PÚBLICAS)
+// ================================================================
+
+app.use(verifyFirebaseAuth);
+
+// ================================================================
+// 🛡️ RUTAS PROTEGIDAS (SÉPTIMO - después del middleware)
+// ================================================================
+
+// Las rutas protegidas ya están manejadas por el middleware verifyFirebaseAuth
+// No se requiere código adicional aquí
+
+// ================================================================
 // 🏠 RUTAS PRINCIPALES
 // ================================================================
 
-// Página principal: Servir home.html
+// ✅ ELIMINADA la función createNewError404Page que usaba fs.writeFileSync
+// Ahora se maneja con un archivo estático que ya existe en el proyecto
+
+app.use((req, res, next) => {
+  const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
+  const isApiRoute = req.path.startsWith('/api/');
+
+  if (!isStaticFile && !isApiRoute && req.path !== '/') {
+    if (req.path === '/disclaimer-apis' || req.path === '/API-Docs') {
+      return next();
+    }
+
+    const requestedPath = path.join(__dirname, 'public', req.path);
+    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
+
+    const fileExists = fs.existsSync(requestedPath) ||
+      fs.existsSync(requestedHtmlPath);
+
+    if (!fileExists) {
+      logger.warn('404_REDIRECT', 'Página no encontrada, redirigiendo a error-404', {
+        path: req.path,
+        originalUrl: req.originalUrl
+      });
+
+      // Usar archivo estático existente en lugar de crear dinámicamente
+      const error404Path = path.join(__dirname, 'public', 'error-404.html');
+      if (fs.existsSync(error404Path)) {
+        return res.status(404).sendFile(error404Path);
+      } else {
+        // Fallback por si no existe el archivo
+        return res.status(404).send(`
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>404 - Página no encontrada</title>
+            <style>
+              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
+              h1 { font-size: 72px; color: #333; }
+              a { color: #0066cc; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>404</h1>
+            <p>Página no encontrada</p>
+            <a href="/">Volver al inicio</a>
+          </body>
+          </html>
+        `);
+      }
+    }
+  }
+
+  next();
+});
+
 app.get("/", (req, res) => {
   logger.info('ROOT_HOME', 'Sirviendo home.html como página principal');
   const homePath = path.join(__dirname, 'public', 'home.html');
@@ -2115,15 +1920,14 @@ app.get("/", (req, res) => {
   }
 });
 
-// Ruta de información de la API
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
     version: "3.3.0 - Correo de Bienvenida Post-Verificación con Plantilla Local",
     features: {
       cleanUrls: "✅ URLs sin .html",
-      custom404: "✅ Página error-404 personalizada",
-      authMiddleware: "✅ Control de acceso con Firebase",
+      custom404: "✅ Página error-404 personalizada (archivo estático)",
+      authMiddleware: "✅ Control de acceso con Firebase (ubicado correctamente)",
       autoRedirect: "✅ Redirección automática a login",
       returnTo: "✅ Redirección después del login/registro a página original",
       returnAfterVerify: "✅ Redirección después de verificar correo",
@@ -2131,7 +1935,9 @@ app.get("/api", (req, res) => {
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       routeMapping: "✅ Mapeo lógico de rutas implementado",
-      easyToExpand: "✅ Fácil de agregar nuevas páginas"
+      easyToExpand: "✅ Fácil de agregar nuevas páginas",
+      secureConfig: "✅ /api/config solo expone variables de cliente",
+      recaptchaVar: "✅ Variable reCAPTCHA corregida (RECAPTCHA_CLAVE_SECRETA)"
     },
     routes: {
       public: PUBLIC_ROUTES,
@@ -2171,7 +1977,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Catch-all final para rutas no encontradas
 app.get("*", (req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -2222,10 +2027,11 @@ app.get("*", (req, res) => {
 });
 
 // ================================================================
-// 🚀 INICIO DEL SERVIDOR
+// 🚀 INICIO DEL SERVIDOR - PUERTO CORREGIDO
 // ================================================================
 
-const PORT = process.env.PORT || 80;
+// Para Fly.io se recomienda puerto 8080
+const PORT = process.env.PORT || 8080; // CORREGIDO: 80 -> 80 para Fly.io
 app.listen(PORT, "0.0.0.0", () => {
   logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
@@ -2235,18 +2041,20 @@ app.listen(PORT, "0.0.0.0", () => {
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     version: '3.3.0',
     features: {
-      authMiddleware: 'Activo',
+      authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
-      custom404: 'Activo',
+      custom404: 'Activo (archivo estático)',
       cleanUrls: 'Activo',
       routeMapping: '✅ Implementado',
       autoRedirectToLogin: '✅ Activado',
       returnAfterLogin: '✅ Implementado',
       returnAfterRegister: '✅ Implementado con verify.html',
       returnAfterVerify: '✅ Implementado',
-      welcomeEmailOnVerify: '🔥 NUEVO: Plantilla HTML local'
+      welcomeEmailOnVerify: '🔥 NUEVO: Plantilla HTML local',
+      secureConfig: '✅ /api/config seguro (solo variables cliente)',
+      recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)'
     },
     timestamp: new Date().toISOString()
   });
