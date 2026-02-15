@@ -65,13 +65,6 @@ app.use(helmet({
   xssFilter: true
 }));
 
-// Middleware para ocultar tecnología
-app.use((req, res, next) => {
-  res.setHeader('Server', 'Nginx');
-  res.setHeader('X-Powered-By', 'PHP/8.2.26');
-  next();
-});
-
 // Desactivar CSP en rutas de API para evitar problemas
 app.use('/api', (req, res, next) => {
   res.removeHeader('Content-Security-Policy');
