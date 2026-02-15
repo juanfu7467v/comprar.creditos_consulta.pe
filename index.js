@@ -2045,8 +2045,8 @@ app.get("*", (req, res) => {
 // 🚀 INICIO DEL SERVIDOR - PUERTO CORREGIDO
 // ================================================================
 
-// Para Fly.io se recomienda puerto 8080
-const PORT = process.env.PORT || 80; // CORREGIDO: 80 -> 80 para Fly.io
+// Para Fly.io se recomienda puerto 80
+const PORT = process.env.PORT || 80;
 app.listen(PORT, "0.0.0.0", () => {
   logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
