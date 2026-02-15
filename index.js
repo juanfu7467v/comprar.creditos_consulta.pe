@@ -24,12 +24,6 @@ app.use(express.json());
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================================================================
-// 🔒 ALMACENAMIENTO PARA CONTROL DE FUERZA BRUTA
-// ================================================================
-
-const bruteForceStore = new Map(); // email -> { attempts: [], blockedUntil: timestamp }
-
-// ================================================================
 // 🔍 HELPERS DE IP
 // ================================================================
 
@@ -42,169 +36,81 @@ function getClientIp(req) {
 }
 
 // ================================================================
-// 🔐 FUNCIÓN DE ALERTA DE SEGURIDAD
+// 🔐 CONFIGURACIÓN DE RUTAS Y CONTROL DE ACCESO
 // ================================================================
 
-async function enviarAlertaSeguridad(email, nombre, ip, ubicacion, fecha) {
-  const context = 'ALERTA_SEGURIDAD';
-  
-  try {
-    logger.info(context, '📧 Enviando alerta de seguridad por nuevo dispositivo', { 
-      email, 
-      nombre, 
-      ip, 
-      ubicacion, 
-      fecha 
-    });
-    
-    const templatePath = path.join(__dirname, 'emails', 'security-monitoring-sistem.html');
-    
-    if (!fs.existsSync(templatePath)) {
-      logger.error(context, 'Plantilla de alerta de seguridad no encontrada', null, { templatePath });
-      throw new Error('Plantilla de alerta de seguridad no encontrada');
-    }
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    
-    // Reemplazar variables en la plantilla
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || email.split('@')[0]);
-    htmlContent = htmlContent.replace(/{{IP}}/g, ip);
-    htmlContent = htmlContent.replace(/{{ubicación}}/g, ubicacion || 'Ubicación desconocida');
-    htmlContent = htmlContent.replace(/{{fecha}}/g, fecha);
-    
-    logger.info(context, 'Contenido HTML cargado correctamente', {
-      templatePath,
-      contentLength: htmlContent.length,
-      email,
-      nombre
-    });
-    
-    const result = await resend.emails.send({
-      from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
-      to: email,
-      subject: '⚠️ ALERTA DE SEGURIDAD: Nuevo acceso a tu cuenta',
-      html: htmlContent
-    });
+/**
+ * Rutas públicas que NO requieren autenticación
+ */
+const PUBLIC_ROUTES = [
+  '/login',
+  '/login.html',
+  '/register',
+  '/register.html',
+  '/error-404',
+  '/error-404.html',
+  '/',
+  '/home',
+  '/home.html',
+  '/politica-privacidad',
+  '/politica-privacidad.html',
+  '/terminos-condiciones',
+  '/terminos-condiciones.html',
+  '/politica.compras',
+  '/politica.compras.html',
+  '/aviso-legal-peliprex',
+  '/aviso-legal-peliprex.html',
+  '/disclaimer-apis',
+  '/disclaimer-apis.html',
+  '/API-Docs',
+  '/API-Docs.html',
+  '/verify',
+  '/verify.html'
+];
 
-    logger.info(context, '✅ Alerta de seguridad enviada exitosamente', { 
-      email, 
-      resendId: result.id,
-      ip,
-      fecha
-    });
-    
-    return { success: true, id: result.id };
-    
-  } catch (error) {
-    logger.error(context, '❌ Error enviando alerta de seguridad', error, { 
-      email, 
-      nombre,
-      ip,
-      errorMessage: error.message,
-      errorResponse: error.response?.data || error.response?.body || null
-    });
-    return { success: false, error: error.message };
-  }
-}
+/**
+ * Rutas protegidas que requieren autenticación
+ */
+const PROTECTED_ROUTES = [
+  '/favoritos',
+  '/favoritos.html',
+  '/historial',
+  '/historial.html',
+  '/planes',
+  '/planes.html',
+  '/PeliPREX',
+  '/PeliPREX.html',
+  '/peliculas',
+  '/actividad',
+  '/actividad.html',
+  '/user/activity',
+  '/api-key',
+  '/api-key.html',
+  '/checkout',
+  '/checkout.html'
+];
 
-// ================================================================
-// 🔐 FUNCIÓN PARA VERIFICAR BLOQUEO POR FUERZA BRUTA
-// ================================================================
-
-function checkBruteForce(email) {
-  const context = 'BRUTE_FORCE_CHECK';
-  const now = Date.now();
-  
-  if (!bruteForceStore.has(email)) {
-    return { blocked: false };
-  }
-  
-  const record = bruteForceStore.get(email);
-  
-  // Verificar si está bloqueado
-  if (record.blockedUntil && record.blockedUntil > now) {
-    const remainingTime = Math.ceil((record.blockedUntil - now) / (60 * 1000)); // minutos restantes
-    logger.warn(context, '🚫 Intento de login en cuenta bloqueada', { 
-      email, 
-      remainingMinutes: remainingTime,
-      blockedUntil: new Date(record.blockedUntil).toISOString()
-    });
-    return { 
-      blocked: true, 
-      remainingMinutes: remainingTime,
-      blockedUntil: record.blockedUntil 
-    };
-  }
-  
-  // Si el bloqueo expiró, limpiar el registro
-  if (record.blockedUntil && record.blockedUntil <= now) {
-    logger.info(context, '🔓 Bloqueo expirado, desbloqueando cuenta', { email });
-    bruteForceStore.delete(email);
-    return { blocked: false };
-  }
-  
-  return { blocked: false };
-}
-
-// ================================================================
-// 🔐 FUNCIÓN PARA REGISTRAR INTENTO FALLIDO
-// ================================================================
-
-function registerFailedAttempt(email) {
-  const context = 'BRUTE_FORCE_REGISTER';
-  const now = Date.now();
-  const oneMinuteAgo = now - 60 * 1000;
-  
-  if (!bruteForceStore.has(email)) {
-    bruteForceStore.set(email, { attempts: [] });
-  }
-  
-  const record = bruteForceStore.get(email);
-  
-  // Limpiar intentos antiguos (mayores a 1 minuto)
-  record.attempts = record.attempts.filter(timestamp => timestamp > oneMinuteAgo);
-  
-  // Agregar nuevo intento
-  record.attempts.push(now);
-  
-  logger.info(context, '📝 Registrando intento fallido', { 
-    email, 
-    attemptsInLastMinute: record.attempts.length,
-    totalAttempts: record.attempts.length
-  });
-  
-  // Verificar si supera el límite (5 intentos)
-  if (record.attempts.length >= 5) {
-    const blockedUntil = now + 6 * 60 * 60 * 1000; // 6 horas
-    record.blockedUntil = blockedUntil;
-    
-    logger.warn(context, '🚫 CUENTA BLOQUEADA por fuerza bruta', { 
-      email, 
-      attempts: record.attempts.length,
-      blockedUntil: new Date(blockedUntil).toISOString(),
-      blockDuration: '6 horas'
-    });
-    
-    return { 
-      blocked: true, 
-      blockedUntil,
-      attempts: record.attempts.length 
-    };
-  }
-  
-  return { blocked: false, attempts: record.attempts.length };
-}
-
-// ================================================================
-// 🔐 FUNCIÓN PARA LIMPIAR INTENTOS EXITOSOS
-// ================================================================
-
-function clearBruteForceRecord(email) {
-  if (bruteForceStore.has(email)) {
-    bruteForceStore.delete(email);
-    logger.info('BRUTE_FORCE_CLEAR', 'Registros de fuerza bruta eliminados para login exitoso', { email });
-  }
-}
+/**
+ * Rutas de API que NO requieren middleware de autenticación
+ */
+const PUBLIC_API_ROUTES = [
+  '/api/auth',
+  '/api/login',
+  '/api/register',
+  '/api/config',
+  '/api/health',
+  '/api/webhook',
+  '/api/validate-recaptcha',
+  '/api/pay',
+  '/api/webhook/mercadopago',
+  '/api/payment',
+  '/api/generate-invoice',
+  '/api/invoice-options',
+  '/api/debug/firebase',
+  '/api/admin/clear-cache',
+  '/api/analyze',
+  '/api/notify-verification'
+];
 
 // ================================================================
 // 📋 LOGS MEJORADOS
@@ -855,58 +761,6 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// 🔥 FUNCIÓN: ENVÍO DE CORREO DE BIENVENIDA POST-VERIFICACIÓN
-// ================================================================
-
-async function enviarBienvenida(email, nombre) {
-  const context = 'ENVIAR_BIENVENIDA';
-  
-  try {
-    logger.info(context, '📧 Enviando correo de bienvenida', { email, nombre });
-    
-    const templatePath = path.join(__dirname, 'emails', 'bienvenida-usuario-nuevo.html');
-    
-    if (!fs.existsSync(templatePath)) {
-      logger.error(context, 'Plantilla de correo no encontrada', null, { templatePath });
-      throw new Error('Plantilla de correo no encontrada');
-    }
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre);
-    
-    logger.info(context, 'Contenido HTML cargado correctamente', {
-      templatePath,
-      contentLength: htmlContent.length,
-      nombre
-    });
-    
-    const result = await resend.emails.send({
-      from: 'Masitaprex <bienvenida@masitaprex.com>',
-      to: email,
-      subject: 'Bienvenido a Masitaprex',
-      html: htmlContent
-    });
-
-    logger.info(context, '✅ Correo de bienvenida enviado exitosamente', { 
-      email, 
-      resendId: result.id 
-    });
-    
-    return { success: true, id: result.id };
-    
-  } catch (error) {
-    logger.error(context, '❌ Error enviando correo de bienvenida', error, { 
-      email, 
-      nombre,
-      errorMessage: error.message,
-      errorResponse: error.response?.data || error.response?.body || null
-    });
-    return { success: false, error: error.message };
-  }
-}
-
-// ================================================================
 // 🔐 MIDDLEWARE DE AUTENTICACIÓN - MOVIDO DESPUÉS DE RUTAS PÚBLICAS
 // ================================================================
 
@@ -977,83 +831,6 @@ async function verifyFirebaseAuth(req, res, next) {
 }
 
 // ================================================================
-// 🔐 CONFIGURACIÓN DE RUTAS Y CONTROL DE ACCESO
-// ================================================================
-
-/**
- * Rutas públicas que NO requieren autenticación
- */
-const PUBLIC_ROUTES = [
-  '/login',
-  '/login.html',
-  '/register',
-  '/register.html',
-  '/error-404',
-  '/error-404.html',
-  '/',
-  '/home',
-  '/home.html',
-  '/politica-privacidad',
-  '/politica-privacidad.html',
-  '/terminos-condiciones',
-  '/terminos-condiciones.html',
-  '/politica.compras',
-  '/politica.compras.html',
-  '/aviso-legal-peliprex',
-  '/aviso-legal-peliprex.html',
-  '/disclaimer-apis',
-  '/disclaimer-apis.html',
-  '/API-Docs',
-  '/API-Docs.html',
-  '/verify',
-  '/verify.html'
-];
-
-/**
- * Rutas protegidas que requieren autenticación
- */
-const PROTECTED_ROUTES = [
-  '/favoritos',
-  '/favoritos.html',
-  '/historial',
-  '/historial.html',
-  '/planes',
-  '/planes.html',
-  '/PeliPREX',
-  '/PeliPREX.html',
-  '/peliculas',
-  '/actividad',
-  '/actividad.html',
-  '/user/activity',
-  '/api-key',
-  '/api-key.html',
-  '/checkout',
-  '/checkout.html'
-];
-
-/**
- * Rutas de API que NO requieren middleware de autenticación
- */
-const PUBLIC_API_ROUTES = [
-  '/api/auth',
-  '/api/login',
-  '/api/register',
-  '/api/config',
-  '/api/health',
-  '/api/webhook',
-  '/api/validate-recaptcha',
-  '/api/pay',
-  '/api/webhook/mercadopago',
-  '/api/payment',
-  '/api/generate-invoice',
-  '/api/invoice-options',
-  '/api/debug/firebase',
-  '/api/admin/clear-cache',
-  '/api/analyze',
-  '/api/notify-verification'
-];
-
-// ================================================================
 // 🚨 RUTAS DE API PÚBLICAS (PRIMERO - ANTES DEL MIDDLEWARE)
 // ================================================================
 
@@ -1072,31 +849,23 @@ app.post("/api/notify-verification", async (req, res) => {
       });
     }
 
-    logger.info(context, '📧 Verificación confirmada, enviando correo de bienvenida', {
+    logger.info(context, '📧 Verificación confirmada', {
       uid, email, displayName
     });
 
-    const result = await enviarBienvenida(email, displayName || email.split('@')[0]);
+    // ELIMINADA: Llamada a enviarBienvenida(email, displayName || email.split('@')[0])
 
-    if (result.success) {
-      if (db) {
-        await db.collection("usuarios").doc(uid).set({
-          welcomeEmailSent: true,
-          welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-      }
-
-      res.json({
-        success: true,
-        message: 'Correo de bienvenida enviado correctamente'
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: 'No se pudo enviar el correo de bienvenida',
-        details: result.error
-      });
+    if (db) {
+      await db.collection("usuarios").doc(uid).set({
+        welcomeEmailSent: true,
+        welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
     }
+
+    res.json({
+      success: true,
+      message: 'Verificación confirmada correctamente'
+    });
 
   } catch (error) {
     logger.error(context, 'Error procesando notificación de verificación', error);
@@ -1206,7 +975,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
   }
 });
 
-// Endpoint de login (MODIFICADO CON PROTECCIÓN FUERZA BRUTA Y ALERTA DE SEGURIDAD)
+// Endpoint de login
 app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
 
@@ -1227,17 +996,6 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    // Verificar bloqueo por fuerza bruta
-    const bruteForceCheck = checkBruteForce(email);
-    if (bruteForceCheck.blocked) {
-      return res.status(429).json({
-        success: false,
-        error: `Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta nuevamente en ${bruteForceCheck.remainingMinutes} minutos.`,
-        blocked: true,
-        remainingMinutes: bruteForceCheck.remainingMinutes
-      });
-    }
-
     await validateRecaptcha(recaptchaResponse);
 
     logger.info(context, 'Login iniciado con reCAPTCHA validado', { email, returnTo });
@@ -1245,7 +1003,6 @@ app.post("/api/login", async (req, res) => {
     if (db) {
       const currentDeviceId = deviceId;
       const currentIp = getClientIp(req);
-      const currentFecha = new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' });
 
       const userSnap = await db.collection("usuarios")
         .where("email", "==", email)
@@ -1257,72 +1014,13 @@ app.post("/api/login", async (req, res) => {
         const userRef = userDoc.ref;
         const userData = userDoc.data() || {};
 
-        // Verificar si el deviceId cambió respecto al último acceso
-        if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
-          logger.warn(context, '⚠️ ALERTA: Acceso desde nuevo dispositivo detectado', {
-            email,
-            lastDeviceId: userData.lastDeviceId,
-            currentDeviceId,
-            lastIp: userData.lastIp,
-            currentIp
-          });
+        // ELIMINADA: Alerta de nuevo dispositivo por correo
 
-          // Obtener ubicación aproximada por IP (simplificado - puedes usar un servicio de geolocalización)
-          let ubicacion = 'Ubicación desconocida';
-          try {
-            const geoResponse = await axios.get(`http://ip-api.com/json/${currentIp}`, { timeout: 3000 });
-            if (geoResponse.data && geoResponse.data.status === 'success') {
-              ubicacion = `${geoResponse.data.city || ''}, ${geoResponse.data.country || ''}`.trim() || 'Ubicación desconocida';
-            }
-          } catch (geoError) {
-            logger.warn(context, 'No se pudo obtener ubicación por IP', { error: geoError.message });
-          }
-
-          // Enviar alerta de seguridad
-          await enviarAlertaSeguridad(
-            userData.email || email,
-            userData.nombre || userData.displayName || email.split('@')[0],
-            currentIp,
-            ubicacion,
-            currentFecha
-          );
-        }
-
-        // Guardar datos del último acceso
         await userRef.set({
           lastDeviceId: currentDeviceId,
           lastIp: currentIp,
           lastLogin: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-
-        // Limpiar registros de fuerza bruta en login exitoso
-        clearBruteForceRecord(email);
-        
-        logger.info(context, 'Datos de acceso guardados en BD', {
-          email,
-          lastDeviceId: currentDeviceId,
-          lastIp: currentIp
-        });
-      } else {
-        // Si el usuario no existe en Firestore, es un login fallido
-        const failResult = registerFailedAttempt(email);
-        if (failResult.blocked) {
-          logger.warn(context, '🚫 CUENTA BLOQUEADA por múltiples intentos fallidos', {
-            email,
-            blockedUntil: new Date(failResult.blockedUntil).toISOString()
-          });
-          return res.status(429).json({
-            success: false,
-            error: 'Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta nuevamente en 6 horas.',
-            blocked: true
-          });
-        }
-        
-        return res.status(401).json({
-          success: false,
-          error: 'Credenciales inválidas',
-          attemptsRemaining: 5 - failResult.attempts
-        });
       }
     }
 
@@ -1339,28 +1037,6 @@ app.post("/api/login", async (req, res) => {
 
   } catch (error) {
     logger.error(context, 'Error en login', error);
-
-    // Registrar intento fallido si el error no es por validación de reCAPTCHA
-    if (error.message && !error.message.includes('reCAPTCHA')) {
-      const failResult = registerFailedAttempt(req.body.email);
-      if (failResult.blocked) {
-        logger.warn(context, '🚫 CUENTA BLOQUEADA por múltiples intentos fallidos', {
-          email: req.body.email,
-          blockedUntil: new Date(failResult.blockedUntil).toISOString()
-        });
-        return res.status(429).json({
-          success: false,
-          error: 'Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta nuevamente en 6 horas.',
-          blocked: true
-        });
-      }
-      
-      return res.status(401).json({
-        success: false,
-        error: 'Credenciales inválidas',
-        attemptsRemaining: 5 - failResult.attempts
-      });
-    }
 
     res.status(400).json({
       success: false,
@@ -1409,16 +1085,7 @@ app.post("/api/register", async (req, res) => {
         if (existingEmail && existingEmail !== requestedEmail) {
           const currentIp = getClientIp(req);
 
-          await resend.emails.send({
-            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
-            to: email,
-            subject: 'Registro rechazado',
-            template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763',
-            params: {
-              ip: currentIp,
-              timestamp: new Date().toISOString()
-            }
-          });
+          // ELIMINADA: Alerta de socio duplicado por correo
 
           return res.status(409).json({
             success: false,
@@ -1926,12 +1593,6 @@ app.get("/api/health", async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size,
-    bruteForceMonitor: {
-      trackedEmails: bruteForceStore.size,
-      blockedAccounts: Array.from(bruteForceStore.entries())
-        .filter(([_, record]) => record.blockedUntil && record.blockedUntil > Date.now())
-        .length
-    },
     security: {
       recaptchaSiteKey: RECAPTCHA_SITE_KEY,
       authMiddleware: true,
@@ -2182,7 +1843,7 @@ app.get("/", (req, res) => {
 app.get("/api", (req, res) => {
   res.json({
     message: "API de Pagos Consulta PE",
-    version: "3.4.0 - Protección Fuerza Bruta y Alertas de Seguridad",
+    version: "3.3.0 - Correo de Bienvenida Post-Verificación con Plantilla Local",
     features: {
       cleanUrls: "✅ URLs sin .html",
       custom404: "✅ Página error-404 personalizada (archivo estático)",
@@ -2190,9 +1851,7 @@ app.get("/api", (req, res) => {
       autoRedirect: "✅ Redirección automática a login",
       returnTo: "✅ Redirección después del login/registro a página original",
       returnAfterVerify: "✅ Redirección después de verificar correo",
-      welcomeEmailOnVerify: "✅ Correo de bienvenida con plantilla HTML local",
-      bruteForceProtection: "🔥 NUEVO: 5 intentos fallidos = bloqueo 6 horas",
-      securityAlerts: "🔥 NUEVO: Alerta por cambio de dispositivo",
+      welcomeEmailOnVerify: "🔥 Correo de bienvenida con plantilla HTML local",
       publicRoutes: "✅ Rutas públicas configurables",
       protectedRoutes: "✅ Rutas protegidas configurables",
       routeMapping: "✅ Mapeo lógico de rutas implementado",
@@ -2300,7 +1959,7 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.4.0',
+    version: '3.3.0',
     features: {
       authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
@@ -2313,9 +1972,7 @@ app.listen(PORT, "0.0.0.0", () => {
       returnAfterLogin: '✅ Implementado',
       returnAfterRegister: '✅ Implementado con verify.html',
       returnAfterVerify: '✅ Implementado',
-      welcomeEmailOnVerify: '✅ Plantilla HTML local',
-      bruteForceProtection: '🔥 ACTIVADO (5 intentos = 6h bloqueo)',
-      securityAlerts: '🔥 ACTIVADO (alerta por nuevo dispositivo)',
+      welcomeEmailOnVerify: '🔥 NUEVO: Plantilla HTML local',
       secureConfig: '✅ /api/config seguro (solo variables cliente)',
       recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)'
     },
