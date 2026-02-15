@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO)
+// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO PARA SOPORTAR ONCLICK)
 // ================================================================
 
 app.use(helmet({
@@ -28,10 +28,12 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'", "*"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*", "https:", "http:", "data:", "blob:"],
+      scriptSrcAttr: ["'unsafe-inline'"], // Habilita los onclick directamente
       styleSrc: ["'self'", "'unsafe-inline'", "*", "https:", "http:", "data:"],
+      styleSrcAttr: ["'unsafe-inline'"], // Habilita estilos inline si es necesario
       imgSrc: ["'self'", "data:", "blob:", "*", "https:", "http:"],
       fontSrc: ["'self'", "data:", "*", "https:", "http:"],
-      connectSrc: ["'self'", "*", "https:", "http:", "data:", "blob:", "ws:", "wss:"],
+      connectSrc: ["'self'", "*"], // Simplificado para evitar conflictos
       frameSrc: ["'self'", "*", "https:", "http:", "data:"],
       mediaSrc: ["'self'", "*", "https:", "http:", "data:", "blob:"],
       objectSrc: ["'none'"],
