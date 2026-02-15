@@ -20,19 +20,19 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// 🔒 SEGURIDAD - CABECERAS CON HELMET
+// 🔒 SEGURIDAD - CABECERAS CON HELMET (CONFIGURACIÓN ACTUALIZADA)
 // ================================================================
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.gstatic.com", "https://www.googleapis.com", "https://cdn.jsdelivr.net", "https://www.google.com", "https://www.recaptcha.net", "https://www.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "http:", "https://storage.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
-      connectSrc: ["'self'", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://firestore.googleapis.com", "https://www.google.com", "https://www.recaptcha.net", "https://generativelanguage.googleapis.com", "https://api.mercadopago.com"],
-      frameSrc: ["'self'", "https://www.google.com", "https://www.recaptcha.net"],
+      defaultSrc: ["'self'", "https:", "http:", "data:", "blob:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
+      imgSrc: ["'self'", "data:", "https:", "http:", "blob:"],
+      fontSrc: ["'self'", "https:", "http:", "data:"],
+      connectSrc: ["'self'", "https:", "http:", "wss:", "ws:"],
+      frameSrc: ["'self'", "https:", "http:"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
       frameAncestors: ["'self'"]
@@ -2069,7 +2069,8 @@ app.listen(PORT, "0.0.0.0", () => {
       returnAfterVerify: '✅ Implementado',
       welcomeEmailOnVerify: '🔥 NUEVO: Plantilla HTML local',
       secureConfig: '✅ /api/config seguro (solo variables cliente)',
-      recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)'
+      recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)',
+      cspConfig: '✅ Configuración universal con comodines'
     },
     timestamp: new Date().toISOString()
   });
