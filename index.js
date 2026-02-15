@@ -20,38 +20,42 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// 🔒 SEGURIDAD - CABECERAS CON HELMET (CONFIGURACIÓN ACTUALIZADA)
+// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO)
 // ================================================================
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'", "https:", "http:", "data:", "blob:"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
-      imgSrc: ["'self'", "data:", "https:", "http:", "blob:"],
-      fontSrc: ["'self'", "https:", "http:", "data:"],
-      connectSrc: ["'self'", "https:", "http:", "wss:", "ws:"],
-      frameSrc: ["'self'", "https:", "http:"],
+      defaultSrc: ["'self'", "*"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*", "https:", "http:", "data:", "blob:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "*", "https:", "http:", "data:"],
+      imgSrc: ["'self'", "data:", "blob:", "*", "https:", "http:"],
+      fontSrc: ["'self'", "data:", "*", "https:", "http:"],
+      connectSrc: ["'self'", "*", "https:", "http:", "data:", "blob:", "ws:", "wss:"],
+      frameSrc: ["'self'", "*", "https:", "http:", "data:"],
+      mediaSrc: ["'self'", "*", "https:", "http:", "data:", "blob:"],
       objectSrc: ["'none'"],
+      workerSrc: ["'self'", "blob:"],
+      manifestSrc: ["'self'", "*"],
+      prefetchSrc: ["'self'", "*"],
+      formAction: ["'self'", "*"],
+      frameAncestors: ["'self'", "*"],
+      baseUri: ["'self'"],
       upgradeInsecureRequests: [],
-      frameAncestors: ["'self'"]
     },
+    reportOnly: false,
   },
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: { policy: "unsafe-none" },
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  dnsPrefetchControl: { allow: false },
-  frameguard: { action: 'deny' },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  },
+  originAgentCluster: false,
+  dnsPrefetchControl: { allow: true },
+  frameguard: { action: 'sameorigin' },
+  hsts: false,
   ieNoOpen: true,
   noSniff: true,
-  originAgentCluster: true,
-  permittedCrossDomainPolicies: { permittedPolicies: 'none' },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  permittedCrossDomainPolicies: { permittedPolicies: 'all' },
+  referrerPolicy: { policy: 'no-referrer-when-downgrade' },
   xssFilter: true
 }));
 
@@ -2069,8 +2073,7 @@ app.listen(PORT, "0.0.0.0", () => {
       returnAfterVerify: '✅ Implementado',
       welcomeEmailOnVerify: '🔥 NUEVO: Plantilla HTML local',
       secureConfig: '✅ /api/config seguro (solo variables cliente)',
-      recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)',
-      cspConfig: '✅ Configuración universal con comodines'
+      recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)'
     },
     timestamp: new Date().toISOString()
   });
