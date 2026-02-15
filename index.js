@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO PARA SOPORTAR ONCLICK)
+// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO CON HSTS Y CSP MEJORADA)
 // ================================================================
 
 app.use(helmet({
@@ -28,12 +28,12 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'", "*"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*", "https:", "http:", "data:", "blob:"],
-      scriptSrcAttr: ["'unsafe-inline'"], // Habilita los onclick directamente
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "*", "https:", "http:", "data:"],
-      styleSrcAttr: ["'unsafe-inline'"], // Habilita estilos inline si es necesario
+      styleSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "blob:", "*", "https:", "http:"],
       fontSrc: ["'self'", "data:", "*", "https:", "http:"],
-      connectSrc: ["'self'", "*"], // Simplificado para evitar conflictos
+      connectSrc: ["'self'", "*"],
       frameSrc: ["'self'", "*", "https:", "http:", "data:"],
       mediaSrc: ["'self'", "*", "https:", "http:", "data:", "blob:"],
       objectSrc: ["'none'"],
@@ -53,18 +53,22 @@ app.use(helmet({
   originAgentCluster: false,
   dnsPrefetchControl: { allow: true },
   frameguard: { action: 'sameorigin' },
-  hsts: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
   ieNoOpen: true,
   noSniff: true,
   permittedCrossDomainPolicies: { permittedPolicies: 'all' },
-  referrerPolicy: { policy: 'no-referrer-when-downgrade' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   xssFilter: true
 }));
 
 // Middleware para ocultar tecnología
 app.use((req, res, next) => {
   res.setHeader('Server', 'Nginx');
-  res.setHeader('X-Powered-By', 'PHP/8.2.0');
+  res.setHeader('X-Powered-By', 'PHP/8.2.26');
   next();
 });
 
