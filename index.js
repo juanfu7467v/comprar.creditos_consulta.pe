@@ -761,6 +761,58 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
+// 🔥 FUNCIÓN: ENVÍO DE CORREO DE BIENVENIDA POST-VERIFICACIÓN
+// ================================================================
+
+async function enviarBienvenida(email, nombre) {
+  const context = 'ENVIAR_BIENVENIDA';
+  
+  try {
+    logger.info(context, '📧 Enviando correo de bienvenida', { email, nombre });
+    
+    const templatePath = path.join(__dirname, 'emails', 'bienvenida-usuario-nuevo.html');
+    
+    if (!fs.existsSync(templatePath)) {
+      logger.error(context, 'Plantilla de correo no encontrada', null, { templatePath });
+      throw new Error('Plantilla de correo no encontrada');
+    }
+    
+    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
+    
+    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre);
+    
+    logger.info(context, 'Contenido HTML cargado correctamente', {
+      templatePath,
+      contentLength: htmlContent.length,
+      nombre
+    });
+    
+    const result = await resend.emails.send({
+      from: 'Masitaprex <bienvenida@masitaprex.com>',
+      to: email,
+      subject: 'Bienvenido a Masitaprex',
+      html: htmlContent
+    });
+
+    logger.info(context, '✅ Correo de bienvenida enviado exitosamente', { 
+      email, 
+      resendId: result.id 
+    });
+    
+    return { success: true, id: result.id };
+    
+  } catch (error) {
+    logger.error(context, '❌ Error enviando correo de bienvenida', error, { 
+      email, 
+      nombre,
+      errorMessage: error.message,
+      errorResponse: error.response?.data || error.response?.body || null
+    });
+    return { success: false, error: error.message };
+  }
+}
+
+// ================================================================
 // 🔐 MIDDLEWARE DE AUTENTICACIÓN - MOVIDO DESPUÉS DE RUTAS PÚBLICAS
 // ================================================================
 
@@ -849,23 +901,31 @@ app.post("/api/notify-verification", async (req, res) => {
       });
     }
 
-    logger.info(context, '📧 Verificación confirmada', {
+    logger.info(context, '📧 Verificación confirmada, enviando correo de bienvenida', {
       uid, email, displayName
     });
 
-    // ELIMINADA: Llamada a enviarBienvenida(email, displayName || email.split('@')[0])
+    const result = await enviarBienvenida(email, displayName || email.split('@')[0]);
 
-    if (db) {
-      await db.collection("usuarios").doc(uid).set({
-        welcomeEmailSent: true,
-        welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+    if (result.success) {
+      if (db) {
+        await db.collection("usuarios").doc(uid).set({
+          welcomeEmailSent: true,
+          welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
+
+      res.json({
+        success: true,
+        message: 'Correo de bienvenida enviado correctamente'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        error: 'No se pudo enviar el correo de bienvenida',
+        details: result.error
+      });
     }
-
-    res.json({
-      success: true,
-      message: 'Verificación confirmada correctamente'
-    });
 
   } catch (error) {
     logger.error(context, 'Error procesando notificación de verificación', error);
@@ -1014,7 +1074,18 @@ app.post("/api/login", async (req, res) => {
         const userRef = userDoc.ref;
         const userData = userDoc.data() || {};
 
-        // ELIMINADA: Alerta de nuevo dispositivo por correo
+        if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
+          await resend.emails.send({
+            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            to: userData.email || email,
+            subject: '⚠️ ALERTA: Acceso desde un nuevo dispositivo',
+            template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
+            params: {
+              ip: currentIp,
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
 
         await userRef.set({
           lastDeviceId: currentDeviceId,
@@ -1085,7 +1156,16 @@ app.post("/api/register", async (req, res) => {
         if (existingEmail && existingEmail !== requestedEmail) {
           const currentIp = getClientIp(req);
 
-          // ELIMINADA: Alerta de socio duplicado por correo
+          await resend.emails.send({
+            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            to: email,
+            subject: 'Registro rechazado',
+            template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763',
+            params: {
+              ip: currentIp,
+              timestamp: new Date().toISOString()
+            }
+          });
 
           return res.status(409).json({
             success: false,
