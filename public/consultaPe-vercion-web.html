@@ -952,11 +952,11 @@ function renderizarPerfilConDatos(userData) {
         estadoColor = 'text-green-600';
     }
 
-    // Construir el HTML
+    // Construir el HTML - MODIFICADO: avatar con ancho w-40 (doble de w-20)
     perfilContenido.innerHTML = `
         <!-- Datos del perfil de usuario -->
         <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
-            <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+            <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
                 ${iniciales}
             </div>
             <div>
