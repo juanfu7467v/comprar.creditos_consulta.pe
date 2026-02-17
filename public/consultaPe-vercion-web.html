@@ -901,6 +901,42 @@
         .expiry-input-wrapper {
             position: relative;
         }
+
+        /* ✅ NUEVO: Loader de 3 círculos con degradado azul y verde */
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 0;
+        }
+
+        .loader-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loader-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loader-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -925,11 +961,18 @@
         <input type="text" class="native-input" id="consulta-input" placeholder="Escribe tu consulta aquí...">
     </div>
 
-    <!-- Botón "Consultar" agregado debajo del select -->
+    <!-- Botón "Consultar" agregado debajo del select con degradado azul y verde -->
     <div class="mt-2">
-        <button class="btn-action" style="background-color: #2563eb;" id="consultar-btn">
+        <button class="btn-action" style="background: linear-gradient(135deg, #2563eb, #10b981);" id="consultar-btn">
             CONSULTAR
         </button>
+    </div>
+
+    <!-- Loader para consulta (inicialmente oculto) -->
+    <div id="consulta-loader" class="loader" style="display: none;">
+        <div class="loader-dot"></div>
+        <div class="loader-dot"></div>
+        <div class="loader-dot"></div>
     </div>
 
     <!-- ✅ AGREGADO JUSTO DEBAJO DEL BOTÓN "CONSULTAR": DISEÑO RESULTADO (sin modificar lo demás) -->
@@ -961,9 +1004,10 @@
         <!-- Los datos se cargarán dinámicamente aquí -->
         <div id="perfil-plan-contenido">
             <!-- Este contenido será reemplazado por JavaScript -->
-            <div class="flex justify-center items-center py-8">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-                <span class="ml-3 text-gray-600">Cargando perfil...</span>
+            <div class="loader" id="perfil-loader">
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
+                <div class="loader-dot"></div>
             </div>
         </div>
     </section>
@@ -1274,6 +1318,8 @@ let USER_API_KEY = null; // Variable para almacenar el API Key del usuario
 
 // Elementos del DOM para el perfil
 const perfilContenido = document.getElementById('perfil-plan-contenido');
+const perfilLoader = document.getElementById('perfil-loader');
+const consultaLoader = document.getElementById('consulta-loader');
 
 // Función para generar un API Key seguro
 function generarApiKey() {
@@ -1459,6 +1505,7 @@ async function cargarDatosPerfil() {
                 <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
             </div>
         `;
+        if (perfilLoader) perfilLoader.style.display = 'none';
         return;
     }
 
@@ -1466,6 +1513,9 @@ async function cargarDatosPerfil() {
     USER_UID = user.uid;
 
     try {
+        // Mostrar loader mientras carga
+        if (perfilLoader) perfilLoader.style.display = 'flex';
+        
         const userRef = db.collection("usuarios").doc(user.uid);
         const doc = await userRef.get();
         
@@ -1488,6 +1538,10 @@ async function cargarDatosPerfil() {
             console.log("Documento de usuario por defecto creado con 5 créditos y API Key.");
             renderizarPerfilConDatos(defaultUserData);
         }
+        
+        // Ocultar loader después de cargar
+        if (perfilLoader) perfilLoader.style.display = 'none';
+        
     } catch (error) {
         console.error("Error al cargar los datos del usuario:", error);
         perfilContenido.innerHTML = `
@@ -1499,6 +1553,7 @@ async function cargarDatosPerfil() {
                 </button>
             </div>
         `;
+        if (perfilLoader) perfilLoader.style.display = 'none';
     }
 }
 
@@ -1521,6 +1576,7 @@ auth.onAuthStateChanged((user) => {
                 </div>
             `;
         }
+        if (perfilLoader) perfilLoader.style.display = 'none';
     }
 });
 
@@ -1843,6 +1899,8 @@ async function realizarConsulta() {
     try {
         consultarBtn.textContent = 'CONSULTANDO...';
         consultarBtn.disabled = true;
+        // Mostrar loader
+        consultaLoader.style.display = 'flex';
         
         const response = await fetch(url, {
             method: 'POST',
@@ -1863,6 +1921,9 @@ async function realizarConsulta() {
             </div>
             <div class="logo-text">Consulta PE</div>
         `;
+        
+        // Ocultar loader
+        consultaLoader.style.display = 'none';
         
         // Mostrar el resultado en la sección RESULTADO
         if (result.success && result.data) {
@@ -1901,6 +1962,7 @@ async function realizarConsulta() {
             </div>
         `;
         resultadoWrap.style.display = 'block';
+        consultaLoader.style.display = 'none';
     } finally {
         consultarBtn.textContent = 'CONSULTAR';
         consultarBtn.disabled = false;
@@ -2178,6 +2240,23 @@ function updateCardDisplay() {
         });
     }
 }
+
+// Función para formatear la fecha de vencimiento mientras el usuario escribe
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar a que el iframe de Mercado Pago cargue
+    setTimeout(() => {
+        const expiryInput = document.querySelector('#form-checkout__expirationDate input');
+        if (expiryInput) {
+            expiryInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+        }
+    }, 2000);
+});
 
 // Función para mostrar éxito de pago
 function showPaymentSuccess(result) {
