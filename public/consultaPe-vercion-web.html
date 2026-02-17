@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Checkout Native</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para iconos de redes sociales -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Contenedor principal que llena el ancho */
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+        }
+
+        /* Tarjetas nativas */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1px solid #edf2f7;
+        }
+
+        /* Input Group solicitado: Select izquierda, Input derecha */
+        .search-group {
+            display: flex;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .search-group:focus-within {
+            border-color: #dc2626; /* Color acento rojo del diseño */
+        }
+
+        .native-select {
+            appearance: none;
+            background: #f1f5f9;
+            border: none;
+            border-right: 1.5px solid #e2e8f0;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            width: 40%;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .native-input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: none;
+            outline: none;
+        }
+
+        /* Botón estilo "Confirm Order" */
+        .btn-action {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        .btn-action:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+
+        /* Estilo tarjeta de crédito - VERSIÓN MEJORADA MÁS REALISTA */
+        .credit-card-preview {
+            background: linear-gradient(145deg, #1a2639 0%, #0f4c5c 50%, #2a4f5e 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            position: relative;
+            aspect-ratio: 1.6/1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Efecto de brillo en la tarjeta */
+        .credit-card-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 16px 16px 0 0;
+            pointer-events: none;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .item-img {
+            width: 60px;
+            height: 60px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .qty-badge {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Estilo para la tabla de detalles del plan */
+        .plan-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .plan-detail-table td {
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .plan-detail-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+        .plan-detail-table tr:last-child td {
+            border-bottom: none;
+        }
+        .plan-badge {
+            background-color: #fef2f2;
+            color: #dc2626;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        /* Estilo MEJORADO Y MÁS DETALLADO para el chip de la tarjeta */
+        .card-chip {
+            width: 50px;
+            height: 38px;
+            background: linear-gradient(145deg, #e9d59a 0%, #c9a73d 30%, #9e7c24 70%, #cab055 100%);
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 5px #ffeeaa, inset 0 -3px 5px #4a3e1a, 0 3px 5px rgba(0,0,0,0.3);
+            border: 1px solid #dcb85c;
+            transform: rotate(2deg);
+        }
+        
+        /* Líneas internas del chip */
+        .card-chip::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 12px;
+            height: 8px;
+            background: #ead7a0;
+            border-radius: 2px;
+            box-shadow: 0 0 8px #ffecb3, inset 0 0 2px #aa8f4a;
+            border: 1px solid #b4984a;
+            z-index: 2;
+        }
+        
+        /* Patrón de puntos en el chip */
+        .card-chip .chip-dots {
+            position: absolute;
+            bottom: 7px;
+            right: 7px;
+            display: flex;
+            gap: 3px;
+        }
+        .card-chip .chip-dots span {
+            width: 5px;
+            height: 5px;
+            background: #a58734;
+            border-radius: 50%;
+            box-shadow: inset 0 1px 2px #4a3e1a;
+        }
+        
+        /* Micro-textura del chip */
+        .card-chip::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.1) 4px, rgba(0,0,0,0.1) 8px);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        /* Estilo para el slider horizontal de servicios */
+        .services-slider {
+            display: flex;
+            overflow-x: auto;
+            gap: 16px;
+            padding: 8px 0 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: #dc2626 #f1f5f9;
+            -webkit-overflow-scrolling: touch;
+        }
+        .services-slider::-webkit-scrollbar {
+            height: 6px;
+        }
+        .services-slider::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .services-slider::-webkit-scrollbar-thumb {
+            background: #dc2626;
+            border-radius: 10px;
+        }
+
+        /* Tarjeta de servicio individual */
+        .service-card {
+            flex: 0 0 180px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #edf2f7;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Mitad superior: imagen */
+        .service-image {
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        /* Degradado entre imagen y texto */
+        .service-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(to top, white, transparent);
+            pointer-events: none;
+        }
+
+        /* Mitad inferior: texto */
+        .service-text {
+            padding: 16px 12px 12px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.4;
+            min-height: 70px;
+            background: white;
+        }
+
+        /* Imágenes representativas para cada servicio */
+        .service-img-1 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%233b82f6%22></rect><circle cx=%2250%22 cy=%2240%22 r=%2215%22 fill=%22%23fbbf24%22></circle><rect x=%2225%22 y=%2260%22 width=%2250%22 height=%2230%22 fill=%22%23f97316%22></rect></svg>'); }
+        .service-img-2 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23a855f7%22></rect><polygon points=%2250,20 70,45 60,70 40,70 30,45%22 fill=%22%23facc15%22></polygon></svg>'); }
+        .service-img-3 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2310b981%22></rect><circle cx=%2230%22 cy=%2230%22 r=%228%22 fill=%22%23f59e0b%22></circle><circle cx=%2270%22 cy=%2260%22 r=%228%22 fill=%22%23f59e0b%22></circle><path d=%22M20 70 L40 50 L60 70 L80 40%22 stroke=%22%23ffffff%22 stroke-width=%224%22 fill=%22none%22></path></svg>'); }
+        .service-img-4 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23ef4444%22></rect><rect x=%2220%22 y=%2220%22 width=%2260%22 height=%2260%22 fill=%22%23ffffff%22 stroke=%22%23000%22 stroke-width=%222%22></rect><text x=%2235%22 y=%2265%22 font-size=%2224%22 fill=%22%23ef4444%22>APK</text></svg>'); }
+
+        /* Estilos para el footer - Ocupa todo el ancho */
+        .footer {
+            background-color: #111111;
+            color: #ffffff;
+            width: 100%;
+            padding: 40px 20px;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .footer-section {
+            margin-bottom: 20px;
+        }
+
+        .footer-section h3 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .footer-section p {
+            color: #a0a0a0;
+            margin-bottom: 10px;
+            max-width: 800px;
+        }
+
+        .footer-section strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: #222222;
+            border-radius: 50%;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .social-icons a:hover {
+            background-color: #dc2626;
+            transform: scale(1.05);
+        }
+
+        /* Ajuste del ícono superior para que se vea nítido */
+        .top-icons {
+            filter: blur(0);
+            image-rendering: crisp-edges;
+            transform: scale(1);
+        }
+
+        /* ============================= */
+        /* ✅ BLOQUE RESULTADO (AGREGADO) */
+        /* Copiado del diseño de la imagen, sin tocar lo demás */
+        /* Fuente: https://www.genspark.ai/api/files/s/lV0rjPvB */
+        /* ============================= */
+        .resultado-wrap {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1px solid #edf2f7;
+            overflow: hidden;
+        }
+
+        .resultado-header {
+            position: relative;
+            padding: 22px 20px 12px 20px;
+            background: #ffffff;
+        }
+
+        /* Panel diagonal gris suave (similar al de la imagen) */
+        .resultado-header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(115deg, #eef1f5 0%, #eef1f5 55%, #ffffff 55%, #ffffff 100%);
+            z-index: 0;
+        }
+
+        .resultado-header-inner {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .resultado-title {
+            line-height: 1;
+        }
+
+        .resultado-title .pe {
+            font-weight: 800;
+            font-size: 64px;
+            letter-spacing: -0.03em;
+            color: #0b0b0b;
+        }
+
+        .resultado-title .sub {
+            margin-top: 6px;
+            font-weight: 800;
+            font-size: 26px;
+            letter-spacing: 0.02em;
+            color: #0b0b0b;
+        }
+
+        .resultado-logo {
+            text-align: center;
+            color: #0b0b0b;
+            padding-top: 6px;
+            min-width: 140px;
+        }
+
+        .resultado-logo svg {
+            width: 58px;
+            height: 34px;
+            margin: 0 auto 4px auto;
+            display: block;
+        }
+
+        .resultado-logo .logo-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .resultado-body {
+            padding: 18px 20px 20px 20px;
+            background: #ffffff;
+        }
+
+        .resultado-section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0b0b0b;
+            margin: 16px 0 10px 0;
+        }
+
+        .resultado-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #9aa3af;
+            font-size: 14px;
+            color: #111827;
+        }
+
+        .resultado-table td {
+            border: 1px solid #9aa3af;
+            padding: 12px 10px;
+            vertical-align: middle;
+        }
+
+        .resultado-table .center {
+            text-align: center;
+        }
+
+        .resultado-table.asistentes td:first-child {
+            background: #f3f4f6;
+            width: 50%;
+            font-weight: 500;
+        }
+
+        .resultado-table.asistentes td:last-child {
+            background: #ffffff;
+            width: 50%;
+        }
+
+        .resultado-table.orden td {
+            padding: 14px 12px;
+        }
+    </style>
+</head>
+<body>
+
+<main class="app-container">
+    
+    <!-- Selector de consulta actualizado con las nuevas opciones -->
+    <div class="search-group">
+        <select class="native-select" id="api-select">
+            <option value="">SERVICIO</option>
+            <option value="dni">Consulta RENIEC por DNI</option>
+            <option value="telefonia-doc">Telefonía por Documento</option>
+            <option value="telefonia-num">Telefonía por Número</option>
+            <option value="placa">Datos SUNARP Vehículo</option>
+            <option value="ruc">SUNAT por RUC</option>
+            <option value="empresas">Empresas Relacionadas</option>
+            <option value="matrimonios">Matrimonios Registrados</option>
+            <option value="buscar-dni">Buscar DNI por Nombres</option>
+            <option value="buscar-cedula">Buscar Venezolano por Nombre</option>
+            <option value="cedula">Consultar Cédula Venezolana</option>
+        </select>
+        <input type="text" class="native-input" id="consulta-input" placeholder="Escribe tu consulta aquí...">
+    </div>
+
+    <!-- Botón "Consultar" agregado debajo del select -->
+    <div class="mt-2">
+        <button class="btn-action" style="background-color: #2563eb;" id="consultar-btn">
+            CONSULTAR
+        </button>
+    </div>
+
+    <!-- ✅ AGREGADO JUSTO DEBAJO DEL BOTÓN "CONSULTAR": DISEÑO RESULTADO (sin modificar lo demás) -->
+    <section class="resultado-wrap">
+        <div class="resultado-header">
+            <div class="resultado-header-inner">
+                <div class="resultado-title">
+                    <div class="pe">Pe</div>
+                    <div class="sub">RESULTADO</div>
+                </div>
+
+                <div class="resultado-logo" aria-label="Consulta pe apk">
+                    <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
+                        <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M46 10 L46 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                    <div class="logo-text">Consulta pe apk</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="resultado-body" id="resultado-body">
+            <!-- Las tablas se generarán dinámicamente aquí -->
+        </div>
+    </section>
+
+    <!-- Contenedor Resumen de Compra: AHORA MUESTRA EL PERFIL DEL USUARIO Y DETALLES DE SU PLAN (DATOS REALES DE FIREBASE) -->
+    <section class="card" id="perfil-plan-section">
+        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Perfil y Detalles del Plan</h2>
+        
+        <!-- Los datos se cargarán dinámicamente aquí -->
+        <div id="perfil-plan-contenido">
+            <!-- Este contenido será reemplazado por JavaScript -->
+            <div class="flex justify-center items-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+                <span class="ml-3 text-gray-600">Cargando perfil...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenedor Método de Pago: PayPal reemplazado por Compra por WhatsApp -->
+    <section class="card">
+        <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
+        
+        <div class="space-y-4">
+            <!-- Opción de Visa con ícono agregado -->
+            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50">
+                <input type="radio" name="pay" checked class="accent-red-600">
+                <div class="flex-1">
+                    <p class="text-sm font-bold">**** **** **** 1234</p>
+                    <p class="text-xs text-gray-400">Visa Debit Card</p>
+                </div>
+                <!-- Ícono de Visa agregado -->
+                <div class="text-blue-800 font-bold text-lg">VISA</div>
+            </label>
+
+            <!-- Opción reemplazada: PayPal por Compra por WhatsApp -->
+            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl">
+                <input type="radio" name="pay" class="accent-red-600">
+                <div class="flex-1">
+                    <p class="text-sm font-bold">Compra por WhatsApp</p>
+                </div>
+                <div class="text-green-600 font-bold text-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.036 2.5c-5.234 0-9.5 4.266-9.5 9.5 0 1.745.47 3.427 1.35 4.89l-1.386 4.155 4.332-1.336c1.414.8 3.034 1.24 4.704 1.24 5.234 0 9.5-4.266 9.5-9.5s-4.266-9.5-9.5-9.5zm0 17.5c-1.48 0-2.915-.396-4.158-1.138l-.297-.176-3.074.948 1.013-2.99-.162-.312c-.824-1.3-1.26-2.8-1.26-4.332 0-4.44 3.61-8.05 8.05-8.05s8.05 3.61 8.05 8.05-3.61 8.05-8.05 8.05zm4.36-5.99c-.24-.12-1.425-.703-1.646-.783-.22-.08-.38-.12-.54.12s-.62.783-.76.943c-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.93-1.192-.714-.638-1.196-1.426-1.336-1.667-.14-.24-.015-.37.105-.49.108-.108.24-.282.36-.423.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.194-.464-.39-.4-.54-.408h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.576.248.993.4 1.332.514.56.19 1.07.164 1.473.1.45-.072 1.385-.566 1.58-1.113.195-.547.195-1.016.137-1.114-.058-.098-.213-.158-.453-.278z"></path>
+                    </svg>
+                </div>
+            </label>
+        </div>
+    </section>
+
+    <!-- Sección de Tarjeta de Crédito (con chip MUCHO MÁS REALISTA y selects agregados) -->
+    <section class="card">
+        <!-- Tarjeta de crédito con diseño MUCHO MÁS REALISTA -->
+        <div class="credit-card-preview mb-6">
+            <!-- Chip ultra realista con estructura interna -->
+            <div class="card-chip absolute top-6 left-6">
+                <div class="chip-dots">
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <!-- Ícono superior ajustado para que se vea nítido (sin blur) -->
+            <div class="absolute top-6 right-6 flex gap-1 top-icons">
+                <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
+                <div class="w-8 h-8 bg-orange-500 rounded-full -ml-4"></div>
+            </div>
+            <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg">1234 5678 9012 3456</p>
+            <div class="flex justify-between items-end">
+                <span class="text-xs uppercase opacity-90 font-semibold">ANKIT BHATNAGAR</span>
+                <!-- Texto 12/22 ELIMINADO -->
+            </div>
+            <!-- Marca de tarjeta -->
+            <div class="absolute bottom-6 right-6 text-2xl font-bold italic opacity-80">VISA</div>
+        </div>
+
+        <!-- Dos selects agregados: Créditos e Ilimitado -->
+        <div class="flex gap-4 mb-6">
+            <div class="flex-1">
+                <label class="text-xs font-bold text-gray-400 block mb-1">Créditos</label>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm">
+                    <option>60 créditos - S/10</option>
+                    <option>125 créditos - S/20</option>
+                    <option>200 créditos - S/30</option>
+                    <option>330 créditos - S/50</option>
+                    <option>700 créditos - S/100</option>
+                    <option>1500 créditos - S/200</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label class="text-xs font-bold text-gray-400 block mb-1">Plan Ilimitado</label>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm">
+                    <option>7 días - S/60</option>
+                    <option>15 días - S/80</option>
+                    <option>30 días - S/110</option>
+                    <option>60 días - S/160</option>
+                    <option>70 días - S/510</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs font-bold text-gray-400 block mb-1">Nombre del Titular</label>
+                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" value="Ankit Bhatnagar">
+            </div>
+            
+            <!-- Nuevos campos para la API de Mercado Pago -->
+            <div>
+                <label class="text-xs font-bold text-gray-400 block mb-1">DNI / Identificación</label>
+                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="12345678">
+            </div>
+            
+            <div>
+                <label class="text-xs font-bold text-gray-400 block mb-1">Número de cuenta / Tarjeta</label>
+                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" value="1234 5678 9012 3456">
+            </div>
+            
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">Vence</label>
+                    <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="MM/YY">
+                </div>
+                <div class="w-1/3">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">CVV</label>
+                    <input type="password" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="***">
+                </div>
+            </div>
+
+            <!-- Campos adicionales típicos de Mercado Pago -->
+            <div>
+                <label class="text-xs font-bold text-gray-400 block mb-1">Email del pagador</label>
+                <input type="email" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="cliente@email.com">
+            </div>
+            
+            <div>
+                <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de persona</label>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm">
+                    <option>Persona Natural</option>
+                    <option>Persona Jurídica</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Botón de pago final (sin cambios) -->
+    <div class="mt-4">
+        <button class="btn-action">
+            PAGAR AHORA ($39.00)
+        </button>
+    </div>
+
+    <!-- SLIDER DE SERVICIOS (sin cambios) -->
+    <section class="card">
+        <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Nuestros Servicios</h2>
+        
+        <div class="services-slider">
+            <!-- Servicio 1: peliPREX HD -->
+            <div class="service-card">
+                <div class="service-image service-img-1"></div>
+                <div class="service-text">peliPREX HD – Películas online gratis</div>
+            </div>
+            
+            <!-- Servicio 2: Historial de películas que vi -->
+            <div class="service-card">
+                <div class="service-image service-img-2"></div>
+                <div class="service-text">Historial de películas que vi</div>
+            </div>
+            
+            <!-- Servicio 3: Infraestructura APIs -->
+            <div class="service-card">
+                <div class="service-image service-img-3"></div>
+                <div class="service-text">Infraestructura APIs – 10 APIs listas para integrar (consultas de Perú y Venezuela)</div>
+            </div>
+            
+            <!-- Servicio 4: Aplicación Consulta PE APK -->
+            <div class="service-card">
+                <div class="service-image service-img-4"></div>
+                <div class="service-text">Aplicación Consulta PE APK – Consulta a todas las entidades</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NUEVO CONTENEDOR: Aplicación Consulta PE (similar a "Perfil y Detalles del Plan") -->
+    <section class="card">
+        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Aplicación Consulta PE</h2>
+        
+        <!-- Cabecera con ícono y nombre -->
+        <div class="flex items-center gap-4 mb-4">
+            <!-- Ícono de la aplicación -->
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" ></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-xl">Consulta PE</h3>
+                <p class="text-xs text-gray-400 font-medium">Desarrollado por Masitaprex</p>
+            </div>
+        </div>
+
+        <!-- Descripción corta -->
+        <p class="text-sm text-gray-600 mb-3">
+            Accede a todas las entidades del Perú y Venezuela desde tu móvil.
+        </p>
+
+        <!-- Capturas de la aplicación (simuladas) -->
+        <div class="flex gap-2 overflow-x-auto mb-4 py-2">
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">DNI</div>
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-green-100 to-teal-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">RUC</div>
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-purple-100 to-pink-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">PLACA</div>
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-yellow-100 to-orange-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">VENE</div>
+        </div>
+
+        <!-- Descripción larga (~300 caracteres) -->
+        <p class="text-sm text-gray-700 leading-relaxed mb-5">
+            La aplicación oficial de Consulta PE te permite realizar consultas en línea a las principales entidades gubernamentales de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida, segura y fácil de usar. Descarga ahora y realiza tus consultas desde cualquier lugar.
+        </p>
+
+        <!-- Botón Instalar aplicación -->
+        <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" ></path>
+            </svg>
+            INSTALAR APLICACIÓN
+        </button>
+    </section>
+
+</main>
+
+<!-- FOOTER AGREGADO - Negro oscuro a ancho completo -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>Consulta PE - Intermediario Tecnológico</h3>
+            <p>Operado por <strong>CUBAS PEREZ JOSE RENE (RUC 10736224351)</strong>. Brindamos servicios de interconectividad técnica para acceso a información pública.</p>
+            <p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento de datos y mantenimiento técnico.</p>
+            <div class="social-icons">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
+                    <i class="fab fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Script con la lógica real de Firebase, generación de API Key y funcionalidad de consulta -->
+<script>
+/* ==========================================================
+   CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE (desde perfil.html)
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
+  authDomain: "consulta-pe-abf99.firebaseapp.com",
+  projectId: "consulta-pe-abf99",
+  storageBucket: "consulta-pe-abf99.firebasestorage.app",
+  messagingSenderId: "610275972424",
+  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
+};
+
+// Inicialización
+if(firebase.apps.length === 0){
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
+const FieldValue = firebase.firestore.FieldValue;
+
+let USER_EMAIL = null;
+let USER_UID = null;
+let USER_API_KEY = null; // Variable para almacenar el API Key del usuario
+
+// Elementos del DOM para el perfil
+const perfilContenido = document.getElementById('perfil-plan-contenido');
+
+// Función para generar un API Key seguro
+function generarApiKey() {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+// Función para formatear fecha (copiada de perfil.html)
+function formatDate(isoDate) {
+    if (!isoDate) return 'N/A';
+    try {
+        if (typeof isoDate === 'object' && isoDate.toDate) {
+            isoDate = isoDate.toDate();
+        }
+        const date = new Date(isoDate);
+        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (e) {
+        return 'N/A';
+    }
+}
+
+// Función para actualizar la UI con los datos del perfil y el plan
+function renderizarPerfilConDatos(userData) {
+    if (!perfilContenido) return;
+
+    if (!userData) {
+        perfilContenido.innerHTML = `
+            <div class="text-center py-8 text-red-600">
+                <p class="font-semibold">Error al cargar el perfil</p>
+                <p class="text-sm mt-2">No se pudieron obtener los datos del usuario.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Guardar el API Key en la variable global
+    USER_API_KEY = userData.apiKey;
+
+    // Extraer datos con valores por defecto
+    const nombre = userData.email ? userData.email.split('@')[0] : 'Usuario';
+    const email = userData.email || 'correo@ejemplo.com';
+    const iniciales = nombre.substring(0, 2).toUpperCase() || 'U';
+    
+    // Datos del plan
+    const tipoPlan = userData.tipoPlan || 'creditos';
+    const creditos = userData.creditos || 0;
+    
+    // API Key (mostrar, y si no existe, generar una)
+    let apiKey = userData.apiKey;
+    if (!apiKey) {
+        apiKey = generarApiKey();
+    }
+    
+    // Fecha de activación (si existe)
+    let fechaActivacion = 'No disponible';
+    if (userData.fechaActivacion) {
+        fechaActivacion = formatDate(userData.fechaActivacion);
+    }
+    
+    // Fecha de vencimiento (si es plan ilimitado)
+    let planIlimitadoHasta = 'No aplica';
+    let diasRestantes = 'No aplica';
+    if (tipoPlan === 'ilimitado' && userData.fechaVencimiento) {
+        planIlimitadoHasta = formatDate(userData.fechaVencimiento);
+        
+        // Calcular días restantes
+        try {
+            let vencimiento;
+            if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
+                vencimiento = userData.fechaVencimiento.toDate();
+            } else {
+                vencimiento = new Date(userData.fechaVencimiento);
+            }
+            const hoy = new Date();
+            const diffTime = vencimiento - hoy;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            diasRestantes = diffDays > 0 ? `${diffDays} días` : 'Expirado';
+        } catch (e) {
+            console.error("Error calculando días restantes:", e);
+        }
+    }
+
+    // Última compra (ahora se muestra)
+    const ultimaCompra = userData.ultimaCompra ? formatDate(userData.ultimaCompra) : 'No disponible';
+    
+    // Total consultas (simulado o desde datos si existe)
+    const totalConsultas = userData.totalConsultas || 0;
+
+    // Estado de cuenta
+    let estadoCuenta = 'Inactivo';
+    let estadoColor = 'text-red-600';
+    if (tipoPlan === 'ilimitado' && userData.fechaVencimiento) {
+        try {
+            let vencimiento;
+            if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
+                vencimiento = userData.fechaVencimiento.toDate();
+            } else {
+                vencimiento = new Date(userData.fechaVencimiento);
+            }
+            if (vencimiento > new Date()) {
+                estadoCuenta = 'Activo';
+                estadoColor = 'text-green-600';
+            }
+        } catch (e) {}
+    } else if (tipoPlan === 'creditos' && creditos > 0) {
+        estadoCuenta = 'Activo (con créditos)';
+        estadoColor = 'text-green-600';
+    }
+
+    // Construir el HTML
+    perfilContenido.innerHTML = `
+        <!-- Datos del perfil de usuario -->
+        <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
+            <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                ${iniciales}
+            </div>
+            <div>
+                <h3 class="font-bold text-lg">${nombre}</h3>
+                <p class="text-sm text-gray-500">${email}</p>
+                <!-- API Key mostrado en lugar del badge del plan -->
+                <p class="text-xs text-gray-400 mt-1 break-all"><span class="font-mono">${apiKey}</span></p>
+            </div>
+        </div>
+
+        <!-- Tabla con los detalles del plan -->
+        <table class="plan-detail-table">
+            <tr>
+                <td>Tipo de Plan</td>
+                <td>${tipoPlan.charAt(0).toUpperCase() + tipoPlan.slice(1)}</td>
+            </tr>
+            <tr>
+                <td>Días restantes</td>
+                <td>${diasRestantes}</td>
+            </tr>
+            <tr>
+                <td>Fecha de Activación</td>
+                <td>${fechaActivacion}</td>
+            </tr>
+            <tr>
+                <td>Válido hasta</td>
+                <td>${planIlimitadoHasta}</td>
+            </tr>
+            <tr>
+                <td>Créditos disponibles</td>
+                <td>${tipoPlan === 'ilimitado' ? '0 (Plan Ilimitado)' : creditos}</td>
+            </tr>
+            <tr>
+                <td>Última compra</td>
+                <td>${ultimaCompra}</td>
+            </tr>
+            <tr>
+                <td>Total consultas</td>
+                <td>${totalConsultas}</td>
+            </tr>
+            <tr>
+                <td>Estado de cuenta</td>
+                <td><span class="${estadoColor} font-bold">${estadoCuenta}</span></td>
+            </tr>
+        </table>
+    `;
+
+    // Si no tenía API Key, la guardamos en Firestore
+    if (!userData.apiKey && userData.email) {
+        const userRef = db.collection("usuarios").doc(auth.currentUser.uid);
+        userRef.update({
+            apiKey: apiKey
+        }).catch(error => {
+            console.error("Error guardando API Key:", error);
+        });
+    }
+}
+
+// Función para cargar los datos del perfil desde Firestore
+async function cargarDatosPerfil() {
+    const user = auth.currentUser;
+    
+    if (!user) {
+        // Si no hay usuario autenticado, mostrar mensaje para iniciar sesión
+        perfilContenido.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+                <p class="font-semibold">No has iniciado sesión</p>
+                <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
+            </div>
+        `;
+        return;
+    }
+
+    USER_EMAIL = user.email;
+    USER_UID = user.uid;
+
+    try {
+        const userRef = db.collection("usuarios").doc(user.uid);
+        const doc = await userRef.get();
+        
+        if (doc.exists) {
+            const userData = doc.data();
+            renderizarPerfilConDatos(userData);
+        } else {
+            console.warn("Documento de usuario no encontrado en Firestore.");
+            // Crear un documento por defecto si no existe
+            const defaultUserData = {
+                email: user.email,
+                tipoPlan: "creditos",
+                creditos: 5,
+                fechaActivacion: FieldValue.serverTimestamp(),
+                duracionDias: 0,
+                apiKey: generarApiKey(),
+                ultimaCompra: null
+            };
+            await userRef.set(defaultUserData);
+            console.log("Documento de usuario por defecto creado con 5 créditos y API Key.");
+            renderizarPerfilConDatos(defaultUserData);
+        }
+    } catch (error) {
+        console.error("Error al cargar los datos del usuario:", error);
+        perfilContenido.innerHTML = `
+            <div class="text-center py-8 text-red-600">
+                <p class="font-semibold">Error al cargar el perfil</p>
+                <p class="text-sm mt-2">${error.message || 'Intenta de nuevo más tarde.'}</p>
+                <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
+                    Reintentar
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Observador de autenticación
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        USER_EMAIL = user.email;
+        USER_UID = user.uid;
+        cargarDatosPerfil();
+    } else {
+        // Usuario no autenticado
+        if (perfilContenido) {
+            perfilContenido.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <p class="font-semibold">No has iniciado sesión</p>
+                    <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
+                    <a href="login.html" class="mt-4 inline-block px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
+                        Iniciar sesión
+                    </a>
+                </div>
+            `;
+        }
+    }
+});
+
+/* ==========================================================
+   FUNCIONALIDAD DEL SELECT Y CONSULTA A LA API
+   ========================================================= */
+const apiSelect = document.getElementById('api-select');
+const consultaInput = document.getElementById('consulta-input');
+const consultarBtn = document.getElementById('consultar-btn');
+const resultadoBody = document.getElementById('resultado-body');
+
+// Mapa de placeholders según la API seleccionada
+const placeholders = {
+    'dni': 'Ej: 12345678',
+    'telefonia-doc': 'Ej: 12345678 o 20123456789',
+    'telefonia-num': 'Ej: 987654321',
+    'placa': 'Ej: ABC-123',
+    'ruc': 'Ej: 20123456789',
+    'empresas': 'Ej: 12345678',
+    'matrimonios': 'Ej: 12345678',
+    'buscar-dni': 'Ej: Juan Carlos Perez Gomez',
+    'buscar-cedula': 'Ej: Maria Rodriguez',
+    'cedula': 'Ej: V12345678'
+};
+
+// Mapa de endpoints de la API (según documentación)
+const endpoints = {
+    'dni': 'consulta/dni',
+    'telefonia-doc': 'consulta/telefonia-doc',
+    'telefonia-num': 'consulta/telefonia-num',
+    'placa': 'consulta/placa',
+    'ruc': 'consulta/ruc',
+    'empresas': 'consulta/empresas',
+    'matrimonios': 'consulta/matrimonios',
+    'buscar-dni': 'consulta/buscar-dni',
+    'buscar-cedula': 'consulta/buscar-cedula',
+    'cedula': 'consulta/cedula'
+};
+
+// Mapa de nombres de parámetros para cada endpoint
+const paramNames = {
+    'dni': 'dni',
+    'telefonia-doc': 'documento',
+    'telefonia-num': 'numero',
+    'placa': 'placa',
+    'ruc': 'data',
+    'empresas': 'dni',
+    'matrimonios': 'dni',
+    'buscar-dni': null, // Requiere múltiples campos: nombres, apepaterno, apematerno
+    'buscar-cedula': 'query',
+    'cedula': 'cedula'
+};
+
+// Función para crear tablas dinámicas a partir de un objeto
+function crearTablasDesdeObjeto(obj, nivel = 0) {
+    if (!obj || typeof obj !== 'object') return '';
+    
+    let html = '';
+    
+    // Si es un array, crear una tabla para cada elemento
+    if (Array.isArray(obj)) {
+        if (obj.length === 0) return '<p class="text-gray-500 text-center py-4">No hay datos para mostrar</p>';
+        
+        obj.forEach((item, index) => {
+            if (typeof item === 'object') {
+                html += `<div class="resultado-section-title">Elemento ${index + 1}</div>`;
+                html += crearTablasDesdeObjeto(item, nivel + 1);
+            }
+        });
+        return html;
+    }
+    
+    // Si es un objeto, crear una tabla con sus propiedades
+    const entries = Object.entries(obj);
+    if (entries.length === 0) return '';
+    
+    // Determinar si es un objeto plano o tiene anidamiento
+    const hasNestedObjects = entries.some(([_, value]) => value && typeof value === 'object');
+    
+    if (hasNestedObjects && nivel === 0) {
+        // Si tiene objetos anidados, crear tablas separadas
+        entries.forEach(([key, value]) => {
+            if (value && typeof value === 'object') {
+                html += `<div class="resultado-section-title">${key.replace(/_/g, ' ').toUpperCase()}</div>`;
+                html += crearTablasDesdeObjeto(value, nivel + 1);
+            } else {
+                // Para propiedades simples al primer nivel, crear una tabla general
+                if (!html.includes('<table class="resultado-table">')) {
+                    html += `<table class="resultado-table">`;
+                }
+                // Esto se maneja en el else
+            }
+        });
+        
+        // Crear tabla para propiedades simples si las hay
+        const simpleProps = entries.filter(([_, value]) => !(value && typeof value === 'object'));
+        if (simpleProps.length > 0) {
+            html += `<table class="resultado-table">`;
+            simpleProps.forEach(([key, value]) => {
+                const displayValue = value !== null && value !== undefined ? value : 'N/A';
+                html += `
+                    <tr>
+                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
+                        <td>${displayValue}</td>
+                    </tr>
+                `;
+            });
+            html += `</table>`;
+        }
+    } else {
+        // Crear una tabla simple de dos columnas
+        html += `<table class="resultado-table">`;
+        entries.forEach(([key, value]) => {
+            if (value && typeof value === 'object') {
+                // Si es un objeto anidado y no estamos en nivel 0, mostrar como JSON
+                html += `
+                    <tr>
+                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
+                        <td><pre class="text-xs">${JSON.stringify(value, null, 2)}</pre></td>
+                    </tr>
+                `;
+            } else {
+                const displayValue = value !== null && value !== undefined ? value : 'N/A';
+                html += `
+                    <tr>
+                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
+                        <td>${displayValue}</td>
+                    </tr>
+                `;
+            }
+        });
+        html += `</table>`;
+    }
+    
+    return html;
+}
+
+// Cambiar placeholder según la selección
+apiSelect.addEventListener('change', function() {
+    const selected = this.value;
+    consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
+    
+    // Si es "Buscar DNI por Nombres", mostrar un mensaje especial
+    if (selected === 'buscar-dni') {
+        consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
+    }
+});
+
+// Función para realizar la consulta
+async function realizarConsulta() {
+    const selectedApi = apiSelect.value;
+    const consultaValue = consultaInput.value.trim();
+    
+    if (!selectedApi) {
+        alert('Por favor, selecciona un servicio.');
+        return;
+    }
+    
+    if (!consultaValue) {
+        alert('Por favor, ingresa un valor para la consulta.');
+        return;
+    }
+    
+    // Verificar que el usuario esté autenticado
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Debes iniciar sesión para realizar consultas.');
+        return;
+    }
+    
+    // Obtener el API Key del usuario
+    let apiKey = USER_API_KEY;
+    
+    if (!apiKey) {
+        try {
+            const userRef = db.collection("usuarios").doc(user.uid);
+            const doc = await userRef.get();
+            if (doc.exists) {
+                apiKey = doc.data().apiKey;
+                USER_API_KEY = apiKey;
+            }
+        } catch (error) {
+            console.error('Error obteniendo API Key:', error);
+            alert('Error al obtener tu API Key. Intenta de nuevo.');
+            return;
+        }
+    }
+    
+    if (!apiKey) {
+        alert('No se encontró un API Key para tu cuenta. Por favor, recarga la página.');
+        return;
+    }
+    
+    // Construir el objeto de datos para la petición
+    let requestData = {};
+    const paramName = paramNames[selectedApi];
+    
+    if (selectedApi === 'buscar-dni') {
+        const parts = consultaValue.split(' ');
+        if (parts.length < 2) {
+            alert('Formato incorrecto. Usa: Nombres ApellidoPaterno ApellidoMaterno');
+            return;
+        }
+        requestData = {
+            nombres: parts[0],
+            apepaterno: parts[1],
+            apematerno: parts.slice(2).join(' ') || ''
+        };
+    } else if (paramName) {
+        requestData[paramName] = consultaValue;
+    } else {
+        requestData = consultaValue;
+    }
+    
+    const baseUrl = 'https://api.masitaprex.com/v3';
+    const endpoint = endpoints[selectedApi];
+    const url = `${baseUrl}/${endpoint}`;
+    
+    try {
+        consultarBtn.textContent = 'CONSULTANDO...';
+        consultarBtn.disabled = true;
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        const result = await response.json();
+        console.log('Resultado de la consulta:', result);
+        
+        // Mostrar el resultado en la sección RESULTADO
+        if (result.success && result.data) {
+            resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
+        } else if (result.error) {
+            resultadoBody.innerHTML = `
+                <div class="text-center py-8 text-red-600">
+                    <p class="font-semibold">Error en la consulta</p>
+                    <p class="text-sm mt-2">${result.error}</p>
+                </div>
+            `;
+        } else {
+            resultadoBody.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <p class="font-semibold">Sin resultados</p>
+                    <p class="text-sm mt-2">No se encontraron datos para la consulta realizada.</p>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error al realizar la consulta:', error);
+        resultadoBody.innerHTML = `
+            <div class="text-center py-8 text-red-600">
+                <p class="font-semibold">Error de conexión</p>
+                <p class="text-sm mt-2">No se pudo completar la consulta. Intenta de nuevo.</p>
+            </div>
+        `;
+    } finally {
+        consultarBtn.textContent = 'CONSULTAR';
+        consultarBtn.disabled = false;
+    }
+}
+
+// Event listener para el botón de consultar
+consultarBtn.addEventListener('click', realizarConsulta);
+
+</script>
+
+</body>
+</html>

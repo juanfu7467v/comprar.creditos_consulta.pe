@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* Fuente moderna para móvil */
+            background-color: #f4f7f6; /* Fondo más suave */
+            margin: 0;
+            padding: 10px;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra más sutil */
+        }
+
+        h1 {
+            color: #3498db; /* Color primario de la marca */
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-top: 25px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            color: #34495e;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.6;
+            text-align: justify;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+            list-style-type: disc;
+        }
+
+        li {
+            margin-bottom: 8px;
+            text-align: justify;
+            font-size: 14px;
+        }
+
+        .note {
+            background-color: #e8f6f3; /* Fondo para notas importantes */
+            border-left: 5px solid #1abc9c;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Estilos de la tabla de precios para móvil (Tabla de Créditos) */
+        .price-table-credits {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .price-table-credits caption {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .price-table-credits th, .price-table-credits td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 14px;
+        }
+        .price-table-credits thead tr {
+            background-color: #3498db;
+            color: white;
+        }
+        .price-table-credits tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .price-table-credits td:nth-child(1) { font-weight: bold; }
+        .price-table-credits td:nth-child(2) { color: #16a085; font-weight: bold; }
+        .price-table-credits td:nth-child(3) { color: #e67e22; }
+
+        /* Estilos de la tabla de precios para móvil (Tabla de Planes) */
+        .price-table-plans {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .price-table-plans caption {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .price-table-plans th, .price-table-plans td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 14px;
+        }
+        .price-table-plans thead tr {
+            background-color: #2980b9;
+            color: white;
+        }
+        .price-table-plans tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .price-table-plans td:nth-child(1) { font-weight: bold; }
+        .price-table-plans td:nth-child(3) { color: #c0392b; font-weight: bold; }
+        
+        .accreditation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .accreditation-table th, .accreditation-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .accreditation-table th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .warning-box {
+            background-color: #fef9e7;
+            border: 1px solid #f9e79f;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+    </style>
+    <title>Política de Compras y Reembolsos</title>
+    <meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+<h1>Política de Compras, Créditos y Reembolsos – MasitaPrex</h1>
+
+<p style="text-align: center;">Última actualización: 27 de octubre de 2025</p>
+
+<p>En MasitaPrex, valoramos la confianza de nuestros usuarios y buscamos mantener una relación clara, honesta y transparente. Nuestro objetivo primordial es asegurar que cada usuario comprenda la naturaleza de los servicios que adquiere y las condiciones que rigen cada transacción.</p>
+
+<h2>Aclaración sobre nuestro rol de Intermediario Tecnológico</h2>
+<p>MasitaPrex actúa exclusivamente como una plataforma de infraestructura tecnológica e intermediario que facilita el acceso a diversos servicios en línea a través de la asignación de "Créditos" o la activación de "Planes Ilimitados". La compra efectuada por el usuario está destinada a la adquisición del derecho de acceso y uso de nuestra infraestructura de procesamiento y conectividad, y no a la compra de un producto físico, un contenido específico (como una película) o datos personales de terceros.</p>
+<p>Al realizar cualquier compra de créditos o plan ilimitado desde nuestra web o canales oficiales, el usuario declara haber leído, comprendido y aceptado íntegramente los siguientes términos y condiciones descritos en esta Política.</p>
+
+<h2>1. Definiciones y Alcance de la Política</h2>
+
+<h3>1.1. Definiciones Clave</h3>
+<ul>
+    <li><strong>MasitaPrex (o "la Plataforma"):</strong> El proveedor del servicio de infraestructura tecnológica intermediaria.</li>
+    <li><strong>Usuario:</strong> La persona natural que realiza la compra y consume los créditos o planes.</li>
+    <li><strong>Créditos:</strong> La unidad de medida digital y no monetaria que otorga al Usuario el derecho limitado de acceso a funciones de procesamiento y consulta dentro de la infraestructura de MasitaPrex.</li>
+    <li><strong>Plan Ilimitado:</strong> La activación temporal que otorga al Usuario el derecho irrestricto de acceso y uso de la infraestructura de la Plataforma por un periodo definido.</li>
+    <li><strong>Transacción:</strong> Toda operación de pago o transferencia de fondos realizada por el Usuario para la adquisición de Créditos o Planes Ilimitados.</li>
+</ul>
+
+<h3>1.2. Aceptación de los Términos</h3>
+<p>La ejecución de cualquier Transacción por parte del Usuario implica automáticamente la aceptación total e incondicional de los términos de esta Política. Si el Usuario no está de acuerdo con alguna de las condiciones, deberá abstenerse de realizar la compra.</p>
+
+<h2>2. Registro, Almacenamiento y Protección de la Información</h2>
+<p>Cada compra efectuada directamente desde la web de MasitaPrex registra y almacena de forma segura la siguiente información en nuestra base de datos, cumpliendo estrictamente con la Ley N.° 29733, Ley de Protección de Datos Personales de Perú:</p>
+<ul>
+    <li><strong>Identificación:</strong> Correo electrónico del usuario (clave para la vinculación del servicio).</li>
+    <li><strong>Transacción:</strong> Monto pagado, fecha y hora exacta de la transacción.</li>
+    <li><strong>Método:</strong> Medio de pago utilizado (ej. tarjeta, Mercado Pago).</li>
+    <li><strong>Código de Operación:</strong> Número único de identificación de la transacción.</li>
+</ul>
+
+<h3>2.1. Uso Exclusivo de la Información</h3>
+<p>Esta información es de carácter privado y se utiliza exclusivamente para:</p>
+<ul>
+    <li>Verificar la autenticidad y validez del pago.</li>
+    <li>Asignar los créditos o activar el plan correspondiente de forma correcta.</li>
+    <li>Otorgar bonos, beneficios o créditos de regalo como reconocimiento a la fidelidad de nuestros usuarios.</li>
+</ul>
+<p>🔸 Los usuarios con historial de compras son catalogados como usuarios recurrentes, por lo que automáticamente acceden a programas de bonificación superiores en futuras adquisiciones.</p>
+
+<h3>2.2. Confidencialidad y Compartición</h3>
+<p>La información no será vendida, alquilada ni compartida con terceros ajenos a la operativa, salvo las plataformas de pago necesarias (ej. Mercado Pago o entidades bancarias) para procesar la Transacción de manera segura, quienes también deben adherirse a estrictos estándares de seguridad y privacidad.</p>
+
+<h2>3. Métodos de Pago Aceptados y Proceso de Compra</h2>
+<p>MasitaPrex se compromete a utilizar únicamente canales de pago seguros y verificables.</p>
+
+<h3>3.1. Canales Oficiales de Pago</h3>
+<ul>
+    <li><strong>Pago en la Web:</strong> Se realiza únicamente a través de la pasarela de pago Mercado Pago, la cual acepta Tarjetas de crédito y débito. Este pago tiene una comisión aplicada por la pasarela y la activación de créditos es inmediata tras la aprobación.</li>
+    <li><strong>Otros Métodos (WhatsApp):</strong> Ofrecemos otros métodos de pago (como Yape o transferencia) que deben solicitarse y coordinarse a través de nuestro WhatsApp oficial. La activación en estos casos no es inmediata y está sujeta a verificación manual.</li>
+</ul>
+
+<h3>3.2. Proceso y Tiempos de Acreditación</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Medio de pago</th>
+            <th>Tiempo de acreditación</th>
+            <th>Observaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Tarjeta en la Web (Mercado Pago)</td>
+            <td>Inmediato</td>
+            <td>Activación instantánea. Aplica comisión de la pasarela.</td>
+        </tr>
+        <tr>
+            <td>Otros métodos por WhatsApp</td>
+            <td>Variable (minutos a horas)</td>
+            <td>Sujeto a verificación manual. Sin comisión de pasarela online.</td>
+        </tr>
+    </tbody>
+</table>
+<p>⚠️ <strong>Compras por WhatsApp (Activación Manual):</strong> La información de pago se gestiona de forma manual. El bono de regalo en estas compras suele ser mayor como compensación por el tiempo de espera.</p>
+
+<h2>4. Adquisición de Créditos y Planes (Derecho de Acceso a la Infraestructura)</h2>
+<p>La compra se formaliza con la asignación de Créditos o la activación del Plan Ilimitado en la cuenta del Usuario, lo que constituye la adquisición del derecho de acceso a los servicios de infraestructura tecnológica de MasitaPrex. Los créditos y planes tienen el mismo valor y son válidos para todos los servicios de la plataforma (streaming, APIs de consulta, etc.).</p>
+
+<h3>4.1. Recarga de Cuenta</h3>
+<p>Es posible recargar créditos o planes para la propia cuenta del usuario o para la cuenta de un tercero, ingresando el correo electrónico y el ID correspondiente y completando el pago.</p>
+
+<h3>Tabla de Precios de Créditos</h3>
+<table>
+    <caption>Créditos para Uso de la Infraestructura</caption>
+    <thead>
+        <tr>
+            <th>Monto (S/.)</th>
+            <th>Créditos Asignados</th>
+            <th>Bonificación Extra</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>10</td>
+            <td>60 ⚡</td>
+            <td>3</td>
+        </tr>
+        <tr>
+            <td>20</td>
+            <td>125 🚀</td>
+            <td>5 Créditos</td>
+        </tr>
+        <tr>
+            <td>50</td>
+            <td>330 💎</td>
+            <td>20 Créditos</td>
+        </tr>
+        <tr>
+            <td>100</td>
+            <td>700 👑</td>
+            <td>40 Créditos</td>
+        </tr>
+        <tr>
+            <td>200</td>
+            <td>1500 🔥</td>
+            <td>80 Créditos</td>
+        </tr>
+    </tbody>
+</table>
+
+<h3>Tabla de Precios de Planes Ilimitados</h3>
+<table>
+    <caption>Acceso Ilimitado a la Infraestructura por Tiempo Definido</caption>
+    <thead>
+        <tr>
+            <th>Duración</th>
+            <th>Precio Sugerido (S/.)</th>
+            <th>Ahorro Estimado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>7 días</td>
+            <td>60</td>
+            <td>+ S/4.00</td>
+        </tr>
+        <tr>
+            <td>15 días</td>
+            <td>80</td>
+            <td>+ S/7.50</td>
+        </tr>
+        <tr>
+            <td>30 días</td>
+            <td>110</td>
+            <td>+ S/17.00</td>
+        </tr>
+        <tr>
+            <td>60 días</td>
+            <td>160</td>
+            <td>+ S/30.00</td>
+        </tr>
+        <tr>
+            <td>70 días</td>
+            <td>510</td>
+            <td>+ S/50.00</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>5. Bonos y Recompensas por Fidelidad</h2>
+<p>MasitaPrex busca premiar la lealtad. La asignación de bonos es un acto de buena voluntad y no una obligación contractual.</p>
+<ul>
+    <li><strong>Evaluación Automática:</strong> Cada compra directa desde la web genera una evaluación automática del perfil del usuario (nuevo o frecuente).</li>
+    <li><strong>Asignación:</strong> Los bonos y recompensas (créditos adicionales, regalos especiales) se aplican automáticamente y son personales e intransferibles, vinculados exclusivamente a la cuenta del correo registrado.</li>
+</ul>
+
+<h2>6. Reembolsos y Condiciones (Derecho de Retracto)</h2>
+<p>En MasitaPrex, buscamos la satisfacción plena. No obstante, las solicitudes de reembolso están sujetas a condiciones estrictas dada la naturaleza digital e inmediata del servicio de infraestructura.</p>
+
+<h3>6.1. Condiciones Generales de Reembolso</h3>
+<ul>
+    <li><strong>Reembolso Completo:</strong> Se aplica si no se han usado los créditos o el plan adquirido.</li>
+    <li><strong>Reembolso Parcial:</strong> Si ya se consumió parte de los créditos o del tiempo del plan, se reembolsa solo el monto equivalente a la parte no utilizada.</li>
+    <li><strong>Comisiones no Reembolsables:</strong> Las comisiones aplicadas por la pasarela de pago (Mercado Pago) no son reembolsables.</li>
+</ul>
+
+<h3>6.2. Plazo y Requisitos Obligatorios</h3>
+<p>Los reembolsos solo pueden solicitarse dentro de las primeras 12 horas posteriores a la acreditación del pago. Es indispensable que el Usuario cumpla con la presentación de la documentación solicitada en la Sección 8.</p>
+
+<h3>6.3. Comisiones de Pasarela de Pago</h3>
+<p>El Usuario entiende y acepta que las devoluciones a través de plataformas como Mercado Pago incurren en comisiones operativas que MasitaPrex no percibe ni retiene.</p>
+<ul>
+    <li><strong>Descuento Oficial:</strong> Mercado Pago cobra una comisión por cada transacción (sujeto a cambios por la plataforma).</li>
+    <li><strong>Ejemplos Reembolso Mercado Pago (Aproximado):</strong>
+        <ul>
+            <li>Pago S/50: Reembolso de S/46.75</li>
+            <li>Pago S/100: Reembolso de S/92.51</li>
+            <li>Pago S/10: Reembolso de S/8.36</li>
+        </ul>
+    </li>
+    <li><strong>Aclaración:</strong> MasitaPrex no cobra ninguna comisión adicional por el proceso de reembolso.</li>
+</ul>
+
+<h3>6.4. Reembolsos por Canales Manuales (WhatsApp)</h3>
+<p>Los pagos realizados directamente por WhatsApp (Yape o transferencia) pueden reembolsarse por el mismo monto exacto enviado, ya que estas Transacciones manuales no están sujetas a la comisión automática de una pasarela de pagos online.</p>
+
+<h2>7. Casos de No Aplicación de Reembolso y Exclusión</h2>
+
+<h3>7.1. Casos de Exclusión Definitiva</h3>
+<p>No se realizará reembolso, bajo ninguna circunstancia, si:</p>
+<ul>
+    <li>El Usuario ha consumido la totalidad de los créditos asignados o ha finalizado el periodo del Plan Ilimitado.</li>
+    <li>Han transcurrido más de 12 horas calendario desde la acreditación del pago.</li>
+    <li>El pago fue hecho con datos incorrectos, no verificables, o fuera de los canales oficiales de MasitaPrex.</li>
+    <li>El Usuario realiza la compra de manera duplicada o errónea por causas imputables a él mismo.</li>
+</ul>
+
+<h3>7.2. Uso Indebido o Abuso de la Plataforma</h3>
+<p>No se aplicará reembolso si se determina que la solicitud se debe a la suspensión o bloqueo de la cuenta del Usuario por incumplimiento de los Términos y Condiciones de Uso de MasitaPrex (ej. fraude, uso malintencionado, o abuso del sistema). En estos casos, la compra se considera utilizada y no existe derecho a devolución.</p>
+
+<h2>8. Contacto y Proceso Formal de Reembolso</h2>
+<p>Toda solicitud de reembolso debe ser formalizada para su correcta verificación.</p>
+
+<h3>Contacto</h3>
+<ul>
+    <li>Soporte WhatsApp: <a href="https://wa.me/51944950234?text=%C2%A1Hola!%20Equipo%20MasitaPrex%20necesito%20ayuda%20con%20un%20reembolso...">pulsa aquí para ir al centro de ayuda y soporte</a></li>
+</ul>
+
+<h3>Documentación Requerida</h3>
+<p>Para agilizar el proceso, el Usuario debe incluir la siguiente información completa:</p>
+<ul>
+    <li>Correo Electrónico registrado en la compra.</li>
+    <li>Comprobante o Captura del Pago claro y legible.</li>
+    <li>Fecha y Hora exacta de la Transacción.</li>
+    <li>Motivo Detallado de la solicitud de reembolso.</li>
+</ul>
+
+<h2>9. Disposiciones Finales y Modificación</h2>
+<p>MasitaPrex se reserva el derecho de modificar esta Política en cualquier momento, siempre buscando la mejora del servicio y la claridad de las condiciones. La versión actualizada estará siempre disponible en la web y canales oficiales.</p>
+
+<h2>10. Marco Legal y Resolución de Controversias</h2>
+
+<h3>10.1. Legislación Aplicable</h3>
+<p>Esta Política y todas las Transacciones realizadas bajo ella se rigen e interpretan conforme a las leyes de la República del Perú, incluyendo, pero no limitándose a, la Ley de Protección de Datos Personales y el Código de Protección y Defensa del Consumidor.</p>
+
+<h3>10.2. Limitación de Responsabilidad</h3>
+<p>El Usuario es consciente de que MasitaPrex es una plataforma de infraestructura tecnológica intermediaria. El pago realizado cubre los costos de procesamiento, mantenimiento de servidores y acceso a la infraestructura. La responsabilidad de MasitaPrex se limita exclusivamente al correcto procesamiento de la Transacción y a la asignación de Créditos o Planes Ilimitados. MasitaPrex no se responsabiliza por:</p>
+<ul>
+    <li>Fallos en el servicio que sean ajenos a su control operativo (ej. fallas de internet del Usuario, problemas de terceros proveedores de APIs o contenidos).</li>
+    <li>La interpretación o el uso final que el Usuario le dé a la información o servicios obtenidos a través de la Plataforma.</li>
+    <li>La disponibilidad, exactitud o legalidad de los datos o contenidos proporcionados por servicios de terceros a los que la infraestructura permite acceder.</li>
+</ul>
+<p>Al efectuar una compra, el usuario declara haber leído, comprendido, y aceptado todas y cada una de las condiciones aquí descritas, incluyendo el rol de MasitaPrex como intermediario tecnológico de infraestructura.</p>
+</div>
+</body>
+</html>

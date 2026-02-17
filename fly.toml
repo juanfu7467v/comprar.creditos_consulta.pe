@@ -1,0 +1,36 @@
+app = 'masitaprexv2'
+primary_region = 'ams'
+
+[build]
+
+# Hemos eliminado [http_service] para evitar el conflicto
+# y ahora usamos [[services]] que es más preciso para seguridad.
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 80
+  processes = ["app"]
+  # Esto apaga la máquina si no hay tráfico (ahorro)
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    # Redirige todo el tráfico inseguro a HTTPS automáticamente
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "requests"
+    soft_limit = 100
+    hard_limit = 150
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 512

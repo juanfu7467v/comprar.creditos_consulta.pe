@@ -1,0 +1,27 @@
+User-agent: *
+
+# Permitir acceso general
+Allow: /
+
+# Bloquear rutas sensibles
+Disallow: /api/
+Disallow: /admin/
+Disallow: /config/
+Disallow: /private/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /login/
+Disallow: /register/
+
+# Bloquear archivos sensibles
+Disallow: /*.json$
+Disallow: /*.env$
+Disallow: /*.log$
+Disallow: /*.config$
+Disallow: /*.sql$
+
+# Evitar indexar parámetros
+Disallow: /*?*
+
+# Sitemap (recomendado)
+Sitemap: https://masitaprex.com/sitemap.xml

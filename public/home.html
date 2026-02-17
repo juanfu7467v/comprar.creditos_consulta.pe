@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Apis Dev Perú | PeliPREX Gratis | Consulta PE App</title>
+  <meta name="description" content="La infraestructura definitiva: Apis Dev Perú para DNI y RUC, Cédula Venezolana y Ecuatoriana. Mira películas gratis online, series de acción y descarga Consulta PE APK.">
+  <meta name="keywords" content="apis dev, apis peru, buscar peliculas gratis, peliculas online, series online, accion pelicula, consulta pe apk, app para consultar dni, api reniec, api sunat, masitaprex, peliprex, alquiler de apis peru" />
+  <meta name="author" content="Masitaprex Team" />
+  <meta name="robots" content="index, follow" />
+
+  <meta property="og:title" content="MASITAPREX | Apis Dev Perú & PeliPREX HD" />
+  <meta property="og:description" content="¡Ingresa a la infraestructura de élite! Apis Perú, Cédula Venezolana, Ecuatoriana y las mejores Películas Online Gratis en un solo lugar." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://masitaprex.com" />
+  <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
+  <meta property="og:image:width" content="128" />
+  <meta property="og:image:height" content="128" />
+  <meta property="og:locale" content="es_PE" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Apis Dev Perú & Películas Gratis | Masitaprex" />
+  <meta name="twitter:description" content="Consulta DNI, RUC y mira series online gratis. La mejor infraestructura API de Perú." />
+  <meta name="twitter:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
+
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://cdn-icons-png.flaticon.com">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg1:#070A12;
+      --bg2:#0B1230;
+      --ink:#EAF0FF;
+      --muted: rgba(234,240,255,.72);
+      --glass: rgba(255,255,255,.06);
+      --glass2: rgba(255,255,255,.10);
+      --line: rgba(255,255,255,.14);
+      --pink:#FF3D8D;
+      --ind:#6D5BFF;
+      --cyan:#35D5FF;
+      --ok:#16e1a4;
+      --warn:#ffb020;
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 800px at 12% 18%, rgba(109,91,255,.22), transparent 60%),
+        radial-gradient(900px 700px at 85% 25%, rgba(53,213,255,.18), transparent 55%),
+        radial-gradient(1100px 900px at 65% 85%, rgba(255,61,141,.16), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    /* Ocultar contenido hasta que cargue todo */
+    .preload * {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    /* Fondo 3D suave */
+    .scene{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index:-1;
+    }
+    .grid3d{
+      position:absolute;
+      inset:-20% -20% -20% -20%;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,.08), transparent 50%),
+        linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+      background-size: 900px 900px, 80px 80px, 80px 80px;
+      transform: perspective(900px) rotateX(55deg) translateY(10%);
+      filter: blur(.2px);
+      opacity:.28;
+      animation: gridFloat 10s ease-in-out infinite;
+    }
+    @keyframes gridFloat{
+      0%,100%{ transform: perspective(900px) rotateX(55deg) translateY(10%) translateX(0); }
+      50%{ transform: perspective(900px) rotateX(55deg) translateY(7%) translateX(1.5%); }
+    }
+
+    .orb{
+      position:absolute;
+      width:520px;
+      height:520px;
+      border-radius:999px;
+      filter: blur(30px);
+      opacity:.55;
+      mix-blend-mode: screen;
+      animation: orb 9s ease-in-out infinite;
+    }
+    .orb.one{ left:-160px; top:-120px; background: radial-gradient(circle at 30% 30%, rgba(109,91,255,.75), transparent 60%); }
+    .orb.two{ right:-180px; top:40px; background: radial-gradient(circle at 30% 30%, rgba(53,213,255,.70), transparent 60%); animation-delay: -2.5s; }
+    .orb.three{ left:40%; bottom:-240px; background: radial-gradient(circle at 30% 30%, rgba(255,61,141,.65), transparent 60%); animation-delay: -4s; }
+    @keyframes orb{
+      0%,100%{ transform: translate3d(0,0,0) scale(1); }
+      50%{ transform: translate3d(0,-18px,0) scale(1.06); }
+    }
+
+    /* Hero con la MISMA imagen/fondo que pediste */
+    .hero{
+      position:relative;
+      min-height: 92vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 96px 18px 56px;
+      background:
+        linear-gradient(to right bottom, rgba(7,10,18,.62), rgba(11,18,48,.82)),
+        url("https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg");
+      background-size: cover;
+      background-position: center;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(800px 500px at 20% 20%, rgba(109,91,255,.20), transparent 60%),
+        radial-gradient(700px 500px at 80% 30%, rgba(53,213,255,.18), transparent 60%),
+        radial-gradient(900px 700px at 60% 90%, rgba(255,61,141,.15), transparent 60%);
+      z-index:0;
+      pointer-events:none;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.55));
+      z-index:0;
+      pointer-events:none;
+    }
+
+    /* Sin menú / sin contenedores (sin cards externas tipo "container") */
+    .wrap{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      position:relative;
+      z-index:1;
+    }
+
+    /* Icono arriba - SOLO EL ÍCONO SIN FONDOS NI CONTENEDORES */
+    .brandTop{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom: 22px;
+    }
+    
+    /* Ícono principal sin ningún fondo, borde o efecto de tarjeta */
+    .main-icon {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.3s forwards;
+    }
+
+    /* Tipografía Hero */
+    .kicker{
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color: rgba(234,240,255,.75);
+      font-weight: 700;
+      font-size: 12px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.6s ease 0.4s forwards;
+    }
+    .title{
+      font-weight: 900;
+      letter-spacing:-.04em;
+      line-height: 1.02;
+      margin-top: 10px;
+      font-size: clamp(32px, 5.2vw, 64px);
+      text-shadow: 0 18px 48px rgba(0,0,0,.55);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.7s ease 0.5s forwards;
+    }
+    .title b{
+      background: linear-gradient(90deg, rgba(53,213,255,1), rgba(109,91,255,1), rgba(255,61,141,1));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+    }
+    .subtitle{
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height:1.65;
+      max-width: 860px;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.7s ease 0.6s forwards;
+    }
+
+    /* Botón Empezar Ahora - Modificado para ir directamente a PeliPREX.html */
+    .btnStartNow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 28px auto 40px;
+      padding: 18px 32px;
+      background: linear-gradient(90deg, rgba(255,61,141,1), rgba(109,91,255,1));
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.7s ease 0.7s forwards;
+    }
+    
+    .btnStartNow::before {
+      content: "";
+      position: absolute;
+      inset: -120%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.28), transparent 55%);
+      transform: translateX(-10%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .btnStartNow:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 25px 70px rgba(0,0,0,.55);
+    }
+    
+    .btnStartNow:hover::before {
+      opacity: 1;
+    }
+
+    /* Sección Tienda - ELIMINADO EL FONDO EN FORMA DE MEDIA LUNA */
+    .tienda-mobile {
+      width: 100%;
+      margin: 0;
+      padding: 16px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease 0.8s forwards;
+      background: transparent !important;
+    }
+
+    /* Fondo para contenido interno */
+    .tienda-content {
+      position: relative;
+      z-index: 1;
+      padding: 16px;
+      border-radius: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .tienda-content {
+        padding: 24px;
+      }
+    }
+
+    /* Resto de estilos de la sección tienda permanecen iguales */
+    .tienda-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .tienda-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      object-fit: cover;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,.45);
+    }
+
+    .tienda-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 0;
+      background: linear-gradient(90deg, rgba(53,213,255,1), rgba(109,91,255,1));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .tienda-subtitle {
+      margin: 4px 0 0 0;
+      font-size: 14px;
+      color: rgba(234,240,255,.72);
+    }
+
+    .tienda-description {
+      color: rgba(234,240,255,.76);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .screenshots-scroll {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding: 8px 0 16px 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(109,91,255,.5) transparent;
+    }
+
+    .screenshots-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .screenshots-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .screenshots-scroll::-webkit-scrollbar-thumb {
+      background: rgba(109,91,255,.5);
+      border-radius: 3px;
+    }
+
+    .screenshot {
+      width: 140px;
+      height: 250px;
+      border-radius: 16px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .screenshot:hover {
+      transform: scale(1.05);
+    }
+
+    /* Modal para pantalla completa de screenshots */
+    .screenshot-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.95);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screenshot-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .modal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 20px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 61, 141, 0.8);
+      transform: scale(1.1);
+    }
+
+    .modal-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255,255, 0.1);
+      border: none;
+      color: white;
+      font-size: 24px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .modal-nav:hover {
+      background: rgba(53, 213, 255, 0.8);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .modal-prev {
+      left: 20px;
+    }
+
+    .modal-next {
+      right: 20px;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px;
+      margin: 20px 0;
+      background: linear-gradient(90deg, rgba(255,61,141,1), rgba(109,91,255,1));
+      color: white;
+      text-decoration: none;
+      border-radius: 16px;
+      font-weight: 900;
+      font-size: 16px;
+      border: 1px solid rgba(255,255,255,.18);
+      transition: transform 0.25s ease;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .stores-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .store-logo {
+      height: 36px;
+      border-radius: 8px;
+      opacity: 0.9;
+      transition: opacity 0.25s ease;
+    }
+
+    .store-logo:hover {
+      opacity: 1;
+    }
+
+    .app-details {
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .app-details h3 {
+      color: var(--cyan);
+      font-size: 18px;
+      margin: 0 0 16px 0;
+      text-align: center;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+
+    .detail-item i {
+      width: 24px;
+      color: rgba(53,213,255,1);
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin: 24px 0 12px 0;
+      background: linear-gradient(90deg, rgba(53,213,255,1), rgba(109,91,255,1));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Tablas rediseñadas para móvil - ELIMINADOS LOS ÍCONOS */
+    .features-table {
+      width: 100%;
+      margin: 20px 0;
+      border-collapse: collapse;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .features-table th {
+      background: linear-gradient(90deg, rgba(53,213,255,.2), rgba(109,91,255,.2));
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      padding: 20px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+
+    .features-table td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: rgba(234,240,255,.85);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .features-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .feature-title {
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 8px;
+      font-size: 16px;
+      display: block;
+    }
+
+    .feature-desc {
+      color: rgba(234,240,255,.75);
+      font-size: 14px;
+      line-height: 1.5;
+      display: block;
+    }
+
+    /* Tabla para funciones adicionales */
+    .additional-features-table {
+      width: 100%;
+      margin: 20px 0;
+      border-collapse: collapse;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .additional-features-table th {
+      background: linear-gradient(90deg, rgba(255,61,141,.2), rgba(109,91,255,.2));
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      padding: 20px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,.14);
+    }
+
+    .additional-features-table td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: rgba(234,240,255,.85);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .additional-features-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* NUEVA SECCIÓN INFORMATIVA: Infraestructura API 3D - FONDO TRANSPARENTE */
+    .api-infrastructure {
+      width: 100%;
+      position: relative;
+      left: auto;
+      right: auto;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 40px 20px;
+      background: transparent !important;
+      border-top: 1px solid rgba(53, 213, 255, 0.2);
+      border-bottom: 1px solid rgba(109, 91, 255, 0.2);
+      overflow: hidden;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    /* Fondo 3D de infraestructura */
+    .api-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.4;
+      background: 
+        linear-gradient(90deg, transparent 98%, rgba(53,213,255,0.1) 100%),
+        linear-gradient(0deg, transparent 98%, rgba(109,91,255,0.1) 100%);
+      background-size: 40px 40px;
+      transform: perspective(800px) rotateX(60deg);
+      transform-origin: center top;
+    }
+
+    /* Elementos 3D de infraestructura */
+    .api-node {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(53, 213, 255, 0.8);
+      box-shadow: 0 0 20px rgba(53, 213, 255, 0.6);
+      z-index: 1;
+      animation: nodePulse 3s infinite ease-in-out;
+    }
+
+    .api-connection {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(53, 213, 255, 0.6),
+        rgba(109, 91, 255, 0.6),
+        transparent);
+      z-index: 0;
+      animation: connectionFlow 4s infinite linear;
+    }
+
+    /* Animaciones para elementos API */
+    @keyframes nodePulse {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(53, 213, 255, 0.6);
+      }
+      50% { 
+        transform: scale(1.3);
+        box-shadow: 0 0 30px rgba(53, 213, 255, 0.9);
+      }
+    }
+
+    @keyframes connectionFlow {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+
+    /* Contenedor principal de la nueva sección */
+    .api-container {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .api-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .api-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,1), 
+        rgba(109,91,255,1),
+        rgba(255,61,141,1));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .api-subtitle {
+      font-size: clamp(16px, 2vw, 18px);
+      color: rgba(234,240,255,.75);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Grid de características de API */
+    .api-features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .api-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .api-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .api-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,1), 
+        rgba(109,91,255,1));
+    }
+
+    .api-card-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      background: rgba(53,213,255,.1);
+      border: 1px solid rgba(53,213,255,.2);
+      color: var(--cyan);
+      font-size: 24px;
+    }
+
+    .api-card-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--cyan);
+    }
+
+    .api-card-text {
+      color: rgba(234,240,255,.8);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* Código animado */
+    .code-animation {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 25px;
+      margin: 30px 0;
+      border: 1px solid rgba(255,255,255,.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .code-lang {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .code-lang-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .php-icon {
+      background: #8892BF;
+      color: white;
+    }
+
+    .python-icon {
+      background: #3776AB;
+      color: white;
+    }
+
+    .code-lang-name {
+      font-weight: 700;
+      color: white;
+    }
+
+    .code-content {
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #E6EDF3;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-line {
+      display: flex;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .line-number {
+      min-width: 40px;
+      color: #6E7681;
+      text-align: right;
+      padding-right: 15px;
+      user-select: none;
+    }
+
+    .line-content {
+      flex: 1;
+    }
+
+    .code-keyword {
+      color: #FF7B72;
+    }
+
+    .code-function {
+      color: #D2A8FF;
+    }
+
+    .code-string {
+      color: #A5D6FF;
+    }
+
+    .code-comment {
+      color: #6E7681;
+      font-style: italic;
+    }
+
+    .code-operator {
+      color: #79C0FF;
+    }
+
+    /* Typing cursor animation */
+    .typing-cursor {
+      display: inline-block;
+      width: 8px;
+      height: 20px;
+      background: var(--cyan);
+      margin-left: 4px;
+      animation: blink 1s infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* API Stats - MODIFICADO: Ancho limitado y dos columnas centradas */
+    .api-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 40px auto;
+      max-width: 600px;
+      width: 100%;
+      padding: 0 16px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,1), 
+        rgba(109,91,255,1));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .stat-label {
+      color: rgba(234,240,255,.7);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    /* CTA Button */
+    .api-cta {
+      text-align: center;
+      margin-top: 40px;
+      padding: 0 16px;
+    }
+
+    .api-cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 28px;
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,0.2), 
+        rgba(109,91,255,0.2));
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 16px;
+      border: 1px solid rgba(53,213,255,0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    .api-cta-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.1), 
+        transparent);
+      transition: left 0.6s;
+    }
+
+    .api-cta-button:hover {
+      background: linear-gradient(90deg, 
+        rgba(53,213,255,0.3), 
+        rgba(109,91,255,0.3));
+      border-color: rgba(53,213,255,0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(53,213,255,0.2);
+    }
+
+    .api-cta-button:hover::before {
+      left: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .api-stats {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        max-width: 800px;
+      }
+      
+      .stat-card {
+        padding: 25px;
+      }
+      
+      .stat-number {
+        font-size: 42px;
+      }
+      
+      .stat-label {
+        font-size: 14px;
+      }
+      
+      .api-cta-button {
+        padding: 18px 36px;
+      }
+    }
+
+    /* Footer negro con texto blanco */
+    .footer {
+      background-color: #000000;
+      color: #ffffff;
+      padding: 40px 20px;
+      text-align: center;
+      width: 100%;
+      margin-top: 0;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s ease 1s forwards;
+    }
+
+    .footer p {
+      margin: 10px 0;
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    .footer a {
+      color: #35D5FF;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer a:hover {
+      color: #6D5BFF;
+      text-decoration: underline;
+    }
+
+    .social-icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .social-icons a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      color: white;
+      font-size: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .social-icons a:hover {
+      background: #35D5FF;
+      transform: translateY(-3px);
+    }
+
+    /* Animaciones de entrada */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Accesibilidad: reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .orb, .grid3d, .logoHalo, .logoCard::before { animation:none !important; }
+      .btnStartNow, .tienda-mobile, .footer { 
+        animation: fadeIn 0.5s ease forwards !important; 
+        transform: none !important;
+      }
+      .api-node, .api-connection, .typing-cursor {
+        animation: none !important;
+      }
+    }
+
+    /* Responsive para pantallas grandes */
+    @media (min-width: 768px) {
+      .tienda-mobile {
+        padding: 24px;
+        border-radius: 24px;
+        margin: 24px auto;
+        max-width: 800px;
+      }
+      
+      .tienda-content {
+        padding: 24px;
+      }
+      
+      .screenshot {
+        width: 160px;
+      }
+
+      .features-table, .additional-features-table {
+        margin: 24px 0;
+      }
+
+      .api-infrastructure {
+        padding: 60px 40px;
+      }
+
+      .footer {
+        padding: 50px 40px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .api-features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      /* Mejora para tablas en móvil */
+      .features-table td, .additional-features-table td {
+        padding: 12px;
+        font-size: 14px;
+      }
+      
+      .features-table th, .additional-features-table th {
+        padding: 16px;
+        font-size: 16px;
+      }
+    }
+
+    /* Optimización de carga */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    
+    .loading.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===========================================================
+       CAMBIOS SOLICITADOS (SIN BORRAR NADA):
+       - Sección Consulta PE APK: fondo transparente, texto más claro, mismo ancho visual
+       =========================================================== */
+
+    /* MODIFICADO: el contenedor de fondo interno pasa a transparente */
+    #tienda .tienda-content{
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    /* MODIFICADO: garantizar mismo ancho visual que el resto */
+    @media (min-width: 768px){
+      #tienda.tienda-mobile{
+        max-width: 1180px !important; /* igual al wrap */
+        width: min(1180px, calc(100% - 32px)) !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      #tienda .tienda-content{
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+    }
+
+    /* MODIFICADO: colores de texto más claros en toda la sección */
+    #tienda .tienda-description{
+      color: rgba(234,240,255,.88) !important;
+    }
+    #tienda .tienda-subtitle{
+      color: rgba(234,240,255,.82) !important;
+    }
+    #tienda .features-table td,
+    #tienda .additional-features-table td{
+      color: rgba(234,240,255,.90) !important;
+    }
+    #tienda .feature-desc{
+      color: rgba(234,240,255,.84) !important;
+    }
+
+    /* ===========================================================
+       CAMBIOS SOLICITADOS:
+       - Infraestructura API: mismo ancho visual + ajustes de texto
+       =========================================================== */
+
+    /* MODIFICADO: igual ancho visual que otras secciones (wrap) */
+    @media (min-width: 768px){
+      .api-infrastructure{
+        width: min(1180px, calc(100% - 32px)) !important;
+        margin: 0 auto !important;
+        border-radius: 24px; /* no elimina nada: solo añade */
+      }
+      .api-container{
+        max-width: 1180px !important;
+      }
+    }
+
+    /* MODIFICADO: más legible en pantallas estrechas manteniendo ancho consistente */
+    @media (max-width: 767px){
+      .api-infrastructure{
+        width: calc(100% - 32px) !important;
+        margin: 0 auto !important;
+        border-radius: 20px; /* añade suavizado */
+      }
+    }
+
+  </style>
+</head>
+
+<body class="antialiased preload">
+
+  <!-- Pantalla de carga -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Fondo 3D + orbes -->
+  <div class="scene" aria-hidden="true">
+    <div class="grid3d"></div>
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+    <div class="orb three"></div>
+  </div>
+
+  <!-- Modal para screenshots a pantalla completa -->
+  <div class="screenshot-modal" id="screenshotModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">×</button>
+      <button class="modal-nav modal-prev" id="modalPrev"><i class="fas fa-chevron-left"></i></button>
+      <button class="modal-nav modal-next" id="modalNext"><i class="fas fa-chevron-right"></i></button>
+      <img class="modal-img" id="modalImg" src="" alt="Screenshot en pantalla completa">
+    </div>
+  </div>
+
+  <!-- HERO (sin menú) -->
+  <section class="hero">
+    <div class="wrap text-center">
+
+      <!-- Icono superior - SOLO EL ÍCONO SIN FONDOS NI CONTENEDORES -->
+      <div class="brandTop">
+        <img 
+          class="main-icon"
+          src="https://cdn-icons-png.flaticon.com/128/747/747965.png"
+          alt="Icono Consulta PE - Consulta tu DNI por nombres y apellidos"
+          onerror="this.onerror=null; this.src='https://placehold.co/256x256/111827/ffffff?text=Consulta+PE';"
+        />
+      </div>
+
+      <div class="kicker">MASITAPREX / Experiencias Digitales</div>
+      <h1 class="title">
+        Múltiples servicios, una experiencia <b>premium</b>.
+      </h1>
+      <p class="subtitle mx-auto">
+        Aquí diferenciamos claramente lo que es <b>Consulta PE APK</b> (consulta de DNI por nombres y apellidos, <b>requiere instalar la app</b>) y
+        <b>PeliPREX HD</b> (entretenimiento que <b>se prueba directo desde la web</b>, sin instalación).
+      </p>
+
+      <!-- Botón Empezar Ahora - MODIFICADO: Ahora lleva directamente a PeliPREX.html -->
+      <a href="PeliPREX" class="btnStartNow">
+        <i class="fas fa-play-circle"></i> Probar PeliPREX HD ahora
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Sección Tienda - Adaptada para aplicación móvil nativa -->
+  <section id="tienda" class="tienda-mobile">
+    <div class="tienda-content">
+      <div class="tienda-header">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="App Icon Consulta PE APK" class="tienda-icon">
+        <div>
+          <h2 class="tienda-title">Consulta PE APK</h2>
+          <p class="tienda-subtitle">Ofrecido por <strong>José C.</strong></p>
+        </div>
+      </div>
+
+      <p class="tienda-description">
+        Consulta PE APK es una herramienta rápida para <strong>consultar DNI por nombres y apellidos</strong> y obtener datos públicos en algunos casos. Descarga la app <strong>Consulta PE APK</strong> para acceder a estas funcionalidades.
+      </p>
+
+      <!-- AÑADIDO: aclaración legal + compra de créditos 24/7 (sin borrar nada) -->
+      <p class="tienda-description">
+        Para mantener claridad legal, las consultas y servicios asociados operan mediante <strong>infraestructura intermediaria</strong> que gestiona, controla y protege el acceso a los datos. Además, los usuarios pueden <strong>comprar créditos para las APIs al instante</strong>, <strong>24/7</strong>, de forma <strong>100% segura</strong> (pago y habilitación inmediata).
+      </p>
+
+      <!-- Screenshots -->
+      <div class="screenshots-scroll">
+        <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="Consulta PE APK Screenshot 1 - Interfaz de consulta de DNI" class="screenshot" data-index="0">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" alt="Consulta PE APK Screenshot 2 - Resultados de consulta de DNI" class="screenshot" data-index="1">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" alt="Consulta PE APK Screenshot 3 - Menú de funcionalidades" class="screenshot" data-index="2">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png" alt="Consulta PE APK Screenshot 4 - Consulta de RUC" class="screenshot" data-index="3">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjNmgEegtZKtQNd8UPBbNZ7Y6YAbjYHQ0VKwpih57TxKbP7Nt0ppMWgg4HIYkIpRFgA9Fk0o5EZM-uGzMMzxmTyN8eQFD8wEAEfs6RLlfW9qslIhcsP3OmhnLxYJsumThf-3rjuUcxnp-kQCBys58pmrFCsBqdcMzj8_Ur2PM2uc4ilkIWracOHqiQcgl0/s1920/1000113425.png" alt="Consulta PE APK Screenshot 5 - Sección de PeliPREX" class="screenshot" data-index="4">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0Zaj4qG3sDP6xYI9PauI53jG-BtNo5_by7iw4Vpp99z_302mCBQqRF8ap8VFMxWto8QaqHuhv_2K1KCWBR64vNryNSq3eaNDqaK8VCNFgNet66gbDQQxBYc-yuCXgIg11j-KtWaNTHomWgU2OnN-z9zlMLsUi6lI-uywABvJNCKr1DOfnF5xLB-A6qUU/s1920/1000113896.png" alt="Consulta PE APK Screenshot 6 - Gestor de contraseñas" class="screenshot" data-index="5">
+      </div>
+
+      <!-- Botón principal de descarga -->
+      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn">
+        <i class="fas fa-download"></i> Descargar Consulta PE APK
+      </a>
+
+      <!-- Tiendas alternativas -->
+      <div class="stores-row">
+        <a href="https://apkpure.com/es/consulta-pe/com.consulta.pe" target="_blank" rel="noopener noreferrer">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzYApxO4LnNVigFo0cNXeKwK1l18h8b7NdJH2AvBkxh9gBbrgUuYB4nYAgNm5ciCG-E_Sb6MqCiABpJfivhulbTdcPCkz1-4qJ6IcuXEDmVUbs3O4LkVXxbOQfHU3sRTr-FW2kgCMKCmUnUQ1Kjs-oiOL2WD4u-CGe7w1P42y2uVBf5S5PbtE0gizswZDe/s650/1000117704.png" alt="Apk pure - Descargar Consulta PE APK" class="store-logo">
+        </a>
+        <a href="https://com-masitaorex.uptodown.com/android" target="_blank" rel="noopener noreferrer">
+          <img src="https://stc.utdstc.com/img/svgs/logo-uptodown.svg" alt="Uptodown - Descargar Masitaprex APK" class="store-logo">
+        </a>
+      </div>
+
+      <!-- Detalles de la aplicación -->
+      <div id="detalles" class="app-details">
+        <h3><i class="fas fa-info-circle"></i> Detalles de la Aplicación Consulta PE APK</h3>
+        <div class="detail-item">
+          <i class="fas fa-archive"></i>
+          <span><strong>Nombre de paquete:</strong> com.masitaprex</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-gem"></i>
+          <span><strong>Licencia:</strong> Gratis</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-mobile-alt"></i>
+          <span><strong>Sistema operativo:</strong> Android</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-th-large"></i>
+          <span><strong>Categoría:</strong> Plataforma</strong></span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-language"></i>
+          <span><strong>Idioma:</strong> Español Latinoamérica</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-user-tie"></i>
+          <span><strong>Ofrecido por:</strong> José C.</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-download"></i>
+          <span><strong>Descargas:</strong> 2 k</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-calendar-day"></i>
+          <span><strong>Fecha:</strong> 16 Abril, 2024</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-cogs"></i>
+          <span><strong>Clasificación de contenido:</strong> Entiendes públicas</span>
+        </div>
+      </div>
+
+      <!-- Acerca de la aplicación -->
+      <h3 class="section-title"><i class="fas fa-book-open"></i> Todo acerca de Consulta PE APK</h3>
+      <p class="tienda-description">
+        <strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla, sin trámites complicados. Su objetivo es simplificar tus gestiones y brindarte acceso a información clave directamente desde tu dispositivo móvil. <strong>Masitaprex</strong> ofrece esta solución integral para <strong>consultar DNI</strong> y acceder a múltiples servicios públicos.
+      </p>
+
+      <!-- AÑADIDO: aclaración legal recurrente (sin borrar nada) -->
+      <p class="tienda-description">
+        Importante: para mantener claridad legal, estas funcionalidades y consultas se soportan mediante <strong>infraestructura intermediaria</strong>, que administra credenciales, control de acceso, auditoría y protección de los endpoints.
+      </p>
+
+      <!-- Tabla de Funcionalidades Principales - REDISEÑADA para móvil -->
+      <table class="features-table">
+        <thead>
+          <tr>
+            <th>Funcionalidades principales de Consulta PE APK</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="feature-title">Consulta de DNI por nombres y apellidos</span>
+              <span class="feature-desc">Ingresa nombres y apellidos para obtener información relevante como ubicación, edad, estado civil, entre otros detalles asociados al <strong>DNI</strong>.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Consulta de RUC</span>
+              <span class="feature-desc">Permite obtener la información registrada de un RUC, ya sea de una empresa o persona natural.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Líneas telefónicas</span>
+              <span class="feature-desc">Revisa todas las líneas telefónicas a tu nombre registradas en Osiptel.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Información vehicular</span>
+              <span class="feature-desc">Ingresa el número de placa de un vehículo y obtén información sobre su registro y características.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Acceso a servicios públicos</span>
+              <span class="feature-desc">Conéctate fácilmente a servicios de entidades públicas como la PNP, SUNAT, DIGESA, entre otras, para realizar consultas o gestionar trámites.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="tienda-description">
+        <strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> es una aplicación que ofrece una experiencia completa y versátil para todos sus usuarios. Aquí también puedes encontrar todas las redes sociales más populares, como Facebook, TikTok, entre otras. Además, la aplicación incluye una variedad de funciones adicionales que la hacen única, incluyendo acceso a <strong>PeliPREX</strong> para entretenimiento.
+      </p>
+
+      <!-- Tabla de Funciones Adicionales - REDISEÑADA para móvil -->
+      <table class="additional-features-table">
+        <thead>
+          <tr>
+            <th>Funciones adicionales de Masitaprex</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="feature-title">Gestor de contraseñas</span>
+              <span class="feature-desc">Crea claves seguras para tus cuentas de WiFi, redes sociales como Facebook o Instagram, y más.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">PeliPREX - Películas gratis</span>
+              <span class="feature-desc">Accede a un catálogo de 2,500 películas HD ofrecido por <strong>PeliPREX</strong> directamente desde la app.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Identificador telefónico</span>
+              <span class="feature-desc">Descubre si un número telefónico es real o fraudulento.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Sección de foros</span>
+              <span class="feature-desc">Participa en debates, comparte opiniones y conecta con una comunidad activa.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Juegos gratuitos</span>
+              <span class="feature-desc">Disfruta de una variedad de juegos para pasar el rato.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Escáner de códigos QR</span>
+              <span class="feature-desc">Escanea códigos de WhatsApp, productos, páginas web o documentos de forma segura.</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span class="feature-title">Generador de enlaces personalizados</span>
+              <span class="feature-desc">Crea enlaces para WhatsApp o Telegram con mensajes personalizados, ideal para negocios o contactos.</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="tienda-description">
+        <strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> combina funcionalidad y entretenimiento en una solución integral. Descarga la app para <strong>consultar DNI por nombres y apellidos</strong> y descubrir todo lo que puedes hacer. ¡Tu vida será más fácil con <strong>Consulta PE</strong> y <strong>PeliPREX</strong>!
+      </p>
+
+      <!-- Botón final de descarga -->
+      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn">
+        <i class="fas fa-download"></i> Descargar Consulta PE APK ahora
+      </a>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN: Infraestructura API 3D -->
+  <section class="api-infrastructure">
+    <!-- Fondo de infraestructura API -->
+    <div class="api-background" id="apiBackground"></div>
+    
+    <div class="api-container">
+      <div class="api-header">
+        <h2 class="api-title">Infraestructura API de Masitaprex</h2>
+        <p class="api-subtitle">
+          Nuestra plataforma funciona con una arquitectura de microservicios moderna que garantiza escalabilidad, 
+          seguridad y alto rendimiento para todas tus consultas y operaciones. Operamos mediante <strong>infraestructura intermediaria</strong> que gestiona y protege el acceso a los datos para mantener claridad legal y control de seguridad.
+        </p>
+      </div>
+
+      <div class="api-features-grid">
+        <div class="api-card">
+          <div class="api-card-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3 class="api-card-title">Respuesta Optimizada</h3>
+          <p class="api-card-text">
+            Gestionamos el flujo de datos mediante nodos de alto rendimiento. Optimizamos cada petición para garantizar que el acceso a la información pública sea rápido y estable, adaptándonos dinámicamente a la demanda del servicio. En algunos casos, el tiempo de respuesta puede variar según la fuente, la carga y la validación del endpoint.
+          </p>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="api-card-title">APIs Seguras (Infraestructura Intermediaria)</h3>
+          <p class="api-card-text">
+            Las APIs <strong>sí son seguras</strong> porque operan mediante <strong>infraestructura intermediaria</strong> que administra autenticación, rotación de credenciales, control de acceso, registros (auditoría) y protección ante abuso. Además, implementamos encriptación end-to-end, autenticación OAuth 2.0 y protección DDoS para garantizar 
+            que tus consultas sean completamente seguras.
+          </p>
+        </div>
+
+        <div class="api-card">
+          <div class="api-card-icon">
+            <i class="fas fa-expand-arrows-alt"></i>
+          </div>
+          <h3 class="api-card-title">Escalabilidad Automática</h3>
+          <p class="api-card-text">
+            Nuestra infraestructura se escala automáticamente según la demanda, manejando picos de tráfico 
+            sin afectar el rendimiento del servicio.
+          </p>
+        </div>
+      </div>
+
+      <!-- AÑADIDO: información adicional de APIs de consulta (sin borrar nada) -->
+      <div class="code-animation" style="margin-top: 10px;">
+        <div class="code-header">
+          <div class="code-lang">
+            <div class="code-lang-icon php-icon">API</div>
+            <span class="code-lang-name">APIs de consulta disponibles</span>
+          </div>
+          <div class="code-lang">
+            <div class="code-lang-icon python-icon">24/7</div>
+            <span class="code-lang-name">Créditos al instante</span>
+          </div>
+        </div>
+
+        <div class="code-content">
+          <div class="code-line">
+            <span class="line-number">1</span>
+            <span class="line-content">
+              <span class="code-comment">// Infraestructura intermediaria para mantener claridad legal</span>
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">2</span>
+            <span class="line-content">
+              <span class="code-comment">// Consultas: DNI (Perú), SUNAT, Cédula (Venezuela), Matrimonios</span>
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">3</span>
+            <span class="line-content">
+              <span class="code-comment">// Créditos: compra inmediata 24/7, habilitación instantánea, 100% segura</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Código animado -->
+      <div class="code-animation">
+        <div class="code-header">
+          <div class="code-lang">
+            <div class="code-lang-icon php-icon">PHP</div>
+            <span class="code-lang-name">Ejemplo de API Request</span>
+          </div>
+          <div class="code-lang">
+            <div class="code-lang-icon python-icon">PY</div>
+            <span class="code-lang-name">Python SDK</span>
+          </div>
+        </div>
+        
+        <div class="code-content">
+          <div class="code-line">
+            <span class="line-number">1</span>
+            <span class="line-content">
+              <span class="code-comment">// Consulta de DNI por nombres y apellidos</span>
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">2</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>api_url = <span class="code-string">"https://api.masitaprex.com/v3/consulta/dni"</span>;
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">3</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>headers = [
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">4</span>
+            <span class="line-content">  <span class="code-string">"Authorization: Bearer YOUR_API_KEY"</span>,</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">5</span>
+            <span class="line-content">  <span class="code-string">"Content-Type: application/json"</span></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">6</span>
+            <span class="line-content">];</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">7</span>
+            <span class="line-content"></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">8</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>data = [
+            </span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">9</span>
+            <span class="line-content">  <span class="code-string">"nombres"</span> =<span class="code-operator">></span> <span class="code-string">"Juan Carlos"</span>,</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">10</span>
+            <span class="line-content">  <span class="code-string">"apellidos"</span> =<span class="code-operator">></span> <span class="code-string">"Pérez García"</span></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">11</span>
+            <span class="line-content">];</span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">12</span>
+            <span class="line-content"></span>
+          </div>
+          <div class="code-line">
+            <span class="line-number">13</span>
+            <span class="line-content">
+              <span class="code-keyword">$</span>response = <span class="code-function">http_post</span>(<span class="code-keyword">$</span>api_url, <span class="code-keyword">$</span>data, <span class="code-keyword">$</span>headers)<span class="typing-cursor"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas de API - MODIFICADO: Ancho limitado y diseño responsive -->
+      <div class="api-stats">
+        <div class="stat-card">
+          <div class="stat-number">99.9%</div>
+          <div class="stat-label">Uptime Garantizado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2k+</div>
+          <div class="stat-label">Consultas por Minuto</div>
+        </div>
+        <div class="stat-card">
+          <!-- MODIFICADO: reemplaza "<100ms" por mensaje realista -->
+          <div class="stat-number">Variable</div>
+          <div class="stat-label">Tiempo de Respuesta</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Datos Encriptados</div>
+        </div>
+      </div>
+
+      <!-- AÑADIDO: compra de créditos 24/7 + infraestructura intermediaria -->
+      <p class="api-subtitle" style="text-align:center; margin-top: 18px;">
+        Puedes <strong>comprar créditos para nuestras APIs al instante</strong>, <strong>24/7</strong>, de forma <strong>100% segura</strong>. El servicio opera mediante <strong>infraestructura intermediaria</strong> para gestionar el acceso, proteger los datos y mantener claridad legal.
+      </p>
+
+      <div class="api-cta">
+        <a href="api-key" class="api-cta-button">
+          <i class="fas fa-code-branch"></i> Integrar con Nuestras APIs
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer negro con texto blanco -->
+  <footer class="footer">
+    <p><strong>Masitaprex</strong> © 2025 - Todos los derechos reservados</p>
+    <p>Infraestructura tecnológica funciona con apis externas. No somos responsables por el contenido o servicios ofrecidos por terceros.</p>
+    <p><strong>Consulta PE APK</strong> | <strong>PeliPREX HD</strong> | <strong>Masitaprex</strong></p>
+    <p><a href="terminos-condiciones">Términos y condiciones</a> | <a href="politica-privacidad">Política de privacidad</a> | <a href="disclaimer-apis">Aviso legal APIS</a> | <a href="aviso-legal-peliprex">Aviso legal peliPREX</a></p>
+    <p>Síguenos en nuestras redes sociales para más información sobre <strong>Consulta PE</strong> y <strong>PeliPREX</strong></p>
+
+    <!-- AÑADIDO: recordatorio 24/7 + intermediaria (sin borrar nada) -->
+    <p style="margin: 10px 0; color: #ffffff; line-height: 1.6;">
+      Compra de créditos para APIs disponible <strong>24/7</strong> con activación inmediata y <strong>100% segura</strong>. Los servicios operan mediante <strong>infraestructura intermediaria</strong> que gestiona y protege el acceso a los datos para mantener claridad legal.
+    </p>
+    
+    <div class="social-icons">
+      <a href="https://m.facebook.com/61564349657272/" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook"></i></a>
+      <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+    </div>
+    
+    <p style="margin-top: 20px; font-size: 14px; color: #cccccc;">
+      Masitaprex - consulta Pe - peliPREX<strong> Cajamarca, Perú</strong>, <strong>Representante: JOSÉ RENÉ CUBAS PÉREZ | RUC: 10736224351</strong>
+    </p>
+  </footer>
+
+  <script>
+    // Función para precargar imágenes críticas
+    function preloadImages(urls) {
+      return Promise.all(
+        urls.map(url => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = url;
+            img.onload = resolve;
+            img.onerror = resolve; // Continuar incluso si falla
+          });
+        })
+      );
+    }
+
+    // Lista de imágenes críticas para precargar
+    const criticalImages = [
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMUakrMP-yKpoycaGvjK4APon-CjrN80pLn1CkZvz2NcS_XT98tdJA0MeF3EO3Bd7OUoTWIrubwHN2df7VKHHUnIX6_RYv_mfqT4uXRa1IUhsr52TDRBs4hJsHdRj2sSA7v52rC8TX3nDwdq7DBNDyBxQyiKbEJoFzzDdPcMC4_sYc5tCHvEu-8Qz3yM85/s1536/1000088610.png',
+      'https://cdn-icons-png.flaticon.com/128/747/747965.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'
+    ];
+
+    // Carga optimizada de la página
+    document.addEventListener('DOMContentLoaded', function() {
+      // Precargar imágenes críticas
+      preloadImages(criticalImages).then(() => {
+        // Ocultar pantalla de carga después de un tiempo mínimo
+        setTimeout(() => {
+          document.getElementById('loading').classList.add('hidden');
+          document.body.classList.remove('preload');
+          
+          // Iniciar animaciones de fondo
+          const orbs = document.querySelectorAll('.orb, .grid3d');
+          orbs.forEach(orb => {
+            orb.style.animationPlayState = 'running';
+          });
+          
+          // Inicializar fondo de infraestructura API
+          initApiBackground();
+        }, 500); // Tiempo mínimo de carga para mejor UX
+      });
+    });
+
+    // Sistema de pantalla completa para screenshots
+    const screenshotModal = document.getElementById('screenshotModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalClose = document.getElementById('modalClose');
+    const modalPrev = document.getElementById('modalPrev');
+    const modalNext = document.getElementById('modalNext');
+    const screenshots = document.querySelectorAll('.screenshot');
+    
+    let currentIndex = 0;
+    const screenshotUrls = [
+      'https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjNmgEegtZKtQNd8UPBbNZ7Y6YAbjYHQ0VKwpih57TxKbP7Nt0ppMWgg4HIYkIpRFgA9Fk0o5EZM-uGzMMzxmTyN8eQFD8wEAEfs6RLlfW9qslIhcsP3OmhnLxYJsumThf-3rjuUcxnp-kQCBys58pmrFCsBqdcMzj8_Ur2PM2uc4ilkIWracOHqiQcgl0/s1920/1000113425.png',
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh0Zaj4qG3sDP6xYI9PauI53jG-BtNo5_by7iw4Vpp99z_302mCBQqRF8ap8VFMxWto8QaqHuhv_2K1KCWBR64vNryNSq3eaNDqaK8VCNFgNet66gbDQQxBYc-yuCXgIg11j-KtWaNTHomWgU2OnN-z9zlMLsUi6lI-uywABvJNCKr1DOfnF5xLB-A6qUU/s1920/1000113896.png'
+    ];
+
+    // Abrir modal al hacer clic en una screenshot
+    screenshots.forEach((screenshot, index) => {
+      screenshot.addEventListener('click', () => {
+        currentIndex = index;
+        updateModalImage();
+        screenshotModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    // Cerrar modal
+    modalClose.addEventListener('click', closeModal);
+    
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && screenshotModal.classList.contains('active')) {
+        closeModal();
+      }
+      if (e.key === 'ArrowLeft' && screenshotModal.classList.contains('active')) {
+        prevImage();
+      }
+      if (e.key === 'ArrowRight' && screenshotModal.classList.contains('active')) {
+        nextImage();
+      }
+    });
+
+    // Cerrar modal al hacer clic fuera de la imagen
+    screenshotModal.addEventListener('click', (e) => {
+      if (e.target === screenshotModal) {
+        closeModal();
+      }
+    });
+
+    // Navegación entre imágenes
+    modalPrev.addEventListener('click', (e) => {
+      e.stopPropagation();
+      prevImage();
+    });
+
+    modalNext.addEventListener('click', (e) => {
+      e.stopPropagation();
+      nextImage();
+    });
+
+    function updateModalImage() {
+      modalImg.src = screenshotUrls[currentIndex];
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + screenshotUrls.length) % screenshotUrls.length;
+      updateModalImage();
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % screenshotUrls.length;
+      updateModalImage();
+    }
+
+    function closeModal() {
+      screenshotModal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Swipe para móviles
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    screenshotModal.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    screenshotModal.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      
+      if (touchEndX < touchStartX - swipeThreshold) {
+        // Swipe izquierda - siguiente imagen
+        nextImage();
+      }
+      
+      if (touchEndX > touchStartX + swipeThreshold) {
+        // Swipe derecha - imagen anterior
+        prevImage();
+      }
+    }
+
+    // Generar fondo de infraestructura API
+    function initApiBackground() {
+      const background = document.getElementById('apiBackground');
+      if (!background) return;
+      
+      // Crear nodos de conexión
+      const nodes = [];
+      const connections = [];
+      
+      // Generar nodos aleatorios
+      for (let i = 0; i < 15; i++) {
+        const node = document.createElement('div');
+        node.className = 'api-node';
+        
+        // Posición aleatoria
+        const left = Math.random() * 90 + 5;
+        const top = Math.random() * 80 + 10;
+        
+        node.style.left = `${left}%`;
+        node.style.top = `${top}%`;
+        
+        // Delay de animación aleatorio
+        node.style.animationDelay = `${Math.random() * 3}s`;
+        
+        background.appendChild(node);
+        nodes.push({ element: node, x: left, y: top });
+      }
+      
+      // Crear conexiones entre nodos cercanos
+      nodes.forEach((node1, i) => {
+        nodes.forEach((node2, j) => {
+          if (i < j) {
+            // Calcular distancia
+            const dx = node2.x - node1.x;
+            const dy = node2.y - node1.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Conectar solo nodos cercanos
+            if (distance < 40) {
+              const connection = document.createElement('div');
+              connection.className = 'api-connection';
+              
+              // Calcular posición y rotación
+              const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+              const length = distance;
+              
+              connection.style.width = `${length}%`;
+              connection.style.left = `${node1.x}%`;
+              connection.style.top = `${node1.y}%`;
+              connection.style.transform = `rotate(${angle}deg)`;
+              connection.style.transformOrigin = '0 0';
+              
+              // Delay de animación aleatorio
+              connection.style.animationDelay = `${Math.random() * 2}s`;
+              
+              background.appendChild(connection);
+              connections.push(connection);
+            }
+          }
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta PE</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .chat-bubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      animation: slideIn 1s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      0% {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .chat-bubble:hover {
+      background: linear-gradient(45deg, #128C7E, #25D366); /* Invertir colores al pasar el ratón */
+    }
+
+    .chat-text {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 15px;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      white-space: nowrap;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 1001;
+      cursor: pointer;
+    }
+
+    .chat-text.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .chat-text.hide {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-bubble" onclick="goToWhatsApp()">
+    <div class="icon">
+      <i class="fab fa-whatsapp"></i> </div>
+  </div>
+
+  <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
+
+  <script>
+    const message = "¡Hola, Nesecitas ayuda!"; // Nuevo mensaje
+    const chatText = document.getElementById("chatText");
+    let index = 0;
+
+    function typeWriter() {
+      if (index < message.length) {
+        chatText.textContent += message.charAt(index);
+        index++;
+        setTimeout(typeWriter, 100);
+      } else {
+        setTimeout(() => {
+          chatText.classList.remove('show');
+          chatText.classList.add('hide');
+          setTimeout(resetAndRestart, 1000);
+        }, 2500);
+      }
+    }
+
+    function resetAndRestart() {
+      chatText.textContent = "";
+      index = 0;
+      chatText.classList.remove('hide');
+      setTimeout(() => {
+        chatText.classList.add('show');
+        typeWriter();
+      }, 500);
+    }
+
+    function goToWhatsApp() {
+      // Reemplaza 'YOUR_PHONE_NUMBER' con tu número de WhatsApp con código de país, ejemplo: '51987654321'
+      // Y 'YOUR_MESSAGE_TEXT' con el mensaje predefinido que quieras enviar
+      const phoneNumber = '51944950234'; // Ejemplo: 51 para Perú
+      const prefilledMessage = encodeURIComponent('Hola, neseito ayuda para comprar créditos para Consulta PE.');
+      window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
+    }
+
+    window.onload = () => {
+      setTimeout(() => {
+        chatText.classList.add('show');
+        typeWriter();
+      }, 1000);
+    };
+  </script>
+
+</body>
+</html>
+<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
