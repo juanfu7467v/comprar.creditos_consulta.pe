@@ -805,11 +805,6 @@
           <div class="li-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
           <div class="text"><div class="title">Cerrar sesión</div></div>
           <div class="chev">›</div>
-</a>
-            <div class="list-item" id="link-logout">
-  <div class="li-icon"><i class="fa-solid fa-user-slash"></i></div>
-  <div class="text"><div class="title">Darme de baja definitivamente</div></div>
-  <div class="chev">›</div>
         </div>
 
       </div>
@@ -895,10 +890,7 @@
       <div class="alert-panel" role="alertdialog" aria-modal="true" aria-labelledby="alert-title">
           <h4 id="alert-title">¡Atención!</h4>
           <p id="alert-message">Este es un mensaje de prueba.</p>
-          <div id="alert-buttons-container" style="display: flex; gap: 10px;">
-              <button class="alert-btn" id="close-alert-modal">Aceptar</button>
-              <button class="alert-btn" id="cancel-alert-modal" style="background: var(--muted); display: none;">Cancelar</button>
-          </div>
+          <button class="alert-btn" id="close-alert-modal">Aceptar</button>
       </div>
   </div>
 
@@ -991,7 +983,6 @@ const alertModalEl = document.getElementById('alert-modal');
 const alertTitleEl = document.getElementById('alert-title');
 const alertMessageEl = document.getElementById('alert-message');
 const closeAlertModalBtn = document.getElementById('close-alert-modal');
-const cancelAlertModalBtn = document.getElementById('cancel-alert-modal');
 
 // NUEVAS REFERENCIAS PARA EL MODAL DE BÚSQUEDA
 const searchModal = document.getElementById('search-modal');
@@ -1067,7 +1058,7 @@ function safeImage(url){
   return (url.startsWith('http')) ? url : 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster';
 }
 
-function showCustomModal(title, message, isError = false, showCancel = false) {
+function showCustomModal(title, message, isError = false) {
     alertTitleEl.textContent = title;
     alertMessageEl.textContent = message;
     
@@ -1075,12 +1066,6 @@ function showCustomModal(title, message, isError = false, showCancel = false) {
         alertTitleEl.style.color = 'var(--accent)';
     } else {
         alertTitleEl.style.color = 'var(--text)';
-    }
-
-    if (showCancel) {
-        cancelAlertModalBtn.style.display = 'block';
-    } else {
-        cancelAlertModalBtn.style.display = 'none';
     }
 
     alertModalEl.classList.add('active');
@@ -1851,59 +1836,50 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
 }
 
 /* ==========================================================
-   FUNCIÓN PARA CERRAR SESIÓN
+   FUNCIÓN PARA BAJA DEFINITIVA (DERECHO AL OLVIDO)
+   - Orden obligatorio:
+     1) Borrar Firestore (/usuarios/{userId})
+     2) Borrar Firebase Auth (user.delete())
+     3) Redirigir a login.html
+   - Manejo de auth/requires-recent-login
    ========================================================= */
-async function logoutUser() {
+async function deleteAccountPermanently() {
     try {
         // Cancelar cualquier temporizador de deducción pendiente
         cancelDeductionTimer();
-        
-        // Cerrar sesión en Firebase
-        await auth.signOut();
-        
-        // Limpiar datos locales
+
+        const user = auth.currentUser;
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        // 1) Eliminar datos del usuario en Firestore (ANTES de eliminar auth)
+        await db.collection("usuarios").doc(user.uid).delete();
+
+        // 2) Eliminar cuenta en Firebase Authentication
+        await user.delete();
+
+        // 3) Limpiar datos locales (manteniendo el resto intacto)
         localStorage.removeItem('planIndicatorClosed');
         globalFavoritesData = [];
         currentMovie = null;
         USER_EMAIL = 'ejemplo@example.com';
         USER_UID = null;
-        
-        // Redirigir al login
-        window.location.href = "login.html";
-        
-    } catch (error) {
-        console.error("Error al cerrar sesión:", error);
-        showErrorModal("Error al cerrar sesión. Intenta de nuevo.");
-    }
-}
 
-async function deleteAccount() {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    try {
-        // 1. Eliminar datos en Firestore
-        await db.collection("usuarios").doc(user.uid).delete();
-        
-        // 2. Eliminar cuenta en Auth
-        await user.delete();
-        
-        // 3. Limpiar y redirigir
-        localStorage.removeItem('planIndicatorClosed');
+        // 4) Redirigir al login
         window.location.href = "login.html";
+
     } catch (error) {
-        console.error("Error al eliminar cuenta:", error);
-        if (error.code === 'auth/requires-recent-login') {
-            showCustomModal("Acción Requerida", "Por seguridad, debes volver a iniciar sesión para realizar esta acción.", true);
-            const alertBtn = document.getElementById('close-alert-modal');
-            const originalOnClick = alertBtn.onclick;
-            alertBtn.onclick = () => {
-                logoutUser();
-                alertBtn.onclick = originalOnClick;
-            };
-        } else {
-            showErrorModal("Error al eliminar la cuenta: " + error.message);
+        console.error("Error al eliminar la cuenta definitivamente:", error);
+
+        // Manejo específico: requiere login reciente
+        if (error && error.code === 'auth/requires-recent-login') {
+            showErrorModal("Por seguridad, necesitas volver a iniciar sesión para poder eliminar tu cuenta. Cierra sesión e inicia sesión nuevamente, y vuelve a intentarlo.");
+            return;
         }
+
+        showErrorModal("No se pudo eliminar la cuenta definitivamente. Intenta de nuevo.");
     }
 }
 
@@ -2015,22 +1991,25 @@ document.getElementById('modal-share-btn').onclick = (e) => {
 };
 document.getElementById('link-legal').onclick = (e) => { e.preventDefault(); window.location.href = 'avisolegalpeliprex.html'; };
 
-// CERRAR SESIÓN: Ahora implementa la baja definitiva (Derecho al Olvido)
+// CERRAR SESIÓN => AHORA: BAJA DEFINITIVA (Derecho al Olvido)
 document.getElementById('link-logout').onclick = (e) => {
     e.preventDefault();
-    showCustomModal("Baja definitiva", "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción es irreversible: se borrarán tus créditos, historial y datos.", false, true);
-    
+
+    // Modal de confirmación (irreversible)
+    showCustomModal(
+        "Eliminar cuenta (irreversible)",
+        "Esta acción es irreversible: se borrarán tus créditos, historial y todos tus datos. ¿Deseas eliminar tu cuenta definitivamente?",
+        true
+    );
+
+    // Sobrescribir el botón de aceptar del modal para que ejecute la baja definitiva
     const alertBtn = document.getElementById('close-alert-modal');
     const originalOnClick = alertBtn.onclick;
-    
-    alertBtn.onclick = () => {
-        deleteAccount();
+    alertBtn.onclick = async () => {
         alertModalEl.classList.remove('active');
+        await deleteAccountPermanently();
+        // Restaurar el comportamiento original
         alertBtn.onclick = originalOnClick;
-    };
-
-    cancelAlertModalBtn.onclick = () => {
-        alertModalEl.classList.remove('active');
     };
 };
 
