@@ -837,6 +837,25 @@
         .package-selector-container .price-wrapper {
             width: 120px;
         }
+
+        /* Estilo para iconos de tarjetas */
+        .card-icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .card-icon {
+            height: 24px;
+            width: auto;
+            opacity: 0.8;
+        }
+
+        .card-icon-small {
+            height: 20px;
+            width: auto;
+        }
     </style>
 </head>
 <body>
@@ -909,16 +928,18 @@
         <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
         
         <div class="space-y-4">
-            <!-- Opción de Tarjeta de Crédito/Débito con ícono agregado -->
+            <!-- Opción de Tarjeta de Crédito/Débito con múltiples iconos -->
             <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer" id="card-payment-option">
                 <input type="radio" name="pay" checked class="accent-red-600">
                 <div class="flex-1">
                     <p class="text-sm font-bold">Tarjeta de Crédito/Débito</p>
-                    <p class="text-xs text-gray-400">Visa, Mastercard, American Express</p>
+                    <p class="text-xs text-gray-400">Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express y otras compatibles)</p>
                 </div>
-                <!-- Ícono de tarjeta agregado -->
-                <div class="text-blue-800 font-bold text-lg">
-                    <i class="fas fa-credit-card"></i>
+                <!-- Múltiples iconos de tarjetas -->
+                <div class="card-icons">
+                    <i class="fab fa-cc-visa text-2xl text-blue-800"></i>
+                    <i class="fab fa-cc-mastercard text-2xl text-orange-600"></i>
+                    <i class="fab fa-cc-amex text-2xl text-blue-500"></i>
                 </div>
             </label>
 
@@ -960,8 +981,16 @@
                 <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-holder">TITULAR DE TARJETA</span>
                 <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-expiry">MM/AA</span>
             </div>
-            <!-- Marca de tarjeta -->
-            <div class="absolute bottom-6 right-6 text-2xl font-bold italic opacity-80">VISA</div>
+            <!-- Marca de tarjeta genérica -->
+            <div class="absolute bottom-6 right-6 text-2xl font-bold italic opacity-80">TARJETA</div>
+        </div>
+
+        <!-- Iconos de tarjetas pequeñas debajo de la tarjeta visual -->
+        <div class="flex justify-center gap-4 mb-4">
+            <i class="fab fa-cc-visa text-3xl text-gray-400"></i>
+            <i class="fab fa-cc-mastercard text-3xl text-gray-400"></i>
+            <i class="fab fa-cc-amex text-3xl text-gray-400"></i>
+            <span class="text-xs text-gray-400 self-center">y más</span>
         </div>
 
         <!-- Dos selects agregados: Créditos e Ilimitado -->
