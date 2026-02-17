@@ -383,6 +383,7 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
             border: 1px solid #edf2f7;
             overflow: hidden;
+            display: none; /* Oculto por defecto */
         }
 
         .resultado-header {
@@ -413,10 +414,10 @@
             line-height: 1;
         }
 
-        .resultado-title .pe {
+        .resultado-title .resultado-text {
             font-weight: 800;
-            font-size: 64px;
-            letter-spacing: -0.03em;
+            font-size: 42px;
+            letter-spacing: -0.02em;
             color: #0b0b0b;
         }
 
@@ -435,11 +436,17 @@
             min-width: 140px;
         }
 
-        .resultado-logo svg {
-            width: 58px;
-            height: 34px;
+        .resultado-logo .logo-icon {
+            width: 48px;
+            height: 48px;
             margin: 0 auto 4px auto;
-            display: block;
+            background-color: #2563eb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
         }
 
         .resultado-logo .logo-text {
@@ -542,22 +549,18 @@
     </div>
 
     <!-- ✅ AGREGADO JUSTO DEBAJO DEL BOTÓN "CONSULTAR": DISEÑO RESULTADO (sin modificar lo demás) -->
-    <section class="resultado-wrap">
+    <section class="resultado-wrap" id="resultado-wrap">
         <div class="resultado-header">
             <div class="resultado-header-inner">
                 <div class="resultado-title">
-                    <div class="pe">Pe</div>
-                    <div class="sub">RESULTADO</div>
+                    <div class="resultado-text">Resultado de consulta</div>
                 </div>
 
-                <div class="resultado-logo" aria-label="Consulta pe apk" id="resultado-logo">
-                    <!-- Por defecto el logo SVG, será reemplazado por la foto si hay datos de DNI -->
-                    <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
-                        <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
-                        <path d="M46 10 L46 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
-                    </svg>
-                    <div class="logo-text">Consulta pe apk</div>
+                <div class="resultado-logo" aria-label="Consulta PE" id="resultado-logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="logo-text">Consulta PE</div>
                 </div>
             </div>
         </div>
@@ -740,7 +743,7 @@
             <!-- Servicio 4: Aplicación Consulta PE APK -->
             <div class="service-card">
                 <div class="service-image service-img-4"></div>
-                <div class="service-text">Aplicación Consulta PE APK – Consulta a todas las entidades</div>
+                <div class="service-text">Aplicación Consulta PE APK – Plataforma de consultas de entidades públicas</div>
             </div>
         </div>
     </section>
@@ -765,7 +768,7 @@
 
         <!-- Descripción corta -->
         <p class="text-sm text-gray-600 mb-3">
-            Accede a todas las entidades del Perú y Venezuela desde tu móvil.
+            Plataforma de infraestructura tecnológica para consultas de entidades públicas de Perú y Venezuela.
         </p>
 
         <!-- Capturas de la aplicación (simuladas) -->
@@ -778,7 +781,7 @@
 
         <!-- Descripción larga (~300 caracteres) -->
         <p class="text-sm text-gray-700 leading-relaxed mb-5">
-            La aplicación oficial de Consulta PE te permite realizar consultas en línea a las principales entidades gubernamentales de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida, segura y fácil de usar. Descarga ahora y realiza tus consultas desde cualquier lugar.
+            La plataforma Consulta PE (versión web y aplicación APK propiedad de Masitaprex) es una solución de infraestructura tecnológica que facilita el acceso a información de fuentes públicas de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida y fácil de usar.
         </p>
 
         <!-- Botón Instalar aplicación -->
@@ -1097,6 +1100,7 @@ const consultaInput = document.getElementById('consulta-input');
 const consultarBtn = document.getElementById('consultar-btn');
 const resultadoBody = document.getElementById('resultado-body');
 const resultadoLogo = document.getElementById('resultado-logo');
+const resultadoWrap = document.getElementById('resultado-wrap');
 
 // Mapa de placeholders según la API seleccionada
 const placeholders = {
@@ -1327,12 +1331,10 @@ apiSelect.addEventListener('change', function() {
     
     // Restaurar el logo original cuando se cambia de API
     resultadoLogo.innerHTML = `
-        <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M46 10 L46 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-        <div class="logo-text">Consulta pe apk</div>
+        <div class="logo-icon">
+            <i class="fas fa-database"></i>
+        </div>
+        <div class="logo-text">Consulta PE</div>
     `;
 });
 
@@ -1424,12 +1426,10 @@ async function realizarConsulta() {
         
         // Restaurar el logo por defecto antes de mostrar resultados
         resultadoLogo.innerHTML = `
-            <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
-                <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
-                <path d="M46 10 L46 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-            <div class="logo-text">Consulta pe apk</div>
+            <div class="logo-icon">
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="logo-text">Consulta PE</div>
         `;
         
         // Mostrar el resultado en la sección RESULTADO
@@ -1441,6 +1441,7 @@ async function realizarConsulta() {
             } else {
                 resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
             }
+            resultadoWrap.style.display = 'block';
         } else if (result.error) {
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-red-600">
@@ -1448,6 +1449,7 @@ async function realizarConsulta() {
                     <p class="text-sm mt-2">${result.error}</p>
                 </div>
             `;
+            resultadoWrap.style.display = 'block';
         } else {
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-gray-500">
@@ -1455,6 +1457,7 @@ async function realizarConsulta() {
                     <p class="text-sm mt-2">No se encontraron datos para la consulta realizada.</p>
                 </div>
             `;
+            resultadoWrap.style.display = 'block';
         }
         
     } catch (error) {
@@ -1465,6 +1468,7 @@ async function realizarConsulta() {
                 <p class="text-sm mt-2">No se pudo completar la consulta. Intenta de nuevo.</p>
             </div>
         `;
+        resultadoWrap.style.display = 'block';
     } finally {
         consultarBtn.textContent = 'CONSULTAR';
         consultarBtn.disabled = false;
