@@ -598,6 +598,18 @@
     const messageModalText = document.getElementById('message-modal-text');
 
     // ✅ Generar deviceId único
+    async function getDeviceModel() {
+        try {
+            if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+                const uaData = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
+                return uaData.model || uaData.platform || 'Unknown Device';
+            }
+        } catch (e) {
+            console.error('Error getting device model:', e);
+        }
+        return 'Unknown Device';
+    }
+
     function getDeviceId() {
         let deviceId = localStorage.getItem('deviceId');
         if (!deviceId) {
@@ -1080,6 +1092,7 @@
       try {
           // ✅ 1. VALIDAR CON EL BACKEND ANTES DE FIREBASE
           const deviceId = getDeviceId();
+          const deviceModel = await getDeviceModel();
           const returnTo = getUrlParameter('returnTo') || sessionStorage.getItem('returnTo') || '';
           
           const backendResponse = await fetch('/api/login', {
@@ -1090,7 +1103,8 @@
                   password,
                   recaptchaResponse,
                   returnTo,
-                  deviceId
+                  deviceId,
+                  deviceModel
               })
           });
 
@@ -1139,13 +1153,14 @@
               errorCode === 'auth/wrong-password' || 
               errorCode === 'auth/user-not-found') {
               
-              // ✅ REPORTAR INTENTO FALLIDO AL BACKEND
-              try {
-                  const reportResponse = await fetch('/api/report-failed-login', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ email })
-                  });
+	              // ✅ REPORTAR INTENTO FALLIDO AL BACKEND
+	              try {
+	                  const deviceModel = await getDeviceModel();
+	                  const reportResponse = await fetch('/api/report-failed-login', {
+	                      method: 'POST',
+	                      headers: { 'Content-Type': 'application/json' },
+	                      body: JSON.stringify({ email, deviceModel })
+	                  });
 
                   const reportData = await reportResponse.json();
 

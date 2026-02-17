@@ -10,6 +10,7 @@ import fs from "fs";
 import axios from "axios";
 import { Resend } from "resend";
 import helmet from "helmet";
+import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -183,6 +184,37 @@ async function checkLoginBlock(email) {
 /**
  * Registrar intento fallido de login
  */
+/**
+ * Generar fingerprint del dispositivo
+ */
+function generateFingerprint(req) {
+  const userAgent = req.headers['user-agent'] || 'Unknown';
+  const language = req.headers['accept-language'] || 'Unknown';
+  const ip = getClientIp(req);
+  
+  const data = `${userAgent}|${language}|${ip}`;
+  return crypto.createHash('sha256').update(data).digest('hex');
+}
+
+/**
+ * Validar coherencia entre deviceModel y User-Agent
+ */
+function validateDeviceCoherence(deviceModel, userAgent) {
+  if (!deviceModel || deviceModel === 'Unknown Device') return true;
+  
+  const ua = userAgent.toLowerCase();
+  const model = deviceModel.toLowerCase();
+  
+  // Validaciones básicas de coherencia
+  if (model.includes('iphone') && !ua.includes('iphone')) return false;
+  if (model.includes('ipad') && !ua.includes('ipad')) return false;
+  if (model.includes('android') && !ua.includes('android')) return false;
+  if (model.includes('macintosh') && !ua.includes('mac')) return false;
+  if (model.includes('windows') && !ua.includes('windows')) return false;
+  
+  return true;
+}
+
 async function registerFailedLogin(email, req) {
   const context = 'REGISTER_FAILED_LOGIN';
 
@@ -194,6 +226,9 @@ async function registerFailedLogin(email, req) {
   try {
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'] || 'Unknown';
+    const { deviceModel } = req.body;
+    const fingerprint = generateFingerprint(req);
+    
     const attemptDocRef = db.collection('loginAttempts').doc(email);
     const attemptDoc = await attemptDocRef.get();
 
@@ -205,9 +240,10 @@ async function registerFailedLogin(email, req) {
     }
 
     const newAttempts = currentAttempts + 1;
+    const isCoherent = validateDeviceCoherence(deviceModel, userAgent);
 
-    // Si llega al lÃ­mite, bloquear
-    if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
+    // Si llega al límite o hay incoherencia grave, bloquear/alertar
+    if (newAttempts >= MAX_LOGIN_ATTEMPTS || !isCoherent) {
       const blockedUntil = new Date(Date.now() + BLOCK_DURATION_HOURS * 60 * 60 * 1000);
 
       await attemptDocRef.set({
@@ -217,18 +253,21 @@ async function registerFailedLogin(email, req) {
         lastAttempt: admin.firestore.FieldValue.serverTimestamp(),
         ip,
         userAgent,
+        deviceModel: deviceModel || 'Unknown',
+        fingerprint,
+        isSuspicious: !isCoherent,
         blockedAt: admin.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
 
-      logger.warn(context, 'ðŸš¨ Usuario BLOQUEADO por mÃºltiples intentos', { 
+      logger.warn(context, '🚨 Usuario BLOQUEADO o INTENTO SOSPECHOSO', { 
         email, 
         attempts: newAttempts, 
-        blockedUntil: blockedUntil.toISOString(),
+        isCoherent,
         ip 
       });
 
       // Enviar correo de alerta
-      await sendSuspiciousLoginEmail(email, ip, userAgent);
+      await sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel, !isCoherent);
 
     } else {
       // Incrementar contador
@@ -237,10 +276,12 @@ async function registerFailedLogin(email, req) {
         attempts: newAttempts,
         lastAttempt: admin.firestore.FieldValue.serverTimestamp(),
         ip,
-        userAgent
+        userAgent,
+        deviceModel: deviceModel || 'Unknown',
+        fingerprint
       }, { merge: true });
 
-      logger.warn(context, `âš ï¸ Intento fallido registrado (${newAttempts}/${MAX_LOGIN_ATTEMPTS})`, { 
+      logger.warn(context, `⚠️ Intento fallido registrado (${newAttempts}/${MAX_LOGIN_ATTEMPTS})`, { 
         email, 
         attempts: newAttempts,
         ip 
@@ -255,13 +296,13 @@ async function registerFailedLogin(email, req) {
 /**
  * Enviar correo de alerta por intento sospechoso
  */
-async function sendSuspiciousLoginEmail(email, ip, userAgent) {
+async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null, isIncoherent = false) {
   const context = 'SEND_SUSPICIOUS_LOGIN_EMAIL';
 
   try {
-    logger.info(context, 'ðŸ“§ Enviando correo de alerta de seguridad', { email, ip });
+    logger.info(context, '📧 Enviando correo de alerta de seguridad', { email, ip });
 
-    // Obtener ubicaciÃ³n
+    // Obtener ubicación
     const location = await getLocationFromIP(ip);
     const locationString = `${location.city}, ${location.region}, ${location.country}`;
 
@@ -295,17 +336,23 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent) {
       timeZone: 'America/Lima'
     });
 
+    const displayDevice = deviceModel && deviceModel !== 'Unknown Device' ? deviceModel : userAgent.substring(0, 100);
+
     htmlContent = htmlContent.replace(/{{nombre}}/g, userName);
     htmlContent = htmlContent.replace(/{{ubicacion}}/g, locationString);
     htmlContent = htmlContent.replace(/{{ip}}/g, ip);
     htmlContent = htmlContent.replace(/{{fecha_hora}}/g, fechaHora);
-    htmlContent = htmlContent.replace(/{{dispositivo}}/g, userAgent.substring(0, 100));
+    htmlContent = htmlContent.replace(/{{dispositivo}}/g, displayDevice);
+
+    if (isIncoherent) {
+      htmlContent = htmlContent.replace('Actividad Sospechosa Detectada.', '⚠️ Incoherencia de Dispositivo Detectada.');
+    }
 
     // Enviar correo usando Resend
     const result = await resend.emails.send({
       from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
       to: email,
-      subject: 'ðŸš¨ ALERTA: Cuenta bloqueada por intentos sospechosos',
+      subject: isIncoherent ? '🚨 ALERTA: Intento de acceso sospechoso detectado' : '🚨 ALERTA: Cuenta bloqueada por intentos sospechosos',
       html: htmlContent
     });
 
@@ -1588,7 +1635,7 @@ app.post("/api/login", async (req, res) => {
   const context = 'LOGIN_API';
 
   try {
-    const { email, recaptchaResponse, returnTo, deviceId } = req.body;
+    const { email, recaptchaResponse, returnTo, deviceId, deviceModel } = req.body;
 
     if (!email) {
       return res.status(400).json({
@@ -1604,13 +1651,13 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    // âœ… 1. VERIFICAR SI EL USUARIO ESTÃ BLOQUEADO
+    // ✅ 1. VERIFICAR SI EL USUARIO ESTÁ BLOQUEADO
     const blockStatus = await checkLoginBlock(email);
 
     if (blockStatus.isBlocked) {
       const hoursRemaining = Math.ceil(blockStatus.remainingMinutes / 60);
       
-      logger.warn(context, 'ðŸš« Intento de login bloqueado', {
+      logger.warn(context, '🚫 Intento de login bloqueado', {
         email,
         attempts: blockStatus.attempts,
         blockedUntil: blockStatus.blockedUntil?.toISOString(),
@@ -1627,16 +1674,29 @@ app.post("/api/login", async (req, res) => {
       });
     }
 
-    // âœ… 2. VALIDAR RECAPTCHA - Usando la funciÃ³n mejorada
+    // ✅ 2. VALIDACIÓN DE COHERENCIA Y FINGERPRINT
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const isCoherent = validateDeviceCoherence(deviceModel, userAgent);
+    const currentFingerprint = generateFingerprint(req);
+    const currentIp = getClientIp(req);
+
+    if (!isCoherent) {
+      logger.warn(context, '🚨 Incoherencia de dispositivo detectada', { email, deviceModel, userAgent });
+      await sendSuspiciousLoginEmail(email, currentIp, userAgent, deviceModel, true);
+      return res.status(403).json({
+        success: false,
+        error: 'suspicious_attempt',
+        message: 'Actividad sospechosa detectada. Se ha enviado una alerta a tu correo.'
+      });
+    }
+
+    // ✅ 3. VALIDAR RECAPTCHA
     await validateRecaptcha(recaptchaResponse);
 
     logger.info(context, 'Login validado con reCAPTCHA', { email, returnTo, currentAttempts: blockStatus.attempts || 0 });
 
-    // âœ… 3. ACTUALIZAR INFORMACIÃ“N DE DISPOSITIVO (OPCIONAL)
+    // ✅ 4. ACTUALIZAR INFORMACIÓN DE DISPOSITIVO
     if (db) {
-      const currentDeviceId = deviceId;
-      const currentIp = getClientIp(req);
-
       const userSnap = await db.collection("usuarios")
         .where("email", "==", email)
         .limit(1)
@@ -1647,21 +1707,18 @@ app.post("/api/login", async (req, res) => {
         const userRef = userDoc.ref;
         const userData = userDoc.data() || {};
 
-        if (userData.lastDeviceId && userData.lastDeviceId !== currentDeviceId) {
-          await resend.emails.send({
-            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
-            to: userData.email || email,
-            subject: 'âš ï¸ ALERTA: Acceso desde un nuevo dispositivo',
-            template_id: '933e5952-6373-4b2c-8cde-db9e332e444e',
-            params: {
-              ip: currentIp,
-              timestamp: new Date().toISOString()
-            }
-          });
+        // Alerta si el dispositivo o fingerprint cambian
+        const isNewDevice = userData.lastDeviceId && userData.lastDeviceId !== deviceId;
+        const isNewFingerprint = userData.lastFingerprint && userData.lastFingerprint !== currentFingerprint;
+
+        if (isNewDevice || isNewFingerprint) {
+          await sendSuspiciousLoginEmail(email, currentIp, userAgent, deviceModel, false);
         }
 
         await userRef.set({
-          lastDeviceId: currentDeviceId,
+          lastDeviceId: deviceId,
+          lastDeviceModel: deviceModel || 'Unknown',
+          lastFingerprint: currentFingerprint,
           lastIp: currentIp,
           lastLogin: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
