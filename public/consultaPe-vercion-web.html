@@ -492,13 +492,23 @@
             padding: 14px 12px;
         }
 
-        /* Estilos para imágenes base64 */
-        .resultado-imagen {
-            max-width: 200px;
-            max-height: 200px;
+        /* Estilo para las imágenes de huellas y firma */
+        .huella-img, .firma-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
             border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        .foto-carnet {
+            width: 100px;
+            height: 120px;
+            object-fit: cover;
             border-radius: 8px;
-            margin: 5px 0;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -540,7 +550,8 @@
                     <div class="sub">RESULTADO</div>
                 </div>
 
-                <div class="resultado-logo" id="resultado-logo-container" aria-label="Consulta pe apk">
+                <div class="resultado-logo" aria-label="Consulta pe apk" id="resultado-logo">
+                    <!-- Por defecto el logo SVG, será reemplazado por la foto si hay datos de DNI -->
                     <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
                         <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
@@ -1085,7 +1096,7 @@ const apiSelect = document.getElementById('api-select');
 const consultaInput = document.getElementById('consulta-input');
 const consultarBtn = document.getElementById('consultar-btn');
 const resultadoBody = document.getElementById('resultado-body');
-const resultadoLogoContainer = document.getElementById('resultado-logo-container');
+const resultadoLogo = document.getElementById('resultado-logo');
 
 // Mapa de placeholders según la API seleccionada
 const placeholders = {
@@ -1129,8 +1140,61 @@ const paramNames = {
     'cedula': 'cedula'
 };
 
-// Función para crear tablas dinámicas a partir de un objeto
-function crearTablasDesdeObjeto(obj, nivel = 0) {
+// Mapa de nombres de campos más legibles para DNI
+const nombresCamposDni = {
+    'nuDni': 'DNI',
+    'apCasada': 'Apellido de casada',
+    'apePaterno': 'Apellido paterno',
+    'apeMaterno': 'Apellido materno',
+    'preNombres': 'Nombres',
+    'nuFicha': 'N° Ficha',
+    'nuImagen': 'N° Imagen',
+    'feNacimiento': 'Fecha de nacimiento',
+    'estatura': 'Estatura',
+    'sexo': 'Sexo',
+    'estadoCivil': 'Estado civil',
+    'gradoInstruccion': 'Grado de instrucción',
+    'feEmision': 'Fecha de emisión',
+    'feInscripcion': 'Fecha de inscripción',
+    'nomPadre': 'Nombre del padre',
+    'nomMadre': 'Nombre de la madre',
+    'pais': 'País',
+    'departamento': 'Departamento',
+    'provincia': 'Provincia',
+    'distrito': 'Distrito',
+    'pad': 'PAD',
+    'depaDireccion': 'Departamento (dirección)',
+    'provDireccion': 'Provincia (dirección)',
+    'distDireccion': 'Distrito (dirección)',
+    'feCaducidad': 'Fecha de caducidad',
+    'donaOrganos': 'Donante de órganos',
+    'observacion': 'Observación',
+    'feRestriccion': 'Fecha de restricción',
+    'deRestriccion': 'Descripción de restricción',
+    'desDireccion': 'Dirección',
+    'gpVotacion': 'Grupo de votación',
+    'telefono': 'Teléfono',
+    'email': 'Email',
+    'multasElectorales': 'Multas electorales',
+    'multaAdmin': 'Multa administrativa',
+    'feActualizacion': 'Fecha de actualización',
+    'docSustento': 'Documento de sustento',
+    'nuDocSustento': 'N° documento de sustento',
+    'nuDocDeclarante': 'N° documento del declarante',
+    'vinculoDeclarante': 'Vínculo del declarante',
+    'tipoDeclarante': 'Tipo de declarante',
+    'coTipoDocPadre': 'Tipo documento del padre',
+    'coTipoDocMadre': 'Tipo documento de la madre',
+    'nuDocPadre': 'N° documento del padre',
+    'nuDocMadre': 'N° documento de la madre',
+    'feFallecimiento': 'Fecha de fallecimiento',
+    'cancelacion': 'Cancelación',
+    'nomDeclarante': 'Nombre del declarante',
+    'digitoVerificacion': 'Dígito de verificación'
+};
+
+// Función para crear tablas dinámicas a partir de un objeto (especial para DNI)
+function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
     if (!obj || typeof obj !== 'object') return '';
     
     let html = '';
@@ -1142,7 +1206,7 @@ function crearTablasDesdeObjeto(obj, nivel = 0) {
         obj.forEach((item, index) => {
             if (typeof item === 'object') {
                 html += `<div class="resultado-section-title">Elemento ${index + 1}</div>`;
-                html += crearTablasDesdeObjeto(item, nivel + 1);
+                html += crearTablasDesdeObjeto(item, nivel + 1, esDni);
             }
         });
         return html;
@@ -1156,30 +1220,64 @@ function crearTablasDesdeObjeto(obj, nivel = 0) {
     const hasNestedObjects = entries.some(([_, value]) => value && typeof value === 'object');
     
     if (hasNestedObjects && nivel === 0) {
-        // Si tiene objetos anidados, crear tablas separadas
+        // Primero procesar las imágenes especiales si es una consulta de DNI
+        if (esDni && obj.imagenes) {
+            html += `<div class="resultado-section-title">IMÁGENES BIOMÉTRICAS</div>`;
+            html += `<table class="resultado-table">`;
+            
+            if (obj.imagenes.huella_izquierda) {
+                html += `
+                    <tr>
+                        <td class="font-semibold">Huella izquierda</td>
+                        <td><img src="data:image/jpeg;base64,${obj.imagenes.huella_izquierda}" class="huella-img" style="max-width: 200px;"></td>
+                    </tr>
+                `;
+            }
+            if (obj.imagenes.huella_derecha) {
+                html += `
+                    <tr>
+                        <td class="font-semibold">Huella derecha</td>
+                        <td><img src="data:image/jpeg;base64,${obj.imagenes.huella_derecha}" class="huella-img" style="max-width: 200px;"></td>
+                    </tr>
+                `;
+            }
+            if (obj.imagenes.firma) {
+                html += `
+                    <tr>
+                        <td class="font-semibold">Firma</td>
+                        <td><img src="data:image/jpeg;base64,${obj.imagenes.firma}" class="firma-img" style="max-width: 200px;"></td>
+                    </tr>
+                `;
+            }
+            html += `</table>`;
+            
+            // Mostrar la foto en el logo
+            if (obj.imagenes.foto) {
+                resultadoLogo.innerHTML = `<img src="data:image/jpeg;base64,${obj.imagenes.foto}" class="foto-carnet">`;
+            }
+        }
+        
+        // Luego procesar los demás objetos anidados
         entries.forEach(([key, value]) => {
-            if (value && typeof value === 'object') {
+            if (value && typeof value === 'object' && key !== 'imagenes') {
                 html += `<div class="resultado-section-title">${key.replace(/_/g, ' ').toUpperCase()}</div>`;
-                html += crearTablasDesdeObjeto(value, nivel + 1);
-            } else {
-                // Para propiedades simples al primer nivel, crear una tabla general
-                if (!html.includes('<table class="resultado-table">')) {
-                    html += `<table class="resultado-table">`;
-                }
-                // Esto se maneja en el else
+                html += crearTablasDesdeObjeto(value, nivel + 1, false);
             }
         });
         
         // Crear tabla para propiedades simples si las hay
         const simpleProps = entries.filter(([_, value]) => !(value && typeof value === 'object'));
         if (simpleProps.length > 0) {
+            html += `<div class="resultado-section-title">DATOS PERSONALES</div>`;
             html += `<table class="resultado-table">`;
             simpleProps.forEach(([key, value]) => {
                 const displayValue = value !== null && value !== undefined ? value : 'N/A';
+                // Usar nombre legible si existe, sino capitalizar
+                const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 html += `
                     <tr>
-                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
-                        <td>${displayValue}</td>
+                        <td class="font-semibold" style="width: 40%;">${nombreCampo}</td>
+                        <td style="word-break: break-word;">${displayValue}</td>
                     </tr>
                 `;
             });
@@ -1189,28 +1287,24 @@ function crearTablasDesdeObjeto(obj, nivel = 0) {
         // Crear una tabla simple de dos columnas
         html += `<table class="resultado-table">`;
         entries.forEach(([key, value]) => {
-            // Detectar si el valor es una imagen base64 (foto, huella, firma)
-            if (value && typeof value === 'string' && (value.startsWith('/9j/') || value.startsWith('iVBOR'))) {
+            if (value && typeof value === 'object') {
+                // Si es un objeto anidado, mostrar como tabla anidada
                 html += `
                     <tr>
-                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
-                        <td><img src="data:image/jpeg;base64,${value}" class="resultado-imagen" alt="${key}"></td>
+                        <td class="font-semibold" colspan="2">${key.replace(/_/g, ' ').toUpperCase()}</td>
                     </tr>
-                `;
-            } else if (value && typeof value === 'object') {
-                // Si es un objeto anidado y no estamos en nivel 0, mostrar como JSON
-                html += `
                     <tr>
-                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
-                        <td><pre class="text-xs">${JSON.stringify(value, null, 2)}</pre></td>
+                        <td colspan="2" style="padding: 0;">
+                            ${crearTablasDesdeObjeto(value, nivel + 1, false)}
+                        </td>
                     </tr>
                 `;
             } else {
                 const displayValue = value !== null && value !== undefined ? value : 'N/A';
                 html += `
                     <tr>
-                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
-                        <td>${displayValue}</td>
+                        <td class="font-semibold" style="width: 40%;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                        <td style="word-break: break-word;">${displayValue}</td>
                     </tr>
                 `;
             }
@@ -1219,21 +1313,6 @@ function crearTablasDesdeObjeto(obj, nivel = 0) {
     }
     
     return html;
-}
-
-// Función para mostrar la foto en el logo si existe
-function mostrarFotoEnLogo(fotoBase64) {
-    if (!fotoBase64) return;
-    
-    // Crear un elemento img para la foto
-    const fotoImg = document.createElement('img');
-    fotoImg.src = `data:image/jpeg;base64,${fotoBase64}`;
-    fotoImg.alt = "Foto DNI";
-    fotoImg.className = "w-16 h-16 rounded-full object-cover border-2 border-red-600";
-    
-    // Reemplazar el contenido del logo con la foto
-    resultadoLogoContainer.innerHTML = '';
-    resultadoLogoContainer.appendChild(fotoImg);
 }
 
 // Cambiar placeholder según la selección
@@ -1246,8 +1325,8 @@ apiSelect.addEventListener('change', function() {
         consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
     }
     
-    // Restaurar el logo original al cambiar de servicio
-    resultadoLogoContainer.innerHTML = `
+    // Restaurar el logo original cuando se cambia de API
+    resultadoLogo.innerHTML = `
         <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
             <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
@@ -1343,8 +1422,8 @@ async function realizarConsulta() {
         const result = await response.json();
         console.log('Resultado de la consulta:', result);
         
-        // Restaurar el logo original antes de mostrar nuevos resultados
-        resultadoLogoContainer.innerHTML = `
+        // Restaurar el logo por defecto antes de mostrar resultados
+        resultadoLogo.innerHTML = `
             <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
                 <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
@@ -1355,12 +1434,13 @@ async function realizarConsulta() {
         
         // Mostrar el resultado en la sección RESULTADO
         if (result.success && result.data) {
-            // Extraer la foto si existe (para consultas de DNI)
-            if (selectedApi === 'dni' && result.data.result && result.data.result.imagenes && result.data.result.imagenes.foto) {
-                mostrarFotoEnLogo(result.data.result.imagenes.foto);
+            // Verificar si es una consulta de DNI para usar el formato especial
+            const esDni = selectedApi === 'dni' && result.data.result;
+            if (esDni) {
+                resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data.result, 0, true);
+            } else {
+                resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
             }
-            
-            resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
         } else if (result.error) {
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-red-600">
