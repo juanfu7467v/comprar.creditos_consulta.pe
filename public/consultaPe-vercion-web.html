@@ -491,6 +491,15 @@
         .resultado-table.orden td {
             padding: 14px 12px;
         }
+
+        /* Estilos para imágenes base64 */
+        .resultado-imagen {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -531,7 +540,7 @@
                     <div class="sub">RESULTADO</div>
                 </div>
 
-                <div class="resultado-logo" aria-label="Consulta pe apk">
+                <div class="resultado-logo" id="resultado-logo-container" aria-label="Consulta pe apk">
                     <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
                         <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
@@ -1076,6 +1085,7 @@ const apiSelect = document.getElementById('api-select');
 const consultaInput = document.getElementById('consulta-input');
 const consultarBtn = document.getElementById('consultar-btn');
 const resultadoBody = document.getElementById('resultado-body');
+const resultadoLogoContainer = document.getElementById('resultado-logo-container');
 
 // Mapa de placeholders según la API seleccionada
 const placeholders = {
@@ -1179,7 +1189,15 @@ function crearTablasDesdeObjeto(obj, nivel = 0) {
         // Crear una tabla simple de dos columnas
         html += `<table class="resultado-table">`;
         entries.forEach(([key, value]) => {
-            if (value && typeof value === 'object') {
+            // Detectar si el valor es una imagen base64 (foto, huella, firma)
+            if (value && typeof value === 'string' && (value.startsWith('/9j/') || value.startsWith('iVBOR'))) {
+                html += `
+                    <tr>
+                        <td class="font-semibold">${key.replace(/_/g, ' ').toUpperCase()}</td>
+                        <td><img src="data:image/jpeg;base64,${value}" class="resultado-imagen" alt="${key}"></td>
+                    </tr>
+                `;
+            } else if (value && typeof value === 'object') {
                 // Si es un objeto anidado y no estamos en nivel 0, mostrar como JSON
                 html += `
                     <tr>
@@ -1203,6 +1221,21 @@ function crearTablasDesdeObjeto(obj, nivel = 0) {
     return html;
 }
 
+// Función para mostrar la foto en el logo si existe
+function mostrarFotoEnLogo(fotoBase64) {
+    if (!fotoBase64) return;
+    
+    // Crear un elemento img para la foto
+    const fotoImg = document.createElement('img');
+    fotoImg.src = `data:image/jpeg;base64,${fotoBase64}`;
+    fotoImg.alt = "Foto DNI";
+    fotoImg.className = "w-16 h-16 rounded-full object-cover border-2 border-red-600";
+    
+    // Reemplazar el contenido del logo con la foto
+    resultadoLogoContainer.innerHTML = '';
+    resultadoLogoContainer.appendChild(fotoImg);
+}
+
 // Cambiar placeholder según la selección
 apiSelect.addEventListener('change', function() {
     const selected = this.value;
@@ -1212,6 +1245,16 @@ apiSelect.addEventListener('change', function() {
     if (selected === 'buscar-dni') {
         consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
     }
+    
+    // Restaurar el logo original al cambiar de servicio
+    resultadoLogoContainer.innerHTML = `
+        <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M46 10 L46 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="logo-text">Consulta pe apk</div>
+    `;
 });
 
 // Función para realizar la consulta
@@ -1300,8 +1343,23 @@ async function realizarConsulta() {
         const result = await response.json();
         console.log('Resultado de la consulta:', result);
         
+        // Restaurar el logo original antes de mostrar nuevos resultados
+        resultadoLogoContainer.innerHTML = `
+            <svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" fill="none">
+                <path d="M6 34 L26 14 L34 22 L46 10 L58 22" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M26 14 L26 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M46 10 L46 26" stroke="#0b0b0b" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div class="logo-text">Consulta pe apk</div>
+        `;
+        
         // Mostrar el resultado en la sección RESULTADO
         if (result.success && result.data) {
+            // Extraer la foto si existe (para consultas de DNI)
+            if (selectedApi === 'dni' && result.data.result && result.data.result.imagenes && result.data.result.imagenes.foto) {
+                mostrarFotoEnLogo(result.data.result.imagenes.foto);
+            }
+            
             resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
         } else if (result.error) {
             resultadoBody.innerHTML = `
