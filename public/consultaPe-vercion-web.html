@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Mercado Pago SDK -->
+    <!-- SDK de Mercado Pago -->
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
         body {
@@ -520,9 +520,52 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        /* Estilos para el formulario de pago de Mercado Pago */
-        .mp-container {
+        /* Estilos para el modal de pago (oculto por defecto) */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .payment-modal.active {
+            display: flex;
+        }
+
+        .payment-modal-content {
             background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .payment-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #666;
+        }
+
+        .payment-modal-close:hover {
+            color: #000;
+        }
+
+        /* Estilos de checkout adaptados */
+        .mp-container {
+            height: 48px;
+            background: #f8f9fa;
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             overflow: hidden;
@@ -530,25 +573,244 @@
             width: 100%;
         }
 
+        .mp-container.with-icon::before {
+            content: '\f09d';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa3af;
+            font-size: 18px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .mp-container.with-icon-expiry::before {
+            content: '\f073';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa3af;
+            font-size: 18px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .mp-container.with-icon-cvv::before {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa3af;
+            font-size: 18px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
         .mp-container iframe {
+            padding-left: 45px !important;
             width: 100% !important;
         }
 
-        .payment-loading {
+        .input-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid #e2e8f0;
+            width: 100%;
+            font-size: 15px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .document-container {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 15px;
+            align-items: end;
+            width: 100%;
+        }
+
+        .payment-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .payment-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .payment-btn:disabled {
+            background: #9aa3af;
+            cursor: not-allowed;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #9aa3af;
+            font-size: 12px;
+            margin-top: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            width: 100%;
+        }
+
+        .security-badge i {
+            color: #10B981;
+        }
+
+        .total-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 16px;
+        }
+
+        .hidden-field {
+            display: none !important;
+        }
+
+        /* Estilos para pantalla de éxito/error */
+        .success-icon, .error-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .success-icon {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+
+        .error-icon {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+
+        .success-icon i, .error-icon i {
+            color: white;
+            font-size: 40px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10B981;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #EF4444;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .info-table {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .info-value.highlight {
+            color: #2563eb;
+        }
+
+        .confirmation-message {
+            background: #D1FAE5;
+            border: 1px solid #A7F3D0;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .confirmation-message i {
+            color: #10B981;
+        }
+
+        .confirmation-message span {
+            color: #065F46;
+            font-weight: 500;
+        }
+
+        .loading-spinner {
             display: none;
             text-align: center;
             padding: 20px;
         }
 
-        .payment-loading.active {
+        .loading-spinner.active {
             display: block;
         }
 
         .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #dc2626;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px;
@@ -557,94 +819,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        /* Modal de éxito/error */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        .modal-content.success {
-            border-top: 5px solid #10b981;
-        }
-
-        .modal-content.error {
-            border-top: 5px solid #ef4444;
-        }
-
-        .modal-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
-
-        .modal-icon.success {
-            color: #10b981;
-        }
-
-        .modal-icon.error {
-            color: #ef4444;
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .modal-body {
-            color: #6b7280;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .modal-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .modal-btn:hover {
-            opacity: 0.9;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* Ocultar campos que no usamos */
-        .hidden-field {
-            display: none !important;
         }
     </style>
 </head>
@@ -713,162 +887,186 @@
         </div>
     </section>
 
-    <!-- Contenedor Método de Pago con funcionalidad completa de compra -->
-    <section class="card" id="payment-section">
+    <!-- Contenedor Método de Pago: PayPal reemplazado por Compra por WhatsApp -->
+    <section class="card">
         <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
         
         <div class="space-y-4">
-            <!-- Selector de tipo de compra (Créditos / Ilimitado) -->
-            <div class="flex gap-4 mb-4">
+            <!-- Opción de Tarjeta de Crédito/Débito con ícono agregado -->
+            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer" id="card-payment-option">
+                <input type="radio" name="pay" checked class="accent-red-600">
                 <div class="flex-1">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de compra</label>
-                    <div class="flex gap-2">
-                        <button type="button" id="creditsTypeBtn" class="flex-1 p-3 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition">
-                            <i class="fas fa-coins mr-2"></i>Créditos
-                        </button>
-                        <button type="button" id="unlimitedTypeBtn" class="flex-1 p-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-300 transition">
-                            <i class="fas fa-infinity mr-2"></i>Ilimitado
-                        </button>
-                    </div>
+                    <p class="text-sm font-bold">Tarjeta de Crédito/Débito</p>
+                    <p class="text-xs text-gray-400">Visa, Mastercard, American Express</p>
                 </div>
-            </div>
+                <!-- Ícono de tarjeta agregado -->
+                <div class="text-blue-800 font-bold text-lg">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+            </label>
 
-            <!-- Selector de paquete (Créditos) -->
-            <div class="flex gap-4 mb-6" id="credits-selector">
+            <!-- Opción reemplazada: PayPal por Compra por WhatsApp -->
+            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl cursor-pointer" id="whatsapp-payment-option">
+                <input type="radio" name="pay" class="accent-red-600">
                 <div class="flex-1">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Selecciona paquete de créditos</label>
-                    <select id="credits-select" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                        <option value="10">60 créditos - S/10</option>
-                        <option value="20">125 créditos - S/20</option>
-                        <option value="50" selected>330 créditos - S/50 (Recomendado)</option>
-                        <option value="100">700 créditos - S/100</option>
-                        <option value="200">1500 créditos - S/200</option>
-                    </select>
+                    <p class="text-sm font-bold">Compra por WhatsApp</p>
+                    <p class="text-xs text-gray-400">Contacta con nosotros para pagar</p>
+                </div>
+                <div class="text-green-600 font-bold text-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.036 2.5c-5.234 0-9.5 4.266-9.5 9.5 0 1.745.47 3.427 1.35 4.89l-1.386 4.155 4.332-1.336c1.414.8 3.034 1.24 4.704 1.24 5.234 0 9.5-4.266 9.5-9.5s-4.266-9.5-9.5-9.5zm0 17.5c-1.48 0-2.915-.396-4.158-1.138l-.297-.176-3.074.948 1.013-2.99-.162-.312c-.824-1.3-1.26-2.8-1.26-4.332 0-4.44 3.61-8.05 8.05-8.05s8.05 3.61 8.05 8.05-3.61 8.05-8.05 8.05zm4.36-5.99c-.24-.12-1.425-.703-1.646-.783-.22-.08-.38-.12-.54.12s-.62.783-.76.943c-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.93-1.192-.714-.638-1.196-1.426-1.336-1.667-.14-.24-.015-.37.105-.49.108-.108.24-.282.36-.423.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.194-.464-.39-.4-.54-.408h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.576.248.993.4 1.332.514.56.19 1.07.164 1.473.1.45-.072 1.385-.566 1.58-1.113.195-.547.195-1.016.137-1.114-.058-.098-.213-.158-.453-.278z"></path>
+                    </svg>
+                </div>
+            </label>
+        </div>
+    </section>
+
+    <!-- Sección de Tarjeta de Crédito (con chip MUCHO MÁS REALISTA y selects agregados) -->
+    <section class="card" id="credit-card-section">
+        <!-- Tarjeta de crédito con diseño MUCHO MÁS REALISTA -->
+        <div class="credit-card-preview mb-6">
+            <!-- Chip ultra realista con estructura interna -->
+            <div class="card-chip absolute top-6 left-6">
+                <div class="chip-dots">
+                    <span></span>
+                    <span></span>
                 </div>
             </div>
+            
+            <!-- Ícono superior ajustado para que se vea nítido (sin blur) -->
+            <div class="absolute top-6 right-6 flex gap-1 top-icons">
+                <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
+                <div class="w-8 h-8 bg-orange-500 rounded-full -ml-4"></div>
+            </div>
+            <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg" id="visual-card-number">1234 5678 9012 3456</p>
+            <div class="flex justify-between items-end">
+                <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-holder">TITULAR DE TARJETA</span>
+                <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-expiry">MM/AA</span>
+            </div>
+            <!-- Marca de tarjeta -->
+            <div class="absolute bottom-6 right-6 text-2xl font-bold italic opacity-80">VISA</div>
+        </div>
 
-            <!-- Selector de paquete (Ilimitado) - Oculto por defecto -->
-            <div class="flex gap-4 mb-6 hidden" id="unlimited-selector">
-                <div class="flex-1">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Selecciona plan ilimitado</label>
-                    <select id="unlimited-select" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                        <option value="7-dias">7 días - S/60</option>
-                        <option value="15-dias">15 días - S/80</option>
-                        <option value="30-dias" selected>30 días - S/110 (Recomendado)</option>
-                        <option value="60-dias">60 días - S/160</option>
-                        <option value="70-dias">70 días - S/510</option>
-                    </select>
+        <!-- Dos selects agregados: Créditos e Ilimitado -->
+        <div class="flex gap-4 mb-6">
+            <div class="flex-1">
+                <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de compra</label>
+                <div class="flex gap-2">
+                    <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 transition-all" id="payment-type-credits" style="background: linear-gradient(135deg, #1e40af, #059669); color: white; border-color: transparent;">
+                        <i class="fas fa-coins mr-1"></i> Créditos
+                    </button>
+                    <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all" id="payment-type-unlimited">
+                        <i class="fas fa-rocket mr-1"></i> Ilimitado
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Opción de pago con tarjeta (Mercado Pago) -->
-            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50">
-                <label class="flex items-center gap-4 cursor-pointer">
-                    <input type="radio" name="payment-method" value="card" checked class="accent-red-600">
-                    <div class="flex-1">
-                        <p class="text-sm font-bold">Pagar con tarjeta de crédito/débito</p>
-                        <p class="text-xs text-gray-400">Visa, Mastercard, American Express</p>
-                    </div>
-                    <div class="text-blue-800 font-bold text-lg">VISA</div>
-                </label>
+        <div class="flex gap-4 mb-6">
+            <div class="flex-1">
+                <label class="text-xs font-bold text-gray-400 block mb-1">Selecciona el paquete</label>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="purchase-details-select">
+                    <option value="" disabled selected>Selecciona un paquete</option>
+                </select>
             </div>
+        </div>
 
-            <!-- Opción de pago por WhatsApp -->
-            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50">
-                <label class="flex items-center gap-4 cursor-pointer" id="whatsapp-option">
-                    <input type="radio" name="payment-method" value="whatsapp" class="accent-green-600">
-                    <div class="flex-1">
-                        <p class="text-sm font-bold">Compra por WhatsApp</p>
-                        <p class="text-xs text-gray-400">Contacta con ventas para asistencia</p>
-                    </div>
-                    <div class="text-green-600 font-bold text-xl">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                </label>
-            </div>
+        <!-- Mostrar el total a pagar -->
+        <div class="total-price text-center mb-4" id="display-amount">S/ 0.00</div>
 
-            <!-- Tarjeta de crédito visual (solo para referencia) -->
-            <div class="credit-card-preview mb-6">
-                <div class="card-chip absolute top-6 left-6">
-                    <div class="chip-dots">
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-                <div class="absolute top-6 right-6 flex gap-1 top-icons">
-                    <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
-                    <div class="w-8 h-8 bg-orange-500 rounded-full -ml-4"></div>
-                </div>
-                <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg" id="card-number-display">•••• •••• •••• ••••</p>
-                <div class="flex justify-between items-end">
-                    <span class="text-xs uppercase opacity-90 font-semibold" id="card-holder-display">TITULAR DE TARJETA</span>
-                </div>
-                <div class="absolute bottom-6 right-6 text-2xl font-bold italic opacity-80">VISA</div>
-            </div>
-
-            <!-- Formulario de Mercado Pago (campos reales) -->
-            <form id="form-checkout" class="space-y-4">
-                <div class="form-group hidden-field">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Correo electrónico</label>
-                    <input type="email" id="form-checkout__cardholderEmail" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="correo@ejemplo.com">
-                </div>
-
-                <div>
+        <!-- Formulario de pago con tarjeta (campos de Mercado Pago) -->
+        <div id="payment-form-container">
+            <form id="form-checkout">
+                <div class="form-group mb-4">
                     <label class="text-xs font-bold text-gray-400 block mb-1">Número de tarjeta</label>
-                    <div id="form-checkout__cardNumber" class="mp-container"></div>
+                    <div id="form-checkout__cardNumber" class="mp-container with-icon"></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 block mb-1">Fecha de vencimiento</label>
-                        <div id="form-checkout__expirationDate" class="mp-container"></div>
+                <div class="grid-row mb-4">
+                    <div class="form-group">
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Válido hasta</label>
+                        <div id="form-checkout__expirationDate" class="mp-container with-icon-expiry"></div>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label class="text-xs font-bold text-gray-400 block mb-1">CVV</label>
-                        <div id="form-checkout__securityCode" class="mp-container"></div>
+                        <div id="form-checkout__securityCode" class="mp-container with-icon-cvv"></div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Nombre del titular</label>
-                    <input type="text" id="form-checkout__cardholderName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="Como aparece en la tarjeta">
+                <div class="form-group mb-4">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">Titular de la tarjeta</label>
+                    <input 
+                        type="text" 
+                        id="form-checkout__cardholderName" 
+                        class="input-box" 
+                        placeholder="Nombre y apellido"
+                        required
+                    />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de documento</label>
-                        <select id="form-checkout__identificationType" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                <div class="form-group mb-4 hidden-field">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">Correo electrónico</label>
+                    <input 
+                        type="email" 
+                        id="form-checkout__cardholderEmail" 
+                        class="input-box" 
+                        placeholder="correo@ejemplo.com"
+                        required
+                    />
+                </div>
+
+                <div class="document-container mb-4">
+                    <div class="form-group document-type-group">
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de doc.</label>
+                        <select id="form-checkout__identificationType" class="input-box" required style="text-align: left; padding-left: 16px;">
                             <option value="">Seleccionar</option>
                         </select>
                     </div>
-                    <div>
+                    
+                    <div class="form-group document-number-group">
                         <label class="text-xs font-bold text-gray-400 block mb-1">Número de documento</label>
-                        <input type="text" id="form-checkout__identificationNumber" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm" placeholder="12345678">
+                        <input 
+                            type="text" 
+                            id="form-checkout__identificationNumber" 
+                            class="input-box" 
+                            placeholder="12345678"
+                            required
+                            style="text-align: center;"
+                        />
                     </div>
                 </div>
 
-                <!-- Campos ocultos requeridos por Mercado Pago -->
-                <select id="form-checkout__issuer" class="hidden"></select>
-                <select id="form-checkout__installments" class="hidden"></select>
+                <div style="display:none">
+                    <select id="form-checkout__issuer"></select>
+                    <select id="form-checkout__installments"></select>
+                </div>
 
-                <!-- Loading spinner -->
-                <div class="payment-loading" id="payment-loading">
+                <div class="loading-spinner" id="payment-loading">
                     <div class="spinner"></div>
                     <p class="text-sm text-gray-600">Procesando pago...</p>
                 </div>
 
-                <!-- Botón de pago -->
-                <button type="submit" id="form-checkout__submit" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all">
-                    <i class="fas fa-lock mr-2"></i> PAGAR AHORA
+                <button type="submit" id="form-checkout__submit" class="payment-btn" disabled>
+                    <i class="fas fa-lock"></i> Proceder al pago
                 </button>
-            </form>
 
-            <div class="security-badge flex items-center justify-center gap-2 text-xs text-gray-500 mt-4">
-                <i class="fas fa-shield-alt text-green-600"></i>
-                <span>Pago 100% seguro procesado por Mercado Pago</span>
-            </div>
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Pago 100% seguro y encriptado</span>
+                </div>
+            </form>
         </div>
+
+        <!-- Mensaje de error (si hay) -->
+        <div id="payment-error" class="text-red-600 text-sm mt-4 text-center" style="display: none;"></div>
     </section>
+
+    <!-- Botón de pago final (sin cambios, pero redirige al pago) -->
+    <div class="mt-4">
+        <button class="btn-action" id="final-payment-btn">
+            PAGAR AHORA
+        </button>
+    </div>
 
     <!-- SLIDER DE SERVICIOS (sin cambios) -->
     <section class="card">
@@ -967,20 +1165,10 @@
     </div>
 </footer>
 
-<!-- MODALES PARA RESPUESTAS DE PAGO -->
-<div id="payment-modal" class="modal-overlay">
-    <div class="modal-content" id="modal-content">
-        <div class="modal-icon" id="modal-icon"></div>
-        <h3 class="modal-title" id="modal-title"></h3>
-        <div class="modal-body" id="modal-body"></div>
-        <button class="modal-btn" onclick="closePaymentModal()">Aceptar</button>
-    </div>
-</div>
-
-<!-- Script con toda la lógica integrada -->
+<!-- Script con la lógica real de Firebase, generación de API Key, funcionalidad de consulta y pago -->
 <script>
 /* ==========================================================
-   CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE
+   CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE (desde perfil.html)
    ========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
@@ -991,7 +1179,7 @@ const firebaseConfig = {
   appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
 };
 
-// Inicialización Firebase
+// Inicialización
 if(firebase.apps.length === 0){
     firebase.initializeApp(firebaseConfig);
 }
@@ -1001,20 +1189,19 @@ const FieldValue = firebase.firestore.FieldValue;
 
 let USER_EMAIL = null;
 let USER_UID = null;
-let USER_API_KEY = null;
+let USER_API_KEY = null; // Variable para almacenar el API Key del usuario
 
 // Elementos del DOM para el perfil
 const perfilContenido = document.getElementById('perfil-plan-contenido');
 
-// ==========================================================
-// FUNCIONES DE UTILIDAD
-// ==========================================================
+// Función para generar un API Key seguro
 function generarApiKey() {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
     return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
+// Función para formatear fecha (copiada de perfil.html)
 function formatDate(isoDate) {
     if (!isoDate) return 'N/A';
     try {
@@ -1028,28 +1215,7 @@ function formatDate(isoDate) {
     }
 }
 
-function getRealDateTime() {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const fecha = `${day}/${month}/${year}`;
-    
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const hoursStr = String(hours).padStart(2, '0');
-    const hora = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
-    
-    return { fecha, hora };
-}
-
-// ==========================================================
-// FUNCIONES PARA EL PERFIL
-// ==========================================================
+// Función para actualizar la UI con los datos del perfil y el plan
 function renderizarPerfilConDatos(userData) {
     if (!perfilContenido) return;
 
@@ -1063,29 +1229,37 @@ function renderizarPerfilConDatos(userData) {
         return;
     }
 
+    // Guardar el API Key en la variable global
     USER_API_KEY = userData.apiKey;
 
+    // Extraer datos con valores por defecto
     const nombre = userData.email ? userData.email.split('@')[0] : 'Usuario';
     const email = userData.email || 'correo@ejemplo.com';
     const iniciales = nombre.substring(0, 2).toUpperCase() || 'U';
     
+    // Datos del plan
     const tipoPlan = userData.tipoPlan || 'creditos';
     const creditos = userData.creditos || 0;
     
+    // API Key (mostrar, y si no existe, generar una)
     let apiKey = userData.apiKey;
     if (!apiKey) {
         apiKey = generarApiKey();
     }
     
+    // Fecha de activación (si existe)
     let fechaActivacion = 'No disponible';
     if (userData.fechaActivacion) {
         fechaActivacion = formatDate(userData.fechaActivacion);
     }
     
+    // Fecha de vencimiento (si es plan ilimitado)
     let planIlimitadoHasta = 'No aplica';
     let diasRestantes = 'No aplica';
     if (tipoPlan === 'ilimitado' && userData.fechaVencimiento) {
         planIlimitadoHasta = formatDate(userData.fechaVencimiento);
+        
+        // Calcular días restantes
         try {
             let vencimiento;
             if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
@@ -1102,9 +1276,13 @@ function renderizarPerfilConDatos(userData) {
         }
     }
 
+    // Última compra (ahora se muestra)
     const ultimaCompra = userData.ultimaCompra ? formatDate(userData.ultimaCompra) : 'No disponible';
+    
+    // Total consultas (simulado o desde datos si existe)
     const totalConsultas = userData.totalConsultas || 0;
 
+    // Estado de cuenta
     let estadoCuenta = 'Inactivo';
     let estadoColor = 'text-red-600';
     if (tipoPlan === 'ilimitado' && userData.fechaVencimiento) {
@@ -1125,7 +1303,9 @@ function renderizarPerfilConDatos(userData) {
         estadoColor = 'text-green-600';
     }
 
+    // Construir el HTML - MODIFICADO: avatar con ancho w-40 (doble de w-20)
     perfilContenido.innerHTML = `
+        <!-- Datos del perfil de usuario -->
         <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
             <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
                 ${iniciales}
@@ -1133,10 +1313,12 @@ function renderizarPerfilConDatos(userData) {
             <div>
                 <h3 class="font-bold text-lg">${nombre}</h3>
                 <p class="text-sm text-gray-500">${email}</p>
+                <!-- API Key mostrado en lugar del badge del plan -->
                 <p class="text-xs text-gray-400 mt-1 break-all"><span class="font-mono">${apiKey}</span></p>
             </div>
         </div>
 
+        <!-- Tabla con los detalles del plan -->
         <table class="plan-detail-table">
             <tr>
                 <td>Tipo de Plan</td>
@@ -1173,6 +1355,7 @@ function renderizarPerfilConDatos(userData) {
         </table>
     `;
 
+    // Si no tenía API Key, la guardamos en Firestore
     if (!userData.apiKey && userData.email) {
         const userRef = db.collection("usuarios").doc(auth.currentUser.uid);
         userRef.update({
@@ -1183,10 +1366,12 @@ function renderizarPerfilConDatos(userData) {
     }
 }
 
+// Función para cargar los datos del perfil desde Firestore
 async function cargarDatosPerfil() {
     const user = auth.currentUser;
     
     if (!user) {
+        // Si no hay usuario autenticado, mostrar mensaje para iniciar sesión
         perfilContenido.innerHTML = `
             <div class="text-center py-8 text-gray-500">
                 <p class="font-semibold">No has iniciado sesión</p>
@@ -1208,6 +1393,7 @@ async function cargarDatosPerfil() {
             renderizarPerfilConDatos(userData);
         } else {
             console.warn("Documento de usuario no encontrado en Firestore.");
+            // Crear un documento por defecto si no existe
             const defaultUserData = {
                 email: user.email,
                 tipoPlan: "creditos",
@@ -1235,9 +1421,31 @@ async function cargarDatosPerfil() {
     }
 }
 
-// ==========================================================
-// FUNCIONALIDAD DE CONSULTA DE APIs
-// ==========================================================
+// Observador de autenticación
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        USER_EMAIL = user.email;
+        USER_UID = user.uid;
+        cargarDatosPerfil();
+    } else {
+        // Usuario no autenticado
+        if (perfilContenido) {
+            perfilContenido.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <p class="font-semibold">No has iniciado sesión</p>
+                    <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
+                    <a href="login.html" class="mt-4 inline-block px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
+                        Iniciar sesión
+                    </a>
+                </div>
+            `;
+        }
+    }
+});
+
+/* ==========================================================
+   FUNCIONALIDAD DEL SELECT Y CONSULTA A LA API
+   ========================================================= */
 const apiSelect = document.getElementById('api-select');
 const consultaInput = document.getElementById('consulta-input');
 const consultarBtn = document.getElementById('consultar-btn');
@@ -1245,6 +1453,7 @@ const resultadoBody = document.getElementById('resultado-body');
 const resultadoLogo = document.getElementById('resultado-logo');
 const resultadoWrap = document.getElementById('resultado-wrap');
 
+// Mapa de placeholders según la API seleccionada
 const placeholders = {
     'dni': 'Ej: 12345678',
     'telefonia-doc': 'Ej: 12345678 o 20123456789',
@@ -1258,6 +1467,7 @@ const placeholders = {
     'cedula': 'Ej: V12345678'
 };
 
+// Mapa de endpoints de la API (según documentación)
 const endpoints = {
     'dni': 'consulta/dni',
     'telefonia-doc': 'consulta/telefonia-doc',
@@ -1271,6 +1481,7 @@ const endpoints = {
     'cedula': 'consulta/cedula'
 };
 
+// Mapa de nombres de parámetros para cada endpoint
 const paramNames = {
     'dni': 'dni',
     'telefonia-doc': 'documento',
@@ -1279,11 +1490,12 @@ const paramNames = {
     'ruc': 'data',
     'empresas': 'dni',
     'matrimonios': 'dni',
-    'buscar-dni': null,
+    'buscar-dni': null, // Requiere múltiples campos: nombres, apepaterno, apematerno
     'buscar-cedula': 'query',
     'cedula': 'cedula'
 };
 
+// Mapa de nombres de campos más legibles para DNI
 const nombresCamposDni = {
     'nuDni': 'DNI',
     'apCasada': 'Apellido de casada',
@@ -1336,11 +1548,13 @@ const nombresCamposDni = {
     'digitoVerificacion': 'Dígito de verificación'
 };
 
+// Función para crear tablas dinámicas a partir de un objeto (especial para DNI)
 function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
     if (!obj || typeof obj !== 'object') return '';
     
     let html = '';
     
+    // Si es un array, crear una tabla para cada elemento
     if (Array.isArray(obj)) {
         if (obj.length === 0) return '<p class="text-gray-500 text-center py-4">No hay datos para mostrar</p>';
         
@@ -1353,12 +1567,15 @@ function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
         return html;
     }
     
+    // Si es un objeto, crear una tabla con sus propiedades
     const entries = Object.entries(obj);
     if (entries.length === 0) return '';
     
+    // Determinar si es un objeto plano o tiene anidamiento
     const hasNestedObjects = entries.some(([_, value]) => value && typeof value === 'object');
     
     if (hasNestedObjects && nivel === 0) {
+        // Primero procesar las imágenes especiales si es una consulta de DNI
         if (esDni && obj.imagenes) {
             html += `<div class="resultado-section-title">IMÁGENES BIOMÉTRICAS</div>`;
             html += `<table class="resultado-table">`;
@@ -1389,11 +1606,13 @@ function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
             }
             html += `</table>`;
             
+            // Mostrar la foto en el logo
             if (obj.imagenes.foto) {
                 resultadoLogo.innerHTML = `<img src="data:image/jpeg;base64,${obj.imagenes.foto}" class="foto-carnet">`;
             }
         }
         
+        // Luego procesar los demás objetos anidados
         entries.forEach(([key, value]) => {
             if (value && typeof value === 'object' && key !== 'imagenes') {
                 html += `<div class="resultado-section-title">${key.replace(/_/g, ' ').toUpperCase()}</div>`;
@@ -1401,12 +1620,14 @@ function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
             }
         });
         
+        // Crear tabla para propiedades simples si las hay
         const simpleProps = entries.filter(([_, value]) => !(value && typeof value === 'object'));
         if (simpleProps.length > 0) {
             html += `<div class="resultado-section-title">DATOS PERSONALES</div>`;
             html += `<table class="resultado-table">`;
             simpleProps.forEach(([key, value]) => {
                 const displayValue = value !== null && value !== undefined ? value : 'N/A';
+                // Usar nombre legible si existe, sino capitalizar
                 const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 html += `
                     <tr>
@@ -1418,9 +1639,11 @@ function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
             html += `</table>`;
         }
     } else {
+        // Crear una tabla simple de dos columnas
         html += `<table class="resultado-table">`;
         entries.forEach(([key, value]) => {
             if (value && typeof value === 'object') {
+                // Si es un objeto anidado, mostrar como tabla anidada
                 html += `
                     <tr>
                         <td class="font-semibold" colspan="2">${key.replace(/_/g, ' ').toUpperCase()}</td>
@@ -1447,14 +1670,17 @@ function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
     return html;
 }
 
+// Cambiar placeholder según la selección
 apiSelect.addEventListener('change', function() {
     const selected = this.value;
     consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
     
+    // Si es "Buscar DNI por Nombres", mostrar un mensaje especial
     if (selected === 'buscar-dni') {
         consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
     }
     
+    // Restaurar el logo original cuando se cambia de API
     resultadoLogo.innerHTML = `
         <div class="logo-icon">
             <i class="fas fa-database"></i>
@@ -1463,6 +1689,7 @@ apiSelect.addEventListener('change', function() {
     `;
 });
 
+// Función para realizar la consulta
 async function realizarConsulta() {
     const selectedApi = apiSelect.value;
     const consultaValue = consultaInput.value.trim();
@@ -1477,12 +1704,14 @@ async function realizarConsulta() {
         return;
     }
     
+    // Verificar que el usuario esté autenticado
     const user = auth.currentUser;
     if (!user) {
         alert('Debes iniciar sesión para realizar consultas.');
         return;
     }
     
+    // Obtener el API Key del usuario
     let apiKey = USER_API_KEY;
     
     if (!apiKey) {
@@ -1505,6 +1734,7 @@ async function realizarConsulta() {
         return;
     }
     
+    // Construir el objeto de datos para la petición
     let requestData = {};
     const paramName = paramNames[selectedApi];
     
@@ -1545,6 +1775,7 @@ async function realizarConsulta() {
         const result = await response.json();
         console.log('Resultado de la consulta:', result);
         
+        // Restaurar el logo por defecto antes de mostrar resultados
         resultadoLogo.innerHTML = `
             <div class="logo-icon">
                 <i class="fas fa-database"></i>
@@ -1552,7 +1783,9 @@ async function realizarConsulta() {
             <div class="logo-text">Consulta PE</div>
         `;
         
+        // Mostrar el resultado en la sección RESULTADO
         if (result.success && result.data) {
+            // Verificar si es una consulta de DNI para usar el formato especial
             const esDni = selectedApi === 'dni' && result.data.result;
             if (esDni) {
                 resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data.result, 0, true);
@@ -1593,115 +1826,116 @@ async function realizarConsulta() {
     }
 }
 
+// Event listener para el botón de consultar
 consultarBtn.addEventListener('click', realizarConsulta);
 
-// ==========================================================
-// FUNCIONALIDAD DE COMPRA INTEGRADA (DESDE planes.html y checkout.html)
-// ==========================================================
+/* ==========================================================
+   FUNCIONALIDAD DE PAGO INTEGRADA
+   ========================================================= */
 
-// Constantes para créditos y planes
+// Mapeo de créditos (igual que en planes.html)
 const CREDITS_MAP = {
-    "10": { credits: 60 },
-    "20": { credits: 125 },
-    "50": { credits: 330 },
-    "100": { credits: 700 },
-    "200": { credits: 1500 },
+    "10": { credits: 60, label: "60 créditos" },
+    "20": { credits: 125, label: "125 créditos" },
+    "50": { credits: 330, label: "330 créditos" },
+    "100": { credits: 700, label: "700 créditos" },
+    "200": { credits: 1500, label: "1500 créditos" },
 };
 
+// Mapeo de planes ilimitados
 const UNLIMITED_MAP = {
-    "7-dias": { amount: 60, duration: '7 días' },
-    "15-dias": { amount: 80, duration: '15 días' },
-    "30-dias": { amount: 110, duration: '30 días' },
-    "60-dias": { amount: 160, duration: '60 días' },
-    "70-dias": { amount: 510, duration: '70 días' },
+    "7-dias": { amount: 60, duration: '7 días', label: '7 días' },
+    "15-dias": { amount: 80, duration: '15 días', label: '15 días' },
+    "30-dias": { amount: 110, duration: '30 días', label: '30 días' },
+    "60-dias": { amount: 160, duration: '60 días', label: '60 días' },
+    "70-dias": { amount: 510, duration: '70 días', label: '70 días' },
 };
 
-// Variables de estado para la compra
-let currentPurchaseType = 'CREDITOS';
-let mpInstance = null;
+let currentPaymentType = 'CREDITOS'; // 'CREDITOS' o 'ILIMITADO'
+let mp = null;
 let cardForm = null;
 
-// Elementos del DOM para la compra
-const creditsTypeBtn = document.getElementById('creditsTypeBtn');
-const unlimitedTypeBtn = document.getElementById('unlimitedTypeBtn');
-const creditsSelector = document.getElementById('credits-selector');
-const unlimitedSelector = document.getElementById('unlimited-selector');
-const creditsSelect = document.getElementById('credits-select');
-const unlimitedSelect = document.getElementById('unlimited-select');
-const whatsappOption = document.getElementById('whatsapp-option');
-const paymentMethodRadios = document.querySelectorAll('input[name="payment-method"]');
-const formCheckout = document.getElementById('form-checkout');
-const submitBtn = document.getElementById('form-checkout__submit');
+// Elementos del DOM para pago
+const paymentTypeCredits = document.getElementById('payment-type-credits');
+const paymentTypeUnlimited = document.getElementById('payment-type-unlimited');
+const purchaseDetailsSelect = document.getElementById('purchase-details-select');
+const displayAmount = document.getElementById('display-amount');
 const paymentLoading = document.getElementById('payment-loading');
-const cardNumberDisplay = document.getElementById('card-number-display');
-const cardHolderDisplay = document.getElementById('card-holder-display');
+const paymentError = document.getElementById('payment-error');
+const submitBtn = document.getElementById('form-checkout__submit');
+const finalPaymentBtn = document.getElementById('final-payment-btn');
+const cardPaymentOption = document.getElementById('card-payment-option');
+const whatsappPaymentOption = document.getElementById('whatsapp-payment-option');
+const creditCardSection = document.getElementById('credit-card-section');
 
-// Modal de pago
-const paymentModal = document.getElementById('payment-modal');
-const modalContent = document.getElementById('modal-content');
-const modalIcon = document.getElementById('modal-icon');
-const modalTitle = document.getElementById('modal-title');
-const modalBody = document.getElementById('modal-body');
-
-// Funciones para el modal
-function showPaymentModal(type, title, message) {
-    modalContent.className = `modal-content ${type}`;
-    modalIcon.className = `modal-icon ${type}`;
-    
-    if (type === 'success') {
-        modalIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
-    } else {
-        modalIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
-    }
-    
-    modalTitle.textContent = title;
-    modalBody.textContent = message;
-    paymentModal.style.display = 'flex';
-}
-
-function closePaymentModal() {
-    paymentModal.style.display = 'none';
-    // Recargar datos del perfil después del pago exitoso
-    if (auth.currentUser) {
-        cargarDatosPerfil();
-    }
-}
-
-// Cambiar entre créditos e ilimitado
-function setPurchaseType(type) {
-    currentPurchaseType = type;
+// Función para poblar el select según el tipo de compra
+function populatePurchaseSelect(type) {
+    purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un paquete</option>';
     
     if (type === 'CREDITOS') {
-        creditsTypeBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-        creditsTypeBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-        unlimitedTypeBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-        unlimitedTypeBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-        
-        creditsSelector.classList.remove('hidden');
-        unlimitedSelector.classList.add('hidden');
+        for (const amount in CREDITS_MAP) {
+            const data = CREDITS_MAP[amount];
+            const option = document.createElement('option');
+            option.value = amount;
+            option.textContent = `S/ ${amount}.00 (${data.label})`;
+            purchaseDetailsSelect.appendChild(option);
+        }
     } else {
-        unlimitedTypeBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-        unlimitedTypeBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-        creditsTypeBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-        creditsTypeBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-        
-        unlimitedSelector.classList.remove('hidden');
-        creditsSelector.classList.add('hidden');
+        for (const key in UNLIMITED_MAP) {
+            const data = UNLIMITED_MAP[key];
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = `${data.duration} - S/ ${data.amount}.00`;
+            purchaseDetailsSelect.appendChild(option);
+        }
     }
+    
+    updateDisplayAmount();
 }
 
-creditsTypeBtn.addEventListener('click', () => setPurchaseType('CREDITOS'));
-unlimitedTypeBtn.addEventListener('click', () => setPurchaseType('ILIMITADO'));
+// Función para actualizar el monto mostrado
+function updateDisplayAmount() {
+    const selectedValue = purchaseDetailsSelect.value;
+    if (!selectedValue) {
+        displayAmount.textContent = 'S/ 0.00';
+        return;
+    }
+    
+    if (currentPaymentType === 'CREDITOS') {
+        displayAmount.textContent = `S/ ${selectedValue}.00`;
+    } else {
+        const data = UNLIMITED_MAP[selectedValue];
+        if (data) {
+            displayAmount.textContent = `S/ ${data.amount}.00`;
+        }
+    }
+    
+    // Actualizar el estado del botón de pago
+    updateSubmitButtonState();
+}
 
-// WhatsApp option
-whatsappOption.addEventListener('click', function(e) {
-    e.preventDefault();
-    const phoneNumber = '51944950234';
-    const message = encodeURIComponent('Hola, quiero comprar créditos o un plan');
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-});
+// Función para actualizar el estado del botón de submit
+function updateSubmitButtonState() {
+    const selectedValue = purchaseDetailsSelect.value;
+    const user = auth.currentUser;
+    
+    if (!user) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Inicia sesión para pagar';
+        return;
+    }
+    
+    if (!selectedValue) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-hand-pointer"></i> Selecciona un paquete';
+        return;
+    }
+    
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-lock"></i> Proceder al pago';
+}
 
-// Inicializar Mercado Pago
+// Función para inicializar Mercado Pago
 async function initMercadoPago() {
     try {
         const response = await fetch('/api/config');
@@ -1715,50 +1949,31 @@ async function initMercadoPago() {
             throw new Error('Clave pública de Mercado Pago no configurada');
         }
 
-        mpInstance = new MercadoPago(config.mercadopagoPublicKey, { 
+        mp = new MercadoPago(config.mercadopagoPublicKey, { 
             locale: 'es-PE'
         });
 
-        // Obtener el monto según la selección
-        function getSelectedAmount() {
-            if (currentPurchaseType === 'CREDITOS') {
-                return creditsSelect.value;
-            } else {
-                const key = unlimitedSelect.value;
-                return UNLIMITED_MAP[key].amount.toString();
-            }
-        }
-
-        // Crear el formulario de tarjeta
-        cardForm = mpInstance.cardForm({
-            amount: getSelectedAmount(),
+        // Inicializar el formulario de tarjeta
+        cardForm = mp.cardForm({
+            amount: "0",
             iframe: true,
             form: {
                 id: 'form-checkout',
                 cardNumber: { 
                     id: 'form-checkout__cardNumber', 
-                    placeholder: '•••• •••• •••• ••••',
-                    style: {
-                        fontSize: '14px'
-                    }
+                    placeholder: '•••• •••• •••• ••••'
                 },
                 expirationDate: { 
                     id: 'form-checkout__expirationDate', 
-                    placeholder: 'MM/AA',
-                    style: {
-                        fontSize: '14px'
-                    }
+                    placeholder: 'MM/AA'
                 },
                 securityCode: { 
                     id: 'form-checkout__securityCode', 
-                    placeholder: '•••',
-                    style: {
-                        fontSize: '14px'
-                    }
+                    placeholder: '•••'
                 },
                 cardholderName: { 
                     id: 'form-checkout__cardholderName',
-                    placeholder: 'Como aparece en la tarjeta'
+                    placeholder: 'Nombre y apellido'
                 },
                 issuer: { 
                     id: 'form-checkout__issuer'
@@ -1785,49 +2000,21 @@ async function initMercadoPago() {
                         return;
                     }
                     
-                    // Pre-cargar email del usuario autenticado
-                    if (USER_EMAIL) {
-                        document.getElementById('form-checkout__cardholderEmail').value = USER_EMAIL;
+                    // Poner el email del usuario autenticado
+                    if (auth.currentUser && auth.currentUser.email) {
+                        document.getElementById('form-checkout__cardholderEmail').value = auth.currentUser.email;
                     }
                     
-                    // Actualizar display de la tarjeta
-                    const cardNumberInput = document.querySelector('#form-checkout__cardNumber input');
-                    if (cardNumberInput) {
-                        cardNumberInput.addEventListener('input', (e) => {
-                            let val = e.target.value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
-                            if (val.length > 19) val = val.slice(0, 19);
-                            cardNumberDisplay.textContent = val || '•••• •••• •••• ••••';
-                        });
-                    }
-                    
-                    const cardholderInput = document.getElementById('form-checkout__cardholderName');
-                    cardholderInput.addEventListener('input', (e) => {
-                        cardHolderDisplay.textContent = e.target.value.toUpperCase() || 'TITULAR DE TARJETA';
-                    });
-                    
-                    console.log("Formulario de pago montado correctamente");
+                    updateCardDisplay();
+                    console.log("Formulario montado correctamente");
                 },
                 onSubmit: async (event) => {
                     event.preventDefault();
                     
-                    // Verificar que el usuario esté autenticado
-                    const user = auth.currentUser;
-                    if (!user) {
-                        showPaymentModal('error', 'Error de autenticación', 'Debes iniciar sesión para realizar una compra.');
-                        return;
-                    }
-                    
-                    // Verificar que se haya seleccionado pago con tarjeta
-                    const selectedMethod = document.querySelector('input[name="payment-method"]:checked');
-                    if (!selectedMethod || selectedMethod.value !== 'card') {
-                        showPaymentModal('error', 'Método de pago no válido', 'Selecciona pagar con tarjeta para continuar.');
-                        return;
-                    }
-                    
                     const originalText = submitBtn.innerHTML;
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
                     paymentLoading.classList.add('active');
+                    submitBtn.disabled = true;
+                    paymentError.style.display = 'none';
 
                     try {
                         const formData = cardForm.getCardFormData();
@@ -1836,27 +2023,21 @@ async function initMercadoPago() {
                             throw new Error('No se pudo generar el token de pago');
                         }
                         
-                        // Obtener monto y descripción según selección
+                        // Obtener el monto según la selección
                         let amount = 0;
                         let description = '';
-                        let purchaseType = currentPurchaseType;
                         
-                        if (currentPurchaseType === 'CREDITOS') {
-                            amount = creditsSelect.value;
-                            description = `${CREDITS_MAP[creditsSelect.value].credits} Créditos`;
+                        if (currentPaymentType === 'CREDITOS') {
+                            amount = purchaseDetailsSelect.value;
+                            description = `${CREDITS_MAP[amount].credits} Créditos`;
                         } else {
-                            const key = unlimitedSelect.value;
-                            amount = UNLIMITED_MAP[key].amount;
-                            description = `Plan Ilimitado (${UNLIMITED_MAP[key].duration})`;
+                            const selectedValue = purchaseDetailsSelect.value;
+                            const data = UNLIMITED_MAP[selectedValue];
+                            amount = data.amount;
+                            description = `Plan ${data.duration}`;
                         }
                         
-                        console.log('Enviando pago al servidor:', {
-                            amount,
-                            uid: user.uid,
-                            email: user.email,
-                            description,
-                            purchaseType
-                        });
+                        const user = auth.currentUser;
                         
                         const res = await fetch('/api/pay', {
                             method: 'POST',
@@ -1882,108 +2063,173 @@ async function initMercadoPago() {
                         console.log('Respuesta del servidor:', result);
 
                         if (result.status === 'approved') {
-                            // Obtener fecha y hora real
-                            const { fecha, hora } = getRealDateTime();
-                            
-                            // Mostrar mensaje de éxito personalizado
-                            let benefitMessage = '';
-                            if (currentPurchaseType === 'CREDITOS') {
-                                benefitMessage = `Has adquirido ${CREDITS_MAP[creditsSelect.value].credits} créditos exitosamente.`;
-                            } else {
-                                const key = unlimitedSelect.value;
-                                benefitMessage = `Has activado el Plan Ilimitado por ${UNLIMITED_MAP[key].duration} exitosamente.`;
-                            }
-                            
-                            showPaymentModal('success', '¡Pago Exitoso!', 
-                                `${benefitMessage}\n\nMonto: S/ ${amount}\nFecha: ${fecha} ${hora}\nID: ${result.id}`
-                            );
-                            
-                            // Actualizar el perfil
-                            cargarDatosPerfil();
-                            
-                        } else if (result.status === 'pending') {
-                            showPaymentModal('success', 'Pago Pendiente', 
-                                'El pago está pendiente de aprobación. Te notificaremos cuando se confirme.'
-                            );
+                            showPaymentSuccess(result);
                         } else {
-                            const errorMessages = {
-                                'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta.',
-                                'cc_rejected_bad_filled_security_code': 'Código de seguridad (CVV) incorrecto.',
-                                'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta.',
-                                'cc_rejected_bad_filled_other': 'Revisa los datos de la tarjeta.',
-                                'cc_rejected_card_disabled': 'Tarjeta deshabilitada. Contacta a tu banco.',
-                            };
-                            
-                            const errorMsg = errorMessages[result.status_detail] || 
-                                'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.';
-                            
-                            showPaymentModal('error', 'Pago Rechazado', errorMsg);
+                            showPaymentError(result);
                         }
-                        
                     } catch (error) {
                         console.error('Error procesando pago:', error);
-                        showPaymentModal('error', 'Error de Conexión', 
-                            'No se pudo conectar con el servidor de pagos. Por favor, intenta de nuevo.'
-                        );
+                        paymentError.textContent = 'Error al procesar el pago. Intenta de nuevo.';
+                        paymentError.style.display = 'block';
                     } finally {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalText;
                         paymentLoading.classList.remove('active');
+                        submitBtn.disabled = false;
                     }
-                },
-                onFetching: (resource) => {
-                    console.log('Obteniendo recurso:', resource);
-                    return () => {};
                 }
             }
         });
 
-        console.log('Mercado Pago inicializado correctamente');
-
     } catch (error) {
-        console.error('Error crítico inicializando Mercado Pago:', error);
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error al cargar sistema de pagos';
+        console.error('Error inicializando Mercado Pago:', error);
+        paymentError.textContent = 'Error al cargar el sistema de pagos. Recarga la página.';
+        paymentError.style.display = 'block';
     }
 }
 
-// Actualizar monto cuando cambia la selección
-creditsSelect.addEventListener('change', function() {
-    if (mpInstance && cardForm) {
-        cardForm.setAmount(this.value);
+// Función para actualizar la tarjeta visual
+function updateCardDisplay() {
+    const cardholderName = document.getElementById('form-checkout__cardholderName');
+    const visualCardHolder = document.getElementById('visual-card-holder');
+    
+    if (cardholderName && visualCardHolder) {
+        cardholderName.addEventListener('input', (e) => {
+            const value = e.target.value.toUpperCase() || 'TITULAR DE TARJETA';
+            visualCardHolder.textContent = value.substring(0, 22);
+        });
     }
-});
+}
 
-unlimitedSelect.addEventListener('change', function() {
-    if (mpInstance && cardForm) {
-        const key = this.value;
-        cardForm.setAmount(UNLIMITED_MAP[key].amount.toString());
-    }
-});
-
-// ==========================================================
-// OBSERVADOR DE AUTENTICACIÓN
-// ==========================================================
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        USER_EMAIL = user.email;
-        USER_UID = user.uid;
-        cargarDatosPerfil();
-        // Inicializar Mercado Pago después de autenticación
-        initMercadoPago();
-    } else {
-        if (perfilContenido) {
-            perfilContenido.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <p class="font-semibold">No has iniciado sesión</p>
-                    <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
-                    <a href="login.html" class="mt-4 inline-block px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
-                        Iniciar sesión
-                    </a>
+// Función para mostrar éxito de pago
+function showPaymentSuccess(result) {
+    // Crear un modal simple de éxito
+    const modalHtml = `
+        <div class="payment-modal active" id="success-modal">
+            <div class="payment-modal-content">
+                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">&times;</span>
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
                 </div>
-            `;
-        }
+                <h2 class="success-title">¡Pago Aprobado!</h2>
+                <p class="text-center text-gray-600 mb-4">Tu transacción se procesó correctamente</p>
+                
+                <div class="info-table">
+                    <div class="info-row">
+                        <span class="info-label">Monto pagado</span>
+                        <span class="info-value highlight">S/ ${parseFloat(result.amount).toFixed(2)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ID de transacción</span>
+                        <span class="info-value">${result.id}</span>
+                    </div>
+                </div>
+                
+                <button class="payment-btn" onclick="this.closest('.payment-modal').remove()">
+                    <i class="fas fa-check"></i> Aceptar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Función para mostrar error de pago
+function showPaymentError(result) {
+    const modalHtml = `
+        <div class="payment-modal active" id="error-modal">
+            <div class="payment-modal-content">
+                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">&times;</span>
+                <div class="error-icon">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h2 class="error-title">Pago Rechazado</h2>
+                <p class="text-center text-gray-600 mb-4">No se pudo procesar tu transacción</p>
+                
+                <div class="info-table">
+                    <div class="info-row">
+                        <span class="info-label">Monto intentado</span>
+                        <span class="info-value">S/ ${parseFloat(result.amount || displayAmount.textContent.replace('S/ ', '')).toFixed(2)}</span>
+                    </div>
+                </div>
+                
+                <button class="payment-btn" onclick="this.closest('.payment-modal').remove()">
+                    <i class="fas fa-redo"></i> Reintentar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Event listeners para los tipos de pago
+paymentTypeCredits.addEventListener('click', function() {
+    currentPaymentType = 'CREDITOS';
+    this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
+    this.style.color = 'white';
+    this.style.borderColor = 'transparent';
+    paymentTypeUnlimited.style.background = 'white';
+    paymentTypeUnlimited.style.color = '#666';
+    paymentTypeUnlimited.style.borderColor = '#e2e8f0';
+    
+    populatePurchaseSelect('CREDITOS');
+});
+
+paymentTypeUnlimited.addEventListener('click', function() {
+    currentPaymentType = 'ILIMITADO';
+    this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
+    this.style.color = 'white';
+    this.style.borderColor = 'transparent';
+    paymentTypeCredits.style.background = 'white';
+    paymentTypeCredits.style.color = '#666';
+    paymentTypeCredits.style.borderColor = '#e2e8f0';
+    
+    populatePurchaseSelect('ILIMITADO');
+});
+
+purchaseDetailsSelect.addEventListener('change', updateDisplayAmount);
+
+// Event listener para el botón final de pago
+finalPaymentBtn.addEventListener('click', function() {
+    // Verificar qué opción de pago está seleccionada
+    if (cardPaymentOption.querySelector('input').checked) {
+        // Pago con tarjeta - hacer scroll a la sección de tarjeta
+        creditCardSection.scrollIntoView({ behavior: 'smooth' });
+    } else if (whatsappPaymentOption.querySelector('input').checked) {
+        // Pago por WhatsApp - abrir WhatsApp
+        const phoneNumber = '51944950234';
+        const message = encodeURIComponent('Hola, quiero comprar créditos o un plan');
+        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
     }
+});
+
+// Event listeners para las opciones de pago
+cardPaymentOption.addEventListener('click', function() {
+    this.querySelector('input').checked = true;
+    creditCardSection.style.display = 'block';
+});
+
+whatsappPaymentOption.addEventListener('click', function() {
+    this.querySelector('input').checked = true;
+    creditCardSection.style.display = 'none';
+});
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    populatePurchaseSelect('CREDITOS');
+    
+    // Verificar autenticación para habilitar el botón
+    auth.onAuthStateChanged((user) => {
+        updateSubmitButtonState();
+        
+        if (user && user.email) {
+            const emailField = document.getElementById('form-checkout__cardholderEmail');
+            if (emailField) emailField.value = user.email;
+        }
+    });
+    
+    // Inicializar Mercado Pago
+    initMercadoPago();
 });
 
 </script>
