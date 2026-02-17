@@ -79,7 +79,22 @@
             outline: none;
         }
 
-        /* Botón estilo "Confirm Order" - ELIMINADO */
+        /* Botón estilo "Confirm Order" */
+        .btn-action {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        .btn-action:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
 
         /* Estilo tarjeta de crédito - VERSIÓN MEJORADA MÁS REALISTA */
         .credit-card-preview {
@@ -681,7 +696,7 @@
         .total-price {
             font-size: 24px;
             font-weight: 700;
-            color: #1a2639;
+            color: #dc2626;
             margin-bottom: 16px;
             text-align: right;
         }
@@ -807,26 +822,20 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Estilo para el contenedor de selección de paquete y precio */
-        .package-selector {
+        /* Nuevo estilo para el contenedor de selección de paquete */
+        .package-selector-container {
             display: flex;
+            align-items: center;
             gap: 16px;
-            align-items: flex-end;
             margin-bottom: 20px;
         }
 
-        .package-selector .select-container {
-            flex: 2;
-        }
-
-        .package-selector .price-container {
+        .package-selector-container .select-wrapper {
             flex: 1;
-            text-align: right;
         }
 
-        .package-selector .price-container .total-price {
-            margin-bottom: 0;
-            font-size: 28px;
+        .package-selector-container .price-wrapper {
+            width: 120px;
         }
     </style>
 </head>
@@ -960,7 +969,7 @@
             <div class="flex-1">
                 <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de compra</label>
                 <div class="flex gap-2">
-                    <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 transition-all" id="payment-type-credits" style="background: linear-gradient(135deg, #1a2639, #0f4c5c); color: white; border-color: transparent;">
+                    <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 transition-all" id="payment-type-credits" style="background: linear-gradient(135deg, #1e40af, #059669); color: white; border-color: transparent;">
                         <i class="fas fa-coins mr-1"></i> Créditos
                     </button>
                     <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all" id="payment-type-unlimited">
@@ -970,15 +979,15 @@
             </div>
         </div>
 
-        <!-- Selector de paquete a la izquierda y precio a la derecha -->
-        <div class="package-selector">
-            <div class="select-container">
+        <!-- Contenedor con select a la izquierda y precio a la derecha -->
+        <div class="package-selector-container mb-6">
+            <div class="select-wrapper">
                 <label class="text-xs font-bold text-gray-400 block mb-1">Selecciona el paquete</label>
                 <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="purchase-details-select">
                     <option value="" disabled selected>Selecciona un paquete</option>
                 </select>
             </div>
-            <div class="price-container">
+            <div class="price-wrapper">
                 <label class="text-xs font-bold text-gray-400 block mb-1">Total a pagar</label>
                 <div class="total-price" id="display-amount">S/ 0.00</div>
             </div>
@@ -1071,7 +1080,7 @@
         <div id="payment-error" class="text-red-600 text-sm mt-4 text-center" style="display: none;"></div>
     </section>
 
-    <!-- Botón de pago final ELIMINADO -->
+    <!-- Botón de pago final ELIMINADO - ahora el pago se procesa directamente desde el botón "Proceder al pago" -->
 
     <!-- SLIDER DE SERVICIOS (sin cambios) -->
     <section class="card">
@@ -2169,7 +2178,7 @@ function showPaymentError(result) {
 // Event listeners para los tipos de pago
 paymentTypeCredits.addEventListener('click', function() {
     currentPaymentType = 'CREDITOS';
-    this.style.background = 'linear-gradient(135deg, #1a2639, #0f4c5c)';
+    this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
     this.style.color = 'white';
     this.style.borderColor = 'transparent';
     paymentTypeUnlimited.style.background = 'white';
@@ -2181,7 +2190,7 @@ paymentTypeCredits.addEventListener('click', function() {
 
 paymentTypeUnlimited.addEventListener('click', function() {
     currentPaymentType = 'ILIMITADO';
-    this.style.background = 'linear-gradient(135deg, #1a2639, #0f4c5c)';
+    this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
     this.style.color = 'white';
     this.style.borderColor = 'transparent';
     paymentTypeCredits.style.background = 'white';
@@ -2202,8 +2211,7 @@ cardPaymentOption.addEventListener('click', function() {
 whatsappPaymentOption.addEventListener('click', function() {
     this.querySelector('input').checked = true;
     creditCardSection.style.display = 'none';
-    
-    // Abrir WhatsApp directamente al seleccionar
+    // Abrir WhatsApp
     const phoneNumber = '51944950234';
     const message = encodeURIComponent('Hola, quiero comprar créditos o un plan');
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
