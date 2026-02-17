@@ -12,6 +12,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Mercado Pago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -517,6 +519,108 @@
             border: 2px solid #fff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+
+        /* Estilos para el modal de pago */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .payment-modal-content {
+            background-color: white;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 90%;
+            width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .payment-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .payment-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .payment-modal-close {
+            cursor: pointer;
+            font-size: 20px;
+            color: #666;
+        }
+
+        .payment-modal-close:hover {
+            color: #000;
+        }
+
+        .mp-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .mp-container iframe {
+            width: 100% !important;
+        }
+
+        .payment-submit-btn {
+            background-color: #2563eb;
+            color: white;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .payment-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .payment-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-success-icon {
+            color: #10b981;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .payment-error-icon {
+            color: #ef4444;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -584,32 +688,49 @@
         </div>
     </section>
 
-    <!-- Contenedor Método de Pago: PayPal reemplazado por Compra por WhatsApp -->
+    <!-- Contenedor Método de Pago - AHORA CON FUNCIONALIDAD REAL DE COMPRA -->
     <section class="card">
         <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
         
         <div class="space-y-4">
-            <!-- Opción de Visa con ícono agregado -->
-            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50">
+            <!-- Selector de tipo de compra: Créditos o Ilimitado -->
+            <div class="flex gap-3 mb-4">
+                <button id="creditsTypeBtn" class="flex-1 py-3 px-2 rounded-xl border-2 border-blue-600 bg-blue-50 text-blue-800 font-semibold text-sm flex items-center justify-center gap-2 selected">
+                    <i class="fas fa-coins"></i> Créditos
+                </button>
+                <button id="unlimitedTypeBtn" class="flex-1 py-3 px-2 rounded-xl border-2 border-gray-200 bg-white text-gray-600 font-semibold text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-rocket"></i> Ilimitado
+                </button>
+            </div>
+
+            <!-- Selector de paquetes -->
+            <div>
+                <label class="text-xs font-bold text-gray-400 block mb-2">Selecciona el paquete:</label>
+                <select id="purchaseSelect" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                    <option value="" disabled selected>Selecciona un paquete</option>
+                </select>
+            </div>
+
+            <!-- Opción de Visa con ícono agregado - AHORA ES EL BOTÓN PARA ABRIR MODAL DE PAGO -->
+            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors" id="visaPaymentOption">
                 <input type="radio" name="pay" checked class="accent-red-600">
                 <div class="flex-1">
-                    <p class="text-sm font-bold">**** **** **** 1234</p>
-                    <p class="text-xs text-gray-400">Visa Debit Card</p>
+                    <p class="text-sm font-bold">Pagar con Tarjeta</p>
+                    <p class="text-xs text-gray-400">Crédito o débito (Visa, Mastercard, etc.)</p>
                 </div>
                 <!-- Ícono de Visa agregado -->
                 <div class="text-blue-800 font-bold text-lg">VISA</div>
             </label>
 
-            <!-- Opción reemplazada: PayPal por Compra por WhatsApp -->
-            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl">
+            <!-- Opción de Compra por WhatsApp - AHORA FUNCIONAL -->
+            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors" id="whatsappPaymentOption">
                 <input type="radio" name="pay" class="accent-red-600">
                 <div class="flex-1">
                     <p class="text-sm font-bold">Compra por WhatsApp</p>
+                    <p class="text-xs text-gray-400">Contacta con ventas para asistencia</p>
                 </div>
                 <div class="text-green-600 font-bold text-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.036 2.5c-5.234 0-9.5 4.266-9.5 9.5 0 1.745.47 3.427 1.35 4.89l-1.386 4.155 4.332-1.336c1.414.8 3.034 1.24 4.704 1.24 5.234 0 9.5-4.266 9.5-9.5s-4.266-9.5-9.5-9.5zm0 17.5c-1.48 0-2.915-.396-4.158-1.138l-.297-.176-3.074.948 1.013-2.99-.162-.312c-.824-1.3-1.26-2.8-1.26-4.332 0-4.44 3.61-8.05 8.05-8.05s8.05 3.61 8.05 8.05-3.61 8.05-8.05 8.05zm4.36-5.99c-.24-.12-1.425-.703-1.646-.783-.22-.08-.38-.12-.54.12s-.62.783-.76.943c-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.93-1.192-.714-.638-1.196-1.426-1.336-1.667-.14-.24-.015-.37.105-.49.108-.108.24-.282.36-.423.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.194-.464-.39-.4-.54-.408h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.576.248.993.4 1.332.514.56.19 1.07.164 1.473.1.45-.072 1.385-.566 1.58-1.113.195-.547.195-1.016.137-1.114-.058-.098-.213-.158-.453-.278z"></path>
-                    </svg>
+                    <i class="fab fa-whatsapp"></i>
                 </div>
             </label>
         </div>
@@ -645,23 +766,22 @@
         <div class="flex gap-4 mb-6">
             <div class="flex-1">
                 <label class="text-xs font-bold text-gray-400 block mb-1">Créditos</label>
-                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm">
-                    <option>60 créditos - S/10</option>
-                    <option>125 créditos - S/20</option>
-                    <option>200 créditos - S/30</option>
-                    <option>330 créditos - S/50</option>
-                    <option>700 créditos - S/100</option>
-                    <option>1500 créditos - S/200</option>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="creditsSelect">
+                    <option value="10">60 créditos - S/10</option>
+                    <option value="20">125 créditos - S/20</option>
+                    <option value="50">330 créditos - S/50</option>
+                    <option value="100">700 créditos - S/100</option>
+                    <option value="200">1500 créditos - S/200</option>
                 </select>
             </div>
             <div class="flex-1">
                 <label class="text-xs font-bold text-gray-400 block mb-1">Plan Ilimitado</label>
-                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm">
-                    <option>7 días - S/60</option>
-                    <option>15 días - S/80</option>
-                    <option>30 días - S/110</option>
-                    <option>60 días - S/160</option>
-                    <option>70 días - S/510</option>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="unlimitedSelect">
+                    <option value="60">7 días - S/60</option>
+                    <option value="80">15 días - S/80</option>
+                    <option value="110">30 días - S/110</option>
+                    <option value="160">60 días - S/160</option>
+                    <option value="510">70 días - S/510</option>
                 </select>
             </div>
         </div>
@@ -669,51 +789,51 @@
         <div class="space-y-4">
             <div>
                 <label class="text-xs font-bold text-gray-400 block mb-1">Nombre del Titular</label>
-                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" value="Ankit Bhatnagar">
+                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="cardholderName" value="Ankit Bhatnagar">
             </div>
             
             <!-- Nuevos campos para la API de Mercado Pago -->
             <div>
                 <label class="text-xs font-bold text-gray-400 block mb-1">DNI / Identificación</label>
-                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="12345678">
+                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="identificationNumber" placeholder="12345678">
             </div>
             
             <div>
                 <label class="text-xs font-bold text-gray-400 block mb-1">Número de cuenta / Tarjeta</label>
-                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" value="1234 5678 9012 3456">
+                <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="cardNumber" value="1234 5678 9012 3456">
             </div>
             
             <div class="flex gap-4">
                 <div class="flex-1">
                     <label class="text-xs font-bold text-gray-400 block mb-1">Vence</label>
-                    <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="MM/YY">
+                    <input type="text" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="expiryDate" placeholder="MM/YY">
                 </div>
                 <div class="w-1/3">
                     <label class="text-xs font-bold text-gray-400 block mb-1">CVV</label>
-                    <input type="password" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="***">
+                    <input type="password" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="cvv" placeholder="***">
                 </div>
             </div>
 
             <!-- Campos adicionales típicos de Mercado Pago -->
             <div>
                 <label class="text-xs font-bold text-gray-400 block mb-1">Email del pagador</label>
-                <input type="email" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="cliente@email.com">
+                <input type="email" class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="payerEmail" placeholder="cliente@email.com">
             </div>
             
             <div>
                 <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de persona</label>
-                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm">
-                    <option>Persona Natural</option>
-                    <option>Persona Jurídica</option>
+                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="personType">
+                    <option value="natural">Persona Natural</option>
+                    <option value="juridica">Persona Jurídica</option>
                 </select>
             </div>
         </div>
     </section>
 
-    <!-- Botón de pago final (sin cambios) -->
+    <!-- Botón de pago final - AHORA FUNCIONAL -->
     <div class="mt-4">
-        <button class="btn-action">
-            PAGAR AHORA ($39.00)
+        <button class="btn-action" id="payNowBtn">
+            PAGAR AHORA
         </button>
     </div>
 
@@ -814,7 +934,43 @@
     </div>
 </footer>
 
-<!-- Script con la lógica real de Firebase, generación de API Key y funcionalidad de consulta -->
+<!-- Modal de Pago con Mercado Pago -->
+<div class="modal-overlay" id="paymentModal">
+    <div class="payment-modal-content">
+        <div class="payment-modal-header">
+            <div class="payment-modal-title">Completar pago</div>
+            <div class="payment-modal-close" id="closePaymentModal">&times;</div>
+        </div>
+        
+        <div id="paymentFormContainer">
+            <!-- El formulario de Mercado Pago se cargará aquí -->
+            <div class="payment-loading">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span class="ml-3">Cargando formulario de pago...</span>
+            </div>
+        </div>
+        
+        <div id="paymentSuccessContainer" class="hidden text-center">
+            <div class="payment-success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">¡Pago exitoso!</h3>
+            <p class="text-gray-600 mb-4">Tu compra se ha procesado correctamente. Los créditos o plan han sido activados.</p>
+            <button class="payment-submit-btn" id="closeSuccessBtn">Aceptar</button>
+        </div>
+        
+        <div id="paymentErrorContainer" class="hidden text-center">
+            <div class="payment-error-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Error en el pago</h3>
+            <p class="text-gray-600 mb-4" id="errorMessageText">No se pudo procesar el pago. Intenta nuevamente.</p>
+            <button class="payment-submit-btn" id="closeErrorBtn">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Script con la lógica real de Firebase, generación de API Key, funcionalidad de consulta y compra -->
 <script>
 /* ==========================================================
    CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE (desde perfil.html)
@@ -1477,6 +1633,357 @@ async function realizarConsulta() {
 
 // Event listener para el botón de consultar
 consultarBtn.addEventListener('click', realizarConsulta);
+
+/* ==========================================================
+   FUNCIONALIDAD DE COMPRA INTEGRADA
+   ========================================================= */
+
+// Elementos del DOM para compra
+const creditsTypeBtn = document.getElementById('creditsTypeBtn');
+const unlimitedTypeBtn = document.getElementById('unlimitedTypeBtn');
+const purchaseSelect = document.getElementById('purchaseSelect');
+const creditsSelect = document.getElementById('creditsSelect');
+const unlimitedSelect = document.getElementById('unlimitedSelect');
+const visaPaymentOption = document.getElementById('visaPaymentOption');
+const whatsappPaymentOption = document.getElementById('whatsappPaymentOption');
+const payNowBtn = document.getElementById('payNowBtn');
+const paymentModal = document.getElementById('paymentModal');
+const closePaymentModal = document.getElementById('closePaymentModal');
+const paymentFormContainer = document.getElementById('paymentFormContainer');
+const paymentSuccessContainer = document.getElementById('paymentSuccessContainer');
+const paymentErrorContainer = document.getElementById('paymentErrorContainer');
+const errorMessageText = document.getElementById('errorMessageText');
+const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+const closeErrorBtn = document.getElementById('closeErrorBtn');
+
+// Variables de estado
+let currentPurchaseType = 'credits'; // 'credits' o 'unlimited'
+let mp = null;
+let cardForm = null;
+
+// Mapeo de créditos
+const CREDITS_MAP = {
+    "10": { credits: 60, price: 10 },
+    "20": { credits: 125, price: 20 },
+    "50": { credits: 330, price: 50 },
+    "100": { credits: 700, price: 100 },
+    "200": { credits: 1500, price: 200 }
+};
+
+// Mapeo de planes ilimitados
+const UNLIMITED_MAP = {
+    "60": { days: 7, price: 60 },
+    "80": { days: 15, price: 80 },
+    "110": { days: 30, price: 110 },
+    "160": { days: 60, price: 160 },
+    "510": { days: 70, price: 510 }
+};
+
+// Función para actualizar el select de paquetes
+function updatePurchaseSelect() {
+    purchaseSelect.innerHTML = '<option value="" disabled selected>Selecciona un paquete</option>';
+    
+    if (currentPurchaseType === 'credits') {
+        for (const [value, data] of Object.entries(CREDITS_MAP)) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = `${data.credits} créditos - S/${data.price}`;
+            purchaseSelect.appendChild(option);
+        }
+    } else {
+        for (const [value, data] of Object.entries(UNLIMITED_MAP)) {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = `${data.days} días - S/${data.price}`;
+            purchaseSelect.appendChild(option);
+        }
+    }
+}
+
+// Event listeners para tipo de compra
+creditsTypeBtn.addEventListener('click', function() {
+    creditsTypeBtn.classList.remove('border-gray-200', 'bg-white', 'text-gray-600');
+    creditsTypeBtn.classList.add('border-blue-600', 'bg-blue-50', 'text-blue-800');
+    unlimitedTypeBtn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-800');
+    unlimitedTypeBtn.classList.add('border-gray-200', 'bg-white', 'text-gray-600');
+    currentPurchaseType = 'credits';
+    updatePurchaseSelect();
+});
+
+unlimitedTypeBtn.addEventListener('click', function() {
+    unlimitedTypeBtn.classList.remove('border-gray-200', 'bg-white', 'text-gray-600');
+    unlimitedTypeBtn.classList.add('border-blue-600', 'bg-blue-50', 'text-blue-800');
+    creditsTypeBtn.classList.remove('border-blue-600', 'bg-blue-50', 'text-blue-800');
+    creditsTypeBtn.classList.add('border-gray-200', 'bg-white', 'text-gray-600');
+    currentPurchaseType = 'unlimited';
+    updatePurchaseSelect();
+});
+
+// Inicializar select
+updatePurchaseSelect();
+
+// Event listener para opción de WhatsApp
+whatsappPaymentOption.addEventListener('click', function() {
+    const phoneNumber = '51944950234';
+    const message = encodeURIComponent('Hola, quiero comprar créditos o un plan');
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+});
+
+// Event listener para opción de Visa - abre el modal de pago
+visaPaymentOption.addEventListener('click', function() {
+    // Verificar que el usuario esté autenticado
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Debes iniciar sesión para realizar compras.');
+        return;
+    }
+    
+    // Verificar que se haya seleccionado un paquete
+    const selectedValue = purchaseSelect.value;
+    if (!selectedValue) {
+        alert('Por favor, selecciona un paquete.');
+        return;
+    }
+    
+    // Abrir modal de pago
+    paymentModal.style.display = 'flex';
+    initMercadoPagoPayment();
+});
+
+// Cerrar modal
+closePaymentModal.addEventListener('click', function() {
+    paymentModal.style.display = 'none';
+    resetPaymentModal();
+});
+
+closeSuccessBtn.addEventListener('click', function() {
+    paymentModal.style.display = 'none';
+    resetPaymentModal();
+    // Recargar perfil para mostrar cambios
+    cargarDatosPerfil();
+});
+
+closeErrorBtn.addEventListener('click', function() {
+    paymentModal.style.display = 'none';
+    resetPaymentModal();
+});
+
+// Cerrar modal al hacer clic fuera
+window.addEventListener('click', function(event) {
+    if (event.target === paymentModal) {
+        paymentModal.style.display = 'none';
+        resetPaymentModal();
+    }
+});
+
+// Función para resetear el modal
+function resetPaymentModal() {
+    paymentFormContainer.classList.remove('hidden');
+    paymentSuccessContainer.classList.add('hidden');
+    paymentErrorContainer.classList.add('hidden');
+    if (cardForm) {
+        cardForm = null;
+    }
+}
+
+// Función para obtener la configuración de Mercado Pago
+async function getMercadoPagoConfig() {
+    try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        return config.mercadopagoPublicKey;
+    } catch (error) {
+        console.error('Error obteniendo configuración:', error);
+        return null;
+    }
+}
+
+// Función para inicializar el pago con Mercado Pago
+async function initMercadoPagoPayment() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const selectedValue = purchaseSelect.value;
+    if (!selectedValue) return;
+    
+    // Obtener monto y descripción
+    let amount, description;
+    if (currentPurchaseType === 'credits') {
+        const data = CREDITS_MAP[selectedValue];
+        amount = data.price;
+        description = `${data.credits} Créditos`;
+    } else {
+        const data = UNLIMITED_MAP[selectedValue];
+        amount = data.price;
+        description = `Plan ${data.days} días`;
+    }
+    
+    // Obtener clave pública
+    const publicKey = await getMercadoPagoConfig();
+    if (!publicKey) {
+        showPaymentError('Error al conectar con el sistema de pagos');
+        return;
+    }
+    
+    // Inicializar Mercado Pago
+    mp = new MercadoPago(publicKey, { locale: 'es-PE' });
+    
+    // Crear formulario de tarjeta
+    paymentFormContainer.innerHTML = `
+        <form id="mp-form">
+            <div class="form-group mb-4">
+                <label class="text-xs font-bold text-gray-400 block mb-2">Número de tarjeta</label>
+                <div id="mp-cardNumber" class="mp-container"></div>
+            </div>
+            <div class="form-group mb-4">
+                <label class="text-xs font-bold text-gray-400 block mb-2">Fecha de vencimiento</label>
+                <div id="mp-expirationDate" class="mp-container"></div>
+            </div>
+            <div class="form-group mb-4">
+                <label class="text-xs font-bold text-gray-400 block mb-2">CVV</label>
+                <div id="mp-securityCode" class="mp-container"></div>
+            </div>
+            <div class="form-group mb-4">
+                <label class="text-xs font-bold text-gray-400 block mb-2">Titular de la tarjeta</label>
+                <input type="text" id="mp-cardholderName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm" value="${document.getElementById('cardholderName').value}">
+            </div>
+            <div class="form-group mb-4">
+                <label class="text-xs font-bold text-gray-400 block mb-2">DNI / Identificación</label>
+                <input type="text" id="mp-identificationNumber" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm" value="${document.getElementById('identificationNumber').value}">
+            </div>
+            <div class="form-group mb-4">
+                <label class="text-xs font-bold text-gray-400 block mb-2">Email</label>
+                <input type="email" id="mp-email" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm" value="${document.getElementById('payerEmail').value || user.email}">
+            </div>
+            <button type="submit" class="payment-submit-btn" id="mp-submit-btn">
+                Pagar S/ ${amount}.00
+            </button>
+        </form>
+    `;
+    
+    // Configurar campos de tarjeta
+    cardForm = mp.cardForm({
+        amount: amount.toString(),
+        autoMount: true,
+        form: {
+            id: "mp-form",
+            cardNumber: {
+                id: "mp-cardNumber",
+                placeholder: "•••• •••• •••• ••••",
+            },
+            expirationDate: {
+                id: "mp-expirationDate",
+                placeholder: "MM/AA",
+            },
+            securityCode: {
+                id: "mp-securityCode",
+                placeholder: "•••",
+            },
+            cardholderName: {
+                id: "mp-cardholderName",
+                placeholder: "Titular de la tarjeta",
+            },
+            issuer: {
+                id: "mp-issuer",
+                placeholder: "Banco emisor",
+            },
+            installments: {
+                id: "mp-installments",
+                placeholder: "Cuotas",
+            },
+            identificationType: {
+                id: "mp-identificationType",
+                placeholder: "Tipo de documento",
+            },
+            identificationNumber: {
+                id: "mp-identificationNumber",
+                placeholder: "Número de documento",
+            },
+            cardholderEmail: {
+                id: "mp-email",
+                placeholder: "Email",
+            },
+        },
+        callbacks: {
+            onFormMounted: error => {
+                if (error) {
+                    console.error("Error montando formulario:", error);
+                    showPaymentError("Error al cargar el formulario de pago");
+                }
+            },
+            onSubmit: async (event) => {
+                event.preventDefault();
+                
+                const submitBtn = document.getElementById('mp-submit-btn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                submitBtn.disabled = true;
+                
+                try {
+                    const formData = cardForm.getCardFormData();
+                    
+                    if (!formData.token) {
+                        throw new Error('No se pudo generar el token de pago');
+                    }
+                    
+                    const response = await fetch('/api/pay', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: formData.token,
+                            amount: amount,
+                            payment_method_id: formData.paymentMethodId,
+                            issuer_id: formData.issuerId,
+                            installments: formData.installments,
+                            email: formData.cardholderEmail,
+                            identificationType: formData.identificationType,
+                            identificationNumber: formData.identificationNumber,
+                            uid: user.uid,
+                            description: description,
+                            tipoPlan: currentPurchaseType === 'unlimited' ? 'ilimitado' : 'creditos'
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'approved') {
+                        // Pago exitoso
+                        paymentFormContainer.classList.add('hidden');
+                        paymentSuccessContainer.classList.remove('hidden');
+                    } else {
+                        // Pago rechazado
+                        showPaymentError('El pago fue rechazado. Verifica los datos de tu tarjeta e intenta nuevamente.');
+                    }
+                } catch (error) {
+                    console.error('Error procesando pago:', error);
+                    showPaymentError('Error al procesar el pago. Intenta nuevamente.');
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+    });
+}
+
+// Función para mostrar error en el modal
+function showPaymentError(message) {
+    paymentFormContainer.classList.add('hidden');
+    errorMessageText.textContent = message;
+    paymentErrorContainer.classList.remove('hidden');
+}
+
+// Event listener para el botón de pago
+payNowBtn.addEventListener('click', function() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Debes iniciar sesión para realizar compras.');
+        return;
+    }
+    
+    // Simular clic en la opción de Visa
+    visaPaymentOption.click();
+});
 
 </script>
 
