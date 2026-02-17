@@ -838,23 +838,68 @@
             width: 120px;
         }
 
-        /* Estilo para iconos de tarjetas */
-        .card-icons {
+        /* ✅ AJUSTES SOLICITADOS: Sección de Tarjeta de Crédito */
+        
+        /* Contenedor de información de tarjetas */
+        .card-payment-info {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        /* Texto descriptivo ocupa todo el ancho */
+        .card-payment-text {
+            width: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        /* Contenedor de iconos de tarjetas - responsive con flex wrap */
+        .card-icons-container {
             display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
             align-items: center;
-            gap: 8px;
-            margin-top: 4px;
+            width: 100%;
         }
 
-        .card-icon {
-            height: 24px;
-            width: auto;
-            opacity: 0.8;
+        /* Cada icono de tarjeta */
+        .card-icon-item {
+            font-size: 32px;
+            color: #475569;
+            transition: transform 0.2s;
         }
 
-        .card-icon-small {
-            height: 20px;
-            width: auto;
+        .card-icon-item:hover {
+            transform: scale(1.1);
+        }
+
+        /* El "y más" en un recuadro como las tarjetas */
+        .card-more-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            background: #f8fafc;
+            min-width: 60px;
+            height: 32px;
+        }
+
+        /* Ajuste para el número de tarjeta visual */
+        .card-number-display {
+            letter-spacing: 0.1em;
+        }
+
+        /* ✅ NUEVO: Autoformateo MM/AA para fecha de expiración */
+        .expiry-input-wrapper {
+            position: relative;
         }
     </style>
 </head>
@@ -928,18 +973,20 @@
         <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
         
         <div class="space-y-4">
-            <!-- Opción de Tarjeta de Crédito/Débito con múltiples iconos -->
-            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer" id="card-payment-option">
-                <input type="radio" name="pay" checked class="accent-red-600">
-                <div class="flex-1">
-                    <p class="text-sm font-bold">Tarjeta de Crédito/Débito</p>
-                    <p class="text-xs text-gray-400">Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express y otras compatibles)</p>
-                </div>
-                <!-- Múltiples iconos de tarjetas -->
-                <div class="card-icons">
-                    <i class="fab fa-cc-visa text-2xl text-blue-800"></i>
-                    <i class="fab fa-cc-mastercard text-2xl text-orange-600"></i>
-                    <i class="fab fa-cc-amex text-2xl text-blue-500"></i>
+            <!-- ✅ MODIFICADO: Opción de Tarjeta de Crédito/Débito -->
+            <label class="flex items-start gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer" id="card-payment-option">
+                <input type="radio" name="pay" checked class="accent-red-600 mt-1">
+                <div class="card-payment-info">
+                    <p class="card-payment-text">
+                        Tarjeta de Crédito/Débito - Aceptamos tarjetas de crédito y débito
+                    </p>
+                    <!-- Iconos de tarjetas debajo del texto con "y más" en recuadro -->
+                    <div class="card-icons-container">
+                        <i class="fab fa-cc-visa card-icon-item" style="color: #1a1f71;"></i>
+                        <i class="fab fa-cc-mastercard card-icon-item" style="color: #eb001b;"></i>
+                        <i class="fab fa-cc-amex card-icon-item" style="color: #006fcf;"></i>
+                        <span class="card-more-box">y más</span>
+                    </div>
                 </div>
             </label>
 
@@ -976,21 +1023,12 @@
                 <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
                 <div class="w-8 h-8 bg-orange-500 rounded-full -ml-4"></div>
             </div>
-            <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg" id="visual-card-number">1234 5678 9012 3456</p>
+            <!-- ✅ MODIFICADO: Número de tarjeta con asteriscos -->
+            <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg card-number-display" id="visual-card-number">****** **** **** ******</p>
             <div class="flex justify-between items-end">
                 <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-holder">TITULAR DE TARJETA</span>
                 <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-expiry">MM/AA</span>
             </div>
-            <!-- Marca de tarjeta genérica -->
-            <div class="absolute bottom-6 right-6 text-2xl font-bold italic opacity-80">TARJETA</div>
-        </div>
-
-        <!-- Iconos de tarjetas pequeñas debajo de la tarjeta visual -->
-        <div class="flex justify-center gap-4 mb-4">
-            <i class="fab fa-cc-visa text-3xl text-gray-400"></i>
-            <i class="fab fa-cc-mastercard text-3xl text-gray-400"></i>
-            <i class="fab fa-cc-amex text-3xl text-gray-400"></i>
-            <span class="text-xs text-gray-400 self-center">y más</span>
         </div>
 
         <!-- Dos selects agregados: Créditos e Ilimitado -->
@@ -2003,7 +2041,7 @@ async function initMercadoPago() {
                 id: 'form-checkout',
                 cardNumber: { 
                     id: 'form-checkout__cardNumber', 
-                    placeholder: '•••• •••• •••• ••••'
+                    placeholder: '****** **** **** ******'
                 },
                 expirationDate: { 
                     id: 'form-checkout__expirationDate', 
