@@ -185,6 +185,19 @@
             font-size: 28px;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card-type.flip {
+            animation: flipCard 0.6s ease-in-out;
+        }
+
+        @keyframes flipCard {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+            100% { transform: rotateY(360deg); }
         }
 
         .card-number-display {
@@ -872,7 +885,7 @@
             <div class="credit-card-display">
                 <div class="card-top">
                     <div class="card-chip"></div>
-                    <div class="card-type">VISA</div>
+                    <div class="card-type" id="card-type-display">VISA</div>
                 </div>
                 <div class="card-number-display" id="visual-card-number">•••• •••• •••• ••••</div>
                 <div class="card-bottom">
@@ -1102,6 +1115,131 @@
     let currentPaymentId = null;
     let currentPaymentData = {};
     let selectedVoucherType = 'boleta';
+
+    // ===== NUEVO: VARIABLES PARA EL SISTEMA DE LOGOS =====
+    let cardTypeInterval = null;
+    let cardTypeDetected = false;
+    const cardTypes = [
+        { name: 'VISA', pattern: /^4/ },
+        { name: 'MASTERCARD', pattern: /^(5[1-5]|2[2-7])/ },
+        { name: 'AMEX', pattern: /^3[47]/ },
+        { name: 'DINERS', pattern: /^3(0[0-5]|[68])/ },
+        { name: 'DISCOVER', pattern: /^6(011|5|4[4-9])/ },
+        { name: 'ELO', pattern: /^(4011|4312|4389|4514|4576|5041|5066|5090|5099|6277|6362|6363|6504|6505|6507|6509|6516|6550)/ }
+    ];
+    let cardRotationIndex = 0;
+
+    // ===== NUEVA FUNCIÓN: Mostrar logo con efecto flip =====
+    function flipCardLogo(logoName) {
+        const cardTypeElement = document.getElementById('card-type-display');
+        if (cardTypeElement) {
+            cardTypeElement.classList.add('flip');
+            setTimeout(() => {
+                cardTypeElement.textContent = logoName;
+            }, 300);
+            setTimeout(() => {
+                cardTypeElement.classList.remove('flip');
+            }, 600);
+        }
+    }
+
+    // ===== NUEVA FUNCIÓN: Rotación automática de logos =====
+    function startCardRotation() {
+        if (cardTypeInterval) clearInterval(cardTypeInterval);
+        
+        cardTypeInterval = setInterval(() => {
+            if (!cardTypeDetected) {
+                const logos = ['VISA', 'MASTERCARD', 'AMEX', 'DINERS', 'DISCOVER', 'ELO'];
+                cardRotationIndex = (cardRotationIndex + 1) % logos.length;
+                flipCardLogo(logos[cardRotationIndex]);
+            }
+        }, 3000);
+    }
+
+    // ===== NUEVA FUNCIÓN: Detectar tipo de tarjeta por BIN =====
+    function detectCardType(cardNumber) {
+        // Limpiar el número de tarjeta (quitar espacios y caracteres no numéricos)
+        const cleanNumber = cardNumber.replace(/\D/g, '');
+        
+        if (cleanNumber.length < 2) return null;
+        
+        for (let cardType of cardTypes) {
+            if (cardType.pattern.test(cleanNumber)) {
+                return cardType.name;
+            }
+        }
+        
+        return null;
+    }
+
+    // ===== NUEVA FUNCIÓN: Configurar detección de tarjeta =====
+    function setupCardDetection() {
+        // Observar cambios en el iframe del número de tarjeta
+        const checkCardNumber = setInterval(() => {
+            const cardNumberFrame = document.querySelector('#form-checkout__cardNumber iframe');
+            if (cardNumberFrame) {
+                clearInterval(checkCardNumber);
+                
+                try {
+                    // Intentar acceder al contenido del iframe
+                    const iframeDoc = cardNumberFrame.contentDocument || cardNumberFrame.contentWindow.document;
+                    
+                    // Buscar el input dentro del iframe
+                    const cardInput = iframeDoc.querySelector('input');
+                    
+                    if (cardInput) {
+                        cardInput.addEventListener('input', (e) => {
+                            const cardNumber = e.target.value;
+                            const detectedType = detectCardType(cardNumber);
+                            
+                            if (detectedType) {
+                                cardTypeDetected = true;
+                                flipCardLogo(detectedType);
+                                if (cardTypeInterval) {
+                                    clearInterval(cardTypeInterval);
+                                    cardTypeInterval = null;
+                                }
+                            } else if (cardNumber.length < 4) {
+                                // Si borran el número, reactivar la rotación
+                                cardTypeDetected = false;
+                                if (!cardTypeInterval) {
+                                    startCardRotation();
+                                }
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.log('No se pudo acceder al iframe directamente, usando método alternativo');
+                    
+                    // Método alternativo: detectar por el texto visible en el iframe
+                    const observer = new MutationObserver(() => {
+                        const frameBody = cardNumberFrame.contentDocument?.body;
+                        if (frameBody) {
+                            const frameText = frameBody.textContent || '';
+                            const numbers = frameText.match(/\d+/g)?.join('') || '';
+                            if (numbers) {
+                                const detectedType = detectCardType(numbers);
+                                if (detectedType) {
+                                    cardTypeDetected = true;
+                                    flipCardLogo(detectedType);
+                                    if (cardTypeInterval) {
+                                        clearInterval(cardTypeInterval);
+                                        cardTypeInterval = null;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    observer.observe(cardNumberFrame.contentDocument?.body || cardNumberFrame.contentWindow?.document?.body, {
+                        childList: true,
+                        subtree: true,
+                        characterData: true
+                    });
+                }
+            }
+        }, 500);
+    }
 
     // ===== VALIDACIONES INICIALES =====
     if (!uid) {
@@ -1450,6 +1588,9 @@
             
             document.getElementById('loadingScreen').style.display = 'none';
 
+            // ===== NUEVO: Iniciar rotación de logos =====
+            startCardRotation();
+
             const mp = new MercadoPago(config.mercadopagoPublicKey, { 
                 locale: 'es-PE'
             });
@@ -1505,6 +1646,9 @@
                         }
                         
                         updateCardDisplay();
+                        
+                        // ===== NUEVO: Configurar detección de tarjeta =====
+                        setupCardDetection();
                         
                         console.log("Formulario montado correctamente");
                     },
@@ -1615,4 +1759,3 @@
 
 </body>
 </html>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
