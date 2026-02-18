@@ -1,19 +1,18 @@
 app = 'masitaprexv2'
-primary_region = 'ams'
+primary_region = 'mia'
 
 [build]
-
-# Hemos eliminado [http_service] para evitar el conflicto
-# y ahora usamos [[services]] que es más preciso para seguridad.
 
 [[services]]
   protocol = "tcp"
   internal_port = 80
   processes = ["app"]
-  # Esto apaga la máquina si no hay tráfico (ahorro)
+  
+  # El servidor esperará 20 minutos de inactividad antes de detenerse
   auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
+  kill_timeout = "20m" 
 
   [[services.ports]]
     port = 80
