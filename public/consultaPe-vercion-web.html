@@ -76,6 +76,12 @@
             outline: none;
         }
 
+        .native-input:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
         .btn-action {
             background-color: #dc2626;
             color: white;
@@ -279,10 +285,11 @@
             background: white;
         }
 
-        .service-img-1 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%233b82f6%22></rect><circle cx=%2250%22 cy=%2240%22 r=%2215%22 fill=%22%23fbbf24%22></circle><rect x=%2225%22 y=%2260%22 width=%2250%22 height=%2230%22 fill=%22%23f97316%22></rect></svg>'); }
-        .service-img-2 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23a855f7%22></rect><polygon points=%2250,20 70,45 60,70 40,70 30,45%22 fill=%22%23facc15%22></polygon></svg>'); }
-        .service-img-3 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%2310b981%22></rect><circle cx=%2230%22 cy=%2230%22 r=%228%22 fill=%22%23f59e0b%22></circle><circle cx=%2270%22 cy=%2260%22 r=%228%22 fill=%22%23f59e0b%22></circle><path d=%22M20 70 L40 50 L60 70 L80 40%22 stroke=%22%23ffffff%22 stroke-width=%224%22 fill=%22none%22></path></svg>'); }
-        .service-img-4 { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23ef4444%22></rect><rect x=%2220%22 y=%2220%22 width=%2260%22 height=%2260%22 fill=%22%23ffffff%22 stroke=%22%23000%22 stroke-width=%222%22></rect><text x=%2235%22 y=%2265%22 font-size=%2224%22 fill=%22%23ef4444%22>APK</text></svg>'); }
+        .service-img-1 { background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMUakrMP-yKpoycaGvjK4APon-CjrN80pLn1CkZvz2NcS_XT98tdJA0MeF3EO3Bd7OUoTWIrubwHN2df7VKHHUnIX6_RYv_mfqT4uXRa1IUhsr52TDRBs4hJsHdRj2sSA7v52rC8TX3nDwdq7DBNDyBxQyiKbEJoFzzDdPcMC4_sYc5tCHvEu-8Qz3yM85/s400/1000088610.png'); }
+        .service-img-2 { background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEguRbsfCLL-xBxn9uetDfATcrWZ9VyZU4VIF0HSg9cENRRc8cYvnRNksWqbpHnG4xWPNc_hyX2hd60FkUgxyci3XJS-yEX0lSLsPRSsa9a7uTuQrcYlVl2yG2EAJPdozEb4N8GofyWEaXcmLpeTL_uKYBGYg-nB5Dx9AAshOZlE8WePlsMdhO_KMlKtYWoI/s1536/1000092464.png'); }
+        .service-img-3 { background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifNMAy4k9FFdDT96JpFiktrjRpRJz_Quq3lIrHz1t_NdKTZtU6NfMYzmkNGOVtwUg2hdfSZm0lN5SFp5j4LvDZCSd9QUNP8UUS9k_aGvdZ3Tj9W8DhzDFSdTWZJlRHsJ_OraOpFHWtX8wvKVM1oCpj3ggPZKEYMbuGSav51DbbTnZ3dUYSZTnipiJ57nyq/s1408/1000089677.png'); }
+        .service-img-4 { background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh70yJXLIfwpXtzLtgHx0BVxSViptyqoQfWEUFpYc1YAKjiz3rOLGftFapScVR2aCgZ3DmjrEajHpCRyXumrR8cWBbLvDmO2NnsClUyyffhEWEnJ6ONXBGpPm4_wsuUjZHSh_yrZqH_D5ZTmqeeaE18gFpZq2JQWnuyQdHiHFhk52cYM9fvbk2mr0rHo0e_/s1536/1000086970.png'); }
+        .service-img-5 { background-image: url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg-rRE_S7Oc-2mpFvjPmVCF2lhF3CXj1RaD-ahss2QgNDhpzZ1nCMCwa_9pxr8jlYom3pM5v3i13i4gzM7oJsc526ye7mh8bU1FoHjXbb4_Sr7UP38Ko3PTwe46mKVYaO6wHqzNtK8gVxBkqquo-J_do8nxlvM77Un3V1SzKG8JJP7sA8wQsr2XFPU9l8y6/s400/1000086971.png'); }
 
         .footer {
             background-color: #111111;
@@ -988,6 +995,112 @@
             color: #991B1B;
             line-height: 1.5;
         }
+
+        /* Estilos para el modal de imágenes */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .image-modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 2001;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .image-modal-prev,
+        .image-modal-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 2001;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .image-modal-prev {
+            left: 20px;
+        }
+
+        .image-modal-next {
+            right: 20px;
+        }
+
+        .image-modal-prev:hover,
+        .image-modal-next:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .image-modal-prev.disabled,
+        .image-modal-next.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .image-modal-prev.disabled:hover,
+        .image-modal-next.disabled:hover {
+            background: rgba(0,0,0,0.5);
+        }
+
+        .screenshot-img {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .screenshot-img:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -1009,7 +1122,7 @@
             <option value="buscar-cedula">Buscar Venezolano por Nombre</option>
             <option value="cedula">Consultar Cédula Venezolana</option>
         </select>
-        <input type="text" class="native-input" id="consulta-input" placeholder="Escribe tu consulta aquí...">
+        <input type="text" class="native-input" id="consulta-input" placeholder="Primero debes seleccionar una opción para poder consultar" disabled>
     </div>
 
     <!-- Botón "Consultar" -->
@@ -1244,12 +1357,17 @@
             
             <div class="service-card">
                 <div class="service-image service-img-3"></div>
-                <div class="service-text">Infraestructura APIs – 10 APIs listas para integrar</div>
+                <div class="service-text">Colección de apis</div>
             </div>
             
             <div class="service-card">
                 <div class="service-image service-img-4"></div>
-                <div class="service-text">Aplicación Consulta PE APK – Plataforma de consultas</div>
+                <div class="service-text">Aplicación consulta pe apk</div>
+            </div>
+
+            <div class="service-card">
+                <div class="service-image service-img-5"></div>
+                <div class="service-text">Sigue nuestro canal en Youtube @el tío jota</div>
             </div>
         </div>
     </section>
@@ -1260,9 +1378,7 @@
         
         <div class="flex items-center gap-4 mb-4">
             <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" ></path>
-                </svg>
+                <img src="https://www.appcreator24.com/srv/imgs/gen/2706889_ico.png?ts=1771379922" alt="App Icon" class="w-12 h-12 object-contain">
             </div>
             <div>
                 <h3 class="font-bold text-xl">Consulta PE</h3>
@@ -1274,15 +1390,24 @@
             Plataforma de infraestructura tecnológica para consultas de entidades públicas de Perú y Venezuela.
         </p>
 
-        <div class="flex gap-2 overflow-x-auto mb-4 py-2">
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">DNI</div>
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-green-100 to-teal-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">RUC</div>
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-purple-100 to-pink-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">PLACA</div>
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 bg-gradient-to-br from-yellow-100 to-orange-200 flex items-center justify-center text-xs text-gray-600 border border-gray-300">VENE</div>
+        <div class="flex gap-2 overflow-x-auto mb-4 py-2" id="screenshots-container">
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(0)">
+                <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" class="w-full h-full object-cover">
+            </div>
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(1)">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" class="w-full h-full object-cover">
+            </div>
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(2)">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" class="w-full h-full object-cover">
+            </div>
+            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(3)">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png" class="w-full h-full object-cover">
+            </div>
         </div>
 
         <p class="text-sm text-gray-700 leading-relaxed mb-5">
-            La plataforma Consulta PE (versión web y aplicación APK propiedad de Masitaprex) es una solución de infraestructura tecnológica que facilita el acceso a información de fuentes públicas de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida y fácil de usar.
+            La plataforma Consulta PE (versión web y aplicación APK propiedad de Masitaprex) es una solución de infraestructura tecnológica que facilita el acceso a información de fuentes públicas de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida y fácil de usar. 
+            <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="text-blue-600 hover:underline font-semibold">Leer más</a>
         </p>
 
         <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2">
@@ -1313,6 +1438,16 @@
         </div>
     </div>
 </footer>
+
+<!-- Modal para vista ampliada de imágenes -->
+<div class="image-modal" id="imageModal">
+    <div class="image-modal-content">
+        <span class="image-modal-close" onclick="closeImageViewer()">&times;</span>
+        <span class="image-modal-prev" id="modalPrev" onclick="changeImage(-1)">&#10094;</span>
+        <span class="image-modal-next" id="modalNext" onclick="changeImage(1)">&#10095;</span>
+        <img class="image-modal-img" id="modalImage" src="" alt="Imagen ampliada">
+    </div>
+</div>
 
 <script>
 /* ==========================================================
@@ -1789,7 +1924,13 @@ function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
 
 apiSelect.addEventListener('change', function() {
     const selected = this.value;
-    consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
+    if (selected) {
+        consultaInput.disabled = false;
+        consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
+    } else {
+        consultaInput.disabled = true;
+        consultaInput.placeholder = 'Primero debes seleccionar una opción para poder consultar';
+    }
     
     if (selected === 'buscar-dni') {
         consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
@@ -2441,6 +2582,63 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     initMercadoPago();
+});
+
+// Funcionalidad para el visor de imágenes
+const imageUrls = [
+    'https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png',
+    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png'
+];
+
+let currentImageIndex = 0;
+const modal = document.getElementById('imageModal');
+const modalImage = document.getElementById('modalImage');
+const modalPrev = document.getElementById('modalPrev');
+const modalNext = document.getElementById('modalNext');
+
+function openImageViewer(index) {
+    currentImageIndex = index;
+    modalImage.src = imageUrls[currentImageIndex];
+    modal.classList.add('active');
+    updateNavigationButtons();
+}
+
+function closeImageViewer() {
+    modal.classList.remove('active');
+}
+
+function changeImage(direction) {
+    const newIndex = currentImageIndex + direction;
+    if (newIndex >= 0 && newIndex < imageUrls.length) {
+        currentImageIndex = newIndex;
+        modalImage.src = imageUrls[currentImageIndex];
+        updateNavigationButtons();
+    }
+}
+
+function updateNavigationButtons() {
+    if (modalPrev && modalNext) {
+        if (currentImageIndex === 0) {
+            modalPrev.classList.add('disabled');
+        } else {
+            modalPrev.classList.remove('disabled');
+        }
+        
+        if (currentImageIndex === imageUrls.length - 1) {
+            modalNext.classList.add('disabled');
+        } else {
+            modalNext.classList.remove('disabled');
+        }
+    }
+}
+
+// Cerrar modal con tecla Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeImageViewer();
+    }
 });
 
 </script>
