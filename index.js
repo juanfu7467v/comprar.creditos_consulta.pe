@@ -21,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// ðŸ”’ SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO CON HSTS Y CSP MEJORADA)
+// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO CON HSTS Y CSP MEJORADA)
 // ================================================================
 
 app.use(helmet({
@@ -73,13 +73,13 @@ app.use('/api', (req, res, next) => {
 });
 
 // ================================================================
-// âœ‰ï¸ CONFIGURACIÃ“N DE RESEND
+// ✉️ CONFIGURACIÓN DE RESEND
 // ================================================================
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ================================================================
-// ðŸ” HELPERS DE IP
+// 🔍 HELPERS DE IP
 // ================================================================
 
 function getClientIp(req) {
@@ -91,14 +91,14 @@ function getClientIp(req) {
 }
 
 // ================================================================
-// ðŸ›¡ï¸ SISTEMA DE BLOQUEO DE INTENTOS FALLIDOS
+// 🛡️ SISTEMA DE BLOQUEO DE INTENTOS FALLIDOS
 // ================================================================
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const BLOCK_DURATION_HOURS = 6;
 
 /**
- * Obtener informaciÃ³n de geolocalizaciÃ³n por IP
+ * Obtener información de geolocalización por IP
  */
 async function getLocationFromIP(ip) {
   try {
@@ -116,13 +116,13 @@ async function getLocationFromIP(ip) {
       country: data.country_name || 'Desconocido'
     };
   } catch (error) {
-    logger.warn('GEOLOCATION', 'Error obteniendo ubicaciÃ³n', { ip, error: error.message });
+    logger.warn('GEOLOCATION', 'Error obteniendo ubicación', { ip, error: error.message });
     return { city: 'Desconocida', region: 'Desconocida', country: 'Desconocido' };
   }
 }
 
 /**
- * Verificar si un usuario estÃ¡ bloqueado
+ * Verificar si un usuario está bloqueado
  */
 async function checkLoginBlock(email) {
   const context = 'CHECK_LOGIN_BLOCK';
@@ -161,7 +161,7 @@ async function checkLoginBlock(email) {
       };
     }
 
-    // Si el bloqueo expirÃ³, resetear intentos
+    // Si el bloqueo expiró, resetear intentos
     if (blockedUntil && blockedUntil <= new Date()) {
       await db.collection('loginAttempts').doc(email).set({
         attempts: 0,
@@ -356,7 +356,7 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
       html: htmlContent
     });
 
-    logger.info(context, 'âœ… Correo de alerta enviado exitosamente', { 
+    logger.info(context, '✅ Correo de alerta enviado exitosamente', { 
       email, 
       resendId: result.id,
       ip,
@@ -366,7 +366,7 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
     return { success: true, id: result.id };
 
   } catch (error) {
-    logger.error(context, 'âŒ Error enviando correo de alerta', error, { 
+    logger.error(context, '❌ Error enviando correo de alerta', error, { 
       email, 
       ip,
       errorMessage: error.message
@@ -376,7 +376,7 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
 }
 
 /**
- * Resetear intentos fallidos (despuÃ©s de login exitoso)
+ * Resetear intentos fallidos (después de login exitoso)
  */
 async function resetLoginAttempts(email) {
   const context = 'RESET_LOGIN_ATTEMPTS';
@@ -385,18 +385,18 @@ async function resetLoginAttempts(email) {
 
   try {
     await db.collection('loginAttempts').doc(email).delete();
-    logger.info(context, 'âœ… Intentos de login reseteados', { email });
+    logger.info(context, '✅ Intentos de login reseteados', { email });
   } catch (error) {
     logger.error(context, 'Error reseteando intentos', error, { email });
   }
 }
 
 // ================================================================
-// ðŸ” CONFIGURACIÃ“N DE RUTAS Y CONTROL DE ACCESO
+// 🔐 CONFIGURACIÓN DE RUTAS Y CONTROL DE ACCESO
 // ================================================================
 
 /**
- * Rutas pÃºblicas que NO requieren autenticaciÃ³n
+ * Rutas públicas que NO requieren autenticación
  */
 const PUBLIC_ROUTES = [
   '/login',
@@ -425,7 +425,7 @@ const PUBLIC_ROUTES = [
 ];
 
 /**
- * Rutas protegidas que requieren autenticaciÃ³n
+ * Rutas protegidas que requieren autenticación
  */
 const PROTECTED_ROUTES = [
   '/favoritos',
@@ -447,7 +447,7 @@ const PROTECTED_ROUTES = [
 ];
 
 /**
- * Rutas de API que NO requieren middleware de autenticaciÃ³n
+ * Rutas de API que NO requieren middleware de autenticación
  */
 const PUBLIC_API_ROUTES = [
   '/api/auth',
@@ -471,7 +471,7 @@ const PUBLIC_API_ROUTES = [
 ];
 
 // ================================================================
-// ðŸ“‹ LOGS MEJORADOS
+// 📋 LOGS MEJORADOS
 // ================================================================
 
 const logger = {
@@ -493,7 +493,7 @@ const logger = {
 };
 
 // ================================================================
-// ðŸ”¥ CONFIGURACIÃ“N DE FIREBASE
+// 🔥 CONFIGURACIÓN DE FIREBASE
 // ================================================================
 
 function buildServiceAccountFromEnv() {
@@ -570,18 +570,18 @@ if (serviceAccount && !admin.apps.length) {
     });
 
     const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
-      .then(() => ({ status: 'connected', message: 'ConexiÃ³n a Firestore exitosa' }))
+      .then(() => ({ status: 'connected', message: 'Conexión a Firestore exitosa' }))
       .catch(error => ({ status: 'error', message: error.message }));
 
-    logger.info('FIRESTORE', 'VerificaciÃ³n de conexiÃ³n', firestoreCheck);
+    logger.info('FIRESTORE', 'Verificación de conexión', firestoreCheck);
 
   } catch (error) {
-    logger.error('FIREBASE', 'Error crÃ­tico al inicializar Firebase Admin', error, {
+    logger.error('FIREBASE', 'Error crítico al inicializar Firebase Admin', error, {
       projectId: serviceAccount?.project_id,
       clientEmail: serviceAccount?.client_email
     });
 
-    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarÃ¡n disponibles.');
+    console.error('CRITICAL: Firebase no pudo inicializarse. Algunas funciones no estarán disponibles.');
   }
 } else if (admin.apps.length) {
   db = admin.firestore();
@@ -592,7 +592,7 @@ if (serviceAccount && !admin.apps.length) {
 }
 
 // ================================================================
-// ðŸ” CONFIGURACIÃ“N DE RECAPTCHA - MEJORADA PARA MAYOR ESTABILIDAD
+// 🔐 CONFIGURACIÓN DE RECAPTCHA - MEJORADA PARA MAYOR ESTABILIDAD
 // ================================================================
 
 const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_CLAVE_SECRETA;
@@ -658,7 +658,7 @@ async function validateRecaptcha(recaptchaResponse) {
       const shouldRetry = errorCodes.some(code => 
         code === 'timeout-or-duplicate' || 
         code === 'network-error' ||
-        code === 'invalid-keys' // En caso de error de configuraciÃ³n no reintentamos
+        code === 'invalid-keys' // En caso de error de configuración no reintentamos
       );
 
       if (!shouldRetry || attempts === maxAttempts - 1) {
@@ -667,30 +667,30 @@ async function validateRecaptcha(recaptchaResponse) {
 
       // Esperar antes de reintentar (backoff exponencial)
       const delay = baseDelay * Math.pow(2, attempts);
-      logger.info(context, `Reintentando validaciÃ³n reCAPTCHA en ${delay}ms`, { attempt: attempts + 1 });
+      logger.info(context, `Reintentando validación reCAPTCHA en ${delay}ms`, { attempt: attempts + 1 });
       await new Promise(resolve => setTimeout(resolve, delay));
       attempts++;
 
     } catch (error) {
       if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT' || error.message.includes('timeout')) {
-        logger.warn(context, 'Timeout en validaciÃ³n reCAPTCHA', { 
+        logger.warn(context, 'Timeout en validación reCAPTCHA', { 
           attempt: attempts + 1,
           maxAttempts,
           error: error.message 
         });
 
         if (attempts === maxAttempts - 1) {
-          logger.error(context, 'MÃ¡ximo de reintentos alcanzado para validaciÃ³n reCAPTCHA', error);
+          logger.error(context, 'Máximo de reintentos alcanzado para validación reCAPTCHA', error);
           throw new Error('reCAPTCHA validation timeout after multiple attempts');
         }
 
         // Esperar antes de reintentar
         const delay = baseDelay * Math.pow(2, attempts);
-        logger.info(context, `Reintentando despuÃ©s de timeout en ${delay}ms`, { attempt: attempts + 1 });
+        logger.info(context, `Reintentando después de timeout en ${delay}ms`, { attempt: attempts + 1 });
         await new Promise(resolve => setTimeout(resolve, delay));
         attempts++;
       } else {
-        logger.error(context, 'Error en validaciÃ³n reCAPTCHA', error);
+        logger.error(context, 'Error en validación reCAPTCHA', error);
         throw error;
       }
     }
@@ -700,14 +700,14 @@ async function validateRecaptcha(recaptchaResponse) {
 }
 
 // ================================================================
-// ðŸ’³ CONFIGURACIÃ“N DE MERCADO PAGO
+// 💳 CONFIGURACIÓN DE MERCADO PAGO
 // ================================================================
 
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
 const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
 
 if (!MERCADOPAGO_ACCESS_TOKEN) {
-  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no estÃ¡ configurado');
+  logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no está configurado');
   console.warn('ADVERTENCIA: MERCADOPAGO_ACCESS_TOKEN no configurado. Pagos no disponibles.');
 }
 
@@ -723,7 +723,7 @@ const processedPaymentsCache = new Map();
 const paymentLocks = new Map();
 
 // ================================================================
-// ðŸ’° FUNCIONES DE PAGO Y BENEFICIOS
+// 💰 FUNCIONES DE PAGO Y BENEFICIOS
 // ================================================================
 
 async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
@@ -739,21 +739,21 @@ async function acquirePaymentLock(paymentRef, maxWaitMs = 10000) {
   }
 
   paymentLocks.set(paymentRef, Date.now());
-  logger.info(context, 'ðŸ”’ Lock adquirido', { paymentRef });
+  logger.info(context, '🔒 Lock adquirido', { paymentRef });
   return true;
 }
 
 function releasePaymentLock(paymentRef) {
   const context = 'PAYMENT_LOCK';
   paymentLocks.delete(paymentRef);
-  logger.info(context, 'ðŸ”“ Lock liberado', { paymentRef });
+  logger.info(context, '🔓 Lock liberado', { paymentRef });
 }
 
 async function checkFileExistsInStorage(fileName) {
   const context = 'STORAGE_CHECK';
 
   if (!bucket) {
-    logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
+    logger.error(context, 'Firebase Storage no está inicializado');
     return { exists: false, url: null };
   }
 
@@ -782,7 +782,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
   const context = 'UPLOAD_PDF';
 
   if (!bucket) {
-    logger.error(context, 'Firebase Storage no estÃ¡ inicializado');
+    logger.error(context, 'Firebase Storage no está inicializado');
     throw new Error('Firebase Storage not initialized');
   }
 
@@ -793,7 +793,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 
     const fileCheck = await checkFileExistsInStorage(fileName);
     if (fileCheck.exists && fileCheck.url) {
-      logger.info(context, 'ðŸ“ PDF ya existe en Storage, devolviendo URL existente', {
+      logger.info(context, '📝 PDF ya existe en Storage, devolviendo URL existente', {
         paymentId,
         url: fileCheck.url
       });
@@ -819,7 +819,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 
     const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
 
-    logger.info(context, 'âœ… PDF subido exitosamente a Storage', {
+    logger.info(context, '✅ PDF subido exitosamente a Storage', {
       paymentId,
       fileName,
       publicUrl,
@@ -829,7 +829,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
     return publicUrl;
 
   } catch (error) {
-    logger.error(context, 'âŒ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
+    logger.error(context, '❌ Error subiendo PDF a Storage', error, { pdfPath, paymentId });
     throw error;
   }
 }
@@ -838,7 +838,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
   const context = 'OTORGAR_BENEFICIO';
 
   if (!db) {
-    logger.error(context, 'Firebase DB no estÃ¡ inicializado', null, { uid, paymentRef });
+    logger.error(context, 'Firebase DB no está inicializado', null, { uid, paymentRef });
     return { status: 'error', message: 'Database not initialized' };
   }
 
@@ -851,7 +851,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   if (processedPaymentsCache.has(paymentRefString)) {
     const cachedData = processedPaymentsCache.get(paymentRefString);
-    logger.warn(context, 'ðŸš« Pago ya procesado en cache de memoria (idempotencia)', {
+    logger.warn(context, '🚫 Pago ya procesado en cache de memoria (idempotencia)', {
       uid,
       paymentRef: paymentRefString,
       processor,
@@ -868,7 +868,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
   const lockAcquired = await acquirePaymentLock(paymentRefString);
   if (!lockAcquired) {
-    logger.error(context, 'âŒ No se pudo adquirir lock para procesar pago', null, {
+    logger.error(context, '❌ No se pudo adquirir lock para procesar pago', null, {
       uid, paymentRef: paymentRefString
     });
     return {
@@ -886,7 +886,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const existingData = doc.data();
 
       if (existingData.procesado === true && existingData.estado === "approved") {
-        logger.warn(context, 'ðŸš« Pago ya procesado anteriormente en Firestore (idempotencia)', {
+        logger.warn(context, '🚫 Pago ya procesado anteriormente en Firestore (idempotencia)', {
           uid,
           paymentRef: paymentRefString,
           procesadoEn: existingData.procesadoEn?.toDate?.() || existingData.procesadoEn,
@@ -916,7 +916,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       }
     }
 
-    logger.info(context, 'âœ… Procesando nuevo pago', {
+    logger.info(context, '✅ Procesando nuevo pago', {
       uid, email, montoPagado, processor, paymentRef: paymentRefString
     });
 
@@ -952,7 +952,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const fechaActivacionActual = userData.fechaActivacion;
       const planIlimitadoHastaActual = userData.planIlimitadoHasta;
 
-      logger.info(context, 'ðŸ“Š Estado actual del usuario', {
+      logger.info(context, '📊 Estado actual del usuario', {
         uid,
         creditosActuales,
         tipoPlanActual,
@@ -972,8 +972,8 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        descripcion = `${creditosOtorgados} CrÃ©ditos`;
-        logger.info(context, 'ðŸ’³ CrÃ©ditos otorgados', {
+        descripcion = `${creditosOtorgados} Créditos`;
+        logger.info(context, '💳 Créditos otorgados', {
           uid,
           creditosOtorgados,
           montoPagado,
@@ -1000,7 +1000,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           duracionTotalDias = duracionDiasActual + diasNuevos;
           fechaFinPlan = moment(fechaActivacion).add(duracionTotalDias, 'days').toDate();
 
-          logger.info(context, 'âž• Acumulando dÃ­as al plan ilimitado existente', {
+          logger.info(context, '➕ Acumulando días al plan ilimitado existente', {
             uid,
             diasAnteriores: duracionDiasActual,
             diasNuevos,
@@ -1015,7 +1015,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           duracionTotalDias = diasNuevos;
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
 
-          logger.info(context, 'ðŸ†• Creando nuevo plan ilimitado', {
+          logger.info(context, '🆕 Creando nuevo plan ilimitado', {
             uid,
             diasNuevos,
             fechaInicio: fechaActivacion.toISOString(),
@@ -1040,9 +1040,9 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           diasAgregados: diasNuevos,
           fechaFin: fechaFinPlan
         };
-        descripcion = `Plan Ilimitado (${diasNuevos} dÃ­as${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' dÃ­as' : ''})`;
+        descripcion = `Plan Ilimitado (${diasNuevos} días${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' días' : ''})`;
 
-        logger.info(context, 'âœ¨ Plan ilimitado actualizado exitosamente', {
+        logger.info(context, '✨ Plan ilimitado actualizado exitosamente', {
           uid,
           diasAgregados: diasNuevos,
           duracionTotal: duracionTotalDias,
@@ -1055,7 +1055,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         creditosOtorgados = 0;
 
       } else {
-        logger.warn(context, 'âš ï¸ Monto no coincide con ningÃºn paquete', { montoPagado, uid });
+        logger.warn(context, '⚠️ Monto no coincide con ningún paquete', { montoPagado, uid });
         descripcion = `Pago de S/ ${montoPagado}`;
       }
 
@@ -1086,7 +1086,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
     });
 
     try {
-      logger.info(context, 'ðŸ“„ Generando Boleta ElectrÃ³nica automÃ¡ticamente', { paymentRef: paymentRefString });
+      logger.info(context, '📄 Generando Boleta Electrónica automáticamente', { paymentRef: paymentRefString });
 
       const invoiceData = {
         orderId: paymentRefString,
@@ -1094,7 +1094,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         email: email || 'cliente@example.com',
         amount: montoPagado,
         credits: result.creditosOtorgados || 0,
-        description: result.descripcion || 'CrÃ©ditos Consulta PE',
+        description: result.descripcion || 'Créditos Consulta PE',
         type: 'boleta'
       };
 
@@ -1114,7 +1114,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         fs.unlinkSync(localPdfPath);
       }
 
-      logger.info(context, 'âœ… Boleta generada y subida a Storage exitosamente', {
+      logger.info(context, '✅ Boleta generada y subida a Storage exitosamente', {
         paymentRef: paymentRefString,
         storageUrl
       });
@@ -1122,7 +1122,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       result.pdfUrl = storageUrl;
 
     } catch (pdfError) {
-      logger.error(context, 'âš ï¸ Error generando/subiendo PDF (no crÃ­tico)', pdfError, {
+      logger.error(context, '⚠️ Error generando/subiendo PDF (no crítico)', pdfError, {
         paymentRef: paymentRefString
       });
     }
@@ -1137,10 +1137,10 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
     setTimeout(() => {
       processedPaymentsCache.delete(paymentRefString);
-      logger.info(context, 'ðŸ—‘ï¸ Pago removido del cache', { paymentRef: paymentRefString });
+      logger.info(context, '🗑️ Pago removido del cache', { paymentRef: paymentRefString });
     }, 2 * 60 * 60 * 1000);
 
-    logger.info(context, 'âœ… TransacciÃ³n completada exitosamente', { uid, result });
+    logger.info(context, '✅ Transacción completada exitosamente', { uid, result });
 
     // Obtener nombre del usuario para el correo
     let userName = email.split('@')[0];
@@ -1154,7 +1154,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       logger.warn(context, 'No se pudo obtener nombre de usuario para el correo', { uid });
     }
 
-    // Enviar correo de confirmaciÃ³n de compra automÃ¡ticamente
+    // Enviar correo de confirmación de compra automáticamente
     enviarCorreoCompra(
       email,
       userName,
@@ -1162,14 +1162,14 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       montoPagado,
       result.descripcion || 'Servicio Masitaprex',
       result.pdfUrl
-    ).catch(err => logger.error(context, 'Error en envÃ­o de correo asÃ­ncrono', err));
+    ).catch(err => logger.error(context, 'Error en envío de correo asíncrono', err));
 
     releasePaymentLock(paymentRefString);
 
     return result;
 
   } catch (error) {
-    logger.error(context, 'âŒ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
+    logger.error(context, '❌ Error en otorgarBeneficio', error, { uid, paymentRef: paymentRefString, montoPagado });
 
     try {
       await pagoDoc.update({
@@ -1190,14 +1190,14 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 }
 
 // ================================================================
-// ðŸ”¥ FUNCIÃ“N: ENVÃO DE CORREO DE BIENVENIDA POST-VERIFICACIÃ“N
+// 🔥 FUNCIÓN: ENVÍO DE CORREO DE BIENVENIDA POST-VERIFICACIÓN
 // ================================================================
 
 async function enviarBienvenida(email, nombre) {
   const context = 'ENVIAR_BIENVENIDA';
   
   try {
-    logger.info(context, 'ðŸ“§ Enviando correo de bienvenida', { email, nombre });
+    logger.info(context, '📧 Enviando correo de bienvenida', { email, nombre });
     
     const templatePath = path.join(__dirname, 'emails', 'bienvenida-usuario-nuevo.html');
     
@@ -1223,7 +1223,7 @@ async function enviarBienvenida(email, nombre) {
       html: htmlContent
     });
 
-    logger.info(context, 'âœ… Correo de bienvenida enviado exitosamente', { 
+    logger.info(context, '✅ Correo de bienvenida enviado exitosamente', { 
       email, 
       resendId: result.id 
     });
@@ -1231,7 +1231,7 @@ async function enviarBienvenida(email, nombre) {
     return { success: true, id: result.id };
     
   } catch (error) {
-    logger.error(context, 'âŒ Error enviando correo de bienvenida', error, { 
+    logger.error(context, '❌ Error enviando correo de bienvenida', error, { 
       email, 
       nombre,
       errorMessage: error.message,
@@ -1242,13 +1242,13 @@ async function enviarBienvenida(email, nombre) {
 }
 
 /**
- * Enviar correo de confirmaciÃ³n de compra exitosa
+ * Enviar correo de confirmación de compra exitosa
  */
 async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, urlBoleta) {
   const context = 'ENVIAR_CORREO_COMPRA';
   
   try {
-    logger.info(context, 'ðŸ“§ Enviando correo de compra exitosa', { email, orderId });
+    logger.info(context, '📧 Enviando correo de compra exitosa', { email, orderId });
     
     const templatePath = path.join(__dirname, 'emails', 'compra-exitosa.html');
     
@@ -1267,13 +1267,13 @@ async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, ur
     htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/historial');
     
     const result = await resend.emails.send({
-      from: 'FacturaciÃ³n Masitaprex <facturacion@masitaprex.com>',
+      from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
       to: email,
-      subject: `ConfirmaciÃ³n de Compra #${orderId} - Masitaprex`,
+      subject: `Confirmación de Compra #${orderId} - Masitaprex`,
       html: htmlContent
     });
 
-    logger.info(context, 'âœ… Correo de compra enviado exitosamente', { 
+    logger.info(context, '✅ Correo de compra enviado exitosamente', { 
       email, 
       orderId,
       resendId: result.id 
@@ -1282,7 +1282,7 @@ async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, ur
     return { success: true, id: result.id };
     
   } catch (error) {
-    logger.error(context, 'âŒ Error enviando correo de compra', error, { 
+    logger.error(context, '❌ Error enviando correo de compra', error, { 
       email, 
       orderId
     });
@@ -1291,7 +1291,7 @@ async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, ur
 }
 
 // ================================================================
-// ðŸ” MIDDLEWARE DE AUTENTICACIÃ“N - MOVIDO DESPUÃ‰S DE RUTAS PÃšBLICAS
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN - MOVIDO DESPUÉS DE RUTAS PÚBLICAS
 // ================================================================
 
 async function verifyFirebaseAuth(req, res, next) {
@@ -1308,7 +1308,7 @@ async function verifyFirebaseAuth(req, res, next) {
   const isStaticFile = /\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|otf|map)$/i.test(req.path);
 
   if (isPublicRoute || isPublicApiRoute || isStaticFile) {
-    logger.info(context, 'Ruta pÃºblica o excluida', { path: req.path });
+    logger.info(context, 'Ruta pública o excluida', { path: req.path });
     return next();
   }
 
@@ -1351,7 +1351,7 @@ async function verifyFirebaseAuth(req, res, next) {
 
     next();
   } catch (error) {
-    logger.error(context, 'Error de autenticaciÃ³n', error, {
+    logger.error(context, 'Error de autenticación', error, {
       path: req.path
     });
 
@@ -1361,10 +1361,10 @@ async function verifyFirebaseAuth(req, res, next) {
 }
 
 // ================================================================
-// ðŸš¨ RUTAS DE API PÃšBLICAS (PRIMERO - ANTES DEL MIDDLEWARE)
+// 🚨 RUTAS DE API PÚBLICAS (PRIMERO - ANTES DEL MIDDLEWARE)
 // ================================================================
 
-// âœ… NUEVO ENDPOINT: Reportar intento fallido desde el frontend
+// ✅ NUEVO ENDPOINT: Reportar intento fallido desde el frontend
 app.post("/api/report-failed-login", async (req, res) => {
   const context = 'REPORT_FAILED_LOGIN_API';
 
@@ -1378,12 +1378,12 @@ app.post("/api/report-failed-login", async (req, res) => {
       });
     }
 
-    logger.info(context, 'ðŸš¨ Intento fallido reportado desde frontend', { email });
+    logger.info(context, '🚨 Intento fallido reportado desde frontend', { email });
 
     // Registrar el intento fallido
     await registerFailedLogin(email, req);
 
-    // Verificar estado actual despuÃ©s del registro
+    // Verificar estado actual después del registro
     const blockStatus = await checkLoginBlock(email);
 
     res.json({
@@ -1404,7 +1404,7 @@ app.post("/api/report-failed-login", async (req, res) => {
   }
 });
 
-// âœ… NUEVO ENDPOINT: Login exitoso (resetea intentos)
+// ✅ NUEVO ENDPOINT: Login exitoso (resetea intentos)
 app.post("/api/login-success", async (req, res) => {
   const context = 'LOGIN_SUCCESS_API';
 
@@ -1418,14 +1418,14 @@ app.post("/api/login-success", async (req, res) => {
       });
     }
 
-    logger.info(context, 'âœ… Login exitoso reportado desde frontend, reseteando intentos', { email, isNewUser });
+    logger.info(context, '✅ Login exitoso reportado desde frontend, reseteando intentos', { email, isNewUser });
 
     // Resetear los intentos fallidos
     await resetLoginAttempts(email);
 
     // Si es un nuevo usuario (ej. registro con Google), enviar correo de bienvenida y asignar créditos
     if (isNewUser && uid) {
-      logger.info(context, 'ðŸ†• Nuevo usuario detectado (Google Auth), procesando bienvenida', { email, uid });
+      logger.info(context, '🆕 Nuevo usuario detectado (Google Auth), procesando bienvenida', { email, uid });
       
       const nombre = displayName || email.split('@')[0];
       const welcomeResult = await enviarBienvenida(email, nombre);
@@ -1441,7 +1441,7 @@ app.post("/api/login-success", async (req, res) => {
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
           updateData.creditos = 0;
           updateData.tipoPlan = "creditos";
-          logger.info(context, 'ðŸ’° Créditos inicializados para nuevo usuario', { email });
+          logger.info(context, '💰 Créditos inicializados para nuevo usuario', { email });
         }
 
         if (welcomeResult.success) {
@@ -1468,7 +1468,7 @@ app.post("/api/login-success", async (req, res) => {
   }
 });
 
-// Endpoint de notificaciÃ³n de verificaciÃ³n
+// Endpoint de notificación de verificación
 app.post("/api/notify-verification", async (req, res) => {
   const context = 'NOTIFY_VERIFICATION';
   
@@ -1476,14 +1476,14 @@ app.post("/api/notify-verification", async (req, res) => {
     const { uid, email, displayName } = req.body;
 
     if (!uid || !email) {
-      logger.error(context, 'Datos incompletos en notificaciÃ³n', null, req.body);
+      logger.error(context, 'Datos incompletos en notificación', null, req.body);
       return res.status(400).json({
         success: false,
         error: 'Se requiere uid y email'
       });
     }
 
-    logger.info(context, 'ðŸ“§ VerificaciÃ³n confirmada, enviando correo de bienvenida', {
+    logger.info(context, '📧 Verificación confirmada, enviando correo de bienvenida', {
       uid, email, displayName
     });
 
@@ -1520,7 +1520,7 @@ app.post("/api/notify-verification", async (req, res) => {
     }
 
   } catch (error) {
-    logger.error(context, 'Error procesando notificaciÃ³n de verificaciÃ³n', error);
+    logger.error(context, 'Error procesando notificación de verificación', error);
     res.status(500).json({
       success: false,
       error: 'Error interno del servidor'
@@ -1528,7 +1528,7 @@ app.post("/api/notify-verification", async (req, res) => {
   }
 });
 
-// Endpoint de anÃ¡lisis con Gemini
+// Endpoint de análisis con Gemini
 app.post("/api/analyze", async (req, res) => {
   const { movieTitle, movieDescription } = req.body;
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -1538,12 +1538,12 @@ app.post("/api/analyze", async (req, res) => {
     return res.status(500).json({ error: "GEMINI_API_KEY no configurada en el servidor" });
   }
 
-  const prompt = `ActÃºa como un crÃ­tico de cine experto y redacta un anÃ¡lisis completo y objetivo para la pelÃ­cula "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El anÃ¡lisis debe ser excelente, ordenado y adecuado para una aplicaciÃ³n mÃ³vil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
-  1. Un pÃ¡rrafo introductorio.
-  2. Un subtÃ­tulo: "Trama y Desarrollo".
-  3. Un subtÃ­tulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuaciÃ³n, direcciÃ³n, fotografÃ­a, etc.).
-  4. Un subtÃ­tulo: "Veredicto Final" con un pÃ¡rrafo de conclusiÃ³n.
-  AsegÃºrate de que todo el texto generado fluya de manera natural y estÃ© formateado con subtÃ­tulos y listas.`;
+  const prompt = `Actúa como un crítico de cine experto y redacta un análisis completo y objetivo para la película "${movieTitle}". Utiliza la siguiente sinopsis: "${movieDescription}". El análisis debe ser excelente, ordenado y adecuado para una aplicación móvil. El texto debe ser muy natural, sin utilizar caracteres de negrita (**). La respuesta debe incluir:
+  1. Un párrafo introductorio.
+  2. Un subtítulo: "Trama y Desarrollo".
+  3. Un subtítulo: "Aspectos Destacados" seguido de una lista de 3 a 5 puntos clave (actuación, dirección, fotografía, etc.).
+  4. Un subtítulo: "Veredicto Final" con un párrafo de conclusión.
+  Asegúrate de que todo el texto generado fluya de manera natural y esté formateado con subtítulos y listas.`;
 
   try {
     const response = await axios.post(
@@ -1563,13 +1563,13 @@ app.post("/api/analyze", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     logger.error('GEMINI_API', 'Error al llamar a Gemini API', error);
-    res.status(500).json({ error: "Error al procesar el anÃ¡lisis con Gemini" });
+    res.status(500).json({ error: "Error al procesar el análisis con Gemini" });
   }
 });
 
-// Endpoint de configuraciÃ³n - MODIFICADO: Solo variables de cliente
+// Endpoint de configuración - MODIFICADO: Solo variables de cliente
 app.get("/api/config", (req, res) => {
-  logger.info('API_CONFIG', 'Solicitud de configuraciÃ³n recibida');
+  logger.info('API_CONFIG', 'Solicitud de configuración recibida');
 
   // SOLO variables de cliente de Firebase, NO credenciales de Admin SDK
   const firebaseClientConfig = {
@@ -1592,7 +1592,7 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// Endpoint de validaciÃ³n de reCAPTCHA - ACTUALIZADO PARA USAR LA FUNCIÃ“N MEJORADA
+// Endpoint de validación de reCAPTCHA - ACTUALIZADO PARA USAR LA FUNCIÓN MEJORADA
 app.post("/api/validate-recaptcha", async (req, res) => {
   const context = 'RECAPTCHA_API';
 
@@ -1617,7 +1617,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'Error en validaciÃ³n reCAPTCHA', error);
+    logger.error(context, 'Error en validación reCAPTCHA', error);
 
     res.status(400).json({
       success: false,
@@ -1628,7 +1628,7 @@ app.post("/api/validate-recaptcha", async (req, res) => {
 });
 
 // ================================================================
-// ðŸ” ENDPOINT DE LOGIN CON SISTEMA DE BLOQUEO (MODIFICADO)
+// 🔐 ENDPOINT DE LOGIN CON SISTEMA DE BLOQUEO (MODIFICADO)
 // ================================================================
 
 app.post("/api/login", async (req, res) => {
@@ -1727,10 +1727,10 @@ app.post("/api/login", async (req, res) => {
 
     const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
 
-    logger.info(context, 'Login validado exitosamente, esperando autenticaciÃ³n real del frontend', { email, redirectPath });
+    logger.info(context, 'Login validado exitosamente, esperando autenticación real del frontend', { email, redirectPath });
 
-    // âœ… NOTA: NO se resetean los intentos aquÃ­
-    // Los intentos se resetearÃ¡n en /api/login-success cuando el login real sea exitoso
+    // ✅ NOTA: NO se resetean los intentos aquí
+    // Los intentos se resetearán en /api/login-success cuando el login real sea exitoso
 
     res.json({
       success: true,
@@ -1867,7 +1867,7 @@ app.post("/api/pay", async (req, res) => {
       body: {
         transaction_amount: Number(amount),
         token,
-        description: description || 'CrÃ©ditos Consulta PE',
+        description: description || 'Créditos Consulta PE',
         installments: Number(installments) || 1,
         payment_method_id,
         issuer_id: issuer_id ? Number(issuer_id) : undefined,
@@ -1901,7 +1901,7 @@ app.post("/api/pay", async (req, res) => {
     });
 
     if (result.status === 'approved') {
-      logger.info(context, 'ðŸ’³ Pago aprobado instantÃ¡neamente, otorgando beneficios', {
+      logger.info(context, '💳 Pago aprobado instantáneamente, otorgando beneficios', {
         paymentId: result.id,
         uid
       });
@@ -1932,7 +1932,7 @@ app.post("/api/pay", async (req, res) => {
       }
       result.tipoPlanNuevo = beneficioResult.tipoPlanNuevo;
     } else {
-      logger.info(context, 'â³ Pago no aprobado instantÃ¡neamente, esperando webhook', {
+      logger.info(context, '⏳ Pago no aprobado instantáneamente, esperando webhook', {
         paymentId: result.id,
         status: result.status,
         statusDetail: result.status_detail
@@ -1956,7 +1956,7 @@ app.post("/api/pay", async (req, res) => {
       errorMessage = errorDetails.message || errorMessage;
 
       if (errorDetails.cause) {
-        logger.error(context, 'Error especÃ­fico de Mercado Pago', null, {
+        logger.error(context, 'Error específico de Mercado Pago', null, {
           cause: errorDetails.cause,
           code: errorDetails.error,
           status: errorDetails.status
@@ -1977,7 +1977,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   const context = 'WEBHOOK_MP';
   const webhookData = req.body;
 
-  logger.info(context, 'ðŸ“© Webhook recibido', {
+  logger.info(context, '📩 Webhook recibido', {
     action: webhookData.action,
     type: webhookData.type,
     id: webhookData.data?.id,
@@ -2002,12 +2002,12 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         return;
       }
 
-      logger.info(context, 'ðŸ” Consultando informaciÃ³n del pago', { paymentId });
+      logger.info(context, '🔍 Consultando información del pago', { paymentId });
 
       const payment = new Payment(mpClient);
       const paymentInfo = await payment.get({ id: paymentId });
 
-      logger.info(context, 'ðŸ“„ InformaciÃ³n del pago obtenida', {
+      logger.info(context, '📄 Información del pago obtenida', {
         paymentId,
         status: paymentInfo.status,
         statusDetail: paymentInfo.status_detail
@@ -2020,7 +2020,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         const amount = metadata.amount || paymentInfo.transaction_amount;
 
         if (uid) {
-          logger.info(context, 'âœ… Procesando pago aprobado via webhook', {
+          logger.info(context, '✅ Procesando pago aprobado via webhook', {
             paymentId, uid, email, amount
           });
 
@@ -2032,7 +2032,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             paymentId.toString()
           );
 
-          logger.info(context, 'ðŸ“Š Resultado del webhook', {
+          logger.info(context, '📊 Resultado del webhook', {
             paymentId,
             uid,
             beneficioStatus: beneficioResult.status,
@@ -2042,40 +2042,40 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
           });
 
         } else {
-          logger.error(context, 'âŒ UID no encontrado en metadatos del pago', null, {
+          logger.error(context, '❌ UID no encontrado en metadatos del pago', null, {
             paymentId,
             metadata,
             payer: paymentInfo.payer
           });
         }
       } else {
-        logger.info(context, 'â¸ï¸ Pago no estÃ¡ aprobado, ignorando', {
+        logger.info(context, '⏸️ Pago no está aprobado, ignorando', {
           paymentId,
           status: paymentInfo.status
         });
       }
 
     } catch (error) {
-      logger.error(context, 'âŒ Error procesando webhook', error, {
+      logger.error(context, '❌ Error procesando webhook', error, {
         paymentId: webhookData.data?.id,
         action: webhookData.action
       });
     }
   } else {
-    logger.info(context, 'â¹ï¸ Evento no relevante ignorado', {
+    logger.info(context, '⏹️ Evento no relevante ignorado', {
       action: webhookData.action,
       type: webhookData.type
     });
   }
 });
 
-// Endpoint para obtener informaciÃ³n del pago
+// Endpoint para obtener información del pago
 app.get("/api/payment/:paymentId", async (req, res) => {
   const context = 'GET_PAYMENT_INFO';
   const { paymentId } = req.params;
 
   try {
-    logger.info(context, 'Obteniendo informaciÃ³n del pago', { paymentId });
+    logger.info(context, 'Obteniendo información del pago', { paymentId });
 
     if (!db) {
       return res.status(503).json({ error: 'Database not available' });
@@ -2108,7 +2108,7 @@ app.get("/api/payment/:paymentId", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'Error obteniendo informaciÃ³n del pago', error, { paymentId });
+    logger.error(context, 'Error obteniendo información del pago', error, { paymentId });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -2133,7 +2133,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       return res.status(400).json({ error: 'Payment ID es requerido' });
     }
 
-    logger.info(context, 'Solicitud para generar boleta electrÃ³nica', { paymentId });
+    logger.info(context, 'Solicitud para generar boleta electrónica', { paymentId });
 
     let existingPdfUrl = null;
     let responseSent = false;
@@ -2146,7 +2146,7 @@ app.post("/api/generate-invoice", async (req, res) => {
 
           if (pagoData.pdfUrl) {
             existingPdfUrl = pagoData.pdfUrl;
-            logger.info(context, 'âœ… PDF ya existe en datos del pago', {
+            logger.info(context, '✅ PDF ya existe en datos del pago', {
               paymentId,
               pdfUrl: existingPdfUrl,
               storagePath: pagoData.storagePath || 'N/A'
@@ -2177,7 +2177,7 @@ app.post("/api/generate-invoice", async (req, res) => {
     const storageCheck = await checkFileExistsInStorage(fileName);
 
     if (storageCheck.exists && storageCheck.url) {
-      logger.info(context, 'âœ… PDF ya existe en Storage', {
+      logger.info(context, '✅ PDF ya existe en Storage', {
         paymentId,
         url: storageCheck.url
       });
@@ -2203,7 +2203,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       return;
     }
 
-    logger.info(context, 'ðŸ“„ Generando nuevo comprobante', { paymentId });
+    logger.info(context, '📄 Generando nuevo comprobante', { paymentId });
 
     const invoiceData = {
       orderId: String(paymentId),
@@ -2211,7 +2211,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       email: email || 'cliente@example.com',
       amount: amount || 10,
       credits: credits || 60,
-      description: description || 'CrÃ©ditos Consulta PE',
+      description: description || 'Créditos Consulta PE',
       clientName: clientName || '',
       type: 'boleta'
     };
@@ -2232,7 +2232,7 @@ app.post("/api/generate-invoice", async (req, res) => {
         }, { merge: true });
       }
 
-      logger.info(context, 'âœ… PDF generado y almacenado en Storage', {
+      logger.info(context, '✅ PDF generado y almacenado en Storage', {
         paymentId,
         storageUrl,
         localPath: pdfPath
@@ -2263,7 +2263,7 @@ app.post("/api/generate-invoice", async (req, res) => {
     });
 
   } catch (error) {
-    logger.error(context, 'âŒ Error generando comprobante', error, req.body);
+    logger.error(context, '❌ Error generando comprobante', error, req.body);
     res.status(500).json({
       success: false,
       error: 'Error generando comprobante',
@@ -2273,9 +2273,9 @@ app.post("/api/generate-invoice", async (req, res) => {
   }
 });
 
-// Endpoint para opciones de facturaciÃ³n
+// Endpoint para opciones de facturación
 app.get("/api/invoice-options", (req, res) => {
-  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturaciÃ³n');
+  logger.info('INVOICE_OPTIONS', 'Solicitud de opciones de facturación');
   res.json({
     options: [
       { value: 'boleta', label: 'Boleta de Venta', description: 'Para personas naturales' },
@@ -2341,18 +2341,18 @@ app.get("/api/health", async (req, res) => {
 // Debug Firebase
 app.get("/api/debug/firebase", (req, res) => {
   const firebaseVars = {
-    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? 'âœ“' : 'âœ—',
-    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? 'âœ“' : 'âœ—',
-    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? 'âœ“' : 'âœ—',
-    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? 'âœ“ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : 'âœ—',
-    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? 'âœ“' : 'âœ—',
-    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? 'âœ“' : 'âœ—',
-    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? 'âœ“' : 'âœ—',
-    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? 'âœ“' : 'âœ—'
+    FIREBASE_TYPE: process.env.FIREBASE_TYPE ? '✓' : '✗',
+    FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID ? '✓' : '✗',
+    FIREBASE_PRIVATE_KEY_ID: process.env.FIREBASE_PRIVATE_KEY_ID ? '✓' : '✗',
+    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY ? '✓ (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : '✗',
+    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL ? '✓' : '✗',
+    FIREBASE_CLIENT_ID: process.env.FIREBASE_CLIENT_ID ? '✓' : '✗',
+    FIREBASE_CLIENT_X509_CERT_URL: process.env.FIREBASE_CLIENT_X509_CERT_URL ? '✓' : '✗',
+    FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET ? '✓' : '✗'
   };
 
   const missingVars = Object.entries(firebaseVars)
-    .filter(([key, value]) => value === 'âœ—')
+    .filter(([key, value]) => value === '✗')
     .map(([key]) => key);
 
   res.json({
@@ -2376,7 +2376,7 @@ app.post("/api/admin/clear-cache", (req, res) => {
     processedPaymentsCache.clear();
     paymentLocks.clear();
 
-    logger.info(context, 'ðŸ—‘ï¸ Cache limpiado manualmente', {
+    logger.info(context, '🗑️ Cache limpiado manualmente', {
       paymentsRemoved: cacheSize,
       locksRemoved: locksSize
     });
@@ -2394,7 +2394,7 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================================
-// ðŸš¨ RUTAS ESPECÃFICAS (SEGUNDO)
+// 🚨 RUTAS ESPECÍFICAS (SEGUNDO)
 // ================================================================
 
 app.get("/disclaimer-apis", (req, res) => {
@@ -2408,7 +2408,7 @@ app.get("/API-Docs", (req, res) => {
 });
 
 // ================================================================
-// ðŸ—ºï¸ MAPEO DE RUTAS (TERCERO)
+// 🗺️ MAPEO DE RUTAS (TERCERO)
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2423,7 +2423,7 @@ app.use((req, res, next) => {
   if (routeMap[pathName]) {
     const filePath = path.join(__dirname, 'public', routeMap[pathName]);
     if (fs.existsSync(filePath)) {
-      logger.info('ROUTE_MAPPING', `âœ… Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
+      logger.info('ROUTE_MAPPING', `✅ Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
       return res.sendFile(filePath);
     }
   }
@@ -2432,7 +2432,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================================
-// ðŸ§¹ CLEAN URLs (CUARTO)
+// 🧹 CLEAN URLs (CUARTO)
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2459,7 +2459,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================================
-// ðŸ“ ARCHIVOS ESTÃTICOS (QUINTO)
+// 📁 ARCHIVOS ESTÁTICOS (QUINTO)
 // ================================================================
 
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -2471,13 +2471,13 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // ================================================================
-// ðŸ” MIDDLEWARE DE AUTENTICACIÃ“N (SEXTO - DESPUÃ‰S DE RUTAS PÃšBLICAS)
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN (SEXTO - DESPUÉS DE RUTAS PÚBLICAS)
 // ================================================================
 
 app.use(verifyFirebaseAuth);
 
 // ================================================================
-// ðŸ  RUTAS PRINCIPALES
+// 🏠  RUTAS PRINCIPALES
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2496,7 +2496,7 @@ app.use((req, res, next) => {
       fs.existsSync(requestedHtmlPath);
 
     if (!fileExists) {
-      logger.warn('404_REDIRECT', 'PÃ¡gina no encontrada, redirigiendo a error-404', {
+      logger.warn('404_REDIRECT', 'Página no encontrada, redirigiendo a error-404', {
         path: req.path,
         originalUrl: req.originalUrl
       });
@@ -2511,7 +2511,7 @@ app.use((req, res, next) => {
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>404 - PÃ¡gina no encontrada</title>
+            <title>404 - Página no encontrada</title>
             <style>
               body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
               h1 { font-size: 72px; color: #333; }
@@ -2521,7 +2521,7 @@ app.use((req, res, next) => {
           </head>
           <body>
             <h1>404</h1>
-            <p>PÃ¡gina no encontrada</p>
+            <p>Página no encontrada</p>
             <a href="/">Volver al inicio</a>
           </body>
           </html>
@@ -2534,7 +2534,7 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  logger.info('ROOT_HOME', 'Sirviendo home.html como pÃ¡gina principal');
+  logger.info('ROOT_HOME', 'Sirviendo home.html como página principal');
   const homePath = path.join(__dirname, 'public', 'home.html');
   if (fs.existsSync(homePath)) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -2549,7 +2549,7 @@ app.get("/api", (req, res) => {
 });
 
 // ================================================================
-// âš ï¸ MANEJO DE ERRORES GLOBAL
+// ⚠️ MANEJO DE ERRORES GLOBAL
 // ================================================================
 
 app.use((err, req, res, next) => {
@@ -2580,7 +2580,7 @@ app.get("*", (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>404 - PÃ¡gina no encontrada</title>
+        <title>404 - Página no encontrada</title>
         <style>
           body { 
             font-family: Arial, sans-serif; 
@@ -2605,8 +2605,8 @@ app.get("*", (req, res) => {
       </head>
       <body>
         <h1>404</h1>
-        <p>PÃ¡gina no encontrada</p>
-        <p>Lo sentimos, la pÃ¡gina que buscas no existe.</p>
+        <p>Página no encontrada</p>
+        <p>Lo sentimos, la página que buscas no existe.</p>
         <a href="/">Volver al inicio</a>
       </body>
       </html>
@@ -2615,12 +2615,12 @@ app.get("*", (req, res) => {
 });
 
 // ================================================================
-// ðŸš€ INICIO DEL SERVIDOR - PUERTO CORREGIDO
+// 🚀 INICIO DEL SERVIDOR - PUERTO CORREGIDO
 // ================================================================
 
 const PORT = process.env.PORT || 80;
 app.listen(PORT, "0.0.0.0", () => {
-  logger.info('SERVER', `ðŸš€ Servidor iniciado en puerto ${PORT}`, {
+  logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
@@ -2628,28 +2628,28 @@ app.listen(PORT, "0.0.0.0", () => {
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     version: '3.5.0',
     features: {
-      authMiddleware: 'Activo (despuÃ©s de rutas pÃºblicas)',
+      authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
-      custom404: 'Activo (archivo estÃ¡tico)',
+      custom404: 'Activo (archivo estático)',
       cleanUrls: 'Activo',
-      routeMapping: 'âœ… Implementado',
-      autoRedirectToLogin: 'âœ… Activado',
-      returnAfterLogin: 'âœ… Implementado',
-      returnAfterRegister: 'âœ… Implementado con verify.html',
-      returnAfterVerify: 'âœ… Implementado',
-      welcomeEmailOnVerify: 'ðŸ”¥ Plantilla HTML local',
-      secureConfig: 'âœ… /api/config seguro (solo variables cliente)',
-      recaptchaVar: 'âœ… Variable corregida (RECAPTCHA_CLAVE_SECRETA)',
-      recaptchaStability: 'âœ… Mejorada con reintentos automÃ¡ticos y timeout extendido',
-      loginBlockSystem: 'ðŸ›¡ï¸ Sistema de bloqueo por intentos fallidos activado',
+      routeMapping: '✅ Implementado',
+      autoRedirectToLogin: '✅ Activado',
+      returnAfterLogin: '✅ Implementado',
+      returnAfterRegister: '✅ Implementado con verify.html',
+      returnAfterVerify: '✅ Implementado',
+      welcomeEmailOnVerify: '🔥 Plantilla HTML local',
+      secureConfig: '✅ /api/config seguro (solo variables cliente)',
+      recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)',
+      recaptchaStability: '✅ Mejorada con reintentos automáticos y timeout extendido',
+      loginBlockSystem: '🛡️ Sistema de bloqueo por intentos fallidos activado',
       maxLoginAttempts: MAX_LOGIN_ATTEMPTS,
       blockDurationHours: BLOCK_DURATION_HOURS,
-      suspiciousLoginEmailEnabled: 'ðŸ“§ Correo automÃ¡tico con plantilla HTML',
-      reportFailedLoginEndpoint: 'âœ… /api/report-failed-login implementado',
-      loginSuccessEndpoint: 'âœ… /api/login-success implementado (resetea intentos)',
-      serverSideProtection: 'âœ… ProtecciÃ³n de rutas desde servidor (api-key.html, checkout.html)'
+      suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
+      reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
+      loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)'
     },
     timestamp: new Date().toISOString()
   });
