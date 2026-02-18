@@ -1129,6 +1129,78 @@
             background-color: #ffffff !important;
             cursor: text;
         }
+
+        /* =====================================================================
+        NUEVOS ESTILOS PARA ICONOS DE TARJETAS - MEJORADOS
+        ===================================================================== */
+        .card-icons-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            flex-wrap: nowrap; /* Cambiado de wrap a nowrap para mantener todo en una línea */
+            overflow-x: auto; /* Permite scroll horizontal si es necesario en pantallas muy pequeñas */
+            padding-bottom: 2px; /* Espacio para el scrollbar */
+        }
+
+        .card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            flex-shrink: 0; /* Evita que se reduzcan */
+        }
+
+        .card-icon i {
+            font-size: 1.5rem;
+        }
+
+        /* Estilo unificado para todas las tarjetas, incluida "y más" */
+        .card-icon.more-card {
+            background-color: #f8fafc; /* Mismo fondo que las demás */
+            color: var(--text-dark); /* Mismo color de texto */
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: #f8fafc; /* Mismo fondo sólido */
+            border: 1px solid var(--border-color); /* Mismo borde */
+        }
+
+        .card-icon.more-card span {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .payment-info-text {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        /* Opcional: estilizar el scrollbar para que sea más sutil */
+        .card-icons-container::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .card-icons-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .card-icons-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -1231,6 +1303,19 @@
                 Selecciona tu tipo de compra y paquete para pagar con Mercado Pago. La activación es inmediata al confirmarse el pago.
                 </p>
             </div>
+
+            <!-- ===== NUEVOS ELEMENTOS AGREGADOS - MEJORADOS ===== -->
+            <div class="payment-info-text">Aceptamos todas las tarjetas</div>
+            
+            <div class="card-icons-container">
+                <div class="card-icon"><i class="fab fa-cc-visa"></i></div>
+                <div class="card-icon"><i class="fab fa-cc-mastercard"></i></div>
+                <div class="card-icon"><i class="fab fa-cc-amex"></i></div>
+                <div class="card-icon"><i class="fab fa-cc-diners-club"></i></div>
+                <div class="card-icon"><i class="fab fa-cc-discover"></i></div>
+                <div class="card-icon more-card"><span>y más</span></div>
+            </div>
+            <!-- ===== FIN DE NUEVOS ELEMENTOS ===== -->
 
             <div id="purchaseForm">
                 <div class="form-group">
