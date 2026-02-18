@@ -1,5 +1,5 @@
-app = "masitaprexv2"
-primary_region = "mia"
+app = 'masitaprexv2'
+primary_region = 'gru'
 
 [build]
 
@@ -8,11 +8,12 @@ primary_region = "mia"
   internal_port = 80
   processes = ["app"]
   
-  # CAMBIO CLAVE: 'stop' permite usar el kill_timeout
+  # CONFIGURACIÓN DE PERMANENCIA:
+  # 'stop' en lugar de true/false para mayor compatibilidad
   auto_stop_machines = 'stop' 
   auto_start_machines = true
   min_machines_running = 0
-  # Esto evita que la web se "duerma" por 20 minutos
+  # Tiempo de espera de 20 min antes de apagar (evita el bucle del recaptcha)
   kill_timeout = "20m" 
 
   [[services.ports]]
@@ -30,6 +31,6 @@ primary_region = "mia"
     hard_limit = 150
 
 [[vm]]
-  cpu_kind = "shared"
+  cpu_kind = 'shared'
   cpus = 1
   memory_mb = 512
