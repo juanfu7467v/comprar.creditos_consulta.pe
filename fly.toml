@@ -8,13 +8,10 @@ primary_region = 'gru'
   internal_port = 80
   processes = ["app"]
   
-  # CONFIGURACIÓN DE PERMANENCIA:
-  # 'stop' en lugar de true/false para mayor compatibilidad
+  # CONFIGURACIÓN DE AUTO-ESCALADO (Ahorro total)
   auto_stop_machines = 'stop' 
   auto_start_machines = true
   min_machines_running = 0
-  # Tiempo de espera de 20 min antes de apagar (evita el bucle del recaptcha)
-  kill_timeout = "20m" 
 
   [[services.ports]]
     port = 80
@@ -29,6 +26,21 @@ primary_region = 'gru'
     type = "requests"
     soft_limit = 100
     hard_limit = 150
+
+  # ESTA ES LA PARTE CLAVE
+  # idle_timeout: Cuánto tiempo esperar antes de apagar la máquina por inactividad.
+  # Lo ponemos en 15 minutos (900s) para que si el usuario está navegando 
+  # o resolviendo algo, la máquina no se apague entre clicks.
+  [services.http_checks]
+    interval = "10s"
+    timeout = "2s"
+    grace_period = "5s"
+    method = "get"
+    path = "/api/health"
+
+[[services.http_options]]
+  # Mantiene la máquina viva 15 minutos tras la última petición
+  idle_timeout = "900s"
 
 [[vm]]
   cpu_kind = 'shared'
