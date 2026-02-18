@@ -1529,47 +1529,101 @@ function renderizarPerfilConDatos(userData) {
     }
     
     let planIlimitadoHasta = 'No aplica';
+    let duracionDias = 'No aplica';
     let diasRestantes = 'No aplica';
-    if (tipoPlan === 'ilimitado' && userData.fechaVencimiento) {
-        planIlimitadoHasta = formatDate(userData.fechaVencimiento);
-        
-        try {
-            let vencimiento;
-            if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
-                vencimiento = userData.fechaVencimiento.toDate();
-            } else {
-                vencimiento = new Date(userData.fechaVencimiento);
+    let fechaVencimiento = 'No aplica';
+    
+    if (tipoPlan === 'ilimitado') {
+        if (userData.fechaVencimiento) {
+            fechaVencimiento = formatDate(userData.fechaVencimiento);
+            planIlimitadoHasta = fechaVencimiento;
+            
+            try {
+                let vencimiento;
+                if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
+                    vencimiento = userData.fechaVencimiento.toDate();
+                } else {
+                    vencimiento = new Date(userData.fechaVencimiento);
+                }
+                const hoy = new Date();
+                const diffTime = vencimiento - hoy;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                diasRestantes = diffDays > 0 ? `${diffDays} días` : 'Expirado';
+            } catch (e) {
+                console.error("Error calculando días restantes:", e);
             }
-            const hoy = new Date();
-            const diffTime = vencimiento - hoy;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            diasRestantes = diffDays > 0 ? `${diffDays} días` : 'Expirado';
-        } catch (e) {
-            console.error("Error calculando días restantes:", e);
+        }
+        
+        if (userData.duracionDias) {
+            duracionDias = userData.duracionDias;
         }
     }
 
     const ultimaCompra = userData.ultimaCompra ? formatDate(userData.ultimaCompra) : 'No disponible';
+    const ultimaConsulta = userData.ultimaConsulta ? formatDate(userData.ultimaConsulta) : 'No disponible';
     const totalConsultas = userData.totalConsultas || 0;
 
-    let estadoCuenta = 'Inactivo';
-    let estadoColor = 'text-red-600';
-    if (tipoPlan === 'ilimitado' && userData.fechaVencimiento) {
-        try {
-            let vencimiento;
-            if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
-                vencimiento = userData.fechaVencimiento.toDate();
-            } else {
-                vencimiento = new Date(userData.fechaVencimiento);
-            }
-            if (vencimiento > new Date()) {
-                estadoCuenta = 'Activo';
-                estadoColor = 'text-green-600';
-            }
-        } catch (e) {}
-    } else if (tipoPlan === 'creditos' && creditos > 0) {
-        estadoCuenta = 'Activo (con créditos)';
-        estadoColor = 'text-green-600';
+    // Construir la tabla según el tipo de plan
+    let tablaHtml = '';
+    
+    if (tipoPlan === 'ilimitado') {
+        tablaHtml = `
+            <table class="plan-detail-table">
+                <tr>
+                    <td>Tipo de Plan</td>
+                    <td>Ilimitado</td>
+                </tr>
+                <tr>
+                    <td>Duración (días)</td>
+                    <td>${duracionDias}</td>
+                </tr>
+                <tr>
+                    <td>Días restantes</td>
+                    <td>${diasRestantes}</td>
+                </tr>
+                <tr>
+                    <td>Fecha de Activación</td>
+                    <td>${fechaActivacion}</td>
+                </tr>
+                <tr>
+                    <td>Válido hasta</td>
+                    <td>${planIlimitadoHasta}</td>
+                </tr>
+                <tr>
+                    <td>Última consulta</td>
+                    <td>${ultimaConsulta}</td>
+                </tr>
+                <tr>
+                    <td>Total consultas</td>
+                    <td>${totalConsultas}</td>
+                </tr>
+            </table>
+        `;
+    } else {
+        tablaHtml = `
+            <table class="plan-detail-table">
+                <tr>
+                    <td>Tipo de Plan</td>
+                    <td>Créditos</td>
+                </tr>
+                <tr>
+                    <td>Créditos disponibles</td>
+                    <td>${creditos}</td>
+                </tr>
+                <tr>
+                    <td>Fecha de Activación</td>
+                    <td>${fechaActivacion}</td>
+                </tr>
+                <tr>
+                    <td>Última consulta</td>
+                    <td>${ultimaConsulta}</td>
+                </tr>
+                <tr>
+                    <td>Válido hasta</td>
+                    <td>No vence</td>
+                </tr>
+            </table>
+        `;
     }
 
     perfilContenido.innerHTML = `
@@ -1584,40 +1638,7 @@ function renderizarPerfilConDatos(userData) {
             </div>
         </div>
 
-        <table class="plan-detail-table">
-            <tr>
-                <td>Tipo de Plan</td>
-                <td>${tipoPlan.charAt(0).toUpperCase() + tipoPlan.slice(1)}</td>
-            </tr>
-            <tr>
-                <td>Días restantes</td>
-                <td>${diasRestantes}</td>
-            </tr>
-            <tr>
-                <td>Fecha de Activación</td>
-                <td>${fechaActivacion}</td>
-            </tr>
-            <tr>
-                <td>Válido hasta</td>
-                <td>${planIlimitadoHasta}</td>
-            </tr>
-            <tr>
-                <td>Créditos disponibles</td>
-                <td>${tipoPlan === 'ilimitado' ? '0 (Plan Ilimitado)' : creditos}</td>
-            </tr>
-            <tr>
-                <td>Última compra</td>
-                <td>${ultimaCompra}</td>
-            </tr>
-            <tr>
-                <td>Total consultas</td>
-                <td>${totalConsultas}</td>
-            </tr>
-            <tr>
-                <td>Estado de cuenta</td>
-                <td><span class="${estadoColor} font-bold">${estadoCuenta}</span></td>
-            </tr>
-        </table>
+        ${tablaHtml}
     `;
 
     if (!userData.apiKey && userData.email) {
@@ -1665,7 +1686,8 @@ async function cargarDatosPerfil() {
                 fechaActivacion: FieldValue.serverTimestamp(),
                 duracionDias: 0,
                 apiKey: generarApiKey(),
-                ultimaCompra: null
+                ultimaCompra: null,
+                ultimaConsulta: null
             };
             await userRef.set(defaultUserData);
             console.log("Documento de usuario por defecto creado con 5 créditos y API Key.");
@@ -1758,6 +1780,8 @@ const paramNames = {
     'buscar-cedula': 'query',
     'cedula': 'cedula'
 };
+
+const numericOptions = ['dni', 'telefonia-doc', 'telefonia-num', 'placa', 'ruc', 'empresas', 'matrimonios', 'cedula'];
 
 const nombresCamposDni = {
     'nuDni': 'DNI',
@@ -1927,9 +1951,23 @@ apiSelect.addEventListener('change', function() {
     if (selected) {
         consultaInput.disabled = false;
         consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
+        
+        // Activar teclado numérico si la opción solo requiere números
+        if (numericOptions.includes(selected)) {
+            consultaInput.type = 'number';
+            consultaInput.inputMode = 'numeric';
+            consultaInput.pattern = '[0-9]*';
+        } else {
+            consultaInput.type = 'text';
+            consultaInput.inputMode = 'text';
+            consultaInput.removeAttribute('pattern');
+        }
     } else {
         consultaInput.disabled = true;
         consultaInput.placeholder = 'Primero debes seleccionar una opción para poder consultar';
+        consultaInput.type = 'text';
+        consultaInput.inputMode = 'text';
+        consultaInput.removeAttribute('pattern');
     }
     
     if (selected === 'buscar-dni') {
