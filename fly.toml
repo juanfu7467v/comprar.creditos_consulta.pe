@@ -1,5 +1,5 @@
-app = 'masitaprexv2'
-primary_region = 'mia'
+app = "masitaprexv2"
+primary_region = "mia"
 
 [build]
 
@@ -8,16 +8,16 @@ primary_region = 'mia'
   internal_port = 80
   processes = ["app"]
   
-  # El servidor esperará 20 minutos de inactividad antes de detenerse
-  auto_stop_machines = 'stop'
+  # CAMBIO CLAVE: 'stop' permite usar el kill_timeout
+  auto_stop_machines = 'stop' 
   auto_start_machines = true
   min_machines_running = 0
+  # Esto evita que la web se "duerma" por 20 minutos
   kill_timeout = "20m" 
 
   [[services.ports]]
     port = 80
     handlers = ["http"]
-    # Redirige todo el tráfico inseguro a HTTPS automáticamente
     force_https = true
 
   [[services.ports]]
@@ -30,6 +30,6 @@ primary_region = 'mia'
     hard_limit = 150
 
 [[vm]]
-  cpu_kind = 'shared'
+  cpu_kind = "shared"
   cpus = 1
   memory_mb = 512
