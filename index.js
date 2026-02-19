@@ -47,7 +47,10 @@ const logger = {
 
 const allowedOrigins = [
   'https://masitaprex.com',
-  'https://www.masitaprex.com'
+  'https://www.masitaprex.com',
+  'https://consulta-pe-abf99.firebaseapp.com',
+  'https://consulta-pe-abf99.firebasestorage.app',
+  'https://masitaprexv2.fly.dev'
 ];
 
 app.use(cors({
@@ -73,25 +76,79 @@ app.use(cookieParser());
 // 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO CON HSTS Y CSP MEJORADA)
 // ================================================================
 
+// Lista completa de dominios para CSP
+const cspDomains = [
+  "'self'",
+  "https://masitaprex.com",
+  "https://www.masitaprex.com",
+  "https://consulta-pe-abf99.firebaseapp.com",
+  "https://consulta-pe-abf99.firebasestorage.app",
+  "https://masitaprexv2.fly.dev",
+  "https://cdn-icons-png.flaticon.com",
+  "https://cdnjs.cloudflare.com",
+  "https://fonts.googleapis.com",
+  "https://fonts.gstatic.com",
+  "https://unpkg.com",
+  "https://cdn.tailwindcss.com",
+  "https://api.masitaprex.com",
+  "https://m.facebook.com",
+  "https://youtube.com",
+  "https://www.youtube.com",
+  "https://wa.me",
+  "https://www.gstatic.com",
+  "https://blogger.googleusercontent.com",
+  "https://via.placeholder.com",
+  "https://image.tmdb.org",
+  "https://apis.google.com",
+  "https://firebase.googleapis.com",
+  "https://firestore.googleapis.com",
+  "https://accounts.google.com",
+  "https://securetoken.googleapis.com",
+  "https://drive.google.com",
+  "https://generativelanguage.googleapis.com",
+  "https://cdn.jsdelivr.net",
+  "https://sdk.mercadopago.com",
+  "https://mercadopago.com",
+  "https://api.mercadopago.com",
+  "https://www.appcreator24.com",
+  "https://img.utdstc.com",
+  "https://com-masitaorex.uptodown.com",
+  "https://stc.utdstc.com",
+  "https://apk.e-droid.net",
+  "https://apkpure.com",
+  "https://placehold.co",
+  "https://www.google.com",
+  "https://google.com",
+  "https://github.com",
+  "https://www.github.com",
+  "https://api.github.com",
+  "https://identitytoolkit.googleapis.com",
+  "https://www.facebook.com",
+  "data:",
+  "blob:",
+  "https://*.firebaseio.com",
+  "https://*.googleapis.com"
+];
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'", "*"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*", "https:", "http:", "data:", "blob:"],
+      defaultSrc: ["'self'", ...cspDomains],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", ...cspDomains],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "*", "https:", "http:", "data:"],
+      styleSrc: ["'self'", "'unsafe-inline'", ...cspDomains],
       styleSrcAttr: ["'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "blob:", "*", "https:", "http:"],
-      fontSrc: ["'self'", "data:", "*", "https:", "http:"],
-      connectSrc: ["'self'", "*"],
-      frameSrc: ["'self'", "*", "https:", "http:", "data:"],
-      mediaSrc: ["'self'", "*", "https:", "http:", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", ...cspDomains],
+      fontSrc: ["'self'", "data:", ...cspDomains],
+      connectSrc: ["'self'", ...cspDomains],
+      frameSrc: ["'self'", ...cspDomains],
+      mediaSrc: ["'self'", ...cspDomains],
       objectSrc: ["'none'"],
       workerSrc: ["'self'", "blob:"],
-      manifestSrc: ["'self'", "*"],
-      prefetchSrc: ["'self'", "*"],
-      formAction: ["'self'", "*"],
-      frameAncestors: ["'self'", "*"],
+      manifestSrc: ["'self'", ...cspDomains],
+      prefetchSrc: ["'self'", ...cspDomains],
+      formAction: ["'self'", ...cspDomains],
+      frameAncestors: ["'self'", ...cspDomains],
       baseUri: ["'self'"],
       upgradeInsecureRequests: [],
     },
@@ -2450,10 +2507,13 @@ app.get("/api/health", async (req, res) => {
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
       serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
-      cors: '✅ Configurado solo para masitaprex.com y www.masitaprex.com',
+      cors: '✅ Configurado solo para dominios específicos',
+      corsDomains: allowedOrigins,
+      cspEnabled: '✅ CSP activo con dominios específicos',
       sessionCookies: '✅ Implementado con Firebase Session Cookies',
       loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
-    }
+    },
+    cspDomainsCount: cspDomains.length
   };
 
   if (db) {
@@ -2861,7 +2921,10 @@ app.listen(PORT, "0.0.0.0", () => {
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
       serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
-      cors: '✅ Configurado solo para masitaprex.com y www.masitaprex.com',
+      cors: '✅ Configurado solo para dominios específicos',
+      corsDomains: allowedOrigins,
+      cspEnabled: '✅ CSP activo con dominios específicos',
+      cspDomainsCount: cspDomains.length,
       sessionCookies: '✅ Implementado con Firebase Session Cookies',
       loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
     },
