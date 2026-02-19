@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Generar API Key | Apis Dev Perú | Documentación Masitaprex</title>
+    <meta name="description" content="Obtén tu API Key oficial. Acceso exclusivo a la Documentación Masitaprex para integrar Apis Perú de DNI, RUC y más. El estándar de oro para desarrolladores.">
+    <meta name="keywords" content="apis dev, apis peru, masitaprex api key, documentacion masitaprex, generar token api, api reniec gratis, api sunat peru, api identidad, desarrolladores peru" />
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="Generar API Key | Infraestructura Apis Dev Perú" />
+    <meta property="og:description" content="Gestiona tu token y accede a la documentación técnica de Masitaprex. La potencia que tu proyecto necesita." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://masitaprex.com/api-key" />
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
+    <meta property="og:image:width" content="128" />
+    <meta property="og:image:height" content="128" />
+
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        
+        :root {
+            /* ====== NUEVA PALETA (NEÓN DARK GLASS) ====== */
+            --bg1: #070A12;               /* Azul muy oscuro, casi negro */
+            --bg2: #0B1230;               /* Azul noche oscuro */
+            --glass: rgba(255,255,255,.06);
+            --glass2: rgba(255,255,255,.10);
+
+            --ink: #EAF0FF;               /* Blanco azulado muy claro */
+            --muted: rgba(234,240,255,.72);
+
+            --pink: #FF3D8D;
+            --ind: #6D5BFF;
+            --cyan: #35D5FF;
+            --ok: #16e1a4;
+            --warn: #ffb020;
+
+            /* NUEVO: rojo para reemplazar rosado oscuro (mayor visibilidad) */
+            --danger: #FF1F3D;
+
+            --line: rgba(255,255,255,.14);
+            --shadow: 0 24px 80px rgba(0,0,0,.55);
+
+            /* ====== MAPEOS A VARIABLES EXISTENTES (para no tocar funcionamiento) ====== */
+            --bg: linear-gradient(180deg, var(--bg2), var(--bg1)); /* Se reemplaza por galaxia 3D animada abajo (canvas), manteniendo ancho/estructura */
+            --card: rgba(255,255,255,.06);        /* glass */
+            --pill: rgba(255,255,255,.10);        /* glass2 */
+            --accent: var(--cyan);
+            --secondary: var(--ok);
+
+            --radius: 18px;
+            --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+        }
+
+        * { box-sizing: border-box; }
+
+        /* AUMENTO LIGERO DE TAMAÑO DE TEXTO (global) */
+        html { font-size: 106.25%; } /* ~17px base en la mayoría de navegadores */
+        
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-family);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            user-select: none;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ===== Fondo galaxia 3D animado (APIs / movimiento vivo) ===== */
+        /* Mantiene el mismo ancho/estructura: se pone en layer fijo detrás de todo */
+        #galaxy-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            display: block;
+            background: radial-gradient(1200px 600px at 20% -10%, rgba(109,91,255,.22), transparent 55%),
+                        radial-gradient(900px 500px at 90% 10%, rgba(255,31,61,.16), transparent 55%),
+                        radial-gradient(900px 500px at 60% 110%, rgba(53,213,255,.14), transparent 55%),
+                        linear-gradient(180deg, var(--bg2), var(--bg1));
+        }
+        /* Una capa sutil para dar "glass" y profundidad */
+        .galaxy-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background:
+                radial-gradient(800px 400px at 30% 20%, rgba(53,213,255,.08), transparent 60%),
+                radial-gradient(900px 500px at 80% 60%, rgba(109,91,255,.08), transparent 60%),
+                radial-gradient(1000px 600px at 60% 100%, rgba(255,31,61,.05), transparent 60%);
+            mix-blend-mode: screen;
+        }
+
+        /* ===== Tailwind helper overrides (solo color, sin cambiar estructura) ===== */
+        .bg-white { background-color: rgba(255,255,255,.06) !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        .border-gray-100 { border-color: var(--line) !important; }
+        .text-gray-500 { color: var(--muted) !important; }
+        .text-gray-800 { color: var(--ink) !important; }
+        .hover\:bg-gray-50:hover { background-color: rgba(255,255,255,.06) !important; }
+        .active\:bg-gray-100:active { background-color: rgba(255,255,255,.10) !important; }
+        .bg-gray-50 { background-color: rgba(255,255,255,.06) !important; }
+        .bg-black\/50 { background-color: rgba(0,0,0,.55) !important; }
+        /* Rosado oscuro -> ROJO (visible) */
+        .border-red-600 { border-color: var(--danger) !important; }
+
+        /* ===== CABECERA (Header) ===== */
+        header {
+            box-shadow: 0 10px 40px rgba(0,0,0,.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        /* ===== ESTILOS DEL MENÚ LATERAL COMPLETO (UNIFICADOS) ===== */
+        /* Overlay para el menú lateral */
+        #sidebar-overlay { 
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: none;
+        }
+
+        #sidebar-overlay.opacity-100 {
+            opacity: 1;
+        }
+
+        #sidebar-overlay.hidden {
+            display: none;
+        }
+
+        /* Menú lateral principal */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 288px; /* w-72 = 288px */
+            background: #000 !important; /* Fondo negro puro */
+            color: #FFFFFF;
+            z-index: 60;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Encabezado del sidebar */
+        .sidebar-header-bg {
+            padding: 40px 24px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* Contenedor del icono del sidebar */
+        .sidebar-header-bg > div:first-child {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-header-bg h1, .sidebar-header-bg h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #FFFFFF !important;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Decoración SVG en el encabezado */
+        .sidebar-header-bg > div:last-child {
+            position: absolute;
+            top: 16px; /* top-4 = 16px */
+            left: 16px; /* left-4 = 16px */
+            opacity: 0.3;
+        }
+
+        /* Opciones del menú */
+        #sidebar nav {
+            padding: 16px 0;
+            flex-grow: 1;
+        }
+
+        #sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            margin-bottom: 2px;
+        }
+
+        #sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+        }
+
+        #sidebar nav a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+            font-weight: 600;
+        }
+
+        /* Iconos del menú */
+        #sidebar nav i {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        /* Separación para el botón de cerrar sesión */
+        #sidebar nav a:last-child {
+            margin-top: 48px; /* Aumentado de 32px a 48px para mayor distinción */
+        }
+
+        /* Estilos para el texto del menú */
+        #sidebar nav span {
+            font-size: 1.125rem; /* text-lg = 18px */
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 640px) {
+            #sidebar {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sidebar {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Ajustes para scrollbar en navegadores WebKit */#sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(109, 91, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(109, 91, 255, 0.7);
+        }
+
+        /* Estilo para los iconos de la cabecera para que sean legibles y grandes */
+        .header-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+            color: var(--ink);
+        }
+
+        /* Banner de compartir (SE MANTIENE INTACTO su color actual) */  
+        .banner {  
+            width: 100%;  
+            max-width: 500px;
+            background: linear-gradient(to right, #00264D, #003366);  
+            color: #FFFFFF;  
+            position: fixed;  
+            bottom: 0;  
+            left: 50%;  
+            transform: translateX(-50%);  
+            padding: 30px;  
+            border-top-left-radius: 15px;  
+            border-top-right-radius: 15px;  
+            box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+            display: none;
+            flex-direction: column;  
+            align-items: center;  
+            text-align: center;  
+            z-index: 9999;  
+        }  
+
+        .banner-title {  
+            font-size: 24px;  
+            font-weight: bold;  
+            margin-bottom: 15px;  
+            color: #FF00FF;  
+        }  
+
+        .banner-description {  
+            font-size: 18px;  
+            line-height: 1.8;  
+            color: #FFFFFF;  
+            margin-bottom: 20px;  
+        }  
+
+        /* Botones del banner */  
+        .cta-button, .close-modal {  
+            width: 100%;  
+            padding: 16px;  
+            text-align: center;  
+            text-decoration: none;  
+            border-radius: 25px;  
+            font-size: 18px;  
+            font-weight: bold;  
+            margin-bottom: 12px;  
+            cursor: pointer;  
+            transition: transform 0.2s ease-in-out;  
+        }  
+
+        .cta-button {  
+            background: linear-gradient(to right, #2ECC71, #66CC99);  
+            color: white;  
+        }  
+
+        .cta-button:hover { transform: scale(1.08); }  
+
+        .close-modal {  
+            background-color: red;  
+            color: #FFFFFF;  
+        }  
+
+        .close-modal:hover {  
+            background-color: darkred;  
+            transform: scale(1.08);  
+        }  
+
+        .banner-icon {  
+            margin-right: 8px;  
+            color: #FF00FF;  
+        }
+
+        /* ===== INTERFAZ API KEY ===== */
+        .wrap {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 18px;
+        }
+
+        h2, h3 { margin: 0; font-weight: 700; }
+        .text-center { text-align: center; }
+        .text-accent { color: var(--accent); }
+        .text-secondary { color: var(--secondary); }
+        .font-bold { font-weight: 700; }
+        .mb-4 { margin-bottom: 16px; }
+
+        /* Loading Spinner */
+        #loading-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg);
+            z-index: 9999;
+            display: none;
+        }
+
+        .dots-loader { display: flex; justify-content: space-between; width: 80px; }
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--pink), var(--ind), var(--cyan));
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1.0); opacity: 1; }
+        }
+
+        /* Contenedores con borde degradado (nuevo gradiente neón) */
+        .gradient-border { position: relative; z-index: 1; }
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+        }
+
+        /* Tarjeta principal de perfil */
+        .profile-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .profile-header { display: flex; align-items: center; gap: 12px; }
+        .profile-header .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 999px;
+            background: var(--pill);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid var(--secondary);
+        }
+        .profile-header img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-header h2 { font-size: 20px; color: var(--ink); }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            border-top: 1px solid var(--line);
+            padding-top: 16px;
+        }
+
+        .stat-item { display: flex; flex-direction: column; gap: 4px; }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--cyan);
+            text-shadow: 0 0 18px rgba(53,213,255,.25);
+        }
+        .stat-label { font-size: 13px; color: var(--muted); }
+
+        .section-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 18px;
+            margin-top: 18px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .section-header h3 { font-size: 18px; color: var(--ink); }
+
+        /* Botón principal: Gradiente pink -> ind (pedido) */
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--danger), var(--ind));
+            color: #fff;
+            border: none;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 14px 40px rgba(109,91,255,.18), 0 10px 30px rgba(255,31,61,.18);
+            transition: transform 0.1s ease, filter .2s ease;
+            cursor: pointer;
+        }
+        .btn-primary:hover { filter: brightness(1.05); }
+        .btn-primary:active { transform: scale(0.99); }
+
+        .input-group { position: relative; }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.08);
+            border: 1px solid var(--line);
+            color: var(--ink);
+            font-size: 14px;
+            font-weight: 600;
+            text-overflow: ellipsis;
+            outline: none;
+        }
+        .input-group input::placeholder { color: rgba(234,240,255,.45); }
+
+        .input-group .copy-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--cyan);
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px;
+        }
+
+        .btn-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(53,213,255,.45);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-top: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s ease, border-color .2s ease, transform .1s ease;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,.10); border-color: rgba(255,31,61,.45); }
+        .btn-secondary:active { transform: scale(0.99); }
+        .btn-secondary i { font-size: 1.2em; }
+
+        .info-section {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 18px;
+            margin-top: 18px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .info-section h3 { font-size: 18px; color: var(--ink); }
+
+        .info-section p, .info-section ul, .info-section li, .info-section div {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-item i {
+            font-size: 20px;
+            color: var(--cyan);
+            padding-top: 2px;
+        }
+        
+        /* Contenedores de texto con icono */
+        .text-container {
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--line);
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Títulos y énfasis: gradiente cyan -> ind -> rojo (visibilidad) */
+        .text-container-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .text-container-header i { color: var(--warn); font-size: 20px; }
+
+        .text-container p { margin: 0; font-size: 14px; color: var(--ink); }
+        .text-container strong { color: var(--cyan); }
+
+        /* Tabla */
+        .credit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .credit-table th, .credit-table td { padding: 10px 12px; text-align: left; font-size: 13px; }
+        .credit-table thead th {
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 12px;
+            position: sticky;
+            top: 0;
+            background: rgba(0,0,0,.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 10;
+        }
+        .credit-table tbody tr {
+            background: rgba(255,255,255,.06);
+            border-radius: 12px;
+            overflow: hidden;
+            font-weight: 600;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+        .credit-table tbody tr:nth-child(even) { background: rgba(255,255,255,.08); }
+        .credit-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .credit-table td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+            text-align: right;
+            color: var(--cyan);
+            font-weight: 800;
+        }
+
+        .table-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(0,0,0,.18);
+        }
+        
+        /* Card de recomendación */
+        .api-recommendation {
+            background: linear-gradient(135deg, rgba(53,213,255,.22) 0%, rgba(109,91,255,.22) 55%, rgba(255,31,61,.20) 100%);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 18px;
+            color: var(--ink);
+            box-shadow: var(--shadow);
+            margin-top: 18px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .api-recommendation h4 {
+            font-size: 16px;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .api-recommendation code {
+            display: block;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--line);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow-x: auto;
+            color: var(--ink);
+        }
+        .api-recommendation p { font-size: 14px; margin: 0; color: var(--muted); }
+        .api-recommendation strong { color: var(--warn); }
+
+        /* Lista de ventajas */
+        .advantage-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 10px;
+        }
+        .advantage-list li {
+            font-size: 14px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .advantage-list li i { color: var(--ok); font-size: 20px; }
+        
+        /* Paquetes Disponibles */
+        .package-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .package-grid a { text-decoration: none; color: inherit; }
+        
+        .package-card {
+            background: rgba(255,255,255,.06);
+            border-radius: 12px;
+            padding:  12px;
+            text-align: center;
+            border: 1px solid var(--line);
+            transition: border-color 0.2s ease, background 0.2s ease, transform .12s ease;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .package-grid a:hover .package-card {
+            background: rgba(255,255,255,.10);
+            border-color: rgba(53,213,255,.6);
+            transform: translateY(-1px);
+        }
+        
+        .package-grid a:nth-child(3) .package-card { 
+            border-color: rgba(22,225,164,.9); 
+            background: rgba(22,225,164,.10); 
+        }
+        .package-grid a:nth-child(3):hover .package-card { 
+            background: rgba(22,225,164,.14);
+            border-color: rgba(22,225,164,1);
+        }
+
+        .package-card .amount {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--cyan);
+            margin-bottom: 4px;
+        }
+        .package-card .credits {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--ink);
+        }
+        .package-card .benefit {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .package-grid a:last-child { grid-column: span 2; }
+        
+        /* Tabla de Planes Ilimitados */
+        .unlimited-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+        }
+        .unlimited-table th, .unlimited-table td {
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .unlimited-table thead th {
+            background: rgba(255,255,255,.06);
+            color: var(--ink);
+            font-weight: 800;
+        }
+        .unlimited-table tbody td {
+            border-bottom: 1px solid var(--line);
+            font-weight: 500;
+            color: var(--muted);
+        }
+        .unlimited-table tbody tr:last-child td { border-bottom: none; }
+        .unlimited-table .price { font-weight: 900; color: var(--cyan); }
+        .unlimited-table .saving { color: var(--warn); font-weight: 800; }
+        
+        .quote {
+            background: linear-gradient(90deg, rgba(53,213,255,.10), rgba(109,91,255,.10), rgba(255,31,61,.08));
+            border-left: 5px solid var(--ok);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-style: italic;
+            font-size: 16px;
+            color: var(--ink);
+            font-weight: 600;
+            border: 1px solid var(--line);
+        }
+        .quote i { color: var(--ok); margin-right: 5px; }
+
+        /* Modal (NO el banner; este modal es el de feedback) */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal.active { display: flex; opacity: 1; }
+
+        .modal-content {
+            background-color: rgba(0,0,0,.55);
+            color: var(--ink);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            min-width: 250px;
+            border: 1px solid var(--line);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+
+        .modal-content.success { border: 2px solid rgba(22,225,164,.8); }
+        .modal-content.error { border: 2px solid rgba(255,31,61,.9); }
+
+        /* Footer: negro puro con texto blanco (pedido) */
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            background: transparent; /* Fondo transparente */
+            border-top: 1px solid var(--line);
+            border-radius: 16px;
+        }
+        
+        footer h3 { font-size: 16px; margin-bottom: 10px; color: var(--ink); }
+        footer p { font-size: 12px; color: rgba(234,240,255,.78); margin-bottom: 8px; }
+        
+        /* ENLACES AZULES - NUEVO ESTILO */
+        footer a,
+        .info-section a,
+        .text-container a,
+        .section-card a:not(.btn-primary):not(.btn-secondary),
+        .info-section a:not(.btn-primary) {
+            color: #35D5FF !important; /* Color azul para enlaces */
+            text-decoration: none;
+            margin: 0 5px;
+            transition: color 0.3s ease;
+        }
+        footer a:hover,
+        .info-section a:hover,
+        .text-container a:hover,
+        .section-card a:not(.btn-primary):not(.btn-secondary):hover,
+        .info-section a:not(.btn-primary):hover {
+            color: #6D5BFF !important; /* Color diferente al pasar el mouse */
+            text-decoration: underline;
+        }
+
+        .social-icons a {
+            font-size: 24px;
+            color: rgba(234,240,255,.78);
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover { color: var(--cyan); }
+        
+        .mb-2 { margin-bottom: 8px; }
+
+        /* WhatsApp Bubble (se mantiene verde, no es parte de la paleta principal) */
+        .chat-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 1s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        .chat-bubble:hover { background: linear-gradient(45deg, #128C7E, #25D366); }
+
+        .chat-text {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: linear-gradient(45deg, #25D366, #128C7E);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 15px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            white-space: nowrap;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 1001;
+            cursor: pointer;
+        }
+
+        .chat-text.show { opacity: 1; transform: scale(1); }
+        .chat-text.hide { opacity: 0; transform: scale(0.9); }
+
+        /* Ajustes puntuales de textos en línea que estaban en #111 (para tema oscuro) */
+        /* Nota: Solo color, sin tocar contenido */
+        code.font-bold { color: var(--ink); }
+
+        /* ESTILOS PARA TEXTO LEGAL */
+        .legal-warning {
+            background: rgba(255, 31, 61, 0.08);
+            border: 1px solid rgba(255, 31, 61, 0.3);
+            border-left: 4px solid var(--danger);
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .legal-warning .warning-title {
+            color: var(--danger);
+            font-weight: 800;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legal-warning .warning-content {
+            color: var(--ink);
+        }
+
+        .legal-warning .emphasis-red {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .legal-warning a {
+            color: var(--danger) !important;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .legal-warning a:hover {
+            color: #ff4d6a !important;
+        }
+
+        /* Texto centrado en cabecera */
+        .header-center-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
+
+    <!-- Fondo galaxia animado -->
+    <canvas id="galaxy-bg" aria-hidden="true"></canvas>
+    <div class="galaxy-overlay" aria-hidden="true"></div>
+
+    <!-- CABECERA (Header) -->
+    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16" style="background-color: #000000;">
+        <div class="flex items-center gap-3">
+            <!-- Icono de menú -->
+            <button id="menu-toggle" class="p-1 active:bg-gray-700 rounded-full transition-colors">
+                <i data-lucide="menu" class="header-icon"></i>
+            </button>
+        </div>
+        
+        <!-- Texto centrado en la cabecera -->
+        <div class="flex-1 text-center">
+            <h1 class="text-xl font-bold" style="color: #ffffff;">Developer Masitaprex</h1>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <!-- Icono Perfil - Ahora lleva a actividad -->
+            <button id="profile-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
+                <i data-lucide="user" class="header-icon"></i>
+            </button>
+            <!-- Icono Compartir - Ahora abre el modal -->
+            <button id="share-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
+                <i data-lucide="share-2" class="header-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MENU LATERAL (Sidebar) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
+    
+    <aside id="sidebar">
+        <!-- Encabezado Sidebar -->
+        <div class="sidebar-header-bg">
+            <!-- Contenedor del icono -->
+            <div>
+               
+    <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono masitaprex">
+            </div>
+            <h1>masitaprex</h1>
+        </div>
+
+        <!-- Opciones del Menú Actualizadas -->
+        <nav>
+            <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
+            <a href="home" class="menu-item">
+    <i data-lucide="layout-dashboard" class="menu-icon"></i>
+    <span class="text-lg">Inicio</span>
+</a>
+            
+<a href="api-key" class="menu-item active">
+    <i data-lucide="terminal-square" class="menu-icon"></i>
+    <span class="text-lg">  API Key</span>
+</a>
+            
+<a href="planes" class="menu-item">
+    <i data-lucide="credit-card" class="menu-icon"></i>
+    <span class="text-lg">  Recargar</span>
+</a>
+
+<a href="API-Docs" class="menu-item">
+    <i data-lucide="file-code-2" class="menu-icon"></i>
+    <span class="text-lg">  Documentación APIs</span>
+</a>
+
+<a href="PeliPREX" class="menu-item">
+    <i data-lucide="clapperboard" class="menu-icon"></i>
+    <span class="text-lg">  PeliPREX HD gratis</span>
+</a>
+
+<a href="#" id="logout-btn" class="menu-item">
+    <i data-lucide="log-out" class="menu-icon"></i>
+    <span class="text-lg">  Cerrar sesión</span>
+</a>
+        </nav>
+    </aside>
+
+    <!-- MODAL DE COMPARTIR -->
+    <div class="banner" id="banner">  
+        <div class="banner-title"><i class="fas fa-heart banner-icon"></i> 🤭 ¡Pequeño favorcito!</div>  
+        <div class="banner-description">  
+            <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+            <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+        </div>  
+        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt banner-icon"></i> Compartir ahora</a>  
+        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times banner-icon"></i> Quizás más tarde</a>  
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL DE API KEY -->
+    <div id="loading-indicator">
+        <div class="dots-loader">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </div>
+    
+    <div class="wrap" id="profile-container" style="display: none;">
+        
+        <div class="profile-card gradient-border">
+            <div class="profile-header">
+                <div class="avatar">
+                    <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
+                </div>
+                <div>
+                    <h2>Hola, <span id="userName"></span></h2>
+                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a Consulta PE V3.!</p>
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item" id="infoCreditos">
+                    <span class="stat-value" id="creditos">0</span>
+                    <span class="stat-label">Créditos Restantes</span>
+                </div>
+                <div class="stat-item" id="infoIlimitado" style="display:none;">
+                    <span class="stat-value" id="diasRestantes">0</span>
+                    <span class="stat-label">Días restantes (Ilimitado)</span>
+                    <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
+                </div>
+            </div>
+            <a href="planes" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
+        </div>
+
+        <div class="section-card gradient-border">
+            <h3>Tu Token de Acceso</h3>
+            <p style="font-size:14px;color:var(--muted);">
+                Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica.
+            </p>
+            <div class="input-group">
+                <input type="text" id="api-key-field" readonly />
+                <button class="copy-btn" onclick="copyApiKey()" title="Copiar Token">
+                    <i class="ri-file-copy-line"></i>
+                </button>
+            </div>
+            <button class="btn-secondary" onclick="generateNewApiKey()">
+                <i class="ri-refresh-line"></i> Generar Nuevo Token
+            </button>
+            <a href="API-Docs" target="_blank" class="btn-secondary">
+                <i class="ri-book-3-line"></i> Ver documentación
+            </a>
+        </div>
+
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-sparkling-2-line text-secondary"></i>
+                ¡Felicidades por elegir Consulta PE! 🚀
+            </div>
+            <p class="font-bold" style="color:var(--ink);">
+                Has tomado una de las mejores decisiones para tu proyecto.
+            </p>
+            <p>
+                Aquí encontrarás <strong>11 servicios de Infraestructura tecnológica listos para integrar</strong>, limpios, estables y con soporte constante.
+                Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
+            </p>
+            
+            <!-- NUEVO AVISO LEGAL -->
+            <div class="legal-warning">
+                <div class="warning-title">
+                    ⚠️ Aviso Importante
+                </div>
+                <div class="warning-content">
+                    Somos un <span class="emphasis-red">intermediario tecnológico</span> que facilita el acceso a la información. 
+                    <span class="emphasis-red">No somos los custodios, propietarios ni responsables directos de las APIs</span> de las entidades públicas o privadas. 
+                    Consulta nuestro <a href="disclaimer-apis">Aviso Legal y Descargo de Responsabilidad</a>.
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-lightbulb-line" style="color: var(--warn);"></i>
+                💡 Sobre el Consumo de Créditos
+            </div>
+            <p>
+                Recuerda que cada servicio de Infraestructura tecnológica tiene su propio consumo de créditos.
+            </p>
+            <p class="font-bold" style="color:var(--cyan);">
+                👉 El consumo dentro de las interfaces de la app Consulta PE puede ser diferente al consumo directo por Infraestructura tecnológica.
+            </p>
+            <div class="text-container" style="background: rgba(53,213,255,.08); border-color: rgba(53,213,255,.25);">
+                <div class="text-container-header" style="color: transparent;">
+                    Recomendación para rentabilidad:
+                </div>
+                <p style="color:var(--ink);">
+                    Si vas a integrar los servicios de Infraestructura tecnológica en tu propio proyecto o servicio (por ejemplo, un sistema tipo Consulta PE donde otros usuarios realicen consultas), te recomendamos <strong>ajustar el consumo ligeramente para generar ganancias</strong>.
+                </p>
+                <p style="color:var(--ink);">
+                    Por ejemplo: Si un servicio consume <strong>10 créditos</strong>, puedes configurarlo en tu proyecto para que consuma <strong>12 o 13 créditos</strong>. De esta manera ganas por cada consulta y aseguras la sostenibilidad de tu sistema.
+                </p>
+            </div>
+        </div>
+
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-database-line text-accent"></i>
+                💳 Tabla de Créditos por Servicio de Infraestructura tecnológica (<strong>11 servicios</strong>)
+            </div>
+            <div class="table-scroll">
+                <table class="credit-table">
+                    <thead>
+                        <tr>
+                            <th>🔧 Servicio de Infraestructura tecnológica</th>
+                            <th>💰 Créditos</th>
+                            <th>📝 Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Consulta RENIEC por DNI</strong></td>
+                            <td>7</td>
+                            <td>Infraestructura tecnológica para acceso a datos básicos de identificación</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Telefonía por Documento</strong></td>
+                            <td>9</td>
+                            <td>Procesamiento de consultas a registros telefónicos por documento</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Telefonía por Número</strong></td>
+                            <td>8</td>
+                            <td>Servicio de consulta inversa de titularidad telefónica</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td>
+                            <td>8</td>
+                            <td>Infraestructura tecnológica para consulta de registros vehiculares</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SUNAT por RUC</strong></td>
+                            <td>6</td>
+                            <td>Procesamiento de datos fiscales empresariales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SUNAT por Razón Social</strong></td>
+                            <td>5</td>
+                            <td>Servicio de búsqueda empresarial por nombre</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Empresas donde figura la persona</strong></td>
+                            <td>4</td>
+                            <td>Infraestructura tecnológica para consulta de vinculaciones empresariales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Matrimonios Registrados</strong></td>
+                            <td>6</td>
+                            <td>Procesamiento de registros de estado civil</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Buscar DNI por Nombres y Apellidos</strong></td>
+                            <td>5</td>
+                            <td>Servicio de búsqueda inversa por datos nominales</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Buscar Venezolanos por Nombres</strong></td>
+                            <td>5</td>
+                            <td>Infraestructura tecnológica para consultas de personas venezolanas</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consulta por Cédula Venezolana</strong></td>
+                            <td>5</td>
+                            <td>Procesamiento de consultas por documento venezolano</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--muted);">
+                                <strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, 
+                                procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+       <div class="api-recommendation">  
+            <h4><i class="ri-tools-line"></i> ⚙️ Infraestructura tecnológica Optimizada</h4>  
+            <p>Accede a servicios de datos mediante nuestra Infraestructura tecnológica segura y eficiente.</p>  
+            <p>Centraliza tus consultas desde una sola plataforma confiable.</p>  
+            <code>URL Base: https://api.masitaprex.com/</code>  
+            <p>Soluciones ligeras, rápidas y listas para integrarse en tus sistemas.</p>  
+            <p>💡 Diseñado para desarrolladores que buscan rendimiento y simplicidad.</p>  
+        </div>
+        
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-rocket-line text-accent"></i>
+                🧩 11 Servicios de Infraestructura tecnológica Listos para Ti
+            </div>
+            <p>
+                Todos nuestros servicios están <strong>listos para consumir</strong>, probados y optimizados para máxima eficiencia.
+            </p>
+            <p>
+                Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong>no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
+            </p>
+        </div>
+
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-money-dollar-circle-line" style="color: var(--ok);"></i>
+                💰 Paquetes Disponibles
+            </div>
+            <div class="package-grid">
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
+                    <div class="package-card">
+                        <div class="amount">S/10</div>
+                        <div class="credits">60 ⚡ CRÉDITOS</div>
+                        <div class="benefit">Ideal para pruebas o proyectos pequeños</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
+                    <div class="package-card">
+                        <div class="amount">S/20</div>
+                        <div class="credits">125 🚀 CRÉDITOS</div>
+                        <div class="benefit">Buen equilibrio entre costo y rendimiento</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
+                    <div class="package-card" style="border-color: rgba(22,225,164,1);">
+                        <div class="amount">S/50</div>
+                        <div class="credits">330 💎 CRÉDITOS</div>
+                        <div class="benefit font-bold" style="color: rgba(22,225,164,1);">Opción inteligente y más rentable</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
+                    <div class="package-card">
+                        <div class="amount">S/100</div>
+                        <div class="credits">700 👑 CRÉDITOS</div>
+                        <div class="benefit">Plan avanzado con excelente retorno</div>
+                    </div>
+                </a>
+                
+                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
+                    <div class="package-card" style="grid-column: span 2;">
+                        <div class="amount">S/200</div>
+                        <div class="credits">1500 🔥 CRÉDITOS</div>
+                        <div class="benefit font-bold" style="color: var(--warn);">La mejor relación costo-beneficio</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-line-chart-line text-accent"></i>
+                📊 Comparativa de Ahorro por Paquete
+            </div>
+            <p>
+                Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong>
+            </p>
+            <p>
+                Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="text-secondary font-bold">💰 13% de ahorro</span>
+            </p>
+            <p>
+                Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color: var(--warn);" class="font-bold">🔥 24% de ahorro</span>
+            </p>
+            <p class="font-bold" style="color:var(--cyan);">
+                👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.
+            </p>
+        </div>
+        
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-award-line" style="color: var(--warn);"></i>
+                💎 Comparativa de Paquetes y Ahorro
+            </div>
+            <p class="font-bold" style="color: var(--ink);">
+                🎯 Recomendación principal:
+                Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.
+            </p>
+            <p>
+                Pagas menos por cada crédito, obtienes más consultas por el mismo dinero,
+                y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.
+            </p>
+
+            <div class="text-container-header" style="margin-top: 10px;">
+                <i class="ri-checkbox-circle-line text-secondary"></i>
+                ✨ Ventajas exclusivas
+            </div>
+            <ul class="advantage-list">
+                <li><i class="ri-check-line"></i> Tus créditos <strong>jamás caducan</strong>.</li>
+                <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
+                <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
+                <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios de Infraestructura tecnológica y soporte técnico directo.</li>
+            </ul>
+            <p class="font-bold text-center" style="margin-top: 15px; color: var(--ink);">
+                💬 En pocas palabras:
+                Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.
+            </p>
+            <p class="font-bold text-center" style="color:var(--warn); font-size: 18px;">
+                🔥 Consulta PE premia a los desarrolladores inteligentes.
+            </p>
+        </div>
+
+        <div class="section-card gradient-border">
+            <div class="text-container-header">
+                <i class="ri-global-line text-accent"></i>
+                🌐 Planes Ilimitados (para proyectos con alto tráfico)
+            </div>
+            <p>
+                Si tu app ya tiene muchos usuarios o tráfico constante,
+                el <strong>plan ilimitado</strong> es una excelente opción.
+            </p>
+            <table class="unlimited-table">
+                <thead>
+                    <tr>
+                        <th>DURACIÓN</th>
+                        <th>PRECIO SUGERIDO</th>
+                        <th>AHORRO ESTIMADO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
+                    <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
+                    <tr><td>1 mes</td><td class="price">S/120</td><td>Ahorro S/20</td></tr>
+                    <tr><td>1 mes y medio</td><td class="price">S/165</td><td>Ahorro S/30</td></tr>
+                    <tr><td>2 meses</td><td class="price">S/210</td><td class="saving">Ahorro S/50</td></tr>
+                    <tr><td>2 meses y medio</td><td class="price">S/300</td><td>Ahorro S/37</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-section gradient-border">
+            <div class="text-container-header">
+                <i class="ri-emotion-line text-secondary"></i>
+                ✨ Conclusión:
+            </div>
+            <p>
+                Consulta PE te brinda una <strong>experiencia completa, rentable y confiable</strong> al actuar como <strong>Infraestructura tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer.
+                Queremos que disfrutes cada integración, que sientas que tu proyecto avanza,
+                y que digas con orgullo:
+            </p>
+            <blockquote class="quote">
+                Elegí Consulta PE… y fue la mejor decisión. 💚
+            </blockquote>
+        </div>
+
+        <div class="info-section gradient-border">
+            <h3>Preguntas Frecuentes (FAQ)</h3>
+            <p><strong>1. ¿Tengo que recargar aparte para consultar en la app y aparte para la Infraestructura tecnológica?</strong><br>No, crack. Compras tus créditos desde 10 soles y se cargan a tu cuenta. Es un solo saldo, que sirve tanto para la app como para el acceso a nuestros servicios de Infraestructura tecnológica.</p>
+            <p><strong>2. ¿Ofrecen planes ilimitados?</strong><br>Sí, tenemos planes ilimitados… pero ojo: la mayoría de nuestros usuarios prefiere los créditos porque así pagan solo por lo que realmente usan.</p>
+            <p><strong>3. Métodos de pago (compra de créditos)</strong><br>Aquí pagas como VIP: Yape, Lemon Cash, Bim, PayPal o depósito directo. ¿No tienes ninguno? No hay excusa: puedes pagar en una farmacia o en un agente bancario.</p>
+            <p><strong>4. ¿Puedo compartir mi API Key?</strong><br>Claro, si quieres quedarte sin créditos más rápido que un celular con Candy Crush.</p>
+            <p><strong>5. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios de Infraestructura tecnológica con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.</p>
+        </div>
+        
+        <footer>
+            <h3>Síguenos en nuestras redes sociales</h3>
+            <div class="social-icons">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-square"></i></a>
+                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube"><i class="fab fa-youtube-square"></i></a>
+            </div>
+            <p class="mb-2">Consulta PE © 2024 - Todos los derechos reservados</p>
+            <p class="mb-2">
+                <a href="terminos-condiciones">Términos y condiciones</a> |
+                <a href="politica-privacidad">Política de privacidad</a> |
+                <a href="aviso-legal-peliprex">Aviso legal peliPREX</a> |
+                <a href="disclaimer-apis">Aviso legal apis</a> |
+                <a href="disclaimer-apis">Descargo de responsabilidad</a>
+            </p>
+            <p>Esta aplicación utiliza servicios de Infraestructura tecnológica para facilitar el acceso a información pública. <strong>No somos los propietarios, custodios ni responsables directos de la información o de los servicios de las entidades de origen.</strong></p>
+        </footer>
+
+    </div>
+
+    <div id="saveConfirmModal" class="modal">
+        <div class="modal-content gradient-border">
+            <p id="saveConfirmMessage"></p>
+        </div>
+    </div>
+
+    <!-- WhatsApp Bubble -->
+    <div class="chat-bubble" onclick="goToWhatsApp()">
+        <div class="icon">
+            <i class="fab fa-whatsapp"></i>
+        </div>
+    </div>
+
+    <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
+
+    <script>
+        // ===== SCRIPTS DEL MENÚ LATERAL Y CABECERA =====
+        // Inicializar iconos de Lucide
+        lucide.createIcons();
+
+        // Control del menú lateral
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function toggleMenu() {
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+            } else {
+                overlay.classList.remove('opacity-100');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('open')) {
+                        overlay.classList.add('hidden');
+                        overlay.style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // Cerrar menú al hacer click en un enlace (excepto cerrar sesión)
+        const navLinks = sidebar.querySelectorAll('nav a:not(#logout-btn)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                toggleMenu();
+            });
+        });
+
+        // Botón de compartir - abre el modal (NO automáticamente)
+        document.getElementById('profile-btn').addEventListener('click', function() { window.location.href = 'actividad.html'; });
+        document.getElementById('share-btn').addEventListener('click', function() {
+            document.getElementById('banner').style.display = 'flex';
+        });
+
+        // Funciones para el modal de compartir
+        function sharePage() {  
+            const url = "https://masitaprexv3.fly.dev/";  
+            const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
+            const text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
+
+            if (navigator.share) {  
+                navigator.share({ title, text, url })  
+                    .catch(error => console.log("Error al compartir:", error));  
+            } else {  
+                window.open(url, "_blank");  
+            }  
+        }  
+
+        function closeBanner() {  
+            document.getElementById('banner').style.display = 'none';  
+        }
+
+        /* ===== Fondo galaxia: partículas + parallax suave ===== */
+        (function () {
+            const canvas = document.getElementById('galaxy-bg');
+            const ctx = canvas.getContext('2d', { alpha: true });
+
+            let w = 0, h = 0, dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            const stars = [];
+            const STAR_COUNT = 180;      // ligero (apto móvil)
+            const NEBULA_COUNT = 18;
+            let mouseX = 0.5, mouseY = 0.5;
+
+            function resize() {
+                w = canvas.clientWidth;
+                h = canvas.clientHeight;
+                canvas.width = Math.floor(w * dpr);
+                canvas.height = Math.floor(h * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            function rand(min, max) { return Math.random() * (max - min) + min; }
+
+            function init() {
+                stars.length = 0;
+
+                // Estrellas
+                for (let i = 0; i < STAR_COUNT; i++) {
+                    stars.push({
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        z: Math.random(),             // profundidad
+                        r: rand(0.6, 1.8),
+                        tw: rand(0.002, 0.01),
+                        a: rand(0.15, 0.9),
+                        hue: rand(190, 280)
+                    });
+                }
+
+                // Nebulosas (burbujas difusas)
+                for (let i = 0; i < NEBULA_COUNT; i++) {
+                    stars.push({
+                        nebula: true,
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        z: rand(0.15, 0.9),
+                        r: rand(120, 260),
+                        a: rand(0.03, 0.10),
+                        hue: rand(190, 320),
+                        driftX: rand(-0.06, 0.06),
+                        driftY: rand(-0.05, 0.05)
+                    });
+                }
+            }
+
+            function drawBackground() {
+                // Fondo base (oscuro)
+                const g = ctx.createLinearGradient(0, 0, 0, h);
+                g.addColorStop(0, '#050710');
+                g.addColorStop(1, '#070A12');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, w, h);
+
+                // Vignette
+                const v = ctx.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.1, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
+                v.addColorStop(0, 'rgba(0,0,0,0)');
+                v.addColorStop(1, 'rgba(0,0,0,0.55)');
+                ctx.fillStyle = v;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            let t = 0;
+            function render() {
+                t += 1;
+                drawBackground();
+
+                // Parallax suave
+                const px = (mouseX - 0.5) * 18;
+                const py = (mouseY - 0.5) * 12;
+
+                // Dibujar nebulosas y estrellas
+                for (const s of stars) {
+                    if (s.nebula) {
+                        s.x += s.driftX;
+                        s.y += s.driftY;
+                        if (s.x < -s.r) s.x = w + s.r;
+                        if (s.x > w + s.r) s.x = -s.r;
+                        if (s.y < -s.r) s.y = h + s.r;
+                        if (s.y > h + s.r) s.y = -s.r;
+
+                        const nx = s.x + px * s.z;
+                        const ny = s.y + py * s.z;
+                        const rg = ctx.createRadialGradient(nx, ny, 0, nx, ny, s.r);
+                        rg.addColorStop(0, `hsla(${s.hue}, 95%, 70%, ${s.a})`);
+                        rg.addColorStop(1, 'rgba(0,0,0,0)');
+                        ctx.fillStyle = rg;
+                        ctx.beginPath();
+                        ctx.arc(nx, ny, s.r, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else {
+                        // Twinkle
+                        s.a += Math.sin((t * s.tw) + s.x * 0.01) * 0.004;
+                        s.a = Math.max(0.08, Math.min(0.95, s.a));
+
+                        const sx = s.x + px * s.z;
+                        const sy = s.y + py * s.z;
+
+                        ctx.fillStyle = `hsla(${s.hue}, 90%, 80%, ${s.a})`;
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // "Rastro" sutil para sensación 3D/movimiento
+                ctx.fillStyle = 'rgba(0,0,0,0.06)';
+                ctx.fillRect(0, 0, w, h);
+
+                requestAnimationFrame(render);
+            }
+
+            function onPointerMove(e) {
+                const rect = canvas.getBoundingClientRect();
+                mouseX = (e.clientX - rect.left) / rect.width;
+                mouseY = (e.clientY - rect.top) / rect.height;
+            }
+
+            resize();
+            init();
+            render();
+
+            window.addEventListener('resize', () => {
+                resize();
+                init();
+            }, { passive: true });
+
+            window.addEventListener('mousemove', onPointerMove, { passive: true });
+            window.addEventListener('touchmove', (e) => {
+                if (!e.touches || !e.touches[0]) return;
+                onPointerMove(e.touches[0]);
+            }, { passive: true });
+        })();
+    </script>
+
+    <script type="module">
+        // IMPORTANTE: La autenticación se manejará automáticamente por el servidor
+        // El middleware verifyFirebaseAuth en el backend redirigirá automáticamente a login.html
+        // si el usuario no está autenticado
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        // Obtener configuración dinámica desde el servidor
+        async function getFirebaseConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                return config.firebaseConfig;
+            } catch (error) {
+                console.error('Error obteniendo configuración:', error);
+                return {
+                    apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
+                    authDomain: "consulta-pe-abf99.firebaseapp.com",
+                    projectId: "consulta-pe-abf99",
+                    storageBucket: "consulta-pe-abf99.firebasestorage.app",
+                    messagingSenderId: "610275972424",
+                    appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
+                };
+            }
+        }
+
+        async function initApp() {
+            try {
+                const firebaseConfig = await getFirebaseConfig();
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+
+                const profileContainer = document.getElementById('profile-container');
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const saveConfirmModal = document.getElementById('saveConfirmModal');
+                const saveConfirmMessage = document.getElementById('saveConfirmMessage');
+                const userNameSpan = document.getElementById('userName');
+                const infoCreditosDiv = document.getElementById('infoCreditos');
+                const creditosSpan = document.getElementById('creditos');
+                const infoIlimitadoDiv = document.getElementById('infoIlimitado');
+                const venceElSpan = document.getElementById('venceEl');
+                const diasRestantesSpan = document.getElementById('diasRestantes');
+                const apiKeyField = document.getElementById('api-key-field');
+                const userPhoto = document.getElementById('user-photo');
+
+                let currentUser = null;
+
+                function showLoadingIndicator() {
+                    loadingIndicator.style.display = 'flex';
+                    profileContainer.style.display = 'none';
+                }
+
+                function hideLoadingIndicator() {
+                    loadingIndicator.style.display = 'none';
+                    profileContainer.style.display = 'block';
+                }
+
+                function showFeedbackModal(msg, isError = false) {
+                    saveConfirmMessage.textContent = msg;
+                    const modalContent = saveConfirmModal.querySelector('.modal-content');
+                    modalContent.className = 'modal-content ' + (isError ? 'error' : 'success');
+                    saveConfirmModal.classList.add('active');
+                    setTimeout(() => {
+                        saveConfirmModal.classList.remove('active');
+                    }, 3000);
+                }
+
+                async function generateNewApiKey() {
+                    if (!currentUser) {
+                        showFeedbackModal('No hay usuario autenticado.', true);
+                        return;
+                    }
+                    showLoadingIndicator();
+                    try {
+                        const newApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
+                                               .map(b => b.toString(16).padStart(2, '0')).join('');
+                        
+                        const userRef = doc(db, "usuarios", currentUser.uid);
+                        await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
+                        apiKeyField.value = newApiKey;
+                        showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
+                    } catch (e) {
+                        console.error("Error al generar el token:", e);
+                        showFeedbackModal('Error al generar el token. Intenta de nuevo.', true);
+                    } finally {
+                        hideLoadingIndicator();
+                    }
+                }
+                window.generateNewApiKey = generateNewApiKey;
+
+                function copyApiKey() {
+                    if (!apiKeyField.value) {
+                        showFeedbackModal('No hay token para copiar.', true);
+                        return;
+                    }
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(apiKeyField.value)
+                            .then(() => {
+                                showFeedbackModal('Token copiado al portapapeles!');
+                            })
+                            .catch(err => {
+                                console.error('Error al copiar con la API de Clipboard: ', err);
+                                fallbackCopyTextToClipboard(apiKeyField.value);
+                            });
+                    } else {
+                        fallbackCopyTextToClipboard(apiKeyField.value);
+                    }
+                }
+                window.copyApiKey = copyApiKey;
+
+                function fallbackCopyTextToClipboard(text) {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = text;
+                    tempInput.style.position = 'fixed';
+                    tempInput.style.opacity = '0';
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            showFeedbackModal('Token copiado al portapapeles! (Método alternativo)');
+                        } else {
+                            showFeedbackModal('No se pudo copiar el token.', true);
+                        }
+                    } catch (err) {
+                        console.error('Fallback: No se pudo copiar.', err);
+                        showFeedbackModal('No se pudo copiar el token.', true);
+                    }
+                    document.body.removeChild(tempInput);
+                }
+
+                async function loadProfileData() {
+                    showLoadingIndicator();
+                    if (!currentUser) {
+                        // Si no hay usuario, el middleware del servidor ya debería haber redirigido
+                        // Pero por si acaso, redirigimos manualmente
+                        window.location.href = "login.html";
+                        hideLoadingIndicator();
+                        return;
+                    }
+                    try {
+                        const userRef = doc(db, "usuarios", currentUser.uid);
+                        const docSnap = await getDoc(userRef);
+                        let userData = {};
+                        if (docSnap.exists()) {
+                            userData = docSnap.data();
+                        } else {
+                            const defaultName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Usuario');
+                            const initialApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
+                                                   .map(b => b.toString(16).padStart(2, '0')).join('');
+
+                            userData = {
+                                name: defaultName,
+                                email: currentUser.email || '',
+                                createdAt: new Date(),
+                                tipoPlan: "creditos",
+                                creditos: 5,
+                                apiKey: initialApiKey
+                            };
+                            await setDoc(userRef, userData);
+                        }
+
+                        userNameSpan.textContent = userData.name || 'Usuario';
+                        if(currentUser.photoURL) {
+                            userPhoto.src = currentUser.photoURL;
+                        }
+                        
+                        infoCreditosDiv.style.display = 'none';
+                        infoIlimitadoDiv.style.display = 'none';
+
+                        if (userData.tipoPlan === "creditos") {
+                            infoCreditosDiv.style.display = "flex";
+                            creditosSpan.textContent = userData.creditos ? userData.creditos.toLocaleString('es-PE') : '0';
+                        } else if (userData.tipoPlan === "ilimitado") {
+                            const fechaActivacion = userData.fechaActivacion ? userData.fechaActivacion.toDate() : null;
+                            const duracion = userData.duracionDias || 0;
+
+                            if (fechaActivacion) {
+                                const fechaFin = new Date(fechaActivacion);
+                                fechaFin.setDate(fechaFin.getDate() + duracion);
+                                const hoy = new Date();
+                                const diffMs = fechaFin - hoy;
+                                const diasRestantes = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+                                infoIlimitadoDiv.style.display = "flex";
+                                venceElSpan.textContent = fechaFin.toLocaleDateString();
+                                diasRestantesSpan.textContent = diasRestantes;
+                            }
+                        }
+
+                        if (userData.apiKey) {
+                            apiKeyField.value = userData.apiKey;
+                        } else {
+                            generateNewApiKey();
+                        }
+
+                    } catch (e) {
+                        console.error("Error al cargar el perfil:", e);
+                        showFeedbackModal("Error al cargar los datos del perfil.", true);
+                    } finally {
+                        hideLoadingIndicator();
+                    }
+                }
+
+                // Función para cerrar sesión REAL
+                async function logout() {
+                    try {
+                        await signOut(auth);
+                        // Limpiar datos locales
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        // Redirigir a la página de login
+                        window.location.href = "login.html";
+                    } catch (error) {
+                        console.error("Error al cerrar sesión:", error);
+                        alert("Hubo un error al cerrar sesión. Intenta de nuevo.");
+                    }
+                }
+
+                // Asignar la función de logout real al botón
+                document.getElementById('logout-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                        logout();
+                    }
+                });
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        loadProfileData();
+                    } else {
+                        // Si no hay usuario, el middleware del servidor ya debería haber redirigido
+                        // Pero por si acaso, redirigimos manualmente
+                        window.location.href = "login.html";
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error inicializando la aplicación:', error);
+                alert('Error inicializando la aplicación. Recarga la página.');
+            }
+        }
+
+        // WhatsApp Bubble
+        const message = "¡Hola, ¿Necesitas ayuda?!";
+        const chatText = document.getElementById("chatText");
+        let index = 0;
+
+        function typeWriter() {
+            if (index < message.length) {
+                chatText.textContent += message.charAt(index);
+                index++;
+                setTimeout(typeWriter, 100);
+            } else {
+                setTimeout(() => {
+                    chatText.classList.remove('show');
+                    chatText.classList.add('hide');
+                    setTimeout(resetAndRestart, 1000);
+                }, 2500);
+            }
+        }
+
+        function resetAndRestart() {
+            chatText.textContent = "";
+            index = 0;
+            chatText.classList.remove('hide');
+            setTimeout(() => {
+                chatText.classList.add('show');
+                typeWriter();
+            }, 500);
+        }
+
+        function goToWhatsApp() {
+            const phoneNumber = '51944950234';
+            const prefilledMessage = encodeURIComponent('Hola, necesito ayuda para comprar créditos para Consulta PE.');
+            window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
+        }
+
+        // Inicializar la aplicación cuando la página cargue
+        window.onload = () => {
+            initApp();
+            setTimeout(() => {
+                chatText.classList.add('show');
+                typeWriter();
+            }, 1000);
+        };
+
+    </script>
+</body>
+</html>
