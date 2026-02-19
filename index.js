@@ -26,8 +26,8 @@ app.disable('x-powered-by');
 const logger = {
   info: (context, message, data = {}) => {
     const timestamp = new Date().toISOString();
-    console.log([${timestamp}] [INFO] [${context}] ${message}, Object.keys(data).length ? data : '');
-  },
+console.log(`[${timestamp}] [INFO] [${context}] ${message}`, Object.keys(data).length ? data : '');
+},
   error: (context, message, error = null, data = {}) => {
     const timestamp = new Date().toISOString();
     console.error([${timestamp}] [ERROR] [${context}] ${message},
