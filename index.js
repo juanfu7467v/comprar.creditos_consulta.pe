@@ -560,9 +560,7 @@ const PROTECTED_ROUTES = [
   '/api-key',
   '/api-key.html',
   '/checkout',
-  '/checkout.html',
-  '/consultaPe-vercion-web',
-  '/consultaPe-vercion-web.html'
+  '/checkout.html'
 ];
 
 /**
@@ -2608,12 +2606,6 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN (MOVIDO HACIA ARRIBA - ANTES DE CLEAN URLs)
-// ================================================================
-
-app.use(verifyFirebaseAuth);
-
-// ================================================================
 // 🚨 RUTAS ESPECÍFICAS (SEGUNDO)
 // ================================================================
 
@@ -2691,6 +2683,12 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
   }
 }));
+
+// ================================================================
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN (SEXTO - DESPUÉS DE RUTAS PÚBLICAS Y ARCHIVOS ESTÁTICOS)
+// ================================================================
+
+app.use(verifyFirebaseAuth);
 
 // ================================================================
 // 🔍 PROXY DE CONSULTAS API (PROTECCIÓN DE API KEY)
@@ -2909,16 +2907,16 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.5.1',
+    version: '3.5.0',
     features: {
-      authMiddleware: 'Activo (ANTES de Clean URLs - CORREGIDO)',
+      authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo (archivo estático)',
       cleanUrls: 'Activo',
       routeMapping: '✅ Implementado',
-      autoRedirectToLogin: '✅ Activado con returnTo',
+      autoRedirectToLogin: '✅ Activado',
       returnAfterLogin: '✅ Implementado',
       returnAfterRegister: '✅ Implementado con verify.html',
       returnAfterVerify: '✅ Implementado',
@@ -2932,14 +2930,13 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
       cspDomainsCount: cspDomains.length,
       sessionCookies: '✅ Implementado con Firebase Session Cookies',
-      loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)',
-      returnToFix: '✅ CORREGIDO: Middleware movido antes de Clean URLs para enviar returnTo correctamente'
+      loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
     },
     timestamp: new Date().toISOString()
   });
