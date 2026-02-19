@@ -91,11 +91,48 @@ function getClientIp(req) {
 }
 
 // ================================================================
-// 🛡️ SISTEMA DE BLOQUEO DE INTENTOS FALLIDOS
+// 🛡️ SISTEMA DE BLOQUEO DE INTENTOS FALLIDOS (MEJORADO CON CACHÉ EN MEMORIA)
 // ================================================================
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const BLOCK_DURATION_HOURS = 6;
+const BLOCK_DURATION_MS = BLOCK_DURATION_HOURS * 60 * 60 * 1000;
+
+/**
+ * Caché en memoria para intentos de login (reemplaza Firestore)
+ * Estructura: Map<email, { attempts: number, blockedUntil: Date, lastAttempt: Date, ip: string, userAgent: string, deviceModel: string, fingerprint: string, isSuspicious: boolean }>
+ */
+const loginAttemptsCache = new Map();
+
+/**
+ * Limpiar entradas expiradas del caché cada hora
+ */
+setInterval(() => {
+  const now = new Date();
+  let expiredCount = 0;
+  
+  for (const [email, data] of loginAttemptsCache.entries()) {
+    // Si está bloqueado y el bloqueo expiró, remover del caché
+    if (data.blockedUntil && data.blockedUntil <= now) {
+      loginAttemptsCache.delete(email);
+      expiredCount++;
+    }
+    // Si no está bloqueado pero tiene más de 24 horas sin actividad, limpiar
+    else if (!data.blockedUntil && data.lastAttempt) {
+      const hoursSinceLastAttempt = (now - data.lastAttempt) / (1000 * 60 * 60);
+      if (hoursSinceLastAttempt > 24) {
+        loginAttemptsCache.delete(email);
+        expiredCount++;
+      }
+    }
+  }
+  
+  if (expiredCount > 0) {
+    logger.info('CACHE_CLEANUP', `🧹 Limpiadas ${expiredCount} entradas expiradas del caché de intentos`, { 
+      cacheSize: loginAttemptsCache.size 
+    });
+  }
+}, 60 * 60 * 1000); // Cada hora
 
 /**
  * Obtener información de geolocalización por IP
@@ -122,30 +159,25 @@ async function getLocationFromIP(ip) {
 }
 
 /**
- * Verificar si un usuario está bloqueado
+ * Verificar si un usuario está bloqueado (usando caché en memoria)
  */
 async function checkLoginBlock(email) {
   const context = 'CHECK_LOGIN_BLOCK';
 
-  if (!db) {
-    logger.warn(context, 'Firestore no disponible, permitiendo login');
-    return { isBlocked: false };
-  }
-
   try {
-    const attemptDoc = await db.collection('loginAttempts').doc(email).get();
+    const data = loginAttemptsCache.get(email);
+    const now = new Date();
 
-    if (!attemptDoc.exists) {
+    if (!data) {
       return { isBlocked: false, attempts: 0 };
     }
 
-    const data = attemptDoc.data();
-    const blockedUntil = data.blockedUntil?.toDate();
+    const blockedUntil = data.blockedUntil;
     const attempts = data.attempts || 0;
 
     // Si hay bloqueo activo
-    if (blockedUntil && blockedUntil > new Date()) {
-      const remainingTime = Math.ceil((blockedUntil - new Date()) / (1000 * 60)); // minutos
+    if (blockedUntil && blockedUntil > now) {
+      const remainingTime = Math.ceil((blockedUntil - now) / (1000 * 60)); // minutos
       logger.warn(context, 'Usuario bloqueado', { 
         email, 
         attempts, 
@@ -161,14 +193,9 @@ async function checkLoginBlock(email) {
       };
     }
 
-    // Si el bloqueo expiró, resetear intentos
-    if (blockedUntil && blockedUntil <= new Date()) {
-      await db.collection('loginAttempts').doc(email).set({
-        attempts: 0,
-        blockedUntil: null,
-        lastReset: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-
+    // Si el bloqueo expiró, resetear intentos (remover del caché)
+    if (blockedUntil && blockedUntil <= now) {
+      loginAttemptsCache.delete(email);
       logger.info(context, 'Bloqueo expirado, intentos reseteados', { email });
       return { isBlocked: false, attempts: 0 };
     }
@@ -181,9 +208,6 @@ async function checkLoginBlock(email) {
   }
 }
 
-/**
- * Registrar intento fallido de login
- */
 /**
  * Generar fingerprint del dispositivo
  */
@@ -215,13 +239,11 @@ function validateDeviceCoherence(deviceModel, userAgent) {
   return true;
 }
 
+/**
+ * Registrar intento fallido de login (usando caché en memoria)
+ */
 async function registerFailedLogin(email, req) {
   const context = 'REGISTER_FAILED_LOGIN';
-
-  if (!db) {
-    logger.warn(context, 'Firestore no disponible');
-    return;
-  }
 
   try {
     const ip = getClientIp(req);
@@ -229,57 +251,50 @@ async function registerFailedLogin(email, req) {
     const { deviceModel } = req.body;
     const fingerprint = generateFingerprint(req);
     
-    const attemptDocRef = db.collection('loginAttempts').doc(email);
-    const attemptDoc = await attemptDocRef.get();
-
-    let currentAttempts = 0;
-    
-    if (attemptDoc.exists) {
-      const data = attemptDoc.data();
-      currentAttempts = data.attempts || 0;
-    }
-
+    const now = new Date();
+    const existingData = loginAttemptsCache.get(email) || { attempts: 0 };
+    const currentAttempts = existingData.attempts || 0;
     const newAttempts = currentAttempts + 1;
     const isCoherent = validateDeviceCoherence(deviceModel, userAgent);
 
     // Si llega al límite o hay incoherencia grave, bloquear/alertar
     if (newAttempts >= MAX_LOGIN_ATTEMPTS || !isCoherent) {
-      const blockedUntil = new Date(Date.now() + BLOCK_DURATION_HOURS * 60 * 60 * 1000);
+      const blockedUntil = new Date(Date.now() + BLOCK_DURATION_MS);
 
-      await attemptDocRef.set({
-        email,
+      // Guardar en caché en memoria
+      loginAttemptsCache.set(email, {
         attempts: newAttempts,
         blockedUntil,
-        lastAttempt: admin.firestore.FieldValue.serverTimestamp(),
+        lastAttempt: now,
         ip,
         userAgent,
         deviceModel: deviceModel || 'Unknown',
         fingerprint,
         isSuspicious: !isCoherent,
-        blockedAt: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+        blockedAt: now
+      });
 
       logger.warn(context, '🚨 Usuario BLOQUEADO o INTENTO SOSPECHOSO', { 
         email, 
         attempts: newAttempts, 
         isCoherent,
-        ip 
+        ip,
+        blockedUntil: blockedUntil.toISOString()
       });
 
       // Enviar correo de alerta
       await sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel, !isCoherent);
 
     } else {
-      // Incrementar contador
-      await attemptDocRef.set({
-        email,
+      // Incrementar contador en caché
+      loginAttemptsCache.set(email, {
         attempts: newAttempts,
-        lastAttempt: admin.firestore.FieldValue.serverTimestamp(),
+        lastAttempt: now,
         ip,
         userAgent,
         deviceModel: deviceModel || 'Unknown',
         fingerprint
-      }, { merge: true });
+      });
 
       logger.warn(context, `⚠️ Intento fallido registrado (${newAttempts}/${MAX_LOGIN_ATTEMPTS})`, { 
         email, 
@@ -287,6 +302,11 @@ async function registerFailedLogin(email, req) {
         ip 
       });
     }
+
+    logger.info(context, 'Estado actual del caché de intentos', { 
+      cacheSize: loginAttemptsCache.size,
+      emailsEnCache: Array.from(loginAttemptsCache.keys()).slice(0, 5) // Solo los primeros 5 para no saturar logs
+    });
 
   } catch (error) {
     logger.error(context, 'Error registrando intento fallido', error, { email });
@@ -309,10 +329,12 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
     // Obtener nombre de usuario
     let userName = email.split('@')[0];
     try {
-      const userSnap = await db.collection('usuarios').where('email', '==', email).limit(1).get();
-      if (!userSnap.empty) {
-        const userData = userSnap.docs[0].data();
-        userName = userData.name || userData.displayName || userName;
+      if (db) {
+        const userSnap = await db.collection('usuarios').where('email', '==', email).limit(1).get();
+        if (!userSnap.empty) {
+          const userData = userSnap.docs[0].data();
+          userName = userData.name || userData.displayName || userName;
+        }
       }
     } catch (err) {
       logger.warn(context, 'No se pudo obtener nombre de usuario', { email });
@@ -376,16 +398,23 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
 }
 
 /**
- * Resetear intentos fallidos (después de login exitoso)
+ * Resetear intentos fallidos (después de login exitoso) - usando caché en memoria
  */
 async function resetLoginAttempts(email) {
   const context = 'RESET_LOGIN_ATTEMPTS';
 
-  if (!db) return;
-
   try {
-    await db.collection('loginAttempts').doc(email).delete();
-    logger.info(context, '✅ Intentos de login reseteados', { email });
+    const existed = loginAttemptsCache.delete(email);
+    
+    if (existed) {
+      logger.info(context, '✅ Intentos de login reseteados (eliminados del caché)', { email });
+    } else {
+      logger.info(context, 'ℹ️ No había intentos registrados para este email', { email });
+    }
+    
+    logger.info(context, 'Estado del caché después de reset', { 
+      cacheSize: loginAttemptsCache.size 
+    });
   } catch (error) {
     logger.error(context, 'Error reseteando intentos', error, { email });
   }
@@ -2307,6 +2336,7 @@ app.get("/api/health", async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size,
+    loginAttemptsCacheSize: loginAttemptsCache.size, // Nuevo: tamaño del caché de intentos
     security: {
       recaptchaSiteKey: RECAPTCHA_SITE_KEY,
       authMiddleware: true,
@@ -2315,7 +2345,8 @@ app.get("/api/health", async (req, res) => {
       publicApiRoutes: PUBLIC_API_ROUTES,
       loginBlockEnabled: true,
       maxLoginAttempts: MAX_LOGIN_ATTEMPTS,
-      blockDurationHours: BLOCK_DURATION_HOURS
+      blockDurationHours: BLOCK_DURATION_HOURS,
+      loginAttemptsCache: 'MEMORY_CACHE' // Indicador de que usamos caché en memoria
     }
   };
 
@@ -2372,20 +2403,24 @@ app.post("/api/admin/clear-cache", (req, res) => {
   try {
     const cacheSize = processedPaymentsCache.size;
     const locksSize = paymentLocks.size;
+    const loginAttemptsSize = loginAttemptsCache.size;
 
     processedPaymentsCache.clear();
     paymentLocks.clear();
+    loginAttemptsCache.clear(); // Limpiar también el caché de intentos
 
     logger.info(context, '🗑️ Cache limpiado manualmente', {
       paymentsRemoved: cacheSize,
-      locksRemoved: locksSize
+      locksRemoved: locksSize,
+      loginAttemptsRemoved: loginAttemptsSize
     });
 
     res.json({
       success: true,
       message: 'Cache cleared successfully',
       paymentsRemoved: cacheSize,
-      locksRemoved: locksSize
+      locksRemoved: locksSize,
+      loginAttemptsRemoved: loginAttemptsSize
     });
   } catch (error) {
     logger.error(context, 'Error limpiando cache', error);
@@ -2626,7 +2661,7 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.5.0',
+    version: '3.5.1',
     features: {
       authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
@@ -2643,13 +2678,15 @@ app.listen(PORT, "0.0.0.0", () => {
       secureConfig: '✅ /api/config seguro (solo variables cliente)',
       recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)',
       recaptchaStability: '✅ Mejorada con reintentos automáticos y timeout extendido',
-      loginBlockSystem: '🛡️ Sistema de bloqueo por intentos fallidos activado',
+      loginBlockSystem: '🛡️ Sistema de bloqueo por intentos fallidos activado (CACHÉ EN MEMORIA)',
       maxLoginAttempts: MAX_LOGIN_ATTEMPTS,
       blockDurationHours: BLOCK_DURATION_HOURS,
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)'
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      loginAttemptsCache: '✅ Caché en memoria activo (sin lecturas/escrituras a Firestore)',
+      cacheCleanup: '✅ Limpieza automática cada hora'
     },
     timestamp: new Date().toISOString()
   });
