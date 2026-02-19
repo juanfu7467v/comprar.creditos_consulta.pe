@@ -192,48 +192,6 @@
     100%{transform:scale(.6); opacity:.7}
   }
 
-  /* Plan Indicator - ESTILOS MANTENIDOS (ahora usa el nuevo --plan-bg verde) */
-  #plan-indicator {
-      position: fixed;
-      bottom: 20px; 
-      right: 20px;
-      z-index: 1000;
-      background: var(--plan-bg); 
-      color: var(--plan-text);
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 14px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: opacity 0.3s;
-      cursor: pointer; 
-  }
-  #plan-indicator i.fa-gem {
-      color: var(--plan-text); 
-  }
-  #plan-indicator .close-btn {
-      background: rgba(0,0,0,0.1); 
-      color: var(--plan-text);
-      border: none;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 800;
-      margin-left: 8px;
-      padding: 0;
-      cursor: pointer;
-  }
-  @media(min-width:900px){
-    #plan-indicator{ bottom: 18px; }
-  }
-
   /* --------------------------------------------------------------
      MODAL DE BÚSQUEDA (Nuevo)
      -------------------------------------------------------------- */
@@ -801,6 +759,13 @@
           <div class="chev">›</div>
         </a>
 
+        <!-- NUEVA OPCIÓN: Cerrar sesión -->
+        <div class="list-item" id="link-logout-session">
+          <div class="li-icon"><i class="fa-solid fa-sign-out-alt"></i></div>
+          <div class="text"><div class="title">Cerrar sesión</div></div>
+          <div class="chev">›</div>
+        </div>
+
         <!-- MODIFICACIÓN: Cambiado de "Cerrar sesión" a "Darme de baja" -->
         <div class="list-item" id="link-logout">
           <div class="li-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
@@ -812,11 +777,7 @@
     </section>
   </main>
   
-  <div id="plan-indicator" style="display:none;">
-    <i class="fa-solid fa-gem"></i> 
-    <span id="plan-text">Cargando...</span>
-    <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-  </div>
+  <!-- ELIMINADO: diamante flotante #plan-indicator -->
 
   <div class="modal" id="confirmation-modal"></div>
   <div class="modal" id="modal">
@@ -976,9 +937,9 @@ const modalSub = document.getElementById('modal-sub');
 const modalDesc = document.getElementById('modal-desc');
 const suggestionsRow = document.getElementById('suggestions-row');
 const loadingSuggestions = document.getElementById('loading-suggestions');
-const planIndicator = document.getElementById('plan-indicator');
-const planText = document.getElementById('plan-text');
-const closePlanIndicatorBtn = document.getElementById('close-plan-indicator');
+// ELIMINADO: const planIndicator = document.getElementById('plan-indicator');
+// ELIMINADO: const planText = document.getElementById('plan-text');
+// ELIMINADO: const closePlanIndicatorBtn = document.getElementById('close-plan-indicator');
 
 const alertModalEl = document.getElementById('alert-modal');
 const alertTitleEl = document.getElementById('alert-title');
@@ -1208,46 +1169,11 @@ document.querySelectorAll('[data-suggestion]').forEach(button => {
 });
 
 /* ==========================================================
-   PLAN INDICATOR / FIREBASE UI UPDATER
+   PLAN INDICATOR / FIREBASE UI UPDATER (ELIMINADO)
    ========================================================= */
 function updatePlanIndicator(userData) {
-    if (localStorage.getItem('planIndicatorClosed') === 'true') {
-        planIndicator.style.display = 'none';
-        return;
-    }
-    
-    if (!userData || !userData.tipoPlan) {
-        planIndicator.style.display = 'none';
-        return;
-    }
-
-    planIndicator.style.display = 'flex';
-    const gemIcon = planIndicator.querySelector('i.fa-gem');
-    const closeBtn = planIndicator.querySelector('.close-btn');
-
-    if (userData.tipoPlan === 'ilimitado') {
-        planText.textContent = 'Plan Ilimitado';
-        planIndicator.style.background = '#3498db';
-        planIndicator.style.color = '#fff';
-        gemIcon.style.color = '#fff';
-        closeBtn.style.background = 'rgba(255,255,255,0.1)';
-        closeBtn.style.color = '#fff';
-    } else if (userData.tipoPlan === 'creditos') {
-        const remaining = parseInt(userData.creditos || userData.credits) || 0;
-        planText.textContent = `${remaining} Créditos`;
-        planIndicator.style.background = 'var(--plan-bg)';
-        planIndicator.style.color = 'var(--plan-text)';
-        gemIcon.style.color = 'var(--plan-text)';
-        closeBtn.style.background = 'rgba(0,0,0,0.1)';
-        closeBtn.style.color = 'var(--plan-text)';
-    } else {
-        planText.textContent = 'Plan No Activo';
-        planIndicator.style.background = 'var(--muted)';
-        planIndicator.style.color = 'var(--text)';
-        gemIcon.style.color = 'var(--text)';
-        closeBtn.style.background = 'rgba(255,255,255,0.1)';
-        closeBtn.style.color = 'var(--text)';
-    }
+    // ELIMINADO: Función del diamante flotante
+    // No hacemos nada
 }
 
 function updateProfileUI(userData) {
@@ -1327,59 +1253,29 @@ function updateProfileUI(userData) {
 
 /* ==========================================================
    LÓGICA DE DEDUCCIÓN DE CRÉDITOS Y TEMPORIZADOR
+   MODIFICADO: Todas las películas consumen 0 créditos
    ========================================================= */
 async function deductCreditsOnTimer(amount, movieTitle, uid) {
-    if (!uid) return false;
-    
-    const userRef = db.collection("usuarios").doc(uid);
-    try {
-        const success = await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(userRef);
-            if (!doc.exists) return false;
-            
-            const userData = doc.data();
-
-            if (userData.tipoPlan === 'ilimitado') {
-                console.log(`Plan ilimitado. No se deducen créditos. (${movieTitle})`);
-                return true;
-            } else if (userData.tipoPlan === 'creditos') {
-                if (userData.creditos >= amount) {
-                    const newCredits = userData.creditos - amount;
-                    transaction.update(userRef, {
-                        creditos: newCredits
-                    });
-                    console.log(`${amount} créditos descontados por visualización de "${movieTitle}". Quedan ${newCredits}.`);
-                    return true;
-                } else {
-                    console.warn(`Deducción fallida: Créditos insuficientes para "${movieTitle}".`);
-                    return false;
-                }
-            }
-            return false;
-        });
-        return success;
-
-    } catch (error) {
-        console.error("Error durante la deducción de créditos por temporizador:", error);
-        return false;
-    }
+    // MODIFICADO: Siempre retorna true sin descontar créditos
+    console.log(`No se descuentan créditos por "${movieTitle}" (configurado a 0 créditos)`);
+    return true;
 }
 
 function startDeductionTimer(user, movie) {
     if (deductionTimer) clearTimeout(deductionTimer);
 
-    console.log(`Deduction timer started for ${movie.titulo}. Credits will be deducted in 20 minutes.`);
+    console.log(`Deduction timer started for ${movie.titulo}. No se descontarán créditos (0 créditos).`);
     movieToDeduct = movie;
 
     deductionTimer = setTimeout(async () => {
-        console.log('20 minutes passed. Deducting credits now.');
+        console.log('20 minutes passed. No se descuentan créditos (configuración 0 créditos).');
         
         const success = await deductCreditsOnTimer(creditCost, movieToDeduct.titulo, user.uid);
         
         if(success) {
-             showCustomModal("Créditos Descontados", `Se han descontado ${creditCost} créditos por la visualización de "${movieToDeduct.titulo}" (más de 20 minutos).`);
+             showCustomModal("Información", `Se ha completado el tiempo de visualización de "${movieToDeduct.titulo}". No se han descontado créditos (0 créditos).`);
         } else {
-             showCustomModal("Aviso de Créditos", `El tiempo de visualización se cumplió, pero no se pudieron descontar los créditos para "${movieToDeduct.titulo}". Revisa tus créditos.`, true);
+             showCustomModal("Aviso", `El tiempo de visualización se cumplió para "${movieToDeduct.titulo}".`, true);
         }
         
         deductionTimer = null;
@@ -1664,13 +1560,9 @@ async function handleViewMovieDetails(movie, source){
         canProceed = true;
         console.log("Plan Ilimitado. Reproducción inmediata.");
     } else if (userData.tipoPlan === 'creditos') {
-        if (userData.creditos >= creditCost) {
-            canProceed = true;
-            requiresTimer = true;
-        } else {
-            showErrorModal(`No tienes suficientes créditos. Tienes ${userData.creditos} y necesitas ${creditCost}.`);
-            return;
-        }
+        // MODIFICADO: Permitir siempre reproducción sin verificar créditos
+        canProceed = true;
+        requiresTimer = true;
     } else {
          showErrorModal('No tienes un plan activo para ver contenido.');
          return;
@@ -1885,6 +1777,20 @@ async function deleteAccountPermanently() {
 }
 
 /* ==========================================================
+   FUNCIÓN PARA CERRAR SESIÓN
+   ========================================================= */
+async function logoutSession() {
+    try {
+        await auth.signOut();
+        // Redirigir al login después de cerrar sesión
+        window.location.href = "login.html";
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        showErrorModal("Error al cerrar sesión. Intenta de nuevo.");
+    }
+}
+
+/* ==========================================================
    OBSERVADOR DE AUTENTICACIÓN
    ========================================================= */
 auth.onAuthStateChanged(async (user) => {
@@ -1992,6 +1898,12 @@ document.getElementById('modal-share-btn').onclick = (e) => {
 };
 document.getElementById('link-legal').onclick = (e) => { e.preventDefault(); window.location.href = 'avisolegalpeliprex.html'; };
 
+// NUEVO: "Cerrar sesión" ejecuta logout
+document.getElementById('link-logout-session').onclick = (e) => {
+    e.preventDefault();
+    logoutSession();
+};
+
 // MODIFICACIÓN: "Darme de baja" ejecuta la eliminación permanente de la cuenta
 document.getElementById('link-logout').onclick = (e) => {
     e.preventDefault();
@@ -2014,10 +1926,7 @@ document.getElementById('link-logout').onclick = (e) => {
     };
 };
 
-closePlanIndicatorBtn.addEventListener('click', () => {
-    planIndicator.style.display = 'none';
-    localStorage.setItem('planIndicatorClosed', 'true');
-});
+// ELIMINADO: closePlanIndicatorBtn event listener
 
 closeAlertModalBtn.addEventListener('click', () => {
     alertModalEl.classList.remove('active');
