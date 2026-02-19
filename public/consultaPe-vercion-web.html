@@ -14,6 +14,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <!-- SDK de Mercado Pago -->
     <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <!-- jsPDF para generar PDFs en el frontend -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -1102,8 +1104,8 @@
             opacity: 0.8;
         }
 
-        /* Botón PDF rojo */
-        .btn-pdf-red {
+        /* Estilos para el botón de descarga PDF (rojo, ancho completo) */
+        .btn-pdf-download {
             background-color: #dc2626;
             color: white;
             font-weight: 700;
@@ -1111,22 +1113,27 @@
             border-radius: 14px;
             text-align: center;
             width: 100%;
-            transition: opacity 0.2s;
-            margin-top: 16px;
+            margin-top: 20px;
+            margin-bottom: 20px;
             border: none;
             cursor: pointer;
+            transition: opacity 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
 
-        .btn-pdf-red:active {
+        .btn-pdf-download:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-pdf-download:active {
             opacity: 0.8;
             transform: scale(0.98);
         }
 
-        .btn-pdf-red i {
+        .btn-pdf-download i {
             font-size: 18px;
         }
     </style>
@@ -1183,9 +1190,9 @@
             </div>
         </div>
         <div class="resultado-body" id="resultado-body"></div>
-        <!-- Botón rojo para descargar PDF -->
-        <button class="btn-pdf-red" id="download-pdf-btn" style="display: none;">
-            <i class="fas fa-file-pdf"></i> Descargar resultado en PDF
+        <!-- Botón de descarga PDF (rojo, ancho completo) -->
+        <button class="btn-pdf-download" id="descargar-pdf-btn" style="display: none;">
+            <i class="fas fa-file-pdf"></i> Descargar Resultado en PDF
         </button>
     </section>
 
@@ -1481,9 +1488,6 @@
     </div>
 </div>
 
-<!-- Incluir html2pdf library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 <script>
 /* ==========================================================
    CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
@@ -1661,6 +1665,9 @@ function renderizarPerfilConDatos(userData) {
         `;
     }
 
+    // API Key oculta - se muestra como asteriscos en lugar del valor real
+    const apiKeyOculta = '••••••••••••••••••••••••';
+
     perfilContenido.innerHTML = `
         <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
             <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
@@ -1669,7 +1676,7 @@ function renderizarPerfilConDatos(userData) {
             <div>
                 <h3 class="font-bold text-lg">${nombre}</h3>
                 <p class="text-sm text-gray-500">${email}</p>
-                <p class="text-xs text-gray-400 mt-1 break-all"><span class="font-mono">${apiKey}</span></p>
+                <p class="text-xs text-gray-400 mt-1 break-all"><span class="font-mono">${apiKeyOculta}</span></p>
             </div>
         </div>
 
@@ -1776,6 +1783,10 @@ const consultarBtn = document.getElementById('consultar-btn');
 const resultadoBody = document.getElementById('resultado-body');
 const resultadoLogo = document.getElementById('resultado-logo');
 const resultadoWrap = document.getElementById('resultado-wrap');
+const descargarPdfBtn = document.getElementById('descargar-pdf-btn');
+
+let ultimoResultadoConsulta = null;
+let tipoConsultaActual = null;
 
 const placeholders = {
     'dni': 'Ej: 12345678',
@@ -2112,13 +2123,19 @@ async function realizarConsulta() {
         if (result.success && result.data) {
             const esDni = selectedApi === 'dni' && result.data.result;
             if (esDni) {
+                ultimoResultadoConsulta = result.data.result;
+                tipoConsultaActual = selectedApi;
                 resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data.result, 0, true);
             } else {
+                ultimoResultadoConsulta = result.data;
+                tipoConsultaActual = selectedApi;
                 resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
             }
             resultadoWrap.style.display = 'block';
-            document.getElementById('download-pdf-btn').style.display = 'flex';
+            descargarPdfBtn.style.display = 'flex';
         } else if (result.error) {
+            ultimoResultadoConsulta = { error: result.error };
+            tipoConsultaActual = selectedApi;
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-red-600">
                     <p class="font-semibold">Error en la consulta</p>
@@ -2126,8 +2143,10 @@ async function realizarConsulta() {
                 </div>
             `;
             resultadoWrap.style.display = 'block';
-            document.getElementById('download-pdf-btn').style.display = 'flex';
+            descargarPdfBtn.style.display = 'flex';
         } else {
+            ultimoResultadoConsulta = { mensaje: 'Sin resultados' };
+            tipoConsultaActual = selectedApi;
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-gray-500">
                     <p class="font-semibold">Sin resultados</p>
@@ -2135,11 +2154,13 @@ async function realizarConsulta() {
                 </div>
             `;
             resultadoWrap.style.display = 'block';
-            document.getElementById('download-pdf-btn').style.display = 'flex';
+            descargarPdfBtn.style.display = 'flex';
         }
         
     } catch (error) {
         console.error('Error al realizar la consulta:', error);
+        ultimoResultadoConsulta = { error: 'Error de conexión' };
+        tipoConsultaActual = selectedApi;
         resultadoBody.innerHTML = `
             <div class="text-center py-8 text-red-600">
                 <p class="font-semibold">Error de conexión</p>
@@ -2147,7 +2168,7 @@ async function realizarConsulta() {
             </div>
         `;
         resultadoWrap.style.display = 'block';
-        document.getElementById('download-pdf-btn').style.display = 'flex';
+        descargarPdfBtn.style.display = 'flex';
         consultaLoader.style.display = 'none';
     } finally {
         consultarBtn.textContent = 'CONSULTAR';
@@ -2156,6 +2177,78 @@ async function realizarConsulta() {
 }
 
 consultarBtn.addEventListener('click', realizarConsulta);
+
+/* ==========================================================
+   FUNCIONALIDAD DE DESCARGA PDF (con jsPDF)
+   ========================================================= */
+descargarPdfBtn.addEventListener('click', function() {
+    if (!ultimoResultadoConsulta) {
+        alert('No hay resultados para descargar.');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Título
+    doc.setFontSize(18);
+    doc.setTextColor(220, 38, 38);
+    doc.text('Resultado de Consulta', 20, 20);
+    
+    // Fecha
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const fecha = new Date().toLocaleString('es-PE');
+    doc.text(`Fecha: ${fecha}`, 20, 30);
+    
+    // Servicio consultado
+    const servicioText = `Servicio: ${apiSelect.options[apiSelect.selectedIndex]?.text || 'No especificado'}`;
+    doc.text(servicioText, 20, 37);
+    
+    // Datos consultados
+    let yPos = 47;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    
+    // Función para agregar datos al PDF
+    function agregarDatos(obj, nivel = 0) {
+        if (!obj || typeof obj !== 'object') return;
+        
+        const entries = Object.entries(obj);
+        const indent = nivel * 5;
+        
+        entries.forEach(([key, value]) => {
+            if (value && typeof value === 'object') {
+                doc.setFontSize(11);
+                doc.setTextColor(220, 38, 38);
+                doc.text(`${' '.repeat(indent)}${key}:`, 20, yPos);
+                yPos += 6;
+                agregarDatos(value, nivel + 1);
+            } else {
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                const textValue = value !== null && value !== undefined ? value.toString() : 'N/A';
+                const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ');
+                const lineas = doc.splitTextToSize(`${nombreCampo}: ${textValue}`, 170);
+                
+                lineas.forEach(linea => {
+                    if (yPos > 280) {
+                        doc.addPage();
+                        yPos = 20;
+                    }
+                    doc.text(linea, 20 + indent, yPos);
+                    yPos += 5;
+                });
+            }
+        });
+    }
+    
+    agregarDatos(ultimoResultadoConsulta);
+    
+    // Guardar PDF
+    const nombreArchivo = `consulta_${tipoConsultaActual || 'resultado'}_${Date.now()}.pdf`;
+    doc.save(nombreArchivo);
+});
 
 /* ==========================================================
    FUNCIONALIDAD DE PAGO CON RESULTADOS REALES
@@ -2716,37 +2809,6 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && modal.classList.contains('active')) {
         closeImageViewer();
     }
-});
-
-/* ==========================================================
-   FUNCIONALIDAD PARA DESCARGAR PDF
-   ========================================================= */
-document.getElementById('download-pdf-btn').addEventListener('click', function() {
-    const element = document.getElementById('resultado-wrap');
-    if (!element) return;
-    
-    // Opciones para html2pdf
-    const opt = {
-        margin:        [0.5, 0.5, 0.5, 0.5], // top, right, bottom, left (en pulgadas)
-        filename:     'consulta-pe-resultado.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, letterRendering: true, useCORS: true, logging: false },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    
-    // Mostrar mensaje opcional
-    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
-    
-    // Generar y descargar
-    html2pdf().set(opt).from(element).save().then(() => {
-        document.getElementById('download-pdf-btn').innerHTML = '<i class="fas fa-file-pdf"></i> Descargar resultado en PDF';
-    }).catch(error => {
-        console.error('Error generando PDF:', error);
-        document.getElementById('download-pdf-btn').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error al generar PDF';
-        setTimeout(() => {
-            document.getElementById('download-pdf-btn').innerHTML = '<i class="fas fa-file-pdf"></i> Descargar resultado en PDF';
-        }, 3000);
-    });
 });
 
 </script>
