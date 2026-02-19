@@ -14,8 +14,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <!-- SDK de Mercado Pago -->
     <script src="https://sdk.mercadopago.com/js/v2"></script>
-    <!-- jsPDF para generar PDFs en el frontend -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF para generar PDFs en el frontend - VERSIÓN CORREGIDA con jsDelivr -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -1461,7 +1461,7 @@
             <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="text-blue-600 hover:underline font-semibold">Leer más</a>
         </p>
 
-        <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="window.open('https://com-masitaorex.uptodown.com/android', '_blank')">
+        <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="window.open('https://apk.e-droid.net/apk/app2706889-uk81cm.apk?v=80', '_blank')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" ></path>
             </svg>
@@ -2192,75 +2192,145 @@ async function realizarConsulta() {
 consultarBtn.addEventListener('click', realizarConsulta);
 
 /* ==========================================================
-   FUNCIONALIDAD DE DESCARGA PDF (con jsPDF)
+   FUNCIONALIDAD DE DESCARGA PDF (con jsPDF) - VERSIÓN CORREGIDA
    ========================================================= */
 descargarPdfBtn.addEventListener('click', function() {
+    // Verificar si hay resultados para descargar
     if (!ultimoResultadoConsulta) {
         alert('No hay resultados para descargar.');
         return;
     }
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Título
-    doc.setFontSize(18);
-    doc.setTextColor(220, 38, 38);
-    doc.text('Resultado de Consulta', 20, 20);
-    
-    // Fecha
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    const fecha = new Date().toLocaleString('es-PE');
-    doc.text(`Fecha: ${fecha}`, 20, 30);
-    
-    // Servicio consultado
-    const servicioText = `Servicio: ${apiSelect.options[apiSelect.selectedIndex]?.text || 'No especificado'}`;
-    doc.text(servicioText, 20, 37);
-    
-    // Datos consultados
-    let yPos = 47;
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    
-    // Función para agregar datos al PDF
-    function agregarDatos(obj, nivel = 0) {
-        if (!obj || typeof obj !== 'object') return;
+    try {
+        // Verificar si jsPDF está disponible
+        if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+            console.error('jsPDF no está cargado');
+            alert('Error: La librería para generar PDF no se cargó correctamente. Por favor, recarga la página.');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         
-        const entries = Object.entries(obj);
-        const indent = nivel * 5;
+        let yPos = 20;
         
-        entries.forEach(([key, value]) => {
-            if (value && typeof value === 'object') {
-                doc.setFontSize(11);
-                doc.setTextColor(220, 38, 38);
-                doc.text(`${' '.repeat(indent)}${key}:`, 20, yPos);
-                yPos += 6;
-                agregarDatos(value, nivel + 1);
-            } else {
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                const textValue = value !== null && value !== undefined ? value.toString() : 'N/A';
-                const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ');
-                const lineas = doc.splitTextToSize(`${nombreCampo}: ${textValue}`, 170);
-                
-                lineas.forEach(linea => {
-                    if (yPos > 280) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
-                    doc.text(linea, 20 + indent, yPos);
-                    yPos += 5;
-                });
-            }
+        // Título
+        doc.setFontSize(18);
+        doc.setTextColor(220, 38, 38);
+        doc.setFont(undefined, 'bold');
+        doc.text('RESULTADO DE CONSULTA', 20, yPos);
+        yPos += 10;
+        
+        // Línea separadora
+        doc.setDrawColor(220, 38, 38);
+        doc.setLineWidth(0.5);
+        doc.line(20, yPos - 3, 190, yPos - 3);
+        
+        // Fecha y hora
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont(undefined, 'normal');
+        const fecha = new Date().toLocaleString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
         });
+        doc.text(`Fecha y hora: ${fecha}`, 20, yPos);
+        yPos += 7;
+        
+        // Servicio consultado
+        const servicioText = `Servicio: ${apiSelect.options[apiSelect.selectedIndex]?.text || 'No especificado'}`;
+        doc.text(servicioText, 20, yPos);
+        yPos += 7;
+        
+        // Parámetro consultado
+        const consultaValue = consultaInput.value.trim();
+        if (consultaValue) {
+            doc.text(`Consulta: ${consultaValue}`, 20, yPos);
+            yPos += 7;
+        }
+        
+        yPos += 5;
+        
+        // Función para agregar datos al PDF
+        function agregarDatosAlPDF(obj, nivel = 0) {
+            if (!obj || typeof obj !== 'object') return;
+            
+            const entries = Object.entries(obj);
+            
+            entries.forEach(([key, value]) => {
+                // Verificar espacio en página
+                if (yPos > 280) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                if (value && typeof value === 'object' && !Array.isArray(value)) {
+                    // Título de sección para objetos anidados
+                    doc.setFontSize(12);
+                    doc.setTextColor(220, 38, 38);
+                    doc.setFont(undefined, 'bold');
+                    const titulo = key.replace(/_/g, ' ').toUpperCase();
+                    doc.text(titulo, 20 + (nivel * 5), yPos);
+                    yPos += 7;
+                    
+                    // Procesar objeto anidado
+                    agregarDatosAlPDF(value, nivel + 1);
+                } else {
+                    // Campo simple
+                    doc.setFontSize(10);
+                    doc.setTextColor(0, 0, 0);
+                    doc.setFont(undefined, 'normal');
+                    
+                    let displayValue = value;
+                    if (Array.isArray(value)) {
+                        displayValue = value.join(', ');
+                    } else if (value === null || value === undefined) {
+                        displayValue = 'N/A';
+                    } else {
+                        displayValue = value.toString();
+                    }
+                    
+                    const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    
+                    // Dividir texto largo
+                    const text = `${nombreCampo}: ${displayValue}`;
+                    const lineas = doc.splitTextToSize(text, 160);
+                    
+                    lineas.forEach((linea, index) => {
+                        if (yPos > 280) {
+                            doc.addPage();
+                            yPos = 20;
+                        }
+                        
+                        if (index === 0) {
+                            doc.text(linea, 20 + (nivel * 5), yPos);
+                        } else {
+                            doc.text(linea, 20 + (nivel * 5) + 10, yPos);
+                        }
+                        yPos += 6;
+                    });
+                }
+            });
+        }
+        
+        // Procesar datos
+        agregarDatosAlPDF(ultimoResultadoConsulta);
+        
+        // Guardar PDF
+        const timestamp = new Date().getTime();
+        const nombreArchivo = `consulta_${tipoConsultaActual || 'resultado'}_${timestamp}.pdf`;
+        
+        doc.save(nombreArchivo);
+        console.log('PDF generado exitosamente:', nombreArchivo);
+        
+    } catch (error) {
+        console.error('Error generando PDF:', error);
+        alert('Error al generar el PDF: ' + error.message + '. Por favor, recarga la página e intenta nuevamente.');
     }
-    
-    agregarDatos(ultimoResultadoConsulta);
-    
-    // Guardar PDF
-    const nombreArchivo = `consulta_${tipoConsultaActual || 'resultado'}_${Date.now()}.pdf`;
-    doc.save(nombreArchivo);
 });
 
 /* ==========================================================
