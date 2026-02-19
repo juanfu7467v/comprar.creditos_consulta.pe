@@ -560,7 +560,9 @@ const PROTECTED_ROUTES = [
   '/api-key',
   '/api-key.html',
   '/checkout',
-  '/checkout.html'
+  '/checkout.html',
+  '/consultaPe-vercion-web',
+  '/consultaPe-vercion-web.html'
 ];
 
 /**
@@ -2516,7 +2518,7 @@ app.get("/api/health", async (req, res) => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
@@ -2907,7 +2909,7 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.5.0',
+    version: '3.5.1',
     features: {
       authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
@@ -2930,7 +2932,7 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
