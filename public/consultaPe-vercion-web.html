@@ -1101,6 +1101,34 @@
         .screenshot-img:hover {
             opacity: 0.8;
         }
+
+        /* Botón PDF rojo */
+        .btn-pdf-red {
+            background-color: #dc2626;
+            color: white;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+            width: 100%;
+            transition: opacity 0.2s;
+            margin-top: 16px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-pdf-red:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+
+        .btn-pdf-red i {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -1155,6 +1183,10 @@
             </div>
         </div>
         <div class="resultado-body" id="resultado-body"></div>
+        <!-- Botón rojo para descargar PDF -->
+        <button class="btn-pdf-red" id="download-pdf-btn" style="display: none;">
+            <i class="fas fa-file-pdf"></i> Descargar resultado en PDF
+        </button>
     </section>
 
     <!-- Sección Perfil y Detalles del Plan -->
@@ -1448,6 +1480,9 @@
         <img class="image-modal-img" id="modalImage" src="" alt="Imagen ampliada">
     </div>
 </div>
+
+<!-- Incluir html2pdf library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 /* ==========================================================
@@ -2082,6 +2117,7 @@ async function realizarConsulta() {
                 resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
             }
             resultadoWrap.style.display = 'block';
+            document.getElementById('download-pdf-btn').style.display = 'flex';
         } else if (result.error) {
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-red-600">
@@ -2090,6 +2126,7 @@ async function realizarConsulta() {
                 </div>
             `;
             resultadoWrap.style.display = 'block';
+            document.getElementById('download-pdf-btn').style.display = 'flex';
         } else {
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-gray-500">
@@ -2098,6 +2135,7 @@ async function realizarConsulta() {
                 </div>
             `;
             resultadoWrap.style.display = 'block';
+            document.getElementById('download-pdf-btn').style.display = 'flex';
         }
         
     } catch (error) {
@@ -2109,6 +2147,7 @@ async function realizarConsulta() {
             </div>
         `;
         resultadoWrap.style.display = 'block';
+        document.getElementById('download-pdf-btn').style.display = 'flex';
         consultaLoader.style.display = 'none';
     } finally {
         consultarBtn.textContent = 'CONSULTAR';
@@ -2677,6 +2716,37 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && modal.classList.contains('active')) {
         closeImageViewer();
     }
+});
+
+/* ==========================================================
+   FUNCIONALIDAD PARA DESCARGAR PDF
+   ========================================================= */
+document.getElementById('download-pdf-btn').addEventListener('click', function() {
+    const element = document.getElementById('resultado-wrap');
+    if (!element) return;
+    
+    // Opciones para html2pdf
+    const opt = {
+        margin:        [0.5, 0.5, 0.5, 0.5], // top, right, bottom, left (en pulgadas)
+        filename:     'consulta-pe-resultado.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, letterRendering: true, useCORS: true, logging: false },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Mostrar mensaje opcional
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
+    
+    // Generar y descargar
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.getElementById('download-pdf-btn').innerHTML = '<i class="fas fa-file-pdf"></i> Descargar resultado en PDF';
+    }).catch(error => {
+        console.error('Error generando PDF:', error);
+        document.getElementById('download-pdf-btn').innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error al generar PDF';
+        setTimeout(() => {
+            document.getElementById('download-pdf-btn').innerHTML = '<i class="fas fa-file-pdf"></i> Descargar resultado en PDF';
+        }, 3000);
+    });
 });
 
 </script>
