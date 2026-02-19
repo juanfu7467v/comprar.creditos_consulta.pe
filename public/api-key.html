@@ -1161,12 +1161,12 @@
                 Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica.
             </p>
             <div class="input-group">
-                <input type="text" id="api-key-field" readonly />
-                <button class="copy-btn" onclick="copyApiKey()" title="Copiar Token">
+                <input type="text" id="api-key-field" readonly placeholder="••••••••••••••••••••••••" />
+                <button class="copy-btn" id="copy-api-key-btn" title="Copiar Token">
                     <i class="ri-file-copy-line"></i>
                 </button>
             </div>
-            <button class="btn-secondary" onclick="generateNewApiKey()">
+            <button class="btn-secondary" id="generate-api-key-btn">
                 <i class="ri-refresh-line"></i> Generar Nuevo Token
             </button>
             <a href="API-Docs" target="_blank" class="btn-secondary">
@@ -1730,6 +1730,9 @@
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+        // --- VARIABLE INTERNA PARA LA API KEY (NUNCA EXPUESTA EN EL DOM) ---
+        let tempApiKey = "";
+
         // Obtener configuración dinámica desde el servidor
         async function getFirebaseConfig() {
             try {
@@ -1791,6 +1794,7 @@
                     }, 3000);
                 }
 
+                // --- FUNCIÓN PARA GENERAR NUEVO TOKEN (ACTUALIZA tempApiKey) ---
                 async function generateNewApiKey() {
                     if (!currentUser) {
                         showFeedbackModal('No hay usuario autenticado.', true);
@@ -1803,7 +1807,11 @@
                         
                         const userRef = doc(db, "usuarios", currentUser.uid);
                         await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
-                        apiKeyField.value = newApiKey;
+
+                        // --- Actualizar variable interna y mostrar solo asteriscos ---
+                        tempApiKey = newApiKey;
+                        apiKeyField.value = '••••••••••••••••••••••••';
+                        
                         showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
                     } catch (e) {
                         console.error("Error al generar el token:", e);
@@ -1812,27 +1820,26 @@
                         hideLoadingIndicator();
                     }
                 }
-                window.generateNewApiKey = generateNewApiKey;
 
+                // --- FUNCIÓN PARA COPIAR (USA tempApiKey) ---
                 function copyApiKey() {
-                    if (!apiKeyField.value) {
+                    if (!tempApiKey) {
                         showFeedbackModal('No hay token para copiar.', true);
                         return;
                     }
                     if (navigator.clipboard) {
-                        navigator.clipboard.writeText(apiKeyField.value)
+                        navigator.clipboard.writeText(tempApiKey)
                             .then(() => {
                                 showFeedbackModal('Token copiado al portapapeles!');
                             })
                             .catch(err => {
                                 console.error('Error al copiar con la API de Clipboard: ', err);
-                                fallbackCopyTextToClipboard(apiKeyField.value);
+                                fallbackCopyTextToClipboard(tempApiKey);
                             });
                     } else {
-                        fallbackCopyTextToClipboard(apiKeyField.value);
+                        fallbackCopyTextToClipboard(tempApiKey);
                     }
                 }
-                window.copyApiKey = copyApiKey;
 
                 function fallbackCopyTextToClipboard(text) {
                     const tempInput = document.createElement('textarea');
@@ -1855,6 +1862,7 @@
                     document.body.removeChild(tempInput);
                 }
 
+                // --- FUNCIÓN PARA CARGAR DATOS DE PERFIL (ACTUALIZA tempApiKey) ---
                 async function loadProfileData() {
                     showLoadingIndicator();
                     if (!currentUser) {
@@ -1915,7 +1923,8 @@
                         }
 
                         if (userData.apiKey) {
-                            apiKeyField.value = userData.apiKey;
+                            tempApiKey = userData.apiKey;
+                            apiKeyField.value = '••••••••••••••••••••••••';
                         } else {
                             generateNewApiKey();
                         }
@@ -1927,6 +1936,10 @@
                         hideLoadingIndicator();
                     }
                 }
+
+                // --- ASIGNAR EVENTOS A LOS BOTONES ---
+                document.getElementById('copy-api-key-btn').addEventListener('click', copyApiKey);
+                document.getElementById('generate-api-key-btn').addEventListener('click', generateNewApiKey);
 
                 // Función para cerrar sesión REAL
                 async function logout() {
