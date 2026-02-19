@@ -140,11 +140,37 @@ function getClientIp(req) {
 }
 
 // ================================================================
-// 🛡️ SISTEMA DE BLOQUEO DE INTENTOS FALLIDOS
+// 🛡️ SISTEMA DE BLOQUEO DE INTENTOS FALLIDOS (CACHÉ EN MEMORIA)
 // ================================================================
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const BLOCK_DURATION_HOURS = 6;
+const BLOCK_DURATION_MS = BLOCK_DURATION_HOURS * 60 * 60 * 1000;
+
+// Caché en memoria para intentos de login (más económico que Firestore)
+const loginAttemptsCache = new Map();
+
+// Limpiar entradas expiradas cada hora
+setInterval(() => {
+  const now = Date.now();
+  let expiredCount = 0;
+  
+  for (const [email, data] of loginAttemptsCache.entries()) {
+    // Si está bloqueado y el bloqueo expiró, o si no hay actividad reciente (> 24h)
+    if (data.blockedUntil && data.blockedUntil <= now) {
+      loginAttemptsCache.delete(email);
+      expiredCount++;
+    } else if (!data.blockedUntil && (now - data.lastAttempt) > 24 * 60 * 60 * 1000) {
+      // Limpiar intentos no bloqueados después de 24 horas sin actividad
+      loginAttemptsCache.delete(email);
+      expiredCount++;
+    }
+  }
+  
+  if (expiredCount > 0) {
+    logger.info('CACHE_CLEANUP', `Limpiadas ${expiredCount} entradas expiradas de loginAttemptsCache`);
+  }
+}, 60 * 60 * 1000); // Cada hora
 
 /**
  * Obtener información de geolocalización por IP
@@ -171,53 +197,42 @@ async function getLocationFromIP(ip) {
 }
 
 /**
- * Verificar si un usuario está bloqueado
+ * Verificar si un usuario está bloqueado (usando caché en memoria)
  */
 async function checkLoginBlock(email) {
   const context = 'CHECK_LOGIN_BLOCK';
 
-  if (!db) {
-    logger.warn(context, 'Firestore no disponible, permitiendo login');
-    return { isBlocked: false };
-  }
-
   try {
-    const attemptDoc = await db.collection('loginAttempts').doc(email).get();
+    const now = Date.now();
+    const attemptData = loginAttemptsCache.get(email);
 
-    if (!attemptDoc.exists) {
+    if (!attemptData) {
       return { isBlocked: false, attempts: 0 };
     }
 
-    const data = attemptDoc.data();
-    const blockedUntil = data.blockedUntil?.toDate();
-    const attempts = data.attempts || 0;
+    const { attempts, blockedUntil } = attemptData;
 
     // Si hay bloqueo activo
-    if (blockedUntil && blockedUntil > new Date()) {
-      const remainingTime = Math.ceil((blockedUntil - new Date()) / (1000 * 60)); // minutos
+    if (blockedUntil && blockedUntil > now) {
+      const remainingMinutes = Math.ceil((blockedUntil - now) / (1000 * 60));
       logger.warn(context, 'Usuario bloqueado', { 
         email, 
         attempts, 
-        blockedUntil: blockedUntil.toISOString(),
-        remainingMinutes: remainingTime 
+        blockedUntil: new Date(blockedUntil).toISOString(),
+        remainingMinutes 
       });
 
       return {
         isBlocked: true,
         attempts,
-        blockedUntil,
-        remainingMinutes: remainingTime
+        blockedUntil: new Date(blockedUntil),
+        remainingMinutes
       };
     }
 
     // Si el bloqueo expiró, resetear intentos
-    if (blockedUntil && blockedUntil <= new Date()) {
-      await db.collection('loginAttempts').doc(email).set({
-        attempts: 0,
-        blockedUntil: null,
-        lastReset: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-
+    if (blockedUntil && blockedUntil <= now) {
+      loginAttemptsCache.delete(email);
       logger.info(context, 'Bloqueo expirado, intentos reseteados', { email });
       return { isBlocked: false, attempts: 0 };
     }
@@ -231,7 +246,7 @@ async function checkLoginBlock(email) {
 }
 
 /**
- * Registrar intento fallido de login
+ * Registrar intento fallido de login (usando caché en memoria)
  */
 /**
  * Generar fingerprint del dispositivo
@@ -267,46 +282,39 @@ function validateDeviceCoherence(deviceModel, userAgent) {
 async function registerFailedLogin(email, req) {
   const context = 'REGISTER_FAILED_LOGIN';
 
-  if (!db) {
-    logger.warn(context, 'Firestore no disponible');
-    return;
-  }
-
   try {
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const { deviceModel } = req.body;
     const fingerprint = generateFingerprint(req);
+    const now = Date.now();
     
-    const attemptDocRef = db.collection('loginAttempts').doc(email);
-    const attemptDoc = await attemptDocRef.get();
-
-    let currentAttempts = 0;
-    
-    if (attemptDoc.exists) {
-      const data = attemptDoc.data();
-      currentAttempts = data.attempts || 0;
-    }
-
+    const existingData = loginAttemptsCache.get(email) || { attempts: 0 };
+    const currentAttempts = existingData.attempts || 0;
     const newAttempts = currentAttempts + 1;
     const isCoherent = validateDeviceCoherence(deviceModel, userAgent);
 
+    // Datos a almacenar en caché
+    const attemptData = {
+      email,
+      attempts: newAttempts,
+      lastAttempt: now,
+      ip,
+      userAgent,
+      deviceModel: deviceModel || 'Unknown',
+      fingerprint,
+      isSuspicious: !isCoherent
+    };
+
     // Si llega al límite o hay incoherencia grave, bloquear/alertar
     if (newAttempts >= MAX_LOGIN_ATTEMPTS || !isCoherent) {
-      const blockedUntil = new Date(Date.now() + BLOCK_DURATION_HOURS * 60 * 60 * 1000);
+      const blockedUntil = now + BLOCK_DURATION_MS;
 
-      await attemptDocRef.set({
-        email,
-        attempts: newAttempts,
-        blockedUntil,
-        lastAttempt: admin.firestore.FieldValue.serverTimestamp(),
-        ip,
-        userAgent,
-        deviceModel: deviceModel || 'Unknown',
-        fingerprint,
-        isSuspicious: !isCoherent,
-        blockedAt: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      attemptData.blockedUntil = blockedUntil;
+      attemptData.blockedAt = now;
+      attemptData.isSuspicious = !isCoherent;
+
+      loginAttemptsCache.set(email, attemptData);
 
       logger.warn(context, '🚨 Usuario BLOQUEADO o INTENTO SOSPECHOSO', { 
         email, 
@@ -320,15 +328,7 @@ async function registerFailedLogin(email, req) {
 
     } else {
       // Incrementar contador
-      await attemptDocRef.set({
-        email,
-        attempts: newAttempts,
-        lastAttempt: admin.firestore.FieldValue.serverTimestamp(),
-        ip,
-        userAgent,
-        deviceModel: deviceModel || 'Unknown',
-        fingerprint
-      }, { merge: true });
+      loginAttemptsCache.set(email, attemptData);
 
       logger.warn(context, `⚠️ Intento fallido registrado (${newAttempts}/${MAX_LOGIN_ATTEMPTS})`, { 
         email, 
@@ -425,16 +425,16 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
 }
 
 /**
- * Resetear intentos fallidos (después de login exitoso)
+ * Resetear intentos fallidos (después de login exitoso) - usando caché en memoria
  */
 async function resetLoginAttempts(email) {
   const context = 'RESET_LOGIN_ATTEMPTS';
 
-  if (!db) return;
-
   try {
-    await db.collection('loginAttempts').doc(email).delete();
-    logger.info(context, '✅ Intentos de login reseteados', { email });
+    if (loginAttemptsCache.has(email)) {
+      loginAttemptsCache.delete(email);
+      logger.info(context, '✅ Intentos de login reseteados (eliminados de caché)', { email });
+    }
   } catch (error) {
     logger.error(context, 'Error reseteando intentos', error, { email });
   }
@@ -2436,6 +2436,7 @@ app.get("/api/health", async (req, res) => {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     processedPaymentsCacheSize: processedPaymentsCache.size,
     activePaymentLocks: paymentLocks.size,
+    loginAttemptsCacheSize: loginAttemptsCache.size,
     security: {
       recaptchaSiteKey: RECAPTCHA_SITE_KEY,
       authMiddleware: true,
@@ -2450,7 +2451,8 @@ app.get("/api/health", async (req, res) => {
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
       serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
       cors: '✅ Configurado solo para masitaprex.com y www.masitaprex.com',
-      sessionCookies: '✅ Implementado con Firebase Session Cookies'
+      sessionCookies: '✅ Implementado con Firebase Session Cookies',
+      loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
     }
   };
 
@@ -2496,31 +2498,36 @@ app.get("/api/debug/firebase", (req, res) => {
     adminInitialized: !!admin.apps.length,
     firestoreAvailable: !!db,
     storageAvailable: !!bucket,
+    loginAttemptsCacheSize: loginAttemptsCache.size,
     timestamp: new Date().toISOString()
   });
 });
 
-// Limpiar cache
+// Limpiar cache (incluyendo loginAttemptsCache)
 app.post("/api/admin/clear-cache", (req, res) => {
   const context = 'ADMIN_CLEAR_CACHE';
 
   try {
-    const cacheSize = processedPaymentsCache.size;
+    const paymentsCacheSize = processedPaymentsCache.size;
     const locksSize = paymentLocks.size;
+    const loginAttemptsSize = loginAttemptsCache.size;
 
     processedPaymentsCache.clear();
     paymentLocks.clear();
+    loginAttemptsCache.clear();
 
     logger.info(context, '🗑️ Cache limpiado manualmente', {
-      paymentsRemoved: cacheSize,
-      locksRemoved: locksSize
+      paymentsRemoved: paymentsCacheSize,
+      locksRemoved: locksSize,
+      loginAttemptsRemoved: loginAttemptsSize
     });
 
     res.json({
       success: true,
       message: 'Cache cleared successfully',
-      paymentsRemoved: cacheSize,
-      locksRemoved: locksSize
+      paymentsRemoved: paymentsCacheSize,
+      locksRemoved: locksSize,
+      loginAttemptsRemoved: loginAttemptsSize
     });
   } catch (error) {
     logger.error(context, 'Error limpiando cache', error);
@@ -2847,7 +2854,7 @@ app.listen(PORT, "0.0.0.0", () => {
       secureConfig: '✅ /api/config seguro (solo variables cliente)',
       recaptchaVar: '✅ Variable corregida (RECAPTCHA_CLAVE_SECRETA)',
       recaptchaStability: '✅ Mejorada con reintentos automáticos y timeout extendido',
-      loginBlockSystem: '🛡️ Sistema de bloqueo por intentos fallidos activado',
+      loginBlockSystem: '🛡️ Sistema de bloqueo por intentos fallidos activado (Caché en memoria)',
       maxLoginAttempts: MAX_LOGIN_ATTEMPTS,
       blockDurationHours: BLOCK_DURATION_HOURS,
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
@@ -2855,7 +2862,8 @@ app.listen(PORT, "0.0.0.0", () => {
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
       serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
       cors: '✅ Configurado solo para masitaprex.com y www.masitaprex.com',
-      sessionCookies: '✅ Implementado con Firebase Session Cookies'
+      sessionCookies: '✅ Implementado con Firebase Session Cookies',
+      loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
     },
     timestamp: new Date().toISOString()
   });
