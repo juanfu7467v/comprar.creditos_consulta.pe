@@ -1032,15 +1032,8 @@ let currentBannerIndex = 0;
 let bannerInterval = null;
 
 // =========================================================================
-// !!! INICIO: CAMBIOS PARA DEDUCCIÓN DE CRÉDITOS DIFERIDA (20 MINUTOS) !!!
+// !!! CAMBIOS: Eliminada toda la lógica de deducción de créditos !!!
 // =========================================================================
-let creditDeductionTimer = null; 
-const DEDUCTION_TIME_MS = 1200000; // 20 minutos * 60 segundos * 1000 ms
-
-// =========================================================================
-// !!! FIN: CAMBIOS PARA DEDUCCIÓN DE CRÉDITOS DIFERIDA (20 MINUTOS) !!!
-// =========================================================================
-
 
 /* --------------------------------------------------------------
    ARRAY DE CATEGORÍAS REALES (CATEGORÍAS AMPLIADAS)
@@ -1207,7 +1200,7 @@ confirmationModal.addEventListener('click', (e)=>{
 
 
 /* ==========================================================
-   LÓGICA DEL PLAN Y CRÉDITOS
+   LÓGICA DEL PLAN Y CRÉDITOS - MODIFICADA
    ========================================================== */
 
 // --- NUEVOS GRADIENTES PARA EL INDICADOR DE CRÉDITOS ---
@@ -1229,7 +1222,7 @@ function updatePlanIndicator(userData) {
     planIndicator.style.display = 'flex';
 
     if (userData.tipoPlan === 'ilimitado') {
-        planText.textContent = 'Plan Ilimitado';
+        planText.textContent = 'Gratis'; // MODIFICADO: Siempre mostrar "Gratis"
         planIndicator.style.background = 'linear-gradient(135deg, var(--accent), #b00710)'; 
         planIndicator.style.color = '#fff';
         planIndicator.querySelector('i').style.color = '#fff';
@@ -1238,14 +1231,10 @@ function updatePlanIndicator(userData) {
 
     } else if (userData.tipoPlan === 'creditos') {
         const remaining = parseInt(userData.creditos) || 0; 
-        planText.textContent = `${remaining} Créditos`;
+        planText.textContent = 'Gratis'; // MODIFICADO: Siempre mostrar "Gratis" en lugar de la cantidad de créditos
         
-        // --- Lógica del fondo del diamante por cantidad de créditos (MODIFICADO) ---
-        const isLowCredit = remaining === 0;
-
-        planIndicator.style.background = isLowCredit 
-            ? ZERO_CREDIT_GRADIENT 
-            : GREEN_GRADIENT; // Verde para 1+ créditos
+        // Mantenemos el color verde para dar una sensación positiva
+        planIndicator.style.background = GREEN_GRADIENT;
         
         planIndicator.style.color = '#0b0c0f';
         planIndicator.querySelector('i').style.color = '#0b0c0f';
@@ -1254,7 +1243,7 @@ function updatePlanIndicator(userData) {
         // --------------------------------------------------------------------------
 
     } else {
-        planText.textContent = 'Plan No Activo';
+        planText.textContent = 'Gratis'; // MODIFICADO: Siempre mostrar "Gratis"
         planIndicator.style.background = 'linear-gradient(135deg, #8b8f95, #555)';
         planIndicator.style.color = '#fff';
         planIndicator.querySelector('i').style.color = '#fff';
@@ -1273,125 +1262,7 @@ function updateProfileUI(userData) {
 }
 
 // =========================================================================
-// !!! INICIO: CAMBIOS EN LÓGICA DE DEDUCCIÓN DE CRÉDITOS !!!
-// =========================================================================
-
-// RENOMBRADA Y ADAPTADA la función original para que sea la DEDUCCIÓN FINAL.
-// Esta función SÓLO se llama si el temporizador de 20 minutos se completa.
-async function finalizeCreditDeduction(amount, movieTitle) {
-    const user = auth.currentUser;
-    if (!user) {
-        console.warn('Deducción final fallida: Necesitas iniciar sesión.');
-        return false;
-    }
-    
-    const userRef = db.collection("usuarios").doc(user.uid);
-    try {
-        await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(userRef);
-            
-            if (!doc.exists) {
-                console.warn("Deducción final fallida: Datos de usuario no encontrados.");
-                return false;
-            }
-            
-            const userData = doc.data();
-            
-            if (userData.tipoPlan === 'ilimitado') {
-                return true; 
-            }
-
-            if (userData.tipoPlan === 'creditos') {
-                const currentCreditos = parseInt(userData.creditos) || 0;
-                
-                if (currentCreditos < amount) {
-                    // Si fallan los créditos en la deducción final (es posible si se gastaron entre 0-20 min)
-                    console.warn(`Deducción final fallida: Créditos insuficientes al momento de la deducción. Título: ${movieTitle}`);
-                    // Se retorna para que la transacción no falle, pero no se descuenta.
-                    return false; 
-                }
-
-                const newCreditos = currentCreditos - amount;
-                
-                transaction.update(userRef, { creditos: newCreditos });
-                
-                userData.creditos = newCreditos;
-                updateProfileUI(userData); 
-                
-                // NOTIFICACIÓN DE DEDUCCIÓN EXITOSA (ELIMINADA SEGÚN SOLICITUD)
-                // showCustomModal('Créditos Descontados', `Se han deducido ${amount} créditos para ver ${movieTitle} (Sesión de 20 minutos completada).`, false);
-
-                return true;
-            }
-            
-            return false; // Otro tipo de plan
-
-        });
-        
-        return true; 
-        
-    } catch (error) {
-        console.error("Error en la DEDUCCIÓN FINAL (Timer):", error);
-        return false; 
-    }
-}
-
-// NUEVA FUNCIÓN: Chequea créditos antes de iniciar la sesión y, si es OK, activa el temporizador.
-async function checkAndStartSession(movie, amount) {
-    const user = auth.currentUser;
-    if (!user) {
-        showErrorModal('Necesitas iniciar sesión para ver contenido.');
-        return false;
-    }
-    
-    const userRef = db.collection("usuarios").doc(user.uid);
-    try {
-        const doc = await userRef.get();
-        if (!doc.exists) throw new Error("Datos de usuario no encontrados.");
-        const userData = doc.data();
-
-        if (userData.tipoPlan === 'ilimitado') return true;
-
-        if (userData.tipoPlan === 'creditos') {
-            const currentCreditos = parseInt(userData.creditos) || 0;
-            if (currentCreditos < amount) {
-                // Bloquea si no hay créditos
-                throw new Error(`CRÉDITOS INSUFICIENTES: Necesitas ${amount} créditos para ver "${movie.titulo}". Solo tienes ${currentCreditos}.`);
-            }
-            
-            // CRÉDITOS SUFICIENTES: Iniciar temporizador para la deducción
-            
-            // 1. Limpiar cualquier temporizador anterior
-            if (creditDeductionTimer) {
-                clearTimeout(creditDeductionTimer);
-            }
-
-            // 2. Iniciar el nuevo temporizador de 20 minutos.
-            creditDeductionTimer = setTimeout(async () => {
-                await finalizeCreditDeduction(amount, movie.titulo);
-                creditDeductionTimer = null; // Marcar como completado
-            }, DEDUCTION_TIME_MS);
-            
-            console.log(`Sesión iniciada. Créditos se descontarán en ${DEDUCTION_TIME_MS / 60000} minutos si se mantiene la reproducción.`);
-            return true; 
-        }
-        
-        throw new Error("Tipo de plan desconocido o no activo.");
-
-    } catch (error) {
-        console.error("Error al iniciar la sesión/chequeo de créditos:", error);
-        if (error.message.startsWith('CRÉDITOS INSUFICIENTES')) {
-            const parts = error.message.split(':');
-            showErrorModal(parts[1].trim()); 
-        } else {
-            showErrorModal(`No se pudo iniciar la sesión. Error: ${error.message}`);
-        }
-        return false;
-    }
-}
-
-// =========================================================================
-// !!! FIN: CAMBIOS EN LÓGICA DE DEDUCCIÓN DE CRÉDITOS !!!
+// !!! ELIMINADA TODA LA LÓGICA DE DEDUCCIÓN DE CRÉDITOS !!!
 // =========================================================================
 
 
@@ -1875,17 +1746,12 @@ async function fetchSuggestions(){
     }
 }
 
-// MODIFICADA para incluir la cancelación del temporizador
+// MODIFICADA para eliminar la cancelación del temporizador (ya no existe)
 function closeMovieModalAndRefresh() {
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
     
-    // NUEVA LÓGICA: Cancelar el temporizador de deducción de créditos si existe
-    if (creditDeductionTimer) {
-        clearTimeout(creditDeductionTimer);
-        creditDeductionTimer = null; 
-        console.log("Temporizador de deducción de créditos cancelado. No se descontaron créditos.");
-    }
+    // Eliminada la lógica de cancelación de temporizador
 }
 
 function displayMovieDetails(movie) {
@@ -1962,7 +1828,7 @@ function displayMovieDetails(movie) {
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 }
 
-// MODIFICADA la función original para usar el nuevo sistema de chequeo y temporizador
+// MODIFICADA: Eliminada toda la lógica de verificación de créditos
 async function handleViewMovieDetails(movie, source){
     showLoading(); // INICIO: Mostrar spinner inmediatamente
 
@@ -1973,15 +1839,7 @@ async function handleViewMovieDetails(movie, source){
         return;
     }
     
-    const creditoCoste = 0; 
-
-    // 1. Chequea si el usuario puede pagar y, si puede, INICIA el temporizador de 20 minutos.
-    const sessionStarted = await checkAndStartSession(movie, creditoCoste);
-    
-    if (!sessionStarted) {
-        hideLoading(); // OCULTAR: Si falla la reserva/chequeo
-        return; 
-    }
+    // ELIMINADA toda la lógica de verificación de créditos y temporizadores
     
     // FIX: Cerrar el modal de búsqueda/detalle al abrir el reproductor.
     detailViewModal.classList.remove('active');
@@ -2004,11 +1862,6 @@ async function handleViewMovieDetails(movie, source){
 
     if (!finalUrl) {
         hideLoading(); // OCULTAR: Si el enlace está roto
-        // ADICIONAL: Si el enlace está roto, cancelamos el timer que acabamos de iniciar
-        if (creditDeductionTimer) {
-            clearTimeout(creditDeductionTimer);
-            creditDeductionTimer = null;
-        }
         showErrorModal(`El enlace de reproducción para ${movie.titulo} es nulo o está roto.`);
         return;
     }
@@ -2276,4 +2129,3 @@ auth.onAuthStateChanged(async (user) => {
 </script>
 </body>
 </html>
-
