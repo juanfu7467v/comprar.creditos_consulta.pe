@@ -1157,7 +1157,7 @@
     <!-- Selector de consulta -->
     <div class="search-group">
         <select class="native-select" id="api-select">
-            <option value="">SERVICIO</option>
+            <option value="">SELECT.</option>
             <option value="dni">Consulta RENIEC por DNI</option>
             <option value="telefonia-doc">Telefonía por Documento</option>
             <option value="telefonia-num">Telefonía por Número</option>
@@ -1169,7 +1169,7 @@
             <option value="buscar-cedula">Buscar Venezolano por Nombre</option>
             <option value="cedula">Consultar Cédula Venezolana</option>
         </select>
-        <input type="text" class="native-input" id="consulta-input" placeholder="Primero debes seleccionar una opción para poder consultar" disabled>
+        <input type="text" class="native-input" id="consulta-input" placeholder="👈Primero debes seleccionar una opción para poder consultar" disabled>
     </div>
 
     <!-- Botón "Consultar" -->
@@ -1493,9 +1493,9 @@
 <!-- Modal para vista ampliada de imágenes -->
 <div class="image-modal" id="imageModal">
     <div class="image-modal-content">
-        <span class="image-modal-close" onclick="closeImageViewer()">&times;</span>
-        <span class="image-modal-prev" id="modalPrev" onclick="changeImage(-1)">&#10094;</span>
-        <span class="image-modal-next" id="modalNext" onclick="changeImage(1)">&#10095;</span>
+        <span class="image-modal-close" onclick="closeImageViewer()">×</span>
+        <span class="image-modal-prev" id="modalPrev" onclick="changeImage(-1)">❮</span>
+        <span class="image-modal-next" id="modalNext" onclick="changeImage(1)">❯</span>
         <img class="image-modal-img" id="modalImage" src="" alt="Imagen ampliada">
     </div>
 </div>
@@ -2322,7 +2322,7 @@ function showPaymentSuccess(result) {
     const modalHtml = `
         <div class="payment-modal active" id="success-modal">
             <div class="payment-modal-content">
-                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">&times;</span>
+                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
                 <div class="success-icon">
                     <i class="fas fa-check"></i>
                 </div>
@@ -2377,7 +2377,7 @@ function showPaymentError(result) {
     const modalHtml = `
         <div class="payment-modal active" id="error-modal">
             <div class="payment-modal-content">
-                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">&times;</span>
+                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
                 <div class="error-icon">
                     <i class="fas fa-times"></i>
                 </div>
