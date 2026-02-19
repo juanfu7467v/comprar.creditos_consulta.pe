@@ -481,7 +481,9 @@ const PROTECTED_ROUTES = [
   '/api-key',
   '/api-key.html',
   '/checkout',
-  '/checkout.html'
+  '/checkout.html',
+  '/consultaPe-vercion-web',
+  '/consultaPe-vercion-web.html'
 ];
 
 /**
@@ -2396,7 +2398,7 @@ app.get("/api/health", async (req, res) => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
@@ -2810,7 +2812,7 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',

@@ -1867,8 +1867,9 @@
                     showLoadingIndicator();
                     if (!currentUser) {
                         // Si no hay usuario, el middleware del servidor ya debería haber redirigido
-                        // Pero por si acaso, redirigimos manualmente
-                        window.location.href = "login.html";
+                        // Pero por si acaso, redirigimos manualmente con returnTo
+                        const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+                        window.location.href = `login.html?returnTo=${returnTo}`;
                         hideLoadingIndicator();
                         return;
                     }
@@ -1970,8 +1971,9 @@
                         loadProfileData();
                     } else {
                         // Si no hay usuario, el middleware del servidor ya debería haber redirigido
-                        // Pero por si acaso, redirigimos manualmente
-                        window.location.href = "login.html";
+                        // Pero por si acaso, redirigimos manualmente con returnTo
+                        const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+                        window.location.href = `login.html?returnTo=${returnTo}`;
                     }
                 });
 

@@ -2822,20 +2822,28 @@ whatsappPaymentOption.addEventListener('click', function() {
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    populatePurchaseSelect('CREDITOS');
-    
-    auth.onAuthStateChanged((user) => {
-        updateSubmitButtonState();
+    document.addEventListener('DOMContentLoaded', function() {
+        populatePurchaseSelect('CREDITOS');
         
-        if (user && user.email) {
-            const emailField = document.getElementById('form-checkout__cardholderEmail');
-            if (emailField) emailField.value = user.email;
-        }
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                // El middleware del servidor ya debería haber redirigido
+                // Pero por si acaso, redirigimos manualmente con returnTo
+                const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+                window.location.href = `login.html?returnTo=${returnTo}`;
+                return;
+            }
+
+            updateSubmitButtonState();
+            
+            if (user && user.email) {
+                const emailField = document.getElementById('form-checkout__cardholderEmail');
+                if (emailField) emailField.value = user.email;
+            }
+        });
+        
+        initMercadoPago();
     });
-    
-    initMercadoPago();
-});
 
 // Funcionalidad para el visor de imágenes
 const imageUrls = [
