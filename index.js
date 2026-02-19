@@ -18,7 +18,54 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.disable('x-powered-by');
-app.use(cors());
+
+// ================================================================
+// 📋 LOGS MEJORADOS (DEFINIDO AL INICIO PARA EVITAR ERRORES)
+// ================================================================
+
+const logger = {
+  info: (context, message, data = {}) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [INFO] [${context}] ${message}`, Object.keys(data).length ? data : '');
+  },
+  error: (context, message, error = null, data = {}) => {
+    const timestamp = new Date().toISOString();
+    console.error(`[${timestamp}] [ERROR] [${context}] ${message}`,
+      error ? `Error: ${error.message} - Stack: ${error.stack}` : '',
+      Object.keys(data).length ? data : ''
+    );
+  },
+  warn: (context, message, data = {}) => {
+    const timestamp = new Date().toISOString();
+    console.warn(`[${timestamp}] [WARN] [${context}] ${message}`, Object.keys(data).length ? data : '');
+  }
+};
+
+// ================================================================
+// 🔒 CONFIGURACIÓN CORS MEJORADA - SOLO DOMINIOS ESPECÍFICOS
+// ================================================================
+
+const allowedOrigins = [
+  'https://masitaprex.com',
+  'https://www.masitaprex.com'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Permitir solicitudes sin origin (como apps móviles, postman, etc) en desarrollo
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      logger.warn('CORS', 'Origen bloqueado por CORS', { origin });
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -472,28 +519,6 @@ const PUBLIC_API_ROUTES = [
   '/api/notify-verification',
   '/api/report-failed-login'
 ];
-
-// ================================================================
-// 📋 LOGS MEJORADOS
-// ================================================================
-
-const logger = {
-  info: (context, message, data = {}) => {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [INFO] [${context}] ${message}`, Object.keys(data).length ? data : '');
-  },
-  error: (context, message, error = null, data = {}) => {
-    const timestamp = new Date().toISOString();
-    console.error(`[${timestamp}] [ERROR] [${context}] ${message}`,
-      error ? `Error: ${error.message} - Stack: ${error.stack}` : '',
-      Object.keys(data).length ? data : ''
-    );
-  },
-  warn: (context, message, data = {}) => {
-    const timestamp = new Date().toISOString();
-    console.warn(`[${timestamp}] [WARN] [${context}] ${message}`, Object.keys(data).length ? data : '');
-  }
-};
 
 // ================================================================
 // 🔥 CONFIGURACIÓN DE FIREBASE
@@ -1294,7 +1319,29 @@ async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, ur
 }
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN - MOVIDO DESPUÉS DE RUTAS PÚBLICAS
+// 🔐 FUNCIÓN PARA CREAR SESSION COOKIE DE FIREBASE
+// ================================================================
+
+async function createSessionCookie(idToken) {
+  const context = 'CREATE_SESSION_COOKIE';
+  
+  try {
+    // 5 días de expiración
+    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 días en milisegundos
+    
+    const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
+    
+    logger.info(context, 'Session cookie creada exitosamente');
+    
+    return { sessionCookie, expiresIn };
+  } catch (error) {
+    logger.error(context, 'Error creando session cookie', error);
+    throw error;
+  }
+}
+
+// ================================================================
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN CON SOPORTE PARA SESSION COOKIE
 // ================================================================
 
 async function verifyFirebaseAuth(req, res, next) {
@@ -1319,20 +1366,44 @@ async function verifyFirebaseAuth(req, res, next) {
     const authHeader = req.headers.authorization;
     const cookies = req.headers.cookie;
     let idToken;
+    let sessionCookie;
 
+    // Buscar token en diferentes lugares
     if (authHeader && authHeader.startsWith('Bearer ')) {
       idToken = authHeader.split('Bearer ')[1];
       logger.info(context, 'Token obtenido de header Authorization');
     } else if (cookies) {
       const cookiesArray = cookies.split(';');
-      const sessionCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
-      if (sessionCookie) {
-        idToken = sessionCookie.split('=')[1].trim();
-        logger.info(context, 'Token obtenido de cookie __session');
+      
+      // Buscar session cookie primero (más seguro)
+      const sessionCookieValue = cookiesArray.find(cookie => cookie.trim().startsWith('__session='));
+      if (sessionCookieValue) {
+        sessionCookie = sessionCookieValue.split('=')[1].trim();
+        logger.info(context, 'Session cookie encontrada');
+        
+        // Verificar la session cookie
+        const decodedClaims = await admin.auth().verifySessionCookie(sessionCookie, true);
+        req.user = decodedClaims;
+        req.uid = decodedClaims.uid;
+        
+        logger.info(context, 'Usuario autenticado con session cookie', {
+          uid: req.uid,
+          email: decodedClaims.email,
+          path: req.path
+        });
+        
+        return next();
+      }
+      
+      // Si no hay session cookie, buscar token de ID
+      const idTokenCookie = cookiesArray.find(cookie => cookie.trim().startsWith('__idToken='));
+      if (idTokenCookie) {
+        idToken = idTokenCookie.split('=')[1].trim();
+        logger.info(context, 'Token obtenido de cookie __idToken');
       }
     }
 
-    if (!idToken) {
+    if (!idToken && !sessionCookie) {
       logger.info(context, 'Token no encontrado, redirigiendo a login', {
         path: req.path,
         originalUrl: req.originalUrl
@@ -1342,15 +1413,37 @@ async function verifyFirebaseAuth(req, res, next) {
       return res.redirect(`/login?returnTo=${returnTo}`);
     }
 
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken;
-    req.uid = decodedToken.uid;
-
-    logger.info(context, 'Usuario autenticado', {
-      uid: req.uid,
-      email: decodedToken.email,
-      path: req.path
-    });
+    // Si tenemos idToken, verificarlo
+    if (idToken) {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      req.user = decodedToken;
+      req.uid = decodedToken.uid;
+      
+      // Opcionalmente, convertir a session cookie para futuras requests
+      try {
+        const { sessionCookie: newSessionCookie, expiresIn } = await createSessionCookie(idToken);
+        
+        // Configurar cookie segura
+        res.cookie('__session', newSessionCookie, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: expiresIn,
+          path: '/'
+        });
+        
+        logger.info(context, 'Session cookie creada y almacenada');
+      } catch (cookieError) {
+        logger.warn(context, 'No se pudo crear session cookie', cookieError);
+        // Continuar de todas formas, el idToken es válido
+      }
+      
+      logger.info(context, 'Usuario autenticado con idToken', {
+        uid: req.uid,
+        email: decodedToken.email,
+        path: req.path
+      });
+    }
 
     next();
   } catch (error) {
@@ -1407,12 +1500,12 @@ app.post("/api/report-failed-login", async (req, res) => {
   }
 });
 
-// ✅ NUEVO ENDPOINT: Login exitoso (resetea intentos)
+// ✅ NUEVO ENDPOINT: Login exitoso (resetea intentos y crea session cookie)
 app.post("/api/login-success", async (req, res) => {
   const context = 'LOGIN_SUCCESS_API';
 
   try {
-    const { email, uid, displayName, isNewUser } = req.body;
+    const { email, uid, displayName, isNewUser, idToken } = req.body;
 
     if (!email) {
       return res.status(400).json({
@@ -1425,6 +1518,27 @@ app.post("/api/login-success", async (req, res) => {
 
     // Resetear los intentos fallidos
     await resetLoginAttempts(email);
+
+    // Si se proporcionó un idToken, crear session cookie
+    if (idToken && admin.apps.length) {
+      try {
+        const { sessionCookie, expiresIn } = await createSessionCookie(idToken);
+        
+        // Configurar cookie segura
+        res.cookie('__session', sessionCookie, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: expiresIn,
+          path: '/'
+        });
+        
+        logger.info(context, 'Session cookie creada y almacenada para usuario', { email });
+      } catch (cookieError) {
+        logger.warn(context, 'No se pudo crear session cookie', cookieError);
+        // Continuar de todas formas
+      }
+    }
 
     // Si es un nuevo usuario (ej. registro con Google), enviar correo de bienvenida y asignar créditos
     if (isNewUser && uid) {
@@ -1460,8 +1574,9 @@ app.post("/api/login-success", async (req, res) => {
     const cookieOptions = {
       httpOnly: true, // Protegido contra XSS
       secure: true,
-      sameSite: 'Strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 días
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 días
+      path: '/'
     };
 
     res.cookie('user_email', email, cookieOptions);
@@ -2329,7 +2444,13 @@ app.get("/api/health", async (req, res) => {
       publicApiRoutes: PUBLIC_API_ROUTES,
       loginBlockEnabled: true,
       maxLoginAttempts: MAX_LOGIN_ATTEMPTS,
-      blockDurationHours: BLOCK_DURATION_HOURS
+      blockDurationHours: BLOCK_DURATION_HOURS,
+      suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
+      reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
+      loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      cors: '✅ Configurado solo para masitaprex.com y www.masitaprex.com',
+      sessionCookies: '✅ Implementado con Firebase Session Cookies'
     }
   };
 
@@ -2487,7 +2608,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 }));
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN (SEXTO - DESPUÉS DE RUTAS PÚBLICAS)
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN (SEXTO - DESPUÉS DE RUTAS PÚBLICAS Y ARCHIVOS ESTÁTICOS)
 // ================================================================
 
 app.use(verifyFirebaseAuth);
@@ -2732,7 +2853,9 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)'
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      cors: '✅ Configurado solo para masitaprex.com y www.masitaprex.com',
+      sessionCookies: '✅ Implementado con Firebase Session Cookies'
     },
     timestamp: new Date().toISOString()
   });
