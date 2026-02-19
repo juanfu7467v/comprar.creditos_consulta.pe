@@ -1802,9 +1802,11 @@
                                                .map(b => b.toString(16).padStart(2, '0')).join('');
                         
                         const userRef = doc(db, "usuarios", currentUser.uid);
-                        await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
-                        apiKeyField.value = newApiKey;
-                        showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
+                           await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
+                        // SEGURIDAD: No mostrar la API Key real en el frontend
+                        apiKeyField.value = "********************************";
+                        apiKeyField.dataset.realKey = newApiKey;
+                        showFeedbackModal('¡Nueva API Key generada!');
                     } catch (e) {
                         console.error("Error al generar el token:", e);
                         showFeedbackModal('Error al generar el token. Intenta de nuevo.', true);
@@ -1815,21 +1817,22 @@
                 window.generateNewApiKey = generateNewApiKey;
 
                 function copyApiKey() {
-                    if (!apiKeyField.value) {
+                    const keyToCopy = apiKeyField.dataset.realKey || apiKeyField.value;
+                    if (!keyToCopy || keyToCopy.includes('*')) {
                         showFeedbackModal('No hay token para copiar.', true);
                         return;
                     }
                     if (navigator.clipboard) {
-                        navigator.clipboard.writeText(apiKeyField.value)
+                        navigator.clipboard.writeText(keyToCopy)
                             .then(() => {
                                 showFeedbackModal('Token copiado al portapapeles!');
                             })
                             .catch(err => {
                                 console.error('Error al copiar con la API de Clipboard: ', err);
-                                fallbackCopyTextToClipboard(apiKeyField.value);
+                                fallbackCopyTextToClipboard(keyToCopy);
                             });
                     } else {
-                        fallbackCopyTextToClipboard(apiKeyField.value);
+                        fallbackCopyTextToClipboard(keyToCopy);
                     }
                 }
                 window.copyApiKey = copyApiKey;
@@ -1915,7 +1918,9 @@
                         }
 
                         if (userData.apiKey) {
-                            apiKeyField.value = userData.apiKey;
+                            // SEGURIDAD: No mostrar la API Key real en el frontend
+                            apiKeyField.value = "********************************";
+                            apiKeyField.dataset.realKey = userData.apiKey; // Guardar internamente para copiar si es necesario
                         } else {
                             generateNewApiKey();
                         }
@@ -1935,6 +1940,9 @@
                         // Limpiar datos locales
                         localStorage.clear();
                         sessionStorage.clear();
+                        // Limpiar cookies de sesión
+                        document.cookie = "user_email=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        document.cookie = "user_uid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                         // Redirigir a la página de login
                         window.location.href = "login.html";
                     } catch (error) {

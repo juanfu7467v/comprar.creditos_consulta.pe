@@ -2002,28 +2002,6 @@ async function realizarConsulta() {
         return;
     }
     
-    let apiKey = USER_API_KEY;
-    
-    if (!apiKey) {
-        try {
-            const userRef = db.collection("usuarios").doc(user.uid);
-            const doc = await userRef.get();
-            if (doc.exists) {
-                apiKey = doc.data().apiKey;
-                USER_API_KEY = apiKey;
-            }
-        } catch (error) {
-            console.error('Error obteniendo API Key:', error);
-            alert('Error al obtener tu API Key. Intenta de nuevo.');
-            return;
-        }
-    }
-    
-    if (!apiKey) {
-        alert('No se encontró un API Key para tu cuenta. Por favor, recarga la página.');
-        return;
-    }
-    
     let requestData = {};
     const paramName = paramNames[selectedApi];
     
@@ -2044,22 +2022,23 @@ async function realizarConsulta() {
         requestData = consultaValue;
     }
     
-    const baseUrl = 'https://api.masitaprex.com/v3';
     const endpoint = endpoints[selectedApi];
-    const url = `${baseUrl}/${endpoint}`;
     
     try {
         consultarBtn.textContent = 'CONSULTANDO...';
         consultarBtn.disabled = true;
         consultaLoader.style.display = 'flex';
         
-        const response = await fetch(url, {
+        // SEGURIDAD: Ahora la petición se hace al backend (proxy) para proteger la API Key
+        const response = await fetch('/api/proxy-consulta', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestData)
+            body: JSON.stringify({
+                endpoint: endpoint,
+                data: requestData
+            })
         });
         
         const result = await response.json();

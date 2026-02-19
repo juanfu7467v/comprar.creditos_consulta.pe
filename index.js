@@ -1,6 +1,7 @@
 import express from "express";
 import admin from "firebase-admin";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import moment from "moment-timezone";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { generateInvoicePDF } from './pdfGenerator.js';
@@ -19,6 +20,7 @@ const app = express();
 app.disable('x-powered-by');
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // ================================================================
 // 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO CON HSTS Y CSP MEJORADA)
@@ -432,6 +434,7 @@ const PROTECTED_ROUTES = [
   '/favoritos.html',
   '/historial',
   '/historial.html',
+  '/api/proxy-consulta',
   '/planes',
   '/planes.html',
   '/PeliPREX',
@@ -1453,9 +1456,20 @@ app.post("/api/login-success", async (req, res) => {
       }
     }
 
+    // SEGURIDAD: Guardar datos de sesión en cookies seguras (HttpOnly y Secure)
+    const cookieOptions = {
+      httpOnly: true, // Protegido contra XSS
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 días
+    };
+
+    res.cookie('user_email', email, cookieOptions);
+    res.cookie('user_uid', uid, cookieOptions);
+
     res.json({
       success: true,
-      message: 'Login attempts reset successfully',
+      message: 'Login attempts reset successfully and session cookies set',
       timestamp: new Date().toISOString()
     });
 
@@ -2417,7 +2431,9 @@ app.use((req, res, next) => {
   const routeMap = {
     '/user/activity': 'actividad.html',
     '/actividad': 'actividad.html',
-    '/peliculas': 'PeliPREX.html'
+    '/peliculas': 'PeliPREX.html',
+    '/favoritos': 'favoritos.html',
+    '/historial': 'historial.html'
   };
 
   if (routeMap[pathName]) {
@@ -2475,6 +2491,73 @@ app.use(express.static(path.join(__dirname, 'public'), {
 // ================================================================
 
 app.use(verifyFirebaseAuth);
+
+// ================================================================
+// 🔍 PROXY DE CONSULTAS API (PROTECCIÓN DE API KEY)
+// ================================================================
+
+app.post("/api/proxy-consulta", async (req, res) => {
+  const context = 'PROXY_CONSULTA';
+  
+  try {
+    const { endpoint, data } = req.body;
+    const uid = req.uid;
+
+    if (!endpoint) {
+      return res.status(400).json({ success: false, error: 'Endpoint no proporcionado' });
+    }
+
+    if (!uid) {
+      return res.status(401).json({ success: false, error: 'Usuario no autenticado' });
+    }
+
+    // Obtener la API Key del usuario desde Firestore
+    const userDoc = await db.collection("usuarios").doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+    }
+
+    const apiKey = userDoc.data().apiKey;
+    if (!apiKey) {
+      return res.status(403).json({ success: false, error: 'API Key no configurada para este usuario' });
+    }
+
+    const baseUrl = 'https://api.masitaprex.com/v3';
+    const url = `${baseUrl}/${endpoint}`;
+
+    logger.info(context, 'Realizando consulta proxy', { uid, endpoint, data });
+
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey
+      },
+      timeout: 15000 // 15 segundos de timeout
+    });
+
+    logger.info(context, 'Respuesta de API recibida', { 
+      endpoint, 
+      status: response.status, 
+      data: response.data 
+    });
+
+    res.json(response.data);
+
+  } catch (error) {
+    logger.error(context, 'Error en consulta proxy', error);
+    
+    if (error.response) {
+      // El servidor respondió con un código de error
+      return res.status(error.response.status).json(error.response.data);
+    } else if (error.request) {
+      // La petición se hizo pero no hubo respuesta
+      return res.status(504).json({ success: false, error: 'No se recibió respuesta del servidor de API' });
+    } else {
+      // Error al configurar la petición
+      return res.status(500).json({ success: false, error: 'Error interno al procesar la consulta' });
+    }
+  }
+});
 
 // ================================================================
 // 🏠  RUTAS PRINCIPALES
