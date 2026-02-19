@@ -21,28 +21,68 @@ app.use(cors());
 app.use(express.json());
 
 // ================================================================
-// 🔒 SEGURIDAD - CABECERAS CON HELMET (ACTUALIZADO CON HSTS Y CSP MEJORADA)
+// 🔒 SEGURIDAD - CABECERAS CON HELMET (CSP ESTRICTA - SIN WILDCARDS)
 // ================================================================
+
+// Dominios permitidos identificados en las interfaces de la web
+const ALLOWED_DOMAINS = [
+  "'self'",
+  "https://*.masitaprex.com",
+  "https://masitaprexv2.fly.dev",
+  "https://masitaprexv3.fly.dev",
+  "https://*.firebaseio.com",
+  "https://*.googleapis.com",
+  "https://*.gstatic.com",
+  "https://www.google.com",
+  "https://www.gstatic.com",
+  "https://*.googleusercontent.com",
+  "https://*.mercadopago.com",
+  "https://*.mercadopago.com.pe",
+  "https://sdk.mercadopago.com",
+  "https://cdnjs.cloudflare.com",
+  "https://unpkg.com",
+  "https://cdn.tailwindcss.com",
+  "https://cdn.jsdelivr.net",
+  "https://cdn-icons-png.flaticon.com",
+  "https://*.utdstc.com",
+  "https://stc.utdstc.com",
+  "https://img.utdstc.com",
+  "https://*.appcreator24.com",
+  "https://apk.e-droid.net",
+  "https://apkpure.com",
+  "https://*.uptodown.com",
+  "https://*.facebook.com",
+  "https://*.youtube.com",
+  "https://wa.me",
+  "https://*.yape.com.pe",
+  "https://via.placeholder.com",
+  "https://placehold.co",
+  "https://*.tmdb.org",
+  "https://image.tmdb.org",
+  "https://*.drive.google.com"
+];
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'", "*"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*", "https:", "http:", "data:", "blob:"],
+      defaultSrc: ["'self'"],
+      // Nota: Se mantienen 'unsafe-inline' y 'unsafe-eval' solo donde es estrictamente necesario 
+      // para el funcionamiento actual de los scripts embebidos y eventos inline de la web.
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", ...ALLOWED_DOMAINS, "blob:"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "*", "https:", "http:", "data:"],
+      styleSrc: ["'self'", "'unsafe-inline'", ...ALLOWED_DOMAINS],
       styleSrcAttr: ["'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "blob:", "*", "https:", "http:"],
-      fontSrc: ["'self'", "data:", "*", "https:", "http:"],
-      connectSrc: ["'self'", "*"],
-      frameSrc: ["'self'", "*", "https:", "http:", "data:"],
-      mediaSrc: ["'self'", "*", "https:", "http:", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", ...ALLOWED_DOMAINS],
+      fontSrc: ["'self'", "data:", ...ALLOWED_DOMAINS],
+      connectSrc: ["'self'", ...ALLOWED_DOMAINS],
+      frameSrc: ["'self'", ...ALLOWED_DOMAINS, "data:"],
+      mediaSrc: ["'self'", "blob:", ...ALLOWED_DOMAINS],
       objectSrc: ["'none'"],
       workerSrc: ["'self'", "blob:"],
-      manifestSrc: ["'self'", "*"],
-      prefetchSrc: ["'self'", "*"],
-      formAction: ["'self'", "*"],
-      frameAncestors: ["'self'", "*"],
+      manifestSrc: ["'self'"],
+      prefetchSrc: ["'self'"],
+      formAction: ["'self'", ...ALLOWED_DOMAINS],
+      frameAncestors: ["'self'"],
       baseUri: ["'self'"],
       upgradeInsecureRequests: [],
     },
@@ -61,7 +101,7 @@ app.use(helmet({
   },
   ieNoOpen: true,
   noSniff: true,
-  permittedCrossDomainPolicies: { permittedPolicies: 'all' },
+  permittedCrossDomainPolicies: { permittedPolicies: 'none' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   xssFilter: true
 }));
