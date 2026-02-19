@@ -257,6 +257,18 @@
             border: 1px solid #edf2f7;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .service-card:hover {
+            transform: scale(1.02);
+        }
+
+        .service-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
 
         .service-image {
@@ -1384,30 +1396,30 @@
         <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Nuestros Servicios</h2>
         
         <div class="services-slider">
-            <div class="service-card">
+            <a href="PeliPREX.html" class="service-card" style="text-decoration: none;">
                 <div class="service-image service-img-1"></div>
                 <div class="service-text">peliPREX HD – Películas online gratis</div>
-            </div>
+            </a>
             
-            <div class="service-card">
+            <a href="historial.html" class="service-card" style="text-decoration: none;">
                 <div class="service-image service-img-2"></div>
                 <div class="service-text">Historial de películas que vi</div>
-            </div>
+            </a>
             
-            <div class="service-card">
+            <a href="aPI-Docs" class="service-card" style="text-decoration: none;">
                 <div class="service-image service-img-3"></div>
                 <div class="service-text">Colección de apis</div>
-            </div>
+            </a>
             
-            <div class="service-card">
+            <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="service-card" style="text-decoration: none;">
                 <div class="service-image service-img-4"></div>
                 <div class="service-text">Aplicación consulta pe apk</div>
-            </div>
+            </a>
 
-            <div class="service-card">
+            <a href="https://youtube.com/@eltiojota628?si=PEutWDR4W1hhycwQ" target="_blank" class="service-card" style="text-decoration: none;">
                 <div class="service-image service-img-5"></div>
                 <div class="service-text">Sigue nuestro canal en Youtube @el tío jota</div>
-            </div>
+            </a>
         </div>
     </section>
 
@@ -1449,7 +1461,7 @@
             <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="text-blue-600 hover:underline font-semibold">Leer más</a>
         </p>
 
-        <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+        <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="window.open('https://com-masitaorex.uptodown.com/android', '_blank')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" ></path>
             </svg>
@@ -1827,7 +1839,8 @@ const paramNames = {
     'cedula': 'cedula'
 };
 
-const numericOptions = ['dni', 'telefonia-doc', 'telefonia-num', 'placa', 'ruc', 'empresas', 'matrimonios', 'cedula'];
+// Opciones que requieren solo números (para activar teclado numérico)
+const numericOptions = ['dni', 'telefonia-doc', 'telefonia-num', 'ruc', 'empresas', 'matrimonios', 'cedula'];
 
 const nombresCamposDni = {
     'nuDni': 'DNI',
@@ -1998,7 +2011,7 @@ apiSelect.addEventListener('change', function() {
         consultaInput.disabled = false;
         consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
         
-        // Activar teclado numérico si la opción solo requiere números
+        // Activar teclado numérico solo si la opción requiere números (excluyendo 'placa')
         if (numericOptions.includes(selected)) {
             consultaInput.type = 'number';
             consultaInput.inputMode = 'numeric';
