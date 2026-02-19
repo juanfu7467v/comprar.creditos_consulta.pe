@@ -560,7 +560,9 @@ const PROTECTED_ROUTES = [
   '/api-key',
   '/api-key.html',
   '/checkout',
-  '/checkout.html'
+  '/checkout.html',
+  '/consultaPe-vercion-web',
+  '/consultaPe-vercion-web.html'
 ];
 
 /**
@@ -2606,7 +2608,13 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================================
-// 🚨 RUTAS ESPECÍFICAS (SEGUNDO)
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN (AHORA ANTES DE CLEAN URLs)
+// ================================================================
+
+app.use(verifyFirebaseAuth);
+
+// ================================================================
+// 🚨 RUTAS ESPECÍFICAS
 // ================================================================
 
 app.get("/disclaimer-apis", (req, res) => {
@@ -2620,7 +2628,7 @@ app.get("/API-Docs", (req, res) => {
 });
 
 // ================================================================
-// 🗺️ MAPEO DE RUTAS (TERCERO)
+// 🗺️ MAPEO DE RUTAS
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2646,7 +2654,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================================
-// 🧹 CLEAN URLs (CUARTO)
+// 🧹 CLEAN URLs
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2673,7 +2681,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================================
-// 📁 ARCHIVOS ESTÁTICOS (QUINTO)
+// 📁 ARCHIVOS ESTÁTICOS
 // ================================================================
 
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -2683,12 +2691,6 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
   }
 }));
-
-// ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN (SEXTO - DESPUÉS DE RUTAS PÚBLICAS Y ARCHIVOS ESTÁTICOS)
-// ================================================================
-
-app.use(verifyFirebaseAuth);
 
 // ================================================================
 // 🔍 PROXY DE CONSULTAS API (PROTECCIÓN DE API KEY)
@@ -2909,15 +2911,15 @@ app.listen(PORT, "0.0.0.0", () => {
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     version: '3.5.0',
     features: {
-      authMiddleware: 'Activo (después de rutas públicas)',
+      authMiddleware: 'Activo (antes de CLEAN URLs)',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo (archivo estático)',
       cleanUrls: 'Activo',
       routeMapping: '✅ Implementado',
-      autoRedirectToLogin: '✅ Activado',
-      returnAfterLogin: '✅ Implementado',
+      autoRedirectToLogin: '✅ Activado con returnTo correcto',
+      returnAfterLogin: '✅ Implementado y corregido (middleware movido arriba)',
       returnAfterRegister: '✅ Implementado con verify.html',
       returnAfterVerify: '✅ Implementado',
       welcomeEmailOnVerify: '🔥 Plantilla HTML local',
@@ -2930,13 +2932,14 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
       cspDomainsCount: cspDomains.length,
       sessionCookies: '✅ Implementado con Firebase Session Cookies',
-      loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
+      loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)',
+      authMiddlewarePosition: '✅ Movido antes de CLEAN URLs para returnTo correcto en api-key'
     },
     timestamp: new Date().toISOString()
   });
