@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+    
+    <title>Historial de Películas peliPREX | Películas que vi en Masitaprex</title>
+    <meta name="description" content="No pierdas el rastro de tu entretenimiento. Accede al historial de películas peliPREX, revisa las películas que viste y retoma tu contenido de élite en Masitaprex.">
+    <meta name="keywords" content="historial de peliculas peliprex, peliculas que vi peliprex, masitaprex historial, ver peliculas gratis online, retomar pelicula peliprex" />
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="Tu Historial Exclusivo | PeliPREX HD" />
+    <meta property="og:description" content="Administra tu catálogo personal. Solo en la infraestructura de Masitaprex." />
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
+    <meta property="og:url" content="https://masitaprex.com/historial" />
+    <meta property="og:type" content="website" />
+
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+  /* --------------------------------------------------------------
+     Estilos Base y Variables Globales
+     -------------------------------------------------------------- */
+  :root{
+    --bg: #0f1115;
+    --surface: #15171b;
+    --muted: #8b8f95;
+    --accent: #e50914; /* rojo Maguis/Netflix-like */
+    --card: #16181c;
+    --text: #eee;
+    --radius: 12px;
+    --plan-bg: #1abc9c; 
+    --plan-text: #0b0c0f;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg,var(--bg), #0b0c0f);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow-y:scroll;
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;cursor:pointer;font-weight:700;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn:active{ transform: scale(0.98); }
+  .btn.play{background:var(--text); color:#000; border:none;} /* Botón blanco principal */
+  .btn.pelicula{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--text)}
+
+  /* --------------------------------------------------------------
+     Estilos del Historial (Base)
+     -------------------------------------------------------------- */
+  
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 14px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.1));
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    backdrop-filter: blur(6px);
+  }
+  .icon-btn{
+    width:42px;height:42px;border-radius:10px;border:none;background:rgba(255,255,255,0.02);display:inline-flex;
+    align-items:center;justify-content:center;color:var(--text);cursor:pointer;font-size:18px;
+    transition: background 0.2s;
+  }
+  .icon-btn:active{ background: rgba(255,255,255,0.05); }
+  .title{
+    flex:1;text-align:center;font-weight:800;font-size:18px;
+  }
+  .top-right{
+    display:flex;gap:8px;
+  }
+
+  /* Content container */
+  .container{
+    max-width:1100px;
+    margin:12px auto 80px;
+    padding:0 12px;
+  }
+  
+  /* Grid */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:12px;
+  }
+
+  /* Card */
+  .card{
+    background:var(--card);
+    border-radius:10px;
+    overflow:hidden;
+    position:relative;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.6);
+    transition: transform .18s ease, box-shadow .18s ease;
+    cursor: pointer;
+  }
+  .card:hover{ transform: translateY(-6px); box-shadow: 0 14px 36px rgba(0,0,0,0.75); }
+
+  .poster{
+    width:100%;
+    height:170px;
+    object-fit:cover;
+    display:block;
+    background:linear-gradient(180deg,#222,#171717);
+  }
+
+  /* Overlay text (progress) */
+  .overlay{
+    position:absolute;
+    left:0;
+    top:0; 
+    right:unset;
+    bottom:unset;
+    padding:6px 10px 6px 8px;
+    background: var(--accent);
+    border-radius:10px 0 10px 0;
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+  }
+  
+  /* Botón de opciones en la tarjeta */
+  .card-options {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    pointer-events: all; 
+  }
+
+  .meta{
+    padding:10px 8px 12px;
+  }
+  .movie-title{
+    display:block;
+    font-weight:700;
+    font-size:13px;
+    color:var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .movie-sub{
+    margin-top:6px;font-size:12px;color:var(--muted);
+  }
+  
+  /* Estados Vacíos */
+  .empty-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+      margin-top: 50px;
+  }
+  .empty-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+  }
+  .empty-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0 0 10px 0;
+  }
+  .empty-text {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 300px;
+  }
+
+  /* Floating bottom button (scroll-to-top) */
+  .fab{
+    position:fixed; right:18px; bottom:80px; z-index:200; width:52px;height:52px;border-radius:14px;
+    background:linear-gradient(180deg,var(--accent),#b00710); 
+    /* display:flex; <--- Eliminado para controlar visibilidad con JS */
+    align-items:center;justify-content:center;color:#fff;
+    border:none; box-shadow: 0 10px 30px rgba(0,0,0,0.6); cursor:pointer; font-size:18px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: none; /* Oculto por defecto, se muestra con JS al hacer scroll */
+  }
+  .fab:active{ transform: scale(0.95); box-shadow: 0 5px 15px rgba(0,0,0,0.6); }
+
+  /* Responsive Historial (AJUSTADO PARA 3 COLUMNAS EN MÓVIL) */
+  @media (min-width:900px){
+    .grid{ grid-template-columns: repeat(4, 1fr); }
+    .poster{ height:210px; }
+    .fab{ bottom: 18px; }
+  }
+  @media (max-width:420px){
+    /* Ajustado a 3 columnas en móvil (cumple la solicitud) */
+    .grid{ grid-template-columns: repeat(3, 1fr); gap:10px; }
+    .poster{ height:150px; }
+    .overlay{ font-size:11px; }
+  }
+  @media (max-width:350px){
+    /* Fallback a 2 columnas para dispositivos muy pequeños */
+    .grid{ grid-template-columns: repeat(2, 1fr); gap:8px; }
+  }
+
+
+  /* --------------------------------------------------------------
+     ESTILOS DEL MODAL DE CONFIRMACIÓN (BORRAR)
+     -------------------------------------------------------------- */
+  #confirmation-modal .modal-panel {
+      height: auto; 
+      max-height: 90vh; 
+      max-width: 340px; 
+      border-radius: 20px; 
+      overflow: hidden; 
+      background: var(--surface); 
+      align-self: center; 
+      padding: 0; 
+      box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      transition: transform 0.3s ease-out;
+      transform: scale(0.95);
+  }
+  #confirmation-modal.active .modal-panel {
+      transform: scale(1);
+  }
+  
+  .confirmation-header {
+      height: 100px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      position: relative;
+      background: linear-gradient(135deg, var(--accent), #b00710);
+  }
+  .confirmation-avatar {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: var(--card); 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: var(--accent);
+      border: 4px solid var(--bg);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+
+  .confirmation-content {
+      padding: 50px 20px 20px;
+      text-align: center; 
+      background: var(--surface);
+  }
+  .confirmation-content h4 {
+      margin-top: 0; 
+      font-size: 18px;
+      color: var(--text);
+  }
+  .confirmation-content p {
+      margin-bottom: 25px;
+      color: var(--muted);
+      font-size: 14px;
+  }
+
+  .confirmation-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+  }
+  .confirmation-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      transition: background 0.2s;
+  }
+  .confirmation-actions .btn-confirm {
+      background: var(--accent); 
+      color: #fff;
+  }
+  .confirmation-actions .btn-cancel {
+      background: var(--card); 
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  /* --------------------------------------------------------------
+     ESTILOS DEL MODAL DE REPRODUCCIÓN (PELÍCULA COMPLETA) - ESTILO MAGUIS TV
+     (NUEVA INTERFAZ)
+     -------------------------------------------------------------- */
+  .modal{
+    display:none;
+    position:fixed; inset:0; z-index:1500; background:linear-gradient(180deg, rgba(5,5,6,0.95), rgba(5,5,6,0.95));
+    justify-content:center; 
+    align-items:flex-start; 
+    overflow-y: auto; 
+  }
+  .modal.active{ display:flex }
+  .modal-panel{
+    width:100%; 
+    max-width:960px; 
+    height:100%; 
+    background:linear-gradient(180deg,#0b0b0b,#070708); 
+    border-radius:0; 
+    overflow:hidden; 
+    display:block; 
+    padding:0;
+  }
+  @media(min-width:900px){
+    .modal-panel{ border-radius:16px } 
+  }
+  
+  .modal-body-full{ 
+    height: 100%;
+    overflow-y: scroll;
+    padding-bottom: 30px; /* Espacio extra al final del contenido */
+  }
+
+  .modal-player {
+    width: 100%;
+    aspect-ratio:16/9;
+    position: relative;
+    background-color: black;
+    overflow: hidden;
+    position: sticky; /* Fijo arriba en móvil */
+    top: 0;
+    z-index: 10;
+  }
+  @media(min-width:900px){
+    .modal-player{ border-radius:16px 16px 0 0; }
+  }
+  .modal-player iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    object-fit: fill;
+  }
+
+  /* Controles del reproductor (cerrar) */
+  .player-controls-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none; 
+      background: linear-gradient(180deg, rgba(0,0,0,0.6), transparent); 
+      z-index: 10; 
+  }
+  .player-controls-overlay .icon-btn{
+      pointer-events: all; 
+      background: rgba(0,0,0,0.4);
+      border-radius: 50%; 
+      padding: 10px;
+      color: var(--text);
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      line-height: 1; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5); 
+  }
+  .player-controls-overlay .player-close{
+      font-size: 20px; 
+  }
+
+  /* MODIFICACION SOLICITADA 1: Corazón más grande */
+  .player-controls-overlay .player-favorite {
+      width: 46px; /* Aumentar ligeramente el tamaño del botón para el icono más grande */
+      height: 46px;
+  }
+  .player-controls-overlay .player-favorite i {
+      font-size: 24px; /* Aumentamos el tamaño del icono del corazón */
+  }
+  /* FIN MODIFICACION SOLICITADA 1 */
+
+
+  .detail-info {
+    /* El resto del detalle debajo del reproductor */
+    padding: 0 16px 20px;
+  }
+  
+  .suggestions-row{
+    display:flex; gap:14px; overflow-x:auto; padding-bottom: 10px;
+    /* Estilo para ocultar scrollbar en algunos navegadores */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .suggestions-row::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  .suggestion-card{
+    width: 120px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .suggestion-poster{
+    width:100%; 
+    height:170px; 
+    object-fit:cover; 
+    border-radius:8px; 
+    background:var(--card);
+    transition: transform .15s;
+  }
+  .suggestion-poster:hover{ transform: scale(1.03); }
+  .suggestion-title{
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  
+  /* Loading pulses */
+  .loading-suggestions{
+    display:flex; gap:14px; overflow-x: auto; align-items:center; justify-content:center; padding:20px 0;
+  }
+  .pulse-sug{width:10px;height:10px;border-radius:50%; background:var(--accent); animation:pulse 1.6s infinite;}
+  .pulse-sug:nth-child(2){animation-delay:.4s}
+  .pulse-sug:nth-child(3){animation-delay:.8s}
+  @keyframes pulse{
+    0%{transform:scale(.6); opacity:.7}
+    50%{transform:scale(1); opacity:1}
+    100%{transform:scale(.6); opacity:.7}
+  }
+
+
+  /* --------------------------------------------------------------
+     ESTILOS DEL MODAL DE ANÁLISIS
+     -------------------------------------------------------------- */
+  #analysis-modal .modal-panel {
+      background: linear-gradient(180deg, #0b0b0b, #070708);
+  }
+  .analysis-container {
+      padding: 0; 
+      height: 100%;
+      overflow-y: scroll;
+  }
+  .analysis-header {
+      width: 100%; 
+      height: 250px; 
+      position: relative; 
+      background-size: cover; 
+      background-position: center top;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.7);
+  }
+  .analysis-header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(11,11,11,0.5) 40%, rgba(11,11,11,1) 100%);
+  }
+  .analysis-header h2 {
+      z-index: 1;
+      font-size: 26px;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text);
+  }
+  .analysis-content {
+      padding: 20px 14px;
+      max-width: 800px; 
+      margin: 0 auto;
+      font-size: 15px;
+      line-height: 1.6;
+  }
+  .analysis-content h3 {
+      color: var(--accent);
+      margin-top: 25px;
+      margin-bottom: 10px;
+      font-size: 20px;
+      border-bottom: 2px solid rgba(229, 9, 20, 0.2);
+      padding-bottom: 5px;
+  }
+  .analysis-content p {
+      margin-bottom: 15px;
+      color: var(--text);
+  }
+  .analysis-content ul {
+      list-style: disc;
+      margin-left: 20px;
+      padding: 0;
+      color: var(--muted);
+  }
+  .analysis-content li {
+      margin-bottom: 8px;
+  }
+  /* Iconos de navegación flotantes */
+  .analysis-nav-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none; 
+      background: linear-gradient(180deg, rgba(0,0,0,0.8), transparent); 
+      z-index: 20; 
+  }
+  .analysis-nav-overlay .icon-btn {
+      pointer-events: all;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      padding: 10px;
+      color: var(--text);
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .analysis-avatar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-weight: 600;
+      pointer-events: all; 
+  }
+  .analysis-avatar i {
+      font-size: 20px;
+      color: #10ac84; 
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      padding: 8px;
+  }
+
+
+  /* --------------------------------------------------------------
+     ESTILOS DEL INDICADOR DE PLAN FLOTANTE (Diamante)
+     -------------------------------------------------------------- */
+  #plan-indicator {
+      position: fixed;
+      bottom: 20px; 
+      right: 20px;
+      z-index: 1000;
+      background: var(--plan-bg); 
+      color: var(--plan-text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.3s;
+  }
+  #plan-indicator i.fa-gem {
+      color: var(--plan-text); 
+  }
+  #plan-indicator .close-btn {
+      background: rgba(0,0,0,0.1); 
+      color: var(--plan-text);
+      border: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      margin-left: 8px;
+      padding: 0;
+      cursor: pointer;
+  }
+  #plan-indicator .close-btn:hover {
+      background: rgba(0,0,0,0.2);
+  }
+  @media(min-width:900px){
+    #plan-indicator{ bottom: 18px; }
+  }
+
+
+</style>
+</head>
+<body>
+
+  <div class="topbar" role="banner">
+    <button class="icon-btn" id="btn-back" title="Atrás">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="title">Historial de Reproducción</div>
+    <div class="top-right">
+      <button class="icon-btn" id="btn-trash" title="Limpiar Historial">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    </div>
+  </div>
+
+  <main class="container" id="app">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h3 style="margin:0;font-weight:800">Tu actividad reciente</h3>
+        <div id="loading" style="font-size:13px;color:var(--accent); display:none;">Cargando...</div>
+        <div id="total-items" style="font-size:13px;color:var(--muted)"></div>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite">
+      </div>
+
+      <div id="empty" class="empty-container" style="display:none;">
+        <div class="empty-icon" style="color:var(--muted); background:var(--card)">
+          <i class="fa-solid fa-clock-rotate-left" style="font-size: 40px;"></i>
+        </div>
+        <h2 class="empty-title">¡Aún no hay actividad!</h2>
+        <p class="empty-text">Empieza a ver contenido para que aparezca en tu historial.</p>
+      </div>
+    </section>
+  </main>
+
+  <button class="fab" id="scrollTop" title="Ir arriba">
+    <i class="fa-solid fa-angle-up"></i>
+  </button>
+  
+  <div id="plan-indicator" style="display:none;">
+    <i class="fa-solid fa-gem"></i> 
+    <span id="plan-text">Cargando...</span>
+    <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="modal" id="confirmation-modal">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmation-title">
+      <div class="confirmation-header">
+        <div class="confirmation-avatar">
+          <i class="fa-solid fa-trash-can"></i>
+        </div>
+      </div>
+      <div class="confirmation-content">
+        <h4 id="confirmation-title"></h4>
+        <p id="confirmation-message"></p>
+        <div class="confirmation-actions">
+          <button class="btn btn-cancel" id="btn-cancel-action">Cancelar</button>
+          <button class="btn btn-confirm" id="btn-confirm-action">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-body-full">
+            <div class="modal-player" id="modal-player-container">
+                <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">Cargando...</div>
+                
+                <div class="player-controls-overlay">
+                    <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+                    <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos">
+                        <i class="fa-regular fa-heart"></i> </button>
+                </div>
+            </div>
+            <div class="detail-info"> 
+                <div style="padding:16px 0 8px 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <h3 id="modal-title" style="margin-top:0; font-size:24px; font-weight:800;">Título de la Película</h3>
+                            <p id="modal-sub" style="color:var(--muted); margin-top:0; font-size:14px;">País • Año • Géneros</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding:0;">
+                    <p id="modal-desc" style="margin-top:10px; color:var(--muted); font-size:14px; line-height:1.5;">Descripción detallada de la película...</p>
+                    <div style="margin-top:20px; margin-bottom: 30px; display:flex; gap:10px; flex-wrap: wrap;">
+                        <button class="btn play" id="modal-play"><i class="fa-solid fa-bolt"></i> Recargar</button> 
+                        <button class="btn película" id="modal-analysis-btn"><i class="fa-solid fa-brain"></i> Análisis</button>
+                        <button class="btn película" id="modal-share-btn"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+                    </div>
+                </div>
+                
+                <div class="suggestions" style="padding-bottom: 20px;">
+                    <h4 style="margin-top:0; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; font-weight:700;">También podría gustarte (Sugerencias)</h4>
+                    <div class="suggestions-row" id="suggestions-row">
+                      <div class="loading-suggestions" id="loading-suggestions">
+                          <div class="pulse-sug"></div>
+                          <div class="pulse-sug"></div>
+                          <div class="pulse-sug"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  <div class="modal" id="analysis-modal">
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="analysis-title">
+          <div class="analysis-container">
+              
+              <div class="analysis-nav-overlay">
+                  <div class="analysis-avatar">
+                      <button class="icon-btn" id="analysis-back-btn" title="Volver a la película"><i class="fa-solid fa-arrow-left"></i></button>
+                      <i class="fa-solid fa-robot" title="Análisis Generado por IA"></i>
+                  </div>
+                  <button class="icon-btn" id="analysis-report-btn" title="Reportar Error en el Análisis"><i class="fa-solid fa-circle-info"></i></button>
+              </div>
+
+              <div class="analysis-header" id="analysis-header" style="background-image: url('https://via.placeholder.com/960x250/333333/FFFFFF?text=Fondo+de+Análisis')">
+                  <h2 id="analysis-title">Análisis de la Película</h2>
+              </div>
+              
+              <div class="analysis-content" id="analysis-content">
+                  <p style="color:var(--muted); text-align:center;">El análisis experto se cargará...</p>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="modal" id="alert-modal">
+    <div class="modal-panel" style="height:auto; max-height:90vh; max-width:300px; border-radius:16px; overflow:hidden; background:none; align-self:center; padding:0; box-shadow: 0 10px 30px rgba(0,0,0,0.8);" role="alert" aria-live="assertive">
+      <div style="height: 120px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.85); border-radius: 16px 16px 0 0; color: var(--accent);">
+          <div style="font-size: 28px; font-weight: 800;">PeliPREX</div>
+      </div>
+      <div style="padding: 20px; text-align: center; background: linear-gradient(135deg, #00d2d3, #10ac84); border-radius: 0 0 16px 16px; color: #0b0c0f;">
+        <h4 id="alert-title" style="margin-top:0; font-size:18px">Aviso</h4>
+        <p id="alert-message" style="margin-bottom:20px;"></p>
+        <button class="btn" id="close-alert-modal" style="background: var(--accent); color: #fff; font-weight: 700; width: 100%; margin-top: 15px; border-radius: 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.2);">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+/* ==========================================================
+   CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE
+   ========================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg", // <--- TU API KEY AQUÍ
+  authDomain: "consulta-pe-abf99.firebaseapp.com", // <--- TU AUTH DOMAIN AQUÍ
+  projectId: "consulta-pe-abf99", // <--- TU PROJECT ID AQUÍ
+  storageBucket: "consulta-pe-abf99.firebasestorage.app", // <--- TU STORAGE BUCKET AQUÍ
+  messagingSenderId: "610275972424", // <--- TU MESSAGING SENDER ID AQUÍ
+  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d" // <--- TU APP ID AQUÍ
+};
+
+// Inicialización
+if(firebase.apps.length === 0){
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// API Base URL (Asegúrate de que este endpoint es el correcto para tu backend)
+let PELIPREX_BASE_URL = ""; // Cargado desde secrets
+
+async function loadConfig() {
+  try {
+    const response = await fetch('/api/config');
+    const config = await response.json();
+    if (config.peliprexBaseUrl) {
+      PELIPREX_BASE_URL = config.peliprexBaseUrl;
+      console.log("PELIPREX_BASE_URL cargada desde el servidor:", PELIPREX_BASE_URL);
+    }
+  } catch (error) {
+    console.error("Error al cargar la configuración:", error);
+  }
+}
+
+// Llamar a loadConfig al inicio
+loadConfig();
+
+let globalHistoryData = []; // Almacena el historial para usarlo en Borrado/Sugerencias
+let currentMovie = null; // Almacena la película actual para el modal de Análisis
+
+/* ==========================================================
+   REFERENCIAS Y FUNCIONES DE SOPORTE
+   ========================================================== */
+// Referencias de UI esenciales (Historial)
+const historyGrid = document.getElementById('grid');
+const historyEmptyState = document.getElementById('empty');
+const historyTotalItemsEl = document.getElementById('total-items');
+
+// Referencias de Modales
+const modal = document.getElementById('modal');
+const modalPlayer = document.getElementById('modal-player-container');
+const modalTitle = document.getElementById('modal-title');
+const modalSub = document.getElementById('modal-sub');
+const modalDesc = document.getElementById('modal-desc');
+const suggestionsRow = document.getElementById('suggestions-row');
+const loadingSuggestions = document.getElementById('loading-suggestions');
+
+const confirmationModal = document.getElementById('confirmation-modal');
+const confirmationTitleEl = document.getElementById('confirmation-title');
+const confirmationMessageEl = document.getElementById('confirmation-message');
+const btnConfirmAction = document.getElementById('btn-confirm-action');
+const btnCancelAction = document.getElementById('btn-cancel-action');
+
+// Referencias del Modal de Análisis
+const analysisModal = document.getElementById('analysis-modal');
+const analysisTitleEl = document.getElementById('analysis-title');
+const analysisHeader = document.getElementById('analysis-header');
+const analysisContent = document.getElementById('analysis-content');
+
+
+// Indicador de plan/créditos
+const planIndicator = document.getElementById('plan-indicator');
+const planText = document.getElementById('plan-text');
+const closePlanIndicatorBtn = document.getElementById('close-plan-indicator'); 
+
+// Utility Functions
+function safeImage(url){
+  if(!url) return 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster+No+Disp.';
+  // Reemplazar /w500 por /original si está usando TMDb
+  const baseTMDb = 'https://image.tm.org/t/p/';
+  if(url && url.startsWith(baseTMDb)){
+      return url.replace('/w500', '/original');
+  }
+  return (url.startsWith('http')) ? url : 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster';
+}
+
+function showCustomModal(title, message, isError = false) {
+    const m = document.getElementById('alert-modal');
+    document.getElementById('alert-title').textContent = title;
+    // La modificación 3 ya ha eliminado los ** en los llamados a esta función.
+    document.getElementById('alert-message').innerHTML = message; 
+    const titleEl = document.getElementById('alert-title');
+    if (isError) {
+        titleEl.style.color = 'var(--accent)'; 
+    } else {
+        titleEl.style.color = '#0b0c0f'; 
+    }
+    m.classList.add('active');
+}
+function showErrorModal(message) {
+    showCustomModal("¡Atención!", message, true);
+}
+document.getElementById('close-alert-modal').addEventListener('click', () => {
+    document.getElementById('alert-modal').classList.remove('active');
+});
+
+function formatDate(d){
+  try{
+    const dt = new Date(d);
+    return dt.toLocaleDateString() + " " + dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  }catch(e){ return d; }
+
+}
+
+/**
+ * Muestra el modal de confirmación con la configuración dada.
+ * @param {string} title Título del modal.
+ * @param {string} message Mensaje de cuerpo.
+ * @param {function} onConfirm Función a ejecutar al confirmar.
+ */
+function showConfirmationModal(title, message, onConfirm) {
+    confirmationTitleEl.textContent = title;
+    // La modificación 3 ya ha eliminado los ** en los llamados a esta función.
+    confirmationMessageEl.innerHTML = message;
+    
+    const oldBtnConfirm = document.getElementById('btn-confirm-action');
+    const newBtnConfirm = oldBtnConfirm.cloneNode(true);
+    oldBtnConfirm.parentNode.replaceChild(newBtnConfirm, oldBtnConfirm);
+    
+    newBtnConfirm.onclick = () => {
+        onConfirm();
+        confirmationModal.classList.remove('active');
+    };
+    btnCancelAction.onclick = () => {
+        confirmationModal.classList.remove('active');
+    };
+    
+    confirmationModal.classList.add('active');
+}
+
+// Listener para cerrar al hacer clic fuera del panel (Modal Confirmación)
+confirmationModal.addEventListener('click', (e)=>{
+  if(e.target === confirmationModal) {
+    confirmationModal.classList.remove('active');
+  }
+});
+
+
+/* ==========================================================
+   LÓGICA DEL PLAN Y UI
+   ========================================================== */
+
+/**
+ * Actualiza la UI del indicador flotante de Plan/Créditos.
+ * @param {Object|null} userData Los datos del usuario de Firestore.
+ */
+function updatePlanIndicator(userData) {
+    if (localStorage.getItem('planIndicatorClosed') === 'true') {
+        planIndicator.style.display = 'none';
+        return;
+    }
+    
+    if (!userData) {
+        planIndicator.style.display = 'none';
+        return;
+    }
+
+    planIndicator.style.display = 'flex';
+
+    if (userData.tipoPlan === 'ilimitado') {
+        planText.textContent = 'Plan Ilimitado';
+        planIndicator.style.background = 'linear-gradient(135deg, var(--accent), #b00710)'; 
+        planIndicator.style.color = '#fff';
+        planIndicator.querySelector('i').style.color = '#fff';
+        closePlanIndicatorBtn.style.background = 'rgba(255,255,255,0.2)';
+        closePlanIndicatorBtn.style.color = '#fff';
+
+    } else if (userData.tipoPlan === 'creditos') {
+        const remaining = parseInt(userData.creditos) || 0; 
+        planText.textContent = `${remaining} Créditos`;
+        
+        // LÓGICA DE COLOR DEL DIAMANTE FLOTANTE (REQUERIDO POR EL USUARIO)
+        if (remaining > 0) {
+            // Verde 💚: 1 o más créditos
+            planIndicator.style.background = 'linear-gradient(45deg, #10ac84, #00b09b)'; 
+            planIndicator.style.color = '#0b0c0f';
+            planIndicator.querySelector('i').style.color = '#0b0c0f';
+        } else {
+            // Amarillo: 0 créditos
+            planIndicator.style.background = 'linear-gradient(45deg,#ffdd57,#ffb84d)'; 
+            planIndicator.style.color = '#0b0c0f';
+            planIndicator.querySelector('i').style.color = '#0b0c0f';
+        }
+
+        // Estilos del botón de cierre (se mantienen)
+        closePlanIndicatorBtn.style.background = 'rgba(0,0,0,0.1)';
+        // Se asegura el color de contraste
+        closePlanIndicatorBtn.style.color = planIndicator.style.color || 'var(--plan-text)'; 
+
+    } else {
+        planText.textContent = 'Plan No Activo';
+        planIndicator.style.background = 'linear-gradient(135deg, #8b8f95, #555)';
+        planIndicator.style.color = '#fff';
+        planIndicator.querySelector('i').style.color = '#fff';
+        closePlanIndicatorBtn.style.background = 'rgba(255,255,255,0.2)';
+        closePlanIndicatorBtn.style.color = '#fff';
+    }
+}
+
+// Listener para cerrar el indicador y guardarlo en localStorage
+closePlanIndicatorBtn.addEventListener('click', () => {
+    planIndicator.style.display = 'none';
+    localStorage.setItem('planIndicatorClosed', 'true');
+});
+
+/**
+ * Función central para actualizar la UI del perfil (llamada desde onAuthStateChanged).
+ * @param {Object|null} userData Los datos del usuario de Firestore.
+ */
+function updateProfileUI(userData) {
+    updatePlanIndicator(userData);
+}
+
+/* ==========================================================
+   LÓGICA DE DEDUCCIÓN DE CRÉDITOS (AQUÍ SE REUTILIZA PARA LA LÓGICA DE 20 MINUTOS)
+   ========================================================== */
+
+/**
+ * Deduce créditos reales del usuario en Firestore.
+ * @param {number} amount Cantidad a deducir.
+ * @param {string} movieTitle Título de la película para mensajes.
+ * @returns {Promise<boolean>} True si la deducción fue exitosa o no se requirió (plan ilimitado), False si falló (créditos insuficientes).
+ */
+async function deductCredits(amount, movieTitle) {
+    const user = auth.currentUser;
+    if (!user) {
+        showErrorModal('Necesitas iniciar sesión para deducir créditos.');
+        return false;
+    }
+    
+    const userRef = db.collection("usuarios").doc(user.uid);
+    try {
+        // Usar una transacción para asegurar la integridad de los créditos
+        await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(userRef);
+            
+            if (!doc.exists) {
+                throw new Error("Datos de usuario no encontrados.");
+            }
+            
+            const userData = doc.data();
+            
+            // 1. Plan Ilimitado: No hay deducción.
+            if (userData.tipoPlan === 'ilimitado') {
+                return true; // No es necesario deducir
+            }
+
+            // 2. Plan por Créditos: Deducir.
+            if (userData.tipoPlan === 'creditos') {
+                const currentCredits = parseInt(userData.creditos) || 0;
+                
+                if (currentCredits < amount) {
+                    // Rechazo en la transacción: Lanza un error específico.
+                    throw new Error(`CRÉDITOS INSUFICIENTES: Necesitas ${amount} créditos para ver "${movieTitle}". Solo tienes ${currentCredits}.`);
+                }
+
+                const newCredits = currentCredits - amount;
+                
+                // Actualizar en Firestore dentro de la transacción
+                transaction.update(userRef, { creditos: newCredits });
+                
+                // Actualizar la UI localmente para que updatePlanIndicator funcione
+                userData.creditos = newCredits;
+                updateProfileUI(userData); 
+                
+                return true;
+            }
+            
+            // Si el plan es desconocido
+            throw new Error("Tipo de plan desconocido o no activo.");
+        });
+        
+        return true; // Transacción exitosa
+        
+    } catch (error) {
+        console.error("Error en la deducción de créditos:", error);
+        
+        if (error.message.startsWith('CRÉDITOS INSUFICIENTES')) {
+            const parts = error.message.split(':');
+            showErrorModal(parts[1].trim()); // Muestra solo el mensaje del error
+        } else {
+            showErrorModal(`No se pudo deducir el crédito. Error: ${error.message}`);
+        }
+        
+        return false; // Transacción fallida
+    }
+}
+
+/* ==========================================================
+   LÓGICA DE BORRADO Y CONSULTA
+   ========================================================== */
+
+/**
+ * Llama al API para borrar una película individual del historial.
+ * **Ruta API utilizada: /user/history/remove**
+ * @param {Object} movie La película a borrar.
+ */
+async function removeIndividualHistory(movie) {
+    const user = auth.currentUser;
+    if (!user || !user.email) {
+        showErrorModal('No hay sesión activa.');
+        return;
+    }
+
+    showConfirmationModal(
+        `Eliminar "${movie.titulo}"`,
+        // MODIFICACION SOLICITADA 3: Eliminado **
+        `¿Estás seguro de que quieres eliminar ${movie.titulo} de tu historial?`,
+        async () => {
+            try {
+                const apiUrl = `${PELIPREX_BASE_URL}/user/history/remove?email=${encodeURIComponent(user.email)}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
+                
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || `Error HTTP: ${response.status}`);
+                }
+                
+                if(data.ok === true){
+                    globalHistoryData = globalHistoryData.filter(item => item.pelicula_url !== movie.pelicula_url);
+                    renderHistoryGrid(globalHistoryData);
+                    // MODIFICACION SOLICITADA 3: Eliminado **
+                    showCustomModal('Éxito', `${movie.titulo} ha sido eliminada del historial.`, false);
+                } else {
+                    showErrorModal(`Error al borrar: ${data.message || 'Intenta de nuevo.'}`);
+                }
+            } catch (error) {
+                console.error("Error al borrar individual:", error);
+                showErrorModal(`Error de red o API al borrar: ${error.message}`);
+            }
+        }
+    );
+}
+
+/**
+ * Llama al API para borrar todo el historial.
+ * **Ruta API utilizada: /user/history/clear**
+ */
+async function clearAllHistory() {
+    const user = auth.currentUser;
+    if (!user || !user.email) {
+        showErrorModal('No hay sesión activa.');
+        return;
+    }
+    
+    if (globalHistoryData.length === 0) {
+        showCustomModal('Historial Vacío', 'Tu historial ya está vacío.', false);
+        return;
+    }
+
+    showConfirmationModal(
+        'Limpiar Historial Completo',
+        // MODIFICACION SOLICITADA 3: Eliminado **
+        `Esto eliminará ${globalHistoryData.length} elementos de tu historial. ¿Confirmar?`,
+        async () => {
+            try {
+                const apiUrl = `${PELIPREX_BASE_URL}/user/history/clear?email=${encodeURIComponent(user.email)}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || `Error HTTP: ${response.status}`);
+                }
+
+                if(data.ok === true){
+                    globalHistoryData = [];
+                    renderHistoryGrid(globalHistoryData);
+                    showCustomModal('Historial Limpio', 'Tu historial ha sido borrado con éxito.', false);
+                } else {
+                    showErrorModal(`Error al borrar: ${data.message || 'Intenta de nuevo.'}`);
+                }
+            } catch (error) {
+                console.error("Error al borrar todo:", error);
+                showErrorModal(`Error de red o API al borrar todo el historial: ${error.message}`);
+            }
+        }
+    );
+}
+
+
+/* ==========================================================
+   LÓGICA DEL MODAL DE ANÁLISIS
+   ========================================================== */
+
+function generatePlaceholderAnalysis(movie) {
+    const title = movie.titulo || 'Película Fantástica';
+    const year = movie.año || movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A';
+    const genre = movie.generos || 'Género Desconocido';
+    const rating = movie.puntuacion || 'N/A';
+
+    return `
+        <h3 style="color:#fff; border-bottom:1px solid var(--muted); padding-bottom:10px;">Ficha Rápida del Film</h3>
+        <p><strong>Título:</strong> ${title}</p>
+        <p><strong>Año de Estreno:</strong> ${year}</p>
+        <p><strong>Género Principal:</strong> ${genre}</p>
+        <p><strong>Puntuación TMDb:</strong> ${rating}/10</p>
+
+        <h3>La Esencia: Reseña Clave</h3>
+        <p>
+            ${title} se destaca por su audaz narrativa y su impacto visual. Es una obra que desafía las convenciones de su género, ofreciendo una experiencia inmersiva que se queda contigo mucho después de los créditos. La dirección es firme, manteniendo un ritmo que no decae y construyendo la tensión de manera magistral.
+        </p>
+        
+        <h3>Elementos Destacados</h3>
+        <p>
+            Los puntos fuertes de la película incluyen actuaciones sólidas y una cinematografía que eleva la historia. Los temas de ${genre.split(',')[0] || 'la condición humana'} y ${genre.split(',')[1] || 'el destino'} son explorados con profundidad.
+        </p>
+        <ul>
+            <li><strong>Actuaciones:</strong> El elenco principal ofrece interpretaciones memorables.</li>
+            <li><strong>Guion:</strong> Inteligente y con giros inesperados que mantienen la intriga.</li>
+        </ul>
+
+        <p style="text-align:right; color:var(--accent); font-weight:800; font-size:18px; margin-top:30px;">
+            VEREDICTO: ¡Experiencia Recomendada!
+        </p>
+        <p style="text-align:right; color:var(--muted); font-size:13px;">Análisis generado por nuestro Modelo Experto de Contenido (IA).</p>
+    `;
+}
+
+async function getMovieAnalysis(movie) {
+    analysisContent.innerHTML = `
+        <div class="loading-suggestions" style="display:flex; gap:10px; align-items:center; justify-content:center; padding:50px 0;">
+            <div class="pulse-sug"></div>
+            <div class="pulse-sug"></div>
+            <div class="pulse-sug"></div>
+        </div>
+        <p style="text-align:center; color:var(--muted); margin-top:15px;">Generando un análisis experto y humano de "${movie.titulo}"...</p>
+    `;
+    
+    // Simulación de delay para la carga del análisis (1.5 segundos)
+    await new Promise(resolve => setTimeout(resolve, 1500)); 
+
+    const analysisHTML = generatePlaceholderAnalysis(movie);
+    
+    // MODIFICACION SOLICITADA 3: Eliminado ** en el HTML de análisis (dentro de generatePlaceholderAnalysis)
+    analysisContent.innerHTML = analysisHTML;
+    analysisModal.querySelector('.analysis-container').scrollTo({top:0, behavior:'smooth'});
+    
+    analysisHeader.style.backgroundImage = `url(${safeImage(movie.imagen_url)})`;
+}
+
+function showAnalysisInterface(movie) {
+    currentMovie = movie; // Guardar la película actual
+    analysisTitleEl.textContent = `Análisis Experto: ${movie.titulo || 'Película'}`;
+    
+    // Re-bind listeners para el modal de análisis
+    document.getElementById('analysis-back-btn').onclick = () => {
+        analysisModal.classList.remove('active');
+        displayMovieDetails(currentMovie); // Vuelve al modal de detalles
+    };
+    document.getElementById('analysis-report-btn').onclick = () => {
+        showCustomModal('Reportar Error', 'Esta acción reporta un error en el análisis a los administradores.', false);
+    };
+
+
+    modal.classList.remove('active');
+    modalPlayer.innerHTML = ''; // Limpiar el reproductor del modal principal
+    analysisModal.classList.add('active');
+    
+    getMovieAnalysis(movie);
+}
+
+// Listener para cerrar al hacer clic fuera del panel (Modal Análisis)
+analysisModal.addEventListener('click', (e)=>{
+  if(e.target === analysisModal) {
+    analysisModal.classList.remove('active');
+  }
+});
+
+
+/* ==========================================================
+   NUEVA LÓGICA DE FAVORITOS Y HISTORIAL AUTOMÁTICO
+   ========================================================== */
+
+/**
+ * NUEVA FUNCIÓN: Agrega la película al historial de reproducción mediante la API.
+ * Esto se hace de forma asíncrona y sin bloquear la interfaz.
+ * @param {Object} movie La película a agregar.
+ */
+async function addMovieToHistory(movie) {
+    const user = auth.currentUser;
+    if (!user || !user.email || !movie.titulo || !movie.pelicula_url) {
+        return; // Fallo silencioso si no hay usuario o datos esenciales
+    }
+
+    try {
+        const apiUrl = `${PELIPREX_BASE_URL}/user/add_history?email=${encodeURIComponent(user.email)}&titulo=${encodeURIComponent(movie.titulo)}&imagen_url=${encodeURIComponent(movie.imagen_url || '')}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
+        
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+            console.warn(`Error al registrar historial para ${movie.titulo}: HTTP Status ${response.status}`);
+        } else {
+            const data = await response.json();
+            if (data.error) {
+                console.warn(`Error al registrar historial para ${movie.titulo}: API Error - ${data.error}`);
+            } else {
+                console.log(`Historial registrado con éxito: ${movie.titulo}`);
+            }
+        }
+    } catch (error) {
+        console.error("Error durante el registro automático de historial:", error);
+    }
+}
+
+/**
+ * NUEVA FUNCIÓN: Agrega la película a la lista de favoritos mediante la API.
+ * @param {Object} movie La película a agregar.
+ */
+async function addMovieToFavorites(movie) {
+    const user = auth.currentUser;
+    if (!user || !user.email || !movie.titulo || !movie.pelicula_url) {
+        showErrorModal('No hay sesión activa o faltan datos de la película.');
+        return;
+    }
+
+    try {
+        const apiUrl = `${PELIPREX_BASE_URL}/user/add_favorite?email=${encodeURIComponent(user.email)}&titulo=${encodeURIComponent(movie.titulo)}&imagen_url=${encodeURIComponent(movie.imagen_url || '')}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
+        
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+            throw new Error(data.error || `Error HTTP: ${response.status}`);
+        }
+        
+        if(data.ok === true){
+            const favoriteBtn = document.getElementById('player-favorite-btn');
+            if (favoriteBtn) {
+                // MODIFICACIÓN SOLICITADA 1: Cambia a corazón relleno (fa-solid) y color accent
+                const icon = favoriteBtn.querySelector('i');
+                if(icon) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                }
+                favoriteBtn.style.color = 'var(--accent)'; // Color rojo para indicar favorito activo
+            }
+            // MODIFICACION SOLICITADA 3: Eliminado **
+            showCustomModal('Favoritos', `${movie.titulo} ha sido añadida a tu lista de favoritos.`, false);
+        } else {
+            showErrorModal(`Error al añadir a favoritos: ${data.message || 'Intenta de nuevo.'}`);
+        }
+    } catch (error) {
+        console.error("Error al añadir a favoritos:", error);
+        showErrorModal(`Error de red o API al añadir a favoritos: ${error.message}`);
+    }
+}
+
+/* ==========================================================
+   LÓGICA DEL HEARTBEAT (PULSO) - CRUCIAL PARA LA CORRECCIÓN
+   ========================================================== */
+
+let heartbeatIntervalId = null;
+let movieStartTime = 0; // Timestamp del inicio de la reproducción
+const CREDIT_CONSUMPTION_TIME_SECONDS = 20 * 60; // 1200 segundos (20 minutos)
+const HEARTBEAT_INTERVAL_MS = 60 * 1000; // 60 segundos (1 minuto)
+
+// Detiene el latido y reinicia las variables
+function stopHeartbeat() {
+    if (heartbeatIntervalId !== null) {
+        clearInterval(heartbeatIntervalId);
+        heartbeatIntervalId = null;
+        movieStartTime = 0;
+        console.log("Heartbeat detenido.");
+    }
+}
+
+/**
+ * Inicia el loop de Heartbeat, envía el pulso al servidor y maneja la deducción de créditos.
+ * La deducción se ejecuta solo si han pasado 20 minutos y no ha sido deducida antes.
+ * @param {Object} movie La película.
+ * @param {number} creditCost El costo inicial (3 o 2).
+ */
+async function startHeartbeat(movie, creditCost) {
+    if (heartbeatIntervalId !== null) return; // Ya está corriendo
+    
+    movieStartTime = Date.now();
+    let creditDeductedFlag = false; // Bandera para la deducción única
+
+    async function sendPulse() {
+        const user = auth.currentUser;
+        if (!user) {
+            stopHeartbeat();
+            return;
+        }
+        
+        const elapsedSeconds = Math.floor((Date.now() - movieStartTime) / 1000);
+        // Usamos una duración de ejemplo.
+        const totalDuration = 7200; // 2 horas (ejemplo)
+
+        // 1. Lógica de deducción: Si se han superado los 20 minutos (1200s) y el crédito no ha sido deducido.
+        if (elapsedSeconds >= CREDIT_CONSUMPTION_TIME_SECONDS && !creditDeductedFlag) {
+            console.log(`¡20 minutos alcanzados (${elapsedSeconds}s)! DEDUCCIÓN DE CRÉDITOS INICIADA.`);
+            
+            // Llama a la función de deducción de Firebase.
+            const deductionSuccessful = await deductCredits(creditCost, movie.titulo);
+            
+            if (deductionSuccessful) {
+                creditDeductedFlag = true;
+                console.log("Crédito deducido con éxito.");
+            } else {
+                // Si la deducción falla (créditos insuficientes), detener la reproducción.
+                stopHeartbeat();
+                closeMovieModalAndRefresh(); 
+                return; 
+            }
+        }
+
+        // 2. Enviar el Heartbeat a la API
+        try {
+            // Se envía el currentTime simulado para que el servidor pueda guardar el progreso.
+            const apiUrl = `${PELIPREX_BASE_URL}/user/heartbeat?email=${encodeURIComponent(user.email)}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}¤tTime=${elapsedSeconds}&totalDuration=${totalDuration}&titulo=${encodeURIComponent(movie.titulo)}`;
+            
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                throw new Error(data.error || `Error HTTP: ${response.status}`);
+            }
+            
+            console.log(`Heartbeat exitoso a ${elapsedSeconds}s. Server response:`, data);
+            
+            // Si el server indica que la película terminó, detener el pulso.
+            if (data.finished) {
+                stopHeartbeat();
+                closeMovieModalAndRefresh(); 
+            }
+            
+        } catch (error) {
+            console.error("Error al enviar Heartbeat:", error);
+        }
+    }
+
+    // Ejecutar el pulso inmediatamente y luego configurar el intervalo
+    sendPulse(); 
+    heartbeatIntervalId = setInterval(sendPulse, HEARTBEAT_INTERVAL_MS);
+    console.log(`Heartbeat iniciado para "${movie.titulo}". Pulso cada 60s.`);
+}
+
+
+/* ==========================================================
+   INTERFAZ DE REPRODUCCIÓN (MODAL) Y SUGERENCIAS
+   ========================================================== */
+
+/**
+ * Crea una tarjeta de sugerencia.
+ * @param {Object} item Película de sugerencia.
+ */
+function createSuggestionCard(item){
+    const div = document.createElement('div');
+    div.className = 'suggestion-card';
+
+    const poster = document.createElement('img');
+    poster.className = 'suggestion-poster';
+    poster.alt = `Póster de ${item.titulo}`;
+    poster.src = safeImage(item.imagen_url);
+    poster.loading = 'lazy'; 
+
+    const title = document.createElement('div');
+    title.className = 'suggestion-title';
+    title.textContent = item.titulo;
+
+    div.appendChild(poster);
+    div.appendChild(title);
+
+    // MODIFICADO: Al hacer clic, abre la interfaz de reproducción con la fuente 'suggestion'
+    div.addEventListener('click', ()=> {
+        handleViewMovieDetails(item, 'suggestion');
+    });
+
+    return div;
+}
+
+/**
+ * Renderiza la fila de sugerencias.
+ * @param {Array} data Lista de películas.
+ */
+function renderSuggestions(data){
+    suggestionsRow.innerHTML = '';
+    
+    if(!data || data.length === 0){
+        suggestionsRow.innerHTML = '<p style="color:var(--muted); font-size:14px; margin-top:0;">No se encontraron sugerencias.</p>';
+        return;
+    }
+    
+    // Solo mostrar las primeras 10 sugerencias
+    data.slice(0, 10).forEach(item => {
+        suggestionsRow.appendChild(createSuggestionCard(item));
+    });
+}
+
+/**
+ * Obtiene las sugerencias de la API.
+ * **Ruta API utilizada: /peliculas**
+ */
+async function fetchSuggestions(){
+    loadingSuggestions.style.display = 'flex';
+    suggestionsRow.innerHTML = '';
+
+    try {
+        const apiURL = `${PELIPREX_BASE_URL}/peliculas`;
+        const response = await fetch(apiURL);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        loadingSuggestions.style.display = 'none';
+        
+        if (Array.isArray(data)) {
+            // Mezclar la data para tener sugerencias variadas cada vez
+            const shuffled = data.sort(() => 0.5 - Math.random());
+            renderSuggestions(shuffled);
+        } else {
+            console.warn("API response was not an array.", data);
+            renderSuggestions([]);
+        }
+    } catch (error) {
+        console.error("Error al cargar sugerencias:", error);
+        loadingSuggestions.style.display = 'none';
+        suggestionsRow.innerHTML = '<p style="color:var(--accent); font-size:14px; margin-top:0;">Error al cargar sugerencias. Intenta de nuevo.</p>';
+    }
+}
+
+/**
+ * Función para cerrar el modal de reproducción y recargar el historial.
+ * (MODIFICACION SOLICITADA: Implementación de la recarga automática y detener heartbeat)
+ */
+function closeMovieModalAndRefresh() {
+    stopHeartbeat(); // Detener el latido al cerrar
+    modal.classList.remove('active');
+    modalPlayer.innerHTML = ''; // Limpiar el contenido del iframe para detener la reproducción
+    main(); // Llama a fetchRealHistory() y renderHistoryGrid(globalHistoryData)
+}
+
+
+/**
+ * Carga los detalles y el reproductor de la película en el modal.
+ * @param {Object} movie La película con la URL final.
+ */
+function displayMovieDetails(movie) {
+    currentMovie = movie;
+    
+    // 1. Cargar el iframe del reproductor y controles
+    modalPlayer.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">peliPREX</div>
+        <div class="player-controls-overlay">
+            <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+            <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
+        </div>
+    `;
+    
+    if(movie.pelicula_url){
+        const iframe = document.createElement('iframe');
+        iframe.src = movie.pelicula_url;
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.frameBorder = 0;
+        iframe.style.objectFit = 'fill'; 
+        iframe.style.position = 'absolute';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        modalPlayer.insertBefore(iframe, modalPlayer.firstChild); 
+    }
+
+    // 2. Cargar la información de detalle
+    const releaseYear = movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : movie.año || 'N/A';
+    
+    modalTitle.textContent = movie.titulo || 'Película Desconocida';
+    modalSub.textContent = `${movie.idioma_original || ''} • ${releaseYear} • ${movie.generos || ''}`;
+    modalDesc.textContent = movie.descripcion || 'No hay descripción disponible.';
+    
+    // 3. Re-asignar listener al nuevo botón de cerrar dentro del overlay del iframe
+    const closeBtnInIframe = document.getElementById('player-close-btn-in-iframe');
+    // MODIFICACION SOLICITADA: Usar la nueva función de cierre y recarga
+    closeBtnInIframe.onclick = closeMovieModalAndRefresh; 
+
+    // 4. LÓGICA DE FAVORITOS (NUEVA FUNCIÓN)
+    const favoriteBtn = document.getElementById('player-favorite-btn');
+    
+    // Resetear a corazón transparente (fa-regular) y color por defecto (var(--text))
+    favoriteBtn.style.color = 'var(--text)'; 
+    const icon = favoriteBtn.querySelector('i');
+    if(icon) {
+        icon.classList.remove('fa-solid');
+        icon.classList.add('fa-regular');
+    }
+    
+    // Asignar función
+    favoriteBtn.onclick = () => {
+        addMovieToFavorites(movie);
+    };
+
+    // 5. Asignar listener al botón de Análisis
+    document.getElementById('modal-analysis-btn').onclick = () => {
+        generateAnalysisWithGemini(movie.titulo, movie.descripcion);
+    };
+    
+    // MODIFICACIONES SOLICITADAS: Botones 'Recargar' y 'Compartir'
+    
+    // A. Botón "Recargar" (anteriormente "Ver") -> planes.html
+    document.getElementById('modal-play').onclick = (e) => {
+        e.preventDefault();
+        window.location.href = "planes.html";
+    };
+
+    // B. Botón "Compartir" -> Mostrar banner
+    document.getElementById('modal-share-btn').onclick = (e) => {
+        e.preventDefault();
+        document.getElementById('banner').style.display = 'flex';
+    };
+
+    // 6. Cargar Sugerencias
+    fetchSuggestions();
+
+    // 7. Mostrar el modal y hacer scroll al top del contenido (debajo del player)
+    modal.classList.add('active');
+    document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
+}
+
+/**
+ * Maneja la visualización de la película, corrigiendo el link, registrando historial y *iniciando el heartbeat*.
+ * @param {Object} movie La película seleccionada del Historial o Sugerencias.
+ * @param {string} source 'history' o 'suggestion' para determinar el costo.
+ */
+async function handleViewMovieDetails(movie, source){
+    const user = auth.currentUser;
+    if (!user) {
+        showErrorModal('Necesitas iniciar sesión para ver contenido. Recarga la página si acabas de iniciar.');
+        return;
+    }
+    
+    // 1. DETERMINAR COSTO DE CRÉDITO 
+    // El costo se pasa al Heartbeat, que es quien ejecuta la deducción a los 20 minutos.
+    const creditCost = source === 'history' ? 2 : 3; 
+
+    // ** LÓGICA DE DEDUCCIÓN INMEDIATA ELIMINADA. Ahora se hace en startHeartbeat después de 20 min. **
+
+    let finalUrl = movie.pelicula_url;
+    
+    // --- LÓGICA DE CORRECCIÓN DE URL GOOGLE DRIVE ---
+    if (finalUrl && finalUrl.includes('drive.google.com')) {
+        const match = finalUrl.match(/\/d\/([^/]+)/);
+        if (match) {
+            finalUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+            console.log("URL de Drive corregida automáticamente:", finalUrl);
+        }
+    } 
+    
+    // Si es YouTube, corregimos a formato 'embed' si es 'watch?v='
+    if (finalUrl && finalUrl.includes('youtube.com/watch?v=')) {
+        finalUrl = finalUrl.replace('watch?v=', 'embed/');
+        console.log("URL de YouTube corregida automáticamente:", finalUrl);
+    }
+
+    if (!finalUrl) {
+        // MODIFICACION SOLICITADA 3: Eliminado **
+        showErrorModal(`El enlace de reproducción para ${movie.titulo} es nulo o está roto.`);
+        return;
+    }
+    
+    const movieWithFixedUrl = {...movie, pelicula_url: finalUrl};
+    
+    // --- REGISTRAR EN EL HISTORIAL AL INICIAR LA REPRODUCCIÓN ---
+    addMovieToHistory(movieWithFixedUrl);
+    
+    // --- INICIAR EL HEARTBEAT CON EL COSTO ---
+    // La deducción se hará en esta función después de 20 minutos.
+    startHeartbeat(movieWithFixedUrl, creditCost);
+    
+    displayMovieDetails(movieWithFixedUrl);
+}
+
+// Listener para cerrar al hacer clic fuera del panel (Modal de Reproducción)
+modal.addEventListener('click', (e)=>{
+  if(e.target === modal) {
+    // MODIFICACION SOLICITADA: Usar la nueva función de cierre y recarga
+    closeMovieModalAndRefresh();
+  }
+});
+
+
+/* ==========================================================
+   LÓGICA DEL HISTORIAL (INTERFAZ PRINCIPAL)
+   ========================================================== */
+
+/**
+ * Crea una tarjeta del historial.
+ * @param {Object} item Película del historial.
+ */
+function createHistoryCard(item){
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.setAttribute('tabindex','0');
+  div.setAttribute('role', 'link'); 
+
+  const poster = document.createElement('img');
+  poster.className = 'poster';
+  poster.alt = `Póster de ${item.titulo}`;
+  poster.src = safeImage(item.imagen_url);
+  poster.loading = 'lazy'; 
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.textContent = "Visto recientemente"; 
+  
+  // Botón de opciones (tres puntos) -> LLAMA A removeIndividualHistory
+  const optionsBtn = document.createElement('button');
+  optionsBtn.className = 'icon-btn card-options';
+  optionsBtn.innerHTML = '<i class="fa-solid fa-ellipsis-v"></i>'; // ICONO MODIFICADO
+  optionsBtn.title = 'Opciones (Eliminar del Historial)'; // Título actualizado
+  optionsBtn.onclick = (e) => {
+    e.stopPropagation(); 
+    removeIndividualHistory(item); // Se mantiene la funcionalidad de eliminar
+  };
+
+  
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const title = document.createElement('div');
+  title.className = 'movie-title';
+  title.textContent = item.titulo;
+  const sub = document.createElement('div');
+  sub.className = 'movie-sub';
+  sub.textContent = item.fecha ? formatDate(item.fecha) : 'Fecha desconocida';
+
+  meta.appendChild(title);
+  meta.appendChild(sub);
+
+  div.appendChild(poster);
+  div.appendChild(overlay);
+  div.appendChild(optionsBtn); 
+  div.appendChild(meta);
+
+  // Al hacer clic en la tarjeta (excepto en el botón de opciones), abre la interfaz de reproducción con la fuente 'history'
+  div.addEventListener('click', (e)=> {
+    if (!e.target.closest('.card-options')) {
+        handleViewMovieDetails(item, 'history'); // Fuente: history (2 créditos)
+    }
+  });
+
+  return div;
+}
+
+/**
+ * Obtiene el historial de películas desde el API real usando el email del usuario.
+ * **Ruta API utilizada: /user/history**
+ */
+async function fetchRealHistory(){
+  const user = auth.currentUser;
+  if (!user || !user.email) {
+      document.getElementById('loading').style.display = 'none';
+      return [];
+  }
+  
+  document.getElementById('loading').style.display = 'block';
+  historyTotalItemsEl.textContent = 'Cargando...';
+  
+  try {
+    const email = user.email;
+    const apiURL = `${PELIPREX_BASE_URL}/user/history?email=${encodeURIComponent(email)}`;
+    
+    const response = await fetch(apiURL);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    document.getElementById('loading').style.display = 'none';
+    
+    if (data && data.history && Array.isArray(data.history)) {
+        data.history.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        return data.history;
+    } else {
+        console.warn("API response was not in the expected format.", data);
+        return [];
+    }
+  } catch (error) {
+    console.error("Error al cargar el historial:", error);
+    document.getElementById('loading').style.display = 'none';
+    showErrorModal(`Error al cargar el historial: ${error.message}.`);
+    return [];
+  }
+}
+
+/**
+ * Renderiza la cuadrícula de películas del historial.
+ */
+function renderHistoryGrid(data){
+  historyGrid.innerHTML = '';
+  
+  if(!data || data.length === 0){
+    historyEmptyState.style.display = 'flex'; 
+    historyGrid.style.display = 'none';
+    historyTotalItemsEl.textContent = '0 elementos';
+    return;
+  }
+  
+  historyEmptyState.style.display = 'none';
+  historyGrid.style.display = 'grid';
+
+  data.forEach(item=>{
+    historyGrid.appendChild(createHistoryCard(item));
+  });
+
+  historyTotalItemsEl.textContent = `Últimos ${data.length} elementos`;
+}
+
+async function main(){
+  const data = await fetchRealHistory();
+  globalHistoryData = data;
+  renderHistoryGrid(data);
+}
+
+/* ==========================================================
+   LISTENERS Y OBSERVAOR DE AUTENTICACIÓN
+   ========================================================== */
+
+// Event Listeners principales
+document.getElementById('btn-trash').addEventListener('click', clearAllHistory);
+// INICIO DE LA MODIFICACIÓN SOLICITADA
+document.getElementById('btn-back').addEventListener('click', () => {
+  if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
+    window.history.back();
+  } else {
+    window.location.href = "PeliPREX.html";
+  }
+}); 
+// FIN DE LA MODIFICACIÓN SOLICITADA
+
+
+// MODIFICACIÓN SOLICITADA: Lógica para mostrar/ocultar y funcionar el botón #scrollTop
+const scrollTopBtn = document.getElementById('scrollTop');
+
+function toggleScrollTopButton() {
+    if (window.scrollY > 300) { 
+        scrollTopBtn.style.display = 'flex';
+    } else {
+        scrollTopBtn.style.display = 'none';
+    }
+}
+
+// Listener para el funcionamiento del botón
+scrollTopBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
+
+// Listener para mostrar/ocultar el botón al hacer scroll
+window.addEventListener('scroll', toggleScrollTopButton);
+toggleScrollTopButton(); // Llama una vez para establecer el estado inicial
+
+// Observador del estado de autenticación de Firebase (Dispara la carga de Plan e Historial)
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    // 1. Cargar Plan
+    localStorage.removeItem('planIndicatorClosed');
+    
+    const userRef = db.collection("usuarios").doc(user.uid);
+    try {
+      const doc = await userRef.get();
+      if (doc.exists) {
+        const data = doc.data();
+        updateProfileUI(data); 
+      } else {
+        // Nuevo registro: Crea el plan por defecto con 5 creditos.
+        const defaultUserData = {
+          email: user.email,
+          tipoPlan: "creditos",
+          creditos: 5, // Usar 'creditos' para coincidir con el nuevo backend
+          fechaActivacion: firebase.firestore.FieldValue.serverTimestamp(),
+          duracionDias: 0
+        };
+        await userRef.set(defaultUserData);
+        updateProfileUI(defaultUserData); 
+        showCustomModal("¡Bienvenido!", "Te hemos regalado 5 créditos para que comiences a consultar.", false);
+      }
+    } catch (error) {
+      console.error("Error al cargar o crear los datos del usuario:", error);
+      updateProfileUI(null);
+    }
+
+    // 2. Cargar Historial
+    main(); 
+
+  } else {
+    // No autenticado
+    updateProfileUI(null); 
+    renderHistoryGrid([]);
+    document.getElementById('loading').style.display = 'none';
+    const currentPath = window.location.pathname + window.location.search;
+    window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
+  }
+});
+
+</script>
+<!-- Banner de Compartir -->
+<div class="banner" id="banner">  
+    <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
+    <div class="banner-description">  
+        <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+        <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+    </div>  
+    <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
+    <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
+</div>
+
+<style>
+    /* Banner (Oculto por defecto) */  
+    .banner {  
+        width: 100%;  
+        background: linear-gradient(to right, #00264D, #003366);  
+        color: #FFFFFF;  
+        position: fixed;  
+        bottom: 0;  
+        left: 50%;  
+        transform: translateX(-50%);  
+        padding: 30px;  
+        border-top-left-radius: 15px;  
+        border-top-right-radius: 15px;  
+        box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+        display: none; /* Ocultamos el banner al inicio */  
+        flex-direction: column;  
+        align-items: center;  
+        text-align: center;  
+        z-index: 9999;  
+    }  
+
+    .banner-title {  
+        font-size: 24px;  
+        font-weight: bold;  
+        margin-bottom: 15px;  
+        color: #FF00FF;  
+    }  
+
+    .banner-description {  
+        font-size: 18px;  
+        line-height: 1.8;  
+        color: #FFFFFF;  
+        margin-bottom: 20px;  
+    }  
+
+    /* Botones del Banner */  
+    .cta-button, .close-modal {  
+        width: 100%;  
+        padding: 16px;  
+        text-align: center;  
+        text-decoration: none;  
+        border-radius: 25px;  
+        font-size: 18px;  
+        font-weight: bold;  
+        margin-bottom: 12px;  
+        cursor: pointer;  
+        transition: transform 0.2s ease-in-out;  
+        border: none;
+    }  
+
+    .cta-button {  
+        background: linear-gradient(to right, #2ECC71, #66CC99);  
+        color: white;  
+    }  
+
+    .cta-button:hover {  
+        transform: scale(1.08);  
+    }  
+
+    .close-modal {  
+        background-color: red;  
+        color: #FFFFFF;  
+    }  
+
+    .close-modal:hover {  
+        background-color: darkred;  
+        transform: scale(1.08);  
+    }  
+
+    .icon {  
+        margin-right: 8px;  
+        color: #FF00FF;  
+    }
+</style>
+
+<script>
+    function sharePage() {  
+        const url = window.location.href;  
+        const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
+        const text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
+
+        if (navigator.share) {  
+            navigator.share({ title, text, url })  
+                .catch(error => console.log("Error al compartir:", error));  
+        } else {  
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");  
+        }  
+    }  
+
+    function closeBanner() {  
+        document.getElementById('banner').style.display = 'none';  
+    }
+
+    /* Lógica de Análisis Gemini */
+    async function generateAnalysisWithGemini(movieTitle, movieDescription) {
+        const analysisModal = document.getElementById('analysis-modal');
+        const analysisTitleEl = document.getElementById('analysis-title');
+        const resultContainer = document.getElementById('analysis-result-container');
+        const loadingEl = document.getElementById('analysis-loading');
+
+        analysisTitleEl.textContent = `Análisis de: ${movieTitle}`;
+        resultContainer.innerHTML = '';
+        loadingEl.style.display = 'flex';
+        analysisModal.classList.add('active');
+        document.getElementById('modal').classList.remove('active');
+
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ movieTitle, movieDescription })
+            });
+
+            const data = await response.json();
+            loadingEl.style.display = 'none';
+
+            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+                let analysisText = data.candidates[0].content.parts[0].text;
+                let finalHtml = analysisText.replace(/\*\*/g, '');
+                const parts = finalHtml.split('\n');
+                let output = '';
+                let inList = false;
+
+                parts.forEach(line => {
+                    line = line.trim();
+                    if (!line) return;
+                    if (line.match(/^(Trama y Desarrollo|Aspectos Destacados|Veredicto Final)/i)) {
+                        if (inList) { output += '</ul>'; inList = false; }
+                        output += `<h3>${line.replace(/.$/, '')}</h3>`;
+                    } else if (line.startsWith('*') || line.startsWith('•') || line.match(/^[0-9]+\./)) {
+                        if (!inList) { output += '<ul>'; inList = true; }
+                        output += `<li>${line.replace(/^[*\•] ?|^[0-9]+\. ?/, '')}</li>`;
+                    } else {
+                        if (inList) { output += '</ul>'; inList = false; }
+                        output += `<p>${line}</p>`;
+                    }
+                });
+                if (inList) { output += '</ul>'; }
+                resultContainer.innerHTML = output;
+            } else {
+                resultContainer.innerHTML = '<p style="color:var(--accent);">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
+            }
+        } catch (error) {
+            loadingEl.style.display = 'none';
+            resultContainer.innerHTML = '<p style="color:var(--accent);">Error de conexión al servidor. Intenta de nuevo.</p>';
+        }
+    }
+</script>
+</body>
+</html>
+<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
