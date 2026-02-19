@@ -2608,13 +2608,13 @@ app.post("/api/admin/clear-cache", (req, res) => {
 });
 
 // ================================================================
-// 🔐 MIDDLEWARE DE AUTENTICACIÓN (AHORA ANTES DE CLEAN URLs)
+// 🔐 MIDDLEWARE DE AUTENTICACIÓN (MOVIDO HACIA ARRIBA - ANTES DE CLEAN URLs)
 // ================================================================
 
 app.use(verifyFirebaseAuth);
 
 // ================================================================
-// 🚨 RUTAS ESPECÍFICAS
+// 🚨 RUTAS ESPECÍFICAS (SEGUNDO)
 // ================================================================
 
 app.get("/disclaimer-apis", (req, res) => {
@@ -2628,7 +2628,7 @@ app.get("/API-Docs", (req, res) => {
 });
 
 // ================================================================
-// 🗺️ MAPEO DE RUTAS
+// 🗺️ MAPEO DE RUTAS (TERCERO)
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2654,7 +2654,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================================
-// 🧹 CLEAN URLs
+// 🧹 CLEAN URLs (CUARTO)
 // ================================================================
 
 app.use((req, res, next) => {
@@ -2681,7 +2681,7 @@ app.use((req, res, next) => {
 });
 
 // ================================================================
-// 📁 ARCHIVOS ESTÁTICOS
+// 📁 ARCHIVOS ESTÁTICOS (QUINTO)
 // ================================================================
 
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -2909,17 +2909,17 @@ app.listen(PORT, "0.0.0.0", () => {
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.5.0',
+    version: '3.5.1',
     features: {
-      authMiddleware: 'Activo (antes de CLEAN URLs)',
+      authMiddleware: 'Activo (ANTES de Clean URLs - CORREGIDO)',
       publicRoutes: PUBLIC_ROUTES.length,
       protectedRoutes: PROTECTED_ROUTES.length,
       publicApiRoutes: PUBLIC_API_ROUTES.length,
       custom404: 'Activo (archivo estático)',
       cleanUrls: 'Activo',
       routeMapping: '✅ Implementado',
-      autoRedirectToLogin: '✅ Activado con returnTo correcto',
-      returnAfterLogin: '✅ Implementado y corregido (middleware movido arriba)',
+      autoRedirectToLogin: '✅ Activado con returnTo',
+      returnAfterLogin: '✅ Implementado',
       returnAfterRegister: '✅ Implementado con verify.html',
       returnAfterVerify: '✅ Implementado',
       welcomeEmailOnVerify: '🔥 Plantilla HTML local',
@@ -2932,14 +2932,14 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
       cspDomainsCount: cspDomains.length,
       sessionCookies: '✅ Implementado con Firebase Session Cookies',
       loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)',
-      authMiddlewarePosition: '✅ Movido antes de CLEAN URLs para returnTo correcto en api-key'
+      returnToFix: '✅ CORREGIDO: Middleware movido antes de Clean URLs para enviar returnTo correctamente'
     },
     timestamp: new Date().toISOString()
   });
