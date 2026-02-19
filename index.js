@@ -26,18 +26,18 @@ app.disable('x-powered-by');
 const logger = {
   info: (context, message, data = {}) => {
     const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [INFO] [${context}] ${message}`, Object.keys(data).length ? data : '');
+    console.log([${timestamp}] [INFO] [${context}] ${message}, Object.keys(data).length ? data : '');
   },
   error: (context, message, error = null, data = {}) => {
     const timestamp = new Date().toISOString();
-    console.error(`[${timestamp}] [ERROR] [${context}] ${message}`,
-      error ? `Error: ${error.message} - Stack: ${error.stack}` : '',
+    console.error([${timestamp}] [ERROR] [${context}] ${message},
+      error ? Error: ${error.message} - Stack: ${error.stack} : '',
       Object.keys(data).length ? data : ''
     );
   },
   warn: (context, message, data = {}) => {
     const timestamp = new Date().toISOString();
-    console.warn(`[${timestamp}] [WARN] [${context}] ${message}`, Object.keys(data).length ? data : '');
+    console.warn([${timestamp}] [WARN] [${context}] ${message}, Object.keys(data).length ? data : '');
   }
 };
 
@@ -224,10 +224,7 @@ setInterval(() => {
   
   for (const [email, data] of loginAttemptsCache.entries()) {
     // Si está bloqueado y el bloqueo expiró, o si no hay actividad reciente (> 24h)
-    if (data.blockedUntil && data.blockedUntil <= now) {
-      loginAttemptsCache.delete(email);
-      expiredCount++;
-    } else if (!data.blockedUntil && (now - data.lastAttempt) > 24 * 60 * 60 * 1000) {
+    if (data.blockedUntil && data.blockedUntil  24 * 60 * 60 * 1000) {
       // Limpiar intentos no bloqueados después de 24 horas sin actividad
       loginAttemptsCache.delete(email);
       expiredCount++;
@@ -235,7 +232,7 @@ setInterval(() => {
   }
   
   if (expiredCount > 0) {
-    logger.info('CACHE_CLEANUP', `Limpiadas ${expiredCount} entradas expiradas de loginAttemptsCache`);
+    logger.info('CACHE_CLEANUP', Limpiadas ${expiredCount} entradas expiradas de loginAttemptsCache);
   }
 }, 60 * 60 * 1000); // Cada hora
 
@@ -249,7 +246,7 @@ async function getLocationFromIP(ip) {
       return { city: 'Local', region: 'Localhost', country: 'Local Network' };
     }
 
-    const response = await axios.get(`https://ipapi.co/${ip}/json/`, { timeout: 3000 });
+    const response = await axios.get(https://ipapi.co/${ip}/json/, { timeout: 3000 });
     const data = response.data;
 
     return {
@@ -298,83 +295,7 @@ async function checkLoginBlock(email) {
     }
 
     // Si el bloqueo expiró, resetear intentos
-    if (blockedUntil && blockedUntil <= now) {
-      loginAttemptsCache.delete(email);
-      logger.info(context, 'Bloqueo expirado, intentos reseteados', { email });
-      return { isBlocked: false, attempts: 0 };
-    }
-
-    return { isBlocked: false, attempts };
-
-  } catch (error) {
-    logger.error(context, 'Error verificando bloqueo', error, { email });
-    return { isBlocked: false }; // En caso de error, permitir intento
-  }
-}
-
-/**
- * Registrar intento fallido de login (usando caché en memoria)
- */
-/**
- * Generar fingerprint del dispositivo
- */
-function generateFingerprint(req) {
-  const userAgent = req.headers['user-agent'] || 'Unknown';
-  const language = req.headers['accept-language'] || 'Unknown';
-  const ip = getClientIp(req);
-  
-  const data = `${userAgent}|${language}|${ip}`;
-  return crypto.createHash('sha256').update(data).digest('hex');
-}
-
-/**
- * Validar coherencia entre deviceModel y User-Agent
- */
-function validateDeviceCoherence(deviceModel, userAgent) {
-  if (!deviceModel || deviceModel === 'Unknown Device') return true;
-  
-  const ua = userAgent.toLowerCase();
-  const model = deviceModel.toLowerCase();
-  
-  // Validaciones básicas de coherencia
-  if (model.includes('iphone') && !ua.includes('iphone')) return false;
-  if (model.includes('ipad') && !ua.includes('ipad')) return false;
-  if (model.includes('android') && !ua.includes('android')) return false;
-  if (model.includes('macintosh') && !ua.includes('mac')) return false;
-  if (model.includes('windows') && !ua.includes('windows')) return false;
-  
-  return true;
-}
-
-async function registerFailedLogin(email, req) {
-  const context = 'REGISTER_FAILED_LOGIN';
-
-  try {
-    const ip = getClientIp(req);
-    const userAgent = req.headers['user-agent'] || 'Unknown';
-    const { deviceModel } = req.body;
-    const fingerprint = generateFingerprint(req);
-    const now = Date.now();
-    
-    const existingData = loginAttemptsCache.get(email) || { attempts: 0 };
-    const currentAttempts = existingData.attempts || 0;
-    const newAttempts = currentAttempts + 1;
-    const isCoherent = validateDeviceCoherence(deviceModel, userAgent);
-
-    // Datos a almacenar en caché
-    const attemptData = {
-      email,
-      attempts: newAttempts,
-      lastAttempt: now,
-      ip,
-      userAgent,
-      deviceModel: deviceModel || 'Unknown',
-      fingerprint,
-      isSuspicious: !isCoherent
-    };
-
-    // Si llega al límite o hay incoherencia grave, bloquear/alertar
-    if (newAttempts >= MAX_LOGIN_ATTEMPTS || !isCoherent) {
+    if (blockedUntil && blockedUntil = MAX_LOGIN_ATTEMPTS || !isCoherent) {
       const blockedUntil = now + BLOCK_DURATION_MS;
 
       attemptData.blockedUntil = blockedUntil;
@@ -397,7 +318,7 @@ async function registerFailedLogin(email, req) {
       // Incrementar contador
       loginAttemptsCache.set(email, attemptData);
 
-      logger.warn(context, `⚠️ Intento fallido registrado (${newAttempts}/${MAX_LOGIN_ATTEMPTS})`, { 
+      logger.warn(context, ⚠️ Intento fallido registrado (${newAttempts}/${MAX_LOGIN_ATTEMPTS}), { 
         email, 
         attempts: newAttempts,
         ip 
@@ -420,7 +341,7 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
 
     // Obtener ubicación
     const location = await getLocationFromIP(ip);
-    const locationString = `${location.city}, ${location.region}, ${location.country}`;
+    const locationString = ${location.city}, ${location.region}, ${location.country};
 
     // Obtener nombre de usuario
     let userName = email.split('@')[0];
@@ -466,7 +387,7 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
 
     // Enviar correo usando Resend
     const result = await resend.emails.send({
-      from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+      from: 'Seguridad Masitaprex ',
       to: email,
       subject: isIncoherent ? '🚨 ALERTA: Intento de acceso sospechoso detectado' : '🚨 ALERTA: Cuenta bloqueada por intentos sospechosos',
       html: htmlContent
@@ -560,9 +481,7 @@ const PROTECTED_ROUTES = [
   '/api-key',
   '/api-key.html',
   '/checkout',
-  '/checkout.html',
-  '/consultaPe-vercion-web',
-  '/consultaPe-vercion-web.html'
+  '/checkout.html'
 ];
 
 /**
@@ -606,7 +525,7 @@ function buildServiceAccountFromEnv() {
   const missingVars = requiredVars.filter(varName => !process.env[varName]);
 
   if (missingVars.length > 0) {
-    logger.error('FIREBASE_CONFIG', `Variables de Firebase faltantes: ${missingVars.join(', ')}`);
+    logger.error('FIREBASE_CONFIG', Variables de Firebase faltantes: ${missingVars.join(', ')});
     return null;
   }
 
@@ -649,7 +568,7 @@ if (serviceAccount && !admin.apps.length) {
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
-      databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`,
+      databaseURL: https://${serviceAccount.project_id}.firebaseio.com,
       storageBucket: process.env.FIREBASE_STORAGE_BUCKET
     });
 
@@ -711,48 +630,7 @@ async function validateRecaptcha(recaptchaResponse) {
   const maxAttempts = 3;
   const baseDelay = 500; // 500ms
 
-  while (attempts < maxAttempts) {
-    try {
-      logger.info(context, `Validando reCAPTCHA con Google API (intento ${attempts + 1}/${maxAttempts})`);
-
-      const verificationUrl = 'https://www.google.com/recaptcha/api/siteverify';
-      const params = new URLSearchParams();
-      params.append('secret', RECAPTCHA_SECRET_KEY);
-      params.append('response', recaptchaResponse);
-
-      const response = await axios.post(verificationUrl, params, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        timeout: 10000 // 10 segundos de timeout
-      });
-
-      const data = response.data;
-
-      logger.info(context, 'Respuesta de reCAPTCHA recibida', {
-        success: data.success,
-        score: data.score,
-        action: data.action,
-        hostname: data.hostname,
-        challenge_ts: data.challenge_ts
-      });
-
-      // Verificar si la respuesta fue exitosa
-      if (data.success === true) {
-        return {
-          success: true,
-          data: data
-        };
-      }
-
-      // Si hay error, registrar y reintentar si es apropiado
-      const errorCodes = data['error-codes'] || [];
-      logger.warn(context, 'reCAPTCHA validation failed', {
-        errorCodes,
-        attempt: attempts + 1,
-        maxAttempts
-      });
-
-      // Si el error es por timeout o por red, reintentamos
-      const shouldRetry = errorCodes.some(code => 
+  while (attempts  
         code === 'timeout-or-duplicate' || 
         code === 'network-error' ||
         code === 'invalid-keys' // En caso de error de configuración no reintentamos
@@ -764,7 +642,7 @@ async function validateRecaptcha(recaptchaResponse) {
 
       // Esperar antes de reintentar (backoff exponencial)
       const delay = baseDelay * Math.pow(2, attempts);
-      logger.info(context, `Reintentando validación reCAPTCHA en ${delay}ms`, { attempt: attempts + 1 });
+      logger.info(context, Reintentando validación reCAPTCHA en ${delay}ms, { attempt: attempts + 1 });
       await new Promise(resolve => setTimeout(resolve, delay));
       attempts++;
 
@@ -783,7 +661,7 @@ async function validateRecaptcha(recaptchaResponse) {
 
         // Esperar antes de reintentar
         const delay = baseDelay * Math.pow(2, attempts);
-        logger.info(context, `Reintentando después de timeout en ${delay}ms`, { attempt: attempts + 1 });
+        logger.info(context, Reintentando después de timeout en ${delay}ms, { attempt: attempts + 1 });
         await new Promise(resolve => setTimeout(resolve, delay));
         attempts++;
       } else {
@@ -801,7 +679,7 @@ async function validateRecaptcha(recaptchaResponse) {
 // ================================================================
 
 const MERCADOPAGO_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
-const HOST_URL = process.env.HOST_URL || `https://${process.env.FLY_APP_NAME}.fly.dev`;
+const HOST_URL = process.env.HOST_URL || https://${process.env.FLY_APP_NAME}.fly.dev;
 
 if (!MERCADOPAGO_ACCESS_TOKEN) {
   logger.error('CONFIG', 'MERCADOPAGO_ACCESS_TOKEN no está configurado');
@@ -860,7 +738,7 @@ async function checkFileExistsInStorage(fileName) {
 
     if (exists) {
       const [metadata] = await file.getMetadata();
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+      const publicUrl = https://storage.googleapis.com/${bucket.name}/${fileName};
 
       logger.info(context, 'Archivo ya existe en Storage', { fileName, publicUrl });
       return { exists: true, url: publicUrl, metadata };
@@ -886,7 +764,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
   try {
     logger.info(context, 'Intentando subir PDF a Firebase Storage', { pdfPath, paymentId });
 
-    const fileName = `invoices/${paymentId}.pdf`;
+    const fileName = invoices/${paymentId}.pdf;
 
     const fileCheck = await checkFileExistsInStorage(fileName);
     if (fileCheck.exists && fileCheck.url) {
@@ -914,7 +792,7 @@ async function uploadPDFToStorage(pdfPath, paymentId) {
 
     await file.makePublic();
 
-    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    const publicUrl = https://storage.googleapis.com/${bucket.name}/${fileName};
 
     logger.info(context, '✅ PDF subido exitosamente a Storage', {
       paymentId,
@@ -1034,7 +912,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
       const user = await t.get(userDoc);
       if (!user.exists) {
         logger.error(context, 'Usuario no encontrado en Firestore', null, { uid });
-        throw new Error(`User ${uid} not found`);
+        throw new Error(User ${uid} not found);
       }
 
       const userData = user.data();
@@ -1069,7 +947,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        descripcion = `${creditosOtorgados} Créditos`;
+        descripcion = ${creditosOtorgados} Créditos;
         logger.info(context, '💳 Créditos otorgados', {
           uid,
           creditosOtorgados,
@@ -1137,7 +1015,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
           diasAgregados: diasNuevos,
           fechaFin: fechaFinPlan
         };
-        descripcion = `Plan Ilimitado (${diasNuevos} días${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' días' : ''})`;
+        descripcion = Plan Ilimitado (${diasNuevos} días${duracionTotalDias > diasNuevos ? ' - Total acumulado: ' + duracionTotalDias + ' días' : ''});
 
         logger.info(context, '✨ Plan ilimitado actualizado exitosamente', {
           uid,
@@ -1153,7 +1031,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
 
       } else {
         logger.warn(context, '⚠️ Monto no coincide con ningún paquete', { montoPagado, uid });
-        descripcion = `Pago de S/ ${montoPagado}`;
+        descripcion = Pago de S/ ${montoPagado};
       }
 
       t.update(pagoDoc, {
@@ -1204,7 +1082,7 @@ async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRef) 
         pdfUrl: storageUrl,
         pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
         tipoComprobante: 'boleta',
-        storagePath: `invoices/${paymentRefString}.pdf`
+        storagePath: invoices/${paymentRefString}.pdf
       });
 
       if (fs.existsSync(localPdfPath)) {
@@ -1314,7 +1192,7 @@ async function enviarBienvenida(email, nombre) {
     });
     
     const result = await resend.emails.send({
-      from: 'Masitaprex <bienvenida@masitaprex.com>',
+      from: 'Masitaprex ',
       to: email,
       subject: 'Bienvenido a Masitaprex',
       html: htmlContent
@@ -1364,9 +1242,9 @@ async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, ur
     htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/historial');
     
     const result = await resend.emails.send({
-      from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
+      from: 'Facturación Masitaprex ',
       to: email,
-      subject: `Confirmación de Compra #${orderId} - Masitaprex`,
+      subject: Confirmación de Compra #${orderId} - Masitaprex,
       html: htmlContent
     });
 
@@ -1479,7 +1357,7 @@ async function verifyFirebaseAuth(req, res, next) {
       });
 
       const returnTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login?returnTo=${returnTo}`);
+      return res.redirect(/login?returnTo=${returnTo});
     }
 
     // Si tenemos idToken, verificarlo
@@ -1521,7 +1399,7 @@ async function verifyFirebaseAuth(req, res, next) {
     });
 
     const returnTo = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/login?returnTo=${returnTo}`);
+    return res.redirect(/login?returnTo=${returnTo});
   }
 }
 
@@ -1745,7 +1623,7 @@ app.post("/api/analyze", async (req, res) => {
 
   try {
     const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY},
       {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
@@ -1865,7 +1743,7 @@ app.post("/api/login", async (req, res) => {
       return res.status(403).json({
         success: false,
         error: 'account_blocked',
-        message: `Cuenta bloqueada por seguridad. Intenta nuevamente en ${hoursRemaining} hora(s).`,
+        message: Cuenta bloqueada por seguridad. Intenta nuevamente en ${hoursRemaining} hora(s).,
         blockedUntil: blockStatus.blockedUntil,
         attempts: blockStatus.attempts,
         maxAttempts: MAX_LOGIN_ATTEMPTS
@@ -1988,7 +1866,7 @@ app.post("/api/register", async (req, res) => {
           const currentIp = getClientIp(req);
 
           await resend.emails.send({
-            from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
+            from: 'Seguridad Masitaprex ',
             to: email,
             subject: 'Registro rechazado',
             template_id: '6767bd1b-6b6a-4488-bed7-ad185513d763',
@@ -2013,7 +1891,7 @@ app.post("/api/register", async (req, res) => {
     res.json({
       success: true,
       message: 'Registration successful (reCAPTCHA validated)',
-      redirectTo: `/verify?returnTo=${encodeURIComponent(redirectPath)}`,
+      redirectTo: /verify?returnTo=${encodeURIComponent(redirectPath)},
       timestamp: new Date().toISOString()
     });
 
@@ -2076,7 +1954,7 @@ app.post("/api/pay", async (req, res) => {
             number: identificationNumber
           }
         },
-        notification_url: `${HOST_URL}/api/webhook/mercadopago`,
+        notification_url: ${HOST_URL}/api/webhook/mercadopago,
         metadata: {
           uid: uid,
           email: email,
@@ -2095,7 +1973,7 @@ app.post("/api/pay", async (req, res) => {
     logger.info(context, 'Respuesta de Mercado Pago recibida', {
       paymentId: result.id,
       status: result.status,
-      processingTime: `${processingTime}ms`
+      processingTime: ${processingTime}ms
     });
 
     if (result.status === 'approved') {
@@ -2142,7 +2020,7 @@ app.post("/api/pay", async (req, res) => {
   } catch (error) {
     const processingTime = Date.now() - startTime;
     logger.error(context, 'Error procesando pago', error, {
-      processingTime: `${processingTime}ms`,
+      processingTime: ${processingTime}ms,
       requestBody: req.body
     });
 
@@ -2371,7 +2249,7 @@ app.post("/api/generate-invoice", async (req, res) => {
 
     if (responseSent) return;
 
-    const fileName = `invoices/${paymentId}.pdf`;
+    const fileName = invoices/${paymentId}.pdf;
     const storageCheck = await checkFileExistsInStorage(fileName);
 
     if (storageCheck.exists && storageCheck.url) {
@@ -2441,7 +2319,7 @@ app.post("/api/generate-invoice", async (req, res) => {
       }
     } catch (uploadError) {
       logger.error(context, 'Error subiendo PDF a Storage', uploadError);
-      storageUrl = `${HOST_URL}${pdfPath}`;
+      storageUrl = ${HOST_URL}${pdfPath};
     }
 
     logger.info(context, 'Comprobante generado exitosamente', {
@@ -2518,7 +2396,7 @@ app.get("/api/health", async (req, res) => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
@@ -2639,7 +2517,7 @@ app.use((req, res, next) => {
   if (routeMap[pathName]) {
     const filePath = path.join(__dirname, 'public', routeMap[pathName]);
     if (fs.existsSync(filePath)) {
-      logger.info('ROUTE_MAPPING', `✅ Ruta mapeada: ${pathName} -> ${routeMap[pathName]}`);
+      logger.info('ROUTE_MAPPING', ✅ Ruta mapeada: ${pathName} -> ${routeMap[pathName]});
       return res.sendFile(filePath);
     }
   }
@@ -2660,12 +2538,12 @@ app.use((req, res, next) => {
 
   if (isHtmlRoute) {
     const cleanPath = pathName.replace(/^\//, '');
-    const htmlPath = path.join(__dirname, 'public', `${cleanPath}.html`);
+    const htmlPath = path.join(__dirname, 'public', ${cleanPath}.html);
     
     if (fs.existsSync(htmlPath)) {
       logger.info('CLEAN_URL', 'Sirviendo archivo HTML', {
         path: pathName,
-        htmlFile: `${cleanPath}.html`
+        htmlFile: ${cleanPath}.html
       });
       return res.sendFile(htmlPath);
     }
@@ -2723,7 +2601,7 @@ app.post("/api/proxy-consulta", async (req, res) => {
     }
 
     const baseUrl = 'https://api.masitaprex.com/v3';
-    const url = `${baseUrl}/${endpoint}`;
+    const url = ${baseUrl}/${endpoint};
 
     logger.info(context, 'Realizando consulta proxy', { uid, endpoint, data });
 
@@ -2773,7 +2651,7 @@ app.use((req, res, next) => {
     }
 
     const requestedPath = path.join(__dirname, 'public', req.path);
-    const requestedHtmlPath = path.join(__dirname, 'public', `${req.path}.html`);
+    const requestedHtmlPath = path.join(__dirname, 'public', ${req.path}.html);
 
     const fileExists = fs.existsSync(requestedPath) ||
       fs.existsSync(requestedHtmlPath);
@@ -2789,25 +2667,25 @@ app.use((req, res, next) => {
         return res.status(404).sendFile(error404Path);
       } else {
         return res.status(404).send(`
-          <!DOCTYPE html>
-          <html lang="es">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>404 - Página no encontrada</title>
-            <style>
+          
+          
+          
+            
+            
+            404 - Página no encontrada
+            
               body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
               h1 { font-size: 72px; color: #333; }
               a { color: #0066cc; text-decoration: none; }
               a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>404</h1>
-            <p>Página no encontrada</p>
-            <a href="/">Volver al inicio</a>
-          </body>
-          </html>
+            
+          
+          
+            404
+            Página no encontrada
+            Volver al inicio
+          
+          
         `);
       }
     }
@@ -2858,13 +2736,13 @@ app.get("*", (req, res) => {
     res.status(404).sendFile(error404Path);
   } else {
     res.status(404).send(`
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>404 - Página no encontrada</title>
-        <style>
+      
+      
+      
+        
+        
+        404 - Página no encontrada
+        
           body { 
             font-family: Arial, sans-serif; 
             text-align: center; 
@@ -2884,15 +2762,15 @@ app.get("*", (req, res) => {
             margin-top: 20px;
           }
           a:hover { background: rgba(255,255,255,0.3); }
-        </style>
-      </head>
-      <body>
-        <h1>404</h1>
-        <p>Página no encontrada</p>
-        <p>Lo sentimos, la página que buscas no existe.</p>
-        <a href="/">Volver al inicio</a>
-      </body>
-      </html>
+        
+      
+      
+        404
+        Página no encontrada
+        Lo sentimos, la página que buscas no existe.
+        Volver al inicio
+      
+      
     `);
   }
 });
@@ -2903,13 +2781,13 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 80;
 app.listen(PORT, "0.0.0.0", () => {
-  logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, {
+  logger.info('SERVER', 🚀 Servidor iniciado en puerto ${PORT}, {
     hostUrl: HOST_URL,
     nodeEnv: process.env.NODE_ENV,
     firebaseProject: process.env.FIREBASE_PROJECT_ID,
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
-    version: '3.5.1',
+    version: '3.5.0',
     features: {
       authMiddleware: 'Activo (después de rutas públicas)',
       publicRoutes: PUBLIC_ROUTES.length,
@@ -2932,7 +2810,7 @@ app.listen(PORT, "0.0.0.0", () => {
       suspiciousLoginEmailEnabled: '📧 Correo automático con plantilla HTML',
       reportFailedLoginEndpoint: '✅ /api/report-failed-login implementado',
       loginSuccessEndpoint: '✅ /api/login-success implementado (resetea intentos)',
-      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html, consultaPe-vercion-web.html)',
+      serverSideProtection: '✅ Protección de rutas desde servidor (api-key.html, checkout.html)',
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
