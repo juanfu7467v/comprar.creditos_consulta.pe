@@ -263,6 +263,37 @@
             font-size: 1.125rem; /* text-lg = 18px */
         }
 
+        /* Estilos para redes sociales en el menú */
+        .sidebar-social {
+            padding: 20px 24px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+
+        .sidebar-social a {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 24px;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            text-decoration: none;
+        }
+
+        .sidebar-social a:hover {
+            color: #FFFFFF;
+            background: rgba(255, 31, 61, 0.2);
+            transform: translateY(-2px);
+        }
+
         /* Estilos responsivos */
         @media (max-width: 640px) {
             #sidebar {
@@ -1021,28 +1052,6 @@
             letter-spacing: 0.5px;
             text-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
-        /* Estilos para el footer de redes sociales dentro del sidebar */
-        #sidebar .social-footer {
-            padding: 20px 24px 30px 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        #sidebar .social-footer a {
-            display: inline-block;
-            margin: 0 12px;
-            color: #FFFFFF !important;
-            font-size: 1.8rem;
-            opacity: 0.8;
-            transition: opacity 0.2s ease;
-            text-decoration: none;
-        }
-
-        #sidebar .social-footer a:hover {
-            opacity: 1;
-        }
     </style>
 </head>
 <body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
@@ -1091,7 +1100,7 @@
             <h1>masitaprex</h1>
         </div>
 
-        <!-- Opciones del Menú Actualizadas (sin Cerrar sesión) -->
+        <!-- Opciones del Menú Actualizadas (sin cerrar sesión) -->
         <nav>
             <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
             <a href="home" class="menu-item">
@@ -1119,10 +1128,15 @@
     <span class="text-lg">  PeliPREX HD gratis</span>
 </a>
         </nav>
-        <!-- Redes Sociales en el pie del menú lateral -->
-        <div class="social-footer">
-            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
+
+        <!-- Redes Sociales en la parte inferior -->
+        <div class="sidebar-social">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
         </div>
     </aside>
 
