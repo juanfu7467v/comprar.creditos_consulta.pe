@@ -2773,26 +2773,7 @@ app.use((req, res, next) => {
       if (fs.existsSync(error404Path)) {
         return res.status(404).sendFile(error404Path);
       } else {
-        return res.status(404).send(`
-          <!DOCTYPE html>
-          <html lang="es">
-          <head>
-            <meta charset="UTF-8">
-            <title>404 - Página no encontrada</title>
-            <style>
-              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
-              h1 { font-size: 72px; color: #333; }
-              a { color: #0066cc; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>404</h1>
-            <p>Página no encontrada</p>
-            <a href="/">Volver al inicio</a>
-          </body>
-          </html>
-        `);
+        return res.status(404).send('404 - Página no encontrada');
       }
     }
   }
@@ -2830,55 +2811,6 @@ app.use((err, req, res, next) => {
     message: process.env.NODE_ENV === 'development' ? err.message : 'Contacte al soporte',
     requestId: Date.now().toString(36)
   });
-});
-
-app.get("*", (req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
-  }
-
-  const error404Path = path.join(__dirname, 'public', 'error-404.html');
-  if (fs.existsSync(error404Path)) {
-    res.status(404).sendFile(error404Path);
-  } else {
-    res.status(404).send(`
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>404 - Página no encontrada</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            padding: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-          }
-          h1 { font-size: 72px; margin: 0; }
-          p { font-size: 24px; margin: 20px 0; }
-          a { 
-            color: white; 
-            text-decoration: none; 
-            background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 5px;
-            display: inline-block;
-            margin-top: 20px;
-          }
-          a:hover { background: rgba(255,255,255,0.3); }
-        </style>
-      </head>
-      <body>
-        <h1>404</h1>
-        <p>Página no encontrada</p>
-        <p>Lo sentimos, la página que buscas no existe.</p>
-        <a href="/">Volver al inicio</a>
-      </body>
-      </html>
-    `);
-  }
 });
 
 // ================================================================
@@ -2926,4 +2858,21 @@ app.listen(PORT, "0.0.0.0", () => {
     },
     timestamp: new Date().toISOString()
   });
+});
+
+// ================================================================
+// 🚨 MANEJO DE RUTAS NO ENCONTRADAS (ÚLTIMO - DESPUÉS DE TODAS LAS RUTAS)
+// ================================================================
+
+app.get("*", (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+
+  const error404Path = path.join(__dirname, 'public', 'error-404.html');
+  if (fs.existsSync(error404Path)) {
+    res.status(404).sendFile(error404Path);
+  } else {
+    res.status(404).send('404 - Página no encontrada');
+  }
 });
