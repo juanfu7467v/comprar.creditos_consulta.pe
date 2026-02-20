@@ -81,6 +81,7 @@ const cspDomains = [
   "'self'",
   "https://masitaprex.com",
   "https://auth.masitaprex.com",
+  "https://lh3.googleusercontent.com",
   "https://peliprex-pe-v2.fly.dev",
   "https://1.bp.blogspot.com",
   "https://www.masitaprex.com",
