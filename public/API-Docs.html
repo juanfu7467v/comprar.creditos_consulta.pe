@@ -207,39 +207,9 @@
             flex-shrink: 0;
         }
 
-        /* Separación para el botón de cerrar sesión */
-        #sidebar nav a:last-child {
-            margin-top: 48px; /* Aumentado de 32px a 48px para mayor distinción */
-        }
-
         /* Estilos para el texto del menú */
         #sidebar nav span {
             font-size: 1.125rem; /* text-lg = 18px */
-        }
-
-        /* Botón de hamburguesa */
-        #menu-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            background: rgba(30, 58, 138, 0.9);
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        #menu-toggle:hover {
-            transform: scale(1.05);
-            background: rgba(30, 58, 138, 1);
         }
 
         /* Estilos responsivos */
@@ -274,6 +244,54 @@
         #sidebar::-webkit-scrollbar-thumb:hover {
             background: rgba(109, 91, 255, 0.7);
         }
+
+        /* Estilos para el footer de redes sociales dentro del sidebar */
+        #sidebar .social-footer {
+            padding: 20px 24px 30px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #sidebar .social-footer a {
+            display: inline-block;
+            margin: 0 12px;
+            color: #FFFFFF !important;
+            font-size: 1.8rem;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+            text-decoration: none;
+        }
+
+        #sidebar .social-footer a:hover {
+            opacity: 1;
+        }
+
+        /* Botón de hamburguesa */
+        #menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(30, 58, 138, 0.9);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #menu-toggle:hover {
+            transform: scale(1.05);
+            background: rgba(30, 58, 138, 1);
+        }
+
         header {
             background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
             color: var(--color-white);
@@ -967,12 +985,12 @@
                 <i data-lucide="clapperboard" class="menu-icon"></i>
                 <span class="text-lg">PeliPREX HD gratis</span>
             </a>
-
-            <a href="#" id="logout-btn" class="menu-item">
-                <i data-lucide="log-out" class="menu-icon"></i>
-                <span class="text-lg">Cerrar sesión</span>
-            </a>
         </nav>
+        <!-- Redes Sociales en el pie del menú lateral -->
+        <div class="social-footer">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
+        </div>
     </aside>
     <!-- Tooltip global -->
     <div class="global-tooltip" id="globalTooltip">Copiado al portapapeles</div>
@@ -2521,8 +2539,8 @@ print(response.json())</pre>
         if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
         if (overlay) overlay.addEventListener('click', toggleMenu);
 
-        // Cerrar menú al hacer click en un enlace (excepto cerrar sesión)
-        const navLinks = sidebar.querySelectorAll('nav a:not(#logout-btn)');
+        // Cerrar menú al hacer click en un enlace
+        const navLinks = sidebar.querySelectorAll('nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('href');
