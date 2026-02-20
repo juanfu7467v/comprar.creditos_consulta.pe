@@ -16,6 +16,8 @@
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <!-- jsPDF para generar PDFs en el frontend - VERSIÓN CORREGIDA con jsDelivr -->
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <!-- Lucide para iconos del menú -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -1148,981 +1150,1171 @@
         .btn-pdf-download i {
             font-size: 18px;
         }
+
+        /* ===== ESTILOS DEL MENÚ LATERAL (COPIADO DE APIs Doc) ===== */
+        /* Overlay para el menú lateral */
+        #sidebar-overlay { 
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: none;
+        }
+
+        #sidebar-overlay.opacity-100 {
+            opacity: 1;
+        }
+
+        #sidebar-overlay.hidden {
+            display: none;
+        }
+
+        /* Menú lateral principal */
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 288px; /* w-72 = 288px */
+            background: #000 !important; /* Fondo negro puro */
+            color: #FFFFFF;
+            z-index: 60;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Encabezado del sidebar */
+        .sidebar-header-bg {
+            padding: 40px 24px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        /* Contenedor del icono del sidebar */
+        .sidebar-header-bg > div:first-child {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sidebar-header-bg h1, .sidebar-header-bg h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 8px;
+            color: #FFFFFF !important;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Decoración SVG en el encabezado */
+        .sidebar-header-bg > div:last-child {
+            position: absolute;
+            top: 16px; /* top-4 = 16px */
+            left: 16px; /* left-4 = 16px */
+            opacity: 0.3;
+        }
+
+        /* Opciones del menú */
+        #sidebar nav {
+            padding: 16px 0;
+            flex-grow: 1;
+        }
+
+        #sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            margin-bottom: 2px;
+        }
+
+        #sidebar nav a:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+        }
+
+        #sidebar nav a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF !important;
+            border-left-color: #FF1F3D;
+            font-weight: 600;
+        }
+
+        /* Iconos del menú */
+        #sidebar nav i {
+            width: 24px;
+            height: 24px;
+            stroke-width: 2;
+            color: inherit;
+            flex-shrink: 0;
+        }
+
+        /* Estilos para el texto del menú */
+        #sidebar nav span {
+            font-size: 1.125rem; /* text-lg = 18px */
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 640px) {
+            #sidebar {
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #sidebar {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Ajustes para scrollbar en navegadores WebKit */
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(109, 91, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(109, 91, 255, 0.7);
+        }
+
+        /* Estilos para el footer de redes sociales dentro del sidebar */
+        #sidebar .social-footer {
+            padding: 20px 24px 30px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #sidebar .social-footer a {
+            display: inline-block;
+            margin: 0 12px;
+            color: #FFFFFF !important;
+            font-size: 1.8rem;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+            text-decoration: none;
+        }
+
+        #sidebar .social-footer a:hover {
+            opacity: 1;
+        }
+
+        /* Botón de hamburguesa */
+        #menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(30, 58, 138, 0.9);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #menu-toggle:hover {
+            transform: scale(1.05);
+            background: rgba(30, 58, 138, 1);
+        }
     </style>
 </head>
 <body>
+    <!-- Botón de apertura del menú (ícono superior izquierdo) -->
+    <button id="menu-toggle">
+        <i data-lucide="menu"></i>
+    </button>
 
-<main class="app-container">
-    
-    <!-- Selector de consulta -->
-    <div class="search-group">
-        <select class="native-select" id="api-select">
-            <option value="">SELECT.</option>
-            <option value="dni">Consulta RENIEC por DNI</option>
-            <option value="telefonia-doc">Telefonía por Documento</option>
-            <option value="telefonia-num">Telefonía por Número</option>
-            <option value="placa">Datos SUNARP Vehículo</option>
-            <option value="ruc">SUNAT por RUC</option>
-            <option value="empresas">Empresas Relacionadas</option>
-            <option value="matrimonios">Matrimonios Registrados</option>
-            <option value="buscar-dni">Buscar DNI por Nombres</option>
-            <option value="buscar-cedula">Buscar Venezolano por Nombre</option>
-            <option value="cedula">Consultar Cédula Venezolana</option>
-        </select>
-        <input type="text" class="native-input" id="consulta-input" placeholder="👈Primero debes seleccionar una opción para poder consultar" disabled>
-    </div>
+    <!-- Overlay para el menú lateral -->
+    <div id="sidebar-overlay" class="hidden"></div>
 
-    <!-- Botón "Consultar" -->
-    <div class="mt-2">
-        <button class="btn-action" style="background: linear-gradient(135deg, #2563eb, #10b981);" id="consultar-btn">
-            CONSULTAR
-        </button>
-    </div>
+    <!-- Menú lateral principal (COPIADO COMPLETO DE APIs Doc) -->
+    <aside id="sidebar">
+        <div class="sidebar-header-bg">
+            <!-- Icono del sidebar -->
+            <div>
+               
+    <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono masitaprex">
 
-    <!-- Loader para consulta -->
-    <div id="consulta-loader" class="loader" style="display: none;">
-        <div class="loader-dot"></div>
-        <div class="loader-dot"></div>
-        <div class="loader-dot"></div>
-    </div>
-
-    <!-- Sección Resultado de consulta -->
-    <section class="resultado-wrap" id="resultado-wrap">
-        <div class="resultado-header">
-            <div class="resultado-header-inner">
-                <div class="resultado-title">
-                    <div class="resultado-text">Resultado de consulta</div>
-                </div>
-                <div class="resultado-logo" id="resultado-logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="logo-text">Consulta PE</div>
-                </div>
+            </div>
+            <h1>masitaprex</h1>
+            <!-- Decoración SVG -->
+            <div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="header-icon">
+                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
             </div>
         </div>
-        <div class="resultado-body" id="resultado-body"></div>
-        <!-- Botón de descarga PDF (rojo, ancho completo) -->
-        <button class="btn-pdf-download" id="descargar-pdf-btn" style="display: none;">
-            <i class="fas fa-file-pdf"></i> Descargar Resultado en PDF
-        </button>
-    </section>
 
-    <!-- Sección Perfil y Detalles del Plan -->
-    <section class="card" id="perfil-plan-section">
-        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Perfil y Detalles del Plan</h2>
-        <div id="perfil-plan-contenido">
-            <div class="loader" id="perfil-loader">
-                <div class="loader-dot"></div>
-                <div class="loader-dot"></div>
-                <div class="loader-dot"></div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sección Método de Pago -->
-    <section class="card">
-        <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
-        
-        <div class="space-y-4">
-            <label class="flex items-start gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer" id="card-payment-option">
-                <input type="radio" name="pay" checked class="accent-red-600 mt-1">
-                <div class="card-payment-info">
-                    <p class="card-payment-text">
-                        Tarjeta de Crédito/Débito - Aceptamos tarjetas de crédito y débito
-                    </p>
-                    <div class="card-icons-container">
-                        <i class="fab fa-cc-visa card-icon-item" style="color: #1a1f71;"></i>
-                        <i class="fab fa-cc-mastercard card-icon-item" style="color: #eb001b;"></i>
-                        <i class="fab fa-cc-amex card-icon-item" style="color: #006fcf;"></i>
-                        <span class="card-more-box">y más</span>
-                    </div>
-                </div>
-            </label>
-
-            <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl cursor-pointer" id="whatsapp-payment-option">
-                <input type="radio" name="pay" class="accent-red-600">
-                <div class="flex-1">
-                    <p class="text-sm font-bold">Compra por WhatsApp</p>
-                    <p class="text-xs text-gray-400">Contacta con nosotros para pagar</p>
-                </div>
-                <div class="text-green-600 font-bold text-xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.036 2.5c-5.234 0-9.5 4.266-9.5 9.5 0 1.745.47 3.427 1.35 4.89l-1.386 4.155 4.332-1.336c1.414.8 3.034 1.24 4.704 1.24 5.234 0 9.5-4.266 9.5-9.5s-4.266-9.5-9.5-9.5zm0 17.5c-1.48 0-2.915-.396-4.158-1.138l-.297-.176-3.074.948 1.013-2.99-.162-.312c-.824-1.3-1.26-2.8-1.26-4.332 0-4.44 3.61-8.05 8.05-8.05s8.05 3.61 8.05 8.05-3.61 8.05-8.05 8.05zm4.36-5.99c-.24-.12-1.425-.703-1.646-.783-.22-.08-.38-.12-.54.12s-.62.783-.76.943c-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.93-1.192-.714-.638-1.196-1.426-1.336-1.667-.14-.24-.015-.37.105-.49.108-.108.24-.282.36-.423.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.194-.464-.39-.4-.54-.408h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.576.248.993.4 1.332.514.56.19 1.07.164 1.473.1.45-.072 1.385-.566 1.58-1.113.195-.547.195-1.016.137-1.114-.058-.098-.213-.158-.453-.278z"></path>
-                    </svg>
-                </div>
-            </label>
-        </div>
-    </section>
-
-    <!-- Sección de Tarjeta de Crédito -->
-    <section class="card" id="credit-card-section">
-        <div class="credit-card-preview mb-6">
-            <div class="card-chip absolute top-6 left-6">
-                <div class="chip-dots">
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
+        <nav>
+            <a href="home" class="menu-item">
+                <i data-lucide="layout-dashboard" class="menu-icon"></i>
+                <span class="text-lg">Inicio</span>
+            </a>
             
-            <div class="absolute top-6 right-6 flex gap-1 top-icons">
-                <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
-                <div class="w-8 h-8 bg-orange-500 rounded-full -ml-4"></div>
-            </div>
-            <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg card-number-display" id="visual-card-number">****** **** **** ******</p>
-            <div class="flex justify-between items-end">
-                <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-holder">TITULAR DE TARJETA</span>
-                <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-expiry">MM/AA</span>
-            </div>
+            <a href="api-key" class="menu-item">
+                <i data-lucide="terminal-square" class="menu-icon"></i>
+                <span class="text-lg">Mi APi Key</span>
+            </a>
+            
+            <a href="planes.html" class="menu-item">
+                <i data-lucide="credit-card" class="menu-icon"></i>
+                <span class="text-lg">Recargar</span>
+            </a>
+
+            <a href="API-Docs" class="menu-item active">
+                <i data-lucide="file-code-2" class="menu-icon"></i>
+                <span class="text-lg">Documentación APIs</span>
+            </a>
+
+            <a href="PeliPREX" class="menu-item">
+                <i data-lucide="clapperboard" class="menu-icon"></i>
+                <span class="text-lg">Películas gratis</span>
+            </a>
+            <a href="consultaPe-vercion-web " class="menu-item">
+                <i data-lucide="globe" class="menu-icon"></i>
+                <span class="text-lg">ConsultaPe vercion web</span>
+            </a>
+        </nav>
+        <!-- Redes Sociales en el pie del menú lateral -->
+        <div class="social-footer">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
+        </div>
+    </aside>
+
+    <main class="app-container">
+        
+        <!-- Selector de consulta -->
+        <div class="search-group">
+            <select class="native-select" id="api-select">
+                <option value="">SELECT.</option>
+                <option value="dni">Consulta RENIEC por DNI</option>
+                <option value="telefonia-doc">Telefonía por Documento</option>
+                <option value="telefonia-num">Telefonía por Número</option>
+                <option value="placa">Datos SUNARP Vehículo</option>
+                <option value="ruc">SUNAT por RUC</option>
+                <option value="empresas">Empresas Relacionadas</option>
+                <option value="matrimonios">Matrimonios Registrados</option>
+                <option value="buscar-dni">Buscar DNI por Nombres</option>
+                <option value="buscar-cedula">Buscar Venezolano por Nombre</option>
+                <option value="cedula">Consultar Cédula Venezolana</option>
+            </select>
+            <input type="text" class="native-input" id="consulta-input" placeholder="👈Primero debes seleccionar una opción para poder consultar" disabled>
         </div>
 
-        <!-- Selectores de tipo de compra -->
-        <div class="flex gap-4 mb-6">
-            <div class="flex-1">
-                <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de compra</label>
-                <div class="flex gap-2">
-                    <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 transition-all" id="payment-type-credits" style="background: linear-gradient(135deg, #1e40af, #059669); color: white; border-color: transparent;">
-                        <i class="fas fa-coins mr-1"></i> Créditos
-                    </button>
-                    <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all" id="payment-type-unlimited">
-                        <i class="fas fa-rocket mr-1"></i> Ilimitado
-                    </button>
-                </div>
-            </div>
+        <!-- Botón "Consultar" -->
+        <div class="mt-2">
+            <button class="btn-action" style="background: linear-gradient(135deg, #2563eb, #10b981);" id="consultar-btn">
+                CONSULTAR
+            </button>
         </div>
 
-        <!-- Selector de paquete y precio -->
-        <div class="package-selector-container mb-6">
-            <div class="select-wrapper">
-                <label class="text-xs font-bold text-gray-400 block mb-1">Selecciona el paquete</label>
-                <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="purchase-details-select">
-                    <option value="" disabled selected>Selecciona un paquete</option>
-                </select>
-            </div>
-            <div class="price-wrapper">
-                <label class="text-xs font-bold text-gray-400 block mb-1">Total a pagar</label>
-                <div class="total-price" id="display-amount">S/ 0.00</div>
-            </div>
+        <!-- Loader para consulta -->
+        <div id="consulta-loader" class="loader" style="display: none;">
+            <div class="loader-dot"></div>
+            <div class="loader-dot"></div>
+            <div class="loader-dot"></div>
         </div>
 
-        <!-- Formulario de pago -->
-        <div id="payment-form-container">
-            <form id="form-checkout">
-                <div class="form-group mb-4">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Número de tarjeta</label>
-                    <div id="form-checkout__cardNumber" class="mp-container with-icon"></div>
-                </div>
-
-                <div class="grid-row mb-4">
-                    <div class="form-group">
-                        <label class="text-xs font-bold text-gray-400 block mb-1">Válido hasta</label>
-                        <div id="form-checkout__expirationDate" class="mp-container with-icon-expiry"></div>
+        <!-- Sección Resultado de consulta -->
+        <section class="resultado-wrap" id="resultado-wrap">
+            <div class="resultado-header">
+                <div class="resultado-header-inner">
+                    <div class="resultado-title">
+                        <div class="resultado-text">Resultado de consulta</div>
                     </div>
-                    <div class="form-group">
-                        <label class="text-xs font-bold text-gray-400 block mb-1">CVV</label>
-                        <div id="form-checkout__securityCode" class="mp-container with-icon-cvv"></div>
+                    <div class="resultado-logo" id="resultado-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="logo-text">Consulta PE</div>
                     </div>
                 </div>
+            </div>
+            <div class="resultado-body" id="resultado-body"></div>
+            <!-- Botón de descarga PDF (rojo, ancho completo) -->
+            <button class="btn-pdf-download" id="descargar-pdf-btn" style="display: none;">
+                <i class="fas fa-file-pdf"></i> Descargar Resultado en PDF
+            </button>
+        </section>
 
-                <div class="form-group mb-4">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Titular de la tarjeta</label>
-                    <input 
-                        type="text" 
-                        id="form-checkout__cardholderName" 
-                        class="input-box" 
-                        placeholder="Nombre y apellido"
-                        required
-                    />
+        <!-- Sección Perfil y Detalles del Plan -->
+        <section class="card" id="perfil-plan-section">
+            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Perfil y Detalles del Plan</h2>
+            <div id="perfil-plan-contenido">
+                <div class="loader" id="perfil-loader">
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
+                    <div class="loader-dot"></div>
                 </div>
+            </div>
+        </section>
 
-                <div class="form-group mb-4 hidden-field">
-                    <label class="text-xs font-bold text-gray-400 block mb-1">Correo electrónico</label>
-                    <input 
-                        type="email" 
-                        id="form-checkout__cardholderEmail" 
-                        class="input-box" 
-                        placeholder="correo@ejemplo.com"
-                        required
-                    />
-                </div>
-
-                <div class="document-container mb-4">
-                    <div class="form-group document-type-group">
-                        <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de doc.</label>
-                        <select id="form-checkout__identificationType" class="input-box" required style="text-align: left; padding-left: 16px;">
-                            <option value="">Seleccionar</option>
-                        </select>
+        <!-- Sección Método de Pago -->
+        <section class="card">
+            <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Método de Pago</h2>
+            
+            <div class="space-y-4">
+                <label class="flex items-start gap-4 p-3 border border-gray-100 rounded-xl bg-gray-50 cursor-pointer" id="card-payment-option">
+                    <input type="radio" name="pay" checked class="accent-red-600 mt-1">
+                    <div class="card-payment-info">
+                        <p class="card-payment-text">
+                            Tarjeta de Crédito/Débito - Aceptamos tarjetas de crédito y débito
+                        </p>
+                        <div class="card-icons-container">
+                            <i class="fab fa-cc-visa card-icon-item" style="color: #1a1f71;"></i>
+                            <i class="fab fa-cc-mastercard card-icon-item" style="color: #eb001b;"></i>
+                            <i class="fab fa-cc-amex card-icon-item" style="color: #006fcf;"></i>
+                            <span class="card-more-box">y más</span>
+                        </div>
                     </div>
-                    
-                    <div class="form-group document-number-group">
-                        <label class="text-xs font-bold text-gray-400 block mb-1">Número de documento</label>
+                </label>
+
+                <label class="flex items-center gap-4 p-3 border border-gray-100 rounded-xl cursor-pointer" id="whatsapp-payment-option">
+                    <input type="radio" name="pay" class="accent-red-600">
+                    <div class="flex-1">
+                        <p class="text-sm font-bold">Compra por WhatsApp</p>
+                        <p class="text-xs text-gray-400">Contacta con nosotros para pagar</p>
+                    </div>
+                    <div class="text-green-600 font-bold text-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.036 2.5c-5.234 0-9.5 4.266-9.5 9.5 0 1.745.47 3.427 1.35 4.89l-1.386 4.155 4.332-1.336c1.414.8 3.034 1.24 4.704 1.24 5.234 0 9.5-4.266 9.5-9.5s-4.266-9.5-9.5-9.5zm0 17.5c-1.48 0-2.915-.396-4.158-1.138l-.297-.176-3.074.948 1.013-2.99-.162-.312c-.824-1.3-1.26-2.8-1.26-4.332 0-4.44 3.61-8.05 8.05-8.05s8.05 3.61 8.05 8.05-3.61 8.05-8.05 8.05zm4.36-5.99c-.24-.12-1.425-.703-1.646-.783-.22-.08-.38-.12-.54.12s-.62.783-.76.943c-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.93-1.192-.714-.638-1.196-1.426-1.336-1.667-.14-.24-.015-.37.105-.49.108-.108.24-.282.36-.423.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.194-.464-.39-.4-.54-.408h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.576.248.993.4 1.332.514.56.19 1.07.164 1.473.1.45-.072 1.385-.566 1.58-1.113.195-.547.195-1.016.137-1.114-.058-.098-.213-.158-.453-.278z"></path>
+                        </svg>
+                    </div>
+                </label>
+            </div>
+        </section>
+
+        <!-- Sección de Tarjeta de Crédito -->
+        <section class="card" id="credit-card-section">
+            <div class="credit-card-preview mb-6">
+                <div class="card-chip absolute top-6 left-6">
+                    <div class="chip-dots">
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                
+                <div class="absolute top-6 right-6 flex gap-1 top-icons">
+                    <div class="w-8 h-8 bg-yellow-500 rounded-full"></div>
+                    <div class="w-8 h-8 bg-orange-500 rounded-full -ml-4"></div>
+                </div>
+                <p class="text-xl tracking-widest font-mono mb-2 drop-shadow-lg card-number-display" id="visual-card-number">****** **** **** ******</p>
+                <div class="flex justify-between items-end">
+                    <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-holder">TITULAR DE TARJETA</span>
+                    <span class="text-xs uppercase opacity-90 font-semibold" id="visual-card-expiry">MM/AA</span>
+                </div>
+            </div>
+
+            <!-- Selectores de tipo de compra -->
+            <div class="flex gap-4 mb-6">
+                <div class="flex-1">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de compra</label>
+                    <div class="flex gap-2">
+                        <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 transition-all" id="payment-type-credits" style="background: linear-gradient(135deg, #1e40af, #059669); color: white; border-color: transparent;">
+                            <i class="fas fa-coins mr-1"></i> Créditos
+                        </button>
+                        <button type="button" class="flex-1 p-2 text-sm font-semibold rounded-lg border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition-all" id="payment-type-unlimited">
+                            <i class="fas fa-rocket mr-1"></i> Ilimitado
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selector de paquete y precio -->
+            <div class="package-selector-container mb-6">
+                <div class="select-wrapper">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">Selecciona el paquete</label>
+                    <select class="w-full p-3 bg-gray-50 border-none rounded-xl text-sm" id="purchase-details-select">
+                        <option value="" disabled selected>Selecciona un paquete</option>
+                    </select>
+                </div>
+                <div class="price-wrapper">
+                    <label class="text-xs font-bold text-gray-400 block mb-1">Total a pagar</label>
+                    <div class="total-price" id="display-amount">S/ 0.00</div>
+                </div>
+            </div>
+
+            <!-- Formulario de pago -->
+            <div id="payment-form-container">
+                <form id="form-checkout">
+                    <div class="form-group mb-4">
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Número de tarjeta</label>
+                        <div id="form-checkout__cardNumber" class="mp-container with-icon"></div>
+                    </div>
+
+                    <div class="grid-row mb-4">
+                        <div class="form-group">
+                            <label class="text-xs font-bold text-gray-400 block mb-1">Válido hasta</label>
+                            <div id="form-checkout__expirationDate" class="mp-container with-icon-expiry"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-xs font-bold text-gray-400 block mb-1">CVV</label>
+                            <div id="form-checkout__securityCode" class="mp-container with-icon-cvv"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Titular de la tarjeta</label>
                         <input 
                             type="text" 
-                            id="form-checkout__identificationNumber" 
+                            id="form-checkout__cardholderName" 
                             class="input-box" 
-                            placeholder="12345678"
+                            placeholder="Nombre y apellido"
                             required
-                            style="text-align: center;"
                         />
                     </div>
-                </div>
 
-                <div style="display:none">
-                    <select id="form-checkout__issuer"></select>
-                    <select id="form-checkout__installments"></select>
-                </div>
+                    <div class="form-group mb-4 hidden-field">
+                        <label class="text-xs font-bold text-gray-400 block mb-1">Correo electrónico</label>
+                        <input 
+                            type="email" 
+                            id="form-checkout__cardholderEmail" 
+                            class="input-box" 
+                            placeholder="correo@ejemplo.com"
+                            required
+                        />
+                    </div>
 
-                <div class="loading-spinner" id="payment-loading">
-                    <div class="spinner"></div>
-                    <p class="text-sm text-gray-600">Procesando pago...</p>
-                </div>
+                    <div class="document-container mb-4">
+                        <div class="form-group document-type-group">
+                            <label class="text-xs font-bold text-gray-400 block mb-1">Tipo de doc.</label>
+                            <select id="form-checkout__identificationType" class="input-box" required style="text-align: left; padding-left: 16px;">
+                                <option value="">Seleccionar</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group document-number-group">
+                            <label class="text-xs font-bold text-gray-400 block mb-1">Número de documento</label>
+                            <input 
+                                type="text" 
+                                id="form-checkout__identificationNumber" 
+                                class="input-box" 
+                                placeholder="12345678"
+                                required
+                                style="text-align: center;"
+                            />
+                        </div>
+                    </div>
 
-                <button type="submit" id="form-checkout__submit" class="payment-btn" disabled>
-                    <i class="fas fa-lock"></i> Proceder al pago
-                </button>
+                    <div style="display:none">
+                        <select id="form-checkout__issuer"></select>
+                        <select id="form-checkout__installments"></select>
+                    </div>
 
-                <div class="security-badge">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Pago 100% seguro y encriptado</span>
-                </div>
-            </form>
-        </div>
+                    <div class="loading-spinner" id="payment-loading">
+                        <div class="spinner"></div>
+                        <p class="text-sm text-gray-600">Procesando pago...</p>
+                    </div>
 
-        <div id="payment-error" class="text-red-600 text-sm mt-4 text-center" style="display: none;"></div>
-    </section>
+                    <button type="submit" id="form-checkout__submit" class="payment-btn" disabled>
+                        <i class="fas fa-lock"></i> Proceder al pago
+                    </button>
 
-    <!-- Slider de servicios -->
-    <section class="card">
-        <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Nuestros Servicios</h2>
-        
-        <div class="services-slider">
-            <a href="PeliPREX.html" class="service-card" style="text-decoration: none;">
-                <div class="service-image service-img-1"></div>
-                <div class="service-text">peliPREX HD – Películas online gratis</div>
-            </a>
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Pago 100% seguro y encriptado</span>
+                    </div>
+                </form>
+            </div>
+
+            <div id="payment-error" class="text-red-600 text-sm mt-4 text-center" style="display: none;"></div>
+        </section>
+
+        <!-- Slider de servicios -->
+        <section class="card">
+            <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Nuestros Servicios</h2>
             
-            <a href="historial.html" class="service-card" style="text-decoration: none;">
-                <div class="service-image service-img-2"></div>
-                <div class="service-text">Historial de películas que vi</div>
-            </a>
-            
-            <a href="aPI-Docs" class="service-card" style="text-decoration: none;">
-                <div class="service-image service-img-3"></div>
-                <div class="service-text">Colección de apis</div>
-            </a>
-            
-            <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="service-card" style="text-decoration: none;">
-                <div class="service-image service-img-4"></div>
-                <div class="service-text">Aplicación consulta pe apk</div>
-            </a>
-
-            <a href="https://youtube.com/@eltiojota628?si=PEutWDR4W1hhycwQ" target="_blank" class="service-card" style="text-decoration: none;">
-                <div class="service-image service-img-5"></div>
-                <div class="service-text">Sigue nuestro canal en Youtube @el tío jota</div>
-            </a>
-        </div>
-    </section>
-
-    <!-- Sección Aplicación Consulta PE -->
-    <section class="card">
-        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Aplicación Consulta PE</h2>
-        
-        <div class="flex items-center gap-4 mb-4">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                <img src="https://www.appcreator24.com/srv/imgs/gen/2706889_ico.png?ts=1771379922" alt="App Icon" class="w-12 h-12 object-contain">
-            </div>
-            <div>
-                <h3 class="font-bold text-xl">Consulta PE</h3>
-                <p class="text-xs text-gray-400 font-medium">Desarrollado por Masitaprex</p>
-            </div>
-        </div>
-
-        <p class="text-sm text-gray-600 mb-3">
-            Plataforma de infraestructura tecnológica para consultas de entidades públicas de Perú y Venezuela.
-        </p>
-
-        <div class="flex gap-2 overflow-x-auto mb-4 py-2" id="screenshots-container">
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(0)">
-                <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" class="w-full h-full object-cover">
-            </div>
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(1)">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" class="w-full h-full object-cover">
-            </div>
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(2)">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" class="w-full h-full object-cover">
-            </div>
-            <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(3)">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png" class="w-full h-full object-cover">
-            </div>
-        </div>
-
-        <p class="text-sm text-gray-700 leading-relaxed mb-5">
-            La plataforma Consulta PE (versión web y aplicación APK propiedad de Masitaprex) es una solución de infraestructura tecnológica que facilita el acceso a información de fuentes públicas de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida y fácil de usar. 
-            <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="text-blue-600 hover:underline font-semibold">Leer más</a>
-        </p>
-
-        <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="window.open('https://apk.e-droid.net/apk/app2706889-uk81cm.apk?v=80', '_blank')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" ></path>
-            </svg>
-            INSTALAR APLICACIÓN
-        </button>
-    </section>
-
-</main>
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="footer-content">
-        <div class="footer-section">
-            <h3>Consulta PE - Intermediario Tecnológico</h3>
-            <p>Operado por <strong>CUBAS PEREZ JOSE RENE (RUC 10736224351)</strong>. Brindamos servicios de interconectividad técnica para acceso a información pública.</p>
-            <p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento de datos y mantenimiento técnico.</p>
-            <div class="social-icons">
-                <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
-                    <i class="fab fa-facebook-f"></i>
+            <div class="services-slider">
+                <a href="PeliPREX.html" class="service-card" style="text-decoration: none;">
+                    <div class="service-image service-img-1"></div>
+                    <div class="service-text">peliPREX HD – Películas online gratis</div>
                 </a>
-                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
-                    <i class="fab fa-youtube"></i>
+                
+                <a href="historial.html" class="service-card" style="text-decoration: none;">
+                    <div class="service-image service-img-2"></div>
+                    <div class="service-text">Historial de películas que vi</div>
+                </a>
+                
+                <a href="aPI-Docs" class="service-card" style="text-decoration: none;">
+                    <div class="service-image service-img-3"></div>
+                    <div class="service-text">Colección de apis</div>
+                </a>
+                
+                <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="service-card" style="text-decoration: none;">
+                    <div class="service-image service-img-4"></div>
+                    <div class="service-text">Aplicación consulta pe apk</div>
+                </a>
+
+                <a href="https://youtube.com/@eltiojota628?si=PEutWDR4W1hhycwQ" target="_blank" class="service-card" style="text-decoration: none;">
+                    <div class="service-image service-img-5"></div>
+                    <div class="service-text">Sigue nuestro canal en Youtube @el tío jota</div>
                 </a>
             </div>
+        </section>
+
+        <!-- Sección Aplicación Consulta PE -->
+        <section class="card">
+            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Aplicación Consulta PE</h2>
+            
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                    <img src="https://www.appcreator24.com/srv/imgs/gen/2706889_ico.png?ts=1771379922" alt="App Icon" class="w-12 h-12 object-contain">
+                </div>
+                <div>
+                    <h3 class="font-bold text-xl">Consulta PE</h3>
+                    <p class="text-xs text-gray-400 font-medium">Desarrollado por Masitaprex</p>
+                </div>
+            </div>
+
+            <p class="text-sm text-gray-600 mb-3">
+                Plataforma de infraestructura tecnológica para consultas de entidades públicas de Perú y Venezuela.
+            </p>
+
+            <div class="flex gap-2 overflow-x-auto mb-4 py-2" id="screenshots-container">
+                <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(0)">
+                    <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" class="w-full h-full object-cover">
+                </div>
+                <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(1)">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" class="w-full h-full object-cover">
+                </div>
+                <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(2)">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" class="w-full h-full object-cover">
+                </div>
+                <div class="w-20 h-20 bg-gray-200 rounded-xl flex-shrink-0 overflow-hidden cursor-pointer screenshot-img" onclick="openImageViewer(3)">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png" class="w-full h-full object-cover">
+                </div>
+            </div>
+
+            <p class="text-sm text-gray-700 leading-relaxed mb-5">
+                La plataforma Consulta PE (versión web y aplicación APK propiedad de Masitaprex) es una solución de infraestructura tecnológica que facilita el acceso a información de fuentes públicas de Perú y Venezuela. Obtén información de RENIEC, SUNAT, SUNARP, búsqueda de personas venezolanas por cédula o nombre, y mucho más. Todo en un solo lugar, con una interfaz rápida y fácil de usar. 
+                <a href="https://com-masitaorex.uptodown.com/android" target="_blank" class="text-blue-600 hover:underline font-semibold">Leer más</a>
+            </p>
+
+            <button class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold py-4 px-4 rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2" onclick="window.open('https://apk.e-droid.net/apk/app2706889-uk81cm.apk?v=80', '_blank')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" ></path>
+                </svg>
+                INSTALAR APLICACIÓN
+            </button>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Consulta PE - Intermediario Tecnológico</h3>
+                <p>Operado por <strong>CUBAS PEREZ JOSE RENE (RUC 10736224351)</strong>. Brindamos servicios de interconectividad técnica para acceso a información pública.</p>
+                <p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento de datos y mantenimiento técnico.</p>
+                <div class="social-icons">
+                    <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal para vista ampliada de imágenes -->
+    <div class="image-modal" id="imageModal">
+        <div class="image-modal-content">
+            <span class="image-modal-close" onclick="closeImageViewer()">×</span>
+            <span class="image-modal-prev" id="modalPrev" onclick="changeImage(-1)">❮</span>
+            <span class="image-modal-next" id="modalNext" onclick="changeImage(1)">❯</span>
+            <img class="image-modal-img" id="modalImage" src="" alt="Imagen ampliada">
         </div>
     </div>
-</footer>
 
-<!-- Modal para vista ampliada de imágenes -->
-<div class="image-modal" id="imageModal">
-    <div class="image-modal-content">
-        <span class="image-modal-close" onclick="closeImageViewer()">×</span>
-        <span class="image-modal-prev" id="modalPrev" onclick="changeImage(-1)">❮</span>
-        <span class="image-modal-next" id="modalNext" onclick="changeImage(1)">❯</span>
-        <img class="image-modal-img" id="modalImage" src="" alt="Imagen ampliada">
-    </div>
-</div>
+    <script>
+    /* ==========================================================
+       CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
+       ========================================================= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
+      authDomain: "consulta-pe-abf99.firebaseapp.com",
+      projectId: "consulta-pe-abf99",
+      storageBucket: "consulta-pe-abf99.firebasestorage.app",
+      messagingSenderId: "610275972424",
+      appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
+    };
 
-<script>
-/* ==========================================================
-   CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
-   ========================================================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
-  authDomain: "consulta-pe-abf99.firebaseapp.com",
-  projectId: "consulta-pe-abf99",
-  storageBucket: "consulta-pe-abf99.firebasestorage.app",
-  messagingSenderId: "610275972424",
-  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
-};
+    if(firebase.apps.length === 0){
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const FieldValue = firebase.firestore.FieldValue;
 
-if(firebase.apps.length === 0){
-    firebase.initializeApp(firebaseConfig);
-}
-const auth = firebase.auth();
-const db = firebase.firestore();
-const FieldValue = firebase.firestore.FieldValue;
+    let USER_EMAIL = null;
+    let USER_UID = null;
+    let USER_API_KEY = null;
 
-let USER_EMAIL = null;
-let USER_UID = null;
-let USER_API_KEY = null;
+    const perfilContenido = document.getElementById('perfil-plan-contenido');
+    const perfilLoader = document.getElementById('perfil-loader');
+    const consultaLoader = document.getElementById('consulta-loader');
 
-const perfilContenido = document.getElementById('perfil-plan-contenido');
-const perfilLoader = document.getElementById('perfil-loader');
-const consultaLoader = document.getElementById('consulta-loader');
+    function generarApiKey() {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
 
-function generarApiKey() {
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-function formatDate(isoDate) {
-    if (!isoDate) return 'N/A';
-    try {
-        if (typeof isoDate === 'object' && isoDate.toDate) {
-            isoDate = isoDate.toDate();
+    function formatDate(isoDate) {
+        if (!isoDate) return 'N/A';
+        try {
+            if (typeof isoDate === 'object' && isoDate.toDate) {
+                isoDate = isoDate.toDate();
+            }
+            const date = new Date(isoDate);
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch (e) {
+            return 'N/A';
         }
-        const date = new Date(isoDate);
-        return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-    } catch (e) {
-        return 'N/A';
-    }
-}
-
-function renderizarPerfilConDatos(userData) {
-    if (!perfilContenido) return;
-
-    if (!userData) {
-        perfilContenido.innerHTML = `
-            <div class="text-center py-8 text-red-600">
-                <p class="font-semibold">Error al cargar el perfil</p>
-                <p class="text-sm mt-2">No se pudieron obtener los datos del usuario.</p>
-            </div>
-        `;
-        return;
     }
 
-    USER_API_KEY = userData.apiKey;
+    function renderizarPerfilConDatos(userData) {
+        if (!perfilContenido) return;
 
-    const nombre = userData.email ? userData.email.split('@')[0] : 'Usuario';
-    const email = userData.email || 'correo@ejemplo.com';
-    const iniciales = nombre.substring(0, 2).toUpperCase() || 'U';
-    
-    const tipoPlan = userData.tipoPlan || 'creditos';
-    const creditos = userData.creditos || 0;
-    
-    let apiKey = userData.apiKey;
-    if (!apiKey) {
-        apiKey = generarApiKey();
-    }
-    
-    let fechaActivacion = 'No disponible';
-    if (userData.fechaActivacion) {
-        fechaActivacion = formatDate(userData.fechaActivacion);
-    }
-    
-    let planIlimitadoHasta = 'No aplica';
-    let duracionDias = 'No aplica';
-    let diasRestantes = 'No aplica';
-    let fechaVencimiento = 'No aplica';
-    
-    if (tipoPlan === 'ilimitado') {
-        if (userData.fechaVencimiento) {
-            fechaVencimiento = formatDate(userData.fechaVencimiento);
-            planIlimitadoHasta = fechaVencimiento;
-            
-            try {
-                let vencimiento;
-                if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
-                    vencimiento = userData.fechaVencimiento.toDate();
-                } else {
-                    vencimiento = new Date(userData.fechaVencimiento);
+        if (!userData) {
+            perfilContenido.innerHTML = `
+                <div class="text-center py-8 text-red-600">
+                    <p class="font-semibold">Error al cargar el perfil</p>
+                    <p class="text-sm mt-2">No se pudieron obtener los datos del usuario.</p>
+                </div>
+            `;
+            return;
+        }
+
+        USER_API_KEY = userData.apiKey;
+
+        const nombre = userData.email ? userData.email.split('@')[0] : 'Usuario';
+        const email = userData.email || 'correo@ejemplo.com';
+        const iniciales = nombre.substring(0, 2).toUpperCase() || 'U';
+        
+        const tipoPlan = userData.tipoPlan || 'creditos';
+        const creditos = userData.creditos || 0;
+        
+        let apiKey = userData.apiKey;
+        if (!apiKey) {
+            apiKey = generarApiKey();
+        }
+        
+        let fechaActivacion = 'No disponible';
+        if (userData.fechaActivacion) {
+            fechaActivacion = formatDate(userData.fechaActivacion);
+        }
+        
+        let planIlimitadoHasta = 'No aplica';
+        let duracionDias = 'No aplica';
+        let diasRestantes = 'No aplica';
+        let fechaVencimiento = 'No aplica';
+        
+        if (tipoPlan === 'ilimitado') {
+            if (userData.fechaVencimiento) {
+                fechaVencimiento = formatDate(userData.fechaVencimiento);
+                planIlimitadoHasta = fechaVencimiento;
+                
+                try {
+                    let vencimiento;
+                    if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
+                        vencimiento = userData.fechaVencimiento.toDate();
+                    } else {
+                        vencimiento = new Date(userData.fechaVencimiento);
+                    }
+                    const hoy = new Date();
+                    const diffTime = vencimiento - hoy;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    diasRestantes = diffDays > 0 ? `${diffDays} días` : 'Expirado';
+                } catch (e) {
+                    console.error("Error calculando días restantes:", e);
                 }
-                const hoy = new Date();
-                const diffTime = vencimiento - hoy;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                diasRestantes = diffDays > 0 ? `${diffDays} días` : 'Expirado';
-            } catch (e) {
-                console.error("Error calculando días restantes:", e);
+            }
+            
+            if (userData.duracionDias) {
+                duracionDias = userData.duracionDias;
             }
         }
+
+        const ultimaCompra = userData.ultimaCompra ? formatDate(userData.ultimaCompra) : 'No disponible';
+        const ultimaConsulta = userData.ultimaConsulta ? formatDate(userData.ultimaConsulta) : 'No disponible';
+        const totalConsultas = userData.totalConsultas || 0;
+
+        // Construir la tabla según el tipo de plan
+        let tablaHtml = '';
         
-        if (userData.duracionDias) {
-            duracionDias = userData.duracionDias;
-        }
-    }
-
-    const ultimaCompra = userData.ultimaCompra ? formatDate(userData.ultimaCompra) : 'No disponible';
-    const ultimaConsulta = userData.ultimaConsulta ? formatDate(userData.ultimaConsulta) : 'No disponible';
-    const totalConsultas = userData.totalConsultas || 0;
-
-    // Construir la tabla según el tipo de plan
-    let tablaHtml = '';
-    
-    if (tipoPlan === 'ilimitado') {
-        tablaHtml = `
-            <table class="plan-detail-table">
-                <tr>
-                    <td>Tipo de Plan</td>
-                    <td>Ilimitado</td>
-                </tr>
-                <tr>
-                    <td>Duración (días)</td>
-                    <td>${duracionDias}</td>
-                </tr>
-                <tr>
-                    <td>Días restantes</td>
-                    <td>${diasRestantes}</td>
-                </tr>
-                <tr>
-                    <td>Fecha de Activación</td>
-                    <td>${fechaActivacion}</td>
-                </tr>
-                <tr>
-                    <td>Válido hasta</td>
-                    <td>${planIlimitadoHasta}</td>
-                </tr>
-                <tr>
-                    <td>Última consulta</td>
-                    <td>${ultimaConsulta}</td>
-                </tr>
-                <tr>
-                    <td>Total consultas</td>
-                    <td>${totalConsultas}</td>
-                </tr>
-            </table>
-        `;
-    } else {
-        tablaHtml = `
-            <table class="plan-detail-table">
-                <tr>
-                    <td>Tipo de Plan</td>
-                    <td>Créditos</td>
-                </tr>
-                <tr>
-                    <td>Créditos disponibles</td>
-                    <td>${creditos}</td>
-                </tr>
-                <tr>
-                    <td>Fecha de Activación</td>
-                    <td>${fechaActivacion}</td>
-                </tr>
-                <tr>
-                    <td>Última consulta</td>
-                    <td>${ultimaConsulta}</td>
-                </tr>
-                <tr>
-                    <td>Válido hasta</td>
-                    <td>No vence</td>
-                </tr>
-            </table>
-        `;
-    }
-
-    // API Key oculta - se muestra como asteriscos en lugar del valor real
-    const apiKeyOculta = '••••••••••••••••••••••••';
-
-    perfilContenido.innerHTML = `
-        <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
-            <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
-                ${iniciales}
-            </div>
-            <div>
-                <h3 class="font-bold text-lg">${nombre}</h3>
-                <p class="text-sm text-gray-500">${email}</p>
-                <p class="text-xs text-gray-400 mt-1 break-all"><span class="font-mono">${apiKeyOculta}</span></p>
-            </div>
-        </div>
-
-        ${tablaHtml}
-    `;
-
-    if (!userData.apiKey && userData.email) {
-        const userRef = db.collection("usuarios").doc(auth.currentUser.uid);
-        userRef.update({
-            apiKey: apiKey
-        }).catch(error => {
-            console.error("Error guardando API Key:", error);
-        });
-    }
-}
-
-async function cargarDatosPerfil() {
-    const user = auth.currentUser;
-    
-    if (!user) {
-        perfilContenido.innerHTML = `
-            <div class="text-center py-8 text-gray-500">
-                <p class="font-semibold">No has iniciado sesión</p>
-                <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
-            </div>
-        `;
-        if (perfilLoader) perfilLoader.style.display = 'none';
-        return;
-    }
-
-    USER_EMAIL = user.email;
-    USER_UID = user.uid;
-
-    try {
-        if (perfilLoader) perfilLoader.style.display = 'flex';
-        
-        const userRef = db.collection("usuarios").doc(user.uid);
-        const doc = await userRef.get();
-        
-        if (doc.exists) {
-            const userData = doc.data();
-            renderizarPerfilConDatos(userData);
+        if (tipoPlan === 'ilimitado') {
+            tablaHtml = `
+                <table class="plan-detail-table">
+                    <tr>
+                        <td>Tipo de Plan</td>
+                        <td>Ilimitado</td>
+                    </tr>
+                    <tr>
+                        <td>Duración (días)</td>
+                        <td>${duracionDias}</td>
+                    </tr>
+                    <tr>
+                        <td>Días restantes</td>
+                        <td>${diasRestantes}</td>
+                    </tr>
+                    <tr>
+                        <td>Fecha de Activación</td>
+                        <td>${fechaActivacion}</td>
+                    </tr>
+                    <tr>
+                        <td>Válido hasta</td>
+                        <td>${planIlimitadoHasta}</td>
+                    </tr>
+                    <tr>
+                        <td>Última consulta</td>
+                        <td>${ultimaConsulta}</td>
+                    </tr>
+                    <tr>
+                        <td>Total consultas</td>
+                        <td>${totalConsultas}</td>
+                    </tr>
+                </table>
+            `;
         } else {
-            console.warn("Documento de usuario no encontrado en Firestore.");
-            const defaultUserData = {
-                email: user.email,
-                tipoPlan: "creditos",
-                creditos: 5,
-                fechaActivacion: FieldValue.serverTimestamp(),
-                duracionDias: 0,
-                apiKey: generarApiKey(),
-                ultimaCompra: null,
-                ultimaConsulta: null
-            };
-            await userRef.set(defaultUserData);
-            console.log("Documento de usuario por defecto creado con 5 créditos y API Key.");
-            renderizarPerfilConDatos(defaultUserData);
+            tablaHtml = `
+                <table class="plan-detail-table">
+                    <tr>
+                        <td>Tipo de Plan</td>
+                        <td>Créditos</td>
+                    </tr>
+                    <tr>
+                        <td>Créditos disponibles</td>
+                        <td>${creditos}</td>
+                    </tr>
+                    <tr>
+                        <td>Fecha de Activación</td>
+                        <td>${fechaActivacion}</td>
+                    </tr>
+                    <tr>
+                        <td>Última consulta</td>
+                        <td>${ultimaConsulta}</td>
+                    </tr>
+                    <tr>
+                        <td>Válido hasta</td>
+                        <td>No vence</td>
+                    </tr>
+                </table>
+            `;
         }
-        
-        if (perfilLoader) perfilLoader.style.display = 'none';
-        
-    } catch (error) {
-        console.error("Error al cargar los datos del usuario:", error);
-        perfilContenido.innerHTML = `
-            <div class="text-center py-8 text-red-600">
-                <p class="font-semibold">Error al cargar el perfil</p>
-                <p class="text-sm mt-2">${error.message || 'Intenta de nuevo más tarde.'}</p>
-                <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
-                    Reintentar
-                </button>
-            </div>
-        `;
-        if (perfilLoader) perfilLoader.style.display = 'none';
-    }
-}
 
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        USER_EMAIL = user.email;
-        USER_UID = user.uid;
-        cargarDatosPerfil();
-    } else {
-        if (perfilContenido) {
+        // API Key oculta - se muestra como asteriscos en lugar del valor real
+        const apiKeyOculta = '••••••••••••••••••••••••';
+
+        perfilContenido.innerHTML = `
+            <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
+                <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                    ${iniciales}
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">${nombre}</h3>
+                    <p class="text-sm text-gray-500">${email}</p>
+                    <p class="text-xs text-gray-400 mt-1 break-all"><span class="font-mono">${apiKeyOculta}</span></p>
+                </div>
+            </div>
+
+            ${tablaHtml}
+        `;
+
+        if (!userData.apiKey && userData.email) {
+            const userRef = db.collection("usuarios").doc(auth.currentUser.uid);
+            userRef.update({
+                apiKey: apiKey
+            }).catch(error => {
+                console.error("Error guardando API Key:", error);
+            });
+        }
+    }
+
+    async function cargarDatosPerfil() {
+        const user = auth.currentUser;
+        
+        if (!user) {
             perfilContenido.innerHTML = `
                 <div class="text-center py-8 text-gray-500">
                     <p class="font-semibold">No has iniciado sesión</p>
                     <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
-                    <a href="login.html" class="mt-4 inline-block px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
-                        Iniciar sesión
-                    </a>
                 </div>
             `;
+            if (perfilLoader) perfilLoader.style.display = 'none';
+            return;
         }
-        if (perfilLoader) perfilLoader.style.display = 'none';
+
+        USER_EMAIL = user.email;
+        USER_UID = user.uid;
+
+        try {
+            if (perfilLoader) perfilLoader.style.display = 'flex';
+            
+            const userRef = db.collection("usuarios").doc(user.uid);
+            const doc = await userRef.get();
+            
+            if (doc.exists) {
+                const userData = doc.data();
+                renderizarPerfilConDatos(userData);
+            } else {
+                console.warn("Documento de usuario no encontrado en Firestore.");
+                const defaultUserData = {
+                    email: user.email,
+                    tipoPlan: "creditos",
+                    creditos: 5,
+                    fechaActivacion: FieldValue.serverTimestamp(),
+                    duracionDias: 0,
+                    apiKey: generarApiKey(),
+                    ultimaCompra: null,
+                    ultimaConsulta: null
+                };
+                await userRef.set(defaultUserData);
+                console.log("Documento de usuario por defecto creado con 5 créditos y API Key.");
+                renderizarPerfilConDatos(defaultUserData);
+            }
+            
+            if (perfilLoader) perfilLoader.style.display = 'none';
+            
+        } catch (error) {
+            console.error("Error al cargar los datos del usuario:", error);
+            perfilContenido.innerHTML = `
+                <div class="text-center py-8 text-red-600">
+                    <p class="font-semibold">Error al cargar el perfil</p>
+                    <p class="text-sm mt-2">${error.message || 'Intenta de nuevo más tarde.'}</p>
+                    <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
+                        Reintentar
+                    </button>
+                </div>
+            `;
+            if (perfilLoader) perfilLoader.style.display = 'none';
+        }
     }
-});
 
-/* ==========================================================
-   FUNCIONALIDAD DE CONSULTA A LA API
-   ========================================================= */
-const apiSelect = document.getElementById('api-select');
-const consultaInput = document.getElementById('consulta-input');
-const consultarBtn = document.getElementById('consultar-btn');
-const resultadoBody = document.getElementById('resultado-body');
-const resultadoLogo = document.getElementById('resultado-logo');
-const resultadoWrap = document.getElementById('resultado-wrap');
-const descargarPdfBtn = document.getElementById('descargar-pdf-btn');
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            USER_EMAIL = user.email;
+            USER_UID = user.uid;
+            cargarDatosPerfil();
+        } else {
+            if (perfilContenido) {
+                perfilContenido.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p class="font-semibold">No has iniciado sesión</p>
+                        <p class="text-sm mt-2">Inicia sesión para ver los detalles de tu perfil y plan.</p>
+                        <a href="login.html" class="mt-4 inline-block px-4 py-2 bg-red-600 text-white rounded-xl text-sm">
+                            Iniciar sesión
+                        </a>
+                    </div>
+                `;
+            }
+            if (perfilLoader) perfilLoader.style.display = 'none';
+        }
+    });
 
-let ultimoResultadoConsulta = null;
-let tipoConsultaActual = null;
+    /* ==========================================================
+       FUNCIONALIDAD DE CONSULTA A LA API
+       ========================================================= */
+    const apiSelect = document.getElementById('api-select');
+    const consultaInput = document.getElementById('consulta-input');
+    const consultarBtn = document.getElementById('consultar-btn');
+    const resultadoBody = document.getElementById('resultado-body');
+    const resultadoLogo = document.getElementById('resultado-logo');
+    const resultadoWrap = document.getElementById('resultado-wrap');
+    const descargarPdfBtn = document.getElementById('descargar-pdf-btn');
 
-const placeholders = {
-    'dni': 'Ej: 12345678',
-    'telefonia-doc': 'Ej: 12345678 o 20123456789',
-    'telefonia-num': 'Ej: 987654321',
-    'placa': 'Ej: ABC-123',
-    'ruc': 'Ej: 20123456789',
-    'empresas': 'Ej: 12345678',
-    'matrimonios': 'Ej: 12345678',
-    'buscar-dni': 'Ej: Juan Carlos Perez Gomez',
-    'buscar-cedula': 'Ej: Maria Rodriguez',
-    'cedula': 'Ej: V12345678'
-};
+    let ultimoResultadoConsulta = null;
+    let tipoConsultaActual = null;
 
-const endpoints = {
-    'dni': 'consulta/dni',
-    'telefonia-doc': 'consulta/telefonia-doc',
-    'telefonia-num': 'consulta/telefonia-num',
-    'placa': 'consulta/placa',
-    'ruc': 'consulta/ruc',
-    'empresas': 'consulta/empresas',
-    'matrimonios': 'consulta/matrimonios',
-    'buscar-dni': 'consulta/buscar-dni',
-    'buscar-cedula': 'consulta/buscar-cedula',
-    'cedula': 'consulta/cedula'
-};
+    const placeholders = {
+        'dni': 'Ej: 12345678',
+        'telefonia-doc': 'Ej: 12345678 o 20123456789',
+        'telefonia-num': 'Ej: 987654321',
+        'placa': 'Ej: ABC-123',
+        'ruc': 'Ej: 20123456789',
+        'empresas': 'Ej: 12345678',
+        'matrimonios': 'Ej: 12345678',
+        'buscar-dni': 'Ej: Juan Carlos Perez Gomez',
+        'buscar-cedula': 'Ej: Maria Rodriguez',
+        'cedula': 'Ej: V12345678'
+    };
 
-const paramNames = {
-    'dni': 'dni',
-    'telefonia-doc': 'documento',
-    'telefonia-num': 'numero',
-    'placa': 'placa',
-    'ruc': 'data',
-    'empresas': 'dni',
-    'matrimonios': 'dni',
-    'buscar-dni': null,
-    'buscar-cedula': 'query',
-    'cedula': 'cedula'
-};
+    const endpoints = {
+        'dni': 'consulta/dni',
+        'telefonia-doc': 'consulta/telefonia-doc',
+        'telefonia-num': 'consulta/telefonia-num',
+        'placa': 'consulta/placa',
+        'ruc': 'consulta/ruc',
+        'empresas': 'consulta/empresas',
+        'matrimonios': 'consulta/matrimonios',
+        'buscar-dni': 'consulta/buscar-dni',
+        'buscar-cedula': 'consulta/buscar-cedula',
+        'cedula': 'consulta/cedula'
+    };
 
-// Opciones que requieren solo números (para activar teclado numérico)
-const numericOptions = ['dni', 'telefonia-doc', 'telefonia-num', 'ruc', 'empresas', 'matrimonios', 'cedula'];
+    const paramNames = {
+        'dni': 'dni',
+        'telefonia-doc': 'documento',
+        'telefonia-num': 'numero',
+        'placa': 'placa',
+        'ruc': 'data',
+        'empresas': 'dni',
+        'matrimonios': 'dni',
+        'buscar-dni': null,
+        'buscar-cedula': 'query',
+        'cedula': 'cedula'
+    };
 
-const nombresCamposDni = {
-    'nuDni': 'DNI',
-    'apCasada': 'Apellido de casada',
-    'apePaterno': 'Apellido paterno',
-    'apeMaterno': 'Apellido materno',
-    'preNombres': 'Nombres',
-    'nuFicha': 'N° Ficha',
-    'nuImagen': 'N° Imagen',
-    'feNacimiento': 'Fecha de nacimiento',
-    'estatura': 'Estatura',
-    'sexo': 'Sexo',
-    'estadoCivil': 'Estado civil',
-    'gradoInstruccion': 'Grado de instrucción',
-    'feEmision': 'Fecha de emisión',
-    'feInscripcion': 'Fecha de inscripción',
-    'nomPadre': 'Nombre del padre',
-    'nomMadre': 'Nombre de la madre',
-    'pais': 'País',
-    'departamento': 'Departamento',
-    'provincia': 'Provincia',
-    'distrito': 'Distrito',
-    'pad': 'PAD',
-    'depaDireccion': 'Departamento (dirección)',
-    'provDireccion': 'Provincia (dirección)',
-    'distDireccion': 'Distrito (dirección)',
-    'feCaducidad': 'Fecha de caducidad',
-    'donaOrganos': 'Donante de órganos',
-    'observacion': 'Observación',
-    'feRestriccion': 'Fecha de restricción',
-    'deRestriccion': 'Descripción de restricción',
-    'desDireccion': 'Dirección',
-    'gpVotacion': 'Grupo de votación',
-    'telefono': 'Teléfono',
-    'email': 'Email',
-    'multasElectorales': 'Multas electorales',
-    'multaAdmin': 'Multa administrativa',
-    'feActualizacion': 'Fecha de actualización',
-    'docSustento': 'Documento de sustento',
-    'nuDocSustento': 'N° documento de sustento',
-    'nuDocDeclarante': 'N° documento del declarante',
-    'vinculoDeclarante': 'Vínculo del declarante',
-    'tipoDeclarante': 'Tipo de declarante',
-    'coTipoDocPadre': 'Tipo documento del padre',
-    'coTipoDocMadre': 'Tipo documento de la madre',
-    'nuDocPadre': 'N° documento del padre',
-    'nuDocMadre': 'N° documento de la madre',
-    'feFallecimiento': 'Fecha de fallecimiento',
-    'cancelacion': 'Cancelación',
-    'nomDeclarante': 'Nombre del declarante',
-    'digitoVerificacion': 'Dígito de verificación'
-};
+    // Opciones que requieren solo números (para activar teclado numérico)
+    const numericOptions = ['dni', 'telefonia-doc', 'telefonia-num', 'ruc', 'empresas', 'matrimonios', 'cedula'];
 
-function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
-    if (!obj || typeof obj !== 'object') return '';
-    
-    let html = '';
-    
-    if (Array.isArray(obj)) {
-        if (obj.length === 0) return '<p class="text-gray-500 text-center py-4">No hay datos para mostrar</p>';
+    const nombresCamposDni = {
+        'nuDni': 'DNI',
+        'apCasada': 'Apellido de casada',
+        'apePaterno': 'Apellido paterno',
+        'apeMaterno': 'Apellido materno',
+        'preNombres': 'Nombres',
+        'nuFicha': 'N° Ficha',
+        'nuImagen': 'N° Imagen',
+        'feNacimiento': 'Fecha de nacimiento',
+        'estatura': 'Estatura',
+        'sexo': 'Sexo',
+        'estadoCivil': 'Estado civil',
+        'gradoInstruccion': 'Grado de instrucción',
+        'feEmision': 'Fecha de emisión',
+        'feInscripcion': 'Fecha de inscripción',
+        'nomPadre': 'Nombre del padre',
+        'nomMadre': 'Nombre de la madre',
+        'pais': 'País',
+        'departamento': 'Departamento',
+        'provincia': 'Provincia',
+        'distrito': 'Distrito',
+        'pad': 'PAD',
+        'depaDireccion': 'Departamento (dirección)',
+        'provDireccion': 'Provincia (dirección)',
+        'distDireccion': 'Distrito (dirección)',
+        'feCaducidad': 'Fecha de caducidad',
+        'donaOrganos': 'Donante de órganos',
+        'observacion': 'Observación',
+        'feRestriccion': 'Fecha de restricción',
+        'deRestriccion': 'Descripción de restricción',
+        'desDireccion': 'Dirección',
+        'gpVotacion': 'Grupo de votación',
+        'telefono': 'Teléfono',
+        'email': 'Email',
+        'multasElectorales': 'Multas electorales',
+        'multaAdmin': 'Multa administrativa',
+        'feActualizacion': 'Fecha de actualización',
+        'docSustento': 'Documento de sustento',
+        'nuDocSustento': 'N° documento de sustento',
+        'nuDocDeclarante': 'N° documento del declarante',
+        'vinculoDeclarante': 'Vínculo del declarante',
+        'tipoDeclarante': 'Tipo de declarante',
+        'coTipoDocPadre': 'Tipo documento del padre',
+        'coTipoDocMadre': 'Tipo documento de la madre',
+        'nuDocPadre': 'N° documento del padre',
+        'nuDocMadre': 'N° documento de la madre',
+        'feFallecimiento': 'Fecha de fallecimiento',
+        'cancelacion': 'Cancelación',
+        'nomDeclarante': 'Nombre del declarante',
+        'digitoVerificacion': 'Dígito de verificación'
+    };
+
+    function crearTablasDesdeObjeto(obj, nivel = 0, esDni = false) {
+        if (!obj || typeof obj !== 'object') return '';
         
-        obj.forEach((item, index) => {
-            if (typeof item === 'object') {
-                html += `<div class="resultado-section-title">Elemento ${index + 1}</div>`;
-                html += crearTablasDesdeObjeto(item, nivel + 1, esDni);
-            }
-        });
-        return html;
-    }
-    
-    const entries = Object.entries(obj);
-    if (entries.length === 0) return '';
-    
-    const hasNestedObjects = entries.some(([_, value]) => value && typeof value === 'object');
-    
-    if (hasNestedObjects && nivel === 0) {
-        if (esDni && obj.imagenes) {
-            html += `<div class="resultado-section-title">IMÁGENES BIOMÉTRICAS</div>`;
-            html += `<table class="resultado-table">`;
+        let html = '';
+        
+        if (Array.isArray(obj)) {
+            if (obj.length === 0) return '<p class="text-gray-500 text-center py-4">No hay datos para mostrar</p>';
             
-            if (obj.imagenes.huella_izquierda) {
-                html += `
-                    <tr>
-                        <td class="font-semibold">Huella izquierda</td>
-                        <td><img src="data:image/jpeg;base64,${obj.imagenes.huella_izquierda}" class="huella-img" style="max-width: 200px;"></td>
-                    </tr>
-                `;
-            }
-            if (obj.imagenes.huella_derecha) {
-                html += `
-                    <tr>
-                        <td class="font-semibold">Huella derecha</td>
-                        <td><img src="data:image/jpeg;base64,${obj.imagenes.huella_derecha}" class="huella-img" style="max-width: 200px;"></td>
-                    </tr>
-                `;
-            }
-            if (obj.imagenes.firma) {
-                html += `
-                    <tr>
-                        <td class="font-semibold">Firma</td>
-                        <td><img src="data:image/jpeg;base64,${obj.imagenes.firma}" class="firma-img" style="max-width: 200px;"></td>
-                    </tr>
-                `;
-            }
-            html += `</table>`;
-            
-            if (obj.imagenes.foto) {
-                resultadoLogo.innerHTML = `<img src="data:image/jpeg;base64,${obj.imagenes.foto}" class="foto-carnet">`;
-            }
+            obj.forEach((item, index) => {
+                if (typeof item === 'object') {
+                    html += `<div class="resultado-section-title">Elemento ${index + 1}</div>`;
+                    html += crearTablasDesdeObjeto(item, nivel + 1, esDni);
+                }
+            });
+            return html;
         }
         
-        entries.forEach(([key, value]) => {
-            if (value && typeof value === 'object' && key !== 'imagenes') {
-                html += `<div class="resultado-section-title">${key.replace(/_/g, ' ').toUpperCase()}</div>`;
-                html += crearTablasDesdeObjeto(value, nivel + 1, false);
-            }
-        });
+        const entries = Object.entries(obj);
+        if (entries.length === 0) return '';
         
-        const simpleProps = entries.filter(([_, value]) => !(value && typeof value === 'object'));
-        if (simpleProps.length > 0) {
-            html += `<div class="resultado-section-title">DATOS PERSONALES</div>`;
+        const hasNestedObjects = entries.some(([_, value]) => value && typeof value === 'object');
+        
+        if (hasNestedObjects && nivel === 0) {
+            if (esDni && obj.imagenes) {
+                html += `<div class="resultado-section-title">IMÁGENES BIOMÉTRICAS</div>`;
+                html += `<table class="resultado-table">`;
+                
+                if (obj.imagenes.huella_izquierda) {
+                    html += `
+                        <tr>
+                            <td class="font-semibold">Huella izquierda</td>
+                            <td><img src="data:image/jpeg;base64,${obj.imagenes.huella_izquierda}" class="huella-img" style="max-width: 200px;"></td>
+                        </tr>
+                    `;
+                }
+                if (obj.imagenes.huella_derecha) {
+                    html += `
+                        <tr>
+                            <td class="font-semibold">Huella derecha</td>
+                            <td><img src="data:image/jpeg;base64,${obj.imagenes.huella_derecha}" class="huella-img" style="max-width: 200px;"></td>
+                        </tr>
+                    `;
+                }
+                if (obj.imagenes.firma) {
+                    html += `
+                        <tr>
+                            <td class="font-semibold">Firma</td>
+                            <td><img src="data:image/jpeg;base64,${obj.imagenes.firma}" class="firma-img" style="max-width: 200px;"></td>
+                        </tr>
+                    `;
+                }
+                html += `</table>`;
+                
+                if (obj.imagenes.foto) {
+                    resultadoLogo.innerHTML = `<img src="data:image/jpeg;base64,${obj.imagenes.foto}" class="foto-carnet">`;
+                }
+            }
+            
+            entries.forEach(([key, value]) => {
+                if (value && typeof value === 'object' && key !== 'imagenes') {
+                    html += `<div class="resultado-section-title">${key.replace(/_/g, ' ').toUpperCase()}</div>`;
+                    html += crearTablasDesdeObjeto(value, nivel + 1, false);
+                }
+            });
+            
+            const simpleProps = entries.filter(([_, value]) => !(value && typeof value === 'object'));
+            if (simpleProps.length > 0) {
+                html += `<div class="resultado-section-title">DATOS PERSONALES</div>`;
+                html += `<table class="resultado-table">`;
+                simpleProps.forEach(([key, value]) => {
+                    const displayValue = value !== null && value !== undefined ? value : 'N/A';
+                    const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    html += `
+                        <tr>
+                            <td class="font-semibold" style="width: 40%;">${nombreCampo}</td>
+                            <td style="word-break: break-word;">${displayValue}</td>
+                        </tr>
+                    `;
+                });
+                html += `</table>`;
+            }
+        } else {
             html += `<table class="resultado-table">`;
-            simpleProps.forEach(([key, value]) => {
-                const displayValue = value !== null && value !== undefined ? value : 'N/A';
-                const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                html += `
-                    <tr>
-                        <td class="font-semibold" style="width: 40%;">${nombreCampo}</td>
-                        <td style="word-break: break-word;">${displayValue}</td>
-                    </tr>
-                `;
+            entries.forEach(([key, value]) => {
+                if (value && typeof value === 'object') {
+                    html += `
+                        <tr>
+                            <td class="font-semibold" colspan="2">${key.replace(/_/g, ' ').toUpperCase()}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="padding: 0;">
+                                ${crearTablasDesdeObjeto(value, nivel + 1, false)}
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    const displayValue = value !== null && value !== undefined ? value : 'N/A';
+                    html += `
+                        <tr>
+                            <td class="font-semibold" style="width: 40%;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                            <td style="word-break: break-word;">${displayValue}</td>
+                        </tr>
+                    `;
+                }
             });
             html += `</table>`;
         }
-    } else {
-        html += `<table class="resultado-table">`;
-        entries.forEach(([key, value]) => {
-            if (value && typeof value === 'object') {
-                html += `
-                    <tr>
-                        <td class="font-semibold" colspan="2">${key.replace(/_/g, ' ').toUpperCase()}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2" style="padding: 0;">
-                            ${crearTablasDesdeObjeto(value, nivel + 1, false)}
-                        </td>
-                    </tr>
-                `;
-            } else {
-                const displayValue = value !== null && value !== undefined ? value : 'N/A';
-                html += `
-                    <tr>
-                        <td class="font-semibold" style="width: 40%;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
-                        <td style="word-break: break-word;">${displayValue}</td>
-                    </tr>
-                `;
-            }
-        });
-        html += `</table>`;
-    }
-    
-    return html;
-}
-
-apiSelect.addEventListener('change', function() {
-    const selected = this.value;
-    if (selected) {
-        consultaInput.disabled = false;
-        consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
         
-        // Activar teclado numérico solo si la opción requiere números (excluyendo 'placa')
-        if (numericOptions.includes(selected)) {
-            consultaInput.type = 'number';
-            consultaInput.inputMode = 'numeric';
-            consultaInput.pattern = '[0-9]*';
+        return html;
+    }
+
+    apiSelect.addEventListener('change', function() {
+        const selected = this.value;
+        if (selected) {
+            consultaInput.disabled = false;
+            consultaInput.placeholder = placeholders[selected] || 'Escribe tu consulta aquí...';
+            
+            // Activar teclado numérico solo si la opción requiere números (excluyendo 'placa')
+            if (numericOptions.includes(selected)) {
+                consultaInput.type = 'number';
+                consultaInput.inputMode = 'numeric';
+                consultaInput.pattern = '[0-9]*';
+            } else {
+                consultaInput.type = 'text';
+                consultaInput.inputMode = 'text';
+                consultaInput.removeAttribute('pattern');
+            }
         } else {
+            consultaInput.disabled = true;
+            consultaInput.placeholder = 'Primero debes seleccionar una opción para poder consultar';
             consultaInput.type = 'text';
             consultaInput.inputMode = 'text';
             consultaInput.removeAttribute('pattern');
         }
-    } else {
-        consultaInput.disabled = true;
-        consultaInput.placeholder = 'Primero debes seleccionar una opción para poder consultar';
-        consultaInput.type = 'text';
-        consultaInput.inputMode = 'text';
-        consultaInput.removeAttribute('pattern');
-    }
-    
-    if (selected === 'buscar-dni') {
-        consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
-    }
-    
-    resultadoLogo.innerHTML = `
-        <div class="logo-icon">
-            <i class="fas fa-database"></i>
-        </div>
-        <div class="logo-text">Consulta PE</div>
-    `;
-});
-
-async function realizarConsulta() {
-    const selectedApi = apiSelect.value;
-    const consultaValue = consultaInput.value.trim();
-    
-    if (!selectedApi) {
-        alert('Por favor, selecciona un servicio.');
-        return;
-    }
-    
-    if (!consultaValue) {
-        alert('Por favor, ingresa un valor para la consulta.');
-        return;
-    }
-    
-    const user = auth.currentUser;
-    if (!user) {
-        alert('Debes iniciar sesión para realizar consultas.');
-        return;
-    }
-    
-    let apiKey = USER_API_KEY;
-    
-    if (!apiKey) {
-        try {
-            const userRef = db.collection("usuarios").doc(user.uid);
-            const doc = await userRef.get();
-            if (doc.exists) {
-                apiKey = doc.data().apiKey;
-                USER_API_KEY = apiKey;
-            }
-        } catch (error) {
-            console.error('Error obteniendo API Key:', error);
-            alert('Error al obtener tu API Key. Intenta de nuevo.');
-            return;
-        }
-    }
-    
-    if (!apiKey) {
-        alert('No se encontró un API Key para tu cuenta. Por favor, recarga la página.');
-        return;
-    }
-    
-    let requestData = {};
-    const paramName = paramNames[selectedApi];
-    
-    if (selectedApi === 'buscar-dni') {
-        const parts = consultaValue.split(' ');
-        if (parts.length < 2) {
-            alert('Formato incorrecto. Usa: Nombres ApellidoPaterno ApellidoMaterno');
-            return;
-        }
-        requestData = {
-            nombres: parts[0],
-            apepaterno: parts[1],
-            apematerno: parts.slice(2).join(' ') || ''
-        };
-    } else if (paramName) {
-        requestData[paramName] = consultaValue;
-    } else {
-        requestData = consultaValue;
-    }
-    
-    const baseUrl = 'https://api.masitaprex.com/v3';
-    const endpoint = endpoints[selectedApi];
-    const url = `${baseUrl}/${endpoint}`;
-    
-    try {
-        consultarBtn.textContent = 'CONSULTANDO...';
-        consultarBtn.disabled = true;
-        consultaLoader.style.display = 'flex';
         
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': apiKey
-            },
-            body: JSON.stringify(requestData)
-        });
-        
-        const result = await response.json();
-        console.log('Resultado de la consulta:', result);
+        if (selected === 'buscar-dni') {
+            consultaInput.placeholder = 'Formato: Nombres ApellidoPaterno ApellidoMaterno';
+        }
         
         resultadoLogo.innerHTML = `
             <div class="logo-icon">
@@ -2130,697 +2322,788 @@ async function realizarConsulta() {
             </div>
             <div class="logo-text">Consulta PE</div>
         `;
+    });
+
+    async function realizarConsulta() {
+        const selectedApi = apiSelect.value;
+        const consultaValue = consultaInput.value.trim();
         
-        consultaLoader.style.display = 'none';
+        if (!selectedApi) {
+            alert('Por favor, selecciona un servicio.');
+            return;
+        }
         
-        if (result.success && result.data) {
-            const esDni = selectedApi === 'dni' && result.data.result;
-            if (esDni) {
-                ultimoResultadoConsulta = result.data.result;
-                tipoConsultaActual = selectedApi;
-                resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data.result, 0, true);
-            } else {
-                ultimoResultadoConsulta = result.data;
-                tipoConsultaActual = selectedApi;
-                resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
+        if (!consultaValue) {
+            alert('Por favor, ingresa un valor para la consulta.');
+            return;
+        }
+        
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Debes iniciar sesión para realizar consultas.');
+            return;
+        }
+        
+        let apiKey = USER_API_KEY;
+        
+        if (!apiKey) {
+            try {
+                const userRef = db.collection("usuarios").doc(user.uid);
+                const doc = await userRef.get();
+                if (doc.exists) {
+                    apiKey = doc.data().apiKey;
+                    USER_API_KEY = apiKey;
+                }
+            } catch (error) {
+                console.error('Error obteniendo API Key:', error);
+                alert('Error al obtener tu API Key. Intenta de nuevo.');
+                return;
             }
-            resultadoWrap.style.display = 'block';
-            descargarPdfBtn.style.display = 'flex';
-        } else if (result.error) {
-            ultimoResultadoConsulta = { error: result.error };
+        }
+        
+        if (!apiKey) {
+            alert('No se encontró un API Key para tu cuenta. Por favor, recarga la página.');
+            return;
+        }
+        
+        let requestData = {};
+        const paramName = paramNames[selectedApi];
+        
+        if (selectedApi === 'buscar-dni') {
+            const parts = consultaValue.split(' ');
+            if (parts.length < 2) {
+                alert('Formato incorrecto. Usa: Nombres ApellidoPaterno ApellidoMaterno');
+                return;
+            }
+            requestData = {
+                nombres: parts[0],
+                apepaterno: parts[1],
+                apematerno: parts.slice(2).join(' ') || ''
+            };
+        } else if (paramName) {
+            requestData[paramName] = consultaValue;
+        } else {
+            requestData = consultaValue;
+        }
+        
+        const baseUrl = 'https://api.masitaprex.com/v3';
+        const endpoint = endpoints[selectedApi];
+        const url = `${baseUrl}/${endpoint}`;
+        
+        try {
+            consultarBtn.textContent = 'CONSULTANDO...';
+            consultarBtn.disabled = true;
+            consultaLoader.style.display = 'flex';
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            const result = await response.json();
+            console.log('Resultado de la consulta:', result);
+            
+            resultadoLogo.innerHTML = `
+                <div class="logo-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="logo-text">Consulta PE</div>
+            `;
+            
+            consultaLoader.style.display = 'none';
+            
+            if (result.success && result.data) {
+                const esDni = selectedApi === 'dni' && result.data.result;
+                if (esDni) {
+                    ultimoResultadoConsulta = result.data.result;
+                    tipoConsultaActual = selectedApi;
+                    resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data.result, 0, true);
+                } else {
+                    ultimoResultadoConsulta = result.data;
+                    tipoConsultaActual = selectedApi;
+                    resultadoBody.innerHTML = crearTablasDesdeObjeto(result.data);
+                }
+                resultadoWrap.style.display = 'block';
+                descargarPdfBtn.style.display = 'flex';
+            } else if (result.error) {
+                ultimoResultadoConsulta = { error: result.error };
+                tipoConsultaActual = selectedApi;
+                resultadoBody.innerHTML = `
+                    <div class="text-center py-8 text-red-600">
+                        <p class="font-semibold">Error en la consulta</p>
+                        <p class="text-sm mt-2">${result.error}</p>
+                    </div>
+                `;
+                resultadoWrap.style.display = 'block';
+                descargarPdfBtn.style.display = 'flex';
+            } else {
+                ultimoResultadoConsulta = { mensaje: 'Sin resultados' };
+                tipoConsultaActual = selectedApi;
+                resultadoBody.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p class="font-semibold">Sin resultados</p>
+                        <p class="text-sm mt-2">No se encontraron datos para la consulta realizada.</p>
+                    </div>
+                `;
+                resultadoWrap.style.display = 'block';
+                descargarPdfBtn.style.display = 'flex';
+            }
+            
+        } catch (error) {
+            console.error('Error al realizar la consulta:', error);
+            ultimoResultadoConsulta = { error: 'Error de conexión' };
             tipoConsultaActual = selectedApi;
             resultadoBody.innerHTML = `
                 <div class="text-center py-8 text-red-600">
-                    <p class="font-semibold">Error en la consulta</p>
-                    <p class="text-sm mt-2">${result.error}</p>
+                    <p class="font-semibold">Error de conexión</p>
+                    <p class="text-sm mt-2">No se pudo completar la consulta. Intenta de nuevo.</p>
                 </div>
             `;
             resultadoWrap.style.display = 'block';
             descargarPdfBtn.style.display = 'flex';
-        } else {
-            ultimoResultadoConsulta = { mensaje: 'Sin resultados' };
-            tipoConsultaActual = selectedApi;
-            resultadoBody.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <p class="font-semibold">Sin resultados</p>
-                    <p class="text-sm mt-2">No se encontraron datos para la consulta realizada.</p>
-                </div>
-            `;
-            resultadoWrap.style.display = 'block';
-            descargarPdfBtn.style.display = 'flex';
+            consultaLoader.style.display = 'none';
+        } finally {
+            consultarBtn.textContent = 'CONSULTAR';
+            consultarBtn.disabled = false;
         }
-        
-    } catch (error) {
-        console.error('Error al realizar la consulta:', error);
-        ultimoResultadoConsulta = { error: 'Error de conexión' };
-        tipoConsultaActual = selectedApi;
-        resultadoBody.innerHTML = `
-            <div class="text-center py-8 text-red-600">
-                <p class="font-semibold">Error de conexión</p>
-                <p class="text-sm mt-2">No se pudo completar la consulta. Intenta de nuevo.</p>
-            </div>
-        `;
-        resultadoWrap.style.display = 'block';
-        descargarPdfBtn.style.display = 'flex';
-        consultaLoader.style.display = 'none';
-    } finally {
-        consultarBtn.textContent = 'CONSULTAR';
-        consultarBtn.disabled = false;
-    }
-}
-
-consultarBtn.addEventListener('click', realizarConsulta);
-
-/* ==========================================================
-   FUNCIONALIDAD DE DESCARGA PDF (con jsPDF) - VERSIÓN CORREGIDA
-   ========================================================= */
-descargarPdfBtn.addEventListener('click', function() {
-    // Verificar si hay resultados para descargar
-    if (!ultimoResultadoConsulta) {
-        alert('No hay resultados para descargar.');
-        return;
     }
 
-    try {
-        // Verificar si jsPDF está disponible
-        if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
-            console.error('jsPDF no está cargado');
-            alert('Error: La librería para generar PDF no se cargó correctamente. Por favor, recarga la página.');
+    consultarBtn.addEventListener('click', realizarConsulta);
+
+    /* ==========================================================
+       FUNCIONALIDAD DE DESCARGA PDF (con jsPDF) - VERSIÓN CORREGIDA
+       ========================================================= */
+    descargarPdfBtn.addEventListener('click', function() {
+        // Verificar si hay resultados para descargar
+        if (!ultimoResultadoConsulta) {
+            alert('No hay resultados para descargar.');
             return;
         }
 
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        let yPos = 20;
-        
-        // Título
-        doc.setFontSize(18);
-        doc.setTextColor(220, 38, 38);
-        doc.setFont(undefined, 'bold');
-        doc.text('RESULTADO DE CONSULTA', 20, yPos);
-        yPos += 10;
-        
-        // Línea separadora
-        doc.setDrawColor(220, 38, 38);
-        doc.setLineWidth(0.5);
-        doc.line(20, yPos - 3, 190, yPos - 3);
-        
-        // Fecha y hora
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        doc.setFont(undefined, 'normal');
-        const fecha = new Date().toLocaleString('es-PE', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        doc.text(`Fecha y hora: ${fecha}`, 20, yPos);
-        yPos += 7;
-        
-        // Servicio consultado
-        const servicioText = `Servicio: ${apiSelect.options[apiSelect.selectedIndex]?.text || 'No especificado'}`;
-        doc.text(servicioText, 20, yPos);
-        yPos += 7;
-        
-        // Parámetro consultado
-        const consultaValue = consultaInput.value.trim();
-        if (consultaValue) {
-            doc.text(`Consulta: ${consultaValue}`, 20, yPos);
+        try {
+            // Verificar si jsPDF está disponible
+            if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+                console.error('jsPDF no está cargado');
+                alert('Error: La librería para generar PDF no se cargó correctamente. Por favor, recarga la página.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let yPos = 20;
+            
+            // Título
+            doc.setFontSize(18);
+            doc.setTextColor(220, 38, 38);
+            doc.setFont(undefined, 'bold');
+            doc.text('RESULTADO DE CONSULTA', 20, yPos);
+            yPos += 10;
+            
+            // Línea separadora
+            doc.setDrawColor(220, 38, 38);
+            doc.setLineWidth(0.5);
+            doc.line(20, yPos - 3, 190, yPos - 3);
+            
+            // Fecha y hora
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.setFont(undefined, 'normal');
+            const fecha = new Date().toLocaleString('es-PE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            doc.text(`Fecha y hora: ${fecha}`, 20, yPos);
             yPos += 7;
-        }
-        
-        yPos += 5;
-        
-        // Función para agregar datos al PDF
-        function agregarDatosAlPDF(obj, nivel = 0) {
-            if (!obj || typeof obj !== 'object') return;
             
-            const entries = Object.entries(obj);
+            // Servicio consultado
+            const servicioText = `Servicio: ${apiSelect.options[apiSelect.selectedIndex]?.text || 'No especificado'}`;
+            doc.text(servicioText, 20, yPos);
+            yPos += 7;
             
-            entries.forEach(([key, value]) => {
-                // Verificar espacio en página
-                if (yPos > 280) {
-                    doc.addPage();
-                    yPos = 20;
-                }
+            // Parámetro consultado
+            const consultaValue = consultaInput.value.trim();
+            if (consultaValue) {
+                doc.text(`Consulta: ${consultaValue}`, 20, yPos);
+                yPos += 7;
+            }
+            
+            yPos += 5;
+            
+            // Función para agregar datos al PDF
+            function agregarDatosAlPDF(obj, nivel = 0) {
+                if (!obj || typeof obj !== 'object') return;
                 
-                if (value && typeof value === 'object' && !Array.isArray(value)) {
-                    // Título de sección para objetos anidados
-                    doc.setFontSize(12);
-                    doc.setTextColor(220, 38, 38);
-                    doc.setFont(undefined, 'bold');
-                    const titulo = key.replace(/_/g, ' ').toUpperCase();
-                    doc.text(titulo, 20 + (nivel * 5), yPos);
-                    yPos += 7;
-                    
-                    // Procesar objeto anidado
-                    agregarDatosAlPDF(value, nivel + 1);
-                } else {
-                    // Campo simple
-                    doc.setFontSize(10);
-                    doc.setTextColor(0, 0, 0);
-                    doc.setFont(undefined, 'normal');
-                    
-                    let displayValue = value;
-                    if (Array.isArray(value)) {
-                        displayValue = value.join(', ');
-                    } else if (value === null || value === undefined) {
-                        displayValue = 'N/A';
-                    } else {
-                        displayValue = value.toString();
+                const entries = Object.entries(obj);
+                
+                entries.forEach(([key, value]) => {
+                    // Verificar espacio en página
+                    if (yPos > 280) {
+                        doc.addPage();
+                        yPos = 20;
                     }
                     
-                    const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    
-                    // Dividir texto largo
-                    const text = `${nombreCampo}: ${displayValue}`;
-                    const lineas = doc.splitTextToSize(text, 160);
-                    
-                    lineas.forEach((linea, index) => {
-                        if (yPos > 280) {
-                            doc.addPage();
-                            yPos = 20;
+                    if (value && typeof value === 'object' && !Array.isArray(value)) {
+                        // Título de sección para objetos anidados
+                        doc.setFontSize(12);
+                        doc.setTextColor(220, 38, 38);
+                        doc.setFont(undefined, 'bold');
+                        const titulo = key.replace(/_/g, ' ').toUpperCase();
+                        doc.text(titulo, 20 + (nivel * 5), yPos);
+                        yPos += 7;
+                        
+                        // Procesar objeto anidado
+                        agregarDatosAlPDF(value, nivel + 1);
+                    } else {
+                        // Campo simple
+                        doc.setFontSize(10);
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFont(undefined, 'normal');
+                        
+                        let displayValue = value;
+                        if (Array.isArray(value)) {
+                            displayValue = value.join(', ');
+                        } else if (value === null || value === undefined) {
+                            displayValue = 'N/A';
+                        } else {
+                            displayValue = value.toString();
                         }
                         
-                        if (index === 0) {
-                            doc.text(linea, 20 + (nivel * 5), yPos);
-                        } else {
-                            doc.text(linea, 20 + (nivel * 5) + 10, yPos);
-                        }
-                        yPos += 6;
-                    });
-                }
-            });
+                        const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        
+                        // Dividir texto largo
+                        const text = `${nombreCampo}: ${displayValue}`;
+                        const lineas = doc.splitTextToSize(text, 160);
+                        
+                        lineas.forEach((linea, index) => {
+                            if (yPos > 280) {
+                                doc.addPage();
+                                yPos = 20;
+                            }
+                            
+                            if (index === 0) {
+                                doc.text(linea, 20 + (nivel * 5), yPos);
+                            } else {
+                                doc.text(linea, 20 + (nivel * 5) + 10, yPos);
+                            }
+                            yPos += 6;
+                        });
+                    }
+                });
+            }
+            
+            // Procesar datos
+            agregarDatosAlPDF(ultimoResultadoConsulta);
+            
+            // Guardar PDF
+            const timestamp = new Date().getTime();
+            const nombreArchivo = `consulta_${tipoConsultaActual || 'resultado'}_${timestamp}.pdf`;
+            
+            doc.save(nombreArchivo);
+            console.log('PDF generado exitosamente:', nombreArchivo);
+            
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            alert('Error al generar el PDF: ' + error.message + '. Por favor, recarga la página e intenta nuevamente.');
         }
+    });
+
+    /* ==========================================================
+       FUNCIONALIDAD DE PAGO CON RESULTADOS REALES
+       ========================================================= */
+    const CREDITS_MAP = {
+        "10": { credits: 60, label: "60 créditos" },
+        "20": { credits: 125, label: "125 créditos" },
+        "50": { credits: 330, label: "330 créditos" },
+        "100": { credits: 700, label: "700 créditos" },
+        "200": { credits: 1500, label: "1500 créditos" },
+    };
+
+    const UNLIMITED_MAP = {
+        "7-dias": { amount: 60, duration: '7 días', label: '7 días' },
+        "15-dias": { amount: 80, duration: '15 días', label: '15 días' },
+        "30-dias": { amount: 110, duration: '30 días', label: '30 días' },
+        "60-dias": { amount: 160, duration: '60 días', label: '60 días' },
+        "70-dias": { amount: 510, duration: '70 días', label: '70 días' },
+    };
+
+    let currentPaymentType = 'CREDITOS';
+    let mp = null;
+    let cardForm = null;
+
+    const paymentTypeCredits = document.getElementById('payment-type-credits');
+    const paymentTypeUnlimited = document.getElementById('payment-type-unlimited');
+    const purchaseDetailsSelect = document.getElementById('purchase-details-select');
+    const displayAmount = document.getElementById('display-amount');
+    const paymentLoading = document.getElementById('payment-loading');
+    const paymentError = document.getElementById('payment-error');
+    const submitBtn = document.getElementById('form-checkout__submit');
+    const cardPaymentOption = document.getElementById('card-payment-option');
+    const whatsappPaymentOption = document.getElementById('whatsapp-payment-option');
+    const creditCardSection = document.getElementById('credit-card-section');
+
+    function getCurrentDateTime() {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const fecha = `${day}/${month}/${year}`;
         
-        // Procesar datos
-        agregarDatosAlPDF(ultimoResultadoConsulta);
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const hoursStr = String(hours).padStart(2, '0');
+        const hora = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
         
-        // Guardar PDF
-        const timestamp = new Date().getTime();
-        const nombreArchivo = `consulta_${tipoConsultaActual || 'resultado'}_${timestamp}.pdf`;
-        
-        doc.save(nombreArchivo);
-        console.log('PDF generado exitosamente:', nombreArchivo);
-        
-    } catch (error) {
-        console.error('Error generando PDF:', error);
-        alert('Error al generar el PDF: ' + error.message + '. Por favor, recarga la página e intenta nuevamente.');
+        return { fecha, hora };
     }
-});
 
-/* ==========================================================
-   FUNCIONALIDAD DE PAGO CON RESULTADOS REALES
-   ========================================================= */
-const CREDITS_MAP = {
-    "10": { credits: 60, label: "60 créditos" },
-    "20": { credits: 125, label: "125 créditos" },
-    "50": { credits: 330, label: "330 créditos" },
-    "100": { credits: 700, label: "700 créditos" },
-    "200": { credits: 1500, label: "1500 créditos" },
-};
-
-const UNLIMITED_MAP = {
-    "7-dias": { amount: 60, duration: '7 días', label: '7 días' },
-    "15-dias": { amount: 80, duration: '15 días', label: '15 días' },
-    "30-dias": { amount: 110, duration: '30 días', label: '30 días' },
-    "60-dias": { amount: 160, duration: '60 días', label: '60 días' },
-    "70-dias": { amount: 510, duration: '70 días', label: '70 días' },
-};
-
-let currentPaymentType = 'CREDITOS';
-let mp = null;
-let cardForm = null;
-
-const paymentTypeCredits = document.getElementById('payment-type-credits');
-const paymentTypeUnlimited = document.getElementById('payment-type-unlimited');
-const purchaseDetailsSelect = document.getElementById('purchase-details-select');
-const displayAmount = document.getElementById('display-amount');
-const paymentLoading = document.getElementById('payment-loading');
-const paymentError = document.getElementById('payment-error');
-const submitBtn = document.getElementById('form-checkout__submit');
-const cardPaymentOption = document.getElementById('card-payment-option');
-const whatsappPaymentOption = document.getElementById('whatsapp-payment-option');
-const creditCardSection = document.getElementById('credit-card-section');
-
-function getCurrentDateTime() {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const fecha = `${day}/${month}/${year}`;
-    
-    let hours = now.getHours();
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const hoursStr = String(hours).padStart(2, '0');
-    const hora = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
-    
-    return { fecha, hora };
-}
-
-function showPaymentSuccess(result) {
-    const { fecha, hora } = getCurrentDateTime();
-    
-    const modalHtml = `
-        <div class="payment-modal active" id="success-modal">
-            <div class="payment-modal-content">
-                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
-                <div class="success-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <h2 class="success-title">¡Pago Aprobado!</h2>
-                <p class="text-center text-gray-600 mb-4">Tu transacción se procesó correctamente</p>
-                
-                <div class="info-table">
-                    <div class="info-row">
-                        <span class="info-label">Correo</span>
-                        <span class="info-value">${auth.currentUser?.email || 'N/A'}</span>
+    function showPaymentSuccess(result) {
+        const { fecha, hora } = getCurrentDateTime();
+        
+        const modalHtml = `
+            <div class="payment-modal active" id="success-modal">
+                <div class="payment-modal-content">
+                    <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Monto pagado</span>
-                        <span class="info-value highlight">S/ ${parseFloat(result.amount || displayAmount.textContent.replace('S/ ', '')).toFixed(2)}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Fecha</span>
-                        <span class="info-value">${fecha}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Hora</span>
-                        <span class="info-value">${hora}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">ID de transacción</span>
-                        <span class="info-value">${result.id || 'N/A'}</span>
-                    </div>
-                </div>
-                
-                <button class="download-voucher-btn" onclick="downloadVoucher('${result.id}')">
-                    <i class="fas fa-download"></i> Descargar Boleta de Venta
-                </button>
-                
-                <div class="confirmation-message" id="download-message-${result.id}" style="display: none;">
-                    <i class="fas fa-check-circle"></i>
-                    <span>La boleta se está preparando para la descarga...</span>
-                </div>
-                
-                <button class="payment-btn" onclick="this.closest('.payment-modal').remove()" style="margin-top: 12px; background: #666;">
-                    <i class="fas fa-check"></i> Aceptar
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
-
-function showPaymentError(result) {
-    const { fecha, hora } = getCurrentDateTime();
-    
-    const modalHtml = `
-        <div class="payment-modal active" id="error-modal">
-            <div class="payment-modal-content">
-                <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
-                <div class="error-icon">
-                    <i class="fas fa-times"></i>
-                </div>
-                <h2 class="error-title">Pago Rechazado</h2>
-                <p class="text-center text-gray-600 mb-4">No se pudo procesar tu transacción</p>
-                
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div class="error-message-content">
-                        <div class="error-message-title">Motivo del rechazo</div>
-                        <div class="error-message-text" id="error-reason">
-                            ${result.status_detail ? getErrorMessage(result.status_detail) : 'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.'}
+                    <h2 class="success-title">¡Pago Aprobado!</h2>
+                    <p class="text-center text-gray-600 mb-4">Tu transacción se procesó correctamente</p>
+                    
+                    <div class="info-table">
+                        <div class="info-row">
+                            <span class="info-label">Correo</span>
+                            <span class="info-value">${auth.currentUser?.email || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Monto pagado</span>
+                            <span class="info-value highlight">S/ ${parseFloat(result.amount || displayAmount.textContent.replace('S/ ', '')).toFixed(2)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Fecha</span>
+                            <span class="info-value">${fecha}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hora</span>
+                            <span class="info-value">${hora}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">ID de transacción</span>
+                            <span class="info-value">${result.id || 'N/A'}</span>
                         </div>
                     </div>
+                    
+                    <button class="download-voucher-btn" onclick="downloadVoucher('${result.id}')">
+                        <i class="fas fa-download"></i> Descargar Boleta de Venta
+                    </button>
+                    
+                    <div class="confirmation-message" id="download-message-${result.id}" style="display: none;">
+                        <i class="fas fa-check-circle"></i>
+                        <span>La boleta se está preparando para la descarga...</span>
+                    </div>
+                    
+                    <button class="payment-btn" onclick="this.closest('.payment-modal').remove()" style="margin-top: 12px; background: #666;">
+                        <i class="fas fa-check"></i> Aceptar
+                    </button>
                 </div>
-                
-                <div class="info-table">
-                    <div class="info-row">
-                        <span class="info-label">Monto intentado</span>
-                        <span class="info-value">S/ ${parseFloat(result.amount || displayAmount.textContent.replace('S/ ', '')).toFixed(2)}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Fecha del intento</span>
-                        <span class="info-value">${fecha}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Hora</span>
-                        <span class="info-value">${hora}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">ID de referencia</span>
-                        <span class="info-value">${result.id || 'N/A'}</span>
-                    </div>
-                </div>
-                
-                <button class="payment-btn" onclick="this.closest('.payment-modal').remove(); retryPayment();">
-                    <i class="fas fa-redo"></i> Reintentar Pago
-                </button>
-                
-                <button class="payment-btn" onclick="this.closest('.payment-modal').remove()" style="margin-top: 12px; background: #666;">
-                    <i class="fas fa-home"></i> Cerrar
-                </button>
             </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
 
-function getErrorMessage(detail) {
-    const messages = {
-        'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta.',
-        'cc_rejected_bad_filled_security_code': 'Código de seguridad (CVV) incorrecto.',
-        'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta.',
-        'cc_rejected_bad_filled_other': 'Revisa los datos de la tarjeta.',
-        'cc_rejected_call_for_authorize': 'Debes autorizar el pago con tu banco.',
-        'cc_rejected_card_disabled': 'Tarjeta deshabilitada. Contacta a tu banco.',
-        'cc_rejected_duplicated_payment': 'Ya existe un pago con los mismos datos.',
-        'cc_rejected_high_risk': 'Pago rechazado por seguridad.',
-        'cc_rejected_max_attempts': 'Superaste el límite de intentos permitidos.',
-        'cc_rejected_other_reason': 'La tarjeta rechazó el pago.'
-    };
-    return messages[detail] || 'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.';
-}
+    function showPaymentError(result) {
+        const { fecha, hora } = getCurrentDateTime();
+        
+        const modalHtml = `
+            <div class="payment-modal active" id="error-modal">
+                <div class="payment-modal-content">
+                    <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
+                    <div class="error-icon">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <h2 class="error-title">Pago Rechazado</h2>
+                    <p class="text-center text-gray-600 mb-4">No se pudo procesar tu transacción</p>
+                    
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="error-message-content">
+                            <div class="error-message-title">Motivo del rechazo</div>
+                            <div class="error-message-text" id="error-reason">
+                                ${result.status_detail ? getErrorMessage(result.status_detail) : 'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-table">
+                        <div class="info-row">
+                            <span class="info-label">Monto intentado</span>
+                            <span class="info-value">S/ ${parseFloat(result.amount || displayAmount.textContent.replace('S/ ', '')).toFixed(2)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Fecha del intento</span>
+                            <span class="info-value">${fecha}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hora</span>
+                            <span class="info-value">${hora}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">ID de referencia</span>
+                            <span class="info-value">${result.id || 'N/A'}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="payment-btn" onclick="this.closest('.payment-modal').remove(); retryPayment();">
+                        <i class="fas fa-redo"></i> Reintentar Pago
+                    </button>
+                    
+                    <button class="payment-btn" onclick="this.closest('.payment-modal').remove()" style="margin-top: 12px; background: #666;">
+                        <i class="fas fa-home"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
 
-function retryPayment() {
-    location.reload();
-}
+    function getErrorMessage(detail) {
+        const messages = {
+            'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta.',
+            'cc_rejected_bad_filled_security_code': 'Código de seguridad (CVV) incorrecto.',
+            'cc_rejected_bad_filled_date': 'Fecha de vencimiento incorrecta.',
+            'cc_rejected_bad_filled_other': 'Revisa los datos de la tarjeta.',
+            'cc_rejected_call_for_authorize': 'Debes autorizar el pago con tu banco.',
+            'cc_rejected_card_disabled': 'Tarjeta deshabilitada. Contacta a tu banco.',
+            'cc_rejected_duplicated_payment': 'Ya existe un pago con los mismos datos.',
+            'cc_rejected_high_risk': 'Pago rechazado por seguridad.',
+            'cc_rejected_max_attempts': 'Superaste el límite de intentos permitidos.',
+            'cc_rejected_other_reason': 'La tarjeta rechazó el pago.'
+        };
+        return messages[detail] || 'La transacción fue rechazada. Por favor, verifica los datos de tu tarjeta e intenta nuevamente.';
+    }
 
-async function downloadVoucher(paymentId) {
-    const messageEl = document.getElementById(`download-message-${paymentId}`);
-    if (messageEl) messageEl.style.display = 'flex';
-    
-    try {
-        // Simular descarga (en producción, esto llamaría a tu API real)
-        setTimeout(() => {
-            const mockPdfContent = `BOLETA DE VENTA
-            ID: ${paymentId}
-            Monto: ${displayAmount.textContent}
-            Fecha: ${getCurrentDateTime().fecha}
-            Hora: ${getCurrentDateTime().hora}`;
-            
-            const blob = new Blob([mockPdfContent], { type: 'application/pdf' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `boleta_${paymentId}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
+    function retryPayment() {
+        location.reload();
+    }
+
+    async function downloadVoucher(paymentId) {
+        const messageEl = document.getElementById(`download-message-${paymentId}`);
+        if (messageEl) messageEl.style.display = 'flex';
+        
+        try {
+            // Simular descarga (en producción, esto llamaría a tu API real)
+            setTimeout(() => {
+                const mockPdfContent = `BOLETA DE VENTA
+                ID: ${paymentId}
+                Monto: ${displayAmount.textContent}
+                Fecha: ${getCurrentDateTime().fecha}
+                Hora: ${getCurrentDateTime().hora}`;
+                
+                const blob = new Blob([mockPdfContent], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `boleta_${paymentId}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                if (messageEl) {
+                    messageEl.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <span>Descarga completada</span>
+                    `;
+                    setTimeout(() => {
+                        messageEl.style.display = 'none';
+                    }, 3000);
+                }
+            }, 2000);
+        } catch (error) {
+            console.error('Error descargando comprobante:', error);
             if (messageEl) {
                 messageEl.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <span>Descarga completada</span>
+                    <i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i>
+                    <span style="color: #991B1B;">Error al descargar</span>
                 `;
-                setTimeout(() => {
-                    messageEl.style.display = 'none';
-                }, 3000);
             }
-        }, 2000);
-    } catch (error) {
-        console.error('Error descargando comprobante:', error);
-        if (messageEl) {
-            messageEl.innerHTML = `
-                <i class="fas fa-exclamation-triangle" style="color: #EF4444;"></i>
-                <span style="color: #991B1B;">Error al descargar</span>
-            `;
         }
     }
-}
 
-function populatePurchaseSelect(type) {
-    purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un paquete</option>';
-    
-    if (type === 'CREDITOS') {
-        for (const amount in CREDITS_MAP) {
-            const data = CREDITS_MAP[amount];
-            const option = document.createElement('option');
-            option.value = amount;
-            option.textContent = `S/ ${amount}.00 (${data.label})`;
-            purchaseDetailsSelect.appendChild(option);
-        }
-    } else {
-        for (const key in UNLIMITED_MAP) {
-            const data = UNLIMITED_MAP[key];
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = `${data.duration} - S/ ${data.amount}.00`;
-            purchaseDetailsSelect.appendChild(option);
-        }
-    }
-    
-    updateDisplayAmount();
-}
-
-function updateDisplayAmount() {
-    const selectedValue = purchaseDetailsSelect.value;
-    if (!selectedValue) {
-        displayAmount.textContent = 'S/ 0.00';
-        return;
-    }
-    
-    if (currentPaymentType === 'CREDITOS') {
-        displayAmount.textContent = `S/ ${selectedValue}.00`;
-    } else {
-        const data = UNLIMITED_MAP[selectedValue];
-        if (data) {
-            displayAmount.textContent = `S/ ${data.amount}.00`;
-        }
-    }
-    
-    updateSubmitButtonState();
-}
-
-function updateSubmitButtonState() {
-    const selectedValue = purchaseDetailsSelect.value;
-    const user = auth.currentUser;
-    
-    if (!user) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Inicia sesión para pagar';
-        return;
-    }
-    
-    if (!selectedValue) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-hand-pointer"></i> Selecciona un paquete';
-        return;
-    }
-    
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-lock"></i> Proceder al pago';
-}
-
-function updateCardDisplay() {
-    const cardholderName = document.getElementById('form-checkout__cardholderName');
-    const visualCardHolder = document.getElementById('visual-card-holder');
-    
-    if (cardholderName && visualCardHolder) {
-        cardholderName.addEventListener('input', (e) => {
-            const value = e.target.value.toUpperCase() || 'TITULAR DE TARJETA';
-            visualCardHolder.textContent = value.substring(0, 22);
-        });
-    }
-}
-
-async function initMercadoPago() {
-    try {
-        const response = await fetch('/api/config');
-        if (!response.ok) {
-            throw new Error('No se pudo obtener la configuración del servidor');
+    function populatePurchaseSelect(type) {
+        purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un paquete</option>';
+        
+        if (type === 'CREDITOS') {
+            for (const amount in CREDITS_MAP) {
+                const data = CREDITS_MAP[amount];
+                const option = document.createElement('option');
+                option.value = amount;
+                option.textContent = `S/ ${amount}.00 (${data.label})`;
+                purchaseDetailsSelect.appendChild(option);
+            }
+        } else {
+            for (const key in UNLIMITED_MAP) {
+                const data = UNLIMITED_MAP[key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `${data.duration} - S/ ${data.amount}.00`;
+                purchaseDetailsSelect.appendChild(option);
+            }
         }
         
-        const config = await response.json();
-        
-        if (!config.mercadopagoPublicKey) {
-            throw new Error('Clave pública de Mercado Pago no configurada');
-        }
-
-        mp = new MercadoPago(config.mercadopagoPublicKey, { 
-            locale: 'es-PE'
-        });
-
-        cardForm = mp.cardForm({
-            amount: "0",
-            iframe: true,
-            form: {
-                id: 'form-checkout',
-                cardNumber: { 
-                    id: 'form-checkout__cardNumber', 
-                    placeholder: '****** **** **** ******'
-                },
-                expirationDate: { 
-                    id: 'form-checkout__expirationDate', 
-                    placeholder: 'MM/AA'
-                },
-                securityCode: { 
-                    id: 'form-checkout__securityCode', 
-                    placeholder: '•••'
-                },
-                cardholderName: { 
-                    id: 'form-checkout__cardholderName',
-                    placeholder: 'Nombre y apellido'
-                },
-                issuer: { 
-                    id: 'form-checkout__issuer'
-                },
-                installments: { 
-                    id: 'form-checkout__installments'
-                },
-                identificationType: { 
-                    id: 'form-checkout__identificationType'
-                },
-                identificationNumber: { 
-                    id: 'form-checkout__identificationNumber',
-                    placeholder: 'Número de documento'
-                },
-                cardholderEmail: { 
-                    id: 'form-checkout__cardholderEmail',
-                    placeholder: 'correo@ejemplo.com'
-                }
-            },
-            callbacks: {
-                onFormMounted: error => {
-                    if (error) {
-                        console.error("Error montando formulario:", error);
-                        return;
-                    }
-                    
-                    if (auth.currentUser && auth.currentUser.email) {
-                        document.getElementById('form-checkout__cardholderEmail').value = auth.currentUser.email;
-                    }
-                    
-                    updateCardDisplay();
-                    console.log("Formulario montado correctamente");
-                },
-                onSubmit: async (event) => {
-                    event.preventDefault();
-                    
-                    const originalText = submitBtn.innerHTML;
-                    paymentLoading.classList.add('active');
-                    submitBtn.disabled = true;
-                    paymentError.style.display = 'none';
-
-                    try {
-                        const formData = cardForm.getCardFormData();
-                        
-                        if (!formData.token) {
-                            throw new Error('No se pudo generar el token de pago');
-                        }
-                        
-                        let amount = 0;
-                        let description = '';
-                        
-                        if (currentPaymentType === 'CREDITOS') {
-                            amount = purchaseDetailsSelect.value;
-                            description = `${CREDITS_MAP[amount].credits} Créditos`;
-                        } else {
-                            const selectedValue = purchaseDetailsSelect.value;
-                            const data = UNLIMITED_MAP[selectedValue];
-                            amount = data.amount;
-                            description = `Plan ${data.duration}`;
-                        }
-                        
-                        const user = auth.currentUser;
-                        
-                        const res = await fetch('/api/pay', {
-                            method: 'POST',
-                            headers: { 
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                token: formData.token,
-                                amount: amount.toString(),
-                                payment_method_id: formData.paymentMethodId,
-                                issuer_id: formData.issuerId,
-                                installments: formData.installments,
-                                email: user.email,
-                                identificationType: formData.identificationType,
-                                identificationNumber: formData.identificationNumber,
-                                uid: user.uid,
-                                description: description
-                            })
-                        });
-
-                        const result = await res.json();
-                        
-                        console.log('Respuesta del servidor:', result);
-
-                        if (result.status === 'approved') {
-                            showPaymentSuccess(result);
-                        } else {
-                            showPaymentError(result);
-                        }
-                    } catch (error) {
-                        console.error('Error procesando pago:', error);
-                        paymentError.textContent = 'Error al procesar el pago. Intenta de nuevo.';
-                        paymentError.style.display = 'block';
-                    } finally {
-                        paymentLoading.classList.remove('active');
-                        submitBtn.disabled = false;
-                    }
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error('Error inicializando Mercado Pago:', error);
-        paymentError.textContent = 'Error al cargar el sistema de pagos. Recarga la página.';
-        paymentError.style.display = 'block';
+        updateDisplayAmount();
     }
-}
 
-paymentTypeCredits.addEventListener('click', function() {
-    currentPaymentType = 'CREDITOS';
-    this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
-    this.style.color = 'white';
-    this.style.borderColor = 'transparent';
-    paymentTypeUnlimited.style.background = 'white';
-    paymentTypeUnlimited.style.color = '#666';
-    paymentTypeUnlimited.style.borderColor = '#e2e8f0';
-    
-    populatePurchaseSelect('CREDITOS');
-});
+    function updateDisplayAmount() {
+        const selectedValue = purchaseDetailsSelect.value;
+        if (!selectedValue) {
+            displayAmount.textContent = 'S/ 0.00';
+            return;
+        }
+        
+        if (currentPaymentType === 'CREDITOS') {
+            displayAmount.textContent = `S/ ${selectedValue}.00`;
+        } else {
+            const data = UNLIMITED_MAP[selectedValue];
+            if (data) {
+                displayAmount.textContent = `S/ ${data.amount}.00`;
+            }
+        }
+        
+        updateSubmitButtonState();
+    }
 
-paymentTypeUnlimited.addEventListener('click', function() {
-    currentPaymentType = 'ILIMITADO';
-    this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
-    this.style.color = 'white';
-    this.style.borderColor = 'transparent';
-    paymentTypeCredits.style.background = 'white';
-    paymentTypeCredits.style.color = '#666';
-    paymentTypeCredits.style.borderColor = '#e2e8f0';
-    
-    populatePurchaseSelect('ILIMITADO');
-});
+    function updateSubmitButtonState() {
+        const selectedValue = purchaseDetailsSelect.value;
+        const user = auth.currentUser;
+        
+        if (!user) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Inicia sesión para pagar';
+            return;
+        }
+        
+        if (!selectedValue) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-hand-pointer"></i> Selecciona un paquete';
+            return;
+        }
+        
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-lock"></i> Proceder al pago';
+    }
 
-purchaseDetailsSelect.addEventListener('change', updateDisplayAmount);
+    function updateCardDisplay() {
+        const cardholderName = document.getElementById('form-checkout__cardholderName');
+        const visualCardHolder = document.getElementById('visual-card-holder');
+        
+        if (cardholderName && visualCardHolder) {
+            cardholderName.addEventListener('input', (e) => {
+                const value = e.target.value.toUpperCase() || 'TITULAR DE TARJETA';
+                visualCardHolder.textContent = value.substring(0, 22);
+            });
+        }
+    }
 
-cardPaymentOption.addEventListener('click', function() {
-    this.querySelector('input').checked = true;
-    creditCardSection.style.display = 'block';
-});
+    async function initMercadoPago() {
+        try {
+            const response = await fetch('/api/config');
+            if (!response.ok) {
+                throw new Error('No se pudo obtener la configuración del servidor');
+            }
+            
+            const config = await response.json();
+            
+            if (!config.mercadopagoPublicKey) {
+                throw new Error('Clave pública de Mercado Pago no configurada');
+            }
 
-whatsappPaymentOption.addEventListener('click', function() {
-    this.querySelector('input').checked = true;
-    creditCardSection.style.display = 'none';
-    const phoneNumber = '51944950234';
-    const message = encodeURIComponent('Hola, quiero comprar créditos o un plan');
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-});
+            mp = new MercadoPago(config.mercadopagoPublicKey, { 
+                locale: 'es-PE'
+            });
+
+            cardForm = mp.cardForm({
+                amount: "0",
+                iframe: true,
+                form: {
+                    id: 'form-checkout',
+                    cardNumber: { 
+                        id: 'form-checkout__cardNumber', 
+                        placeholder: '****** **** **** ******'
+                    },
+                    expirationDate: { 
+                        id: 'form-checkout__expirationDate', 
+                        placeholder: 'MM/AA'
+                    },
+                    securityCode: { 
+                        id: 'form-checkout__securityCode', 
+                        placeholder: '•••'
+                    },
+                    cardholderName: { 
+                        id: 'form-checkout__cardholderName',
+                        placeholder: 'Nombre y apellido'
+                    },
+                    issuer: { 
+                        id: 'form-checkout__issuer'
+                    },
+                    installments: { 
+                        id: 'form-checkout__installments'
+                    },
+                    identificationType: { 
+                        id: 'form-checkout__identificationType'
+                    },
+                    identificationNumber: { 
+                        id: 'form-checkout__identificationNumber',
+                        placeholder: 'Número de documento'
+                    },
+                    cardholderEmail: { 
+                        id: 'form-checkout__cardholderEmail',
+                        placeholder: 'correo@ejemplo.com'
+                    }
+                },
+                callbacks: {
+                    onFormMounted: error => {
+                        if (error) {
+                            console.error("Error montando formulario:", error);
+                            return;
+                        }
+                        
+                        if (auth.currentUser && auth.currentUser.email) {
+                            document.getElementById('form-checkout__cardholderEmail').value = auth.currentUser.email;
+                        }
+                        
+                        updateCardDisplay();
+                        console.log("Formulario montado correctamente");
+                    },
+                    onSubmit: async (event) => {
+                        event.preventDefault();
+                        
+                        const originalText = submitBtn.innerHTML;
+                        paymentLoading.classList.add('active');
+                        submitBtn.disabled = true;
+                        paymentError.style.display = 'none';
+
+                        try {
+                            const formData = cardForm.getCardFormData();
+                            
+                            if (!formData.token) {
+                                throw new Error('No se pudo generar el token de pago');
+                            }
+                            
+                            let amount = 0;
+                            let description = '';
+                            
+                            if (currentPaymentType === 'CREDITOS') {
+                                amount = purchaseDetailsSelect.value;
+                                description = `${CREDITS_MAP[amount].credits} Créditos`;
+                            } else {
+                                const selectedValue = purchaseDetailsSelect.value;
+                                const data = UNLIMITED_MAP[selectedValue];
+                                amount = data.amount;
+                                description = `Plan ${data.duration}`;
+                            }
+                            
+                            const user = auth.currentUser;
+                            
+                            const res = await fetch('/api/pay', {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    token: formData.token,
+                                    amount: amount.toString(),
+                                    payment_method_id: formData.paymentMethodId,
+                                    issuer_id: formData.issuerId,
+                                    installments: formData.installments,
+                                    email: user.email,
+                                    identificationType: formData.identificationType,
+                                    identificationNumber: formData.identificationNumber,
+                                    uid: user.uid,
+                                    description: description
+                                })
+                            });
+
+                            const result = await res.json();
+                            
+                            console.log('Respuesta del servidor:', result);
+
+                            if (result.status === 'approved') {
+                                showPaymentSuccess(result);
+                            } else {
+                                showPaymentError(result);
+                            }
+                        } catch (error) {
+                            console.error('Error procesando pago:', error);
+                            paymentError.textContent = 'Error al procesar el pago. Intenta de nuevo.';
+                            paymentError.style.display = 'block';
+                        } finally {
+                            paymentLoading.classList.remove('active');
+                            submitBtn.disabled = false;
+                        }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('Error inicializando Mercado Pago:', error);
+            paymentError.textContent = 'Error al cargar el sistema de pagos. Recarga la página.';
+            paymentError.style.display = 'block';
+        }
+    }
+
+    paymentTypeCredits.addEventListener('click', function() {
+        currentPaymentType = 'CREDITOS';
+        this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
+        this.style.color = 'white';
+        this.style.borderColor = 'transparent';
+        paymentTypeUnlimited.style.background = 'white';
+        paymentTypeUnlimited.style.color = '#666';
+        paymentTypeUnlimited.style.borderColor = '#e2e8f0';
+        
+        populatePurchaseSelect('CREDITOS');
+    });
+
+    paymentTypeUnlimited.addEventListener('click', function() {
+        currentPaymentType = 'ILIMITADO';
+        this.style.background = 'linear-gradient(135deg, #1e40af, #059669)';
+        this.style.color = 'white';
+        this.style.borderColor = 'transparent';
+        paymentTypeCredits.style.background = 'white';
+        paymentTypeCredits.style.color = '#666';
+        paymentTypeCredits.style.borderColor = '#e2e8f0';
+        
+        populatePurchaseSelect('ILIMITADO');
+    });
+
+    purchaseDetailsSelect.addEventListener('change', updateDisplayAmount);
+
+    cardPaymentOption.addEventListener('click', function() {
+        this.querySelector('input').checked = true;
+        creditCardSection.style.display = 'block';
+    });
+
+    whatsappPaymentOption.addEventListener('click', function() {
+        this.querySelector('input').checked = true;
+        creditCardSection.style.display = 'none';
+        const phoneNumber = '51944950234';
+        const message = encodeURIComponent('Hola, quiero comprar créditos o un plan');
+        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         populatePurchaseSelect('CREDITOS');
@@ -2845,64 +3128,108 @@ whatsappPaymentOption.addEventListener('click', function() {
         initMercadoPago();
     });
 
-// Funcionalidad para el visor de imágenes
-const imageUrls = [
-    'https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800',
-    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png',
-    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png',
-    'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png'
-];
+    // Funcionalidad para el visor de imágenes
+    const imageUrls = [
+        'https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800',
+        'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png',
+        'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png',
+        'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhI6dLVE8LK6Kctnz_N9H-LoygwIz7VdH_acnbNQECLE6D5Chch17gG8fhL-d9NQaFiMSZhQNGwZHlv_fVsLcmw2Gvb67dvqO7gI5uOzuqO25pOGUTYz7c9ztnoJFZ4ig_gRJkXeIDxTxAW4nYzloirffv4Fdf1XuiOSnD4vxj6qIAj5Iv0rquHWdsEOtE/s1920/1000112205.png'
+    ];
 
-let currentImageIndex = 0;
-const modal = document.getElementById('imageModal');
-const modalImage = document.getElementById('modalImage');
-const modalPrev = document.getElementById('modalPrev');
-const modalNext = document.getElementById('modalNext');
+    let currentImageIndex = 0;
+    const modalImg = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalPrev = document.getElementById('modalPrev');
+    const modalNext = document.getElementById('modalNext');
 
-function openImageViewer(index) {
-    currentImageIndex = index;
-    modalImage.src = imageUrls[currentImageIndex];
-    modal.classList.add('active');
-    updateNavigationButtons();
-}
-
-function closeImageViewer() {
-    modal.classList.remove('active');
-}
-
-function changeImage(direction) {
-    const newIndex = currentImageIndex + direction;
-    if (newIndex >= 0 && newIndex < imageUrls.length) {
-        currentImageIndex = newIndex;
+    function openImageViewer(index) {
+        currentImageIndex = index;
         modalImage.src = imageUrls[currentImageIndex];
+        modalImg.classList.add('active');
         updateNavigationButtons();
     }
-}
 
-function updateNavigationButtons() {
-    if (modalPrev && modalNext) {
-        if (currentImageIndex === 0) {
-            modalPrev.classList.add('disabled');
-        } else {
-            modalPrev.classList.remove('disabled');
-        }
-        
-        if (currentImageIndex === imageUrls.length - 1) {
-            modalNext.classList.add('disabled');
-        } else {
-            modalNext.classList.remove('disabled');
+    function closeImageViewer() {
+        modalImg.classList.remove('active');
+    }
+
+    function changeImage(direction) {
+        const newIndex = currentImageIndex + direction;
+        if (newIndex >= 0 && newIndex < imageUrls.length) {
+            currentImageIndex = newIndex;
+            modalImage.src = imageUrls[currentImageIndex];
+            updateNavigationButtons();
         }
     }
-}
 
-// Cerrar modal con tecla Escape
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.classList.contains('active')) {
-        closeImageViewer();
+    function updateNavigationButtons() {
+        if (modalPrev && modalNext) {
+            if (currentImageIndex === 0) {
+                modalPrev.classList.add('disabled');
+            } else {
+                modalPrev.classList.remove('disabled');
+            }
+            
+            if (currentImageIndex === imageUrls.length - 1) {
+                modalNext.classList.add('disabled');
+            } else {
+                modalNext.classList.remove('disabled');
+            }
+        }
     }
-});
 
-</script>
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalImg.classList.contains('active')) {
+            closeImageViewer();
+        }
+    });
 
+    // === LÓGICA DEL MENÚ LATERAL ===
+    // Inicializar iconos de Lucide
+    lucide.createIcons();
+
+    // Control del menú lateral
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+
+    function toggleMenu() {
+        const isOpen = sidebar.classList.toggle('open');
+        if (isOpen) {
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => overlay.classList.add('opacity-100'), 10);
+        } else {
+            overlay.classList.remove('opacity-100');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                if (!sidebar.classList.contains('open')) {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }
+            }, 300);
+        }
+    }
+
+    if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
+    if (overlay) overlay.addEventListener('click', toggleMenu);
+
+    // Cerrar menú al hacer click en un enlace
+    const navLinks = sidebar.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const href = link.getAttribute('href');
+            if (href && href !== '#') {
+                e.preventDefault();
+                toggleMenu();
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 300);
+            }
+        });
+    });
+    </script>
 </body>
 </html>
