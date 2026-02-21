@@ -45,16 +45,18 @@
             border: 1px solid #edf2f7;
         }
 
-        .search-group {
+        /* Estilos para el grupo de búsqueda - MODIFICADO */
+        .search-container {
             display: flex;
+            flex-direction: column;
+            gap: 0;
             background: white;
             border: 1.5px solid #e2e8f0;
             border-radius: 14px;
             overflow: hidden;
-            transition: border-color 0.2s;
         }
 
-        .search-group:focus-within {
+        .search-container:focus-within {
             border-color: #dc2626;
         }
 
@@ -62,22 +64,22 @@
             appearance: none;
             background: #f1f5f9;
             border: none;
-            border-right: 1.5px solid #e2e8f0;
+            border-bottom: 1.5px solid #e2e8f0;
             padding: 12px 16px;
             font-size: 14px;
             font-weight: 600;
             color: #475569;
-            width: 40%;
+            width: 100%;
             outline: none;
             cursor: pointer;
         }
 
         .native-input {
-            flex: 1;
             padding: 12px 16px;
             font-size: 14px;
             border: none;
             outline: none;
+            width: 100%;
         }
 
         .native-input:disabled {
@@ -1437,8 +1439,8 @@
 
     <main class="app-container">
         
-        <!-- Selector de consulta -->
-        <div class="search-group">
+        <!-- Selector de consulta - MODIFICADO: select encima del input, pegados -->
+        <div class="search-container">
             <select class="native-select" id="api-select">
                 <option value="">SELECT.</option>
                 <option value="dni">Consulta RENIEC por DNI</option>
@@ -1849,6 +1851,16 @@
         const email = userData.email || 'correo@ejemplo.com';
         const iniciales = nombre.substring(0, 2).toUpperCase() || 'U';
         
+        // Determinar la URL del avatar (prioridad: Google > generado)
+        let avatarUrl = null;
+        if (userData.photoURL) {
+            // Permitir URLs de Google (incluyendo lh3.googleusercontent.com) y otras
+            avatarUrl = userData.photoURL;
+        } else if (userData.providerData && userData.providerData[0] && userData.providerData[0].photoURL) {
+            // Fallback para datos de proveedor
+            avatarUrl = userData.providerData[0].photoURL;
+        }
+        
         const tipoPlan = userData.tipoPlan || 'creditos';
         const creditos = userData.creditos || 0;
         
@@ -1963,10 +1975,20 @@
         // API Key oculta - se muestra como asteriscos en lugar del valor real
         const apiKeyOculta = '••••••••••••••••••••••••';
 
+        // Construir el avatar (imagen o iniciales)
+        let avatarHtml = '';
+        if (avatarUrl && (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://'))) {
+            // Mostrar imagen de perfil (Google o cualquier URL válida)
+            avatarHtml = `<img src="${avatarUrl}" alt="Avatar" class="w-full h-full object-cover rounded-2xl">`;
+        } else {
+            // Mostrar iniciales como fallback
+            avatarHtml = `<div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">${iniciales}</div>`;
+        }
+
         perfilContenido.innerHTML = `
             <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
-                <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
-                    ${iniciales}
+                <div class="w-40 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+                    ${avatarHtml}
                 </div>
                 <div>
                     <h3 class="font-bold text-lg">${nombre}</h3>
@@ -2013,11 +2035,16 @@
             
             if (doc.exists) {
                 const userData = doc.data();
+                // Añadir photoURL del usuario de Firebase Auth si existe
+                if (user.photoURL) {
+                    userData.photoURL = user.photoURL;
+                }
                 renderizarPerfilConDatos(userData);
             } else {
                 console.warn("Documento de usuario no encontrado en Firestore.");
                 const defaultUserData = {
                     email: user.email,
+                    photoURL: user.photoURL || null,
                     tipoPlan: "creditos",
                     creditos: 5,
                     fechaActivacion: FieldValue.serverTimestamp(),
