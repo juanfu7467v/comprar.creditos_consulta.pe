@@ -706,17 +706,17 @@
       100% { background-position: 200px 0; }
     }
 
-    /* Contenedor principal de la nueva sección */
-    .api-container {
-      position: relative;
-      z-index: 2;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    /* Contenedor principal de la nueva sección - ELIMINADO PARA ANCHO COMPLETO */
+    /* .api-container { ... } */ 
 
     .api-header {
       text-align: center;
       margin-bottom: 40px;
+      max-width: 1200px; /* Limitar el ancho del texto del header para mejor legibilidad */
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 20px;
+      padding-right: 20px;
     }
 
     .api-title {
@@ -740,24 +740,51 @@
       line-height: 1.6;
     }
 
-    /* Grid de características de API */
-    .api-features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* Slider horizontal para las cards */
+    .api-features-slider {
+      display: flex;
+      overflow-x: auto;
       gap: 24px;
+      padding: 10px 5px 30px 5px;
       margin-bottom: 40px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 20px;
+      padding-right: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(53,213,255,0.5) transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .api-features-slider::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .api-features-slider::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .api-features-slider::-webkit-scrollbar-thumb {
+      background: rgba(53,213,255,0.5);
+      border-radius: 4px;
     }
 
     .api-card {
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.1);
       border-radius: 20px;
-      padding: 30px;
+      padding: 0;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 350px; /* Ancho fijo para las cards */
+      min-width: 300px;
+      height: auto;
     }
 
     .api-card:hover {
@@ -775,22 +802,47 @@
       background: linear-gradient(90deg, 
         rgba(53,213,255,1), 
         rgba(109,91,255,1));
+      z-index: 2;
     }
 
-    .api-card-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
+    /* Estilo para la imagen que ocupa la mitad superior */
+    .api-card-image {
+      width: 100%;
+      height: 200px; /* Altura fija para la mitad superior */
+      object-fit: cover;
+      display: block;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+    }
+
+    /* Contenedor para el contenido de texto con desvanecimiento superior */
+    .api-card-content {
+      padding: 25px 30px 20px 30px;
+      position: relative;
+      background: rgba(255,255,255,.05);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      flex: 1;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      background: rgba(53,213,255,.1);
-      border: 1px solid rgba(53,213,255,.2);
-      color: var(--cyan);
-      font-size: 24px;
+      flex-direction: column;
     }
 
+    /* Efecto de desvanecimiento (gradiente) entre la imagen y el texto */
+    .api-card-content::before {
+      content: "";
+      position: absolute;
+      top: -30px; /* Altura del desvanecimiento */
+      left: 0;
+      width: 100%;
+      height: 30px;
+      background: linear-gradient(to bottom, 
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,.05) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Ajustamos el título para que esté dentro del contenido */
     .api-card-title {
       font-size: 22px;
       font-weight: 700;
@@ -802,58 +854,157 @@
       color: rgba(234,240,255,.8);
       line-height: 1.6;
       font-size: 15px;
+      margin-bottom: 20px;
+      flex: 1;
     }
 
-    /* Código animado */
+    /* Botón sin fondo en la parte inferior izquierda */
+    .api-card-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cyan);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 8px 0;
+      margin-top: auto;
+      transition: all 0.3s ease;
+      width: fit-content;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .api-card-button i {
+      font-size: 12px;
+      transition: transform 0.3s ease;
+    }
+
+    .api-card-button:hover {
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .api-card-button:hover i {
+      transform: translateX(3px);
+    }
+
+    /* Eliminamos los íconos y avatares */
+    .api-card-icon {
+      display: none; /* Ocultamos los íconos de la parte superior izquierda */
+    }
+
+    .api-avatar-3d {
+      display: none; /* Ocultamos los avatares 3D */
+    }
+
+    /* Código animado - ahora se expande al ancho completo */
     .code-animation {
       background: rgba(0,0,0,0.3);
       border-radius: 12px;
       padding: 25px;
-      margin: 30px 0;
+      margin: 30px auto;
       border: 1px solid rgba(255,255,255,.1);
       position: relative;
       overflow: hidden;
+      max-width: 1200px; /* Ancho máximo para el bloque de código */
+      width: calc(100% - 40px);
     }
 
-    .code-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid rgba(255,255,255,.1);
-    }
-
-    .code-lang {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .code-lang-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
+    /* Estilos para el menú de tres puntos */
+    .three-dots-menu {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: rgba(234,240,255,0.6);
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 10;
+      transition: color 0.2s ease;
+      background: rgba(0,0,0,0.5);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
-      font-weight: 900;
+      backdrop-filter: blur(4px);
     }
 
-    .php-icon {
-      background: #8892BF;
+    .three-dots-menu:hover {
+      color: var(--cyan);
+    }
+
+    .menu-dropdown {
+      position: absolute;
+      top: 50px;
+      right: 15px;
+      background: rgba(20, 25, 40, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 8px 0;
+      min-width: 180px;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: none;
+      transform-origin: top right;
+      animation: menuFadeIn 0.2s ease;
+    }
+
+    .menu-dropdown.show {
+      display: block;
+    }
+
+    @keyframes menuFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .menu-item {
+      padding: 12px 20px;
+      color: rgba(234,240,255,0.9);
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .menu-item i {
+      width: 20px;
+      color: var(--cyan);
+      font-size: 14px;
+    }
+
+    .menu-item:hover {
+      background: rgba(53,213,255,0.15);
       color: white;
     }
 
-    .python-icon {
-      background: #3776AB;
+    .menu-item:hover i {
       color: white;
     }
 
-    .code-lang-name {
-      font-weight: 700;
-      color: white;
+    .menu-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+      margin: 8px 0;
+    }
+
+    /* El .code-header ya no se usa, pero se mantiene por si acaso */
+    .code-header {
+      display: none; /* Oculto según solicitud */
     }
 
     .code-content {
@@ -863,6 +1014,12 @@
       color: #E6EDF3;
       position: relative;
       overflow: hidden;
+      min-height: 150px;
+    }
+
+    .typing-text {
+      white-space: pre-wrap;
+      word-break: break-all;
     }
 
     .code-line {
@@ -1042,6 +1199,10 @@
       .api-cta-button {
         padding: 18px 36px;
       }
+
+      .api-card {
+        flex: 0 0 380px;
+      }
     }
 
     /* Footer negro con texto blanco */
@@ -1159,10 +1320,6 @@
     }
 
     @media (max-width: 767px) {
-      .api-features-grid {
-        grid-template-columns: 1fr;
-      }
-      
       /* Mejora para tablas en móvil */
       .features-table td, .additional-features-table td {
         padding: 12px;
@@ -1172,6 +1329,14 @@
       .features-table th, .additional-features-table th {
         padding: 16px;
         font-size: 16px;
+      }
+
+      .api-card-image {
+        height: 180px; /* Un poco más pequeña en móvil */
+      }
+
+      .api-card {
+        flex: 0 0 300px;
       }
     }
 
@@ -1261,21 +1426,23 @@
     /* MODIFICADO: igual ancho visual que otras secciones (wrap) */
     @media (min-width: 768px){
       .api-infrastructure{
-        width: min(1180px, calc(100% - 32px)) !important;
+        width: 100% !important; /* Ancho completo */
         margin: 0 auto !important;
-        border-radius: 24px; /* no elimina nada: solo añade */
+        border-radius: 0; /* Sin bordes redondeados para que ocupe todo el ancho */
+        padding-left: 20px;
+        padding-right: 20px;
       }
-      .api-container{
-        max-width: 1180px !important;
-      }
+      /* .api-container{ ... } */ /* Eliminado */
     }
 
     /* MODIFICADO: más legible en pantallas estrechas manteniendo ancho consistente */
     @media (max-width: 767px){
       .api-infrastructure{
-        width: calc(100% - 32px) !important;
+        width: 100% !important; /* Ancho completo */
         margin: 0 auto !important;
-        border-radius: 20px; /* añade suavizado */
+        border-radius: 0; /* Sin bordes redondeados */
+        padding-left: 16px;
+        padding-right: 16px;
       }
     }
 
@@ -1332,7 +1499,7 @@
 
       <!-- Botón Empezar Ahora - MODIFICADO: Ahora lleva directamente a PeliPREX.html -->
       <a href="PeliPREX" class="btnStartNow">
-        <i class="fas fa-play-circle"></i> Probar PeliPREX HD ahora
+        <i class="fas fa-play-circle"></i> Ver contenido gratis
       </a>
 
     </div>
@@ -1345,17 +1512,28 @@
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="App Icon Consulta PE APK" class="tienda-icon">
         <div>
           <h2 class="tienda-title">Consulta PE APK</h2>
-          <p class="tienda-subtitle">Ofrecido por <strong>José C.</strong></p>
+          <p class="tienda-subtitle">Ofrecido por <strong>Maisitaprex</strong></p>
         </div>
       </div>
 
-      <p class="tienda-description">
-        Consulta PE APK es una herramienta rápida para <strong>consultar DNI por nombres y apellidos</strong> y obtener datos públicos en algunos casos. Descarga la app <strong>Consulta PE APK</strong> para acceder a estas funcionalidades.
-      </p>
+      <p class="tienda-description">  
+  Consulta PE APK es una herramienta rápida que te permite consultar DNI usando nombres y apellidos, además de acceder a algunos datos públicos.  
+</p>  
+
+<p class="tienda-description">  
+  También puedes probar 10 funciones de la infraestructura de Consulta PE, como la consulta de DNI. 
+  <a href="consultaPe-vercion-web" style="color: #35D5FF; text-decoration: underline;">
+    Ingresa aquí para probar la versión web de Consulta PE.
+  </a>  
+</p>  
+
+<p class="tienda-description">  
+  Si te gusta el servicio, descarga la app Consulta PE APK para acceder a todas estas funcionalidades.  
+</p>
 
       <!-- AÑADIDO: aclaración legal + compra de créditos 24/7 (sin borrar nada) -->
       <p class="tienda-description">
-        Para mantener claridad legal, las consultas y servicios asociados operan mediante <strong>infraestructura intermediaria</strong> que gestiona, controla y protege el acceso a los datos. Además, los usuarios pueden <strong>comprar créditos para las APIs al instante</strong>, <strong>24/7</strong>, de forma <strong>100% segura</strong> (pago y habilitación inmediata).
+        Para mantener claridad legal, las consultas y servicios asociados operan mediante <strong>infraestructura intermediaria</strong> que gestiona, controla y protege el acceso a los datos.
       </p>
 
       <!-- Screenshots -->
@@ -1544,199 +1722,133 @@
     </div>
   </section>
 
-  <!-- NUEVA SECCIÓN: Infraestructura API 3D -->
+  <!-- SECCIÓN MODIFICADA: Infraestructura API de Masitaprex (slider horizontal, botón en cada card) -->
   <section class="api-infrastructure">
-    <!-- Fondo de infraestructura API -->
+    <!-- Fondo de infraestructura API (se mantiene intacto) -->
     <div class="api-background" id="apiBackground"></div>
     
-    <div class="api-container">
-      <div class="api-header">
-        <h2 class="api-title">Infraestructura API de Masitaprex</h2>
-        <p class="api-subtitle">
-          Nuestra plataforma funciona con una arquitectura de microservicios moderna que garantiza escalabilidad, 
-          seguridad y alto rendimiento para todas tus consultas y operaciones. Operamos mediante <strong>infraestructura intermediaria</strong> que gestiona y protege el acceso a los datos para mantener claridad legal y control de seguridad.
-        </p>
-      </div>
-
-      <div class="api-features-grid">
-        <div class="api-card">
-          <div class="api-card-icon">
-            <i class="fas fa-bolt"></i>
-          </div>
-          <h3 class="api-card-title">Respuesta Optimizada</h3>
-          <p class="api-card-text">
-            Gestionamos el flujo de datos mediante nodos de alto rendimiento. Optimizamos cada petición para garantizar que el acceso a la información pública sea rápido y estable, adaptándonos dinámicamente a la demanda del servicio. En algunos casos, el tiempo de respuesta puede variar según la fuente, la carga y la validación del endpoint.
-          </p>
-        </div>
-
-        <div class="api-card">
-          <div class="api-card-icon">
-            <i class="fas fa-shield-alt"></i>
-          </div>
-          <h3 class="api-card-title">APIs Seguras (Infraestructura Intermediaria)</h3>
-          <p class="api-card-text">
-            Las APIs <strong>sí son seguras</strong> porque operan mediante <strong>infraestructura intermediaria</strong> que administra autenticación, rotación de credenciales, control de acceso, registros (auditoría) y protección ante abuso. Además, implementamos encriptación end-to-end, autenticación OAuth 2.0 y protección DDoS para garantizar 
-            que tus consultas sean completamente seguras.
-          </p>
-        </div>
-
-        <div class="api-card">
-          <div class="api-card-icon">
-            <i class="fas fa-expand-arrows-alt"></i>
-          </div>
-          <h3 class="api-card-title">Escalabilidad Automática</h3>
-          <p class="api-card-text">
-            Nuestra infraestructura se escala automáticamente según la demanda, manejando picos de tráfico 
-            sin afectar el rendimiento del servicio.
-          </p>
-        </div>
-      </div>
-
-      <!-- AÑADIDO: información adicional de APIs de consulta (sin borrar nada) -->
-      <div class="code-animation" style="margin-top: 10px;">
-        <div class="code-header">
-          <div class="code-lang">
-            <div class="code-lang-icon php-icon">API</div>
-            <span class="code-lang-name">APIs de consulta disponibles</span>
-          </div>
-          <div class="code-lang">
-            <div class="code-lang-icon python-icon">24/7</div>
-            <span class="code-lang-name">Créditos al instante</span>
-          </div>
-        </div>
-
-        <div class="code-content">
-          <div class="code-line">
-            <span class="line-number">1</span>
-            <span class="line-content">
-              <span class="code-comment">// Infraestructura intermediaria para mantener claridad legal</span>
-            </span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">2</span>
-            <span class="line-content">
-              <span class="code-comment">// Consultas: DNI (Perú), SUNAT, Cédula (Venezuela), Matrimonios</span>
-            </span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">3</span>
-            <span class="line-content">
-              <span class="code-comment">// Créditos: compra inmediata 24/7, habilitación instantánea, 100% segura</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Código animado -->
-      <div class="code-animation">
-        <div class="code-header">
-          <div class="code-lang">
-            <div class="code-lang-icon php-icon">PHP</div>
-            <span class="code-lang-name">Ejemplo de API Request</span>
-          </div>
-          <div class="code-lang">
-            <div class="code-lang-icon python-icon">PY</div>
-            <span class="code-lang-name">Python SDK</span>
-          </div>
-        </div>
-        
-        <div class="code-content">
-          <div class="code-line">
-            <span class="line-number">1</span>
-            <span class="line-content">
-              <span class="code-comment">// Consulta de DNI por nombres y apellidos</span>
-            </span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">2</span>
-            <span class="line-content">
-              <span class="code-keyword">$</span>api_url = <span class="code-string">"https://api.masitaprex.com/v3/consulta/dni"</span>;
-            </span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">3</span>
-            <span class="line-content">
-              <span class="code-keyword">$</span>headers = [
-            </span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">4</span>
-            <span class="line-content">  <span class="code-string">"Authorization: Bearer YOUR_API_KEY"</span>,</span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">5</span>
-            <span class="line-content">  <span class="code-string">"Content-Type: application/json"</span></span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">6</span>
-            <span class="line-content">];</span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">7</span>
-            <span class="line-content"></span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">8</span>
-            <span class="line-content">
-              <span class="code-keyword">$</span>data = [
-            </span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">9</span>
-            <span class="line-content">  <span class="code-string">"nombres"</span> =<span class="code-operator">></span> <span class="code-string">"Juan Carlos"</span>,</span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">10</span>
-            <span class="line-content">  <span class="code-string">"apellidos"</span> =<span class="code-operator">></span> <span class="code-string">"Pérez García"</span></span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">11</span>
-            <span class="line-content">];</span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">12</span>
-            <span class="line-content"></span>
-          </div>
-          <div class="code-line">
-            <span class="line-number">13</span>
-            <span class="line-content">
-              <span class="code-keyword">$</span>response = <span class="code-function">http_post</span>(<span class="code-keyword">$</span>api_url, <span class="code-keyword">$</span>data, <span class="code-keyword">$</span>headers)<span class="typing-cursor"></span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estadísticas de API - MODIFICADO: Ancho limitado y diseño responsive -->
-      <div class="api-stats">
-        <div class="stat-card">
-          <div class="stat-number">99.9%</div>
-          <div class="stat-label">Uptime Garantizado</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">2k+</div>
-          <div class="stat-label">Consultas por Minuto</div>
-        </div>
-        <div class="stat-card">
-          <!-- MODIFICADO: reemplaza "<100ms" por mensaje realista -->
-          <div class="stat-number">Variable</div>
-          <div class="stat-label">Tiempo de Respuesta</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">100%</div>
-          <div class="stat-label">Datos Encriptados</div>
-        </div>
-      </div>
-
-      <!-- AÑADIDO: compra de créditos 24/7 + infraestructura intermediaria -->
-      <p class="api-subtitle" style="text-align:center; margin-top: 18px;">
-        Puedes <strong>comprar créditos para nuestras APIs al instante</strong>, <strong>24/7</strong>, de forma <strong>100% segura</strong>. El servicio opera mediante <strong>infraestructura intermediaria</strong> para gestionar el acceso, proteger los datos y mantener claridad legal.
+    <!-- .api-container ELIMINADO - El contenido ahora va directamente -->
+    <div class="api-header">
+      <h2 class="api-title">Infraestructura API de Masitaprex</h2>
+      <p class="api-subtitle">
+        Operamos como un <strong>intermediario tecnológico</strong> que facilita el acceso a información de fuentes públicas (RENIEC, SUNAT, SUNARP, etc.) a través de una plataforma moderna, segura y escalable.
       </p>
+    </div>
 
-      <div class="api-cta">
-        <a href="api-key" class="api-cta-button">
-          <i class="fas fa-code-branch"></i> Integrar con Nuestras APIs
+    <!-- Slider horizontal con las cards -->
+    <div class="api-features-slider">
+      <div class="api-card">
+        <!-- Imagen que ocupa la mitad superior -->
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgeiYOB_f3gAZs0uRE4HFPzWJ99kM0kWunBavVHQeGLI_Bfg4R4JeTDutwBl7q7Qmkjr94QPCrzX9O56jUjcffXs_kICzoOaQNJTbHRnc50nIbpVlX7Z_We695XLG-OXkNxjsHxIFbjH9-k8SBfenK9vB-v2STME5LZvf5VyWDybUZ932gvdsp6llsTYBOn/s1536/1000093974.png" alt="Intermediario Técnico - Infraestructura API" class="api-card-image">
+        
+        <!-- Contenido de texto con desvanecimiento superior -->
+        <div class="api-card-content">
+          <h3 class="api-card-title">Intermediario Técnico</h3>
+          <p class="api-card-text">
+            Proveemos interconectividad técnica para acceder a información pública. Los créditos cubren costos de infraestructura, procesamiento y mantenimiento. El uso de datos es responsabilidad del cliente según Ley 29733.
+          </p>
+          <!-- Botón sin fondo en la parte inferior izquierda -->
+          <a href="api-key.html" class="api-card-button">
+            <i class="fas fa-arrow-right"></i> Ir al panel de desarrollador
+          </a>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <!-- Imagen que ocupa la mitad superior -->
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgNnUD233rAhxtocFpQDKpitfmZpDnPtSAQpqwsWBEt6QQCs6EtZLmp5ym8KVzAbQmyG5W3MxzrKIPafI1BR6zye8W6u166r3IHoFUsovBb3R0FbwXOQzxj9p-WlPEXc-U8XfTu7N5s2w_GU9JYGx4qEbnP00qDPXKYbcWV6-XQqdG6BBV6hF_NI0FeNgQ0/s1536/1000093975.png" alt="APIs Disponibles - Conexiones de datos" class="api-card-image">
+        
+        <!-- Contenido de texto con desvanecimiento superior -->
+        <div class="api-card-content">
+          <h3 class="api-card-title">APIs Disponibles</h3>
+          <p class="api-card-text">
+            <strong>• RENIEC (DNI):</strong> Datos completos, huellas, firma y foto.<br>
+            <strong>• SUNAT (RUC):</strong> Información fiscal y representantes.<br>
+            <strong>• SUNARP (Vehículos):</strong> Propietarios y características.<br>
+            <strong>• Telefonía:</strong> Líneas por DNI/RUC o titularidad por número.<br>
+            <strong>• Empresas por persona:</strong> Cargos y participación.<br>
+            <strong>• Matrimonios civiles:</strong> Cónyuge y fecha.<br>
+            <strong>• Búsqueda por nombres:</strong> DNI o cédula venezolana.
+          </p>
+          <!-- Botón sin fondo en la parte inferior izquierda -->
+          <a href="api-key.html" class="api-card-button">
+            <i class="fas fa-arrow-right"></i> Ir al panel de desarrollador
+          </a>
+        </div>
+      </div>
+
+      <div class="api-card">
+        <!-- Imagen que ocupa la mitad superior -->
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh31vISQEF3FG_QpOjL7upurRtTSJt4Padjkot_eqS68n9Jh56WnrRgRtQ371qHE7Qn0_jLReJXEn1hIpWtyDmgSD6xhcgQK2ubjUlamSjudHeT4dfwcdP9tatZOR_yChJNz0DQ75M3kltSvjSt0bvh-TeJwlYwVrL6nJm1Msz3MXBtOpPIxhC8gEqjI171/s1536/1000093976.png" alt="Alto Rendimiento - Servidores y velocidad" class="api-card-image">
+        
+        <!-- Contenido de texto con desvanecimiento superior -->
+        <div class="api-card-content">
+          <h3 class="api-card-title">Alto Rendimiento</h3>
+          <p class="api-card-text">
+            Arquitectura de microservicios con escalabilidad automática, encriptación end-to-end, autenticación OAuth 2.0 y protección DDoS. Respuesta optimizada y uptime garantizado del 99.9%.
+          </p>
+          <!-- Botón sin fondo en la parte inferior izquierda -->
+          <a href="api-key.html" class="api-card-button">
+            <i class="fas fa-arrow-right"></i> Ir al panel de desarrollador
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ELIMINADO: Bloque "Créditos y Costos" con todo su contenido -->
+
+    <!-- Ejemplo de código (con menú de tres puntos y efecto de escritura) -->
+    <div class="code-animation" id="codeBlock">
+      <!-- Menú de tres puntos en lugar del ícono de copiar -->
+      <div class="three-dots-menu" id="codeMenuBtn">
+        <i class="fas fa-ellipsis-v"></i>
+      </div>
+      
+      <!-- Menú desplegable -->
+      <div class="menu-dropdown" id="codeMenu">
+        <a href="api-key" class="menu-item">
+          <i class="fas fa-key"></i> API Key
+        </a>
+        <a href="APIs-Docs" class="menu-item">
+          <i class="fas fa-file-code"></i> Documentación APIs
+        </a>
+        <div class="menu-divider"></div>
+        <a href="planes." class="menu-item">
+          <i class="fas fa-credit-card"></i></i> Recargar/renovar plan
         </a>
       </div>
+      
+      <div class="code-content" id="codeContent">
+        <!-- El contenido se generará dinámicamente con el efecto de escritura -->
+      </div>
+    </div>
+
+    <!-- Estadísticas de API (se mantienen) -->
+    <div class="api-stats">
+      <div class="stat-card">
+        <div class="stat-number">99.9%</div>
+        <div class="stat-label">Uptime</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">2k+</div>
+        <div class="stat-label">Consultas/min</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Encriptado</div>
+      </div>
+<div class="stat-card">
+        <div class="stat-number">Variable</div>
+        <div class="stat-label">Respuesta</div>
+      </div>
+    </div>
+
+    <!-- Llamado a la acción -->
+    <div class="api-cta">
+      <a href="api-key" class="api-cta-button">
+        <i class="fas fa-code-branch"></i> Documentación y Credenciales
+      </a>
     </div>
   </section>
 
@@ -1783,7 +1895,11 @@
       'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiMUakrMP-yKpoycaGvjK4APon-CjrN80pLn1CkZvz2NcS_XT98tdJA0MeF3EO3Bd7OUoTWIrubwHN2df7VKHHUnIX6_RYv_mfqT4uXRa1IUhsr52TDRBs4hJsHdRj2sSA7v52rC8TX3nDwdq7DBNDyBxQyiKbEJoFzzDdPcMC4_sYc5tCHvEu-8Qz3yM85/s1536/1000088610.png',
       'https://cdn-icons-png.flaticon.com/128/747/747965.png',
       'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg',
-      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'
+      'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png',
+      // Imágenes de Unsplash para las cards
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1080&q=80',
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
     ];
 
     // Carga optimizada de la página
@@ -1803,6 +1919,12 @@
           
           // Inicializar fondo de infraestructura API
           initApiBackground();
+
+          // Iniciar efecto de escritura para el código
+          startTypingEffect();
+
+          // Configurar menú de tres puntos
+          setupThreeDotsMenu();
         }, 500); // Tiempo mínimo de carga para mejor UX
       });
     });
@@ -1920,9 +2042,11 @@
       const background = document.getElementById('apiBackground');
       if (!background) return;
       
+      // Limpiar fondo existente para evitar duplicados
+      background.innerHTML = '';
+      
       // Crear nodos de conexión
       const nodes = [];
-      const connections = [];
       
       // Generar nodos aleatorios
       for (let i = 0; i < 15; i++) {
@@ -1971,9 +2095,76 @@
               connection.style.animationDelay = `${Math.random() * 2}s`;
               
               background.appendChild(connection);
-              connections.push(connection);
             }
           }
+        });
+      });
+    }
+
+    // Efecto de escritura para el código
+    function startTypingEffect() {
+      const codeContent = document.getElementById('codeContent');
+      if (!codeContent) return;
+
+      // El código completo que queremos mostrar
+      const fullCode = `<?php
+$api_url = "https://api.masitaprex.com/v3/consulta/dni";
+$headers = [ "x-api-key: TU_TOKEN", "Content-Type: application/json" ];
+$data = [ "dni" => "12345678" ];
+$response = http_post($api_url, $data, $headers);
+?>`;
+
+      // Limpiar contenido
+      codeContent.innerHTML = '';
+      
+      // Crear elemento para el efecto de escritura
+      const typingElement = document.createElement('div');
+      typingElement.className = 'typing-text';
+      codeContent.appendChild(typingElement);
+
+      let i = 0;
+      const speed = 30; // Velocidad de escritura en ms
+
+      function typeWriter() {
+        if (i < fullCode.length) {
+          typingElement.innerHTML = fullCode.substring(0, i + 1).replace(/\n/g, '<br>').replace(/ /g, ' ');
+          i++;
+          setTimeout(typeWriter, speed);
+        } else {
+          // Al terminar, agregar el cursor parpadeante
+          typingElement.innerHTML = fullCode.replace(/\n/g, '<br>').replace(/ /g, ' ') + '<span class="typing-cursor"></span>';
+        }
+      }
+
+      typeWriter();
+    }
+
+    // Configurar menú de tres puntos
+    function setupThreeDotsMenu() {
+      const menuBtn = document.getElementById('codeMenuBtn');
+      const menu = document.getElementById('codeMenu');
+      
+      if (!menuBtn || !menu) return;
+
+      // Toggle menú al hacer clic en el botón
+      menuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('show');
+      });
+
+      // Cerrar menú al hacer clic en cualquier parte
+      document.addEventListener('click', function(e) {
+        if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+          menu.classList.remove('show');
+        }
+      });
+
+      // Prevenir que los clics en los enlaces cierren el menú antes de navegar
+      const menuItems = menu.querySelectorAll('.menu-item');
+      menuItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // El menú se cerrará automáticamente por el evento de documento
         });
       });
     }
@@ -1981,143 +2172,3 @@
 
 </body>
 </html>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta PE</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    .chat-bubble {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 30px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      animation: slideIn 1s ease-out forwards;
-    }
-
-    @keyframes slideIn {
-      0% {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    .chat-bubble:hover {
-      background: linear-gradient(45deg, #128C7E, #25D366); /* Invertir colores al pasar el ratón */
-    }
-
-    .chat-text {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
-      color: white;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 15px;
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      white-space: nowrap;
-      opacity: 0;
-      transform: scale(0.9);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      z-index: 1001;
-      cursor: pointer;
-    }
-
-    .chat-text.show {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .chat-text.hide {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-  </style>
-</head>
-<body>
-
-  <div class="chat-bubble" onclick="goToWhatsApp()">
-    <div class="icon">
-      <i class="fab fa-whatsapp"></i> </div>
-  </div>
-
-  <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
-
-  <script>
-    const message = "¡Hola, Nesecitas ayuda!"; // Nuevo mensaje
-    const chatText = document.getElementById("chatText");
-    let index = 0;
-
-    function typeWriter() {
-      if (index < message.length) {
-        chatText.textContent += message.charAt(index);
-        index++;
-        setTimeout(typeWriter, 100);
-      } else {
-        setTimeout(() => {
-          chatText.classList.remove('show');
-          chatText.classList.add('hide');
-          setTimeout(resetAndRestart, 1000);
-        }, 2500);
-      }
-    }
-
-    function resetAndRestart() {
-      chatText.textContent = "";
-      index = 0;
-      chatText.classList.remove('hide');
-      setTimeout(() => {
-        chatText.classList.add('show');
-        typeWriter();
-      }, 500);
-    }
-
-    function goToWhatsApp() {
-      // Reemplaza 'YOUR_PHONE_NUMBER' con tu número de WhatsApp con código de país, ejemplo: '51987654321'
-      // Y 'YOUR_MESSAGE_TEXT' con el mensaje predefinido que quieras enviar
-      const phoneNumber = '51944950234'; // Ejemplo: 51 para Perú
-      const prefilledMessage = encodeURIComponent('Hola, neseito ayuda para comprar créditos para Consulta PE.');
-      window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
-    }
-
-    window.onload = () => {
-      setTimeout(() => {
-        chatText.classList.add('show');
-        typeWriter();
-      }, 1000);
-    };
-  </script>
-
-</body>
-</html>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
