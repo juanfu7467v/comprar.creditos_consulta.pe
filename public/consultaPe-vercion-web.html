@@ -1441,7 +1441,7 @@
         <!-- Selector de consulta: ahora el select está encima del input -->
         <div class="search-group">
             <select class="native-select" id="api-select">
-                <option value="">SELECT.</option>
+                <option value="">PULSA AQUÍ PARA SELECCIONAR OPCIONES</option>
                 <option value="dni">Consulta RENIEC por DNI</option>
                 <option value="telefonia-doc">Telefonía por Documento</option>
                 <option value="telefonia-num">Telefonía por Número</option>
@@ -1453,7 +1453,7 @@
                 <option value="buscar-cedula">Buscar Venezolano por Nombre</option>
                 <option value="cedula">Consultar Cédula Venezolana</option>
             </select>
-            <input type="text" class="native-input" id="consulta-input" placeholder="👈Primero debes seleccionar una opción para poder consultar" disabled>
+            <input type="text" class="native-input" id="consulta-input" placeholder="☝️ Primero debes seleccionar una opción para poder consultar" disabled>
         </div>
 
         <!-- Botón "Consultar" -->
@@ -3232,5 +3232,143 @@
         });
     });
     </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta PE</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .chat-bubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      animation: slideIn 1s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      0% {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .chat-bubble:hover {
+      background: linear-gradient(45deg, #128C7E, #25D366); /* Invertir colores al pasar el ratón */
+    }
+
+    .chat-text {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 15px;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      white-space: nowrap;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 1001;
+      cursor: pointer;
+    }
+
+    .chat-text.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .chat-text.hide {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-bubble" onclick="goToWhatsApp()">
+    <div class="icon">
+      <i class="fab fa-whatsapp"></i> </div>
+  </div>
+
+  <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
+
+  <script>
+    const message = "¡Hola, Nesecitas ayuda!"; // Nuevo mensaje
+    const chatText = document.getElementById("chatText");
+    let index = 0;
+
+    function typeWriter() {
+      if (index < message.length) {
+        chatText.textContent += message.charAt(index);
+        index++;
+        setTimeout(typeWriter, 100);
+      } else {
+        setTimeout(() => {
+          chatText.classList.remove('show');
+          chatText.classList.add('hide');
+          setTimeout(resetAndRestart, 1000);
+        }, 2500);
+      }
+    }
+
+    function resetAndRestart() {
+      chatText.textContent = "";
+      index = 0;
+      chatText.classList.remove('hide');
+      setTimeout(() => {
+        chatText.classList.add('show');
+        typeWriter();
+      }, 500);
+    }
+
+    function goToWhatsApp() {
+      // Reemplaza 'YOUR_PHONE_NUMBER' con tu número de WhatsApp con código de país, ejemplo: '51987654321'
+      // Y 'YOUR_MESSAGE_TEXT' con el mensaje predefinido que quieras enviar
+      const phoneNumber = '51944950234'; // Ejemplo: 51 para Perú
+      const prefilledMessage = encodeURIComponent('Hola, neseito ayuda con la  web página: consulta pe vercion web.');
+      window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
+    }
+
+    window.onload = () => {
+      setTimeout(() => {
+        chatText.classList.add('show');
+        typeWriter();
+      }, 1000);
+    };
+  </script>
+
 </body>
 </html>
