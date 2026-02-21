@@ -26,6 +26,9 @@
             -webkit-tap-highlight-color: transparent;
             margin: 0;
             padding: 0;
+            /* Ajuste global para evitar desbordamientos */
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         .app-container {
@@ -596,6 +599,18 @@
             animation: scaleIn 0.5s ease-out;
         }
 
+        .info-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            animation: scaleIn 0.5s ease-out;
+        }
+
         @keyframes scaleIn {
             from {
                 transform: scale(0);
@@ -607,7 +622,7 @@
             }
         }
 
-        .success-icon i, .error-icon i {
+        .success-icon i, .error-icon i, .info-icon i {
             color: white;
             font-size: 40px;
         }
@@ -624,6 +639,14 @@
             font-size: 24px;
             font-weight: 700;
             color: #EF4444;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .info-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1E40AF;
             text-align: center;
             margin-bottom: 8px;
         }
@@ -2476,145 +2499,36 @@
     consultarBtn.addEventListener('click', realizarConsulta);
 
     /* ==========================================================
-       FUNCIONALIDAD DE DESCARGA PDF (con jsPDF) - VERSIÓN CORREGIDA
+       FUNCIONALIDAD DE DESCARGA PDF - NUEVO MODAL INFORMATIVO
        ========================================================= */
     descargarPdfBtn.addEventListener('click', function() {
-        // Verificar si hay resultados para descargar
-        if (!ultimoResultadoConsulta) {
-            alert('No hay resultados para descargar.');
-            return;
-        }
-
-        try {
-            // Verificar si jsPDF está disponible
-            if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
-                console.error('jsPDF no está cargado');
-                alert('Error: La librería para generar PDF no se cargó correctamente. Por favor, recarga la página.');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            let yPos = 20;
-            
-            // Título
-            doc.setFontSize(18);
-            doc.setTextColor(220, 38, 38);
-            doc.setFont(undefined, 'bold');
-            doc.text('RESULTADO DE CONSULTA', 20, yPos);
-            yPos += 10;
-            
-            // Línea separadora
-            doc.setDrawColor(220, 38, 38);
-            doc.setLineWidth(0.5);
-            doc.line(20, yPos - 3, 190, yPos - 3);
-            
-            // Fecha y hora
-            doc.setFontSize(10);
-            doc.setTextColor(100, 100, 100);
-            doc.setFont(undefined, 'normal');
-            const fecha = new Date().toLocaleString('es-PE', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            doc.text(`Fecha y hora: ${fecha}`, 20, yPos);
-            yPos += 7;
-            
-            // Servicio consultado
-            const servicioText = `Servicio: ${apiSelect.options[apiSelect.selectedIndex]?.text || 'No especificado'}`;
-            doc.text(servicioText, 20, yPos);
-            yPos += 7;
-            
-            // Parámetro consultado
-            const consultaValue = consultaInput.value.trim();
-            if (consultaValue) {
-                doc.text(`Consulta: ${consultaValue}`, 20, yPos);
-                yPos += 7;
-            }
-            
-            yPos += 5;
-            
-            // Función para agregar datos al PDF
-            function agregarDatosAlPDF(obj, nivel = 0) {
-                if (!obj || typeof obj !== 'object') return;
-                
-                const entries = Object.entries(obj);
-                
-                entries.forEach(([key, value]) => {
-                    // Verificar espacio en página
-                    if (yPos > 280) {
-                        doc.addPage();
-                        yPos = 20;
-                    }
+        // Mostrar modal informativo en lugar de descargar PDF
+        const modalHtml = `
+            <div class="payment-modal active" id="pdf-info-modal">
+                <div class="payment-modal-content">
+                    <span class="payment-modal-close" onclick="this.closest('.payment-modal').remove()">×</span>
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h2 class="info-title">Función no disponible</h2>
+                    <p class="text-center text-gray-600 mb-4">
+                        Esta función no está disponible en Consulta PE versión web. Para descargar el resultado, instala la app Consulta PE APK.
+                    </p>
                     
-                    if (value && typeof value === 'object' && !Array.isArray(value)) {
-                        // Título de sección para objetos anidados
-                        doc.setFontSize(12);
-                        doc.setTextColor(220, 38, 38);
-                        doc.setFont(undefined, 'bold');
-                        const titulo = key.replace(/_/g, ' ').toUpperCase();
-                        doc.text(titulo, 20 + (nivel * 5), yPos);
-                        yPos += 7;
+                    <div class="flex flex-col gap-3 mt-4">
+                        <button class="payment-btn" onclick="window.open('https://consultaPe.com/apk', '_blank')" style="background: #10B981; margin-top: 0;">
+                            <i class="fas fa-download"></i> Instalar APK
+                        </button>
                         
-                        // Procesar objeto anidado
-                        agregarDatosAlPDF(value, nivel + 1);
-                    } else {
-                        // Campo simple
-                        doc.setFontSize(10);
-                        doc.setTextColor(0, 0, 0);
-                        doc.setFont(undefined, 'normal');
-                        
-                        let displayValue = value;
-                        if (Array.isArray(value)) {
-                            displayValue = value.join(', ');
-                        } else if (value === null || value === undefined) {
-                            displayValue = 'N/A';
-                        } else {
-                            displayValue = value.toString();
-                        }
-                        
-                        const nombreCampo = nombresCamposDni[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        
-                        // Dividir texto largo
-                        const text = `${nombreCampo}: ${displayValue}`;
-                        const lineas = doc.splitTextToSize(text, 160);
-                        
-                        lineas.forEach((linea, index) => {
-                            if (yPos > 280) {
-                                doc.addPage();
-                                yPos = 20;
-                            }
-                            
-                            if (index === 0) {
-                                doc.text(linea, 20 + (nivel * 5), yPos);
-                            } else {
-                                doc.text(linea, 20 + (nivel * 5) + 10, yPos);
-                            }
-                            yPos += 6;
-                        });
-                    }
-                });
-            }
-            
-            // Procesar datos
-            agregarDatosAlPDF(ultimoResultadoConsulta);
-            
-            // Guardar PDF
-            const timestamp = new Date().getTime();
-            const nombreArchivo = `consulta_${tipoConsultaActual || 'resultado'}_${timestamp}.pdf`;
-            
-            doc.save(nombreArchivo);
-            console.log('PDF generado exitosamente:', nombreArchivo);
-            
-        } catch (error) {
-            console.error('Error generando PDF:', error);
-            alert('Error al generar el PDF: ' + error.message + '. Por favor, recarga la página e intenta nuevamente.');
-        }
+                        <button class="payment-btn" onclick="this.closest('.payment-modal').remove()" style="margin-top: 0; background: #666;">
+                            <i class="fas fa-times"></i> Quizás más tarde
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
     });
 
     /* ==========================================================
@@ -2723,6 +2637,11 @@
         `;
         
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // ACTUALIZAR CRÉDITOS EN LA INTERFAZ después de una compra exitosa
+        setTimeout(() => {
+            cargarDatosPerfil();
+        }, 1000);
     }
 
     function showPaymentError(result) {
@@ -3232,143 +3151,5 @@
         });
     });
     </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta PE</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-    }
-
-    .chat-bubble {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 30px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      animation: slideIn 1s ease-out forwards;
-    }
-
-    @keyframes slideIn {
-      0% {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      100% {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    .chat-bubble:hover {
-      background: linear-gradient(45deg, #128C7E, #25D366); /* Invertir colores al pasar el ratón */
-    }
-
-    .chat-text {
-      position: fixed;
-      bottom: 90px;
-      right: 20px;
-      background: linear-gradient(45deg, #25D366, #128C7E); /* Colores de WhatsApp */
-      color: white;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 15px;
-      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      white-space: nowrap;
-      opacity: 0;
-      transform: scale(0.9);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      z-index: 1001;
-      cursor: pointer;
-    }
-
-    .chat-text.show {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .chat-text.hide {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-  </style>
-</head>
-<body>
-
-  <div class="chat-bubble" onclick="goToWhatsApp()">
-    <div class="icon">
-      <i class="fab fa-whatsapp"></i> </div>
-  </div>
-
-  <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
-
-  <script>
-    const message = "¡Hola, Nesecitas ayuda!"; // Nuevo mensaje
-    const chatText = document.getElementById("chatText");
-    let index = 0;
-
-    function typeWriter() {
-      if (index < message.length) {
-        chatText.textContent += message.charAt(index);
-        index++;
-        setTimeout(typeWriter, 100);
-      } else {
-        setTimeout(() => {
-          chatText.classList.remove('show');
-          chatText.classList.add('hide');
-          setTimeout(resetAndRestart, 1000);
-        }, 2500);
-      }
-    }
-
-    function resetAndRestart() {
-      chatText.textContent = "";
-      index = 0;
-      chatText.classList.remove('hide');
-      setTimeout(() => {
-        chatText.classList.add('show');
-        typeWriter();
-      }, 500);
-    }
-
-    function goToWhatsApp() {
-      // Reemplaza 'YOUR_PHONE_NUMBER' con tu número de WhatsApp con código de país, ejemplo: '51987654321'
-      // Y 'YOUR_MESSAGE_TEXT' con el mensaje predefinido que quieras enviar
-      const phoneNumber = '51944950234'; // Ejemplo: 51 para Perú
-      const prefilledMessage = encodeURIComponent('Hola, neseito ayuda con la  web página: consulta pe vercion web.');
-      window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
-    }
-
-    window.onload = () => {
-      setTimeout(() => {
-        chatText.classList.add('show');
-        typeWriter();
-      }, 1000);
-    };
-  </script>
-
 </body>
 </html>
