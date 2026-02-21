@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -342,6 +342,7 @@
       padding: 8px 0 16px 0;
       scrollbar-width: thin;
       scrollbar-color: rgba(109,91,255,.5) transparent;
+      scroll-behavior: smooth;
     }
 
     .screenshots-scroll::-webkit-scrollbar {
@@ -745,16 +746,15 @@
       display: flex;
       overflow-x: auto;
       gap: 24px;
-      padding: 10px 5px 30px 5px;
+      padding: 10px 0 30px 0;
       margin-bottom: 40px;
-      max-width: 1400px;
-      margin-left: auto;
-      margin-right: auto;
-      padding-left: 20px;
-      padding-right: 20px;
+      max-width: none;
+      margin-left: -20px;
+      margin-right: -20px;
       scrollbar-width: thin;
       scrollbar-color: rgba(53,213,255,0.5) transparent;
       -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
 
     .api-features-slider::-webkit-scrollbar {
@@ -782,8 +782,8 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      flex: 0 0 350px; /* Ancho fijo para las cards */
-      min-width: 300px;
+      flex: 0 0 100%;
+      min-width: 100%;
       height: auto;
     }
 
@@ -813,6 +813,10 @@
       display: block;
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
+
+      /* MODIFICADO: desvanecimiento suave hacia abajo (sin línea marcada) */
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
     }
 
     /* Contenedor para el contenido de texto con desvanecimiento superior */
@@ -844,7 +848,7 @@
 
     /* Ajustamos el título para que esté dentro del contenido */
     .api-card-title {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 700;
       margin-bottom: 12px;
       color: var(--cyan);
@@ -852,10 +856,10 @@
 
     .api-card-text {
       color: rgba(234,240,255,.8);
-      line-height: 1.6;
-      font-size: 15px;
-      margin-bottom: 20px;
-      flex: 1;
+      line-height: 1.7;
+      font-size: 17px;
+      margin-bottom: 12px;
+      flex: none;
     }
 
     /* Botón sin fondo en la parte inferior izquierda */
@@ -864,11 +868,11 @@
       align-items: center;
       gap: 8px;
       color: var(--cyan);
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 600;
       text-decoration: none;
       padding: 8px 0;
-      margin-top: auto;
+      margin-top: 0;
       transition: all 0.3s ease;
       width: fit-content;
       border: none;
@@ -904,12 +908,12 @@
       background: rgba(0,0,0,0.3);
       border-radius: 12px;
       padding: 25px;
-      margin: 30px auto;
+      margin: 30px 0;
       border: 1px solid rgba(255,255,255,.1);
       position: relative;
       overflow: hidden;
-      max-width: 1200px; /* Ancho máximo para el bloque de código */
-      width: calc(100% - 40px);
+      max-width: 100%;
+      width: 100%;
     }
 
     /* Estilos para el menú de tres puntos */
@@ -1077,50 +1081,230 @@
       50% { opacity: 0; }
     }
 
-    /* API Stats - MODIFICADO: Ancho limitado y dos columnas centradas */
+    /* ============================================================
+       🎨 SECCIÓN DE ESTADÍSTICAS REDISEÑADA - MODERNA Y NATIVA
+       ============================================================ */
+
+    /* API Stats - Rediseño moderno tipo app nativa */
     .api-stats {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin: 40px auto;
-      max-width: 600px;
+      gap: 20px;
+      margin: 50px auto;
+      max-width: 650px;
       width: 100%;
-      padding: 0 16px;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
     }
 
+    /* Tarjetas modernas con glassmorphism */
     .stat-card {
-      background: rgba(255,255,255,.04);
-      border-radius: 16px;
-      padding: 20px 16px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 18px;
+      padding: 28px 20px;
       text-align: center;
-      border: 1px solid rgba(255,255,255,.08);
-      transition: transform 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: statCardFadeIn 0.6s ease forwards;
     }
 
+    /* Animación de entrada escalonada */
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes statCardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Efecto hover suave */
     .stat-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 0 40px rgba(53, 213, 255, 0.15);
+      border-color: rgba(53, 213, 255, 0.3);
     }
 
+    /* Brillo sutil en hover */
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.08) 0%,
+        transparent 70%
+      );
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Contenedor del ícono */
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(
+        135deg,
+        rgba(53, 213, 255, 0.15),
+        rgba(109, 91, 255, 0.15)
+      );
+      font-size: 22px;
+      color: var(--cyan);
+      transition: all 0.4s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+      transform: scale(1.1) rotate(5deg);
+      background: linear-gradient(
+        135deg,
+        rgba(53, 213, 255, 0.25),
+        rgba(109, 91, 255, 0.25)
+      );
+    }
+
+    /* Número principal con gradiente */
     .stat-number {
-      font-size: 32px;
+      font-size: 40px;
       font-weight: 900;
-      background: linear-gradient(90deg, 
-        rgba(53,213,255,1), 
-        rgba(109,91,255,1));
+      background: linear-gradient(
+        135deg,
+        rgba(53, 213, 255, 1),
+        rgba(109, 91, 255, 1),
+        rgba(255, 61, 141, 0.9)
+      );
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       line-height: 1;
+      letter-spacing: -0.02em;
+      display: inline-block;
+      transition: transform 0.4s ease;
     }
 
-    .stat-label {
-      color: rgba(234,240,255,.7);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      line-height: 1.3;
+    .stat-card:hover .stat-number {
+      transform: scale(1.08);
     }
+
+    /* Etiqueta del stat */
+    .stat-label {
+      color: rgba(234, 240, 255, 0.75);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-top: 8px;
+    }
+
+    /* Responsive para pantallas grandes */
+    @media (min-width: 768px) {
+      .api-stats {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        max-width: 900px;
+      }
+      
+      .stat-card {
+        padding: 32px 24px;
+      }
+      
+      .stat-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 24px;
+        margin-bottom: 18px;
+      }
+      
+      .stat-number {
+        font-size: 48px;
+      }
+      
+      .stat-label {
+        font-size: 14px;
+      }
+    }
+
+    /* Responsive móvil mejorado */
+    @media (max-width: 767px) {
+      .api-stats {
+        gap: 16px;
+        padding: 0 16px;
+        margin: 40px auto;
+      }
+
+      .stat-card {
+        padding: 24px 16px;
+      }
+
+      .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+        margin-bottom: 14px;
+      }
+
+      .stat-number {
+        font-size: 36px;
+      }
+
+      .stat-label {
+        font-size: 12px;
+      }
+    }
+
+    /* Animación del número (contador) */
+    @keyframes countUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stat-number {
+      animation: countUp 0.8s ease forwards;
+    }
+
+    /* ============================================================
+       FIN DE LA SECCIÓN DE ESTADÍSTICAS REDISEÑADA
+       ============================================================ */
 
     /* CTA Button */
     .api-cta {
@@ -1178,30 +1362,12 @@
     }
 
     @media (min-width: 768px) {
-      .api-stats {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
-        max-width: 800px;
-      }
-      
-      .stat-card {
-        padding: 25px;
-      }
-      
-      .stat-number {
-        font-size: 42px;
-      }
-      
-      .stat-label {
-        font-size: 14px;
-      }
-      
       .api-cta-button {
         padding: 18px 36px;
       }
 
       .api-card {
-        flex: 0 0 380px;
+        flex: 0 0 100%;
       }
     }
 
@@ -1287,6 +1453,9 @@
       .api-node, .api-connection, .typing-cursor {
         animation: none !important;
       }
+      .stat-card {
+        animation: fadeIn 0.5s ease forwards !important;
+      }
     }
 
     /* Responsive para pantallas grandes */
@@ -1317,6 +1486,10 @@
       .footer {
         padding: 50px 40px;
       }
+
+      .code-animation {
+        max-width: 100%;
+      }
     }
 
     @media (max-width: 767px) {
@@ -1336,7 +1509,13 @@
       }
 
       .api-card {
-        flex: 0 0 300px;
+        flex: 0 0 100%;
+        min-width: 100%;
+      }
+
+      .api-features-slider{
+        margin-left: -16px;
+        margin-right: -16px;
       }
     }
 
@@ -1432,7 +1611,6 @@
         padding-left: 20px;
         padding-right: 20px;
       }
-      /* .api-container{ ... } */ /* Eliminado */
     }
 
     /* MODIFICADO: más legible en pantallas estrechas manteniendo ancho consistente */
@@ -1537,7 +1715,7 @@
       </p>
 
       <!-- Screenshots -->
-      <div class="screenshots-scroll">
+      <div class="screenshots-scroll" id="screenshotsScroll">
         <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="Consulta PE APK Screenshot 1 - Interfaz de consulta de DNI" class="screenshot" data-index="0">
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8yMQqAdkkhsN2cICUm9NCzx1q5g8xTcXa2HqpVzrTOk_y-o8jzCfvkFuSvmztsQjG61fBSFpzruFpuMH_tA3K1xhSFZnIlHhHlw5JUjlHCjTXMuvKnFzHlVuuNEB4pCWb2l_fXMmetGPtxxmzm0cjgCtMVHE0z4s0DLnE3uVPiF_21TLZMQtDG1b5fj4/s1920/1000112201.png" alt="Consulta PE APK Screenshot 2 - Resultados de consulta de DNI" class="screenshot" data-index="1">
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgAiCpWnAh6FkIP4UwyXXobfAhL6s_CkMoMI7rH_BD9_v7JmR3pmUjw5b5JNaJQpBrt0AecRTGGTlSXHZDb51JYfVoVrRUmZLm97voHDySY4RRQok0Zx9zGGHeJbMc6o9tv0yofjB9dXh2mrpf9fQ7_96QYQkzxO73vTKS01ATOpguR6b102_lvJcN8ELc/s1920/1000112195.png" alt="Consulta PE APK Screenshot 3 - Menú de funcionalidades" class="screenshot" data-index="2">
@@ -1727,7 +1905,6 @@
     <!-- Fondo de infraestructura API (se mantiene intacto) -->
     <div class="api-background" id="apiBackground"></div>
     
-    <!-- .api-container ELIMINADO - El contenido ahora va directamente -->
     <div class="api-header">
       <h2 class="api-title">Infraestructura API de Masitaprex</h2>
       <p class="api-subtitle">
@@ -1736,7 +1913,7 @@
     </div>
 
     <!-- Slider horizontal con las cards -->
-    <div class="api-features-slider">
+    <div class="api-features-slider" id="apiSlider">
       <div class="api-card">
         <!-- Imagen que ocupa la mitad superior -->
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgeiYOB_f3gAZs0uRE4HFPzWJ99kM0kWunBavVHQeGLI_Bfg4R4JeTDutwBl7q7Qmkjr94QPCrzX9O56jUjcffXs_kICzoOaQNJTbHRnc50nIbpVlX7Z_We695XLG-OXkNxjsHxIFbjH9-k8SBfenK9vB-v2STME5LZvf5VyWDybUZ932gvdsp6llsTYBOn/s1536/1000093974.png" alt="Intermediario Técnico - Infraestructura API" class="api-card-image">
@@ -1795,8 +1972,6 @@
       </div>
     </div>
 
-    <!-- ELIMINADO: Bloque "Créditos y Costos" con todo su contenido -->
-
     <!-- Ejemplo de código (con menú de tres puntos y efecto de escritura) -->
     <div class="code-animation" id="codeBlock">
       <!-- Menú de tres puntos en lugar del ícono de copiar -->
@@ -1823,23 +1998,39 @@
       </div>
     </div>
 
-    <!-- Estadísticas de API (se mantienen) -->
+    <!-- ============================================================
+         🎨 ESTADÍSTICAS REDISEÑADAS CON ICONOS MODERNOS
+         ============================================================ -->
     <div class="api-stats">
       <div class="stat-card">
-        <div class="stat-number">99.9%</div>
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-number" data-target="99.9">0</div>
         <div class="stat-label">Uptime</div>
       </div>
+      
       <div class="stat-card">
-        <div class="stat-number">2k+</div>
+        <div class="stat-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-number" data-target="2000">0</div>
         <div class="stat-label">Consultas/min</div>
       </div>
       
       <div class="stat-card">
-        <div class="stat-number">100%</div>
+        <div class="stat-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="stat-number" data-target="100">0</div>
         <div class="stat-label">Encriptado</div>
       </div>
-<div class="stat-card">
-        <div class="stat-number">Variable</div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <div class="stat-number">varia</div>
         <div class="stat-label">Respuesta</div>
       </div>
     </div>
@@ -1896,7 +2087,6 @@
       'https://cdn-icons-png.flaticon.com/128/747/747965.png',
       'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg',
       'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png',
-      // Imágenes de Unsplash para las cards
       'https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1080&q=80',
       'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
       'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
@@ -1925,9 +2115,156 @@
 
           // Configurar menú de tres puntos
           setupThreeDotsMenu();
-        }, 500); // Tiempo mínimo de carga para mejor UX
+
+          // Iniciar auto-scroll para screenshots
+          startAutoScrollScreenshots();
+
+          // Iniciar auto-scroll para API slider
+          startAutoScrollApiSlider();
+
+          // 🎯 Iniciar animación de contadores en las estadísticas
+          animateCounters();
+        }, 500);
       });
     });
+
+    // 🎯 FUNCIÓN PARA ANIMAR LOS CONTADORES DE ESTADÍSTICAS
+    function animateCounters() {
+      const counters = document.querySelectorAll('.stat-number[data-target]');
+      
+      counters.forEach(counter => {
+        const target = parseFloat(counter.getAttribute('data-target'));
+        const duration = 2000; // 2 segundos
+        const increment = target / (duration / 16); // 60 FPS
+        let current = 0;
+        
+        const updateCounter = () => {
+          current += increment;
+          
+          if (current < target) {
+            // Si el número tiene decimales (como 99.9)
+            if (target % 1 !== 0) {
+              counter.textContent = current.toFixed(1) + '%';
+            } else if (target >= 1000) {
+              // Para números grandes como 2000 (2k+)
+              counter.textContent = Math.floor(current);
+            } else {
+              counter.textContent = Math.floor(current) + '%';
+            }
+            
+            requestAnimationFrame(updateCounter);
+          } else {
+            // Valor final
+            if (target % 1 !== 0) {
+              counter.textContent = target.toFixed(1) + '%';
+            } else if (target >= 1000) {
+              counter.textContent = '2k+';
+            } else {
+              counter.textContent = target + '%';
+            }
+          }
+        };
+        
+        // Iniciar animación con un pequeño delay
+        setTimeout(() => {
+          updateCounter();
+        }, 300);
+      });
+    }
+
+    // Auto-scroll para screenshots
+    function startAutoScrollScreenshots() {
+      const scrollContainer = document.getElementById('screenshotsScroll');
+      if (!scrollContainer) return;
+
+      let scrollDirection = 1; // 1 para derecha, -1 para izquierda
+      const scrollSpeed = 1; // pixels por frame
+      const pauseDuration = 2000; // pausa en milisegundos al llegar al final
+      let isPaused = false;
+
+      function autoScroll() {
+        if (isPaused) return;
+
+        scrollContainer.scrollLeft += scrollSpeed * scrollDirection;
+
+        // Verificar si llegó al final
+        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth - 10) {
+          isPaused = true;
+          scrollDirection = -1;
+          setTimeout(() => {
+            isPaused = false;
+          }, pauseDuration);
+        }
+
+        // Verificar si llegó al inicio
+        if (scrollContainer.scrollLeft <= 10 && scrollDirection === -1) {
+          isPaused = true;
+          scrollDirection = 1;
+          setTimeout(() => {
+            isPaused = false;
+          }, pauseDuration);
+        }
+      }
+
+      // Ejecutar scroll cada 30ms
+      setInterval(autoScroll, 30);
+
+      // Pausar al pasar el mouse
+      scrollContainer.addEventListener('mouseenter', () => {
+        isPaused = true;
+      });
+
+      scrollContainer.addEventListener('mouseleave', () => {
+        isPaused = false;
+      });
+    }
+
+    // Auto-scroll para API slider
+    function startAutoScrollApiSlider() {
+      const slider = document.getElementById('apiSlider');
+      if (!slider) return;
+
+      let currentIndex = 0;
+      const cards = slider.querySelectorAll('.api-card');
+      const scrollInterval = 4000; // Cambiar cada 4 segundos
+      let isPaused = false;
+
+      function scrollToCard(index) {
+        const cardWidth = cards[0].offsetWidth + 24; // ancho + gap
+        slider.scrollTo({
+          left: cardWidth * index,
+          behavior: 'smooth'
+        });
+      }
+
+      function autoSlide() {
+        if (isPaused) return;
+
+        currentIndex = (currentIndex + 1) % cards.length;
+        scrollToCard(currentIndex);
+      }
+
+      // Iniciar auto-scroll
+      const intervalId = setInterval(autoSlide, scrollInterval);
+
+      // Pausar al pasar el mouse
+      slider.addEventListener('mouseenter', () => {
+        isPaused = true;
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        isPaused = false;
+      });
+
+      // Actualizar índice al hacer scroll manual
+      slider.addEventListener('scroll', () => {
+        const cardWidth = cards[0].offsetWidth + 24;
+        const newIndex = Math.round(slider.scrollLeft / cardWidth);
+        if (newIndex !== currentIndex) {
+          currentIndex = newIndex;
+        }
+      });
+    }
 
     // Sistema de pantalla completa para screenshots
     const screenshotModal = document.getElementById('screenshotModal');
@@ -2027,12 +2364,10 @@
       const swipeThreshold = 50;
       
       if (touchEndX < touchStartX - swipeThreshold) {
-        // Swipe izquierda - siguiente imagen
         nextImage();
       }
       
       if (touchEndX > touchStartX + swipeThreshold) {
-        // Swipe derecha - imagen anterior
         prevImage();
       }
     }
@@ -2042,46 +2377,37 @@
       const background = document.getElementById('apiBackground');
       if (!background) return;
       
-      // Limpiar fondo existente para evitar duplicados
       background.innerHTML = '';
       
-      // Crear nodos de conexión
       const nodes = [];
       
-      // Generar nodos aleatorios
       for (let i = 0; i < 15; i++) {
         const node = document.createElement('div');
         node.className = 'api-node';
         
-        // Posición aleatoria
         const left = Math.random() * 90 + 5;
         const top = Math.random() * 80 + 10;
         
         node.style.left = `${left}%`;
         node.style.top = `${top}%`;
         
-        // Delay de animación aleatorio
         node.style.animationDelay = `${Math.random() * 3}s`;
         
         background.appendChild(node);
         nodes.push({ element: node, x: left, y: top });
       }
       
-      // Crear conexiones entre nodos cercanos
       nodes.forEach((node1, i) => {
         nodes.forEach((node2, j) => {
           if (i < j) {
-            // Calcular distancia
             const dx = node2.x - node1.x;
             const dy = node2.y - node1.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            // Conectar solo nodos cercanos
             if (distance < 40) {
               const connection = document.createElement('div');
               connection.className = 'api-connection';
               
-              // Calcular posición y rotación
               const angle = Math.atan2(dy, dx) * 180 / Math.PI;
               const length = distance;
               
@@ -2091,7 +2417,6 @@
               connection.style.transform = `rotate(${angle}deg)`;
               connection.style.transformOrigin = '0 0';
               
-              // Delay de animación aleatorio
               connection.style.animationDelay = `${Math.random() * 2}s`;
               
               background.appendChild(connection);
@@ -2106,7 +2431,6 @@
       const codeContent = document.getElementById('codeContent');
       if (!codeContent) return;
 
-      // El código completo que queremos mostrar
       const fullCode = `<?php
 $api_url = "https://api.masitaprex.com/v3/consulta/dni";
 $headers = [ "x-api-key: TU_TOKEN", "Content-Type: application/json" ];
@@ -2114,25 +2438,22 @@ $data = [ "dni" => "12345678" ];
 $response = http_post($api_url, $data, $headers);
 ?>`;
 
-      // Limpiar contenido
       codeContent.innerHTML = '';
       
-      // Crear elemento para el efecto de escritura
       const typingElement = document.createElement('div');
       typingElement.className = 'typing-text';
       codeContent.appendChild(typingElement);
 
       let i = 0;
-      const speed = 30; // Velocidad de escritura en ms
+      const speed = 30;
 
       function typeWriter() {
         if (i < fullCode.length) {
-          typingElement.innerHTML = fullCode.substring(0, i + 1).replace(/\n/g, '<br>').replace(/ /g, ' ');
+          typingElement.innerHTML = fullCode.substring(0, i + 1).replace(/\n/g, '<br>').replace(/ /g, ' ');
           i++;
           setTimeout(typeWriter, speed);
         } else {
-          // Al terminar, agregar el cursor parpadeante
-          typingElement.innerHTML = fullCode.replace(/\n/g, '<br>').replace(/ /g, ' ') + '<span class="typing-cursor"></span>';
+          typingElement.innerHTML = fullCode.replace(/\n/g, '<br>').replace(/ /g, ' ') + '<span class="typing-cursor"></span>';
         }
       }
 
@@ -2146,25 +2467,21 @@ $response = http_post($api_url, $data, $headers);
       
       if (!menuBtn || !menu) return;
 
-      // Toggle menú al hacer clic en el botón
       menuBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         menu.classList.toggle('show');
       });
 
-      // Cerrar menú al hacer clic en cualquier parte
       document.addEventListener('click', function(e) {
         if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
           menu.classList.remove('show');
         }
       });
 
-      // Prevenir que los clics en los enlaces cierren el menú antes de navegar
       const menuItems = menu.querySelectorAll('.menu-item');
       menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
           e.stopPropagation();
-          // El menú se cerrará automáticamente por el evento de documento
         });
       });
     }
