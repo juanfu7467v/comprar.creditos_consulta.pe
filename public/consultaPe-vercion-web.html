@@ -1394,58 +1394,73 @@
             background: rgba(30, 58, 138, 1);
         }
 
-        /* ===== ESTILOS PARA SECCIÓN FAQ (ACORDEÓN) ===== */
-        .faq-section {
-            margin: 16px 0;
-        }
+        /* ===== ESTILOS PARA LA NUEVA SECCIÓN FAQ (ACORDEÓN) ===== */
         .faq-item {
             border-bottom: 1px solid #edf2f7;
+            padding: 4px 0;
         }
+
         .faq-question {
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 16px 0;
+            background: none;
+            border: none;
+            text-align: left;
             cursor: pointer;
             font-weight: 600;
             color: #1e293b;
+            font-size: 16px;
             transition: color 0.2s;
         }
+
         .faq-question:hover {
             color: #dc2626;
         }
+
         .faq-question i {
             transition: transform 0.3s ease;
             color: #dc2626;
+            flex-shrink: 0;
+            margin-left: 16px;
         }
+
         .faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease, padding 0.3s ease;
+            transition: max-height 0.3s ease-out;
             background-color: #fafafa;
-            padding: 0 12px;
-            margin: 0 -12px;
-            border-radius: 8px;
-            color: #475569;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        .faq-answer p {
+            border-radius: 12px;
             margin: 0 0 8px 0;
         }
-        .faq-answer ul {
-            margin: 4px 0 8px 0;
+
+        .faq-answer-content {
+            padding: 16px;
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.6;
+            border-left: 3px solid #dc2626;
+            background: #fef2f2;
+            border-radius: 8px;
+        }
+
+        .faq-answer-content p {
+            margin: 8px 0;
+        }
+
+        .faq-answer-content ul, .faq-answer-content ol {
             padding-left: 20px;
+            margin: 8px 0;
         }
-        .faq-answer li {
-            margin-bottom: 4px;
+
+        .faq-answer-content li {
+            margin: 4px 0;
         }
-        .faq-item.active .faq-answer {
-            max-height: 300px; /* Suficiente para el contenido */
-            padding: 12px 12px;
-        }
-        .faq-item.active .faq-question i {
-            transform: rotate(180deg);
+
+        .faq-answer-content strong {
+            color: #1e293b;
         }
     </style>
 </head>
@@ -1752,129 +1767,172 @@
             <div id="payment-error" class="text-red-600 text-sm mt-4 text-center" style="display: none;"></div>
         </section>
 
-        <!-- ===== NUEVA SECCIÓN: PREGUNTAS FRECUENTES (FAQ) EN ACORDEÓN ===== -->
-        <section class="card faq-section">
-            <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Preguntas Frecuentes</h2>
-            <div class="faq-list">
+        <!-- ===== NUEVA SECCIÓN DE PREGUNTAS FRECUENTES (FAQ) ===== -->
+        <!-- Esta sección se coloca exactamente antes de "Nuestros Servicios" -->
+        <section class="card">
+            <h2 class="text-sm font-bold text-gray-400 uppercase mb-4">Preguntas Frecuentes (FAQ)</h2>
+            <div class="space-y-2" id="faq-container">
                 <!-- FAQ 1 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Qué tipos de planes ofrecemos?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Pensando en lo que realmente necesitas, te ofrecemos 2 opciones para que elijas la que mejor se adapte a tu uso:</p>
-                        <p><strong>A.) Plan ilimitado (Recomendado ⭐):</strong><br>Acceso total sin límites durante los días que elijas. Ideal si usas la plataforma con frecuencia y quieres olvidarte de contar créditos.</p>
-                        <p><strong>B.) Créditos:</strong><br>Pagas solo por lo que usas. No tienen fecha de vencimiento, se consumen poco a poco según el uso que le des.</p>
-                        <p>👉 Si usas el servicio constantemente, el plan ilimitado suele ser más conveniente.</p>
+                        <div class="faq-answer-content">
+                            <p>Pensando en lo que realmente necesitas, te ofrecemos 2 opciones para que elijas la que mejor se adapte a tu uso:</p>
+                            <p><strong>A.) Plan ilimitado (Recomendado ⭐):</strong><br>
+                            Acceso total sin límites durante los días que elijas.<br>
+                            Ideal si usas la plataforma con frecuencia y quieres olvidarte de contar créditos.</p>
+                            <p><strong>B.) Créditos:</strong><br>
+                            Pagas solo por lo que usas.<br>
+                            No tienen fecha de vencimiento, se consumen poco a poco según el uso que le des.</p>
+                            <p>👉 Si usas el servicio constantemente, el plan ilimitado suele ser más conveniente.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 2 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Qué métodos de pago están disponibles?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Hemos simplificado el proceso para que puedas comprar rápido y seguro:</p>
-                        <p><strong>A.) Pago con tarjeta (Automático ⚡):</strong><br>Aceptamos Visa, MasterCard y más. Solo completas tus datos y confirmas la compra. Si el pago es aprobado, tus créditos o plan se activan automáticamente en segundos.</p>
-                        <p><strong>B.) Pago por WhatsApp:</strong><br>También puedes comprar con ayuda personalizada. Un asesor te guiará en todo el proceso. La activación puede tardar un poco, ya que depende de la atención manual.</p>
-                        <p>👉 Si quieres activación inmediata, te recomendamos pagar con tarjeta.</p>
+                        <div class="faq-answer-content">
+                            <p>Hemos simplificado el proceso para que puedas comprar rápido y seguro:</p>
+                            <p><strong>A.) Pago con tarjeta (Automático ⚡):</strong><br>
+                            Aceptamos Visa, MasterCard y más.<br>
+                            Solo completas tus datos y confirmas la compra.<br>
+                            Si el pago es aprobado, tus créditos o plan se activan automáticamente en segundos.</p>
+                            <p><strong>B.) Pago por WhatsApp:</strong><br>
+                            También puedes comprar con ayuda personalizada.<br>
+                            Un asesor te guiará en todo el proceso.<br>
+                            La activación puede tardar un poco, ya que depende de la atención manual.</p>
+                            <p>👉 Si quieres activación inmediata, te recomendamos pagar con tarjeta.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 3 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Se cobran comisiones?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Queremos ser claros contigo:</p>
-                        <p><strong>A.) Compras desde la web:</strong><br>No cobramos comisiones adicionales, el precio que ves es el final. En caso de reembolso, se descuenta únicamente la comisión de la pasarela de pago y el consumo realizado.</p>
-                        <p><strong>B.) Compras por WhatsApp:</strong><br>No cobramos comisiones ni en la compra ni en reembolsos.</p>
-                        <p>👉 Siempre sabrás exactamente lo que estás pagando, sin costos ocultos.</p>
+                        <div class="faq-answer-content">
+                            <p>Queremos ser claros contigo:</p>
+                            <p><strong>A.) Compras desde la web:</strong><br>
+                            No cobramos comisiones adicionales, el precio que ves es el final.<br>
+                            En caso de reembolso, se descuenta únicamente la comisión de la pasarela de pago y el consumo realizado.</p>
+                            <p><strong>B.) Compras por WhatsApp:</strong><br>
+                            No cobramos comisiones ni en la compra ni en reembolsos.</p>
+                            <p>👉 Siempre sabrás exactamente lo que estás pagando, sin costos ocultos.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 4 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Hay horarios para comprar?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p><strong>A.) Desde la web:</strong><br>Puedes comprar en cualquier momento, 24/7, sin restricciones.</p>
-                        <p><strong>B.) Por WhatsApp:</strong><br>Horario de atención de 6:00 a.m. a 9:00 p.m. Fuera de ese horario, algunos métodos de pago pueden no estar disponibles.</p>
-                        <p>👉 Para comprar sin esperar, lo mejor es hacerlo directamente desde la web.</p>
+                        <div class="faq-answer-content">
+                            <p><strong>A.) Desde la web:</strong><br>
+                            Puedes comprar en cualquier momento, 24/7, sin restricciones.</p>
+                            <p><strong>B.) Por WhatsApp:</strong><br>
+                            Horario de atención de 6:00 a.m. a 9:00 p.m.<br>
+                            Fuera de ese horario, algunos métodos de pago pueden no estar disponibles.</p>
+                            <p>👉 Para comprar sin esperar, lo mejor es hacerlo directamente desde la web.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 5 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Dónde puedo usar mis créditos o plan?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Todo está conectado en una sola plataforma. Tus créditos o plan funcionan en:</p>
-                        <ul>
-                            <li>APIs</li>
-                            <li>Películas (PeliPREX HD)</li>
-                            <li>Consulta PE</li>
-                            <li>Otros servicios disponibles</li>
-                        </ul>
-                        <p>👉 No necesitas comprar por separado, todo se integra en tu cuenta.</p>
+                        <div class="faq-answer-content">
+                            <p>Todo está conectado en una sola plataforma.</p>
+                            <p>Tus créditos o plan funcionan en:</p>
+                            <ul>
+                                <li>APIs</li>
+                                <li>Películas (PeliPREX HD)</li>
+                                <li>Consulta PE</li>
+                                <li>Otros servicios disponibles</li>
+                            </ul>
+                            <p>👉 No necesitas comprar por separado, todo se integra en tu cuenta.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 6 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿El soporte es 24/7?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Sí, puedes escribirnos en cualquier momento del día, los 365 días del año. Atendemos tanto por la web como por WhatsApp. Si en algún momento tardamos en responder, te pedimos un poco de paciencia, ya que podemos estar atendiendo a otros usuarios.</p>
-                        <p>👉 Siempre tendrás a alguien para ayudarte.</p>
+                        <div class="faq-answer-content">
+                            <p>Sí, puedes escribirnos en cualquier momento del día, los 365 días del año.</p>
+                            <p>Atendemos tanto por la web como por WhatsApp.</p>
+                            <p>Si en algún momento tardamos en responder, te pedimos un poco de paciencia, ya que podemos estar atendiendo a otros usuarios.</p>
+                            <p>👉 Siempre tendrás a alguien para ayudarte.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 7 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Cuánto cuestan los planes?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Tenemos opciones para todos:</p>
-                        <ul>
-                            <li>Planes ilimitados desde 60 soles</li>
-                            <li>Créditos desde 10 soles</li>
-                        </ul>
-                        <p>Puedes ver la tabla completa, comparar y elegir lo que más te convenga en la sección de planes.</p>
-                        <p>👉 Si usas el sistema con frecuencia, el plan ilimitado suele ser la mejor inversión.</p>
+                        <div class="faq-answer-content">
+                            <p>Tenemos opciones para todos:</p>
+                            <ul>
+                                <li>Planes ilimitados desde 60 soles</li>
+                                <li>Créditos desde 10 soles</li>
+                            </ul>
+                            <p>Puedes ver la tabla completa, comparar y elegir lo que más te convenga en la sección de planes.</p>
+                            <p>👉 Si usas el sistema con frecuencia, el plan ilimitado suele ser la mejor inversión.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 8 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Puedo comprar para otra persona?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Sí, puedes hacerlo fácilmente. Si deseas recargar tu propia cuenta, solo realiza la compra normalmente. Si quieres recargar a otra persona (amigo, familiar, etc.), solo debes ingresar sus datos (correo o ID) antes de completar el pago.</p>
-                        <p>👉 Una vez confirmado el pago, los créditos o plan se activan directamente en la cuenta indicada.</p>
+                        <div class="faq-answer-content">
+                            <p>Sí, puedes hacerlo fácilmente.</p>
+                            <p>Si deseas recargar tu propia cuenta, solo realiza la compra normalmente.</p>
+                            <p>Si quieres recargar a otra persona (amigo, familiar, etc.), solo debes ingresar sus datos (correo o ID) antes de completar el pago.</p>
+                            <p>👉 Una vez confirmado el pago, los créditos o plan se activan directamente en la cuenta indicada.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- FAQ 9 -->
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
+                    <button class="faq-question" onclick="toggleFaq(this)">
                         <span>¿Es segura esta web?</span>
                         <i class="fas fa-chevron-down"></i>
-                    </div>
+                    </button>
                     <div class="faq-answer">
-                        <p>Sí, la seguridad es una prioridad para nosotros. Contamos con sistemas de protección avanzados para cuidar tu información y evitar accesos no autorizados. Además, realizamos pruebas constantes para mantener la plataforma protegida.</p>
-                        <p>👉 Aun así, te recomendamos usar una contraseña segura para mayor protección.</p>
+                        <div class="faq-answer-content">
+                            <p>Sí, la seguridad es una prioridad para nosotros.</p>
+                            <p>Contamos con sistemas de protección avanzados para cuidar tu información y evitar accesos no autorizados.</p>
+                            <p>Además, realizamos pruebas constantes para mantener la plataforma protegida.</p>
+                            <p>👉 Aun así, te recomendamos usar una contraseña segura para mayor protección.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
+        <!-- ===== FIN DE NUEVA SECCIÓN FAQ ===== -->
 
         <!-- Slider de servicios -->
         <section class="card">
@@ -1987,7 +2045,46 @@
 
     <script>
     /* ==========================================================
-       CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
+       FUNCIÓN PARA EL ACORDEÓN DE PREGUNTAS FRECUENTES
+       ========================================================= */
+    function toggleFaq(button) {
+        // Encuentra el contenedor de la respuesta (el hermano siguiente al botón)
+        const answerDiv = button.nextElementSibling;
+        const icon = button.querySelector('i');
+
+        // Si la respuesta está expandida, la contraemos; si no, la expandimos
+        if (answerDiv.style.maxHeight && answerDiv.style.maxHeight !== '0px') {
+            // Contraer
+            answerDiv.style.maxHeight = '0';
+            if (icon) {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        } else {
+            // Expandir
+            answerDiv.style.maxHeight = answerDiv.scrollHeight + 'px';
+            if (icon) {
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+    }
+
+    // Asegurar que todas las respuestas comiencen cerradas
+    document.addEventListener('DOMContentLoaded', function() {
+        const answers = document.querySelectorAll('.faq-answer');
+        answers.forEach(answer => {
+            answer.style.maxHeight = '0';
+        });
+
+        // También aseguramos que los iconos tengan la rotación correcta
+        const icons = document.querySelectorAll('.faq-question i');
+        icons.forEach(icon => {
+            icon.style.transform = 'rotate(0deg)';
+            icon.style.transition = 'transform 0.3s ease';
+        });
+    });
+
+    /* ==========================================================
+       CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE (todo igual)
        ========================================================= */
     const firebaseConfig = {
       apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
@@ -2272,7 +2369,7 @@
     });
 
     /* ==========================================================
-       FUNCIONALIDAD DE CONSULTA A LA API
+       FUNCIONALIDAD DE CONSULTA A LA API (todo igual)
        ========================================================= */
     const apiSelect = document.getElementById('api-select');
     const consultaInput = document.getElementById('consulta-input');
@@ -2710,7 +2807,7 @@
     });
 
     /* ==========================================================
-       FUNCIONALIDAD DE PAGO CON RESULTADOS REALES
+       FUNCIONALIDAD DE PAGO CON RESULTADOS REALES (todo igual)
        ========================================================= */
     const CREDITS_MAP = {
         "10": { credits: 60, label: "60 créditos" },
@@ -3328,16 +3425,6 @@
             }
         });
     });
-
-    // ===== FUNCIÓN PARA EL ACORDEÓN DE FAQ =====
-    function toggleFaq(element) {
-        const faqItem = element.closest('.faq-item');
-        if (faqItem) {
-            faqItem.classList.toggle('active');
-        }
-    }
-    // Exponer la función globalmente para que funcione el onclick
-    window.toggleFaq = toggleFaq;
     </script>
 </body>
 </html>
