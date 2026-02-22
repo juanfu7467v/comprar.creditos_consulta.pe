@@ -1593,7 +1593,7 @@
             </button>
         </section>
 
-        <!-- Sección Perfil y Detalles del Plan (con ajuste en el cuadrado de iniciales) -->
+        <!-- Sección Perfil y Detalles del Plan (con ajustes en el cuadrado de iniciales y lógica de plan) -->
         <section class="card" id="perfil-plan-section">
             <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Perfil y Detalles del Plan</h2>
             <div id="perfil-plan-contenido">
@@ -2175,25 +2175,40 @@
         let diasRestantes = 'No aplica';
         let fechaVencimiento = 'No aplica';
         
+        // Variables para los nuevos cálculos
+        let diasTranscurridos = 0;
+        let diasRestantesCalculado = 'No aplica';
+        
         if (tipoPlan === 'ilimitado') {
+            // Calcular días restantes reales basados en fecha de activación y duración
+            if (userData.fechaActivacion && userData.duracionDias) {
+                try {
+                    let activacion;
+                    if (typeof userData.fechaActivacion === 'object' && userData.fechaActivacion.toDate) {
+                        activacion = userData.fechaActivacion.toDate();
+                    } else {
+                        activacion = new Date(userData.fechaActivacion);
+                    }
+                    
+                    const hoy = new Date();
+                    const tiempoTranscurrido = hoy - activacion;
+                    diasTranscurridos = Math.floor(tiempoTranscurrido / (1000 * 60 * 60 * 24));
+                    
+                    const duracionTotal = parseInt(userData.duracionDias);
+                    const diasRestantesNum = duracionTotal - diasTranscurridos;
+                    
+                    diasRestantesCalculado = diasRestantesNum > 0 ? `${diasRestantesNum} días` : 'Expirado';
+                } catch (e) {
+                    console.error("Error calculando días restantes reales:", e);
+                    diasRestantesCalculado = 'Error en cálculo';
+                }
+            } else {
+                diasRestantesCalculado = 'No disponible';
+            }
+            
             if (userData.fechaVencimiento) {
                 fechaVencimiento = formatDate(userData.fechaVencimiento);
                 planIlimitadoHasta = fechaVencimiento;
-                
-                try {
-                    let vencimiento;
-                    if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
-                        vencimiento = userData.fechaVencimiento.toDate();
-                    } else {
-                        vencimiento = new Date(userData.fechaVencimiento);
-                    }
-                    const hoy = new Date();
-                    const diffTime = vencimiento - hoy;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    diasRestantes = diffDays > 0 ? `${diffDays} días` : 'Expirado';
-                } catch (e) {
-                    console.error("Error calculando días restantes:", e);
-                }
             }
             
             if (userData.duracionDias) {
@@ -2209,6 +2224,7 @@
         let tablaHtml = '';
         
         if (tipoPlan === 'ilimitado') {
+            // Para plan ilimitado: no mostrar total consultas y ocultar "Válido hasta" visualmente
             tablaHtml = `
                 <table class="plan-detail-table">
                     <tr>
@@ -2221,13 +2237,13 @@
                     </tr>
                     <tr>
                         <td>Días restantes</td>
-                        <td>${diasRestantes}</td>
+                        <td>${diasRestantesCalculado}</td>
                     </tr>
                     <tr>
                         <td>Fecha de Activación</td>
                         <td>${fechaActivacion}</td>
                     </tr>
-                    <tr>
+                    <tr class="hidden"> <!-- Fila oculta visualmente -->
                         <td>Válido hasta</td>
                         <td>${planIlimitadoHasta}</td>
                     </tr>
@@ -2235,13 +2251,11 @@
                         <td>Última consulta</td>
                         <td>${ultimaConsulta}</td>
                     </tr>
-                    <tr>
-                        <td>Total consultas</td>
-                        <td>${totalConsultas}</td>
-                    </tr>
+                    <!-- Fila de Total consultas eliminada completamente -->
                 </table>
             `;
         } else {
+            // Para plan de créditos: todo se mantiene exactamente igual
             tablaHtml = `
                 <table class="plan-detail-table">
                     <tr>
