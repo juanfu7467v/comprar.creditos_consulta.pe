@@ -703,6 +703,7 @@
       </div>
     </section>
 
+    <!-- NUEVA SECCIÓN: Información del Plan (visible para usuarios con plan) -->
     <section class="section" id="plan-info-section" style="display:none; margin-bottom: -10px;">
         <div class="section-header">
             <h3>Mi Plan</h3>
@@ -1176,13 +1177,14 @@ document.querySelectorAll('[data-suggestion]').forEach(button => {
 });
 
 /* ==========================================================
-   PLAN INDICATOR / FIREBASE UI UPDATER (ELIMINADO)
+   PLAN INDICATOR / FIREBASE UI UPDATER (ACTUALIZADO)
    ========================================================= */
 function updatePlanIndicator(userData) {
     // ELIMINADO: Función del diamante flotante
     // No hacemos nada
 }
 
+// NUEVA FUNCIÓN PARA ACTUALIZAR LA SECCIÓN DEL PLAN
 function updateProfileUI(userData) {
     if (!userData) {
         console.error("No se pudo obtener la data de usuario desde Firestore.");
@@ -1212,24 +1214,49 @@ function updateProfileUI(userData) {
                 </div>
             `;
         } else if (userData.tipoPlan === 'ilimitado') {
-            const fechaVencimiento = userData.fechaVencimiento ? formatDate(userData.fechaVencimiento) : 'N/A';
+            // Obtener fechas (con soporte para diferentes formatos)
+            let fechaActivacion = 'N/A';
+            let fechaVencimiento = 'N/A';
+            
+            if (userData.fechaActivacion) {
+                fechaActivacion = formatDate(userData.fechaActivacion);
+            }
+            
+            if (userData.planIlimitadoHasta) {
+                fechaVencimiento = formatDate(userData.planIlimitadoHasta);
+            }
             
             // Calcular días restantes
             let diasRestantes = 'N/A';
-            if (userData.fechaVencimiento) {
+            let mensajeDias = '';
+            
+            if (userData.planIlimitadoHasta) {
                 try {
                     let vencimiento;
-                    if (typeof userData.fechaVencimiento === 'object' && userData.fechaVencimiento.toDate) {
-                        vencimiento = userData.fechaVencimiento.toDate();
+                    if (typeof userData.planIlimitadoHasta === 'object' && userData.planIlimitadoHasta.toDate) {
+                        vencimiento = userData.planIlimitadoHasta.toDate();
                     } else {
-                        vencimiento = new Date(userData.fechaVencimiento);
+                        vencimiento = new Date(userData.planIlimitadoHasta);
                     }
+                    
                     const hoy = new Date();
                     const diffTime = vencimiento - hoy;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    diasRestantes = diffDays > 0 ? diffDays : 0;
+                    
+                    if (diffDays > 0) {
+                        diasRestantes = diffDays;
+                        mensajeDias = `Quedan ${diasRestantes} días`;
+                    } else if (diffDays === 0) {
+                        diasRestantes = 0;
+                        mensajeDias = "El plan vence hoy";
+                    } else {
+                        diasRestantes = 0;
+                        mensajeDias = "El plan ha vencido";
+                    }
                 } catch (e) {
                     console.error("Error calculando días restantes:", e);
+                    diasRestantes = 'N/A';
+                    mensajeDias = "Error al calcular días restantes";
                 }
             }
 
@@ -1237,9 +1264,10 @@ function updateProfileUI(userData) {
                 <div class="list-item">
                     <div class="li-icon"><i class="fa-solid fa-infinity"></i></div>
                     <div class="text">
-                        <div class="title">Plan: Ilimitado</div>
-                        <div class="subtitle">Acceso hasta: ${fechaVencimiento}</div>
-                        <div class="subtitle">Quedan: ${diasRestantes} días</div>
+                        <div class="title">Plan Ilimitado</div>
+                        <div class="subtitle">Activado: ${fechaActivacion}</div>
+                        <div class="subtitle">Válido hasta: ${fechaVencimiento}</div>
+                        <div class="subtitle" style="color: var(--accent); font-weight: 600;">⏱️ ${mensajeDias}</div>
                     </div>
                 </div>
             `;
@@ -1842,7 +1870,7 @@ auth.onAuthStateChanged(async (user) => {
   } else {
     USER_EMAIL = 'ejemplo@peliprex.com';
     USER_UID = null;
-    updatePlanIndicator({tipoPlan: 'no-activo'});
+    updateProfileUI({tipoPlan: 'no-activo'});
     fetchProfileData(USER_EMAIL);
     fetchActivityData(USER_EMAIL);
     fetchSuggestions();
