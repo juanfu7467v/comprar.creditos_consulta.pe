@@ -64,23 +64,33 @@
 
         .native-select {
             appearance: none;
-            background: #f1f5f9;
+            background: linear-gradient(145deg, #dc2626, #b91c1c);
             border: none;
-            border-bottom: 1.5px solid #e2e8f0;
-            padding: 12px 16px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #475569;
+            border-bottom: 2px solid #ffffff;
+            padding: 14px 18px;
+            font-size: 15px;
+            font-weight: 700;
+            color: white;
             width: 100%;
             outline: none;
             cursor: pointer;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.3px;
+        }
+        .native-select option {
+            background: white;
+            color: #1a1a1a;
+            font-weight: 500;
         }
 
         .native-input {
             width: 100%;
-            padding: 12px 16px;
-            font-size: 14px;
-            border: none;
+            padding: 14px 18px;
+            font-size: 18px;
+            font-weight: 600;
+            border: 3px solid #2563eb;
+            background-color: #fff9c4;
+            color: #0b0b0b;
             outline: none;
         }
 
@@ -88,6 +98,7 @@
             background-color: #f1f5f9;
             color: #94a3b8;
             cursor: not-allowed;
+            border-color: #cbd5e1;
         }
 
         .btn-action {
@@ -1431,7 +1442,7 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
-            background-color: #fafafa;
+            background-color: #ffffff;
             border-radius: 12px;
             margin: 0 0 8px 0;
         }
@@ -1442,7 +1453,7 @@
             font-size: 14px;
             line-height: 1.6;
             border-left: 3px solid #dc2626;
-            background: #fef2f2;
+            background: #f9f9f9;
             border-radius: 8px;
         }
 
@@ -2264,7 +2275,7 @@
 
         perfilContenido.innerHTML = `
             <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
-                <div class="w-40 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
                     ${iniciales}
                 </div>
                 <div>
