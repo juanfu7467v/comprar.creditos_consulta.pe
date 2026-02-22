@@ -48,57 +48,55 @@
             border: 1px solid #edf2f7;
         }
 
+        /* Estilos mejorados para el grupo de búsqueda */
         .search-group {
             display: flex;
             flex-direction: column;
             background: white;
-            border: 1.5px solid #e2e8f0;
+            border: 1.5px solid #dc2626; /* Borde rojo */
             border-radius: 14px;
             overflow: hidden;
             transition: border-color 0.2s;
         }
 
         .search-group:focus-within {
-            border-color: #dc2626;
+            border-color: #b91c1c; /* Rojo más oscuro al enfocar */
         }
 
         .native-select {
             appearance: none;
-            background: linear-gradient(145deg, #dc2626, #b91c1c);
+            background: #dc2626; /* Fondo rojo */
             border: none;
-            border-bottom: 2px solid #ffffff;
-            padding: 14px 18px;
-            font-size: 15px;
-            font-weight: 700;
-            color: white;
+            /* Sin borde inferior para que parezca unido */
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white; /* Texto blanco */
             width: 100%;
             outline: none;
             cursor: pointer;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            letter-spacing: 0.3px;
+            border-radius: 14px 14px 0 0; /* Bordes redondeados solo arriba */
         }
+
+        /* Estilo para las opciones del select (no todos los navegadores lo soportan) */
         .native-select option {
             background: white;
             color: #1a1a1a;
-            font-weight: 500;
         }
 
         .native-input {
             width: 100%;
-            padding: 14px 18px;
-            font-size: 18px;
-            font-weight: 600;
-            border: 3px solid #2563eb;
-            background-color: #fff9c4;
-            color: #0b0b0b;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: none;
             outline: none;
+            border-radius: 0 0 14px 14px; /* Bordes redondeados solo abajo */
         }
 
         .native-input:disabled {
             background-color: #f1f5f9;
             color: #94a3b8;
             cursor: not-allowed;
-            border-color: #cbd5e1;
         }
 
         .btn-action {
@@ -1442,7 +1440,7 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
-            background-color: #ffffff;
+            background-color: #fafafa;
             border-radius: 12px;
             margin: 0 0 8px 0;
         }
@@ -1453,7 +1451,7 @@
             font-size: 14px;
             line-height: 1.6;
             border-left: 3px solid #dc2626;
-            background: #f9f9f9;
+            background: #fafafa; /* Cambiado a color de fondo uniforme */
             border-radius: 8px;
         }
 
@@ -1541,7 +1539,7 @@
 
     <main class="app-container">
         
-        <!-- Selector de consulta: ahora el select está encima del input -->
+        <!-- Selector de consulta: ahora el select está encima del input con los nuevos estilos -->
         <div class="search-group">
             <select class="native-select" id="api-select">
                 <option value="">PULSA AQUÍ PARA SELECCIONAR OPCIONES</option>
@@ -1595,7 +1593,7 @@
             </button>
         </section>
 
-        <!-- Sección Perfil y Detalles del Plan -->
+        <!-- Sección Perfil y Detalles del Plan (con ajuste en el cuadrado de iniciales) -->
         <section class="card" id="perfil-plan-section">
             <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Perfil y Detalles del Plan</h2>
             <div id="perfil-plan-contenido">
@@ -2275,7 +2273,8 @@
 
         perfilContenido.innerHTML = `
             <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
-                <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
+                <!-- Cuadrado de iniciales: ancho y alto iguales (60px) y centrado -->
+                <div class="w-[60px] h-[60px] bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
                     ${iniciales}
                 </div>
                 <div>
