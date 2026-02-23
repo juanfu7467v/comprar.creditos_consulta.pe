@@ -3,1856 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Agent | Panel de Control Autónomo</title>
-    <meta name="description" content="Interfaz profesional para gestionar despliegues, tareas, monitoreo y automatizaciones del agente DevOps.">
-    
-    <!-- Fuentes e Iconos -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    
+    <title>DevOps Agent Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-dark: #0a0c10;
-            --bg-card: #111316;
-            --bg-sidebar: #0b0d12;
-            --bg-header: #0d0f14;
-            --accent-primary: #6366f1;
-            --accent-success: #10b981;
-            --accent-warning: #f59e0b;
-            --accent-danger: #ef4444;
-            --accent-info: #3b82f6;
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --border-color: #1f2937;
-            --hover-bg: #1f2937;
-            --sidebar-width: 280px;
-            --header-height: 70px;
-            --border-radius: 12px;
-            --transition: all 0.2s ease;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
-
-        /* Layout Principal */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 24px 16px;
-            transition: var(--transition);
-            z-index: 50;
-        }
-
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-bottom: 32px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 24px;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-        }
-
-        .logo-text {
-            font-weight: 700;
-            font-size: 18px;
-            letter-spacing: -0.5px;
-        }
-
-        .logo-text span {
-            color: var(--accent-primary);
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: var(--border-radius);
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 500;
-        }
-
-        .nav-item i {
-            width: 20px;
-            font-size: 18px;
-        }
-
-        .nav-item:hover {
-            background: var(--hover-bg);
-            color: var(--text-primary);
-        }
-
-        .nav-item.active {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--accent-primary);
-        }
-
-        .nav-item.active i {
-            color: var(--accent-primary);
-        }
-
-        .nav-section {
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .nav-section-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            padding: 0 16px;
-            margin-bottom: 12px;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            background: var(--bg-dark);
-        }
-
-        /* Header */
-        .header {
-            height: var(--header-height);
-            background: var(--bg-header);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 32px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 40;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .menu-toggle {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-
-        .page-title {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: var(--bg-card);
-            border-radius: 30px;
-            border: 1px solid var(--border-color);
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--accent-success);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .api-key-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .api-key-btn:hover {
-            background: var(--hover-bg);
-        }
-
-        /* Content Area */
-        .content-area {
-            padding: 32px;
-        }
-
-        /* Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            transition: var(--transition);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent-primary);
-        }
-
-        .stat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: rgba(99, 102, 241, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--accent-primary);
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
-        .tab {
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .tab:hover {
-            color: var(--text-primary);
-            background: var(--hover-bg);
-        }
-
-        .tab.active {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        /* Tables */
-        .table-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            text-align: left;
-            padding: 16px 20px;
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-header);
-        }
-
-        td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: var(--hover-bg);
-        }
-
-        /* Badges */
-        .badge {
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--accent-success);
-        }
-
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--accent-warning);
-        }
-
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--accent-danger);
-        }
-
-        .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--accent-info);
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: var(--accent-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #4f52e0;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--hover-bg);
-        }
-
-        .btn-icon {
-            padding: 8px;
-            border-radius: 8px;
-        }
-
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-header);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: var(--transition);
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        /* Modal */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: var(--border-radius);
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .close-modal {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* Logs Viewer */
-        .logs-container {
-            background: var(--bg-header);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 13px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .log-entry {
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            gap: 12px;
-        }
-
-        .log-time {
-            color: var(--text-secondary);
-            min-width: 80px;
-        }
-
-        .log-level {
-            min-width: 60px;
-            font-weight: 600;
-        }
-
-        .log-level.info { color: var(--accent-info); }
-        .log-level.error { color: var(--accent-danger); }
-        .log-level.warn { color: var(--accent-warning); }
-        .log-level.debug { color: var(--accent-primary); }
-
-        .log-message {
-            color: var(--text-primary);
-            flex: 1;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-
-        .loading i {
-            font-size: 40px;
-            margin-bottom: 16px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .menu-toggle {
-                display: block;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .header-right {
-                display: none;
-            }
-        }
-
-        /* Cards de Integraciones */
-        .integrations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .integration-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            transition: var(--transition);
-        }
-
-        .integration-card:hover {
-            border-color: var(--accent-primary);
-        }
-
-        .integration-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .integration-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: rgba(99, 102, 241, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--accent-primary);
-        }
-
-        .integration-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .integration-status {
-            font-size: 13px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 4px;
-        }
-
-        .status-connected {
-            color: var(--accent-success);
-        }
-
-        /* Cards de Tareas */
-        .tasks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .task-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 20px;
-        }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 12px;
-        }
-
-        .task-name {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .task-description {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .task-meta {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-            font-size: 13px;
-        }
-
-        .task-meta i {
-            color: var(--accent-primary);
-            margin-right: 4px;
-        }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+        body { background-color: #0f172a; color: #f8fafc; }
+        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; }
     </style>
 </head>
-<body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-robot"></i>
-                </div>
-                <div class="logo-text">
-                    DevOps Agent
-                    <span>Autonomous Control Panel</span>
-                </div>
-            </div>
+<body class="min-h-screen p-4 md:p-8">
 
-            <div class="nav-item active" data-view="dashboard">
-                <i class="fa-solid fa-chart-pie"></i>
-                <span>Dashboard</span>
+    <div class="max-w-6xl mx-auto space-y-6">
+        <header class="flex flex-col md:flex-row justify-between items-center glass p-6 rounded-2xl border border-slate-700">
+            <div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
+                    <i class="fas fa-robot mr-2"></i>DevOps Agent Autonomous
+                </h1>
+                <p class="text-slate-400 text-sm">Control centralizado de infraestructura y código</p>
             </div>
-            <div class="nav-item" data-view="deployments">
-                <i class="fa-solid fa-rocket"></i>
-                <span>Despliegues</span>
+            <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                <div id="health-badge" class="flex items-center bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+                    <span id="health-dot" class="status-dot bg-slate-500 mr-2"></span>
+                    <span id="health-text" class="text-xs font-mono uppercase">Checking...</span>
+                </div>
+                <input type="password" id="api-key" placeholder="Ingresa tu x-api-key" 
+                    class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64">
             </div>
-            <div class="nav-item" data-view="tasks">
-                <i class="fa-solid fa-tasks"></i>
-                <span>Tareas</span>
-            </div>
-            <div class="nav-item" data-view="integrations">
-                <i class="fa-solid fa-plug"></i>
-                <span>Integraciones</span>
-            </div>
-            <div class="nav-item" data-view="logs">
-                <i class="fa-solid fa-scroll"></i>
-                <span>Logs</span>
-            </div>
+        </header>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Monitoreo</div>
-                <div class="nav-item" data-view="health">
-                    <i class="fa-solid fa-heart-pulse"></i>
-                    <span>Health Check</span>
-                </div>
-                <div class="nav-item" data-view="stats">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Estadísticas</span>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Configuración</div>
-                <div class="nav-item" data-view="cron">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>Cron Jobs</span>
-                </div>
-                <div class="nav-item" data-view="history">
-                    <i class="fa-solid fa-history"></i>
-                    <span>Historial</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <i class="fa-solid fa-bars menu-toggle" id="menuToggle"></i>
-                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                </div>
-                <div class="header-right">
-                    <div class="status-badge">
-                        <span class="status-dot"></span>
-                        <span>Agente Activo</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <section class="glass p-6 rounded-2xl border border-slate-700">
+                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-terminal mr-2 text-blue-400"></i>Ejecutar Instrucción</h2>
+                    <textarea id="instruction-input" rows="4" 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-300 focus:ring-2 focus:ring-blue-500 outline-none mb-4"
+                        placeholder="Ej: Crea una app de Next.js en mi GitHub y despliégala en Vercel..."></textarea>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="repo-context" placeholder="Nombre del repo (opcional)" class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm">
+                        <select id="deploy-context" class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm">
+                            <option value="none">Sin despliegue</option>
+                            <option value="vercel">Vercel</option>
+                            <option value="flyio">Fly.io</option>
+                        </select>
                     </div>
-                    <button class="api-key-btn" onclick="showApiKeyModal()">
-                        <i class="fa-solid fa-key"></i>
-                        API Key
+
+                    <button onclick="executeAgent()" id="btn-execute" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center">
+                        <i class="fas fa-play mr-2"></i>Enviar a DeepSeek
                     </button>
-                </div>
-            </header>
+                </section>
 
-            <!-- Content Area -->
-            <div class="content-area" id="contentArea">
-                <!-- El contenido se carga dinámicamente -->
-                <div class="loading">
-                    <i class="fa-solid fa-circle-notch"></i>
-                    <p>Cargando panel de control...</p>
-                </div>
+                <section class="glass p-6 rounded-2xl border border-slate-700 min-h-[300px]">
+                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-list-ul mr-2 text-emerald-400"></i>Salida del Agente</h2>
+                    <div id="output-console" class="font-mono text-sm space-y-2 max-h-96 overflow-y-auto p-4 bg-black rounded-xl border border-slate-800">
+                        <p class="text-slate-500">> Esperando instrucciones...</p>
+                    </div>
+                </section>
             </div>
-        </main>
-    </div>
 
-    <!-- Modal para API Key -->
-    <div class="modal" id="apiKeyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Configurar API Key</h2>
-                <button class="close-modal" onclick="closeApiKeyModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">API Key</label>
-                    <input type="text" class="form-input" id="apiKeyInput" placeholder="Ingresa tu API Key" value="your_api_key_for_agent_authentication">
-                </div>
-                <p style="color: var(--text-secondary); font-size: 13px;">
-                    La API Key se almacenará localmente en tu navegador.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeApiKeyModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveApiKey()">Guardar</button>
-            </div>
-        </div>
-    </div>
+            <div class="space-y-6">
+                <section class="glass p-6 rounded-2xl border border-slate-700">
+                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-plug mr-2 text-amber-400"></i>Conectores Activos</h2>
+                    <div id="connectors-list" class="space-y-3">
+                        <p class="text-slate-500 text-sm">Cargando conectores...</p>
+                    </div>
+                </section>
 
-    <!-- Modal para ejecutar tarea -->
-    <div class="modal" id="taskModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Ejecutar Tarea</h2>
-                <button class="close-modal" onclick="closeTaskModal()">&times;</button>
+                <section class="glass p-6 rounded-2xl border border-slate-700 flex flex-col h-[400px]">
+                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-comments mr-2 text-purple-400"></i>Chat Rápido</h2>
+                    <div id="chat-box" class="flex-grow overflow-y-auto space-y-3 mb-4 text-sm scrollbar-hide">
+                        <div class="bg-slate-800 p-3 rounded-lg text-slate-300">¡Hola! Soy tu asistente DevOps. ¿En qué te ayudo hoy?</div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" id="chat-input" placeholder="Pregunta algo..." 
+                            class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
+                        <button onclick="sendChatMessage()" class="bg-purple-600 px-4 py-2 rounded-lg hover:bg-purple-500">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </section>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Tarea</label>
-                    <input type="text" class="form-input" id="taskName" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Parámetros (JSON)</label>
-                    <textarea class="form-textarea" id="taskParams">{
-  "branch": "main",
-  "environment": "production"
-}</textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeTaskModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="executeTask()">Ejecutar</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal para nuevo despliegue -->
-    <div class="modal" id="deploymentModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Nuevo Despliegue</h2>
-                <button class="close-modal" onclick="closeDeploymentModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">ID del Despliegue</label>
-                    <input type="text" class="form-input" id="deploymentId" placeholder="ej: deploy-backend-api">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Configuración (JSON)</label>
-                    <textarea class="form-textarea" id="deploymentConfig">{
-  "repository": "juanfu7467v/DevOps-Agent",
-  "branch": "main",
-  "environment": "production",
-  "timeout": 300000
-}</textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeDeploymentModal()">Cancelar</button>
-                <button class="btn btn-primary" onclick="createDeployment()">Crear Despliegue</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para ver logs de despliegue -->
-    <div class="modal" id="deploymentLogsModal">
-        <div class="modal-content" style="max-width: 800px;">
-            <div class="modal-header">
-                <h2>Logs del Despliegue</h2>
-                <button class="close-modal" onclick="closeDeploymentLogsModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="logs-container" id="deploymentLogsContent">
-                    Cargando logs...
-                </div>
-            </div>
         </div>
     </div>
 
     <script>
-        // =============================================
-        // CONFIGURACIÓN
-        // =============================================
-        const API_BASE_URL = 'https://devops-agent-aut-nomo---plan-de.fly.dev';
-        let currentView = 'dashboard';
-        let apiKey = localStorage.getItem('devops_api_key') || 'your_api_key_for_agent_authentication';
+        const BASE_URL = 'https://devops-agent-aut-nomo---plan-de.fly.dev';
+        
+        // Cargar API Key desde localstorage
+        const apiKeyInput = document.getElementById('api-key');
+        apiKeyInput.value = localStorage.getItem('agent_api_key') || '';
+        apiKeyInput.addEventListener('change', (e) => localStorage.setItem('agent_api_key', e.target.value));
 
-        // =============================================
-        // FUNCIONES DE UTILIDAD
-        // =============================================
-        async function apiRequest(endpoint, options = {}) {
-            const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
-            
-            const headers = {
-                'Content-Type': 'application/json',
-                'X-API-Key': apiKey,
-                ...options.headers
-            };
-
+        // Verificación de Salud
+        async function checkHealth() {
             try {
-                const response = await fetch(url, {
-                    ...options,
-                    headers
+                const res = await fetch(`${BASE_URL}/health`);
+                const data = await res.json();
+                if (data.status === 'up') {
+                    document.getElementById('health-dot').className = 'status-dot bg-emerald-500 shadow-[0_0_8px_#10b981]';
+                    document.getElementById('health-text').innerText = 'Online';
+                    loadConnectors();
+                }
+            } catch (err) {
+                document.getElementById('health-dot').className = 'status-dot bg-red-500';
+                document.getElementById('health-text').innerText = 'Offline';
+            }
+        }
+
+        // Cargar Conectores
+        async function loadConnectors() {
+            const apiKey = apiKeyInput.value;
+            if (!apiKey) return;
+            try {
+                const res = await fetch(`${BASE_URL}/api/connectors`, {
+                    headers: { 'x-api-key': apiKey }
                 });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Error ${response.status}: ${errorText}`);
-                }
-
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return await response.json();
-                }
+                const data = await res.json();
+                const list = document.getElementById('connectors-list');
+                list.innerHTML = '';
                 
-                return await response.text();
-            } catch (error) {
-                console.error('API Request Error:', error);
-                throw error;
-            }
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            return new Date(dateString).toLocaleString('es-ES', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        function getStatusBadge(status) {
-            const statusMap = {
-                'success': 'badge-success',
-                'completed': 'badge-success',
-                'running': 'badge-info',
-                'pending': 'badge-warning',
-                'failed': 'badge-danger',
-                'error': 'badge-danger'
-            };
-            
-            const badgeClass = statusMap[status?.toLowerCase()] || 'badge-info';
-            return `<span class="badge ${badgeClass}">${status || 'Desconocido'}</span>`;
-        }
-
-        // =============================================
-        // NAVEGACIÓN
-        // =============================================
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                item.classList.add('active');
-                
-                const view = item.dataset.view;
-                currentView = view;
-                document.getElementById('pageTitle').textContent = item.querySelector('span').textContent;
-                loadView(view);
-            });
-        });
-
-        document.getElementById('menuToggle').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('open');
-        });
-
-        // =============================================
-        // CARGA DE VISTAS
-        // =============================================
-        async function loadView(view) {
-            const contentArea = document.getElementById('contentArea');
-            
-            switch(view) {
-                case 'dashboard':
-                    contentArea.innerHTML = renderDashboard();
-                    loadDashboardData();
-                    break;
-                case 'deployments':
-                    contentArea.innerHTML = renderDeployments();
-                    loadDeployments();
-                    break;
-                case 'tasks':
-                    contentArea.innerHTML = renderTasks();
-                    loadTasks();
-                    break;
-                case 'integrations':
-                    contentArea.innerHTML = renderIntegrations();
-                    loadIntegrations();
-                    break;
-                case 'logs':
-                    contentArea.innerHTML = renderLogs();
-                    loadLogs();
-                    break;
-                case 'health':
-                    contentArea.innerHTML = renderHealth();
-                    loadHealth();
-                    break;
-                case 'stats':
-                    contentArea.innerHTML = renderStats();
-                    loadStats();
-                    break;
-                case 'cron':
-                    contentArea.innerHTML = renderCron();
-                    loadCron();
-                    break;
-                case 'history':
-                    contentArea.innerHTML = renderHistory();
-                    loadHistory();
-                    break;
-            }
-        }
-
-        // =============================================
-        // DASHBOARD
-        // =============================================
-        function renderDashboard() {
-            return `
-                <div class="stats-grid" id="dashboardStats">
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                </div>
-
-                <div class="tabs">
-                    <div class="tab active" onclick="loadDashboardRecent('deployments')">Despliegues Recientes</div>
-                    <div class="tab" onclick="loadDashboardRecent('tasks')">Tareas Recientes</div>
-                </div>
-
-                <div class="table-container" id="recentTable">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
-
-        async function loadDashboardData() {
-            try {
-                // Stats
-                const [deployments, tasks, health, stats] = await Promise.allSettled([
-                    apiRequest('/api/deployments').catch(() => ({ deployments: [] })),
-                    apiRequest('/api/tasks').catch(() => ({ tasks: [] })),
-                    apiRequest('/health').catch(() => ({})),
-                    apiRequest('/stats').catch(() => ({}))
-                ]);
-
-                const statsHtml = `
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-rocket"></i></div>
-                            <span class="stat-value">${deployments.value?.deployments?.length || 0}</span>
-                        </div>
-                        <div class="stat-label">Despliegues Totales</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-tasks"></i></div>
-                            <span class="stat-value">${tasks.value?.tasks?.length || 0}</span>
-                        </div>
-                        <div class="stat-label">Tareas Registradas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-                            <span class="stat-value">${health.value?.status || 'OK'}</span>
-                        </div>
-                        <div class="stat-label">Health Status</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-gauge-high"></i></div>
-                            <span class="stat-value">${stats.value?.uptime ? Math.round(stats.value.uptime / 3600) + 'h' : 'N/A'}</span>
-                        </div>
-                        <div class="stat-label">Uptime</div>
-                    </div>
-                `;
-
-                document.getElementById('dashboardStats').innerHTML = statsHtml;
-                loadDashboardRecent('deployments');
-
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-            }
-        }
-
-        async function loadDashboardRecent(type) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-
-            try {
-                let data;
-                let html = '';
-
-                if (type === 'deployments') {
-                    data = await apiRequest('/api/deployments/history');
-                    html = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Estado</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.history?.slice(0, 5).map(d => `
-                                    <tr>
-                                        <td>${d.deploymentId}</td>
-                                        <td>${getStatusBadge(d.status)}</td>
-                                        <td>${formatDate(d.startTime)}</td>
-                                        <td>${formatDate(d.endTime)}</td>
-                                        <td>
-                                            <button class="btn btn-outline btn-sm btn-icon" onclick="viewDeploymentLogs('${d.deploymentId}')">
-                                                <i class="fa-solid fa-scroll"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `;
+                if (data.connectors && Object.keys(data.connectors).length > 0) {
+                    Object.keys(data.connectors).forEach(key => {
+                        list.innerHTML += `
+                            <div class="flex justify-between items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                <span class="capitalize text-sm"><i class="fab fa-${key} mr-2"></i> ${key}</span>
+                                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Activo</span>
+                            </div>`;
+                    });
                 } else {
-                    data = await apiRequest('/api/tasks/history');
-                    html = `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Tarea</th>
-                                    <th>Estado</th>
-                                    <th>Inicio</th>
-                                    <th>Fin</th>
-                                    <th>Resultado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.history?.slice(0, 5).map(h => `
-                                    <tr>
-                                        <td>${h.taskId}</td>
-                                        <td>${getStatusBadge(h.status)}</td>
-                                        <td>${formatDate(h.startTime)}</td>
-                                        <td>${formatDate(h.endTime)}</td>
-                                        <td>${h.result?.substring(0, 30)}...</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `;
+                    list.innerHTML = '<p class="text-slate-500 text-xs text-center">No hay conectores vinculados.</p>';
                 }
-
-                document.getElementById('recentTable').innerHTML = html;
-
-            } catch (error) {
-                document.getElementById('recentTable').innerHTML = '<p class="loading">Error al cargar datos</p>';
-            }
+            } catch (err) { console.error(err); }
         }
 
-        // =============================================
-        // DESPLIEGUES
-        // =============================================
-        function renderDeployments() {
-            return `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>Gestión de Despliegues</h2>
-                    <button class="btn btn-primary" onclick="showDeploymentModal()">
-                        <i class="fa-solid fa-plus"></i>
-                        Nuevo Despliegue
-                    </button>
-                </div>
+        // Ejecutar Agente Autónomo
+        async function executeAgent() {
+            const instruction = document.getElementById('instruction-input').value;
+            const repo = document.getElementById('repo-context').value;
+            const deploy = document.getElementById('deploy-context').value;
+            const apiKey = apiKeyInput.value;
+            const consoleBox = document.getElementById('output-console');
 
-                <div class="table-container" id="deploymentsTable">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
+            if (!apiKey) return alert('¡Falta la API Key!');
+            if (!instruction) return alert('Escribe una instrucción.');
 
-        async function loadDeployments() {
-            try {
-                const data = await apiRequest('/api/deployments');
-                
-                const html = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Estado</th>
-                                <th>Configuración</th>
-                                <th>Fecha Creación</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.deployments?.map(d => `
-                                <tr>
-                                    <td>${d.id}</td>
-                                    <td>${getStatusBadge(d.status || 'pending')}</td>
-                                    <td>
-                                        <pre style="margin:0; font-size:11px;">${JSON.stringify(d.config, null, 2).substring(0, 50)}...</pre>
-                                    </td>
-                                    <td>${formatDate(d.createdAt)}</td>
-                                    <td>
-                                        <button class="btn btn-outline btn-sm" onclick="executeDeployment('${d.id}')">
-                                            <i class="fa-solid fa-play"></i>
-                                        </button>
-                                        <button class="btn btn-outline btn-sm" onclick="viewDeploymentLogs('${d.id}')">
-                                            <i class="fa-solid fa-scroll"></i>
-                                        </button>
-                                        <button class="btn btn-outline btn-sm" onclick="cancelDeployment('${d.id}')">
-                                            <i class="fa-solid fa-stop"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                            ${!data.deployments?.length ? '<tr><td colspan="5" class="loading">No hay despliegues configurados</td></tr>' : ''}
-                        </tbody>
-                    </table>
-                `;
-
-                document.getElementById('deploymentsTable').innerHTML = html;
-
-            } catch (error) {
-                document.getElementById('deploymentsTable').innerHTML = '<p class="loading">Error al cargar despliegues</p>';
-            }
-        }
-
-        async function createDeployment() {
-            const id = document.getElementById('deploymentId').value;
-            const config = JSON.parse(document.getElementById('deploymentConfig').value);
+            consoleBox.innerHTML += `<p class="text-blue-400 font-bold mt-4">>> Enviando: ${instruction}</p>`;
+            const btn = document.getElementById('btn-execute');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Procesando...';
 
             try {
-                await apiRequest('/api/deployments', {
+                const res = await fetch(`${BASE_URL}/api/v1/execute`, {
                     method: 'POST',
-                    body: JSON.stringify({ id, config })
+                    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+                    body: JSON.stringify({ 
+                        instruction, 
+                        context: { repo_name: repo, deployment: deploy } 
+                    })
                 });
-
-                closeDeploymentModal();
-                loadDeployments();
-                showNotification('Despliegue creado exitosamente');
-
-            } catch (error) {
-                alert('Error al crear despliegue: ' + error.message);
-            }
-        }
-
-        async function executeDeployment(id) {
-            if (!confirm('¿Ejecutar este despliegue?')) return;
-
-            try {
-                await apiRequest(`/api/deployments/${id}/execute`, {
-                    method: 'POST',
-                    body: JSON.stringify({})
-                });
-                loadDeployments();
-                showNotification('Despliegue iniciado');
-
-            } catch (error) {
-                alert('Error al ejecutar despliegue: ' + error.message);
-            }
-        }
-
-        async function viewDeploymentLogs(id) {
-            try {
-                const logs = await apiRequest(`/api/deployments/${id}/logs`);
-                document.getElementById('deploymentLogsContent').innerHTML = logs.logs || 'No hay logs disponibles';
-                document.getElementById('deploymentLogsModal').classList.add('active');
-
-            } catch (error) {
-                alert('Error al cargar logs: ' + error.message);
-            }
-        }
-
-        async function cancelDeployment(id) {
-            if (!confirm('¿Cancelar este despliegue?')) return;
-
-            try {
-                await apiRequest(`/api/deployments/${id}`, {
-                    method: 'DELETE'
-                });
-                loadDeployments();
-                showNotification('Despliegue cancelado');
-
-            } catch (error) {
-                alert('Error al cancelar despliegue: ' + error.message);
-            }
-        }
-
-        // =============================================
-        // TAREAS
-        // =============================================
-        function renderTasks() {
-            return `
-                <h2 style="margin-bottom: 20px;">Automatización de Tareas</h2>
-
-                <div class="tasks-grid" id="tasksGrid">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
-
-        async function loadTasks() {
-            try {
-                const data = await apiRequest('/api/tasks');
+                const result = await res.json();
                 
-                const html = data.tasks?.map(task => `
-                    <div class="task-card">
-                        <div class="task-header">
-                            <span class="task-name">${task.id}</span>
-                            <div class="task-actions">
-                                <button class="btn btn-outline btn-sm btn-icon" onclick="showTaskModal('${task.id}')">
-                                    <i class="fa-solid fa-play"></i>
-                                </button>
-                                <button class="btn btn-outline btn-sm btn-icon" onclick="viewTaskDetails('${task.id}')">
-                                    <i class="fa-solid fa-info-circle"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="task-description">${task.description || 'Sin descripción'}</div>
-                        <div class="task-meta">
-                            <span><i class="fa-regular fa-clock"></i> ${task.schedule || 'Manual'}</span>
-                            <span><i class="fa-solid fa-code-branch"></i> ${task.type || 'N/A'}</span>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            ${getStatusBadge(task.status || 'pending')}
-                        </div>
-                    </div>
-                `).join('') || '<p class="loading">No hay tareas configuradas</p>';
-
-                document.getElementById('tasksGrid').innerHTML = html;
-
-            } catch (error) {
-                document.getElementById('tasksGrid').innerHTML = '<p class="loading">Error al cargar tareas</p>';
-            }
-        }
-
-        let currentTaskId = null;
-
-        function showTaskModal(taskId) {
-            currentTaskId = taskId;
-            document.getElementById('taskName').value = taskId;
-            document.getElementById('taskModal').classList.add('active');
-        }
-
-        function closeTaskModal() {
-            document.getElementById('taskModal').classList.remove('active');
-        }
-
-        async function executeTask() {
-            const params = JSON.parse(document.getElementById('taskParams').value);
-
-            try {
-                await apiRequest(`/api/tasks/${currentTaskId}/execute`, {
-                    method: 'POST',
-                    body: JSON.stringify({ params })
-                });
-
-                closeTaskModal();
-                showNotification('Tarea ejecutada exitosamente');
-
-            } catch (error) {
-                alert('Error al ejecutar tarea: ' + error.message);
-            }
-        }
-
-        async function viewTaskDetails(taskId) {
-            try {
-                const task = await apiRequest(`/api/tasks/${taskId}`);
-                alert(JSON.stringify(task, null, 2));
-            } catch (error) {
-                alert('Error al cargar detalles: ' + error.message);
-            }
-        }
-
-        // =============================================
-        // INTEGRACIONES
-        // =============================================
-        function renderIntegrations() {
-            return `
-                <h2 style="margin-bottom: 20px;">Integraciones Disponibles</h2>
-
-                <div class="integrations-grid" id="integrationsGrid">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
-
-        async function loadIntegrations() {
-            const integrations = [
-                {
-                    name: 'GitHub',
-                    icon: 'fa-brands fa-github',
-                    description: 'Integración con repositorios GitHub para automatizar despliegues y monitoreo.',
-                    status: 'connected',
-                    actions: ['webhooks', 'actions']
-                },
-                {
-                    name: 'HTTP API',
-                    icon: 'fa-solid fa-cloud',
-                    description: 'Conexión con APIs externas para orquestación y eventos.',
-                    status: 'connected',
-                    actions: ['webhooks', 'requests']
-                },
-                {
-                    name: 'Browser Automation',
-                    icon: 'fa-solid fa-window-maximize',
-                    description: 'Automatización de navegador con Puppeteer para testing y scraping.',
-                    status: 'ready',
-                    actions: ['scripts', 'screenshots']
-                },
-                {
-                    name: 'File System',
-                    icon: 'fa-solid fa-folder-tree',
-                    description: 'Gestión de archivos, logs y configuraciones locales.',
-                    status: 'connected',
-                    actions: ['read', 'write', 'watch']
-                }
-            ];
-
-            const html = integrations.map(int => `
-                <div class="integration-card">
-                    <div class="integration-header">
-                        <div class="integration-icon">
-                            <i class="${int.icon}"></i>
-                        </div>
-                        <div>
-                            <div class="integration-title">${int.name}</div>
-                            <div class="integration-status">
-                                <span class="status-connected">●</span>
-                                ${int.status === 'connected' ? 'Conectado' : 'Configurado'}
-                            </div>
-                        </div>
-                    </div>
-                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
-                        ${int.description}
-                    </p>
-                    <div style="display: flex; gap: 8px;">
-                        ${int.actions.map(a => `
-                            <span class="badge badge-info">${a}</span>
-                        `).join('')}
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('integrationsGrid').innerHTML = html;
-        }
-
-        // =============================================
-        // LOGS
-        // =============================================
-        function renderLogs() {
-            return `
-                <h2 style="margin-bottom: 20px;">Logs del Sistema</h2>
-
-                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <select class="form-select" id="logType" style="width: 200px;" onchange="loadLogs()">
-                        <option value="all">Todos los niveles</option>
-                        <option value="info">Info</option>
-                        <option value="error">Error</option>
-                        <option value="warn">Warn</option>
-                        <option value="debug">Debug</option>
-                    </select>
-                    
-                    <select class="form-select" id="logLimit" style="width: 150px;" onchange="loadLogs()">
-                        <option value="50">50 líneas</option>
-                        <option value="100" selected>100 líneas</option>
-                        <option value="200">200 líneas</option>
-                        <option value="500">500 líneas</option>
-                    </select>
-                    
-                    <button class="btn btn-outline" onclick="loadLogs()">
-                        <i class="fa-solid fa-rotate"></i>
-                        Actualizar
-                    </button>
-                </div>
-
-                <div class="logs-container" id="logsContent">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
-
-        async function loadLogs() {
-            const type = document.getElementById('logType')?.value || 'all';
-            const limit = document.getElementById('logLimit')?.value || 100;
-
-            try {
-                const logs = await apiRequest(`/logs?type=${type}&limit=${limit}`);
-                
-                let html = '';
-                
-                if (typeof logs === 'string') {
-                    // Si son logs en texto plano
-                    html = logs.split('\n').map(line => {
-                        if (!line.trim()) return '';
-                        
-                        let level = 'info';
-                        if (line.includes('ERROR')) level = 'error';
-                        else if (line.includes('WARN')) level = 'warn';
-                        else if (line.includes('DEBUG')) level = 'debug';
-                        
-                        return `
-                            <div class="log-entry">
-                                <span class="log-time">${new Date().toLocaleTimeString()}</span>
-                                <span class="log-level ${level}">${level.toUpperCase()}</span>
-                                <span class="log-message">${line}</span>
-                            </div>
-                        `;
-                    }).join('');
+                if (result.success) {
+                    consoleBox.innerHTML += `<p class="text-emerald-400">✔️ Respuesta: ${JSON.stringify(result.data)}</p>`;
                 } else {
-                    // Si son logs en JSON
-                    html = logs.map(log => `
-                        <div class="log-entry">
-                            <span class="log-time">${formatDate(log.timestamp)}</span>
-                            <span class="log-level ${log.level}">${log.level?.toUpperCase()}</span>
-                            <span class="log-message">${log.message}</span>
-                        </div>
-                    `).join('');
+                    consoleBox.innerHTML += `<p class="text-red-400">❌ Error: ${result.error}</p>`;
                 }
-
-                document.getElementById('logsContent').innerHTML = html || '<p class="loading">No hay logs disponibles</p>';
-
-            } catch (error) {
-                document.getElementById('logsContent').innerHTML = '<p class="loading">Error al cargar logs</p>';
+            } catch (err) {
+                consoleBox.innerHTML += `<p class="text-red-500">❌ Error de conexión.</p>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-play mr-2"></i>Enviar a DeepSeek';
+                consoleBox.scrollTop = consoleBox.scrollHeight;
             }
         }
 
-        // =============================================
-        // HEALTH CHECK
-        // =============================================
-        function renderHealth() {
-            return `
-                <h2 style="margin-bottom: 20px;">Health Check</h2>
+        // Chat Rápido
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const chatBox = document.getElementById('chat-box');
+            const msg = input.value;
+            const apiKey = apiKeyInput.value;
 
-                <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
-                    <div class="stat-card" id="healthStatus">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card" id="healthDetails">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                </div>
-            `;
-        }
+            if (!msg || !apiKey) return;
 
-        async function loadHealth() {
-            try {
-                const health = await apiRequest('/health');
-                
-                document.getElementById('healthStatus').innerHTML = `
-                    <div class="stat-header">
-                        <div class="stat-icon"><i class="fa-solid fa-heart-pulse"></i></div>
-                        <div>
-                            <div class="stat-value">${health.status || 'OK'}</div>
-                            <div class="stat-label">Estado del Agente</div>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('healthDetails').innerHTML = `
-                    <div style="padding: 16px;">
-                        <p><strong>Timestamp:</strong> ${formatDate(health.timestamp)}</p>
-                        <p><strong>Servicio:</strong> ${health.service || 'DevOps Agent'}</p>
-                        <p><strong>Versión:</strong> ${health.version || '1.0.0'}</p>
-                    </div>
-                `;
-
-            } catch (error) {
-                document.getElementById('healthStatus').innerHTML = '<p class="loading">Error al cargar health check</p>';
-            }
-        }
-
-        // =============================================
-        // ESTADÍSTICAS
-        // =============================================
-        function renderStats() {
-            return `
-                <h2 style="margin-bottom: 20px;">Estadísticas del Sistema</h2>
-
-                <div class="stats-grid" id="statsGrid">
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                    </div>
-                </div>
-            `;
-        }
-
-        async function loadStats() {
-            try {
-                const stats = await apiRequest('/stats');
-                
-                const html = `
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-                            <div>
-                                <div class="stat-value">${Math.round(stats.uptime / 3600)}h</div>
-                                <div class="stat-label">Uptime</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-memory"></i></div>
-                            <div>
-                                <div class="stat-value">${Math.round(stats.memory?.rss / 1024 / 1024)} MB</div>
-                                <div class="stat-label">Memoria RSS</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-microchip"></i></div>
-                            <div>
-                                <div class="stat-value">${stats.cpu?.length || 0} cores</div>
-                                <div class="stat-label">CPU</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
-                            <div>
-                                <div class="stat-value">${stats.requests?.total || 0}</div>
-                                <div class="stat-label">Requests Totales</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('statsGrid').innerHTML = html;
-
-            } catch (error) {
-                document.getElementById('statsGrid').innerHTML = '<p class="loading">Error al cargar estadísticas</p>';
-            }
-        }
-
-        // =============================================
-        // CRON JOBS
-        // =============================================
-        function renderCron() {
-            return `
-                <h2 style="margin-bottom: 20px;">Cron Jobs Programados</h2>
-
-                <div class="table-container" id="cronTable">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
-
-        async function loadCron() {
-            try {
-                const data = await apiRequest('/api/cron-jobs');
-                
-                const html = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Tarea</th>
-                                <th>Programación</th>
-                                <th>Última ejecución</th>
-                                <th>Próxima ejecución</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.jobs?.map(job => `
-                                <tr>
-                                    <td>${job.taskId}</td>
-                                    <td><code>${job.schedule}</code></td>
-                                    <td>${formatDate(job.lastRun)}</td>
-                                    <td>${formatDate(job.nextRun)}</td>
-                                    <td>${getStatusBadge(job.enabled ? 'active' : 'paused')}</td>
-                                </tr>
-                            `).join('')}
-                            ${!data.jobs?.length ? '<tr><td colspan="5" class="loading">No hay cron jobs configurados</td></tr>' : ''}
-                        </tbody>
-                    </table>
-                `;
-
-                document.getElementById('cronTable').innerHTML = html;
-
-            } catch (error) {
-                document.getElementById('cronTable').innerHTML = '<p class="loading">Error al cargar cron jobs</p>';
-            }
-        }
-
-        // =============================================
-        // HISTORIAL
-        // =============================================
-        function renderHistory() {
-            return `
-                <h2 style="margin-bottom: 20px;">Historial de Actividad</h2>
-
-                <div class="tabs">
-                    <div class="tab active" onclick="loadHistory('deployments')">Despliegues</div>
-                    <div class="tab" onclick="loadHistory('tasks')">Tareas</div>
-                </div>
-
-                <div class="table-container" id="historyTable">
-                    <div class="loading"><i class="fa-solid fa-circle-notch"></i></div>
-                </div>
-            `;
-        }
-
-        async function loadHistory(type = 'deployments') {
-            document.querySelectorAll('#historyTable .tab').forEach(t => t.classList.remove('active'));
-            if (event) event.target.classList.add('active');
+            chatBox.innerHTML += `<div class="bg-blue-600/20 p-3 rounded-lg text-blue-200 self-end">Tú: ${msg}</div>`;
+            input.value = '';
 
             try {
-                let data;
-                if (type === 'deployments') {
-                    data = await apiRequest('/api/deployments/history');
-                } else {
-                    data = await apiRequest('/api/tasks/history');
-                }
-
-                const html = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Estado</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th>Duración</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${data.history?.map(item => {
-                                const start = new Date(item.startTime);
-                                const end = item.endTime ? new Date(item.endTime) : new Date();
-                                const duration = Math.round((end - start) / 1000);
-                                
-                                return `
-                                    <tr>
-                                        <td>${item.deploymentId || item.taskId}</td>
-                                        <td>${getStatusBadge(item.status)}</td>
-                                        <td>${formatDate(item.startTime)}</td>
-                                        <td>${formatDate(item.endTime)}</td>
-                                        <td>${duration}s</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                            ${!data.history?.length ? '<tr><td colspan="5" class="loading">No hay historial disponible</td></tr>' : ''}
-                        </tbody>
-                    </table>
-                `;
-
-                document.getElementById('historyTable').innerHTML = html;
-
-            } catch (error) {
-                document.getElementById('historyTable').innerHTML = '<p class="loading">Error al cargar historial</p>';
+                const res = await fetch(`${BASE_URL}/api/agent/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                chatBox.innerHTML += `<div class="bg-slate-800 p-3 rounded-lg text-slate-300">🤖: ${data.response || 'Procesado'}</div>`;
+            } catch (err) {
+                chatBox.innerHTML += `<div class="bg-red-900/20 p-3 rounded-lg text-red-400">Error de conexión</div>`;
             }
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // =============================================
-        // MODALES Y NOTIFICACIONES
-        // =============================================
-        function showApiKeyModal() {
-            document.getElementById('apiKeyInput').value = apiKey;
-            document.getElementById('apiKeyModal').classList.add('active');
-        }
-
-        function closeApiKeyModal() {
-            document.getElementById('apiKeyModal').classList.remove('active');
-        }
-
-        function saveApiKey() {
-            apiKey = document.getElementById('apiKeyInput').value;
-            localStorage.setItem('devops_api_key', apiKey);
-            closeApiKeyModal();
-            showNotification('API Key guardada correctamente');
-        }
-
-        function showDeploymentModal() {
-            document.getElementById('deploymentModal').classList.add('active');
-        }
-
-        function closeDeploymentModal() {
-            document.getElementById('deploymentModal').classList.remove('active');
-        }
-
-        function closeDeploymentLogsModal() {
-            document.getElementById('deploymentLogsModal').classList.remove('active');
-        }
-
-        function showNotification(message) {
-            // Implementación simple de notificación
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--accent-success);
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                z-index: 2000;
-                animation: slideIn 0.3s ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // =============================================
-        // INICIALIZACIÓN
-        // =============================================
-        document.addEventListener('DOMContentLoaded', () => {
-            loadView('dashboard');
-        });
-
-        // Agregar estilos para animaciones
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
+        // Iniciar chequeo
+        setInterval(checkHealth, 10000);
+        checkHealth();
     </script>
 </body>
 </html>
