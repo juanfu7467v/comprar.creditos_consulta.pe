@@ -3,211 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevOps Agent Console</title>
+    <title>DevOps Agent | Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
-        body { background-color: #0f172a; color: #f8fafc; }
-        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; transition: all 0.3s ease; }
+        .glass-card:hover { border-color: #58a6ff; }
+        .console-box { background: #010409; border: 1px solid #30363d; font-family: 'Fira Code', monospace; }
+        .btn-primary { background: #238636; transition: background 0.2s; }
+        .btn-primary:hover { background: #2ea043; }
+        .btn-primary:disabled { background: #23422a; cursor: not-allowed; }
+        /* Estilo Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto space-y-6">
-        <header class="flex flex-col md:flex-row justify-between items-center glass p-6 rounded-2xl border border-slate-700">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
             <div>
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                    <i class="fas fa-robot mr-2"></i>DevOps Agent Autonomous
+                <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <i class="fas fa-microchip text-blue-500"></i>
+                    Agente DevOps <span class="text-blue-500 text-sm font-normal">v1.0.4</span>
                 </h1>
-                <p class="text-slate-400 text-sm">Control centralizado de infraestructura y código</p>
+                <p class="text-gray-500 text-sm">Fly.io Cloud Autonomus Agent</p>
             </div>
-            <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                <div id="health-badge" class="flex items-center bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
-                    <span id="health-dot" class="status-dot bg-slate-500 mr-2"></span>
-                    <span id="health-text" class="text-xs font-mono uppercase">Checking...</span>
+            
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="bg-gray-900 border border-gray-700 rounded-full px-4 py-1.5 flex items-center gap-2">
+                    <div id="status-dot" class="w-2 h-2 rounded-full bg-gray-500 animate-pulse"></div>
+                    <span id="status-text" class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Iniciando...</span>
                 </div>
-                <input type="password" id="api-key" placeholder="Ingresa tu x-api-key" 
-                    class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64">
+                <input type="password" id="apiKey" placeholder="x-api-key" 
+                    class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500 w-48">
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="lg:col-span-2 space-y-6">
-                <section class="glass p-6 rounded-2xl border border-slate-700">
-                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-terminal mr-2 text-blue-400"></i>Ejecutar Instrucción</h2>
-                    <textarea id="instruction-input" rows="4" 
-                        class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-slate-300 focus:ring-2 focus:ring-blue-500 outline-none mb-4"
-                        placeholder="Ej: Crea una app de Next.js en mi GitHub y despliégala en Vercel..."></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <input type="text" id="repo-context" placeholder="Nombre del repo (opcional)" class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm">
-                        <select id="deploy-context" class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-sm">
-                            <option value="none">Sin despliegue</option>
-                            <option value="vercel">Vercel</option>
-                            <option value="flyio">Fly.io</option>
-                        </select>
+            <div class="lg:col-span-3 space-y-4">
+                <h3 class="text-xs font-bold text-gray-500 uppercase px-2">Apps Conectadas</h3>
+                <div class="space-y-2" id="apps-grid">
+                    <div class="glass-card p-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+                                <i class="fab fa-github text-black text-xl"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-white">GitHub</span>
+                        </div>
+                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
                     </div>
-
-                    <button onclick="executeAgent()" id="btn-execute" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center">
-                        <i class="fas fa-play mr-2"></i>Enviar a DeepSeek
-                    </button>
-                </section>
-
-                <section class="glass p-6 rounded-2xl border border-slate-700 min-h-[300px]">
-                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-list-ul mr-2 text-emerald-400"></i>Salida del Agente</h2>
-                    <div id="output-console" class="font-mono text-sm space-y-2 max-h-96 overflow-y-auto p-4 bg-black rounded-xl border border-slate-800">
-                        <p class="text-slate-500">> Esperando instrucciones...</p>
+                    <div class="glass-card p-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-black border border-gray-600 rounded flex items-center justify-center text-white">
+                                <i class="fas fa-caret-up text-xl"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-white">Vercel</span>
+                        </div>
+                        <i class="fas fa-check-circle text-green-500 text-xs"></i>
                     </div>
-                </section>
+                    <div class="glass-card p-3 flex items-center justify-between opacity-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-emerald-900/30 rounded flex items-center justify-center text-emerald-500">
+                                <i class="fas fa-database text-lg"></i>
+                            </div>
+                            <span class="text-sm font-semibold text-white">Supabase</span>
+                        </div>
+                        <button class="text-[10px] text-blue-400 font-bold hover:underline">VINCULAR</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="space-y-6">
-                <section class="glass p-6 rounded-2xl border border-slate-700">
-                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-plug mr-2 text-amber-400"></i>Conectores Activos</h2>
-                    <div id="connectors-list" class="space-y-3">
-                        <p class="text-slate-500 text-sm">Cargando conectores...</p>
+            <div class="lg:col-span-9 space-y-6">
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fas fa-terminal text-blue-400 text-xs"></i>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Nueva Instrucción</span>
                     </div>
-                </section>
-
-                <section class="glass p-6 rounded-2xl border border-slate-700 flex flex-col h-[400px]">
-                    <h2 class="text-lg font-semibold mb-4"><i class="fas fa-comments mr-2 text-purple-400"></i>Chat Rápido</h2>
-                    <div id="chat-box" class="flex-grow overflow-y-auto space-y-3 mb-4 text-sm scrollbar-hide">
-                        <div class="bg-slate-800 p-3 rounded-lg text-slate-300">¡Hola! Soy tu asistente DevOps. ¿En qué te ayudo hoy?</div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <input type="text" id="chat-input" placeholder="Pregunta algo..." 
-                            class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none">
-                        <button onclick="sendChatMessage()" class="bg-purple-600 px-4 py-2 rounded-lg hover:bg-purple-500">
-                            <i class="fas fa-paper-plane"></i>
+                    <textarea id="prompt" rows="3" 
+                        class="w-full bg-transparent border-none text-white text-lg outline-none placeholder-gray-600 resize-none"
+                        placeholder="Ej: Crea un repositorio en GitHub con un Dockerfile optimizado..."></textarea>
+                    
+                    <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-800">
+                        <div class="flex gap-4">
+                            <select id="model" class="bg-gray-800 text-xs text-gray-300 border border-gray-700 rounded px-2 py-1 outline-none">
+                                <option>DeepSeek-R1</option>
+                                <option>Gemini-1.5-Pro</option>
+                            </select>
+                        </div>
+                        <button onclick="executeAgent()" id="btnAction" class="btn-primary px-8 py-2.5 rounded-lg text-white font-bold text-sm flex items-center gap-2">
+                            <span>Enviar Comando</span>
+                            <i class="fas fa-chevron-right text-[10px]"></i>
                         </button>
                     </div>
-                </section>
+                </div>
+
+                <div class="console-box rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
+                    <div class="bg-gray-900/50 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-gray-500 tracking-widest uppercase italic">Live Agent Output</span>
+                        <button onclick="document.getElementById('console').innerHTML=''" class="text-gray-600 hover:text-white"><i class="fas fa-trash-alt text-xs"></i></button>
+                    </div>
+                    <div id="console" class="p-6 h-80 overflow-y-auto text-sm space-y-2">
+                        <div class="text-gray-600 font-mono italic">Esperando conexión con el nodo de Fly.io...</div>
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
 
     <script>
-        const BASE_URL = 'https://devops-agent-aut-nomo---plan-de.fly.dev';
-        
-        // Cargar API Key desde localstorage
-        const apiKeyInput = document.getElementById('api-key');
-        apiKeyInput.value = localStorage.getItem('agent_api_key') || '';
-        apiKeyInput.addEventListener('change', (e) => localStorage.setItem('agent_api_key', e.target.value));
+        const BASE_URL = "https://devops-agent-aut-nomo---plan-de.fly.dev";
 
-        // Verificación de Salud
+        // Persistencia de API Key
+        const apiKeyEl = document.getElementById('apiKey');
+        apiKeyEl.value = localStorage.getItem('devops_key') || '';
+        apiKeyEl.onchange = (e) => localStorage.setItem('devops_key', e.target.value);
+
+        // Sistema de Logs
+        function addLog(msg, type = 'info') {
+            const consoleEl = document.getElementById('console');
+            const colors = {
+                info: 'text-gray-400',
+                success: 'text-emerald-400',
+                error: 'text-red-400',
+                cmd: 'text-blue-400 font-bold'
+            };
+            const time = new Date().toLocaleTimeString([], { hour12: false });
+            consoleEl.innerHTML += `<div class="${colors[type]} font-mono"><span class="text-gray-700 mr-2">[${time}]</span> ${msg}</div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        // Health Check con Reintento
         async function checkHealth() {
             try {
                 const res = await fetch(`${BASE_URL}/health`);
-                const data = await res.json();
-                if (data.status === 'up') {
-                    document.getElementById('health-dot').className = 'status-dot bg-emerald-500 shadow-[0_0_8px_#10b981]';
-                    document.getElementById('health-text').innerText = 'Online';
-                    loadConnectors();
+                if (res.ok) {
+                    document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]";
+                    document.getElementById('status-text').innerText = "Online";
+                    document.getElementById('status-text').classList.add('text-emerald-500');
                 }
             } catch (err) {
-                document.getElementById('health-dot').className = 'status-dot bg-red-500';
-                document.getElementById('health-text').innerText = 'Offline';
+                document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-red-500";
+                document.getElementById('status-text').innerText = "Sleeping / Error";
             }
         }
 
-        // Cargar Conectores
-        async function loadConnectors() {
-            const apiKey = apiKeyInput.value;
-            if (!apiKey) return;
-            try {
-                const res = await fetch(`${BASE_URL}/api/connectors`, {
-                    headers: { 'x-api-key': apiKey }
-                });
-                const data = await res.json();
-                const list = document.getElementById('connectors-list');
-                list.innerHTML = '';
-                
-                if (data.connectors && Object.keys(data.connectors).length > 0) {
-                    Object.keys(data.connectors).forEach(key => {
-                        list.innerHTML += `
-                            <div class="flex justify-between items-center bg-slate-800 p-2 rounded-lg border border-slate-700">
-                                <span class="capitalize text-sm"><i class="fab fa-${key} mr-2"></i> ${key}</span>
-                                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">Activo</span>
-                            </div>`;
-                    });
-                } else {
-                    list.innerHTML = '<p class="text-slate-500 text-xs text-center">No hay conectores vinculados.</p>';
-                }
-            } catch (err) { console.error(err); }
-        }
-
-        // Ejecutar Agente Autónomo
+        // Ejecución Principal
         async function executeAgent() {
-            const instruction = document.getElementById('instruction-input').value;
-            const repo = document.getElementById('repo-context').value;
-            const deploy = document.getElementById('deploy-context').value;
-            const apiKey = apiKeyInput.value;
-            const consoleBox = document.getElementById('output-console');
+            const prompt = document.getElementById('prompt').value;
+            const key = apiKeyEl.value;
+            const btn = document.getElementById('btnAction');
 
-            if (!apiKey) return alert('¡Falta la API Key!');
-            if (!instruction) return alert('Escribe una instrucción.');
+            if (!prompt) return addLog("Escribe una instrucción primero", "error");
+            if (!key) return addLog("Falta la x-api-key en la parte superior", "error");
 
-            consoleBox.innerHTML += `<p class="text-blue-400 font-bold mt-4">>> Enviando: ${instruction}</p>`;
-            const btn = document.getElementById('btn-execute');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Procesando...';
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Procesando...`;
+            addLog(`Enviando comando: ${prompt}`, "cmd");
 
             try {
                 const res = await fetch(`${BASE_URL}/api/v1/execute`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
-                    body: JSON.stringify({ 
-                        instruction, 
-                        context: { repo_name: repo, deployment: deploy } 
-                    })
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-api-key': key
+                    },
+                    body: JSON.stringify({ instruction: prompt })
                 });
+
                 const result = await res.json();
-                
-                if (result.success) {
-                    consoleBox.innerHTML += `<p class="text-emerald-400">✔️ Respuesta: ${JSON.stringify(result.data)}</p>`;
+
+                if (res.ok) {
+                    addLog(`Agente dice: ${result.data?.response || "Comando ejecutado con éxito"}`, "success");
                 } else {
-                    consoleBox.innerHTML += `<p class="text-red-400">❌ Error: ${result.error}</p>`;
+                    addLog(`Error del servidor (${res.status}): ${result.error || "No autorizado"}`, "error");
                 }
             } catch (err) {
-                consoleBox.innerHTML += `<p class="text-red-500">❌ Error de conexión.</p>`;
+                addLog("Error de conexión. Es probable que la máquina se esté despertando. Reintenta en 5 segundos.", "error");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-play mr-2"></i>Enviar a DeepSeek';
-                consoleBox.scrollTop = consoleBox.scrollHeight;
+                btn.innerHTML = `<span>Enviar Comando</span> <i class="fas fa-chevron-right text-[10px]"></i>`;
             }
         }
 
-        // Chat Rápido
-        async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const chatBox = document.getElementById('chat-box');
-            const msg = input.value;
-            const apiKey = apiKeyInput.value;
-
-            if (!msg || !apiKey) return;
-
-            chatBox.innerHTML += `<div class="bg-blue-600/20 p-3 rounded-lg text-blue-200 self-end">Tú: ${msg}</div>`;
-            input.value = '';
-
-            try {
-                const res = await fetch(`${BASE_URL}/api/agent/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
-                    body: JSON.stringify({ message: msg })
-                });
-                const data = await res.json();
-                chatBox.innerHTML += `<div class="bg-slate-800 p-3 rounded-lg text-slate-300">🤖: ${data.response || 'Procesado'}</div>`;
-            } catch (err) {
-                chatBox.innerHTML += `<div class="bg-red-900/20 p-3 rounded-lg text-red-400">Error de conexión</div>`;
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // Iniciar chequeo
-        setInterval(checkHealth, 10000);
+        setInterval(checkHealth, 8000);
         checkHealth();
     </script>
 </body>
