@@ -85,6 +85,7 @@ const cspDomains = [
   "https://peliprex-pe-v2.fly.dev",
   "https://1.bp.blogspot.com",
   "https://www.masitaprex.com",
+  "https://peliprex.fly.dev",
   "https://consulta-pe-abf99.firebaseapp.com",
   "https://consulta-pe-abf99.firebasestorage.app",
   "https://masitaprexv2.fly.dev",
