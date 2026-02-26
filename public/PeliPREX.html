@@ -130,7 +130,7 @@
     color: var(--muted);
   }
 
-  /* Indicador de carga inline para búsqueda */
+  /* ✅ MEJORA 2: Indicador de carga inline para búsqueda */
   #search-inline-loading {
     display: none;
     justify-content: center;
@@ -246,46 +246,70 @@
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL BANNER PRINCIPAL - MEJORADO CON SLIDER
+     ESTILOS DEL BANNER PRINCIPAL (HERO SLIDER HORIZONTAL)
      -------------------------------------------------------------- */
   #banner-slider{
       position: relative;
       height: 200px; 
       margin-bottom: 20px;
+
+      /* ✅ Slider horizontal nativo (tipo Xuper TV) */
+      display: flex;
+      gap: 12px;
       overflow-x: auto;
       overflow-y: hidden;
-      border-radius: var(--radius);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
-      display: flex;
-      scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
+
+      /* sin recortes: ocultar scrollbars */
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+
+      padding: 0 6px;
+      touch-action: pan-x;
+
+      /* mantener sensación visual */
+      background: transparent;
   }
-  #banner-slider::-webkit-scrollbar {
-      display: none;
-  }
+  #banner-slider::-webkit-scrollbar{ display:none; }
+
   .banner-item {
-      flex: 0 0 100%;
+      /* ✅ ya no absoluto: ahora es tarjeta dentro del carrusel */
+      position: relative;
+      flex: 0 0 92%;
       height: 100%;
+      scroll-snap-align: start;
+
       background-size: cover;
       background-position: center top;
-      transition: opacity 0.3s ease-in-out;
+
       cursor: pointer;
       display: flex;
       align-items: flex-end;
       padding: 20px;
-      scroll-snap-align: start;
-      position: relative;
+      border-radius: var(--radius);
+      overflow: hidden;
+
+      /* look & feel nativo */
+      box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      opacity: 0.85;
+      transform: scale(0.99);
+  }
+  .banner-item.active {
+      opacity: 1;
+      transform: scale(1);
   }
   .banner-item::after {
       content: "";
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.9) 100%);
-      z-index: 1;
+      z-index: 3;
   }
   .banner-info {
-      z-index: 2;
+      z-index: 4;
       max-width: 80%;
   }
   .banner-info h2 {
@@ -308,7 +332,8 @@
   }
 
   @media (min-width:900px){
-    #banner-slider{ height: 350px; } 
+    #banner-slider{ height: 350px; padding: 0 8px; } 
+    .banner-item{ flex-basis: 86%; }
     .banner-info h2 { font-size: 32px; }
   }
 
@@ -466,10 +491,7 @@
   }
   
   .suggestions-row{
-    display: flex; 
-    gap: 14px; 
-    overflow-x: auto; 
-    padding-bottom: 10px;
+    display:flex; gap:14px; overflow-x:auto; padding-bottom: 10px;
     -ms-overflow-style: none;
     scrollbar-width: none; 
   }
@@ -500,7 +522,32 @@
     text-overflow: ellipsis;
     color: var(--text);
   }
-  
+
+  /* --------------------------------------------------------------
+     ✅ MEJORA: BOTONES DEL REPRODUCTOR COMO SLIDER HORIZONTAL
+     -------------------------------------------------------------- */
+  .player-actions-row{
+      display:flex;
+      gap:10px;
+      flex-wrap: nowrap;
+      overflow-x:auto;
+      padding-bottom: 6px;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+  }
+  .player-actions-row::-webkit-scrollbar{ display:none; }
+  .player-actions-row .btn{ flex: 0 0 auto; }
+
+  /* ✅ Botones Buscar + Análisis + Compartir con fondo blanco (igual que Recargar) */
+  #modal-search-btn,
+  #modal-analysis-btn,
+  #modal-share-btn{
+      background: var(--text);
+      color: #000;
+      border: none;
+  }
+
   /* --------------------------------------------------------------
      SPINNER GLOBAL DE CARGA (3 círculos)
      -------------------------------------------------------------- */
@@ -826,36 +873,6 @@
       color: var(--accent);
   }
 
-  /* --------------------------------------------------------------
-     ESTILOS PARA BOTONES EN SLIDER HORIZONTAL (MEJORA 3)
-     -------------------------------------------------------------- */
-  .action-buttons-slider {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding: 4px 0 12px 0;
-      margin: 8px 0 10px 0;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-      white-space: nowrap;
-  }
-  .action-buttons-slider::-webkit-scrollbar {
-      display: none;
-  }
-  .action-buttons-slider .btn {
-      flex: 0 0 auto;
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.1);
-      color: var(--text);
-      padding: 10px 18px;
-      font-size: 14px;
-  }
-  .action-buttons-slider .btn i {
-      font-size: 16px;
-  }
-  .action-buttons-slider .btn.pelicula {
-      background: transparent;
-  }
 </style>
 </head>
 <body>
@@ -896,7 +913,7 @@
     <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
-  <!-- MODAL DE DETALLE/BÚSQUEDA -->
+  <!-- ✅ MODAL DE DETALLE/BÚSQUEDA -->
   <div class="modal" id="detail-view-modal">
       <div class="detail-header">
           <button class="icon-btn" id="detail-close-btn" title="Cerrar"><i class="fa-solid fa-arrow-left"></i></button>
@@ -904,7 +921,7 @@
       </div>
       <div id="search-bar-container">
           <input type="search" id="search-input" placeholder="Buscar películas, series o géneros..." autofocus>
-          <!-- Indicador de carga inline, solo debajo del buscador -->
+          <!-- ✅ MEJORA 2: Indicador de carga inline, solo debajo del buscador -->
           <div id="search-inline-loading">
               <div class="sircle-dot"></div>
               <div class="sircle-dot"></div>
@@ -960,13 +977,16 @@
 
                 <div style="padding:0;">
                     <p id="modal-desc" style="margin-top:10px; color:var(--muted); font-size:14px; line-height:1.5;">Descripción detallada de la película...</p>
-                    
-                    <!-- MEJORA 3: Botones en slider horizontal con colores blancos -->
-                    <div class="action-buttons-slider">
+
+                    <!-- ✅ Botones como slider horizontal -->
+                    <div class="player-actions-row" style="margin-top:20px; margin-bottom: 30px;">
+                        <!-- ✅ Buscar fondo blanco -->
                         <button class="btn pelicula" id="modal-search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-                        <button class="btn pelicula" id="modal-play"><i class="fa-solid fa-bolt"></i> Recargar</button> 
+                        <button class="btn play" id="modal-play"><i class="fa-solid fa-bolt"></i> Recargar</button> 
+                        <!-- ✅ Análisis fondo blanco -->
                         <button class="btn pelicula" id="modal-analysis-btn"><i class="fa-solid fa-brain"></i> Análisis</button>
-                        <button class="btn pelicula" id="modal-share-btn"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+                        <!-- (mantener ID/funcionalidad actual) -->
+                        <button class="btn película" id="modal-share-btn"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
                     </div>
                 </div>
                 
@@ -1035,90 +1055,6 @@
       </a>
   </nav>
 
-  <!-- Banner de Compartir -->
-  <div class="banner" id="banner">  
-      <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
-      <div class="banner-description">  
-          <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
-          <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
-      </div>  
-      <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
-      <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
-  </div>
-
-  <style>
-      .banner {  
-          width: 100%;  
-          background: linear-gradient(to right, #00264D, #003366);  
-          color: #FFFFFF;  
-          position: fixed;  
-          bottom: 0;  
-          left: 50%;  
-          transform: translateX(-50%);  
-          padding: 30px;  
-          border-top-left-radius: 15px;  
-          border-top-right-radius: 15px;  
-          box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
-          display: none;
-          flex-direction: column;  
-          align-items: center;  
-          text-align: center;  
-          z-index: 9999;  
-      }  
-
-      .banner-title {  
-          font-size: 24px;  
-          font-weight: bold;  
-          margin-bottom: 15px;  
-          color: #FF00FF;  
-      }  
-
-      .banner-description {  
-          font-size: 18px;  
-          line-height: 1.8;  
-          color: #FFFFFF;  
-          margin-bottom: 20px;  
-      }  
-
-      .cta-button, .close-modal {  
-          width: 100%;  
-          padding: 16px;  
-          text-align: center;  
-          text-decoration: none;  
-          border-radius: 25px;  
-          font-size: 18px;  
-          font-weight: bold;  
-          margin-bottom: 12px;  
-          cursor: pointer;  
-          transition: transform 0.2s ease-in-out;  
-          border: none;
-      }  
-
-      .cta-button {  
-          background: linear-gradient(to right, #2ECC71, #66CC99);  
-          color: white;  
-      }  
-
-      .cta-button:hover {  
-          transform: scale(1.08);  
-      }  
-
-      .close-modal {  
-          background-color: red;  
-          color: #FFFFFF;  
-      }  
-
-      .close-modal:hover {  
-          background-color: darkred;  
-          transform: scale(1.08);  
-      }  
-
-      .icon {  
-          margin-right: 8px;  
-          color: #FF00FF;  
-      }
-  </style>
-
   <script>
 /* ==========================================================
    CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE
@@ -1160,49 +1096,51 @@ let bannerMovies = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
 
-// Variables de estado de navegación
+// ✅ MEJORA 3: Variables de estado de navegación
 let detailViewWasActive = false;
 let lastSearchTerm = '';
 
 /* --------------------------------------------------------------
-   ARRAY DE CATEGORÍAS
+   ARRAY DE CATEGORÍAS (OBLIGATORIAS + SIN ELIMINAR FUNCIONALIDAD)
    --------------------------------------------------------------
+   ✅ Se incluyen TODAS las categorías solicitadas.
 */
 const CATEGORIES = [
-    { genre: 'destacadas', title: '🔥 Lo Más Visto Hoy' },
-    { genre: 'accion', title: '💥 Acción y Adrenalina Extrema' },
-    { genre: 'aventura', title: '🗺️ Aventura' }, 
-    { genre: 'animacion', title: '🎬 Animación para Todos' },
-    { genre: 'comedia', title: '😂 Comedia Divertida' },
-    { genre: 'crimen', title: '🕵️ Crímenes y Misterios' },
-    { genre: 'documental', title: '🔬 Documentales Fascinantes' },
-    { genre: 'drama', title: '😭 Dramas Profundos' },
-    { genre: 'familia', title: '👨‍👩‍👧‍👦 Para Toda la Familia' },
-    { genre: 'fantasia', title: '✨ Fantasía y Magia' },
-    { genre: 'historia', title: '📜 Cine Histórico' },
-    { genre: 'terror', title: '💀 Terror y Horror' },
-    { genre: 'musica', title: '🎶 Musicales y Música' },
-    { genre: 'misterio', title: '❓ Misterio e Intriga' },
-    { genre: 'romance', title: '💖 Películas Románticas' },
+    { genre: 'anime', title: '🍥 Anime' },
+    { genre: 'animacion', title: '🎬 Animación' },
+    { genre: 'terror', title: '💀 Terror' },
+    { genre: 'horror', title: '🩸 Horror' },
+    { genre: 'cristiana', title: '✝️ Cristiana' },
+    { genre: 'religion', title: '🕊️ Religión' },
+    { genre: 'infantil', title: '🧸 Infantil' },
+    { genre: 'kids', title: '🧒 Kids' },
+    { genre: 'clasica', title: '🎞️ Clásica' },
+    { genre: 'vintage', title: '📼 Vintage' },
+    { genre: 'adultos', title: '🔞 Adultos' },
+
+    { genre: 'accion', title: '💥 Acción' },
+    { genre: 'aventura', title: '🗺️ Aventura' },
+    { genre: 'drama', title: '😭 Drama' },
+    { genre: 'comedia', title: '😂 Comedia' },
+    { genre: 'romance', title: '💖 Romance' },
     { genre: 'ciencia ficcion', title: '🚀 Ciencia Ficción' },
-    { genre: 'thriller', title: '🔪 Thriller de Suspenso' },
-    { genre: 'guerra', title: '⚔️ Cine Bélico' },
-    { genre: 'western', title: '🤠 Western (Vaqueross)' },
-    { genre: 'deportes', title: '🏅 Deportes' }, 
-    { genre: 'biografia', title: '👑 Biografías' },
-    { genre: 'musical', title: '🎭 Musical' },
-    { genre: 'politica', title: '🏛️ Política' },
-    { genre: 'cine independiente', title: '🎬 Cine Independiente' },
-    { genre: 'superheroes', title: '🦸 Superhéroes' },
-    { genre: 'aventura epica', title: '✨ Aventura Épica' },
-    { genre: 'cine romantico juvenil', title: '🧑‍🤝‍🧑 Cine Romántico Juvenil' },
-    { genre: 'ficcion postapocaliptica', title: '🔥 Ficción Postapocalíptica' },
-    { genre: 'peliculas religiosas', title: '🕊️ Películas de Fe' },
-    { genre: 'comedia romantica', title: '💞 Comedia Romántica' },
-    { genre: 'terror psicologico', title: '🧠 Terror Psicológico' },
-    { genre: 'accion militar', title: '💣 Acción Militar / Bélica' },
-    { genre: 'ciencia ficcion futurista', title: '🌌 Ciencia Ficción Futurista' },
-    { genre: 'cine experimental', title: '🎨 Cine Experimental / Arte' },
+    { genre: 'suspenso', title: '🕯️ Suspenso' },
+    { genre: 'thriller', title: '🔪 Thriller' },
+    { genre: 'documental', title: '🔬 Documental' },
+    { genre: 'lgbt', title: '🏳️‍🌈 LGBT' },
+    { genre: 'musical', title: '🎶 Musical' },
+    { genre: 'western', title: '🤠 Western' },
+    { genre: 'fantasia', title: '✨ Fantasía' },
+    { genre: 'policial', title: '🚔 Policial' },
+    { genre: 'guerra', title: '⚔️ Guerra' },
+    { genre: 'historia', title: '📜 Historia' },
+    { genre: 'misterio', title: '❓ Misterio' },
+    { genre: 'k-drama', title: '🇰🇷 K-Drama' },
+    { genre: 'deportes', title: '🏅 Deportes' },
+    { genre: 'general', title: '🎯 General' },
+
+    /* (Se mantiene una categoría destacada adicional, si el backend la soporta) */
+    { genre: 'destacadas', title: '🔥 Lo Más Visto Hoy' }
 ];
 
 
@@ -1253,7 +1191,7 @@ function hideLoading() {
     globalLoadingSpinner.classList.remove('active'); 
 }
 
-// Funciones del spinner inline de búsqueda
+// ✅ MEJORA 2: Funciones del spinner inline de búsqueda
 const searchInlineLoading = document.getElementById('search-inline-loading');
 function showSearchLoading() {
     if (searchInlineLoading) searchInlineLoading.style.display = 'flex';
@@ -1477,6 +1415,62 @@ async function fetchData(endpoint, options = {}) {
     }
 }
 
+/* --------------------------------------------------------------
+   ✅ MEJORA VARIEDAD: Rotación / Mezcla para evitar repetición
+   -------------------------------------------------------------- */
+function _lsGetArray(key){
+    try {
+        const raw = localStorage.getItem(key);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch(e) {
+        return [];
+    }
+}
+function _lsSetArray(key, arr, maxLen = 120){
+    try {
+        const safe = Array.isArray(arr) ? arr.slice(-maxLen) : [];
+        localStorage.setItem(key, JSON.stringify(safe));
+    } catch(e) {}
+}
+function _movieKey(movie){
+    return String(movie?.id || movie?.pelicula_url || movie?.titulo || '');
+}
+function pickVariedMovies(list, genre, limit = 20){
+    if (!Array.isArray(list) || list.length === 0) return [];
+
+    const storageKey = `peliprex_seen_${genre}`;
+    const seenArr = _lsGetArray(storageKey);
+    const seen = new Set(seenArr);
+
+    const shuffled = list.slice();
+    shuffleArray(shuffled);
+
+    const picked = [];
+    for (const m of shuffled) {
+        const k = _movieKey(m);
+        if (!k) continue;
+        if (seen.has(k)) continue;
+        picked.push(m);
+        if (picked.length >= limit) break;
+    }
+
+    // Si no alcanza, completar (sin romper el render)
+    if (picked.length < limit) {
+        for (const m of shuffled) {
+            if (picked.includes(m)) continue;
+            picked.push(m);
+            if (picked.length >= limit) break;
+        }
+    }
+
+    // Persistir vistos (rotación)
+    const merged = seenArr.concat(picked.map(_movieKey).filter(Boolean));
+    _lsSetArray(storageKey, merged, 160);
+
+    return picked.slice(0, limit);
+}
+
 
 // --- Lógica del Banner ---
 
@@ -1501,26 +1495,105 @@ function createBannerItem(movie) {
     return banner;
 }
 
+function setActiveBannerIndex(index, options = {}) {
+    const { scrollIntoView = true } = options;
+    const items = bannerSlider.querySelectorAll('.banner-item');
+    if (!items || items.length === 0) return;
+
+    const safeIndex = Math.max(0, Math.min(index, items.length - 1));
+    currentBannerIndex = safeIndex;
+
+    items.forEach((item, i) => {
+        item.classList.toggle('active', i === safeIndex);
+    });
+
+    if (scrollIntoView) {
+        const el = items[safeIndex];
+        bannerSlider.scrollTo({ left: el.offsetLeft - bannerSlider.offsetLeft, behavior: 'smooth' });
+    }
+}
+
+function getNearestBannerIndex(){
+    const items = Array.from(bannerSlider.querySelectorAll('.banner-item'));
+    if (items.length === 0) return 0;
+    const left = bannerSlider.scrollLeft;
+    let best = 0;
+    let bestDist = Infinity;
+    items.forEach((el, i) => {
+        const dist = Math.abs(el.offsetLeft - left);
+        if (dist < bestDist) { bestDist = dist; best = i; }
+    });
+    return best;
+}
+
 function startBannerRotation() {
     if (bannerMovies.length === 0) return;
     
     if (bannerInterval) clearInterval(bannerInterval);
-    
-    // MEJORA 1: Banner en slider horizontal - ya no necesita rotación automática
-    // pero mantenemos la funcionalidad de scroll
-    const items = bannerSlider.querySelectorAll('.banner-item');
-    items.forEach((item, index) => {
-        item.classList.remove('active');
-        if (index === currentBannerIndex) {
-            item.classList.add('active');
-        }
-    });
+
+    // Asegurar estado inicial
+    setActiveBannerIndex(currentBannerIndex, { scrollIntoView: false });
+
+    bannerInterval = setInterval(() => {
+        const next = (currentBannerIndex + 1) % bannerMovies.length;
+        setActiveBannerIndex(next, { scrollIntoView: true });
+    }, 5000); 
 }
 
-async function fetchBannerMovies() {
-    showLoading();
-    const data = await fetchData('/peliculas', { showGlobalLoading: false });
-    hideLoading();
+function setupBannerUserSwipe() {
+    // Scroll -> detectar “fin” y actualizar índice + reactivar rotación
+    let scrollTimer = null;
+    bannerSlider.addEventListener('scroll', () => {
+        if (scrollTimer) clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+            const idx = getNearestBannerIndex();
+            setActiveBannerIndex(idx, { scrollIntoView: true });
+            // reiniciar rotación tras interacción
+            startBannerRotation();
+        }, 120);
+    });
+
+    // Drag con mouse/trackpad (sin afectar móvil)
+    let isDown = false;
+    let startX = 0;
+    let startLeft = 0;
+
+    bannerSlider.addEventListener('pointerdown', (e) => {
+        // detener rotación mientras interactúa
+        if (bannerInterval) clearInterval(bannerInterval);
+        isDown = true;
+        startX = e.clientX;
+        startLeft = bannerSlider.scrollLeft;
+        try { bannerSlider.setPointerCapture(e.pointerId); } catch(err) {}
+    });
+
+    bannerSlider.addEventListener('pointermove', (e) => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        bannerSlider.scrollLeft = startLeft - dx;
+    });
+
+    const endDrag = (e) => {
+        if (!isDown) return;
+        isDown = false;
+        const idx = getNearestBannerIndex();
+        setActiveBannerIndex(idx, { scrollIntoView: true });
+        startBannerRotation();
+        try { bannerSlider.releasePointerCapture(e.pointerId); } catch(err) {}
+    };
+
+    bannerSlider.addEventListener('pointerup', endDrag);
+    bannerSlider.addEventListener('pointercancel', endDrag);
+    bannerSlider.addEventListener('pointerleave', (e) => { if (isDown) endDrag(e); });
+}
+
+async function fetchBannerMovies(options = {}) {
+    // (Se mantiene la función, pero ahora permite control externo del loader)
+    const { showOwnLoading = true, dataOverride = null } = options;
+
+    if (showOwnLoading) showLoading();
+    const data = dataOverride || await fetchData('/peliculas', { showGlobalLoading: false });
+    if (showOwnLoading) hideLoading();
     
     bannerSlider.innerHTML = '';
     
@@ -1531,10 +1604,16 @@ async function fetchBannerMovies() {
         bannerMovies.forEach(movie => {
             bannerSlider.appendChild(createBannerItem(movie));
         });
+
+        // Activar índice inicial y swipe
+        setActiveBannerIndex(0, { scrollIntoView: false });
+        setupBannerUserSwipe();
         startBannerRotation();
     } else {
         bannerSlider.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">No se encontraron películas destacadas.</div>';
     }
+
+    return bannerMovies;
 }
 
 
@@ -1604,19 +1683,17 @@ function createCategoryRow(category) {
     return { section, row };
 }
 
-// MEJORA 2: Carga de películas al mismo tiempo - renderCategories carga todas en paralelo
+// ✅ (se mantiene la función anterior, por compatibilidad)
 async function renderCategories() {
     categoriesContainer.innerHTML = '';
     
-    // Crear TODOS los contenedores de categoría en el DOM de inmediato
     const categoryItems = CATEGORIES.map(category => {
         const { section, row } = createCategoryRow(category);
-        section.style.display = 'none'; // Oculto hasta que lleguen los datos
+        section.style.display = 'none';
         categoriesContainer.appendChild(section);
         return { category, section, row };
     });
     
-    // Lanzar TODOS los fetches en paralelo
     categoryItems.forEach(({ category, section, row }) => {
         const endpoint = `/peliculas/categoria/${encodeURIComponent(category.genre)}`;
         fetchData(endpoint, { showGlobalLoading: false }).then(data => {
@@ -1624,10 +1701,56 @@ async function renderCategories() {
                 data.resultados.slice(0, 20).forEach(movie => {
                     row.appendChild(createMovieCard(movie));
                 });
-                section.style.display = ''; // Mostrar la categoría al instante
+                section.style.display = '';
             }
-            // Si no hay datos, la sección permanece oculta
         });
+    });
+}
+
+/* --------------------------------------------------------------
+   ✅ MEJORA CARGA TOTAL:
+   - Todas las categorías se solicitan en paralelo
+   - Loader global se oculta SOLO cuando TODO está listo:
+     Hero Banner + TODAS las categorías
+   - Siempre se muestran todas las categorías (si no hay data, placeholder)
+   -------------------------------------------------------------- */
+function buildCategorySkeletons() {
+    categoriesContainer.innerHTML = '';
+    return CATEGORIES.map(category => {
+        const { section, row } = createCategoryRow(category);
+        categoriesContainer.appendChild(section);
+        return { category, section, row };
+    });
+}
+
+async function fetchAllCategoriesData() {
+    const jobs = CATEGORIES.map(category => {
+        const endpoint = `/peliculas/categoria/${encodeURIComponent(category.genre)}`;
+        return fetchData(endpoint, { showGlobalLoading: false })
+            .then(data => ({ genre: category.genre, data }))
+            .catch(() => ({ genre: category.genre, data: null }));
+    });
+    return Promise.all(jobs);
+}
+
+function renderAllCategoriesAtOnce(skeletons, results) {
+    const map = new Map(results.map(r => [r.genre, r.data]));
+    skeletons.forEach(({ category, row }) => {
+        const data = map.get(category.genre);
+        const list = (data && data.resultados && Array.isArray(data.resultados)) ? data.resultados : [];
+        const selected = pickVariedMovies(list, category.genre, 20);
+
+        row.innerHTML = '';
+        if (selected.length > 0) {
+            selected.forEach(movie => row.appendChild(createMovieCard(movie)));
+        } else {
+            // ✅ Siempre visible (categoría obligatoria), aunque esté vacía
+            row.innerHTML = `
+                <div style="color:var(--muted);padding:8px 2px;font-size:14px;">
+                    Sin contenido disponible por ahora.
+                </div>
+            `;
+        }
     });
 }
 
@@ -1656,7 +1779,7 @@ async function showCategoryDetails(category) {
 }
 
 
-// handleSearch usa spinner INLINE, no global
+// ✅ MEJORA 2: handleSearch usa spinner INLINE, no global
 async function handleSearch(query) {
     if (query.length < 3) {
         detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
@@ -1664,15 +1787,12 @@ async function handleSearch(query) {
         return;
     }
     
-    // Guardar el término de búsqueda actual
     lastSearchTerm = query;
     detailViewTitle.textContent = `Resultados para "${query}"`;
     detailResultsContainer.innerHTML = '';
     
-    // Guardar en localStorage para persistencia
     try { localStorage.setItem('peliprex_lastSearch', query); } catch(e) {}
     
-    // Mostrar SOLO el spinner inline, sin bloquear la pantalla
     showSearchLoading();
     const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`, { showGlobalLoading: false });
     hideSearchLoading();
@@ -1818,15 +1938,13 @@ async function fetchSuggestions(){
     }
 }
 
-// closeMovieModalAndRefresh restaura la pantalla anterior
+// ✅ MEJORA 3: closeMovieModalAndRefresh restaura la pantalla anterior
 function closeMovieModalAndRefresh() {
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
     
-    // Si la vista de detalle/búsqueda estaba activa antes, la restauramos
     if (detailViewWasActive) {
         detailViewModal.classList.add('active');
-        // Restaurar el término de búsqueda si había uno
         if (lastSearchTerm && !searchInput.value) {
             searchInput.value = lastSearchTerm;
         }
@@ -1880,7 +1998,7 @@ function displayMovieDetails(movie) {
         addMovieToFavorites(movie);
     };
 
-    // MEJORA 3: Botones de acción con colores blancos (ya definidos en CSS)
+    // ✅ MEJORA 6: Botón Análisis usa generateAnalysisWithGemini
     document.getElementById('modal-analysis-btn').onclick = () => {
         generateAnalysisWithGemini(movie.titulo, movie.descripcion);
     };
@@ -1895,16 +2013,14 @@ function displayMovieDetails(movie) {
         document.getElementById('banner').style.display = 'flex';
     };
 
-    // Botón Buscar en el reproductor
+    // ✅ MEJORA 4: Botón Buscar en el reproductor
     const searchBtnInPlayer = document.getElementById('modal-search-btn');
     if (searchBtnInPlayer) {
         searchBtnInPlayer.onclick = () => {
-            // Cerrar reproductor sin restaurar pantalla anterior
             modal.classList.remove('active');
             modalPlayer.innerHTML = '';
-            detailViewWasActive = false; // No restaurar automáticamente
+            detailViewWasActive = false;
 
-            // Abrir interfaz de búsqueda
             detailViewModal.classList.add('active');
             detailViewTitle.textContent = 'Búsqueda de Películas';
             detailResultsContainer.innerHTML = '<p class="no-results">Comienza a escribir para buscar (mínimo 3 caracteres).</p>';
@@ -1919,7 +2035,7 @@ function displayMovieDetails(movie) {
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 }
 
-// handleViewMovieDetails guarda el estado de navegación antes de abrir el reproductor
+// ✅ MEJORA 3: handleViewMovieDetails guarda el estado de navegación antes de abrir el reproductor
 async function handleViewMovieDetails(movie, source){
     showLoading();
 
@@ -1930,7 +2046,6 @@ async function handleViewMovieDetails(movie, source){
         return;
     }
     
-    // Guardar si la vista de detalle/búsqueda estaba abierta
     detailViewWasActive = detailViewModal.classList.contains('active');
     if (detailViewWasActive) {
         try {
@@ -1939,7 +2054,6 @@ async function handleViewMovieDetails(movie, source){
         } catch(e) {}
     }
     
-    // Cerrar el modal de búsqueda/detalle al abrir el reproductor
     detailViewModal.classList.remove('active');
     
     let finalUrl = movie.pelicula_url;
@@ -1983,10 +2097,30 @@ modal.addEventListener('click', (e)=>{
    FUNCIÓN PRINCIPAL Y LISTENERS DE INTERFAZ
    ========================================================== */
 
-// main() lanza banner y luego carga progresiva de categorías
+// ✅ MEJORA: Cargar TODO en paralelo y ocultar loader SOLO al final
 async function main(){
-    await fetchBannerMovies(); // Esperar al banner (spinner breve)
-    renderCategories();        // Carga todas las categorías en paralelo
+    showLoading();
+
+    // Construir skeletons de categorías (mantiene el orden visual)
+    const skeletons = buildCategorySkeletons();
+
+    try {
+        // Fetch hero + todas las categorías EN PARALELO
+        const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false });
+        const categoriesPromise = fetchAllCategoriesData();
+
+        const [allMoviesData, categoriesResults] = await Promise.all([bannerPromise, categoriesPromise]);
+
+        // Render hero desde data ya descargada (manteniendo función existente)
+        await fetchBannerMovies({ showOwnLoading: false, dataOverride: allMoviesData });
+
+        // Render todas las categorías “al mismo tiempo” (ya con toda la data)
+        renderAllCategoriesAtOnce(skeletons, categoriesResults);
+
+    } finally {
+        // ✅ Loader se oculta solo cuando TODO está listo
+        hideLoading();
+    }
 }
 
 document.getElementById('btn-back').addEventListener('click', () => {
@@ -2052,6 +2186,90 @@ auth.onAuthStateChanged(async (user) => {
 
 </script>
 
+<!-- Banner de Compartir -->
+<div class="banner" id="banner">  
+    <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
+    <div class="banner-description">  
+        <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+        <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+    </div>  
+    <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
+    <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
+</div>
+
+<style>
+    .banner {  
+        width: 100%;  
+        background: linear-gradient(to right, #00264D, #003366);  
+        color: #FFFFFF;  
+        position: fixed;  
+        bottom: 0;  
+        left: 50%;  
+        transform: translateX(-50%);  
+        padding: 30px;  
+        border-top-left-radius: 15px;  
+        border-top-right-radius: 15px;  
+        box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+        display: none;
+        flex-direction: column;  
+        align-items: center;  
+        text-align: center;  
+        z-index: 9999;  
+    }  
+
+    .banner-title {  
+        font-size: 24px;  
+        font-weight: bold;  
+        margin-bottom: 15px;  
+        color: #FF00FF;  
+    }  
+
+    .banner-description {  
+        font-size: 18px;  
+        line-height: 1.8;  
+        color: #FFFFFF;  
+        margin-bottom: 20px;  
+    }  
+
+    .cta-button, .close-modal {  
+        width: 100%;  
+        padding: 16px;  
+        text-align: center;  
+        text-decoration: none;  
+        border-radius: 25px;  
+        font-size: 18px;  
+        font-weight: bold;  
+        margin-bottom: 12px;  
+        cursor: pointer;  
+        transition: transform 0.2s ease-in-out;  
+        border: none;
+    }  
+
+    .cta-button {  
+        background: linear-gradient(to right, #2ECC71, #66CC99);  
+        color: white;  
+    }  
+
+    .cta-button:hover {  
+        transform: scale(1.08);  
+    }  
+
+    .close-modal {  
+        background-color: red;  
+        color: #FFFFFF;  
+    }  
+
+    .close-modal:hover {  
+        background-color: darkred;  
+        transform: scale(1.08);  
+    }  
+
+    .icon {  
+        margin-right: 8px;  
+        color: #FF00FF;  
+    }
+</style>
+
 <script>
     function sharePage() {  
         const url = window.location.href;  
@@ -2070,17 +2288,16 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById('banner').style.display = 'none';  
     }
 
-    // generateAnalysisWithGemini
+    // ✅ MEJORA 6: generateAnalysisWithGemini corregida — usa los elementos HTML correctos
+    // y el modelo de Gemini via https://generativelanguage.googleapis.com/v1beta/models/
     async function generateAnalysisWithGemini(movieTitle, movieDescription) {
         const analysisModalEl = document.getElementById('analysis-modal');
         const analysisTitleEl = document.getElementById('analysis-title');
         const analysisContentEl = document.getElementById('analysis-content');
         const analysisHeaderEl = document.getElementById('analysis-header');
 
-        // Preparar el modal
         analysisTitleEl.textContent = `Análisis de: ${movieTitle}`;
 
-        // Mostrar spinner inline dentro del contenido de análisis
         analysisContentEl.innerHTML = `
             <div style="display:flex;justify-content:center;align-items:center;padding:40px;gap:10px;">
                 <div class="sircle-dot"></div>
@@ -2090,12 +2307,10 @@ auth.onAuthStateChanged(async (user) => {
             <p style="text-align:center;color:var(--muted);margin-top:0;">Generando análisis experto de "<strong>${movieTitle}</strong>"...</p>
         `;
 
-        // Imagen de fondo del header
         if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.imagen_url) {
             analysisHeaderEl.style.backgroundImage = `url(${safeImage(currentMovie.imagen_url)})`;
         }
 
-        // Configurar botón de regreso al reproductor
         document.getElementById('analysis-back-btn').onclick = () => {
             analysisModalEl.classList.remove('active');
             if (typeof currentMovie !== 'undefined' && currentMovie) {
@@ -2107,12 +2322,10 @@ auth.onAuthStateChanged(async (user) => {
             showCustomModal('Reportar Error', 'Esta acción reporta un error en el análisis a los administradores.', false);
         };
 
-        // Abrir modal de análisis y cerrar reproductor
         analysisModalEl.classList.add('active');
         document.getElementById('modal').classList.remove('active');
 
         try {
-            // Llamada al backend que usa https://generativelanguage.googleapis.com/v1beta/models/
             const response = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2125,7 +2338,6 @@ auth.onAuthStateChanged(async (user) => {
 
             const data = await response.json();
 
-            // Parsear respuesta del modelo Gemini (formato estándar v1beta)
             if (
                 data.candidates &&
                 data.candidates[0] &&
@@ -2135,7 +2347,6 @@ auth.onAuthStateChanged(async (user) => {
                 data.candidates[0].content.parts[0].text
             ) {
                 let analysisText = data.candidates[0].content.parts[0].text;
-                // Limpiar markdown de negrita
                 let finalHtml = analysisText.replace(/\*\*/g, '');
                 const parts = finalHtml.split('\n');
                 let output = '';
@@ -2145,7 +2356,6 @@ auth.onAuthStateChanged(async (user) => {
                     line = line.trim();
                     if (!line) return;
 
-                    // Detectar encabezados de sección
                     if (line.match(/^(Trama|Aspectos|Veredicto|Ficha|Reseña|Análisis|Protagonistas|Dirección|Música|Conclusión|Sinopsis|Reparto|Puntuación|Género|Resumen|Historia|Crítica|Director|Elenco|Nota|Banda)/i)) {
                         if (inList) { output += '</ul>'; inList = false; }
                         output += `<h3>${line.replace(/:$/, '')}</h3>`;
@@ -2162,7 +2372,6 @@ auth.onAuthStateChanged(async (user) => {
                 analysisContentEl.innerHTML = output;
 
             } else {
-                // Respuesta inesperada del modelo
                 analysisContentEl.innerHTML = '<p style="color:var(--accent); text-align:center; padding:20px;">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
             }
         } catch (error) {
@@ -2170,7 +2379,6 @@ auth.onAuthStateChanged(async (user) => {
             analysisContentEl.innerHTML = `<p style="color:var(--accent); text-align:center; padding:20px;">Error de conexión al servidor de análisis. Intenta de nuevo.<br><small style="color:var(--muted);">${error.message}</small></p>`;
         }
 
-        // Scroll al inicio del análisis
         const container = analysisModalEl.querySelector('.analysis-container');
         if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
     }
