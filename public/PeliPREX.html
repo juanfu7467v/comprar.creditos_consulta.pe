@@ -130,7 +130,7 @@
     color: var(--muted);
   }
 
-  /* ✅ MEJORA 2: Indicador de carga inline para búsqueda */
+  /* Indicador de carga inline para búsqueda */
   #search-inline-loading {
     display: none;
     justify-content: center;
@@ -246,44 +246,46 @@
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL BANNER PRINCIPAL
+     ESTILOS DEL BANNER PRINCIPAL - MEJORADO CON SLIDER
      -------------------------------------------------------------- */
   #banner-slider{
       position: relative;
       height: 200px; 
       margin-bottom: 20px;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: hidden;
       border-radius: var(--radius);
       box-shadow: 0 8px 25px rgba(0,0,0,0.7);
+      display: flex;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+  }
+  #banner-slider::-webkit-scrollbar {
+      display: none;
   }
   .banner-item {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
+      flex: 0 0 100%;
       height: 100%;
       background-size: cover;
       background-position: center top;
-      transition: opacity 1s ease-in-out;
-      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
       cursor: pointer;
       display: flex;
       align-items: flex-end;
       padding: 20px;
-      z-index: 1;
-  }
-  .banner-item.active {
-      opacity: 1;
-      z-index: 2;
+      scroll-snap-align: start;
+      position: relative;
   }
   .banner-item::after {
       content: "";
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.9) 100%);
-      z-index: 3;
+      z-index: 1;
   }
   .banner-info {
-      z-index: 4;
+      z-index: 2;
       max-width: 80%;
   }
   .banner-info h2 {
@@ -464,7 +466,10 @@
   }
   
   .suggestions-row{
-    display:flex; gap:14px; overflow-x:auto; padding-bottom: 10px;
+    display: flex; 
+    gap: 14px; 
+    overflow-x: auto; 
+    padding-bottom: 10px;
     -ms-overflow-style: none;
     scrollbar-width: none; 
   }
@@ -821,6 +826,36 @@
       color: var(--accent);
   }
 
+  /* --------------------------------------------------------------
+     ESTILOS PARA BOTONES EN SLIDER HORIZONTAL (MEJORA 3)
+     -------------------------------------------------------------- */
+  .action-buttons-slider {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 4px 0 12px 0;
+      margin: 8px 0 10px 0;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      white-space: nowrap;
+  }
+  .action-buttons-slider::-webkit-scrollbar {
+      display: none;
+  }
+  .action-buttons-slider .btn {
+      flex: 0 0 auto;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text);
+      padding: 10px 18px;
+      font-size: 14px;
+  }
+  .action-buttons-slider .btn i {
+      font-size: 16px;
+  }
+  .action-buttons-slider .btn.pelicula {
+      background: transparent;
+  }
 </style>
 </head>
 <body>
@@ -861,7 +896,7 @@
     <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
-  <!-- ✅ MODAL DE DETALLE/BÚSQUEDA -->
+  <!-- MODAL DE DETALLE/BÚSQUEDA -->
   <div class="modal" id="detail-view-modal">
       <div class="detail-header">
           <button class="icon-btn" id="detail-close-btn" title="Cerrar"><i class="fa-solid fa-arrow-left"></i></button>
@@ -869,7 +904,7 @@
       </div>
       <div id="search-bar-container">
           <input type="search" id="search-input" placeholder="Buscar películas, series o géneros..." autofocus>
-          <!-- ✅ MEJORA 2: Indicador de carga inline, solo debajo del buscador -->
+          <!-- Indicador de carga inline, solo debajo del buscador -->
           <div id="search-inline-loading">
               <div class="sircle-dot"></div>
               <div class="sircle-dot"></div>
@@ -925,12 +960,13 @@
 
                 <div style="padding:0;">
                     <p id="modal-desc" style="margin-top:10px; color:var(--muted); font-size:14px; line-height:1.5;">Descripción detallada de la película...</p>
-                    <div style="margin-top:20px; margin-bottom: 30px; display:flex; gap:10px; flex-wrap: wrap;">
-                        <!-- ✅ MEJORA 4: Botón Buscar a la izquierda de Recargar -->
+                    
+                    <!-- MEJORA 3: Botones en slider horizontal con colores blancos -->
+                    <div class="action-buttons-slider">
                         <button class="btn pelicula" id="modal-search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-                        <button class="btn play" id="modal-play"><i class="fa-solid fa-bolt"></i> Recargar</button> 
+                        <button class="btn pelicula" id="modal-play"><i class="fa-solid fa-bolt"></i> Recargar</button> 
                         <button class="btn pelicula" id="modal-analysis-btn"><i class="fa-solid fa-brain"></i> Análisis</button>
-                        <button class="btn película" id="modal-share-btn"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
+                        <button class="btn pelicula" id="modal-share-btn"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
                     </div>
                 </div>
                 
@@ -999,6 +1035,90 @@
       </a>
   </nav>
 
+  <!-- Banner de Compartir -->
+  <div class="banner" id="banner">  
+      <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
+      <div class="banner-description">  
+          <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
+          <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
+      </div>  
+      <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
+      <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
+  </div>
+
+  <style>
+      .banner {  
+          width: 100%;  
+          background: linear-gradient(to right, #00264D, #003366);  
+          color: #FFFFFF;  
+          position: fixed;  
+          bottom: 0;  
+          left: 50%;  
+          transform: translateX(-50%);  
+          padding: 30px;  
+          border-top-left-radius: 15px;  
+          border-top-right-radius: 15px;  
+          box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+          display: none;
+          flex-direction: column;  
+          align-items: center;  
+          text-align: center;  
+          z-index: 9999;  
+      }  
+
+      .banner-title {  
+          font-size: 24px;  
+          font-weight: bold;  
+          margin-bottom: 15px;  
+          color: #FF00FF;  
+      }  
+
+      .banner-description {  
+          font-size: 18px;  
+          line-height: 1.8;  
+          color: #FFFFFF;  
+          margin-bottom: 20px;  
+      }  
+
+      .cta-button, .close-modal {  
+          width: 100%;  
+          padding: 16px;  
+          text-align: center;  
+          text-decoration: none;  
+          border-radius: 25px;  
+          font-size: 18px;  
+          font-weight: bold;  
+          margin-bottom: 12px;  
+          cursor: pointer;  
+          transition: transform 0.2s ease-in-out;  
+          border: none;
+      }  
+
+      .cta-button {  
+          background: linear-gradient(to right, #2ECC71, #66CC99);  
+          color: white;  
+      }  
+
+      .cta-button:hover {  
+          transform: scale(1.08);  
+      }  
+
+      .close-modal {  
+          background-color: red;  
+          color: #FFFFFF;  
+      }  
+
+      .close-modal:hover {  
+          background-color: darkred;  
+          transform: scale(1.08);  
+      }  
+
+      .icon {  
+          margin-right: 8px;  
+          color: #FF00FF;  
+      }
+  </style>
+
   <script>
 /* ==========================================================
    CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE
@@ -1040,7 +1160,7 @@ let bannerMovies = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
 
-// ✅ MEJORA 3: Variables de estado de navegación
+// Variables de estado de navegación
 let detailViewWasActive = false;
 let lastSearchTerm = '';
 
@@ -1133,7 +1253,7 @@ function hideLoading() {
     globalLoadingSpinner.classList.remove('active'); 
 }
 
-// ✅ MEJORA 2: Funciones del spinner inline de búsqueda
+// Funciones del spinner inline de búsqueda
 const searchInlineLoading = document.getElementById('search-inline-loading');
 function showSearchLoading() {
     if (searchInlineLoading) searchInlineLoading.style.display = 'flex';
@@ -1385,7 +1505,9 @@ function startBannerRotation() {
     if (bannerMovies.length === 0) return;
     
     if (bannerInterval) clearInterval(bannerInterval);
-
+    
+    // MEJORA 1: Banner en slider horizontal - ya no necesita rotación automática
+    // pero mantenemos la funcionalidad de scroll
     const items = bannerSlider.querySelectorAll('.banner-item');
     items.forEach((item, index) => {
         item.classList.remove('active');
@@ -1393,22 +1515,9 @@ function startBannerRotation() {
             item.classList.add('active');
         }
     });
-
-    bannerInterval = setInterval(() => {
-        currentBannerIndex = (currentBannerIndex + 1) % bannerMovies.length;
-        const newItems = bannerSlider.querySelectorAll('.banner-item');
-        
-        newItems.forEach((item, index) => {
-            item.classList.remove('active');
-            if (index === currentBannerIndex) {
-                item.classList.add('active');
-            }
-        });
-    }, 5000); 
 }
 
 async function fetchBannerMovies() {
-    // Spinner breve solo para el banner inicial
     showLoading();
     const data = await fetchData('/peliculas', { showGlobalLoading: false });
     hideLoading();
@@ -1495,11 +1604,11 @@ function createCategoryRow(category) {
     return { section, row };
 }
 
-// ✅ MEJORA 1: Carga progresiva de categorías — se muestran de inmediato al llegar
+// MEJORA 2: Carga de películas al mismo tiempo - renderCategories carga todas en paralelo
 async function renderCategories() {
     categoriesContainer.innerHTML = '';
     
-    // Crear TODOS los contenedores de categoría en el DOM de inmediato (mantiene el orden visual)
+    // Crear TODOS los contenedores de categoría en el DOM de inmediato
     const categoryItems = CATEGORIES.map(category => {
         const { section, row } = createCategoryRow(category);
         section.style.display = 'none'; // Oculto hasta que lleguen los datos
@@ -1507,7 +1616,7 @@ async function renderCategories() {
         return { category, section, row };
     });
     
-    // Lanzar TODOS los fetches en paralelo. Cada uno se renderiza en cuanto llega su respuesta
+    // Lanzar TODOS los fetches en paralelo
     categoryItems.forEach(({ category, section, row }) => {
         const endpoint = `/peliculas/categoria/${encodeURIComponent(category.genre)}`;
         fetchData(endpoint, { showGlobalLoading: false }).then(data => {
@@ -1547,7 +1656,7 @@ async function showCategoryDetails(category) {
 }
 
 
-// ✅ MEJORA 2: handleSearch usa spinner INLINE, no global
+// handleSearch usa spinner INLINE, no global
 async function handleSearch(query) {
     if (query.length < 3) {
         detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
@@ -1709,7 +1818,7 @@ async function fetchSuggestions(){
     }
 }
 
-// ✅ MEJORA 3: closeMovieModalAndRefresh restaura la pantalla anterior
+// closeMovieModalAndRefresh restaura la pantalla anterior
 function closeMovieModalAndRefresh() {
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
@@ -1771,7 +1880,7 @@ function displayMovieDetails(movie) {
         addMovieToFavorites(movie);
     };
 
-    // ✅ MEJORA 6: Botón Análisis usa generateAnalysisWithGemini
+    // MEJORA 3: Botones de acción con colores blancos (ya definidos en CSS)
     document.getElementById('modal-analysis-btn').onclick = () => {
         generateAnalysisWithGemini(movie.titulo, movie.descripcion);
     };
@@ -1786,7 +1895,7 @@ function displayMovieDetails(movie) {
         document.getElementById('banner').style.display = 'flex';
     };
 
-    // ✅ MEJORA 4: Botón Buscar en el reproductor
+    // Botón Buscar en el reproductor
     const searchBtnInPlayer = document.getElementById('modal-search-btn');
     if (searchBtnInPlayer) {
         searchBtnInPlayer.onclick = () => {
@@ -1810,7 +1919,7 @@ function displayMovieDetails(movie) {
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 }
 
-// ✅ MEJORA 3: handleViewMovieDetails guarda el estado de navegación antes de abrir el reproductor
+// handleViewMovieDetails guarda el estado de navegación antes de abrir el reproductor
 async function handleViewMovieDetails(movie, source){
     showLoading();
 
@@ -1874,10 +1983,10 @@ modal.addEventListener('click', (e)=>{
    FUNCIÓN PRINCIPAL Y LISTENERS DE INTERFAZ
    ========================================================== */
 
-// ✅ MEJORA 1 y 5: main() lanza banner y luego carga progresiva de categorías
+// main() lanza banner y luego carga progresiva de categorías
 async function main(){
     await fetchBannerMovies(); // Esperar al banner (spinner breve)
-    renderCategories();        // Carga progresiva, sin await — aparecen de inmediato
+    renderCategories();        // Carga todas las categorías en paralelo
 }
 
 document.getElementById('btn-back').addEventListener('click', () => {
@@ -1943,90 +2052,6 @@ auth.onAuthStateChanged(async (user) => {
 
 </script>
 
-<!-- Banner de Compartir -->
-<div class="banner" id="banner">  
-    <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
-    <div class="banner-description">  
-        <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
-        <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a Consulta PE y seguir mejorando juntos..😜✨</p>  
-    </div>  
-    <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
-    <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
-</div>
-
-<style>
-    .banner {  
-        width: 100%;  
-        background: linear-gradient(to right, #00264D, #003366);  
-        color: #FFFFFF;  
-        position: fixed;  
-        bottom: 0;  
-        left: 50%;  
-        transform: translateX(-50%);  
-        padding: 30px;  
-        border-top-left-radius: 15px;  
-        border-top-right-radius: 15px;  
-        box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
-        display: none;
-        flex-direction: column;  
-        align-items: center;  
-        text-align: center;  
-        z-index: 9999;  
-    }  
-
-    .banner-title {  
-        font-size: 24px;  
-        font-weight: bold;  
-        margin-bottom: 15px;  
-        color: #FF00FF;  
-    }  
-
-    .banner-description {  
-        font-size: 18px;  
-        line-height: 1.8;  
-        color: #FFFFFF;  
-        margin-bottom: 20px;  
-    }  
-
-    .cta-button, .close-modal {  
-        width: 100%;  
-        padding: 16px;  
-        text-align: center;  
-        text-decoration: none;  
-        border-radius: 25px;  
-        font-size: 18px;  
-        font-weight: bold;  
-        margin-bottom: 12px;  
-        cursor: pointer;  
-        transition: transform 0.2s ease-in-out;  
-        border: none;
-    }  
-
-    .cta-button {  
-        background: linear-gradient(to right, #2ECC71, #66CC99);  
-        color: white;  
-    }  
-
-    .cta-button:hover {  
-        transform: scale(1.08);  
-    }  
-
-    .close-modal {  
-        background-color: red;  
-        color: #FFFFFF;  
-    }  
-
-    .close-modal:hover {  
-        background-color: darkred;  
-        transform: scale(1.08);  
-    }  
-
-    .icon {  
-        margin-right: 8px;  
-        color: #FF00FF;  
-    }
-</style>
-
 <script>
     function sharePage() {  
         const url = window.location.href;  
@@ -2045,12 +2070,11 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById('banner').style.display = 'none';  
     }
 
-    // ✅ MEJORA 6: generateAnalysisWithGemini corregida — usa los elementos HTML correctos
-    // y el modelo de Gemini via https://generativelanguage.googleapis.com/v1beta/models/
+    // generateAnalysisWithGemini
     async function generateAnalysisWithGemini(movieTitle, movieDescription) {
         const analysisModalEl = document.getElementById('analysis-modal');
         const analysisTitleEl = document.getElementById('analysis-title');
-        const analysisContentEl = document.getElementById('analysis-content'); // CORREGIDO: era 'analysis-result-container'
+        const analysisContentEl = document.getElementById('analysis-content');
         const analysisHeaderEl = document.getElementById('analysis-header');
 
         // Preparar el modal
