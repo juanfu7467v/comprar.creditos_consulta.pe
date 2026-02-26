@@ -45,7 +45,7 @@
     --bg: #0f1115;
     --surface: #15171b;
     --muted: #8b8f95;
-    --accent: #e50914; /* rojo Maguis/Netflix-like */
+    --accent: #e50914;
     --card: #16181c;
     --text: #eee;
     --radius: 12px;
@@ -71,7 +71,7 @@
     transition: background 0.2s, transform 0.1s;
   }
   .btn:active{ transform: scale(0.98); }
-  .btn.play{background:var(--text); color:#000; border:none;} /* Botón blanco principal */
+  .btn.play{background:var(--text); color:#000; border:none;}
   .btn.pelicula{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--text)}
 
   /* --------------------------------------------------------------
@@ -104,13 +104,13 @@
   }
 
   /* --------------------------------------------------------------
-     NUEVOS ESTILOS DEL BUSCADOR (Ahora en Modal de Detalle/Búsqueda)
+     ESTILOS DEL BUSCADOR
      -------------------------------------------------------------- */
   #search-bar-container{
-    position: sticky; /* Se mantiene sticky dentro del modal para que no se oculte al hacer scroll */
-    top: 66px; /* Altura del .detail-header */
+    position: sticky;
+    top: 66px;
     z-index: 10;
-    padding: 12px 14px; /* Ajuste de padding para una mejor visibilidad */
+    padding: 12px 14px;
     background: var(--bg); 
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -130,15 +130,21 @@
     color: var(--muted);
   }
 
-  /* Content container (AJUSTE: REDUCCIÓN DE ESPACIO DE PELÍCULAS AL MENÚ) */
+  /* ✅ MEJORA 2: Indicador de carga inline para búsqueda */
+  #search-inline-loading {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0 4px;
+    gap: 8px;
+  }
+
   .container{
     max-width:1100px;
     margin:0 auto; 
-    /* ESPACIO REDUCIDO A LA MITAD: 40px (antes 80px) */
     padding:0 12px 40px; 
   }
   
-  /* Category Row Container */
   .category-row-container {
       margin-bottom: 25px;
       padding: 0;
@@ -182,7 +188,6 @@
       display: none;
   }
 
-  /* Catalog Card (Repurposing .card styles) */
   .card{
     width: 120px; 
     flex-shrink: 0;
@@ -204,7 +209,6 @@
     background:linear-gradient(180deg,#222,#171717);
   }
   
-  /* Overlay text (progress - repurposed/removed) */
   .overlay{ display: none; }
   .card-options { display: none; }
 
@@ -227,27 +231,22 @@
     text-overflow:ellipsis;
   }
   
-  /* Scroll to Top FAB Button (ELIMINADO) */
-  
-  /* Responsive */
   @media (min-width:900px){
     .category-row .card{ width: 180px; } 
     .category-row .poster{ height: 270px; }
-    /* Ajuste para tarjetas en la vista de detalle */
     .detail-grid .card{ width: 220px; }
     .detail-grid .poster{ height: 330px; }
   }
   @media (max-width:420px){
     .category-row .card{ width: 100px; } 
     .category-row .poster{ height: 150px; }
-    /* Ajuste para tarjetas en la vista de detalle */
     .detail-grid .card{ width: calc(50% - 10px); }
     .detail-grid .poster{ height: 250px; }
   }
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL BANNER PRINCIPAL (Fila superior)
+     ESTILOS DEL BANNER PRINCIPAL
      -------------------------------------------------------------- */
   #banner-slider{
       position: relative;
@@ -312,7 +311,7 @@
   }
 
   /* --------------------------------------------------------------
-     NUEVO: INTERFAZ DE DETALLE/BÚSQUEDA (VER MÁS)
+     INTERFAZ DE DETALLE/BÚSQUEDA (VER MÁS)
      -------------------------------------------------------------- */
   #detail-view-modal {
     position: fixed;
@@ -328,7 +327,7 @@
   .detail-header {
       position: sticky;
       top: 0;
-      z-index: 11; /* Se mantiene por encima del buscador interno */
+      z-index: 11;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -345,7 +344,6 @@
       font-size: 18px;
   }
   .detail-content {
-      /* Se elimina el padding top para evitar doble espacio con el search-bar-container */
       padding: 0 14px 14px; 
       max-width: 1100px;
       margin: 0 auto;
@@ -354,11 +352,11 @@
       display: flex;
       flex-wrap: wrap;
       gap: 15px 10px;
-      justify-content: center; /* Centrar en móvil */
+      justify-content: center;
   }
   @media (min-width: 900px) {
       .detail-grid {
-          justify-content: flex-start; /* Alinear a la izquierda en desktop */
+          justify-content: flex-start;
           gap: 20px;
       }
       .detail-grid .card {
@@ -374,7 +372,7 @@
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL MODAL DE REPRODUCCIÓN (PELÍCULA COMPLETA) 
+     MODAL DE REPRODUCCIÓN
      -------------------------------------------------------------- */
   .modal{
     display:none;
@@ -427,7 +425,6 @@
     object-fit: fill;
   }
 
-  /* Controles del reproductor (cerrar) */
   .player-controls-overlay {
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -500,13 +497,13 @@
   }
   
   /* --------------------------------------------------------------
-     NUEVO: ESTILOS DEL SPINNER GLOBAL DE CARGA (Sircle Loading)
+     SPINNER GLOBAL DE CARGA (3 círculos)
      -------------------------------------------------------------- */
   .sircle-loading-container {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       z-index: 2000;
-      background: rgba(15, 17, 21, 0.95); /* var(--surface) con opacidad */
+      background: rgba(15, 17, 21, 0.95);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -541,11 +538,10 @@
       50% { transform: scale(1); opacity: 1; }
       100% { transform: scale(0.6); opacity: 0.7; }
   }
-  /* Ocultar elementos de carga antiguos */
   #loading-suggestions, .loading-suggestions, .pulse-sug { display: none !important; }
 
   /* --------------------------------------------------------------
-     ESTILOS DEL MODAL DE CONFIRMACIÓN (BORRAR)
+     MODAL DE CONFIRMACIÓN
      -------------------------------------------------------------- */
   #confirmation-modal .modal-panel {
       height: auto; 
@@ -630,7 +626,7 @@
   }
   
   /* --------------------------------------------------------------
-     ESTILOS DEL MODAL DE ANÁLISIS
+     MODAL DE ANÁLISIS
      -------------------------------------------------------------- */
   #analysis-modal .modal-panel {
       background: linear-gradient(180deg, #0b0b0b, #070708);
@@ -692,7 +688,6 @@
   .analysis-content li {
       margin-bottom: 8px;
   }
-  /* Iconos de navegación flotantes */
   .analysis-nav-overlay {
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -734,11 +729,11 @@
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL INDICADOR DE PLAN FLOTANTE (Diamante)
+     INDICADOR DE PLAN FLOTANTE
      -------------------------------------------------------------- */
   #plan-indicator {
       position: fixed;
-      bottom: 85px; /* Ajustado para estar por encima del bottom-nav */
+      bottom: 85px;
       right: 20px;
       z-index: 1000;
       background: var(--plan-bg); 
@@ -776,11 +771,11 @@
       background: rgba(0,0,0,0.2);
   }
   @media(min-width:900px){
-    #plan-indicator{ bottom: 25px; } /* En desktop puede estar más abajo */
+    #plan-indicator{ bottom: 25px; }
   }
 
   /* --------------------------------------------------------------
-     NUEVO: MENÚ DE NAVEGACIÓN INFERIOR (Bottom Nav)
+     MENÚ DE NAVEGACIÓN INFERIOR (Bottom Nav)
      -------------------------------------------------------------- */
   .bottom-nav {
       position: fixed;
@@ -788,7 +783,7 @@
       left: 0;
       right: 0;
       z-index: 1000;
-      height: 60px; /* Altura adecuada para móvil */
+      height: 60px;
       background: var(--surface);
       border-top: 1px solid rgba(255,255,255,0.05);
       display: flex;
@@ -808,7 +803,7 @@
       color: var(--muted);
       font-size: 11px;
       font-weight: 600;
-      transition: color 0.2s, transform 0.1s; /* Agregado transform para el feedback de click */
+      transition: color 0.2s, transform 0.1s;
   }
 
   .nav-item i {
@@ -817,14 +812,13 @@
       line-height: 1;
   }
 
-  /* El color cambia al ser pulsado (feedback) */
   .nav-item:active {
       color: var(--accent); 
       transform: scale(0.95);
   }
 
   .nav-item.active {
-      color: var(--accent); /* Color principal para el activo */
+      color: var(--accent);
   }
 
 </style>
@@ -854,12 +848,11 @@
   <main class="container" id="app">
     <section id="banner-section" style="margin-bottom: 25px;">
         <div id="banner-slider">
-             </div>
+        </div>
     </section>
     
     <section id="categories-container">
-        </section>
-
+    </section>
   </main>
 
   <div id="plan-indicator" style="display:none;">
@@ -868,6 +861,7 @@
     <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
+  <!-- ✅ MODAL DE DETALLE/BÚSQUEDA -->
   <div class="modal" id="detail-view-modal">
       <div class="detail-header">
           <button class="icon-btn" id="detail-close-btn" title="Cerrar"><i class="fa-solid fa-arrow-left"></i></button>
@@ -875,12 +869,20 @@
       </div>
       <div id="search-bar-container">
           <input type="search" id="search-input" placeholder="Buscar películas, series o géneros..." autofocus>
+          <!-- ✅ MEJORA 2: Indicador de carga inline, solo debajo del buscador -->
+          <div id="search-inline-loading">
+              <div class="sircle-dot"></div>
+              <div class="sircle-dot"></div>
+              <div class="sircle-dot"></div>
+          </div>
       </div>
       <div class="detail-content">
           <div class="detail-grid" id="detail-results-container">
-              </div>
+          </div>
       </div>
   </div>
+
+  <!-- MODAL DE CONFIRMACIÓN -->
   <div class="modal" id="confirmation-modal">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmation-title">
       <div class="confirmation-header">
@@ -899,6 +901,7 @@
     </div>
   </div>
 
+  <!-- MODAL DE REPRODUCCIÓN -->
   <div class="modal" id="modal">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-body-full">
@@ -906,7 +909,8 @@
                 <div class="player-controls-overlay">
                     <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
                     <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos">
-                        <i class="fa-regular fa-heart"></i> </button>
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
                 </div>
             </div>
             <div class="detail-info"> 
@@ -922,8 +926,10 @@
                 <div style="padding:0;">
                     <p id="modal-desc" style="margin-top:10px; color:var(--muted); font-size:14px; line-height:1.5;">Descripción detallada de la película...</p>
                     <div style="margin-top:20px; margin-bottom: 30px; display:flex; gap:10px; flex-wrap: wrap;">
+                        <!-- ✅ MEJORA 4: Botón Buscar a la izquierda de Recargar -->
+                        <button class="btn pelicula" id="modal-search-btn"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                         <button class="btn play" id="modal-play"><i class="fa-solid fa-bolt"></i> Recargar</button> 
-                        <button class="btn película" id="modal-analysis-btn"><i class="fa-solid fa-brain"></i> Análisis</button>
+                        <button class="btn pelicula" id="modal-analysis-btn"><i class="fa-solid fa-brain"></i> Análisis</button>
                         <button class="btn película" id="modal-share-btn"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
                     </div>
                 </div>
@@ -939,6 +945,8 @@
         </div>
     </div>
   </div>
+
+  <!-- MODAL DE ANÁLISIS -->
   <div class="modal" id="analysis-modal">
       <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="analysis-title">
           <div class="analysis-container">
@@ -961,6 +969,8 @@
           </div>
       </div>
   </div>
+
+  <!-- MODAL DE ALERTA -->
   <div class="modal" id="alert-modal">
     <div class="modal-panel" style="height:auto; max-height:90vh; max-width:300px; border-radius:16px; overflow:hidden; background:none; align-self:center; padding:0; box-shadow: 0 10px 30px rgba(0,0,0,0.8);" role="alert" aria-live="assertive">
       <div style="height: 120px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.85); border-radius: 16px 16px 0 0; color: var(--accent);">
@@ -983,32 +993,32 @@
           <i class="fa-solid fa-heart"></i>
           <span>Favoritos</span>
       </a>
-      <a href="historial.html" class="nav-item"> <i class="fa-solid fa-history"></i>
+      <a href="historial.html" class="nav-item">
+          <i class="fa-solid fa-history"></i>
           <span>Historial</span>
       </a>
   </nav>
+
   <script>
 /* ==========================================================
    CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE
    ========================================================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg", // <--- TU API KEY AQUÍ
-  authDomain: "consulta-pe-abf99.firebaseapp.com", // <--- TU AUTH DOMAIN AQUÍ
-  projectId: "consulta-pe-abf99", // <--- TU PROJECT ID AQUÍ
-  storageBucket: "consulta-pe-abf99.firebasestorage.app", // <--- TU STORAGE BUCKET AQUÍ
-  messagingSenderId: "610275972424", // <--- TU MESSAGING SENDER ID AQUÍ
-  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d" // <--- TU APP ID AQUÍ
+  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
+  authDomain: "consulta-pe-abf99.firebaseapp.com",
+  projectId: "consulta-pe-abf99",
+  storageBucket: "consulta-pe-abf99.firebasestorage.app",
+  messagingSenderId: "610275972424",
+  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
 };
 
-// Inicialización
 if(firebase.apps.length === 0){
     firebase.initializeApp(firebaseConfig);
 }
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// API Base URL (Asegúrate de que este endpoint es el correcto para tu backend)
-let PELIPREX_BASE_URL = ""; // Cargado desde secrets
+let PELIPREX_BASE_URL = "";
 
 async function loadConfig() {
   try {
@@ -1023,7 +1033,6 @@ async function loadConfig() {
   }
 }
 
-// Llamar a loadConfig al inicio
 loadConfig();
 
 let currentMovie = null; 
@@ -1031,13 +1040,12 @@ let bannerMovies = [];
 let currentBannerIndex = 0;
 let bannerInterval = null;
 
-// =========================================================================
-// !!! CAMBIOS: Eliminada toda la lógica de deducción de créditos !!!
-// =========================================================================
+// ✅ MEJORA 3: Variables de estado de navegación
+let detailViewWasActive = false;
+let lastSearchTerm = '';
 
 /* --------------------------------------------------------------
-   ARRAY DE CATEGORÍAS REALES (CATEGORÍAS AMPLIADAS)
-   (Ahora incluye las categorías solicitadas por el usuario)
+   ARRAY DE CATEGORÍAS
    --------------------------------------------------------------
 */
 const CATEGORIES = [
@@ -1060,7 +1068,6 @@ const CATEGORIES = [
     { genre: 'thriller', title: '🔪 Thriller de Suspenso' },
     { genre: 'guerra', title: '⚔️ Cine Bélico' },
     { genre: 'western', title: '🤠 Western (Vaqueross)' },
-    // --- CATEGORÍAS ADICIONALES DEL USUARIO ---
     { genre: 'deportes', title: '🏅 Deportes' }, 
     { genre: 'biografia', title: '👑 Biografías' },
     { genre: 'musical', title: '🎭 Musical' },
@@ -1082,11 +1089,9 @@ const CATEGORIES = [
 /* ==========================================================
    REFERENCIAS Y FUNCIONES DE SOPORTE
    ========================================================== */
-// Referencias de UI esenciales (Catálogo)
 const bannerSlider = document.getElementById('banner-slider');
 const categoriesContainer = document.getElementById('categories-container');
 
-// Referencias de Modales
 const modal = document.getElementById('modal');
 const modalPlayer = document.getElementById('modal-player-container');
 const modalTitle = document.getElementById('modal-title');
@@ -1100,30 +1105,26 @@ const confirmationMessageEl = document.getElementById('confirmation-message');
 const btnConfirmAction = document.getElementById('btn-confirm-action');
 const btnCancelAction = document.getElementById('btn-cancel-action');
 
-// Referencias del Modal de Análisis
 const analysisModal = document.getElementById('analysis-modal');
 const analysisTitleEl = document.getElementById('analysis-title');
 const analysisHeader = document.getElementById('analysis-header');
 const analysisContent = document.getElementById('analysis-content');
 
-
-// Referencias del NUEVO Modal de Detalle/Búsqueda y sus inputs
 const detailViewModal = document.getElementById('detail-view-modal');
 const detailViewTitle = document.getElementById('detail-view-title');
 const detailResultsContainer = document.getElementById('detail-results-container');
-const searchInput = document.getElementById('search-input'); // Referencia del input de búsqueda
+const searchInput = document.getElementById('search-input');
 
 document.getElementById('detail-close-btn').onclick = () => {
     detailViewModal.classList.remove('active');
-    searchInput.value = ''; // Limpiar el input al cerrar
+    searchInput.value = '';
 };
 
-// Indicador de plan/créditos
 const planIndicator = document.getElementById('plan-indicator');
 const planText = document.getElementById('plan-text');
 const closePlanIndicatorBtn = document.getElementById('close-plan-indicator'); 
 
-// NUEVO: Funciones para controlar el spinner global
+// Spinner global
 const globalLoadingSpinner = document.getElementById('global-loading-spinner');
 function showLoading() { 
     globalLoadingSpinner.classList.add('active'); 
@@ -1132,7 +1133,15 @@ function hideLoading() {
     globalLoadingSpinner.classList.remove('active'); 
 }
 
-// Utility Functions 
+// ✅ MEJORA 2: Funciones del spinner inline de búsqueda
+const searchInlineLoading = document.getElementById('search-inline-loading');
+function showSearchLoading() {
+    if (searchInlineLoading) searchInlineLoading.style.display = 'flex';
+}
+function hideSearchLoading() {
+    if (searchInlineLoading) searchInlineLoading.style.display = 'none';
+}
+
 function safeImage(url){
   if(!url) return 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster+No+Disp.';
   const baseTMDb = 'https://image.tmdb.org/t/p/';
@@ -1142,17 +1151,12 @@ function safeImage(url){
   return (url.startsWith('http')) ? url : 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster';
 }
 
-/**
- * NUEVA FUNCIÓN: Baraja un array para aleatorizar el orden (Algoritmo Fisher-Yates).
- * @param {Array} a - El array a barajar.
- */
 function shuffleArray(a) {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]]; // Intercambio de elementos
+        [a[i], a[j]] = [a[j], a[i]];
     }
 }
-
 
 function showCustomModal(title, message, isError = false) {
     const m = document.getElementById('alert-modal');
@@ -1200,13 +1204,11 @@ confirmationModal.addEventListener('click', (e)=>{
 
 
 /* ==========================================================
-   LÓGICA DEL PLAN Y CRÉDITOS - MODIFICADA
+   LÓGICA DEL PLAN Y CRÉDITOS
    ========================================================== */
 
-// --- NUEVOS GRADIENTES PARA EL INDICADOR DE CRÉDITOS ---
-const GREEN_GRADIENT = 'linear-gradient(45deg, #1abc9c, #10ac84)'; // Para 1+ Créditos
-const ZERO_CREDIT_GRADIENT = 'linear-gradient(45deg,#ffdd57,#ffb84d)'; // Para 0 Créditos (Estilo original)
-
+const GREEN_GRADIENT = 'linear-gradient(45deg, #1abc9c, #10ac84)';
+const ZERO_CREDIT_GRADIENT = 'linear-gradient(45deg,#ffdd57,#ffb84d)';
 
 function updatePlanIndicator(userData) {
     if (localStorage.getItem('planIndicatorClosed') === 'true') {
@@ -1222,7 +1224,7 @@ function updatePlanIndicator(userData) {
     planIndicator.style.display = 'flex';
 
     if (userData.tipoPlan === 'ilimitado') {
-        planText.textContent = 'Gratis'; // MODIFICADO: Siempre mostrar "Gratis"
+        planText.textContent = 'Gratis';
         planIndicator.style.background = 'linear-gradient(135deg, var(--accent), #b00710)'; 
         planIndicator.style.color = '#fff';
         planIndicator.querySelector('i').style.color = '#fff';
@@ -1231,19 +1233,15 @@ function updatePlanIndicator(userData) {
 
     } else if (userData.tipoPlan === 'creditos') {
         const remaining = parseInt(userData.creditos) || 0; 
-        planText.textContent = 'Gratis'; // MODIFICADO: Siempre mostrar "Gratis" en lugar de la cantidad de créditos
-        
-        // Mantenemos el color verde para dar una sensación positiva
+        planText.textContent = 'Gratis';
         planIndicator.style.background = GREEN_GRADIENT;
-        
         planIndicator.style.color = '#0b0c0f';
         planIndicator.querySelector('i').style.color = '#0b0c0f';
         closePlanIndicatorBtn.style.background = 'rgba(0,0,0,0.1)';
         closePlanIndicatorBtn.style.color = 'var(--plan-text)';
-        // --------------------------------------------------------------------------
 
     } else {
-        planText.textContent = 'Gratis'; // MODIFICADO: Siempre mostrar "Gratis"
+        planText.textContent = 'Gratis';
         planIndicator.style.background = 'linear-gradient(135deg, #8b8f95, #555)';
         planIndicator.style.color = '#fff';
         planIndicator.querySelector('i').style.color = '#fff';
@@ -1261,13 +1259,9 @@ function updateProfileUI(userData) {
     updatePlanIndicator(userData);
 }
 
-// =========================================================================
-// !!! ELIMINADA TODA LA LÓGICA DE DEDUCCIÓN DE CRÉDITOS !!!
-// =========================================================================
-
 
 /* ==========================================================
-   LÓGICA DE FAVORITOS Y HISTORIAL AUTOMÁTICO 
+   LÓGICA DE FAVORITOS Y HISTORIAL
    ========================================================== */
 
 async function addMovieToHistory(movie) {
@@ -1302,7 +1296,7 @@ async function addMovieToFavorites(movie) {
         return;
     }
     
-    showLoading(); // INICIO: Mostrar spinner para feedback inmediato
+    showLoading();
 
     try {
         const apiUrl = `${PELIPREX_BASE_URL}/user/add_favorite?email=${encodeURIComponent(user.email)}&titulo=${encodeURIComponent(movie.titulo)}&imagen_url=${encodeURIComponent(movie.imagen_url || '')}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
@@ -1332,25 +1326,19 @@ async function addMovieToFavorites(movie) {
         console.error("Error al añadir a favoritos:", error);
         showErrorModal(`Error de red o API al añadir a favoritos: ${error.message}`);
     } finally {
-        hideLoading(); // FIN: Ocultar spinner después del proceso
+        hideLoading();
     }
 }
 
 
 /* ==========================================================
-   LÓGICA DEL CATÁLOGO, BANNER Y FETCHING DE DATOS (REAL)
+   LÓGICA DEL CATÁLOGO, BANNER Y FETCHING
    ========================================================== */
 
-/**
- * Función genérica para hacer fetch a la API con control de carga.
- * @param {string} endpoint - El endpoint de la API.
- * @param {Object} [options={}] - Opciones adicionales.
- * @param {boolean} [options.showGlobalLoading=true] - Si debe mostrar/ocultar el spinner global.
- */
 async function fetchData(endpoint, options = {}) {
-    const { showGlobalLoading = true } = options; // Opciones para controlar el spinner global
+    const { showGlobalLoading = true } = options;
     
-    if (showGlobalLoading) showLoading(); // Mostrar spinner si es necesario
+    if (showGlobalLoading) showLoading();
 
     try {
         const response = await fetch(`${PELIPREX_BASE_URL}${endpoint}`);
@@ -1360,14 +1348,12 @@ async function fetchData(endpoint, options = {}) {
         return await response.json();
     } catch (error) {
         console.error(`Error al cargar datos de ${endpoint}:`, error);
-        // MENSAJE DE ERROR QUE EL USUARIO ESTÁ VIENDO
         if (showGlobalLoading) {
-             // MODIFICACIÓN: Aviso adecuado sin exponer la API URL
              showErrorModal(`Error de conexión. No se pudieron cargar los datos del catálogo. Por favor, intenta de nuevo.`);
         }
         return null;
     } finally {
-        if (showGlobalLoading) hideLoading(); // Ocultar spinner si es necesario
+        if (showGlobalLoading) hideLoading();
     }
 }
 
@@ -1422,17 +1408,15 @@ function startBannerRotation() {
 }
 
 async function fetchBannerMovies() {
-    
-    const data = await fetchData('/peliculas');
+    // Spinner breve solo para el banner inicial
+    showLoading();
+    const data = await fetchData('/peliculas', { showGlobalLoading: false });
+    hideLoading();
     
     bannerSlider.innerHTML = '';
     
     if (data && Array.isArray(data) && data.length > 0) {
-        // << SOLUCIÓN PARA ALEATORIZAR EL BANNER >>
-        // 1. Barajamos todos los resultados obtenidos para que no sean siempre los mismos.
         shuffleArray(data); 
-        
-        // 2. Tomamos los primeros 6 (que ahora son aleatorios).
         bannerMovies = data.slice(0, 6); 
         
         bannerMovies.forEach(movie => {
@@ -1445,11 +1429,8 @@ async function fetchBannerMovies() {
 }
 
 
-// --- Lógica de Categorías y Tarjetas ---
+// --- Categorías y Tarjetas ---
 
-/**
- * Crea una tarjeta de película reutilizable para catálogo o vistas de detalle.
- */
 function createMovieCard(item){
     const div = document.createElement('div');
     div.className = 'card';
@@ -1477,7 +1458,6 @@ function createMovieCard(item){
     div.appendChild(poster);
     div.appendChild(meta);
 
-    // Al hacer clic, abre el modal de reproducción
     div.addEventListener('click', ()=> {
         handleViewMovieDetails(item, 'suggestion'); 
     });
@@ -1501,7 +1481,6 @@ function createCategoryRow(category) {
     verMasBtn.innerHTML = 'Ver Más <i class="fa-solid fa-chevron-right"></i>';
     verMasBtn.setAttribute('data-genre', category.genre);
     
-    // NUEVO: Funcionalidad Ver Más (muestra el modal de detalle)
     verMasBtn.onclick = () => showCategoryDetails(category);
 
     header.appendChild(title);
@@ -1516,60 +1495,45 @@ function createCategoryRow(category) {
     return { section, row };
 }
 
-// OPTIMIZADO: Se eliminó la función fetchCategory y se integró su lógica aquí para usar Promise.all
+// ✅ MEJORA 1: Carga progresiva de categorías — se muestran de inmediato al llegar
 async function renderCategories() {
     categoriesContainer.innerHTML = '';
     
-    // 1. Crear todas las promesas de fetching en paralelo.
-    const categoryDataPromises = CATEGORIES.map(async (category) => {
-        // Uso de encodeURIComponent para asegurar que los slugs compuestos funcionan (ej. 'ciencia ficcion')
+    // Crear TODOS los contenedores de categoría en el DOM de inmediato (mantiene el orden visual)
+    const categoryItems = CATEGORIES.map(category => {
+        const { section, row } = createCategoryRow(category);
+        section.style.display = 'none'; // Oculto hasta que lleguen los datos
+        categoriesContainer.appendChild(section);
+        return { category, section, row };
+    });
+    
+    // Lanzar TODOS los fetches en paralelo. Cada uno se renderiza en cuanto llega su respuesta
+    categoryItems.forEach(({ category, section, row }) => {
         const endpoint = `/peliculas/categoria/${encodeURIComponent(category.genre)}`;
-        // No mostrar el spinner global para cada fetch individual, ya que Promise.all lo gestionará
-        const data = await fetchData(endpoint, { showGlobalLoading: false }); 
-        return { category, data };
+        fetchData(endpoint, { showGlobalLoading: false }).then(data => {
+            if (data && data.resultados && data.resultados.length > 0) {
+                data.resultados.slice(0, 20).forEach(movie => {
+                    row.appendChild(createMovieCard(movie));
+                });
+                section.style.display = ''; // Mostrar la categoría al instante
+            }
+            // Si no hay datos, la sección permanece oculta
+        });
     });
-
-    // 2. Mostrar el spinner global mientras se cargan todas las categorías
-    showLoading(); 
-    const results = await Promise.all(categoryDataPromises);
-    hideLoading(); // Ocultar el spinner global una vez que todos los datos están cargados
-    
-    // 3. Renderizar resultados en el orden original de CATEGORIES
-    results.forEach(({ category, data }) => {
-        if (data && data.resultados && data.resultados.length > 0) {
-            const { section, row } = createCategoryRow(category);
-            
-            // Limitar a los primeros 20 resultados para la vista de catálogo
-            data.resultados.slice(0, 20).forEach(movie => {
-                row.appendChild(createMovieCard(movie));
-            });
-            
-            categoriesContainer.appendChild(section);
-        }
-    });
-    
-    if(categoriesContainer.children.length === 0){
-         categoriesContainer.innerHTML = '<p style="text-align:center; color:var(--muted); padding: 30px 0;">No se pudieron cargar las categorías de películas.</p>';
-    }
 }
 
 
 /* ==========================================================
-   NUEVO: LÓGICA DE DETALLE (VER MÁS) Y BÚSQUEDA
+   LÓGICA DE DETALLE (VER MÁS) Y BÚSQUEDA
    ========================================================== */
 
-/**
- * Muestra la nueva interfaz de detalle para una categoría.
- */
 async function showCategoryDetails(category) {
     detailViewTitle.textContent = category.title;
     detailResultsContainer.innerHTML = '';
     detailViewModal.classList.add('active');
-    searchInput.value = ''; // Limpiar el campo de búsqueda
+    searchInput.value = '';
 
-    // Fetch con límite de 50 para la vista de detalle
     showLoading();
-    // Uso de encodeURIComponent para asegurar que los slugs compuestos funcionan
     const data = await fetchData(`/peliculas/categoria/${encodeURIComponent(category.genre)}?limit=50`);
     hideLoading();
 
@@ -1583,10 +1547,7 @@ async function showCategoryDetails(category) {
 }
 
 
-/**
- * Función que maneja la búsqueda real contra la API.
- * USA LA RUTA SOLICITADA: /buscar?q=
- */
+// ✅ MEJORA 2: handleSearch usa spinner INLINE, no global
 async function handleSearch(query) {
     if (query.length < 3) {
         detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
@@ -1594,13 +1555,18 @@ async function handleSearch(query) {
         return;
     }
     
+    // Guardar el término de búsqueda actual
+    lastSearchTerm = query;
     detailViewTitle.textContent = `Resultados para "${query}"`;
     detailResultsContainer.innerHTML = '';
     
-    showLoading();
-    // Uso de /buscar?q= para la búsqueda avanzada
-    const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`);
-    hideLoading();
+    // Guardar en localStorage para persistencia
+    try { localStorage.setItem('peliprex_lastSearch', query); } catch(e) {}
+    
+    // Mostrar SOLO el spinner inline, sin bloquear la pantalla
+    showSearchLoading();
+    const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`, { showGlobalLoading: false });
+    hideSearchLoading();
 
     if (data && data.resultados && data.resultados.length > 0) {
         data.resultados.forEach(movie => {
@@ -1630,12 +1596,12 @@ function generatePlaceholderAnalysis(movie) {
 
         <h3>La Esencia: Reseña Clave</h3>
         <p>
-            ${title} se destaca por su audaz narrativa y su impacto visual. Es una obra que desafía las convenciones de su género, ofreciendo una experiencia inmersiva que se queda contigo mucho después de los creditos. La dirección es firme, manteniendo un ritmo que no decae y construyendo la tensión de manera magistral.
+            ${title} se destaca por su audaz narrativa y su impacto visual. Es una obra que desafía las convenciones de su género, ofreciendo una experiencia inmersiva que se queda contigo mucho después de los créditos. La dirección es firme, manteniendo un ritmo que no decae y construyendo la tensión de manera magistral.
         </p>
         
         <h3>Elementos Destacados</h3>
         <p>
-            Los puntos fuertes de la película incluyen actuaciones sólidas y una cinematografía que eleva la historia. Los temas de ${genre.split(',')[0] || 'la condición humana'} y ${genre.split(',')[1] || 'el destino'} son explorados con profundidad.
+            Los puntos fuertes de la película incluyen actuaciones sólidas y una cinematografía que eleva la historia.
         </p>
         <ul>
             <li><strong>Actuaciones:</strong> El elenco principal ofrece interpretaciones memorables.</li>
@@ -1650,10 +1616,10 @@ function generatePlaceholderAnalysis(movie) {
 }
 
 async function getMovieAnalysis(movie) {
-    analysisContent.innerHTML = '<p style="text-align:center; color:var(--muted); margin-top:15px;">Generando un análisis experto y humano de "${movie.titulo}"...</p>';
+    analysisContent.innerHTML = '<p style="text-align:center; color:var(--muted); margin-top:15px;">Generando un análisis experto...</p>';
     
     showLoading();
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulación de carga real
+    await new Promise(resolve => setTimeout(resolve, 1500));
     hideLoading();
 
     const analysisHTML = generatePlaceholderAnalysis(movie);
@@ -1675,7 +1641,6 @@ function showAnalysisInterface(movie) {
     document.getElementById('analysis-report-btn').onclick = () => {
         showCustomModal('Reportar Error', 'Esta acción reporta un error en el análisis a los administradores.', false);
     };
-
 
     modal.classList.remove('active');
     modalPlayer.innerHTML = ''; 
@@ -1729,14 +1694,12 @@ function renderSuggestions(data){
 }
 
 async function fetchSuggestions(){
-    suggestionsRow.innerHTML = ''; // Limpiar
+    suggestionsRow.innerHTML = '';
     
-    const apiURL = `/peliculas`; // Endpoint para obtener películas aleatorias
-    // Se usa fetchData sin mostrar el loading global, ya que el spinner se maneja en handleViewMovieDetails
+    const apiURL = `/peliculas`;
     const data = await fetchData(apiURL, { showGlobalLoading: false }); 
     
     if (Array.isArray(data)) {
-        // Lógica de aleatorización para "También podría gustarte"
         const shuffled = data.sort(() => 0.5 - Math.random());
         renderSuggestions(shuffled);
     } else {
@@ -1746,18 +1709,25 @@ async function fetchSuggestions(){
     }
 }
 
-// MODIFICADA para eliminar la cancelación del temporizador (ya no existe)
+// ✅ MEJORA 3: closeMovieModalAndRefresh restaura la pantalla anterior
 function closeMovieModalAndRefresh() {
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
     
-    // Eliminada la lógica de cancelación de temporizador
+    // Si la vista de detalle/búsqueda estaba activa antes, la restauramos
+    if (detailViewWasActive) {
+        detailViewModal.classList.add('active');
+        // Restaurar el término de búsqueda si había uno
+        if (lastSearchTerm && !searchInput.value) {
+            searchInput.value = lastSearchTerm;
+        }
+        detailViewWasActive = false;
+    }
 }
 
 function displayMovieDetails(movie) {
     currentMovie = movie;
     
-    // 1. Cargar el iframe del reproductor y controles
     modalPlayer.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">peliPREX</div>
         <div class="player-controls-overlay">
@@ -1779,18 +1749,15 @@ function displayMovieDetails(movie) {
         modalPlayer.insertBefore(iframe, modalPlayer.firstChild); 
     }
 
-    // 2. Cargar la información de detalle
     const releaseYear = movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : movie.año || 'N/A';
     
     modalTitle.textContent = movie.titulo || 'Película Desconocida';
     modalSub.textContent = `${movie.idioma_original || ''} • ${releaseYear} • ${movie.generos || ''}`;
     modalDesc.textContent = movie.descripcion || 'No hay descripción disponible.';
     
-    // 3. Re-asignar listener al nuevo botón de cerrar dentro del overlay del iframe
     const closeBtnInIframe = document.getElementById('player-close-btn-in-iframe');
     closeBtnInIframe.onclick = closeMovieModalAndRefresh; 
 
-    // 4. LÓGICA DE FAVORITOS
     const favoriteBtn = document.getElementById('player-favorite-btn');
     
     favoriteBtn.style.color = 'var(--text)'; 
@@ -1804,12 +1771,11 @@ function displayMovieDetails(movie) {
         addMovieToFavorites(movie);
     };
 
-    // 5. Asignar listener al botón de Análisis
+    // ✅ MEJORA 6: Botón Análisis usa generateAnalysisWithGemini
     document.getElementById('modal-analysis-btn').onclick = () => {
         generateAnalysisWithGemini(movie.titulo, movie.descripcion);
     };
     
-    // 6. Botones 'Recargar' y 'Compartir'
     document.getElementById('modal-play').onclick = (e) => {
         e.preventDefault();
         window.location.href = "planes.html";
@@ -1820,17 +1786,33 @@ function displayMovieDetails(movie) {
         document.getElementById('banner').style.display = 'flex';
     };
 
-    // 7. Cargar Sugerencias
+    // ✅ MEJORA 4: Botón Buscar en el reproductor
+    const searchBtnInPlayer = document.getElementById('modal-search-btn');
+    if (searchBtnInPlayer) {
+        searchBtnInPlayer.onclick = () => {
+            // Cerrar reproductor sin restaurar pantalla anterior
+            modal.classList.remove('active');
+            modalPlayer.innerHTML = '';
+            detailViewWasActive = false; // No restaurar automáticamente
+
+            // Abrir interfaz de búsqueda
+            detailViewModal.classList.add('active');
+            detailViewTitle.textContent = 'Búsqueda de Películas';
+            detailResultsContainer.innerHTML = '<p class="no-results">Comienza a escribir para buscar (mínimo 3 caracteres).</p>';
+            searchInput.value = '';
+            setTimeout(() => searchInput.focus(), 150);
+        };
+    }
+
     fetchSuggestions();
 
-    // 8. Mostrar el modal
     modal.classList.add('active');
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 }
 
-// MODIFICADA: Eliminada toda la lógica de verificación de créditos
+// ✅ MEJORA 3: handleViewMovieDetails guarda el estado de navegación antes de abrir el reproductor
 async function handleViewMovieDetails(movie, source){
-    showLoading(); // INICIO: Mostrar spinner inmediatamente
+    showLoading();
 
     const user = auth.currentUser;
     if (!user) {
@@ -1839,14 +1821,20 @@ async function handleViewMovieDetails(movie, source){
         return;
     }
     
-    // ELIMINADA toda la lógica de verificación de créditos y temporizadores
+    // Guardar si la vista de detalle/búsqueda estaba abierta
+    detailViewWasActive = detailViewModal.classList.contains('active');
+    if (detailViewWasActive) {
+        try {
+            localStorage.setItem('peliprex_savedDetailTitle', detailViewTitle.textContent);
+            localStorage.setItem('peliprex_savedSearchQuery', searchInput.value || '');
+        } catch(e) {}
+    }
     
-    // FIX: Cerrar el modal de búsqueda/detalle al abrir el reproductor.
+    // Cerrar el modal de búsqueda/detalle al abrir el reproductor
     detailViewModal.classList.remove('active');
     
     let finalUrl = movie.pelicula_url;
     
-    // LÓGICA DE CORRECCIÓN DE URL GOOGLE DRIVE Y YOUTUBE
     if (finalUrl && finalUrl.includes('drive.google.com')) {
         const match = finalUrl.match(/\/d\/([^/]+)/);
         if (match) {
@@ -1861,22 +1849,20 @@ async function handleViewMovieDetails(movie, source){
     }
 
     if (!finalUrl) {
-        hideLoading(); // OCULTAR: Si el enlace está roto
+        hideLoading();
         showErrorModal(`El enlace de reproducción para ${movie.titulo} es nulo o está roto.`);
         return;
     }
     
     const movieWithFixedUrl = {...movie, pelicula_url: finalUrl};
     
-    // REGISTRAR EN EL HISTORIAL AL INICIAR LA REPRODUCCIÓN
     await addMovieToHistory(movieWithFixedUrl);
     
     displayMovieDetails(movieWithFixedUrl);
 
-    hideLoading(); // FIN: Ocultar spinner después de que el modal está listo
+    hideLoading();
 }
 
-// Listener para cerrar al hacer clic fuera del panel (Modal de Reproducción)
 modal.addEventListener('click', (e)=>{
   if(e.target === modal) {
     closeMovieModalAndRefresh();
@@ -1888,12 +1874,12 @@ modal.addEventListener('click', (e)=>{
    FUNCIÓN PRINCIPAL Y LISTENERS DE INTERFAZ
    ========================================================== */
 
+// ✅ MEJORA 1 y 5: main() lanza banner y luego carga progresiva de categorías
 async function main(){
-  await fetchBannerMovies();
-  await renderCategories();
+    await fetchBannerMovies(); // Esperar al banner (spinner breve)
+    renderCategories();        // Carga progresiva, sin await — aparecen de inmediato
 }
 
-// Event Listeners
 document.getElementById('btn-back').addEventListener('click', () => {
   if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
     window.history.back();
@@ -1902,11 +1888,9 @@ document.getElementById('btn-back').addEventListener('click', () => {
   }
 }); 
 
-// Funcionalidad del botón de búsqueda (Abre el Modal de Detalle/Búsqueda)
 const btnSearch = document.getElementById('btn-search');
 
 btnSearch.addEventListener('click', ()=> {
-    // Abre el modal de detalle/búsqueda
     detailViewModal.classList.add('active');
     detailViewTitle.textContent = 'Búsqueda de Películas';
     detailResultsContainer.innerHTML = '<p class="no-results">Comienza a escribir para buscar (mínimo 3 caracteres).</p>';
@@ -1914,21 +1898,14 @@ btnSearch.addEventListener('click', ()=> {
     searchInput.focus();
 });
 
-
-// Listener para la función de búsqueda real
 let searchTimeout;
 searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => handleSearch(e.target.value), 500);
 });
 
-
-// ELIMINADO: Lógica y listeners del botón #scrollTop
-
-// Observador del estado de autenticación de Firebase
 auth.onAuthStateChanged(async (user) => {
     if (user) {
-        // 1. Cargar Plan
         localStorage.removeItem('planIndicatorClosed');
         
         const userRef = db.collection("usuarios").doc(user.uid);
@@ -1954,13 +1931,10 @@ auth.onAuthStateChanged(async (user) => {
             updateProfileUI(null);
         }
 
-        // 2. Cargar Catálogo (Ahora es mucho más rápido)
         main(); 
 
     } else {
-        // No autenticado
         updateProfileUI(null); 
-        // Mostrar spinner mientras se pide la autenticación.
         showLoading();
         const currentPath = window.location.pathname + window.location.search;
         window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
@@ -1968,6 +1942,7 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 </script>
+
 <!-- Banner de Compartir -->
 <div class="banner" id="banner">  
     <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
@@ -1980,7 +1955,6 @@ auth.onAuthStateChanged(async (user) => {
 </div>
 
 <style>
-    /* Banner (Oculto por defecto) */  
     .banner {  
         width: 100%;  
         background: linear-gradient(to right, #00264D, #003366);  
@@ -1993,7 +1967,7 @@ auth.onAuthStateChanged(async (user) => {
         border-top-left-radius: 15px;  
         border-top-right-radius: 15px;  
         box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
-        display: none; /* Ocultamos el banner al inicio */  
+        display: none;
         flex-direction: column;  
         align-items: center;  
         text-align: center;  
@@ -2014,7 +1988,6 @@ auth.onAuthStateChanged(async (user) => {
         margin-bottom: 20px;  
     }  
 
-    /* Botones del Banner */  
     .cta-button, .close-modal {  
         width: 100%;  
         padding: 16px;  
@@ -2072,31 +2045,73 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById('banner').style.display = 'none';  
     }
 
-    /* Lógica de Análisis Gemini */
+    // ✅ MEJORA 6: generateAnalysisWithGemini corregida — usa los elementos HTML correctos
+    // y el modelo de Gemini via https://generativelanguage.googleapis.com/v1beta/models/
     async function generateAnalysisWithGemini(movieTitle, movieDescription) {
-        const analysisModal = document.getElementById('analysis-modal');
+        const analysisModalEl = document.getElementById('analysis-modal');
         const analysisTitleEl = document.getElementById('analysis-title');
-        const resultContainer = document.getElementById('analysis-result-container');
-        const loadingEl = document.getElementById('analysis-loading');
+        const analysisContentEl = document.getElementById('analysis-content'); // CORREGIDO: era 'analysis-result-container'
+        const analysisHeaderEl = document.getElementById('analysis-header');
 
+        // Preparar el modal
         analysisTitleEl.textContent = `Análisis de: ${movieTitle}`;
-        resultContainer.innerHTML = '';
-        loadingEl.style.display = 'flex';
-        analysisModal.classList.add('active');
+
+        // Mostrar spinner inline dentro del contenido de análisis
+        analysisContentEl.innerHTML = `
+            <div style="display:flex;justify-content:center;align-items:center;padding:40px;gap:10px;">
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+            </div>
+            <p style="text-align:center;color:var(--muted);margin-top:0;">Generando análisis experto de "<strong>${movieTitle}</strong>"...</p>
+        `;
+
+        // Imagen de fondo del header
+        if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.imagen_url) {
+            analysisHeaderEl.style.backgroundImage = `url(${safeImage(currentMovie.imagen_url)})`;
+        }
+
+        // Configurar botón de regreso al reproductor
+        document.getElementById('analysis-back-btn').onclick = () => {
+            analysisModalEl.classList.remove('active');
+            if (typeof currentMovie !== 'undefined' && currentMovie) {
+                displayMovieDetails(currentMovie);
+            }
+        };
+
+        document.getElementById('analysis-report-btn').onclick = () => {
+            showCustomModal('Reportar Error', 'Esta acción reporta un error en el análisis a los administradores.', false);
+        };
+
+        // Abrir modal de análisis y cerrar reproductor
+        analysisModalEl.classList.add('active');
         document.getElementById('modal').classList.remove('active');
 
         try {
+            // Llamada al backend que usa https://generativelanguage.googleapis.com/v1beta/models/
             const response = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ movieTitle, movieDescription })
             });
 
-            const data = await response.json();
-            loadingEl.style.display = 'none';
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
 
-            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+            const data = await response.json();
+
+            // Parsear respuesta del modelo Gemini (formato estándar v1beta)
+            if (
+                data.candidates &&
+                data.candidates[0] &&
+                data.candidates[0].content &&
+                data.candidates[0].content.parts &&
+                data.candidates[0].content.parts[0] &&
+                data.candidates[0].content.parts[0].text
+            ) {
                 let analysisText = data.candidates[0].content.parts[0].text;
+                // Limpiar markdown de negrita
                 let finalHtml = analysisText.replace(/\*\*/g, '');
                 const parts = finalHtml.split('\n');
                 let output = '';
@@ -2105,26 +2120,35 @@ auth.onAuthStateChanged(async (user) => {
                 parts.forEach(line => {
                     line = line.trim();
                     if (!line) return;
-                    if (line.match(/^(Trama y Desarrollo|Aspectos Destacados|Veredicto Final)/i)) {
+
+                    // Detectar encabezados de sección
+                    if (line.match(/^(Trama|Aspectos|Veredicto|Ficha|Reseña|Análisis|Protagonistas|Dirección|Música|Conclusión|Sinopsis|Reparto|Puntuación|Género|Resumen|Historia|Crítica|Director|Elenco|Nota|Banda)/i)) {
                         if (inList) { output += '</ul>'; inList = false; }
-                        output += `<h3>${line.replace(/.$/, '')}</h3>`;
+                        output += `<h3>${line.replace(/:$/, '')}</h3>`;
                     } else if (line.startsWith('*') || line.startsWith('•') || line.match(/^[0-9]+\./)) {
                         if (!inList) { output += '<ul>'; inList = true; }
-                        output += `<li>${line.replace(/^[*\•] ?|^[0-9]+\. ?/, '')}</li>`;
+                        output += `<li>${line.replace(/^[*•] ?|^[0-9]+\. ?/, '')}</li>`;
                     } else {
                         if (inList) { output += '</ul>'; inList = false; }
                         output += `<p>${line}</p>`;
                     }
                 });
+
                 if (inList) { output += '</ul>'; }
-                resultContainer.innerHTML = output;
+                analysisContentEl.innerHTML = output;
+
             } else {
-                resultContainer.innerHTML = '<p style="color:var(--accent);">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
+                // Respuesta inesperada del modelo
+                analysisContentEl.innerHTML = '<p style="color:var(--accent); text-align:center; padding:20px;">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
             }
         } catch (error) {
-            loadingEl.style.display = 'none';
-            resultContainer.innerHTML = '<p style="color:var(--accent);">Error de conexión al servidor. Intenta de nuevo.</p>';
+            console.error("Error en análisis Gemini:", error);
+            analysisContentEl.innerHTML = `<p style="color:var(--accent); text-align:center; padding:20px;">Error de conexión al servidor de análisis. Intenta de nuevo.<br><small style="color:var(--muted);">${error.message}</small></p>`;
         }
+
+        // Scroll al inicio del análisis
+        const container = analysisModalEl.querySelector('.analysis-container');
+        if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
 </body>
