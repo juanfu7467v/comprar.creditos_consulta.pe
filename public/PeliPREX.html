@@ -573,7 +573,47 @@
       50% { transform: scale(1); opacity: 1; }
       100% { transform: scale(0.6); opacity: 0.7; }
   }
-  #loading-suggestions, .loading-suggestions, .pulse-sug { display: none !important; }
+
+  /* --------------------------------------------------------------
+     SKELETON LOADING PARA SUGERENCIAS (MODAL)
+     -------------------------------------------------------------- */
+  .skeleton-suggestion-card {
+      width: 120px;
+      flex-shrink: 0;
+      cursor: default;
+      pointer-events: none;
+  }
+  .skeleton-suggestion-poster {
+      width: 100%;
+      height: 170px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+  .skeleton-suggestion-title {
+      width: 80%;
+      height: 14px;
+      margin-top: 8px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+  .skeleton-suggestion-sub {
+      width: 50%;
+      height: 12px;
+      margin-top: 6px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+
+  @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+  }
 
   /* --------------------------------------------------------------
      MODAL DE CONFIRMACIÓN
@@ -1030,8 +1070,7 @@
                 <div class="suggestions" style="padding-bottom: 20px;">
                     <h4 style="margin-top:0; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; font-weight:700;">También podría gustarte (Sugerencias)</h4>
                     <div class="suggestions-row" id="suggestions-row">
-                      <div class="loading-suggestions" id="loading-suggestions">
-                      </div>
+                      <!-- Los skeletons se insertarán aquí dinámicamente -->
                     </div>
                 </div>
             </div>
@@ -1865,6 +1904,27 @@ analysisModal.addEventListener('click', (e)=>{
 });
 
 
+// ✅ FUNCIÓN ACTUALIZADA: Crea una tarjeta skeleton para sugerencias
+function createSkeletonSuggestion() {
+    const div = document.createElement('div');
+    div.className = 'skeleton-suggestion-card';
+    
+    const poster = document.createElement('div');
+    poster.className = 'skeleton-suggestion-poster';
+    
+    const title = document.createElement('div');
+    title.className = 'skeleton-suggestion-title';
+    
+    const sub = document.createElement('div');
+    sub.className = 'skeleton-suggestion-sub';
+    
+    div.appendChild(poster);
+    div.appendChild(title);
+    div.appendChild(sub);
+    
+    return div;
+}
+
 function createSuggestionCard(item){
     const div = document.createElement('div');
     div.className = 'suggestion-card';
@@ -1902,8 +1962,14 @@ function renderSuggestions(data){
     });
 }
 
+// ✅ FUNCIÓN ACTUALIZADA: Muestra skeletons mientras carga sugerencias
 async function fetchSuggestions(){
     suggestionsRow.innerHTML = '';
+    
+    // Mostrar 6 skeletons mientras carga
+    for (let i = 0; i < 6; i++) {
+        suggestionsRow.appendChild(createSkeletonSuggestion());
+    }
     
     const apiURL = `/peliculas`;
     const data = await fetchData(apiURL, { showGlobalLoading: false }); 
