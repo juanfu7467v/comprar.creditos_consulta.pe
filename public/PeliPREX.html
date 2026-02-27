@@ -2072,62 +2072,81 @@ modal.addEventListener('click', (e)=>{
 /* ==========================================================
    ✅ MEJORA PRINCIPAL: CARGA PROGRESIVA CON SKELETON
    ========================================================== */
-async function main() {
-    showLoading();
 
-    // Contador para saber cuándo ocultar el spinner global
-    let resolvedCount = 0;
-    const totalRequests = CATEGORIES.length + 1; // +1 por el banner
+// Variable para rastrear si ya llegó el primer resultado
+let firstResultArrived = false;
 
-    // Función para verificar y ocultar spinner cuando llegue el primer resultado
-    function checkFirstResult() {
-        resolvedCount++;
-        if (resolvedCount === 1) {
-            hideLoading(); // Ocultar spinner inmediatamente con el primer resultado
-        }
+// Función para ocultar el loader principal cuando llegue el primer resultado
+function checkAndHideLoader() {
+    if (!firstResultArrived) {
+        firstResultArrived = true;
+        hideLoading();
     }
+}
+
+// Función para obtener películas de una categoría con sistema de respaldo
+async function fetchCategoryWithFallback(category, retryCount = 0) {
+    try {
+        // Primer intento: endpoint de categoría
+        const data = await fetchData(`/peliculas/categoria/${encodeURIComponent(category.genre)}`, { showGlobalLoading: false });
+        
+        if (data && data.resultados && data.resultados.length > 0) {
+            return data.resultados;
+        }
+        
+        // Si no hay resultados después de 20 segundos, usar respaldo
+        if (retryCount === 0) {
+            await new Promise(resolve => setTimeout(resolve, 20000));
+            return fetchCategoryWithFallback(category, 1);
+        }
+        
+        // Sistema de respaldo: buscar por nombre de categoría
+        if (retryCount === 1) {
+            let allResults = [];
+            let page = 1;
+            const maxPages = 3; // Máximo 3 páginas para no saturar
+            
+            while (allResults.length < 10 && page <= maxPages) {
+                const searchData = await fetchData(`/buscar?q=${encodeURIComponent(category.genre)}&page=${page}`, { showGlobalLoading: false });
+                
+                if (searchData && searchData.resultados && searchData.resultados.length > 0) {
+                    allResults = [...allResults, ...searchData.resultados];
+                    page++;
+                } else {
+                    break;
+                }
+            }
+            
+            // Mezclar resultados
+            shuffleArray(allResults);
+            return allResults.slice(0, 20);
+        }
+        
+        return [];
+    } catch (error) {
+        console.error(`Error en categoría ${category.genre}:`, error);
+        return [];
+    }
+}
+
+async function main() {
+    // Mostrar loader principal
+    showLoading();
+    firstResultArrived = false;
 
     // Lanzar promesa del banner
-    const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false })
-        .then(data => {
-            checkFirstResult();
-            if (data) renderBannerFromData(data);
-            return data;
-        })
-        .catch(error => {
-            checkFirstResult();
-            console.error('Error en banner:', error);
-        });
+    const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false });
 
-    // Preparar promesas de categorías con el endpoint correcto según el género
-    const categoryFetches = CATEGORIES.map(category => {
-        // Determinar el endpoint según la categoría
-        let endpoint;
-        if (category.genre === 'destacadas') {
-            endpoint = '/peliculas'; // Endpoint especial para "Lo más visto hoy"
-        } else {
-            endpoint = `/buscar?q=${encodeURIComponent(category.genre)}`; // Búsqueda por género
-        }
-
-        return {
-            category,
-            promise: fetchData(endpoint, { showGlobalLoading: false })
-                .then(data => {
-                    checkFirstResult();
-                    return data;
-                })
-                .catch(error => {
-                    checkFirstResult();
-                    console.error(`Error en categoría ${category.genre}:`, error);
-                    return null;
-                })
-        };
-    });
+    // Crear arrays para categorías
+    const categoryFetches = CATEGORIES.map(category => ({
+        category,
+        promise: fetchCategoryWithFallback(category)
+    }));
 
     // Inicializar contenedor vacío
     categoriesContainer.innerHTML = '';
 
-    // Para cada categoría, crear estructura con skeletons inmediatamente
+    // Para cada categoría, insertar skeletons inmediatamente
     categoryFetches.forEach(({ category }) => {
         const { section, row } = createCategoryRow(category);
         
@@ -2139,59 +2158,62 @@ async function main() {
         categoriesContainer.appendChild(section);
     });
 
-    // Configurar timeout de 40 segundos para cada categoría
-    const TIMEOUT_MS = 40000; // 40 segundos
+    // Procesar banner cuando llegue
+    bannerPromise.then(bannerData => {
+        if (bannerData) {
+            renderBannerFromData(bannerData);
+            checkAndHideLoader();
+        }
+    }).catch(() => checkAndHideLoader());
 
-    // Procesar cada categoría individualmente
-    categoryFetches.forEach(({ category, promise }, index) => {
-        // Crear una promesa con timeout
-        const timeoutPromise = new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ timeout: true, category, index });
-            }, TIMEOUT_MS);
-        });
-
-        // Competencia entre la carga real y el timeout
-        Promise.race([promise, timeoutPromise])
-            .then(result => {
-                const sections = categoriesContainer.children;
-                if (!sections[index]) return;
-
+    // Procesar cada categoría a medida que se resuelven
+    categoryFetches.forEach(async ({ category, promise }, index) => {
+        try {
+            const resultados = await promise;
+            
+            // Ocultar loader si es el primer resultado
+            if (resultados.length > 0) {
+                checkAndHideLoader();
+            }
+            
+            // Encontrar la sección correspondiente
+            const sections = categoriesContainer.children;
+            if (sections[index]) {
                 const row = sections[index].querySelector('.category-row');
                 const section = sections[index];
-
-                // Si fue timeout o no hay resultados, ocultar toda la categoría
-                if (result?.timeout === true || !result || !result.resultados || result.resultados.length === 0) {
-                    section.style.display = 'none';
-                    return;
+                
+                if (row) {
+                    if (resultados.length > 0) {
+                        // Limpiar skeletons y agregar películas reales
+                        row.innerHTML = '';
+                        
+                        // Mezclar y agregar hasta 20 películas
+                        const shuffled = [...resultados];
+                        shuffleArray(shuffled);
+                        shuffled.slice(0, 20).forEach(movie => {
+                            row.appendChild(createMovieCard(movie));
+                        });
+                    } else {
+                        // Si no hay resultados después de 40 segundos, ocultar la categoría
+                        setTimeout(() => {
+                            if (section && section.parentNode) {
+                                const currentRow = section.querySelector('.category-row');
+                                if (currentRow && currentRow.children.length > 0 && 
+                                    currentRow.children[0].classList.contains('skeleton-card')) {
+                                    section.remove();
+                                }
+                            }
+                        }, 40000);
+                    }
                 }
-
-                // Si hay resultados, mostrarlos
-                if (result.resultados && result.resultados.length > 0) {
-                    row.innerHTML = ''; // Limpiar skeletons
-                    
-                    // Mezclar y mostrar hasta 20 películas
-                    const shuffled = [...result.resultados];
-                    shuffleArray(shuffled);
-                    shuffled.slice(0, 20).forEach(movie => {
-                        row.appendChild(createMovieCard(movie));
-                    });
-                    
-                    section.style.display = ''; // Asegurar que sea visible
-                }
-            })
-            .catch(error => {
-                console.error(`Error procesando categoría ${category.genre}:`, error);
-                // En caso de error, ocultar la categoría
-                const sections = categoriesContainer.children;
-                if (sections[index]) {
-                    sections[index].style.display = 'none';
-                }
-            });
+            }
+        } catch (error) {
+            console.error(`Error procesando categoría ${category.genre}:`, error);
+            checkAndHideLoader();
+        }
     });
-
-    // No esperamos a que todas terminen, el spinner ya se ocultó con el primer resultado
 }
+
 
 /* ==========================================================
    LISTENERS DE INTERFAZ
