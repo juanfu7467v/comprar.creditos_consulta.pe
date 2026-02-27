@@ -2072,83 +2072,47 @@ modal.addEventListener('click', (e)=>{
 /* ==========================================================
    ✅ MEJORA PRINCIPAL: CARGA PROGRESIVA CON SKELETON
    ========================================================== */
-
-// Variable para rastrear si ya llegó el primer resultado
-let firstResultArrived = false;
-
-// Función para ocultar el loader principal cuando llegue el primer resultado
-function checkAndHideLoader() {
-    if (!firstResultArrived) {
-        firstResultArrived = true;
-        hideLoading();
-    }
-}
-
-// Función para obtener películas de una categoría con sistema de respaldo
-async function fetchCategoryWithFallback(category, retryCount = 0) {
-    try {
-        // Primer intento: endpoint de categoría
-        const data = await fetchData(`/peliculas/categoria/${encodeURIComponent(category.genre)}`, { showGlobalLoading: false });
-        
-        if (data && data.resultados && data.resultados.length > 0) {
-            return data.resultados;
-        }
-        
-        // Si no hay resultados después de 20 segundos, usar respaldo
-        if (retryCount === 0) {
-            await new Promise(resolve => setTimeout(resolve, 20000));
-            return fetchCategoryWithFallback(category, 1);
-        }
-        
-        // Sistema de respaldo: buscar por nombre de categoría
-        if (retryCount === 1) {
-            let allResults = [];
-            let page = 1;
-            const maxPages = 3; // Máximo 3 páginas para no saturar
-            
-            while (allResults.length < 10 && page <= maxPages) {
-                const searchData = await fetchData(`/buscar?q=${encodeURIComponent(category.genre)}&page=${page}`, { showGlobalLoading: false });
-                
-                if (searchData && searchData.resultados && searchData.resultados.length > 0) {
-                    allResults = [...allResults, ...searchData.resultados];
-                    page++;
-                } else {
-                    break;
-                }
-            }
-            
-            // Mezclar resultados
-            shuffleArray(allResults);
-            return allResults.slice(0, 20);
-        }
-        
-        return [];
-    } catch (error) {
-        console.error(`Error en categoría ${category.genre}:`, error);
-        return [];
-    }
-}
-
 async function main() {
-    // Mostrar loader principal
     showLoading();
-    firstResultArrived = false;
 
-    // Lanzar promesa del banner
+    // Variable para controlar si ya se ocultó el loader
+    let loaderHidden = false;
+
+    // Lanzar todas las promesas en paralelo
     const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false });
 
-    // Crear arrays para categorías
-    const categoryFetches = CATEGORIES.map(category => ({
-        category,
-        promise: fetchCategoryWithFallback(category)
-    }));
+    // 🔧 CAMBIO 1: Usar endpoint de sugerencias para "Lo más visto hoy"
+    const categoryFetches = CATEGORIES.map(category => {
+        // Si es la categoría "destacadas", usar endpoint de sugerencias
+        if (category.genre === 'destacadas') {
+            return {
+                category,
+                promise: fetchData('/peliculas', { showGlobalLoading: false })
+            };
+        } else {
+            return {
+                category,
+                promise: fetchData(
+                    `/peliculas/categoria/${encodeURIComponent(category.genre)}`,
+                    { showGlobalLoading: false }
+                )
+            };
+        }
+    });
 
     // Inicializar contenedor vacío
     categoriesContainer.innerHTML = '';
 
+    // Crear array para almacenar los timeouts de cada categoría
+    const categoryTimeouts = [];
+
     // Para cada categoría, insertar skeletons inmediatamente
-    categoryFetches.forEach(({ category }) => {
+    categoryFetches.forEach(({ category }, index) => {
         const { section, row } = createCategoryRow(category);
+        
+        // Guardar referencia al índice para usarlo después
+        section.dataset.categoryIndex = index;
+        section.dataset.hasResults = 'false';
         
         // Agregar 8 skeletons mientras cargan los datos reales
         for (let i = 0; i < 8; i++) {
@@ -2156,62 +2120,83 @@ async function main() {
         }
         
         categoriesContainer.appendChild(section);
+
+        // Configurar timeout de 30 segundos para ocultar si no hay resultados
+        const timeoutId = setTimeout(() => {
+            const sectionEl = document.querySelector(`.category-row-container[data-category-index="${index}"]`);
+            if (sectionEl && sectionEl.dataset.hasResults === 'false') {
+                sectionEl.style.display = 'none';
+            }
+        }, 30000);
+        
+        categoryTimeouts.push(timeoutId);
     });
 
-    // Procesar banner cuando llegue
+    // Procesar banner primero si ya llegó
     bannerPromise.then(bannerData => {
-        if (bannerData) {
-            renderBannerFromData(bannerData);
-            checkAndHideLoader();
-        }
-    }).catch(() => checkAndHideLoader());
+        if (bannerData) renderBannerFromData(bannerData);
+    });
 
     // Procesar cada categoría a medida que se resuelven
-    categoryFetches.forEach(async ({ category, promise }, index) => {
+    const categoryPromises = categoryFetches.map(async ({ category, promise }, index) => {
         try {
-            const resultados = await promise;
+            const data = await promise;
             
-            // Ocultar loader si es el primer resultado
-            if (resultados.length > 0) {
-                checkAndHideLoader();
+            // Si es la primera categoría en resolverse, ocultar loader
+            if (!loaderHidden) {
+                hideLoading();
+                loaderHidden = true;
             }
-            
-            // Encontrar la sección correspondiente
+
+            // Limpiar timeout de esta categoría
+            clearTimeout(categoryTimeouts[index]);
+
             const sections = categoriesContainer.children;
             if (sections[index]) {
-                const row = sections[index].querySelector('.category-row');
                 const section = sections[index];
+                const row = section.querySelector('.category-row');
                 
-                if (row) {
-                    if (resultados.length > 0) {
-                        // Limpiar skeletons y agregar películas reales
-                        row.innerHTML = '';
-                        
-                        // Mezclar y agregar hasta 20 películas
-                        const shuffled = [...resultados];
-                        shuffleArray(shuffled);
-                        shuffled.slice(0, 20).forEach(movie => {
-                            row.appendChild(createMovieCard(movie));
-                        });
-                    } else {
-                        // Si no hay resultados después de 40 segundos, ocultar la categoría
-                        setTimeout(() => {
-                            if (section && section.parentNode) {
-                                const currentRow = section.querySelector('.category-row');
-                                if (currentRow && currentRow.children.length > 0 && 
-                                    currentRow.children[0].classList.contains('skeleton-card')) {
-                                    section.remove();
-                                }
-                            }
-                        }, 40000);
-                    }
+                if (data && data.resultados && data.resultados.length > 0) {
+                    // Marcar que tiene resultados
+                    section.dataset.hasResults = 'true';
+                    
+                    // Limpiar skeletons
+                    row.innerHTML = '';
+                    
+                    // 🔧 CAMBIO 1: Aplicar la misma lógica de mezcla que existe
+                    const shuffled = [...data.resultados];
+                    shuffleArray(shuffled);
+                    
+                    // Mostrar hasta 20 películas
+                    shuffled.slice(0, 20).forEach(movie => {
+                        row.appendChild(createMovieCard(movie));
+                    });
+                } else {
+                    // Si no hay resultados, ocultar toda la categoría
+                    section.style.display = 'none';
                 }
             }
         } catch (error) {
-            console.error(`Error procesando categoría ${category.genre}:`, error);
-            checkAndHideLoader();
+            console.error(`Error cargando categoría ${category.genre}:`, error);
+            
+            // Limpiar timeout
+            clearTimeout(categoryTimeouts[index]);
+            
+            // Ocultar categoría en caso de error
+            const sections = categoriesContainer.children;
+            if (sections[index]) {
+                sections[index].style.display = 'none';
+            }
         }
     });
+
+    // Esperar a que todas las promesas terminen (por si ninguna se resolvió antes)
+    await Promise.allSettled(categoryPromises);
+    
+    // Si el loader aún no se ha ocultado (ninguna categoría tuvo resultados), ocultarlo ahora
+    if (!loaderHidden) {
+        hideLoading();
+    }
 }
 
 
