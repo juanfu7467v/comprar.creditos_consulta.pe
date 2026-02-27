@@ -20,6 +20,8 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+<link rel="stylesheet" href="player-enhancements.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
@@ -27,6 +29,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="player-enhancements.js"></script>
 <style>
   /* --------------------------------------------------------------
      Estilos Base y Variables Globales
@@ -1521,26 +1525,17 @@ function closeMovieModalAndRefresh() {
 function displayMovieDetails(movie) {
     currentMovie = movie;
     
-    // 1. Cargar el iframe del reproductor y controles
-    modalPlayer.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">peliPREX</div>
-        <div class="player-controls-overlay">
-            <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
-            <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
-        </div>
-    `;
-    
-    if(movie.pelicula_url){
-        const iframe = document.createElement('iframe');
-        iframe.src = movie.pelicula_url;
-        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-        iframe.allowFullscreen = true;
-        iframe.frameBorder = 0;
-        iframe.style.objectFit = 'fill'; 
-        iframe.style.position = 'absolute';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        modalPlayer.insertBefore(iframe, modalPlayer.firstChild); 
+    // ✅ Mejora del Reproductor: Video.js + vjs-fluid + Lock Screen
+    if (movie.pelicula_url) {
+        setupVideoJSPlayer('modal-player-container', movie.pelicula_url, movie.titulo);
+    } else {
+        modalPlayer.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">peliPREX</div>
+            <div class="player-controls-overlay">
+                <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+                <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
+            </div>
+        `;
     }
 
     // 2. Cargar la información de detalle
