@@ -856,6 +856,65 @@
       color: var(--accent);
   }
 
+  /* --------------------------------------------------------------
+     ✅ SKELETON LOADING (NUEVO) - ANIMACIÓN DE CARGA
+     -------------------------------------------------------------- */
+  .skeleton-card {
+      width: 120px;
+      flex-shrink: 0;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      cursor: default;
+      pointer-events: none;
+  }
+
+  .skeleton-poster {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+
+  .skeleton-meta {
+      padding: 10px 8px 12px;
+  }
+
+  .skeleton-title {
+      width: 80%;
+      height: 14px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+
+  .skeleton-sub {
+      width: 50%;
+      height: 12px;
+      margin-top: 8px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+
+  @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+  }
+
+  @media (min-width:900px){
+      .skeleton-card { width: 180px; }
+      .skeleton-poster { height: 270px; }
+  }
+
+  @media (max-width:420px){
+      .skeleton-card { width: 100px; }
+      .skeleton-poster { height: 150px; }
+  }
 </style>
 </head>
 <body>
@@ -1621,6 +1680,32 @@ function createMovieCard(item){
     return div;
 }
 
+// ✅ NUEVA FUNCIÓN: Crea una tarjeta skeleton (placeholder de carga)
+function createSkeletonCard() {
+    const div = document.createElement('div');
+    div.className = 'skeleton-card';
+    
+    const poster = document.createElement('div');
+    poster.className = 'skeleton-poster';
+    
+    const meta = document.createElement('div');
+    meta.className = 'skeleton-meta';
+    
+    const title = document.createElement('div');
+    title.className = 'skeleton-title';
+    
+    const sub = document.createElement('div');
+    sub.className = 'skeleton-sub';
+    
+    meta.appendChild(title);
+    meta.appendChild(sub);
+    
+    div.appendChild(poster);
+    div.appendChild(meta);
+    
+    return div;
+}
+
 function createCategoryRow(category) {
     const section = document.createElement('div');
     section.className = 'category-row-container';
@@ -1985,15 +2070,12 @@ modal.addEventListener('click', (e)=>{
 
 
 /* ==========================================================
-   ✅ CAMBIO 2: FUNCIÓN PRINCIPAL — CARGA PARALELA TOTAL
-   Todo (banner + todas las categorías) se carga en paralelo.
-   El spinner se oculta SOLO cuando todo está listo.
-   Cada categoría mezcla sus resultados para dar variedad.
+   ✅ MEJORA PRINCIPAL: CARGA PROGRESIVA CON SKELETON
    ========================================================== */
 async function main() {
     showLoading();
 
-    // Preparar todos los fetches: banner + cada categoría
+    // Lanzar todas las promesas en paralelo
     const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false });
 
     const categoryFetches = CATEGORIES.map(category => ({
@@ -2004,37 +2086,55 @@ async function main() {
         )
     }));
 
-    // Lanzar TODO en paralelo con Promise.allSettled
-    // (allSettled no cancela si alguno falla — muestra lo que llegó)
-    const allPromises = [bannerPromise, ...categoryFetches.map(cf => cf.promise)];
-    const allResults = await Promise.allSettled(allPromises);
-
-    // — Renderizar Banner —
-    const bannerData = allResults[0].status === 'fulfilled' ? allResults[0].value : null;
-    renderBannerFromData(bannerData);
-
-    // — Renderizar Categorías —
+    // Inicializar contenedor vacío
     categoriesContainer.innerHTML = '';
-    categoryFetches.forEach(({ category }, index) => {
-        const result = allResults[index + 1];
-        const data = result.status === 'fulfilled' ? result.value : null;
 
-        if (data && data.resultados && data.resultados.length > 0) {
-            const { section, row } = createCategoryRow(category);
-
-            // ✅ Mezclar resultados para dar variedad en cada carga
-            const shuffled = [...data.resultados];
-            shuffleArray(shuffled);
-            shuffled.slice(0, 20).forEach(movie => {
-                row.appendChild(createMovieCard(movie));
-            });
-
-            categoriesContainer.appendChild(section);
+    // Para cada categoría, insertar skeletons inmediatamente
+    categoryFetches.forEach(({ category }) => {
+        const { section, row } = createCategoryRow(category);
+        
+        // Agregar 8 skeletons mientras cargan los datos reales
+        for (let i = 0; i < 8; i++) {
+            row.appendChild(createSkeletonCard());
         }
-        // Si no hay datos para esta categoría, simplemente no se muestra
+        
+        categoriesContainer.appendChild(section);
     });
 
-    // ✅ Ocultar spinner solo cuando TODO está cargado
+    // Procesar banner primero si ya llegó
+    bannerPromise.then(bannerData => {
+        if (bannerData) renderBannerFromData(bannerData);
+    });
+
+    // Procesar cada categoría a medida que se resuelven
+    categoryFetches.forEach(async ({ category, promise }, index) => {
+        try {
+            const data = await promise;
+            if (data && data.resultados && data.resultados.length > 0) {
+                // Encontrar la sección correspondiente
+                const sections = categoriesContainer.children;
+                if (sections[index]) {
+                    const row = sections[index].querySelector('.category-row');
+                    if (row) {
+                        // Limpiar skeletons
+                        row.innerHTML = '';
+                        
+                        // Mezclar y agregar hasta 20 películas reales
+                        const shuffled = [...data.resultados];
+                        shuffleArray(shuffled);
+                        shuffled.slice(0, 20).forEach(movie => {
+                            row.appendChild(createMovieCard(movie));
+                        });
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(`Error cargando categoría ${category.genre}:`, error);
+        }
+    });
+
+    // Esperar a que todas las promesas se resuelvan para ocultar el spinner global
+    await Promise.allSettled([bannerPromise, ...categoryFetches.map(cf => cf.promise)]);
     hideLoading();
 }
 
