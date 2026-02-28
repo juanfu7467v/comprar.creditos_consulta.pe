@@ -1207,6 +1207,86 @@ if(firebase.apps.length === 0){
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// ==========================================================
+// NUEVO: GESTIÓN DE API KEY
+// ==========================================================
+let API_KEY = localStorage.getItem('apiKey') || ''; // Recuperar API Key guardada
+let USER_EMAIL = localStorage.getItem('userEmail') || ''; // Recuperar email guardado
+
+// Función para generar API Key segura
+function generateSecureApiKey() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let key = 'ppx_';
+    const array = new Uint8Array(32);
+    window.crypto.getRandomValues(array);
+    for (let i = 0; i < 32; i++) {
+        key += chars[array[i] % chars.length];
+    }
+    return key;
+}
+
+// Función para guardar API Key y email
+function saveApiKey(apiKey, email) {
+    API_KEY = apiKey;
+    USER_EMAIL = email;
+    localStorage.setItem('apiKey', apiKey);
+    localStorage.setItem('userEmail', email);
+}
+
+// Función para limpiar API Key (logout)
+function clearApiKey() {
+    API_KEY = '';
+    USER_EMAIL = '';
+    localStorage.removeItem('apiKey');
+    localStorage.removeItem('userEmail');
+}
+
+// ==========================================================
+// NUEVO: FUNCIÓN PARA HACER PETICIONES POST CON API KEY
+// ==========================================================
+async function apiPost(endpoint, data = {}) {
+    if (!API_KEY) {
+        throw new Error('No hay API Key disponible');
+    }
+    
+    const url = `${PELIPREX_BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_KEY
+        },
+        body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+            // Token inválido - limpiar sesión
+            clearApiKey();
+            showErrorModal('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 2000);
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+}
+
+// Función para obtener/crear API Key desde el backend
+async function ensureApiKey(email) {
+    // Si ya tenemos API Key guardada y coincide con el email actual, usarla
+    if (API_KEY && localStorage.getItem('userEmail') === email) {
+        return API_KEY;
+    }
+    
+    // Si no hay API Key, generar una nueva
+    const newApiKey = generateSecureApiKey();
+    saveApiKey(newApiKey, email);
+    return newApiKey;
+}
+
 let PELIPREX_BASE_URL = "";
 
 async function loadConfig() {
@@ -1465,37 +1545,28 @@ function updateProfileUI(userData) {
 
 
 /* ==========================================================
-   LÓGICA DE FAVORITOS Y HISTORIAL
+   LÓGICA DE FAVORITOS Y HISTORIAL (AHORA CON API KEY)
    ========================================================== */
 
 async function addMovieToHistory(movie) {
-    const user = auth.currentUser;
-    if (!user || !user.email || !movie.titulo || !movie.pelicula_url) {
+    if (!API_KEY || !USER_EMAIL || !movie.titulo || !movie.pelicula_url) {
         return; 
     }
 
     try {
-        const apiUrl = `${PELIPREX_BASE_URL}/user/add_history?email=${encodeURIComponent(user.email)}&titulo=${encodeURIComponent(movie.titulo)}&imagen_url=${encodeURIComponent(movie.imagen_url || '')}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
-        
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            console.warn(`Error al registrar historial para ${movie.titulo}: HTTP Status ${response.status}`);
-        } else {
-            const data = await response.json();
-            if (data.error) {
-                console.warn(`Error al registrar historial para ${movie.titulo}: API Error - ${data.error}`);
-            } else {
-                console.log(`Historial registrado con éxito: ${movie.titulo}`);
-            }
-        }
+        await apiPost('/user/add_history', {
+            titulo: movie.titulo,
+            imagen_url: movie.imagen_url || '',
+            pelicula_url: movie.pelicula_url
+        });
+        console.log(`Historial registrado con éxito: ${movie.titulo}`);
     } catch (error) {
         console.error("Error durante el registro automático de historial:", error);
     }
 }
 
 async function addMovieToFavorites(movie) {
-    const user = auth.currentUser;
-    if (!user || !user.email || !movie.titulo || !movie.pelicula_url) {
+    if (!API_KEY || !USER_EMAIL || !movie.titulo || !movie.pelicula_url) {
         showErrorModal('No hay sesión activa o faltan datos de la película.');
         return;
     }
@@ -1503,14 +1574,11 @@ async function addMovieToFavorites(movie) {
     showLoading();
 
     try {
-        const apiUrl = `${PELIPREX_BASE_URL}/user/add_favorite?email=${encodeURIComponent(user.email)}&titulo=${encodeURIComponent(movie.titulo)}&imagen_url=${encodeURIComponent(movie.imagen_url || '')}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
-        
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        if (!response.ok || data.error) {
-            throw new Error(data.error || `Error HTTP: ${response.status}`);
-        }
+        const data = await apiPost('/user/add_favorite', {
+            titulo: movie.titulo,
+            imagen_url: movie.imagen_url || '',
+            pelicula_url: movie.pelicula_url
+        });
         
         if(data.ok === true){
             const favoriteBtn = document.getElementById('player-favorite-btn');
@@ -2190,6 +2258,9 @@ async function handleViewMovieDetails(movie, source){
         return;
     }
     
+    // Asegurar que tenemos API Key
+    await ensureApiKey(user.email);
+    
     detailViewWasActive = detailViewModal.classList.contains('active');
     if (detailViewWasActive) {
         try {
@@ -2376,6 +2447,9 @@ searchInput.addEventListener('input', (e) => {
 auth.onAuthStateChanged(async (user) => {
     if (user) {
         localStorage.removeItem('planIndicatorClosed');
+        
+        // Asegurar que tenemos API Key
+        await ensureApiKey(user.email);
         
         const userRef = db.collection("usuarios").doc(user.uid);
         try {
