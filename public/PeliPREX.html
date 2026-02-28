@@ -1799,7 +1799,6 @@ async function showCategoryDetails(category) {
     }
 }
 
-// ✅ FUNCIÓN ACTUALIZADA: Muestra skeletons mientras carga resultados de búsqueda
 async function handleSearch(query) {
     if (query.length < 3) {
         detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
@@ -1809,23 +1808,36 @@ async function handleSearch(query) {
     
     lastSearchTerm = query;
     detailViewTitle.textContent = `Resultados para "${query}"`;
-    
-    // Mostrar 12 skeletons mientras carga
     detailResultsContainer.innerHTML = '';
-    for (let i = 0; i < 12; i++) {
+    
+    // Mostrar skeletons mientras se carga la búsqueda
+    const skeletonCount = 8; // Cantidad de skeletons a mostrar (2 filas de 4 en móvil, o adaptable)
+    for (let i = 0; i < skeletonCount; i++) {
         detailResultsContainer.appendChild(createSkeletonCard());
     }
     
     try { localStorage.setItem('peliprex_lastSearch', query); } catch(e) {}
     
     showSearchLoading();
+    
+    // Crear un timeout de 15 segundos para ocultar skeletons en caso de fallo
+    let timeoutId = setTimeout(() => {
+        // Si todavía hay skeletons, reemplazarlos con mensaje de error
+        const skeletons = detailResultsContainer.querySelectorAll('.skeleton-card');
+        if (skeletons.length > 0) {
+            detailResultsContainer.innerHTML = '<p class="no-results">La búsqueda está tomando más tiempo de lo esperado. Por favor, intenta de nuevo.</p>';
+        }
+    }, 15000);
+    
     const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`, { showGlobalLoading: false });
+    
+    // Cancelar el timeout ya que la petición terminó
+    clearTimeout(timeoutId);
+    
     hideSearchLoading();
 
-    // Limpiar skeletons y mostrar resultados reales
-    detailResultsContainer.innerHTML = '';
-
     if (data && data.resultados && data.resultados.length > 0) {
+        detailResultsContainer.innerHTML = ''; // Limpiar skeletons
         data.resultados.forEach(movie => {
             detailResultsContainer.appendChild(createMovieCard(movie));
         });
@@ -1833,7 +1845,6 @@ async function handleSearch(query) {
         detailResultsContainer.innerHTML = '<p class="no-results">No se encontraron resultados para tu búsqueda.</p>';
     }
 }
-
 
 /* ==========================================================
    INTERFAZ DE REPRODUCCIÓN (MODAL) Y SUGERENCIAS 
