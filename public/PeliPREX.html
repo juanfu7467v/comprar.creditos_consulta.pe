@@ -1799,6 +1799,7 @@ async function showCategoryDetails(category) {
     }
 }
 
+// ✅ FUNCIÓN ACTUALIZADA: Muestra skeletons mientras carga resultados de búsqueda
 async function handleSearch(query) {
     if (query.length < 3) {
         detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
@@ -1808,13 +1809,21 @@ async function handleSearch(query) {
     
     lastSearchTerm = query;
     detailViewTitle.textContent = `Resultados para "${query}"`;
+    
+    // Mostrar 12 skeletons mientras carga
     detailResultsContainer.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+        detailResultsContainer.appendChild(createSkeletonCard());
+    }
     
     try { localStorage.setItem('peliprex_lastSearch', query); } catch(e) {}
     
     showSearchLoading();
     const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`, { showGlobalLoading: false });
     hideSearchLoading();
+
+    // Limpiar skeletons y mostrar resultados reales
+    detailResultsContainer.innerHTML = '';
 
     if (data && data.resultados && data.resultados.length > 0) {
         data.resultados.forEach(movie => {
@@ -1824,6 +1833,7 @@ async function handleSearch(query) {
         detailResultsContainer.innerHTML = '<p class="no-results">No se encontraron resultados para tu búsqueda.</p>';
     }
 }
+
 
 /* ==========================================================
    INTERFAZ DE REPRODUCCIÓN (MODAL) Y SUGERENCIAS 
