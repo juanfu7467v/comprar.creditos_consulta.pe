@@ -897,7 +897,7 @@
   }
 
   /* --------------------------------------------------------------
-     ✅ SKELETON LOADING (NUEVO) - ANIMACIÓN DE CARGA
+     ✅ SKELETON LOADING (HORIZONTAL ROWS - categorías)
      -------------------------------------------------------------- */
   .skeleton-card {
       width: 120px;
@@ -941,11 +941,6 @@
       border-radius: 4px;
   }
 
-  @keyframes skeleton-loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-  }
-
   @media (min-width:900px){
       .skeleton-card { width: 180px; }
       .skeleton-poster { height: 270px; }
@@ -954,6 +949,70 @@
   @media (max-width:420px){
       .skeleton-card { width: 100px; }
       .skeleton-poster { height: 150px; }
+  }
+
+  /* --------------------------------------------------------------
+     ✅ NUEVO — SKELETON LOADING PARA BÚSQUEDA/DETALLE (2 COLUMNAS)
+     -------------------------------------------------------------- */
+  .skeleton-search-card {
+      /* Ocupa exactamente la mitad del contenedor (2 columnas)
+         gap column = 10px → cada lado cede 5px               */
+      width: calc(50% - 5px);
+      flex-shrink: 0;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      cursor: default;
+      pointer-events: none;
+  }
+
+  .skeleton-search-poster {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+
+  .skeleton-search-meta {
+      padding: 10px 8px 12px;
+  }
+
+  .skeleton-search-title {
+      width: 80%;
+      height: 14px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+
+  .skeleton-search-sub {
+      width: 50%;
+      height: 12px;
+      margin-top: 8px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+
+  /* En escritorio los skeletons siguen el mismo ancho fijo que las tarjetas reales */
+  @media (min-width: 900px) {
+      .skeleton-search-card {
+          width: 180px;
+      }
+      .skeleton-search-poster {
+          height: 270px;
+      }
+  }
+
+  /* En móviles pequeños mantiene las 2 columnas con altura igual a la tarjeta real */
+  @media (max-width: 420px) {
+      .skeleton-search-poster {
+          height: 220px;
+      }
   }
 </style>
 </head>
@@ -1058,7 +1117,6 @@
 
                 <div style="padding:0;">
                     <p id="modal-desc" style="margin-top:10px; color:var(--muted); font-size:14px; line-height:1.5;">Descripción detallada de la película...</p>
-                    <!-- ✅ CAMBIO 3: Botones en slider horizontal, todos con fondo blanco -->
                     <div id="modal-action-buttons" style="margin-top:20px; margin-bottom: 30px; display:flex; gap:10px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; -ms-overflow-style: none; scrollbar-width: none;">
                         <button class="btn play" id="modal-search-btn" style="flex-shrink:0;"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
                         <button class="btn play" id="modal-play" style="flex-shrink:0;"><i class="fa-solid fa-bolt"></i> Recargar</button>
@@ -1070,7 +1128,6 @@
                 <div class="suggestions" style="padding-bottom: 20px;">
                     <h4 style="margin-top:0; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; font-weight:700;">También podría gustarte (Sugerencias)</h4>
                     <div class="suggestions-row" id="suggestions-row">
-                      <!-- Los skeletons se insertarán aquí dinámicamente -->
                     </div>
                 </div>
             </div>
@@ -1171,12 +1228,14 @@ let currentMovie = null;
 let bannerMovies = []; 
 let currentBannerIndex = 0;
 let bannerInterval = null;
-// ✅ CAMBIO 1: Variable para el track del banner slider
 let bannerTrack = null;
 
 // ✅ MEJORA 3: Variables de estado de navegación
 let detailViewWasActive = false;
 let lastSearchTerm = '';
+
+/* ✅ NUEVO — variable global para el timeout de skeletons de búsqueda */
+let searchSkeletonTimeout = null;
 
 /* --------------------------------------------------------------
    ✅ CAMBIO 2: ARRAY DE CATEGORÍAS ACTUALIZADO Y AMPLIADO
@@ -1507,9 +1566,6 @@ async function fetchData(endpoint, options = {}) {
    ✅ CAMBIO 1: BANNER SLIDER HORIZONTAL — FUNCIONES
    ========================================================== */
 
-/**
- * Crea un elemento visual de slide para el banner.
- */
 function createBannerItem(movie) {
     const banner = document.createElement('div');
     banner.className = 'banner-item';
@@ -1531,10 +1587,6 @@ function createBannerItem(movie) {
     return banner;
 }
 
-/**
- * Mueve el track del banner al slide actual.
- * @param {boolean|undefined} animated - false = sin animación (inicial), true/undefined = con animación
- */
 function updateBannerPosition(animated) {
     if (!bannerTrack) return;
     bannerTrack.style.transition = (animated === false)
@@ -1542,16 +1594,12 @@ function updateBannerPosition(animated) {
         : 'transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     bannerTrack.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
 
-    // Actualizar dots
     const dots = bannerSlider.querySelectorAll('.banner-dot');
     dots.forEach((dot, i) => {
         dot.classList.toggle('active', i === currentBannerIndex);
     });
 }
 
-/**
- * Reinicia el intervalo automático del banner.
- */
 function resetBannerInterval() {
     if (bannerInterval) clearInterval(bannerInterval);
     bannerInterval = setInterval(() => {
@@ -1560,20 +1608,13 @@ function resetBannerInterval() {
     }, 5000);
 }
 
-/**
- * Inicia la rotación automática del banner.
- */
 function startBannerRotation() {
     if (bannerMovies.length === 0) return;
     updateBannerPosition(false);
     resetBannerInterval();
 }
 
-/**
- * Agrega soporte de swipe táctil y arrastre de mouse al banner.
- */
 function addBannerTouchSupport() {
-    // ── Touch (móvil) ──
     let touchStartX = 0;
     let touchStartY = 0;
     let isTouchDragging = false;
@@ -1605,7 +1646,6 @@ function addBannerTouchSupport() {
         isTouchDragging = false;
     }, { passive: true });
 
-    // ── Mouse (escritorio) ──
     let mouseStartX = 0;
     let isMouseDragging = false;
 
@@ -1632,22 +1672,16 @@ function addBannerTouchSupport() {
     });
 }
 
-/**
- * Renderiza el banner a partir de los datos ya cargados (sin fetch propio).
- * @param {Array|null} data - Array de películas del endpoint /peliculas
- */
 function renderBannerFromData(data) {
     bannerSlider.innerHTML = '';
     bannerTrack = null;
 
     if (data && Array.isArray(data) && data.length > 0) {
-        // Mezclar para que cada carga muestre películas diferentes en el banner
         const shuffled = [...data];
         shuffleArray(shuffled);
         bannerMovies = shuffled.slice(0, 6);
         currentBannerIndex = 0;
 
-        // Crear track
         bannerTrack = document.createElement('div');
         bannerTrack.id = 'banner-track';
         bannerMovies.forEach(movie => {
@@ -1655,7 +1689,6 @@ function renderBannerFromData(data) {
         });
         bannerSlider.appendChild(bannerTrack);
 
-        // Crear dots
         const dotsEl = document.createElement('div');
         dotsEl.className = 'banner-dots';
         bannerMovies.forEach((_, i) => {
@@ -1670,10 +1703,7 @@ function renderBannerFromData(data) {
         });
         bannerSlider.appendChild(dotsEl);
 
-        // Agregar soporte de gestos
         addBannerTouchSupport();
-
-        // Iniciar rotación automática
         startBannerRotation();
     } else {
         bannerSlider.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">No se encontraron películas destacadas.</div>';
@@ -1719,7 +1749,7 @@ function createMovieCard(item){
     return div;
 }
 
-// ✅ NUEVA FUNCIÓN: Crea una tarjeta skeleton (placeholder de carga)
+// Crea una tarjeta skeleton para las filas horizontales de categorías
 function createSkeletonCard() {
     const div = document.createElement('div');
     div.className = 'skeleton-card';
@@ -1743,6 +1773,69 @@ function createSkeletonCard() {
     div.appendChild(meta);
     
     return div;
+}
+
+/* ✅ NUEVO — Crea una tarjeta skeleton para la vista de búsqueda/detalle (2 columnas) */
+function createSearchSkeletonCard() {
+    const div = document.createElement('div');
+    div.className = 'skeleton-search-card';
+
+    const poster = document.createElement('div');
+    poster.className = 'skeleton-search-poster';
+
+    const meta = document.createElement('div');
+    meta.className = 'skeleton-search-meta';
+
+    const title = document.createElement('div');
+    title.className = 'skeleton-search-title';
+
+    const sub = document.createElement('div');
+    sub.className = 'skeleton-search-sub';
+
+    meta.appendChild(title);
+    meta.appendChild(sub);
+    div.appendChild(poster);
+    div.appendChild(meta);
+
+    return div;
+}
+
+/* ✅ NUEVO — Muestra N skeletons en el contenedor de resultados (búsqueda/detalle).
+   Limpia el contenedor, inserta los skeletons y activa un timeout de 30 s
+   para ocultarlos automáticamente si la respuesta no llega. */
+function showSearchSkeletons(count) {
+    // Cancelar cualquier timeout previo
+    if (searchSkeletonTimeout) {
+        clearTimeout(searchSkeletonTimeout);
+        searchSkeletonTimeout = null;
+    }
+
+    detailResultsContainer.innerHTML = '';
+    const total = count || 8;
+    for (let i = 0; i < total; i++) {
+        detailResultsContainer.appendChild(createSearchSkeletonCard());
+    }
+
+    // Seguridad: ocultar skeletons si en 30 s no llegaron resultados
+    searchSkeletonTimeout = setTimeout(() => {
+        const remaining = detailResultsContainer.querySelectorAll('.skeleton-search-card');
+        if (remaining.length > 0) {
+            detailResultsContainer.innerHTML = '<p class="no-results">Tiempo de espera agotado. Intenta de nuevo.</p>';
+        }
+        searchSkeletonTimeout = null;
+    }, 30000);
+}
+
+/* ✅ NUEVO — Elimina únicamente las tarjetas skeleton del contenedor,
+   preservando cualquier contenido real que ya se haya insertado.
+   También cancela el timeout de seguridad de 30 s. */
+function clearSearchSkeletons() {
+    if (searchSkeletonTimeout) {
+        clearTimeout(searchSkeletonTimeout);
+        searchSkeletonTimeout = null;
+    }
+    detailResultsContainer.querySelectorAll('.skeleton-search-card')
+        .forEach(el => el.remove());
 }
 
 function createCategoryRow(category) {
@@ -1786,9 +1879,15 @@ async function showCategoryDetails(category) {
     detailViewModal.classList.add('active');
     searchInput.value = '';
 
+    /* ✅ NUEVO — mostrar skeletons en 2 columnas mientras carga la categoría */
+    showSearchSkeletons(8);
+
     showLoading();
     const data = await fetchData(`/peliculas/categoria/${encodeURIComponent(category.genre)}?limit=50`);
     hideLoading();
+
+    /* ✅ NUEVO — limpiar skeletons al recibir respuesta */
+    clearSearchSkeletons();
 
     if (data && data.resultados && data.resultados.length > 0) {
         data.resultados.forEach(movie => {
@@ -1809,35 +1908,20 @@ async function handleSearch(query) {
     lastSearchTerm = query;
     detailViewTitle.textContent = `Resultados para "${query}"`;
     detailResultsContainer.innerHTML = '';
-    
-    // Mostrar skeletons mientras se carga la búsqueda
-    const skeletonCount = 8; // Cantidad de skeletons a mostrar (2 filas de 4 en móvil, o adaptable)
-    for (let i = 0; i < skeletonCount; i++) {
-        detailResultsContainer.appendChild(createSkeletonCard());
-    }
+
+    /* ✅ NUEVO — mostrar skeletons en 2 columnas mientras carga la búsqueda */
+    showSearchSkeletons(8);
     
     try { localStorage.setItem('peliprex_lastSearch', query); } catch(e) {}
     
     showSearchLoading();
-    
-    // Crear un timeout de 15 segundos para ocultar skeletons en caso de fallo
-    let timeoutId = setTimeout(() => {
-        // Si todavía hay skeletons, reemplazarlos con mensaje de error
-        const skeletons = detailResultsContainer.querySelectorAll('.skeleton-card');
-        if (skeletons.length > 0) {
-            detailResultsContainer.innerHTML = '<p class="no-results">La búsqueda está tomando más tiempo de lo esperado. Por favor, intenta de nuevo.</p>';
-        }
-    }, 15000);
-    
     const data = await fetchData(`/buscar?q=${encodeURIComponent(query)}`, { showGlobalLoading: false });
-    
-    // Cancelar el timeout ya que la petición terminó
-    clearTimeout(timeoutId);
-    
     hideSearchLoading();
 
+    /* ✅ NUEVO — limpiar skeletons al recibir respuesta */
+    clearSearchSkeletons();
+
     if (data && data.resultados && data.resultados.length > 0) {
-        detailResultsContainer.innerHTML = ''; // Limpiar skeletons
         data.resultados.forEach(movie => {
             detailResultsContainer.appendChild(createMovieCard(movie));
         });
@@ -1925,7 +2009,6 @@ analysisModal.addEventListener('click', (e)=>{
 });
 
 
-// ✅ FUNCIÓN ACTUALIZADA: Crea una tarjeta skeleton para sugerencias
 function createSkeletonSuggestion() {
     const div = document.createElement('div');
     div.className = 'skeleton-suggestion-card';
@@ -1983,11 +2066,9 @@ function renderSuggestions(data){
     });
 }
 
-// ✅ FUNCIÓN ACTUALIZADA: Muestra skeletons mientras carga sugerencias
 async function fetchSuggestions(){
     suggestionsRow.innerHTML = '';
     
-    // Mostrar 6 skeletons mientras carga
     for (let i = 0; i < 6; i++) {
         suggestionsRow.appendChild(createSkeletonSuggestion());
     }
@@ -2162,15 +2243,11 @@ modal.addEventListener('click', (e)=>{
 async function main() {
     showLoading();
 
-    // Variable para controlar si ya se ocultó el loader
     let loaderHidden = false;
 
-    // Lanzar todas las promesas en paralelo
     const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false });
 
-    // 🔧 CAMBIO 1: Usar endpoint de sugerencias para "Lo más visto hoy"
     const categoryFetches = CATEGORIES.map(category => {
-        // Si es la categoría "destacadas", usar endpoint de sugerencias
         if (category.genre === 'destacadas') {
             return {
                 category,
@@ -2187,28 +2264,22 @@ async function main() {
         }
     });
 
-    // Inicializar contenedor vacío
     categoriesContainer.innerHTML = '';
 
-    // Crear array para almacenar los timeouts de cada categoría
     const categoryTimeouts = [];
 
-    // Para cada categoría, insertar skeletons inmediatamente
     categoryFetches.forEach(({ category }, index) => {
         const { section, row } = createCategoryRow(category);
         
-        // Guardar referencia al índice para usarlo después
         section.dataset.categoryIndex = index;
         section.dataset.hasResults = 'false';
         
-        // Agregar 8 skeletons mientras cargan los datos reales
         for (let i = 0; i < 8; i++) {
             row.appendChild(createSkeletonCard());
         }
         
         categoriesContainer.appendChild(section);
 
-        // Configurar timeout de 30 segundos para ocultar si no hay resultados
         const timeoutId = setTimeout(() => {
             const sectionEl = document.querySelector(`.category-row-container[data-category-index="${index}"]`);
             if (sectionEl && sectionEl.dataset.hasResults === 'false') {
@@ -2219,23 +2290,19 @@ async function main() {
         categoryTimeouts.push(timeoutId);
     });
 
-    // Procesar banner primero si ya llegó
     bannerPromise.then(bannerData => {
         if (bannerData) renderBannerFromData(bannerData);
     });
 
-    // Procesar cada categoría a medida que se resuelven
     const categoryPromises = categoryFetches.map(async ({ category, promise }, index) => {
         try {
             const data = await promise;
             
-            // Si es la primera categoría en resolverse, ocultar loader
             if (!loaderHidden) {
                 hideLoading();
                 loaderHidden = true;
             }
 
-            // Limpiar timeout de esta categoría
             clearTimeout(categoryTimeouts[index]);
 
             const sections = categoriesContainer.children;
@@ -2244,32 +2311,25 @@ async function main() {
                 const row = section.querySelector('.category-row');
                 
                 if (data && data.resultados && data.resultados.length > 0) {
-                    // Marcar que tiene resultados
                     section.dataset.hasResults = 'true';
                     
-                    // Limpiar skeletons
                     row.innerHTML = '';
                     
-                    // 🔧 CAMBIO 1: Aplicar la misma lógica de mezcla que existe
                     const shuffled = [...data.resultados];
                     shuffleArray(shuffled);
                     
-                    // Mostrar hasta 20 películas
                     shuffled.slice(0, 20).forEach(movie => {
                         row.appendChild(createMovieCard(movie));
                     });
                 } else {
-                    // Si no hay resultados, ocultar toda la categoría
                     section.style.display = 'none';
                 }
             }
         } catch (error) {
             console.error(`Error cargando categoría ${category.genre}:`, error);
             
-            // Limpiar timeout
             clearTimeout(categoryTimeouts[index]);
             
-            // Ocultar categoría en caso de error
             const sections = categoriesContainer.children;
             if (sections[index]) {
                 sections[index].style.display = 'none';
@@ -2277,10 +2337,8 @@ async function main() {
         }
     });
 
-    // Esperar a que todas las promesas terminen (por si ninguna se resolvió antes)
     await Promise.allSettled(categoryPromises);
     
-    // Si el loader aún no se ha ocultado (ninguna categoría tuvo resultados), ocultarlo ahora
     if (!loaderHidden) {
         hideLoading();
     }
@@ -2456,7 +2514,6 @@ auth.onAuthStateChanged(async (user) => {
         document.getElementById('banner').style.display = 'none';  
     }
 
-    // generateAnalysisWithGemini — usa los elementos HTML correctos
     async function generateAnalysisWithGemini(movieTitle, movieDescription) {
         const analysisModalEl = document.getElementById('analysis-modal');
         const analysisTitleEl = document.getElementById('analysis-title');
