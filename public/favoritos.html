@@ -53,6 +53,56 @@
   .btn.pelicula{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--text)}
 
   /* --------------------------------------------------------------
+     ✅ COPIADO: ESTILOS DEL BUSCADOR (igual que historial)
+     -------------------------------------------------------------- */
+  #search-bar-container{
+    position: sticky;
+    top: 66px;
+    z-index: 10;
+    padding: 12px 14px;
+    background: var(--bg); 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 20px;
+  }
+  #search-input{
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card);
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+  }
+  #search-input::placeholder{
+    color: var(--muted);
+  }
+
+  #search-inline-loading {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0 4px;
+    gap: 8px;
+  }
+
+  .sircle-dot {
+    width: 12px; 
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 1.6s infinite;
+  }
+  .sircle-dot:nth-child(2) { animation-delay: 0.4s; }
+  .sircle-dot:nth-child(3) { animation-delay: 0.8s; }
+  @keyframes pulse-dot {
+      0% { transform: scale(0.6); opacity: 0.7; }
+      50% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(0.6); opacity: 0.7; }
+  }
+
+  /* --------------------------------------------------------------
      Estilos de Favoritos (Base)
      -------------------------------------------------------------- */
   
@@ -309,8 +359,7 @@
   }
   
   /* --------------------------------------------------------------
-     ESTILOS DEL MODAL DE REPRODUCCIÓN (PELÍCULA COMPLETA) - ESTILO MAGUIS TV
-     (NUEVA INTERFAZ)
+     MODAL DE REPRODUCCIÓN (PELÍCULA COMPLETA)
      -------------------------------------------------------------- */
   .modal{
     display:none;
@@ -337,7 +386,7 @@
   .modal-body-full{ 
     height: 100%;
     overflow-y: scroll;
-    padding-bottom: 30px; /* Espacio extra al final del contenido */
+    padding-bottom: 30px;
   }
 
   .modal-player {
@@ -346,7 +395,7 @@
     position: relative;
     background-color: black;
     overflow: hidden;
-    position: sticky; /* Fijo arriba en móvil */
+    position: sticky;
     top: 0;
     z-index: 10;
   }
@@ -363,7 +412,6 @@
     object-fit: fill;
   }
 
-  /* Controles del reproductor (cerrar) */
   .player-controls-overlay {
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -391,30 +439,25 @@
       font-size: 20px; 
   }
 
-  /* MODIFICACION SOLICITADA: Corazón más grande */
   .player-controls-overlay .player-favorite {
-      width: 46px; /* Aumentar ligeramente el tamaño del botón para el icono más grande */
+      width: 46px;
       height: 46px;
   }
   .player-controls-overlay .player-favorite i {
-      font-size: 24px; /* Aumentamos el tamaño del icono del corazón */
+      font-size: 24px;
   }
-  /* FIN MODIFICACION SOLICITADA */
-
 
   .detail-info {
-    /* El resto del detalle debajo del reproductor */
     padding: 0 16px 20px;
   }
   
   .suggestions-row{
     display:flex; gap:14px; overflow-x:auto; padding-bottom: 10px;
-    /* Estilo para ocultar scrollbar en algunos navegadores */
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .suggestions-row::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
   }
 
   .suggestion-card{
@@ -441,7 +484,6 @@
     color: var(--text);
   }
   
-  /* Loading pulses */
   .loading-suggestions{
     display:flex; gap:10px; overflow-x: auto; align-items:center; justify-content:center; padding:20px 0;
   }
@@ -456,7 +498,7 @@
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL MODAL DE ANÁLISIS
+     MODAL DE ANÁLISIS
      -------------------------------------------------------------- */
   #analysis-modal .modal-panel {
       background: linear-gradient(180deg, #0b0b0b, #070708);
@@ -518,7 +560,6 @@
   .analysis-content li {
       margin-bottom: 8px;
   }
-  /* Iconos de navegación flotantes */
   .analysis-nav-overlay {
       position: absolute;
       top: 0; left: 0; right: 0;
@@ -560,14 +601,14 @@
 
 
   /* --------------------------------------------------------------
-     ESTILOS DEL INDICADOR DE PLAN FLOTANTE (Diamante)
+     INDICADOR DE PLAN FLOTANTE (Diamante)
      -------------------------------------------------------------- */
   #plan-indicator {
       position: fixed;
       bottom: 20px; 
       right: 20px;
       z-index: 1000;
-      background: var(--plan-bg); /* Verde normal */
+      background: var(--plan-bg);
       color: var(--plan-text);
       padding: 10px 14px;
       border-radius: 999px;
@@ -580,34 +621,27 @@
       transition: opacity 0.3s;
   }
   
-  /* ESTILOS AÑADIDOS/MODIFICADOS PARA EL REQUERIMIENTO DEL COLOR */
   .plan-warning {
-      /* Fondo amarillo para 0 créditos */
       background: linear-gradient(45deg, #ffdd57, #ffb84d) !important; 
       color: #0b0c0f !important;
   }
   
-  /* Estilo base para el diamante (verde o amarillo) */
   #plan-indicator i.fa-gem {
-      color: var(--plan-text); /* Color que se ajustará según la clase del padre */
+      color: var(--plan-text);
   }
 
-  /* Ajustar el color del diamante y el botón al estado de advertencia (amarillo) */
   .plan-warning i.fa-gem, .plan-warning .close-btn {
-      color: #0b0c0f !important; /* Texto oscuro para el fondo amarillo */
+      color: #0b0c0f !important;
   }
   .plan-warning .close-btn {
       background: rgba(0,0,0,0.1) !important;
   }
-  /* Estilo para el estado verde normal (1 o más créditos) */
   #plan-indicator:not(.plan-warning) {
-      background: var(--plan-bg); /* Fondo Verde normal */
+      background: var(--plan-bg);
   }
   #plan-indicator:not(.plan-warning) i.fa-gem, #plan-indicator:not(.plan-warning) .close-btn {
-      color: var(--plan-text); /* Texto oscuro para el fondo verde */
+      color: var(--plan-text);
   }
-  /* FIN DE ESTILOS AÑADIDOS/MODIFICADOS */
-
 
   #plan-indicator .close-btn {
       background: rgba(0,0,0,0.1); 
@@ -632,7 +666,270 @@
     #plan-indicator{ bottom: 18px; }
   }
 
+  /* --------------------------------------------------------------
+     ✅ COPIADO: MODAL DE DETALLE/BÚSQUEDA (igual que historial)
+     -------------------------------------------------------------- */
+  #detail-view-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1900;
+    background: var(--bg);
+    display: none;
+    overflow-y: auto;
+  }
+  #detail-view-modal.active {
+    display: block;
+  }
+  .detail-header {
+      position: sticky;
+      top: 0;
+      z-index: 11;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .detail-header .icon-btn {
+      background: transparent;
+  }
+  .detail-header-title {
+      flex: 1;
+      font-weight: 800;
+      font-size: 18px;
+  }
+  .detail-content {
+      padding: 0 14px 14px; 
+      max-width: 1100px;
+      margin: 0 auto;
+  }
+  .detail-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px 10px;
+      justify-content: center;
+  }
+  @media (min-width: 900px) {
+      .detail-grid {
+          justify-content: flex-start;
+          gap: 20px;
+      }
+  }
+  .no-results {
+      text-align: center;
+      color: var(--muted);
+      padding: 50px 0;
+      font-size: 16px;
+  }
 
+  /* Tarjetas de búsqueda en 2 columnas */
+  .detail-grid .card {
+      width: calc(50% - 5px);
+      flex-shrink: 0;
+  }
+  .detail-grid .card .poster {
+      height: 200px;
+  }
+  @media (min-width: 900px) {
+      .detail-grid .card {
+          width: 180px;
+      }
+      .detail-grid .card .poster {
+          height: 270px;
+      }
+  }
+  @media (max-width: 420px) {
+      .detail-grid .card .poster {
+          height: 180px;
+      }
+  }
+
+  /* --------------------------------------------------------------
+     ✅ Skeleton Screens (solo tarjetas)
+     -------------------------------------------------------------- */
+
+  /* Keyframe compartido para skeletons */
+  @keyframes skeleton-loading {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+  }
+
+  /* Skeletons "estructura" para carga inicial del grid (Favoritos) */
+  .skeleton-fav-card {
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.6);
+      pointer-events: none;
+  }
+  .skeleton-fav-poster {
+      width: 100%;
+      height: 170px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+  .skeleton-fav-meta {
+      padding: 10px 8px 14px;
+  }
+  .skeleton-fav-title {
+      width: 82%;
+      height: 13px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+  .skeleton-fav-sub {
+      width: 60%;
+      height: 12px;
+      margin-top: 8px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+  @media (max-width: 420px) {
+      .skeleton-fav-poster { height: 150px; }
+  }
+  @media (min-width: 900px) {
+      .skeleton-fav-poster { height: 210px; }
+  }
+
+  /* Skeleton para sugerencias */
+  .skeleton-sug-card {
+      width: 120px;
+      flex-shrink: 0;
+      pointer-events: none;
+  }
+  .skeleton-sug-poster {
+      width: 100%;
+      height: 170px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+  .skeleton-sug-title {
+      width: 80%;
+      height: 12px;
+      margin-top: 6px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+  .skeleton-sug-subtitle {
+      width: 50%;
+      height: 10px;
+      margin-top: 5px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+
+  /* Skeleton para resultados del buscador */
+  .skeleton-search-card {
+      width: calc(50% - 5px);
+      flex-shrink: 0;
+      background: var(--card);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      cursor: default;
+      pointer-events: none;
+  }
+  .skeleton-search-poster {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+  .skeleton-search-meta {
+      padding: 10px 8px 12px;
+  }
+  .skeleton-search-title {
+      width: 80%;
+      height: 14px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+  .skeleton-search-sub {
+      width: 50%;
+      height: 12px;
+      margin-top: 8px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: 4px;
+  }
+  @media (min-width: 900px) {
+      .skeleton-search-card { width: 180px; }
+      .skeleton-search-poster { height: 270px; }
+  }
+  @media (max-width: 420px) {
+      .skeleton-search-poster { height: 180px; }
+  }
+
+  /* Skeleton "superpuesto" por tarjeta (sin tocar botones/headers) */
+  .card.is-loading .poster,
+  .suggestion-card.is-loading .suggestion-poster {
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%) !important;
+      background-size: 200% 100% !important;
+      animation: skeleton-loading 1.5s infinite !important;
+  }
+
+  .card.is-loading .movie-title,
+  .card.is-loading .movie-sub,
+  .suggestion-card.is-loading .suggestion-title {
+      color: transparent !important;
+      position: relative;
+  }
+
+  .card.is-loading .movie-title::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 82%;
+      height: 13px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+  .card.is-loading .movie-sub::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60%;
+      height: 12px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
+  .suggestion-card.is-loading .suggestion-title::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 80%;
+      height: 12px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+  }
 </style>
 </head>
 <body>
@@ -706,6 +1003,10 @@
                 
                 <div class="player-controls-overlay">
                     <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+                    <!-- ✅ NUEVO (copiado de historial): botón buscar -->
+                    <button class="icon-btn player-favorite" id="modal-search-btn" title="Buscar películas" style="margin-right: auto; margin-left: 10px;">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
                     <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos">
                         <i class="fa-regular fa-heart"></i> </button>
                 </div>
@@ -743,6 +1044,7 @@
         </div>
     </div>
   </div>
+
   <div class="modal" id="analysis-modal">
       <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="analysis-title">
           <div class="analysis-container">
@@ -765,6 +1067,7 @@
           </div>
       </div>
   </div>
+
   <div class="modal" id="alert-modal">
     <div class="modal-panel" style="height:auto; max-height:90vh; max-width:300px; border-radius:16px; overflow:hidden; background:none; align-self:center; padding:0; box-shadow: 0 10px 30px rgba(0,0,0,0.8);" role="alert" aria-live="assertive">
       <div style="height: 120px; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.85); border-radius: 16px 16px 0 0; color: var(--accent);">
@@ -778,6 +1081,25 @@
     </div>
   </div>
 
+  <!-- ✅ NUEVO: MODAL DE DETALLE/BÚSQUEDA (copiado de historial) -->
+  <div class="modal" id="detail-view-modal">
+      <div class="detail-header">
+          <button class="icon-btn" id="detail-close-btn" title="Cerrar"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="detail-header-title" id="detail-view-title"></div>
+      </div>
+      <div id="search-bar-container">
+          <input type="search" id="search-input" placeholder="Buscar películas, series o géneros..." autofocus>
+          <div id="search-inline-loading">
+              <div class="sircle-dot"></div>
+              <div class="sircle-dot"></div>
+              <div class="sircle-dot"></div>
+          </div>
+      </div>
+      <div class="detail-content">
+          <div class="detail-grid" id="detail-results-container">
+          </div>
+      </div>
+  </div>
 
 <script>
 /* ==========================================================
@@ -799,7 +1121,6 @@ if(firebase.apps.length === 0){
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// API Base URL (Asegúrate de que este endpoint es el correcto para tu backend)
 let PELIPREX_BASE_URL = ""; // Cargado desde secrets
 
 async function loadConfig() {
@@ -814,23 +1135,62 @@ async function loadConfig() {
     console.error("Error al cargar la configuración:", error);
   }
 }
-
-// Llamar a loadConfig al inicio
 loadConfig();
 
-let globalFavoritesData = []; // Almacena los favoritos
-let currentMovie = null; // Almacena la película actual para el modal de Análisis
-let favoritesRefreshInterval = null; // Para controlar el intervalo de actualización automática
+let globalFavoritesData = [];
+let currentMovie = null;
+let favoritesRefreshInterval = null;
+
+/* ==========================================================
+   ✅ NUEVO: Estado de búsqueda (Favoritos) + localStorage
+   - Mantiene resultados mientras el usuario está en esta interfaz
+   ========================================================== */
+const FAV_SEARCH_STATE_KEY = 'peliprex_fav_search_state';
+
+let searchState = {
+  query: '',
+  results: [],
+  isActive: false
+};
+
+(function hydrateFavSearchState(){
+  try {
+    const raw = localStorage.getItem(FAV_SEARCH_STATE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') {
+      searchState.query = parsed.query || '';
+      searchState.results = Array.isArray(parsed.results) ? parsed.results : [];
+      searchState.isActive = false;
+    }
+  } catch(e) {}
+})();
+
+function persistFavSearchState() {
+  try {
+    localStorage.setItem(FAV_SEARCH_STATE_KEY, JSON.stringify({
+      query: searchState.query || '',
+      results: Array.isArray(searchState.results) ? searchState.results : [],
+      updatedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+function clearFavSearchStateStorage() {
+  try { localStorage.removeItem(FAV_SEARCH_STATE_KEY); } catch(e) {}
+}
+
+/* Al salir de la interfaz, limpiamos para respetar "mientras permanezca" */
+window.addEventListener('beforeunload', () => {
+  clearFavSearchStateStorage();
+});
 
 /* ==========================================================
    REFERENCIAS Y FUNCIONES DE SOPORTE
    ========================================================== */
-// Referencias de UI esenciales (Favoritos)
 const historyGrid = document.getElementById('grid');
 const historyEmptyState = document.getElementById('empty');
 const historyTotalItemsEl = document.getElementById('total-items');
 
-// Referencias de Modales
 const modal = document.getElementById('modal');
 const modalPlayer = document.getElementById('modal-player-container');
 const modalTitle = document.getElementById('modal-title');
@@ -845,22 +1205,24 @@ const confirmationMessageEl = document.getElementById('confirmation-message');
 const btnConfirmAction = document.getElementById('btn-confirm-action');
 const btnCancelAction = document.getElementById('btn-cancel-action');
 
-// Referencias del Modal de Análisis
 const analysisModal = document.getElementById('analysis-modal');
 const analysisTitleEl = document.getElementById('analysis-title');
 const analysisHeader = document.getElementById('analysis-header');
 const analysisContent = document.getElementById('analysis-content');
 
-
-// Indicador de plan/créditos
 const planIndicator = document.getElementById('plan-indicator');
 const planText = document.getElementById('plan-text');
 const closePlanIndicatorBtn = document.getElementById('close-plan-indicator'); 
 
-// Utility Functions
+/* ✅ NUEVO: referencias buscador */
+const detailViewModal = document.getElementById('detail-view-modal');
+const detailViewTitle = document.getElementById('detail-view-title');
+const detailResultsContainer = document.getElementById('detail-results-container');
+const searchInput = document.getElementById('search-input');
+const searchInlineLoading = document.getElementById('search-inline-loading');
+
 function safeImage(url){
   if(!url) return 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster+No+Disp.';
-  // Reemplazar /w500 por /original si está usando TMDb
   const baseTMDb = 'https://image.tmdb.org/t/p/';
   if(url && url.startsWith(baseTMDb)){
       return url.replace('/w500', '/original');
@@ -871,7 +1233,6 @@ function safeImage(url){
 function showCustomModal(title, message, isError = false) {
     const m = document.getElementById('alert-modal');
     document.getElementById('alert-title').textContent = title;
-    // La modificación 3 ya ha eliminado los ** en los llamados a esta función.
     document.getElementById('alert-message').innerHTML = message; 
     const titleEl = document.getElementById('alert-title');
     if (isError) {
@@ -893,18 +1254,10 @@ function formatDate(d){
     const dt = new Date(d);
     return dt.toLocaleDateString() + " " + dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   }catch(e){ return d; }
-
 }
 
-/**
- * Muestra el modal de confirmación con la configuración dada.
- * @param {string} title Título del modal.
- * @param {string} message Mensaje de cuerpo.
- * @param {function} onConfirm Función a ejecutar al confirmar.
- */
 function showConfirmationModal(title, message, onConfirm) {
     confirmationTitleEl.textContent = title;
-    // La modificación 3 ya ha eliminado los ** en los llamados a esta función.
     confirmationMessageEl.innerHTML = message;
     
     const oldBtnConfirm = document.getElementById('btn-confirm-action');
@@ -922,22 +1275,101 @@ function showConfirmationModal(title, message, onConfirm) {
     confirmationModal.classList.add('active');
 }
 
-// Listener para cerrar al hacer clic fuera del panel (Modal Confirmación)
 confirmationModal.addEventListener('click', (e)=>{
   if(e.target === confirmationModal) {
     confirmationModal.classList.remove('active');
   }
 });
 
+/* ==========================================================
+   ✅ NUEVAS FUNCIONES: SKELETON SCREENS (solo tarjetas)
+   ========================================================== */
+function createFavoritesSkeletonCard() {
+  const div = document.createElement('div');
+  div.className = 'skeleton-fav-card';
+  div.innerHTML = `
+    <div class="skeleton-fav-poster"></div>
+    <div class="skeleton-fav-meta">
+      <div class="skeleton-fav-title"></div>
+      <div class="skeleton-fav-sub"></div>
+    </div>
+  `;
+  return div;
+}
+
+function showFavoritesSkeletons(count) {
+  historyGrid.innerHTML = '';
+  historyGrid.style.display = 'grid';
+  historyEmptyState.style.display = 'none';
+  historyTotalItemsEl.textContent = 'Cargando...';
+  const total = count || 9;
+  for (let i = 0; i < total; i++) {
+    historyGrid.appendChild(createFavoritesSkeletonCard());
+  }
+}
+
+function createSuggestionSkeletonCard() {
+  const div = document.createElement('div');
+  div.className = 'skeleton-sug-card';
+  div.innerHTML = `
+    <div class="skeleton-sug-poster"></div>
+    <div class="skeleton-sug-title"></div>
+    <div class="skeleton-sug-subtitle"></div>
+  `;
+  return div;
+}
+
+function showSuggestionSkeletons(count) {
+  suggestionsRow.innerHTML = '';
+  const total = count || 6;
+  for (let i = 0; i < total; i++) {
+    suggestionsRow.appendChild(createSuggestionSkeletonCard());
+  }
+}
+
+function createSearchSkeletonCard() {
+    const div = document.createElement('div');
+    div.className = 'skeleton-search-card';
+    div.innerHTML = `
+      <div class="skeleton-search-poster"></div>
+      <div class="skeleton-search-meta">
+        <div class="skeleton-search-title"></div>
+        <div class="skeleton-search-sub"></div>
+      </div>
+    `;
+    return div;
+}
+
+let searchSkeletonTimeout = null;
+function showSearchSkeletons(count) {
+    if (searchSkeletonTimeout) {
+        clearTimeout(searchSkeletonTimeout);
+        searchSkeletonTimeout = null;
+    }
+    detailResultsContainer.innerHTML = '';
+    const total = count || 8;
+    for (let i = 0; i < total; i++) {
+        detailResultsContainer.appendChild(createSearchSkeletonCard());
+    }
+    searchSkeletonTimeout = setTimeout(() => {
+        const remaining = detailResultsContainer.querySelectorAll('.skeleton-search-card');
+        if (remaining.length > 0) {
+            detailResultsContainer.innerHTML = '<p class="no-results">Tiempo de espera agotado. Intenta de nuevo.</p>';
+        }
+        searchSkeletonTimeout = null;
+    }, 30000);
+}
+function clearSearchSkeletons() {
+    if (searchSkeletonTimeout) {
+        clearTimeout(searchSkeletonTimeout);
+        searchSkeletonTimeout = null;
+    }
+    detailResultsContainer.querySelectorAll('.skeleton-search-card').forEach(el => el.remove());
+}
 
 /* ==========================================================
    LÓGICA DEL PLAN Y UI
    ========================================================== */
-
-/**
- * Actualiza la UI del indicador flotante de Plan/Créditos.
- * @param {Object|null} userData Los datos del usuario de Firestore.
- */
 function updatePlanIndicator(userData) {
     if (localStorage.getItem('planIndicatorClosed') === 'true') {
         planIndicator.style.display = 'none';
@@ -950,7 +1382,7 @@ function updatePlanIndicator(userData) {
     }
 
     planIndicator.style.display = 'flex';
-    planIndicator.classList.remove('plan-warning'); // Limpiar la clase de advertencia
+    planIndicator.classList.remove('plan-warning');
 
     if (userData.tipoPlan === 'ilimitado') {
         planText.textContent = 'Plan Ilimitado';
@@ -964,12 +1396,9 @@ function updatePlanIndicator(userData) {
         const remaining = parseInt(userData.creditos) || 0; 
         planText.textContent = `${remaining} Créditos`;
 
-        // Lógica de color de fondo solicitada
         if (remaining === 0) {
-            planIndicator.classList.add('plan-warning'); // Fondo amarillo: 0 créditos
-            // Los estilos del diamante y texto se manejan en CSS a través de la clase .plan-warning
+            planIndicator.classList.add('plan-warning');
         } else {
-            // Fondo verde normal: 1 o más créditos
             planIndicator.style.background = 'var(--plan-bg)'; 
             planIndicator.style.color = 'var(--plan-text)';
             planIndicator.querySelector('i').style.color = 'var(--plan-text)';
@@ -987,16 +1416,11 @@ function updatePlanIndicator(userData) {
     }
 }
 
-// Listener para cerrar el indicador y guardarlo en localStorage
 closePlanIndicatorBtn.addEventListener('click', () => {
     planIndicator.style.display = 'none';
     localStorage.setItem('planIndicatorClosed', 'true');
 });
 
-/**
- * Función central para actualizar la UI del perfil (llamada desde onAuthStateChanged).
- * @param {Object|null} userData Los datos del usuario de Firestore.
- */
 function updateProfileUI(userData) {
     updatePlanIndicator(userData);
 }
@@ -1004,13 +1428,6 @@ function updateProfileUI(userData) {
 /* ==========================================================
    LÓGICA DE DEDUCCIÓN DE CRÉDITOS
    ========================================================== */
-
-/**
- * Deduce créditos reales del usuario en Firestore.
- * @param {number} amount Cantidad a deducir.
- * @param {string} movieTitle Título de la película para mensajes.
- * @returns {Promise<boolean>} True si la deducción fue exitosa o no se requirió (plan ilimitado), False si falló (créditos insuficientes).
- */
 async function deductCredits(amount, movieTitle) {
     const user = auth.currentUser;
     if (!user) {
@@ -1020,77 +1437,44 @@ async function deductCredits(amount, movieTitle) {
     
     const userRef = db.collection("usuarios").doc(user.uid);
     try {
-        // Usar una transacción para asegurar la integridad de los créditos
         await db.runTransaction(async (transaction) => {
             const doc = await transaction.get(userRef);
-            
             if (!doc.exists) {
                 throw new Error("Datos de usuario no encontrados.");
             }
-            
             const userData = doc.data();
-            
-            // 1. Plan Ilimitado: No hay deducción.
             if (userData.tipoPlan === 'ilimitado') {
-                return true; // No es necesario deducir
-            }
-
-            // 2. Plan por Créditos: Deducir.
-            if (userData.tipoPlan === 'creditos') {
-                // CAMBIO: Se usa 'creditos' en lugar de 'credits' para leer el campo de Firestore
-                const currentCredits = parseInt(userData.creditos) || 0;
-                
-                if (currentCredits < amount) {
-                    // Rechazo en la transacción: Lanza un error específico.
-                    throw new Error(`CRÉDITOS INSUFICIENTES: Necesitas ${amount} créditos para ver "${movieTitle}". Solo tienes ${currentCredits}.`);
-                }
-
-                const newCredits = currentCredits - amount;
-                
-                // CAMBIO: Se usa 'creditos' en lugar de 'credits' para actualizar el campo en Firestore
-                transaction.update(userRef, { creditos: newCredits });
-                
-                // CAMBIO: Se usa 'creditos' en lugar de 'credits' para actualizar la UI localmente
-                userData.creditos = newCredits;
-                updateProfileUI(userData); 
-                
-                // === MODIFICACIÓN SOLICITADA: ELIMINACIÓN DEL MODAL DE CRÉDITOS DESCONTADOS ===
-                // Eliminamos la línea que llama a showCustomModal
-                // showCustomModal('Créditos Descontados', `Se han deducido ${amount} créditos para ver ${movieTitle}. Te quedan ${newCredits} créditos.`, false);
-                // ===============================================================================
-                
                 return true;
             }
-            
-            // Si el plan es desconocido
+            if (userData.tipoPlan === 'creditos') {
+                const currentCredits = parseInt(userData.creditos) || 0;
+                if (currentCredits < amount) {
+                    throw new Error(`CRÉDITOS INSUFICIENTES: Necesitas ${amount} créditos para ver "${movieTitle}". Solo tienes ${currentCredits}.`);
+                }
+                const newCredits = currentCredits - amount;
+                transaction.update(userRef, { creditos: newCredits });
+                userData.creditos = newCredits;
+                updateProfileUI(userData); 
+                return true;
+            }
             throw new Error("Tipo de plan desconocido o no activo.");
         });
-        
-        return true; // Transacción exitosa
-        
+        return true;
     } catch (error) {
         console.error("Error en la deducción de créditos:", error);
-        
         if (error.message.startsWith('CRÉDITOS INSUFICIENTES')) {
             const parts = error.message.split(':');
-            showErrorModal(parts[1].trim()); // Muestra solo el mensaje del error
+            showErrorModal(parts[1].trim());
         } else {
             showErrorModal(`No se pudo deducir el crédito. Error: ${error.message}`);
         }
-        
-        return false; // Transacción fallida
+        return false;
     }
 }
 
 /* ==========================================================
-   LÓGICA DE BORRADO Y CONSULTA DE FAVORITOS (PRINCIPAL)
+   LÓGICA DE BORRADO Y CONSULTA DE FAVORITOS
    ========================================================== */
-
-/**
- * Llama al API para borrar una película individual de favoritos.
- * **Ruta API utilizada: /user/favorites/remove**
- * @param {Object} movie La película a borrar.
- */
 async function removeIndividualFavorite(movie) {
     const user = auth.currentUser;
     if (!user || !user.email) {
@@ -1100,13 +1484,10 @@ async function removeIndividualFavorite(movie) {
 
     showConfirmationModal(
         `Eliminar "${movie.titulo}"`,
-        // Texto actualizado para Favoritos
         `¿Estás seguro de que quieres eliminar ${movie.titulo} de tu lista de favoritos?`,
         async () => {
             try {
-                // API URL actualizada para /user/favorites/remove
                 const apiUrl = `${PELIPREX_BASE_URL}/user/favorites/remove?email=${encodeURIComponent(user.email)}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
-                
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
@@ -1115,10 +1496,8 @@ async function removeIndividualFavorite(movie) {
                 }
                 
                 if(data.ok === true){
-                    // Actualización de la lista de favoritos global
                     globalFavoritesData = globalFavoritesData.filter(item => item.pelicula_url !== movie.pelicula_url);
                     renderFavoritesGrid(globalFavoritesData);
-                    // Mensaje actualizado
                     showCustomModal('Éxito', `${movie.titulo} ha sido eliminada de tus favoritos.`, false);
                 } else {
                     showErrorModal(`Error al borrar: ${data.message || 'Intenta de nuevo.'}`);
@@ -1131,10 +1510,6 @@ async function removeIndividualFavorite(movie) {
     );
 }
 
-/**
- * Llama al API para borrar todos los favoritos.
- * **Ruta API utilizada: /user/favorites/clear**
- */
 async function clearAllFavorites() {
     const user = auth.currentUser;
     if (!user || !user.email) {
@@ -1148,12 +1523,10 @@ async function clearAllFavorites() {
     }
 
     showConfirmationModal(
-        'Limpiar Lista de Favoritos', // Texto actualizado
-        // Texto actualizado
+        'Limpiar Lista de Favoritos',
         `Esto eliminará ${globalFavoritesData.length} elementos de tu lista. ¿Confirmar?`,
         async () => {
             try {
-                // API URL actualizada para /user/favorites/clear
                 const apiUrl = `${PELIPREX_BASE_URL}/user/favorites/clear?email=${encodeURIComponent(user.email)}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
@@ -1177,11 +1550,9 @@ async function clearAllFavorites() {
     );
 }
 
-
 /* ==========================================================
    LÓGICA DEL MODAL DE ANÁLISIS
    ========================================================== */
-
 function generatePlaceholderAnalysis(movie) {
     const title = movie.titulo || 'Película Fantástica';
     const year = movie.año || movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A';
@@ -1226,64 +1597,49 @@ async function getMovieAnalysis(movie) {
         <p style="text-align:center; color:var(--muted); margin-top:15px;">Generando un análisis experto y humano de "${movie.titulo}"...</p>
     `;
     
-    // Simulación de delay para la carga del análisis (1.5 segundos)
     await new Promise(resolve => setTimeout(resolve, 1500)); 
 
     const analysisHTML = generatePlaceholderAnalysis(movie);
-    
     analysisContent.innerHTML = analysisHTML;
     analysisModal.querySelector('.analysis-container').scrollTo({top:0, behavior:'smooth'});
-    
     analysisHeader.style.backgroundImage = `url(${safeImage(movie.imagen_url)})`;
 }
 
 function showAnalysisInterface(movie) {
-    currentMovie = movie; // Guardar la película actual
+    currentMovie = movie;
     analysisTitleEl.textContent = `Análisis Experto: ${movie.titulo || 'Película'}`;
     
-    // Re-bind listeners para el modal de análisis
     document.getElementById('analysis-back-btn').onclick = () => {
         analysisModal.classList.remove('active');
-        displayMovieDetails(currentMovie); // Vuelve al modal de detalles
+        displayMovieDetails(currentMovie);
     };
     document.getElementById('analysis-report-btn').onclick = () => {
         showCustomModal('Reportar Error', 'Esta acción reporta un error en el análisis a los administradores.', false);
     };
 
-
     modal.classList.remove('active');
-    modalPlayer.innerHTML = ''; // Limpiar el reproductor del modal principal
+    modalPlayer.innerHTML = '';
     analysisModal.classList.add('active');
-    
     getMovieAnalysis(movie);
 }
 
-// Listener para cerrar al hacer clic fuera del panel (Modal Análisis)
 analysisModal.addEventListener('click', (e)=>{
   if(e.target === analysisModal) {
     analysisModal.classList.remove('active');
   }
 });
 
-
 /* ==========================================================
-   LÓGICA DE FAVORITOS (TOGGLE EN MODAL) Y HISTORIAL
+   LÓGICA DE HISTORIAL / FAVORITOS (TOGGLE EN MODAL)
    ========================================================== */
-
-/**
- * Agrega la película al historial de reproducción mediante la API (seguimiento de vistas).
- * Esto se hace de forma asíncrona y sin bloquear la interfaz.
- * @param {Object} movie La película a agregar.
- */
 async function addMovieToHistory(movie) {
     const user = auth.currentUser;
     if (!user || !user.email || !movie.titulo || !movie.pelicula_url) {
-        return; // Fallo silencioso si no hay usuario o datos esenciales
+        return;
     }
 
     try {
         const apiUrl = `${PELIPREX_BASE_URL}/user/add_history?email=${encodeURIComponent(user.email)}&titulo=${encodeURIComponent(movie.titulo)}&imagen_url=${encodeURIComponent(movie.imagen_url || '')}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
-        
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -1301,22 +1657,10 @@ async function addMovieToHistory(movie) {
     }
 }
 
-/**
- * Verifica si una película está actualmente en la lista global de favoritos.
- * @param {Object} movie La película a verificar.
- * @returns {boolean} True si está en la lista.
- */
 function isFavorite(movie) {
-    // Usamos pelicula_url como identificador único
     return globalFavoritesData.some(fav => fav.pelicula_url === movie.pelicula_url);
 }
 
-/**
- * Llama al API para añadir una película a favoritos.
- * **No muestra modal de éxito, solo de error.**
- * @param {Object} movie La película a añadir.
- * @returns {Promise<boolean>} True si la adición fue exitosa.
- */
 async function addMovieToFavoritesAPI(movie) {
     const user = auth.currentUser;
     if (!user || !user.email || !movie.titulo || !movie.pelicula_url) {
@@ -1335,7 +1679,6 @@ async function addMovieToFavoritesAPI(movie) {
         }
         
         if(data.ok === true){
-            // Actualizar globalFavoritesData
             const newFav = {...movie, addedAt: new Date().toISOString()}; 
             globalFavoritesData.push(newFav);
             return true;
@@ -1350,12 +1693,6 @@ async function addMovieToFavoritesAPI(movie) {
     }
 }
 
-/**
- * Llama al API para borrar una película individual de favoritos sin confirmación.
- * **No muestra modal de éxito, solo de error.**
- * @param {Object} movie La película a borrar.
- * @returns {Promise<boolean>} True si la eliminación fue exitosa.
- */
 async function removeMovieFromFavoritesSilent(movie) {
     const user = auth.currentUser;
     if (!user || !user.email) {
@@ -1364,9 +1701,7 @@ async function removeMovieFromFavoritesSilent(movie) {
     }
 
     try {
-        // API URL actualizada para /user/favorites/remove
         const apiUrl = `${PELIPREX_BASE_URL}/user/favorites/remove?email=${encodeURIComponent(user.email)}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}`;
-        
         const response = await fetch(apiUrl);
         const data = await response.json();
 
@@ -1375,7 +1710,6 @@ async function removeMovieFromFavoritesSilent(movie) {
         }
         
         if(data.ok === true){
-            // Actualización de la lista de favoritos global
             globalFavoritesData = globalFavoritesData.filter(item => item.pelicula_url !== movie.pelicula_url);
             return true;
         } else {
@@ -1389,53 +1723,32 @@ async function removeMovieFromFavoritesSilent(movie) {
     }
 }
 
-
 /* ==========================================================
    INTERFAZ DE REPRODUCCIÓN (MODAL) Y SUGERENCIAS
    ========================================================== */
-
-/**
- * Función que intenta transformar la URL de la película a un formato incrustable (embed).
- * Clave para corregir el error de Google Drive.
- * @param {string} url URL de la película.
- * @returns {string|null} URL de incrustación o la URL original si no se modificó.
- */
 function getEmbedUrl(url) {
     if (!url) return null;
-    
-    // 1. Caso Google Drive: 
-    // Detecta URLs de visualización (view) o descarga (uc).
-    // Transforma a la URL de incrustación (embed).
     if (url.includes('drive.google.com')) {
         const matchFileId = url.match(/id=([a-zA-Z0-9_-]+)/);
         const matchFileId2 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
         const fileId = matchFileId ? matchFileId[1] : (matchFileId2 ? matchFileId2[1] : null);
-
         if (fileId) {
-            // Formato estándar para incrustar reproductores de Drive.
             return `https://drive.google.com/file/d/${fileId}/preview`;
         }
     }
-
-    // 2. Si no es Drive o no se pudo parsear el ID, devuelve la URL original.
-    // Esto cubre URLs directas de video u otros servicios de incrustación.
     return url;
 }
 
-
-/**
- * Crea una tarjeta de sugerencia.
- * @param {Object} item Película de sugerencia.
- */
+/* ✅ MODIFICADO: suggestion card con skeleton superpuesto por tarjeta */
 function createSuggestionCard(item){
     const div = document.createElement('div');
-    div.className = 'suggestion-card';
+    div.className = 'suggestion-card is-loading';
 
     const poster = document.createElement('img');
     poster.className = 'suggestion-poster';
     poster.alt = `Póster de ${item.titulo}`;
     poster.src = safeImage(item.imagen_url);
-    poster.loading = 'lazy'; 
+    poster.loading = 'lazy';
 
     const title = document.createElement('div');
     title.className = 'suggestion-title';
@@ -1444,7 +1757,11 @@ function createSuggestionCard(item){
     div.appendChild(poster);
     div.appendChild(title);
 
-    // MODIFICADO: Al hacer clic, abre la interfaz de reproducción con la fuente 'suggestion' (1 crédito)
+    const removeLoading = () => div.classList.remove('is-loading');
+    poster.addEventListener('load', removeLoading, { once:true });
+    poster.addEventListener('error', removeLoading, { once:true });
+    if (poster.complete) removeLoading();
+
     div.addEventListener('click', ()=> {
         handleViewMovieDetails(item, 'suggestion');
     });
@@ -1452,46 +1769,29 @@ function createSuggestionCard(item){
     return div;
 }
 
-/**
- * Renderiza la fila de sugerencias.
- * @param {Array} data Lista de películas.
- */
 function renderSuggestions(data){
     suggestionsRow.innerHTML = '';
-    
     if(!data || data.length === 0){
         suggestionsRow.innerHTML = '<p style="color:var(--muted); font-size:14px; margin-top:0;">No se encontraron sugerencias.</p>';
         return;
     }
-    
-    // Solo mostrar las primeras 10 sugerencias
     data.slice(0, 10).forEach(item => {
         suggestionsRow.appendChild(createSuggestionCard(item));
     });
 }
 
-/**
- * Obtiene las sugerencias de la API.
- * **Ruta API utilizada: /peliculas**
- */
+/* ✅ MODIFICADO: fetchSuggestions usa skeletons (no dots) */
 async function fetchSuggestions(){
-    loadingSuggestions.style.display = 'flex';
-    suggestionsRow.innerHTML = '';
-
+    showSuggestionSkeletons(6);
     try {
         const apiURL = `${PELIPREX_BASE_URL}/peliculas`;
         const response = await fetch(apiURL);
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const data = await response.json();
-        
-        loadingSuggestions.style.display = 'none';
-        
+        suggestionsRow.innerHTML = '';
         if (Array.isArray(data)) {
-            // Mezclar la data para tener sugerencias variadas cada vez
             const shuffled = data.sort(() => 0.5 - Math.random());
             renderSuggestions(shuffled);
         } else {
@@ -1500,44 +1800,55 @@ async function fetchSuggestions(){
         }
     } catch (error) {
         console.error("Error al cargar sugerencias:", error);
-        loadingSuggestions.style.display = 'none';
         suggestionsRow.innerHTML = '<p style="color:var(--accent); font-size:14px; margin-top:0;">Error al cargar sugerencias. Intenta de nuevo.</p>';
+    } finally {
+        if (loadingSuggestions) loadingSuggestions.style.display = 'none';
     }
 }
 
-/**
- * Función para cerrar el modal de reproducción y recargar los favoritos.
- */
+/* ✅ MODIFICADO: closeMovieModalAndRefresh restaura búsqueda si corresponde */
 function closeMovieModalAndRefresh() {
     modal.classList.remove('active');
-    modalPlayer.innerHTML = ''; // Limpiar el contenido del iframe para detener la reproducción
-    main(); // Llama a fetchRealFavorites() y renderFavoritesGrid(globalFavoritesData)
+    modalPlayer.innerHTML = '';
+
+    if (searchState.isActive && searchState.query) {
+        detailViewModal.classList.add('active');
+        detailViewTitle.textContent = `Resultados para "${searchState.query}"`;
+        searchInput.value = searchState.query;
+        detailResultsContainer.innerHTML = '';
+
+        if (searchState.results && searchState.results.length > 0) {
+            searchState.results.forEach(movie => {
+                detailResultsContainer.appendChild(createMovieCard(movie));
+            });
+        } else {
+            handleSearch(searchState.query);
+        }
+    } else {
+        main();
+    }
 }
 
-
-/**
- * Carga los detalles y el reproductor de la película en el modal.
- * @param {Object} movie La película con la URL final.
- */
 function displayMovieDetails(movie) {
     currentMovie = movie;
+    const embedUrl = getEmbedUrl(movie.pelicula_url);
     
-    // OBTENER LA URL DE REPRODUCCIÓN INCORPORADA CORREGIDA
-    const embedUrl = getEmbedUrl(movie.pelicula_url); // <--- CORRECCIÓN CLAVE
-    
-    // 1. Cargar el iframe del reproductor y controles
     modalPlayer.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"peliPREX </div>
         
         <div class="player-controls-overlay">
             <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+            <!-- ✅ NUEVO: Botón de búsqueda en reproductor (copiado de historial) -->
+            <button class="icon-btn player-favorite" id="modal-search-btn" title="Buscar películas" style="margin-right: auto; margin-left: 10px;">
+                <i class="fa-solid fa-search"></i>
+            </button>
             <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
         </div>
     `;
     
     if(embedUrl){
         const iframe = document.createElement('iframe');
-        iframe.src = embedUrl; // <--- URL DE EMBED CORREGIDA
+        iframe.src = embedUrl;
         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
         iframe.allowFullscreen = true;
         iframe.frameBorder = 0;
@@ -1547,7 +1858,6 @@ function displayMovieDetails(movie) {
         iframe.style.height = '100%';
         modalPlayer.insertBefore(iframe, modalPlayer.firstChild); 
     } else {
-        // Mostrar error de URL si no se pudo generar el embedUrl
          modalPlayer.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text);padding:20px;text-align:center;">
                 <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
@@ -1555,27 +1865,48 @@ function displayMovieDetails(movie) {
                 <p style="color:var(--muted); font-size:14px; margin-top:5px;">No se pudo generar la URL de incrustación (embed). Verifica la fuente.</p>
             </div>
         `;
-        // Reinsertar controles aunque haya error, para poder cerrar.
         modalPlayer.insertAdjacentHTML('beforeend', `
             <div class="player-controls-overlay">
                 <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+                <button class="icon-btn player-favorite" id="modal-search-btn" title="Buscar películas" style="margin-right: auto; margin-left: 10px;"><i class="fa-solid fa-search"></i></button>
                 <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
             </div>
         `);
     }
 
-    // 2. Cargar la información de detalle
     const releaseYear = movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : movie.año || 'N/A';
-    
     modalTitle.textContent = movie.titulo || 'Película Desconocida';
     modalSub.textContent = `${movie.idioma_original || ''} • ${releaseYear} • ${movie.generos || ''}`;
     modalDesc.textContent = movie.descripcion || 'No hay descripción disponible.';
     
-    // 3. Re-asignar listener al nuevo botón de cerrar dentro del overlay del iframe
     const closeBtnInIframe = document.getElementById('player-close-btn-in-iframe');
     closeBtnInIframe.onclick = closeMovieModalAndRefresh; 
 
-    // 4. LÓGICA DE FAVORITOS (NUEVA FUNCIÓN - TOGGLE)
+    /* ✅ NUEVO: abrir buscador desde el reproductor (igual que historial) */
+    const searchBtnInPlayer = document.getElementById('modal-search-btn');
+    if (searchBtnInPlayer) {
+        searchBtnInPlayer.onclick = () => {
+            modal.classList.remove('active');
+            modalPlayer.innerHTML = '';
+            detailViewModal.classList.add('active');
+
+            if (searchState.query && searchState.results && searchState.results.length > 0) {
+                detailViewTitle.textContent = `Resultados para "${searchState.query}"`;
+                searchInput.value = searchState.query;
+                detailResultsContainer.innerHTML = '';
+                searchState.results.forEach(movie => {
+                    detailResultsContainer.appendChild(createMovieCard(movie));
+                });
+            } else {
+                detailViewTitle.textContent = 'Búsqueda de Películas';
+                detailResultsContainer.innerHTML = '<p class="no-results">Comienza a escribir para buscar (mínimo 3 caracteres).</p>';
+                searchInput.value = '';
+                searchState.isActive = false;
+                setTimeout(() => searchInput.focus(), 150);
+            }
+        };
+    }
+
     const favoriteBtn = document.getElementById('player-favorite-btn');
     const icon = favoriteBtn.querySelector('i');
 
@@ -1583,25 +1914,23 @@ function displayMovieDetails(movie) {
         if (isFav) {
             icon.classList.remove('fa-regular');
             icon.classList.add('fa-solid');
-            favoriteBtn.style.color = 'var(--accent)'; // Corazón relleno y rojo
+            favoriteBtn.style.color = 'var(--accent)';
             favoriteBtn.title = 'Eliminar de Favoritos';
         } else {
             icon.classList.remove('fa-solid');
             icon.classList.add('fa-regular');
-            favoriteBtn.style.color = 'var(--text)'; // Corazón vacío y blanco
+            favoriteBtn.style.color = 'var(--text)';
             favoriteBtn.title = 'Añadir a Favoritos';
         }
     }
 
-    let isCurrentlyFavorite = isFavorite(movie); // Verifica estado inicial (Req 1, 2, 5)
+    let isCurrentlyFavorite = isFavorite(movie);
     updateIconState(isCurrentlyFavorite); 
 
-    // Asignar función de toggle (Req 3, 4)
     favoriteBtn.onclick = async () => {
-        favoriteBtn.disabled = true; // Deshabilitar para evitar doble clic
+        favoriteBtn.disabled = true;
 
         if (isCurrentlyFavorite) {
-            // Eliminar de favoritos (Req 3)
             const success = await removeMovieFromFavoritesSilent(movie);
             if (success) {
                 isCurrentlyFavorite = false;
@@ -1609,7 +1938,6 @@ function displayMovieDetails(movie) {
                 showCustomModal('Favoritos', `${movie.titulo} ha sido eliminada de tus favoritos.`, false);
             }
         } else {
-            // Añadir a favoritos (Req 4)
             const success = await addMovieToFavoritesAPI(movie);
             if (success) {
                 isCurrentlyFavorite = true;
@@ -1620,79 +1948,170 @@ function displayMovieDetails(movie) {
         favoriteBtn.disabled = false;
     };
 
-
-    // 5. Asignar listener al botón de Análisis
     document.getElementById('modal-analysis-btn').onclick = () => {
         generateAnalysisWithGemini(movie.titulo, movie.descripcion);
     };
     
-    // Botones 'Recargar' y 'Compartir'
-    
-    // A. Botón "Recargar" (anteriormente "Ver") -> planes.html
     document.getElementById('modal-play').onclick = (e) => {
         e.preventDefault();
         window.location.href = "planes.html";
     };
 
-    // B. Botón "Compartir" -> Mostrar banner
     document.getElementById('modal-share-btn').onclick = (e) => {
         e.preventDefault();
         document.getElementById('banner').style.display = 'flex';
     };
 
-    // 6. Cargar Sugerencias
     fetchSuggestions();
-
-    // 7. Mostrar el modal y hacer scroll al top del contenido (debajo del player)
     modal.classList.add('active');
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
-    // Asegurar la fluidez (aunque el script no lo requiere explícitamente, garantiza la experiencia)
     setTimeout(() => {
         modal.style.transition = 'opacity 0.2s ease-out';
     }, 10);
 }
 
-// Listener para cerrar al hacer clic fuera del panel (Modal de Reproducción)
 modal.addEventListener('click', (e)=>{
   if(e.target === modal) {
     closeMovieModalAndRefresh();
   }
 });
 
-/**
- * Nueva función para manejar el clic en la película (Favoritos o Sugerencia).
- * @param {Object} movie La película seleccionada.
- * @param {string} source Fuente del clic ('list' o 'suggestion').
- */
 async function handleViewMovieDetails(movie, source) {
-    // Definición de créditos: 2 para favoritos ('list'), 1 para sugerencias ('suggestion')
     const cost = source === 'list' ? 2 : 1; 
     const isPlaybackAllowed = await deductCredits(cost, movie.titulo);
 
     if (isPlaybackAllowed) {
-        // La deducción fue exitosa o no se requirió (plan ilimitado).
-        // Abrir el reproductor de forma fluida y registrar el historial.
         displayMovieDetails(movie);
         addMovieToHistory(movie); 
     } else {
-        // La deducción falló (ej: créditos insuficientes).
-        // La función deductCredits ya muestra el modal de error.
         console.log("Reproducción bloqueada por falta de créditos.");
     }
 }
 
+/* ==========================================================
+   ✅ LÓGICA DE BÚSQUEDA (copiada/adaptada de historial + localStorage)
+   ========================================================== */
+let searchTimeout = null;
+
+function showSearchLoading() {
+    if (searchInlineLoading) searchInlineLoading.style.display = 'flex';
+}
+function hideSearchLoading() {
+    if (searchInlineLoading) searchInlineLoading.style.display = 'none';
+}
+
+/* Tarjeta de resultados de búsqueda (usa misma card) */
+function createMovieCard(item){
+    const div = document.createElement('div');
+    div.className = 'card is-loading';
+    div.setAttribute('tabindex','0');
+    div.setAttribute('role', 'link'); 
+
+    const poster = document.createElement('img');
+    poster.className = 'poster';
+    poster.alt = `Póster de ${item.titulo}`;
+    poster.src = safeImage(item.imagen_url);
+    poster.loading = 'lazy'; 
+    
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    const title = document.createElement('div');
+    title.className = 'movie-title';
+    title.textContent = item.titulo;
+
+    const sub = document.createElement('div');
+    sub.className = 'movie-sub';
+    sub.textContent = item.fecha_lanzamiento ? new Date(item.fecha_lanzamiento).getFullYear() : 'Desconocido';
+
+    meta.appendChild(title);
+    meta.appendChild(sub);
+
+    div.appendChild(poster);
+    div.appendChild(meta);
+
+    const removeLoading = () => div.classList.remove('is-loading');
+    poster.addEventListener('load', removeLoading, { once:true });
+    poster.addEventListener('error', removeLoading, { once:true });
+    if (poster.complete) removeLoading();
+
+    div.addEventListener('click', ()=> {
+        searchState.isActive = true;
+        persistFavSearchState();
+        detailViewModal.classList.remove('active');
+        handleViewMovieDetails(item, 'suggestion'); 
+    });
+
+    return div;
+}
+
+async function handleSearch(query) {
+    searchState.query = query;
+
+    if (query.length < 3) {
+        detailViewTitle.textContent = 'Resultados de Búsqueda (Mínimo 3 caracteres)';
+        detailResultsContainer.innerHTML = '<p class="no-results">Ingresa al menos 3 caracteres para comenzar la búsqueda.</p>';
+        searchState.results = [];
+        persistFavSearchState();
+        return;
+    }
+    
+    detailViewTitle.textContent = `Resultados para "${query}"`;
+    detailResultsContainer.innerHTML = '';
+    showSearchSkeletons(8);
+
+    showSearchLoading();
+    
+    try {
+        const response = await fetch(`${PELIPREX_BASE_URL}/buscar?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        hideSearchLoading();
+        clearSearchSkeletons();
+
+        if (data && data.resultados && data.resultados.length > 0) {
+            searchState.results = data.resultados;
+            persistFavSearchState();
+
+            data.resultados.forEach(movie => {
+                detailResultsContainer.appendChild(createMovieCard(movie));
+            });
+        } else {
+            searchState.results = [];
+            persistFavSearchState();
+            detailResultsContainer.innerHTML = '<p class="no-results">No se encontraron resultados para tu búsqueda.</p>';
+        }
+    } catch (error) {
+        console.error("Error en búsqueda:", error);
+        hideSearchLoading();
+        clearSearchSkeletons();
+        searchState.results = [];
+        persistFavSearchState();
+        detailResultsContainer.innerHTML = '<p class="no-results">Error al realizar la búsqueda. Intenta de nuevo.</p>';
+    }
+}
+
+/* Cerrar buscador (limpia estado + localStorage) */
+document.getElementById('detail-close-btn').onclick = () => {
+    detailViewModal.classList.remove('active');
+    searchInput.value = '';
+    searchState.isActive = false;
+    searchState.query = '';
+    searchState.results = [];
+    clearFavSearchStateStorage();
+};
+
+searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => handleSearch(e.target.value), 500);
+});
 
 /* ==========================================================
    LÓGICA DE FAVORITOS (INTERFAZ PRINCIPAL)
    ========================================================== */
-
-/**
- * Crea una tarjeta de favoritos.
- * @param {Object} item Película de la lista de favoritos.
- */
 function createFavoriteCard(item){
   const div = document.createElement('div');
-  div.className = 'card';
+  div.className = 'card is-loading';
   div.setAttribute('tabindex','0');
   div.setAttribute('role', 'link'); 
 
@@ -1701,22 +2120,25 @@ function createFavoriteCard(item){
   poster.alt = `Póster de ${item.titulo}`;
   poster.src = safeImage(item.imagen_url);
   poster.loading = 'lazy'; 
+
+  const removeLoading = () => div.classList.remove('is-loading');
+  poster.addEventListener('load', removeLoading, { once:true });
+  poster.addEventListener('error', removeLoading, { once:true });
+  if (poster.complete) removeLoading();
   
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
-  overlay.textContent = "Añadido"; // Texto cambiado a "Añadido"
+  overlay.textContent = "Añadido";
   
-  // Botón de opciones (tres puntos) -> LLAMA A removeIndividualFavorite
   const optionsBtn = document.createElement('button');
   optionsBtn.className = 'icon-btn card-options';
   optionsBtn.innerHTML = '<i class="fa-solid fa-ellipsis-v"></i>';
-  optionsBtn.title = 'Opciones (Eliminar de Favoritos)'; // Título actualizado
+  optionsBtn.title = 'Opciones (Eliminar de Favoritos)';
   optionsBtn.onclick = (e) => {
     e.stopPropagation(); 
-    removeIndividualFavorite(item); // Se cambió la función a eliminar favorito
+    removeIndividualFavorite(item);
   };
 
-  
   const meta = document.createElement('div');
   meta.className = 'meta';
   const title = document.createElement('div');
@@ -1724,7 +2146,6 @@ function createFavoriteCard(item){
   title.textContent = item.titulo;
   const sub = document.createElement('div');
   sub.className = 'movie-sub';
-  // Usar el campo 'addedAt' de la respuesta JSON para la fecha
   sub.textContent = item.addedAt ? formatDate(item.addedAt) : 'Fecha desconocida';
 
   meta.appendChild(title);
@@ -1735,20 +2156,15 @@ function createFavoriteCard(item){
   div.appendChild(optionsBtn); 
   div.appendChild(meta);
 
-  // MODIFICADO: Al hacer clic en la tarjeta, llama a handleViewMovieDetails (2 créditos)
   div.addEventListener('click', (e)=> {
     if (!e.target.closest('.card-options')) {
-        handleViewMovieDetails(item, 'list'); // Fuente: list (2 créditos)
+        handleViewMovieDetails(item, 'list');
     }
   });
 
   return div;
 }
 
-/**
- * Obtiene la lista de favoritos desde el API real usando el email del usuario.
- * **Ruta API utilizada: /user/favorites**
- */
 async function fetchRealFavorites(){
   const user = auth.currentUser;
   if (!user || !user.email) {
@@ -1761,20 +2177,15 @@ async function fetchRealFavorites(){
   
   try {
     const email = user.email;
-    // API URL actualizada para /user/favorites
     const apiURL = `${PELIPREX_BASE_URL}/user/favorites?email=${encodeURIComponent(email)}`;
-    
     const response = await fetch(apiURL);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
     const data = await response.json();
     document.getElementById('loading').style.display = 'none';
     
-    // Se usa 'data.favorites' según el JSON de respuesta proporcionado
     if (data && data.favorites && Array.isArray(data.favorites)) {
-        // Ordenar por 'addedAt' que es el campo de fecha en el JSON
         data.favorites.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
         return data.favorites;
     } else {
@@ -1789,9 +2200,6 @@ async function fetchRealFavorites(){
   }
 }
 
-/**
- * Renderiza la cuadrícula de películas favoritas.
- */
 function renderFavoritesGrid(data){
   historyGrid.innerHTML = '';
   
@@ -1806,35 +2214,25 @@ function renderFavoritesGrid(data){
   historyGrid.style.display = 'grid';
 
   data.forEach(item=>{
-    historyGrid.appendChild(createFavoriteCard(item)); // Se usa la función de crear tarjeta de favorito
+    historyGrid.appendChild(createFavoriteCard(item));
   });
 
   historyTotalItemsEl.textContent = `${data.length} elementos en tu lista`;
 }
 
-/**
- * MODIFICACIÓN SOLICITADA: Función para actualizar automáticamente los favoritos cada 10 segundos
- */
 async function autoRefreshFavorites() {
     try {
         const data = await fetchRealFavorites();
-        
-        // Comparar si hay cambios en los favoritos
         const newCount = data.length;
         const oldCount = globalFavoritesData.length;
-        
-        // Verificar si hay cambios en el contenido (comparar IDs o URLs)
         const hasContentChanged = JSON.stringify(data) !== JSON.stringify(globalFavoritesData);
         
         if (hasContentChanged) {
             globalFavoritesData = data;
             renderFavoritesGrid(data);
-            
-            // Mostrar notificación sutil si hay nuevos elementos
             if (newCount > oldCount) {
                 console.log(`Se agregaron ${newCount - oldCount} nuevas películas a favoritos`);
-                // Podrías agregar aquí una notificación visual sutil si lo deseas
-                if (oldCount > 0) { // Solo mostrar si ya había elementos antes
+                if (oldCount > 0) {
                     const notification = document.createElement('div');
                     notification.style.cssText = 'position:fixed; bottom:80px; right:20px; background:var(--accent); color:white; padding:8px 12px; border-radius:8px; font-size:12px; z-index:1000;';
                     notification.textContent = `✓ Actualizado: ${newCount} favoritos`;
@@ -1848,24 +2246,14 @@ async function autoRefreshFavorites() {
     }
 }
 
-/**
- * Inicia el intervalo de actualización automática
- */
 function startAutoRefresh() {
-    // Limpiar intervalo existente si hay uno
     if (favoritesRefreshInterval) {
         clearInterval(favoritesRefreshInterval);
     }
-    
-    // Establecer nuevo intervalo de 10 segundos (10000 milisegundos)
     favoritesRefreshInterval = setInterval(autoRefreshFavorites, 5000);
-    
     console.log("Actualización automática de favoritos iniciada (cada 5 segundos)");
 }
 
-/**
- * Detiene el intervalo de actualización automática
- */
 function stopAutoRefresh() {
     if (favoritesRefreshInterval) {
         clearInterval(favoritesRefreshInterval);
@@ -1874,24 +2262,19 @@ function stopAutoRefresh() {
     }
 }
 
-/**
- * Función principal modificada para incluir el auto-refresh
- */
+/* ✅ MODIFICADO: main() muestra skeletons antes de cargar favoritos */
 async function main(){
+  showFavoritesSkeletons(9);
   const data = await fetchRealFavorites();
   globalFavoritesData = data;
   renderFavoritesGrid(data);
-  
-  // MODIFICACIÓN SOLICITADA: Iniciar la actualización automática después de cargar los datos iniciales
   startAutoRefresh();
 }
 
 /* ==========================================================
-   LISTENERS Y OBSERVAOR DE AUTENTICACIÓN
+   LISTENERS Y OBSERVADOR DE AUTENTICACIÓN
    ========================================================== */
-
-// Event Listeners principales
-document.getElementById('btn-trash').addEventListener('click', clearAllFavorites); // Se cambió la función a limpiar favoritos
+document.getElementById('btn-trash').addEventListener('click', clearAllFavorites);
 document.getElementById('btn-back').addEventListener('click', () => {
   if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
     window.history.back();
@@ -1899,9 +2282,8 @@ document.getElementById('btn-back').addEventListener('click', () => {
     window.location.href = "PeliPREX.html";
   }
 });
-// Lógica para mostrar/ocultar y funcionar el botón #scrollTop
-const scrollTopBtn = document.getElementById('scrollTop');
 
+const scrollTopBtn = document.getElementById('scrollTop');
 function toggleScrollTopButton() {
     if (window.scrollY > 300) { 
         scrollTopBtn.style.display = 'flex';
@@ -1909,18 +2291,12 @@ function toggleScrollTopButton() {
         scrollTopBtn.style.display = 'none';
     }
 }
-
-// Listener para el funcionamiento del botón
 scrollTopBtn.addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
-
-// Listener para mostrar/ocultar el botón al hacer scroll
 window.addEventListener('scroll', toggleScrollTopButton);
-toggleScrollTopButton(); // Llama una vez para establecer el estado inicial
+toggleScrollTopButton();
 
-// Observador del estado de autenticación de Firebase (Dispara la carga de Plan y Favoritos)
 auth.onAuthStateChanged(async (user) => {
   if (user) {
-    // 1. Cargar Plan
     localStorage.removeItem('planIndicatorClosed');
     
     const userRef = db.collection("usuarios").doc(user.uid);
@@ -1930,11 +2306,9 @@ auth.onAuthStateChanged(async (user) => {
         const data = doc.data();
         updateProfileUI(data); 
       } else {
-        // Nuevo registro: Crea el plan por defecto con 5 créditos.
         const defaultUserData = {
           email: user.email,
           tipoPlan: "creditos",
-          // CAMBIO: Se usa 'creditos' en lugar de 'credits' para el campo de Firestore
           creditos: 5, 
           fechaActivacion: firebase.firestore.FieldValue.serverTimestamp(),
           duracionDias: 0
@@ -1948,42 +2322,33 @@ auth.onAuthStateChanged(async (user) => {
       updateProfileUI(null);
     }
 
-    // 2. Cargar Favoritos
     main(); 
 
   } else {
-    // No autenticado
     updateProfileUI(null); 
     renderFavoritesGrid([]);
     document.getElementById('loading').style.display = 'none';
-    
-    // MODIFICACIÓN SOLICITADA: Detener el auto-refresh cuando el usuario cierra sesión
     stopAutoRefresh();
-    
     const currentPath = window.location.pathname + window.location.search;
     window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
   }
 });
 
-// MODIFICACIÓN SOLICITADA: Detener el auto-refresh cuando la página pierde el foco (para optimizar recursos)
 document.addEventListener('visibilitychange', function() {
   if (document.hidden) {
-    // La página está en segundo plano, detener el intervalo
     stopAutoRefresh();
   } else {
-    // La página está activa nuevamente, reanudar el intervalo si el usuario está autenticado
     if (auth.currentUser) {
       startAutoRefresh();
     }
   }
 });
 
-// MODIFICACIÓN SOLICITADA: También detener el intervalo cuando se cierra la página
 window.addEventListener('beforeunload', function() {
   stopAutoRefresh();
 });
-
 </script>
+
 <!-- Banner de Compartir -->
 <div class="banner" id="banner">  
     <div class="banner-title"><i></i> 🤭 ¡Pequeño favorcito!</div>  
@@ -1996,7 +2361,6 @@ window.addEventListener('beforeunload', function() {
 </div>
 
 <style>
-    /* Banner (Oculto por defecto) */  
     .banner {  
         width: 100%;  
         background: linear-gradient(to right, #00264D, #003366);  
@@ -2009,28 +2373,24 @@ window.addEventListener('beforeunload', function() {
         border-top-left-radius: 15px;  
         border-top-right-radius: 15px;  
         box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
-        display: none; /* Ocultamos el banner al inicio */  
+        display: none;  
         flex-direction: column;  
         align-items: center;  
         text-align: center;  
         z-index: 9999;  
     }  
-
     .banner-title {  
         font-size: 24px;  
         font-weight: bold;  
         margin-bottom: 15px;  
         color: #FF00FF;  
     }  
-
     .banner-description {  
         font-size: 18px;  
         line-height: 1.8;  
         color: #FFFFFF;  
         margin-bottom: 20px;  
     }  
-
-    /* Botones del Banner */  
     .cta-button, .close-modal {  
         width: 100%;  
         padding: 16px;  
@@ -2044,26 +2404,21 @@ window.addEventListener('beforeunload', function() {
         transition: transform 0.2s ease-in-out;  
         border: none;
     }  
-
     .cta-button {  
         background: linear-gradient(to right, #2ECC71, #66CC99);  
         color: white;  
     }  
-
     .cta-button:hover {  
         transform: scale(1.08);  
     }  
-
     .close-modal {  
         background-color: red;  
         color: #FFFFFF;  
     }  
-
     .close-modal:hover {  
         background-color: darkred;  
         transform: scale(1.08);  
     }  
-
     .icon {  
         margin-right: 8px;  
         color: #FF00FF;  
@@ -2088,7 +2443,6 @@ window.addEventListener('beforeunload', function() {
         document.getElementById('banner').style.display = 'none';  
     }
 
-    /* Lógica de Análisis Gemini */
     async function generateAnalysisWithGemini(movieTitle, movieDescription) {
         const analysisModal = document.getElementById('analysis-modal');
         const analysisTitleEl = document.getElementById('analysis-title');
@@ -2145,4 +2499,3 @@ window.addEventListener('beforeunload', function() {
 </script>
 </body>
 </html>
-<body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
