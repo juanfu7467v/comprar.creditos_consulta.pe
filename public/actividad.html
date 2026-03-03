@@ -23,20 +23,17 @@
     --bg: #0f1115;
     --surface: #15171b;
     --muted: #8b8f95;
-    --accent: #e50914; /* rojo Maguis/Netflix-like */
+    --accent: #e50914;
     --card: #16181c;
     --text: #eee;
     --radius: 12px;
-    --plan-bg: #66FF00; /* CAMBIO: Fondo del diamante flotante ahora es verde */
+    --plan-bg: #66FF00;
     --plan-text: #0b0c0f;
-    
-    /* Variables de Perfil UI, ajustadas al tema oscuro */
     --perfil-card:#1d1d20; 
     --perfil-muted:#bfbfbf;
-    --perfil-accent:var(--accent); /* Usamos el rojo principal para los iconos */
+    --perfil-accent:var(--accent);
     --gap:18px;
-    
-    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; /* Priorizar Inter de PeliPREX */
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -56,10 +53,9 @@
     transition: background 0.2s, transform 0.1s;
   }
   .btn:active{ transform: scale(0.98); }
-  .btn.play{background:var(--text); color:#000; border:none;} /* Botón blanco principal */
+  .btn.play{background:var(--text); color:#000; border:none;}
   .btn.pelicula{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--text)}
 
-  /* PeliPREX Styles - Modals/FAB/Layout */
   .modal{
     display:none;
     position:fixed; inset:0; z-index:1500; background:linear-gradient(180deg, rgba(5,5,6,0.95), rgba(5,5,6,0.95));
@@ -112,9 +108,8 @@
     align-items:center;justify-content:center;color:var(--text);cursor:pointer;font-size:18px;
     transition: background 0.2s;
   }
-  /* Estilos genéricos para botones del reproductor */
   .player-controls-overlay .icon-btn,
-  .analysis-header .player-close { /* Añadido el botón de análisis aquí */
+  .analysis-header .player-close {
       pointer-events: all; 
       background: rgba(0,0,0,0.4);
       border-radius: 50%; 
@@ -126,25 +121,22 @@
       line-height: 1; 
       box-shadow: 0 2px 8px rgba(0,0,0,0.5); 
   }
-  /* NUEVO: Estilos para agrandar el icono de favoritos y manejar su estado */
   .player-controls-overlay .player-favorite {
-      width: 50px; /* Agrandado */
-      height: 50px; /* Agrandado */
-      font-size: 24px; /* Icono más grande */
-      color: var(--text); /* Color por defecto */
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      color: var(--text);
       display: flex; 
       align-items: center;
       justify-content: center;
   }
   .player-controls-overlay .player-favorite.is-favorite {
-      /* Fondo ligeramente diferente cuando está marcado */
-      background: rgba(229, 9, 20, 0.6); /* Rojo semitransparente */
+      background: rgba(229, 9, 20, 0.6);
   }
   .player-controls-overlay .player-favorite.is-favorite i {
-      color: #fff; /* Blanco, para mayor contraste en el rojo */
-      font-weight: 900; /* Usar el icono sólido (fa-solid) */
+      color: #fff;
+      font-weight: 900;
   }
-  /* Fin de estilos de favoritos */
 
   .detail-info {
     padding: 0 16px 20px;
@@ -193,7 +185,7 @@
   }
 
   /* --------------------------------------------------------------
-     MODAL DE BÚSQUEDA (Nuevo)
+     MODAL DE BÚSQUEDA
      -------------------------------------------------------------- */
   #search-modal {
       position: fixed;
@@ -363,15 +355,14 @@
   }
 
   /* --------------------------------------------------------------
-     Estilos de Perfil UI (Integrados y Modificados)
+     Estilos de Perfil UI
      -------------------------------------------------------------- */
 .header{
   padding:28px 18px 18px 18px;
   background:linear-gradient(180deg,#071026 0%, rgba(7,16,38,0.6) 100%);
   border-bottom:1px solid rgba(255,255,255,0.03);
-  position: relative; /* ANCLAJE PARA LOS ICONOS ABSOLUTOS */
+  position: relative;
 }
-/* NUEVO: Contenedor para los iconos superiores */
 .top-header-nav {
     display: flex;
     justify-content: space-between;
@@ -384,9 +375,8 @@
     z-index: 10;
 }
 .top-nav-icon {
-    /* CAMBIO: Aumento de tamaño para mejorar la experiencia */
-    width: 44px; /* Aumentado */
-    height: 44px; /* Aumentado */
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: rgba(0,0,0,0.5); 
     display:inline-flex;
@@ -394,14 +384,13 @@
     justify-content:center;
     color:var(--text);
     cursor:pointer;
-    font-size: 20px; /* Aumentado */
+    font-size: 20px;
     transition: background 0.2s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 .profile-row{display:flex;align-items:center;gap:16px}
-/* Avatar modificado para usar un icono de usuario */
 .avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#b00710);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.avatar i{width:40px;height:40px;color:#fff;font-size:40px;} /* Estilo del icono de avatar */
+.avatar i{width:40px;height:40px;color:#fff;font-size:40px;}
 .profile-info{flex:1}
 .profile-name{font-size:20px;font-weight:600}
 .profile-id{
@@ -414,7 +403,6 @@
   gap: 8px;
 }
 
-/* NUEVO: Estilos para los iconos de copiar */
 .copy-icon {
   cursor: pointer;
   font-size: 16px;
@@ -442,7 +430,6 @@
   gap: 8px;
 }
 
-/* botonera principal (Ahora muestra las stats) */
 .buttons{display:grid;grid-template-columns: repeat(3, 1fr); gap:12px;margin-top:18px}
 .btn-card{
   background:var(--perfil-card);
@@ -461,7 +448,6 @@
 }
 .btn-card p{margin:0;font-weight:500;font-size:12px;color:var(--perfil-muted);margin-top:4px;}
 
-/* Sección Sugerencias */
 .section{padding:20px 18px}
 .section-header{
     display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;
@@ -475,10 +461,9 @@
 .carousel::-webkit-scrollbar{height:8px}
 .carousel::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:8px}
 
-/* CAMBIO: Separación por líneas para la actividad */
 .activity-item{
-    padding: 12px 0; /* Aumento de padding */
-    border-bottom: 1px solid rgba(255,255,255,0.06); /* Línea más visible */
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .activity-item:last-child{ border-bottom: none; }
 .activity-item .title{
@@ -489,7 +474,6 @@
     font-size:12px; color:var(--perfil-muted); margin-top:4px;
 }
 
-/* Más funciones */
 .list{margin-top:8px}
 .list-item{display:flex;align-items:center;gap:14px;padding:14px 8px;border-bottom:1px solid rgba(255,255,255,0.02); cursor:pointer; transition: background 0.1s;}
 .list-item:hover{ background: rgba(255,255,255,0.05); }
@@ -501,7 +485,7 @@
 .chev{opacity:0.45}
 
   /* --------------------------------------------------------------
-   NUEVOS ESTILOS PARA EL MODAL DE ANÁLISIS GEMINI
+   MODAL DE ANÁLISIS GEMINI
    -------------------------------------------------------------- */
 .analysis-header {
     position: sticky;
@@ -524,7 +508,7 @@
     text-overflow: ellipsis;
 }
 .analysis-header .player-close {
-    background: rgba(255,255,255,0.05); /* Fondo para el botón de cerrar */
+    background: rgba(255,255,255,0.05);
     width: 40px; height: 40px;
     font-size: 18px;
     border-radius: 50%;
@@ -562,29 +546,29 @@
 }
 
   /* --------------------------------------------------------------
-   NUEVOS ESTILOS PARA EL MODAL DE ALERTA MÓVIL
+   MODAL DE ALERTA MÓVIL
    -------------------------------------------------------------- */
 #alert-modal {
-    align-items: center; /* Centrar verticalmente en el overlay */
+    align-items: center;
     padding: 20px;
-    overflow-y: hidden; /* Evitar scroll innecesario */
+    overflow-y: hidden;
 }
 .alert-panel {
-    background: var(--surface); /* Fondo oscuro */
+    background: var(--surface);
     color: var(--text);
     padding: 20px;
-    border-radius: var(--radius); /* 12px */
+    border-radius: var(--radius);
     width: 90%;
     max-width: 350px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-    transform: translateY(-5px); /* Pequeño desplazamiento inicial */
+    transform: translateY(-5px);
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out;
 }
 .modal.active #alert-modal .alert-panel {
     transform: translateY(0);
 }
 .alert-panel h4 {
-    color: var(--accent); /* Rojo de la marca */
+    color: var(--accent);
     margin: 0 0 10px 0;
     font-size: 18px;
     font-weight: 800;
@@ -613,6 +597,28 @@
 @media (min-width:720px){
   .poster .img{height:150px}
 }
+
+  /* ============================================================
+     NUEVO: SKELETON SCREENS — animación shimmer
+     Solo se aplica a tarjetas de películas (posters, títulos,
+     textos descriptivos). No afecta botones, headers ni menús.
+     ============================================================ */
+  @keyframes skeleton-shimmer {
+    0%   { background-position: -700px 0; }
+    100% { background-position:  700px 0; }
+  }
+
+  .skeleton-base {
+    background: linear-gradient(
+      90deg,
+      #1a1c21 25%,
+      #2a2d33 50%,
+      #1a1c21 75%
+    );
+    background-size: 700px 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: 4px;
+  }
 </style>
 </head>
 <body>
@@ -649,7 +655,6 @@
   <header class="header">
     <div class="top-header-nav">
         <a href="PeliPREX" class="icon-btn top-nav-icon" title="Atrás" id="btn-back-profile"><i class="fa-solid fa-arrow-left"></i></a> 
-        <!-- CAMBIO: Icono de corazón reemplazado por icono de búsqueda -->
         <button class="icon-btn top-nav-icon" id="btn-open-search" title="Buscar películas">
             <i class="fa-solid fa-search"></i>
         </button>
@@ -703,13 +708,12 @@
       </div>
     </section>
 
-    <!-- NUEVA SECCIÓN: Información del Plan (visible para usuarios con plan) -->
+    <!-- SECCIÓN: Información del Plan -->
     <section class="section" id="plan-info-section" style="display:none; margin-bottom: -10px;">
         <div class="section-header">
             <h3>Mi Plan</h3>
         </div>
         <div class="list" id="plan-details-list">
-            <!-- La información del plan se insertará aquí dinámicamente -->
         </div>
     </section>
 
@@ -767,14 +771,12 @@
           <div class="chev">›</div>
         </a>
 
-        <!-- NUEVA OPCIÓN: Cerrar sesión -->
         <div class="list-item" id="link-logout-session">
           <div class="li-icon"><i class="fa-solid fa-sign-out-alt"></i></div>
           <div class="text"><div class="title">Cerrar sesión</div></div>
           <div class="chev">›</div>
         </div>
 
-        <!-- MODIFICACIÓN: Cambiado de "Cerrar sesión" a "Darme de baja" -->
         <div class="list-item" id="link-logout">
           <div class="li-icon"><i class="fa-solid fa-user-slash"></i></div>
           <div class="text"><div class="title">Darme de baja permanente</div></div>
@@ -785,8 +787,6 @@
     </section>
   </main>
   
-  <!-- ELIMINADO: diamante flotante #plan-indicator -->
-
   <div class="modal" id="confirmation-modal"></div>
   <div class="modal" id="modal">
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -878,7 +878,6 @@ const firebaseConfig = {
   appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
 };
 
-// Inicialización
 if(firebase.apps.length === 0){
     firebase.initializeApp(firebaseConfig);
 }
@@ -886,8 +885,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const FieldValue = firebase.firestore.FieldValue;
 
-// API Base URL
-let PELIPREX_BASE_URL = ""; // Cargado desde secrets
+let PELIPREX_BASE_URL = "";
 
 async function loadConfig() {
   try {
@@ -902,10 +900,8 @@ async function loadConfig() {
   }
 }
 
-// Llamar a loadConfig al inicio
 loadConfig();
 
-// CONSTANTES DE GEMINI (TOKEN COMPATIBLE CON AI STUDIO)
 const GEMINI_API_KEY = "AIzaSyAOzh0UW4luQMPFMSZL4WMySgdsTYrxCuo"; 
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY;
 
@@ -915,9 +911,6 @@ let USER_EMAIL = 'ejemplo@example.com';
 let USER_UID = null;
 let searchTimeout = null;
 
-// ==========================================================
-// NUEVAS VARIABLES PARA LA DEDUCCIÓN DIFERIDA
-// ==========================================================
 const creditCost = 3;
 let deductionTimer = null;
 const DEDUCTION_TIME_MS = 20 * 60 * 1000;
@@ -945,22 +938,134 @@ const modalSub = document.getElementById('modal-sub');
 const modalDesc = document.getElementById('modal-desc');
 const suggestionsRow = document.getElementById('suggestions-row');
 const loadingSuggestions = document.getElementById('loading-suggestions');
-// ELIMINADO: const planIndicator = document.getElementById('plan-indicator');
-// ELIMINADO: const planText = document.getElementById('plan-text');
-// ELIMINADO: const closePlanIndicatorBtn = document.getElementById('close-plan-indicator');
 
 const alertModalEl = document.getElementById('alert-modal');
 const alertTitleEl = document.getElementById('alert-title');
 const alertMessageEl = document.getElementById('alert-message');
 const closeAlertModalBtn = document.getElementById('close-alert-modal');
 
-// NUEVAS REFERENCIAS PARA EL MODAL DE BÚSQUEDA
 const searchModal = document.getElementById('search-modal');
 const mainSearchInput = document.getElementById('main-search-input');
 const modalSearchResults = document.getElementById('modal-search-results');
 const modalNoResults = document.getElementById('modal-no-results');
 const modalLoading = document.getElementById('modal-loading');
 const closeSearchBtn = document.getElementById('close-search-btn');
+
+/* ==========================================================
+   NUEVO: CACHÉ localStorage PARA EL BUSCADOR
+   Guarda los resultados de búsqueda mientras el usuario
+   permanezca en la interfaz, evitando peticiones repetidas.
+   ========================================================= */
+const SEARCH_CACHE_KEY   = 'peliprex_search_cache';
+const SEARCH_CACHE_EXPIRY_MS = 15 * 60 * 1000; // 15 minutos
+
+/**
+ * Obtiene resultados cacheados para una query.
+ * Devuelve null si no existen o si expiraron.
+ */
+function getSearchCache(query) {
+  try {
+    const cache = JSON.parse(localStorage.getItem(SEARCH_CACHE_KEY) || '{}');
+    const entry = cache[query.toLowerCase().trim()];
+    if (entry && (Date.now() - entry.timestamp) < SEARCH_CACHE_EXPIRY_MS) {
+      return entry.results;
+    }
+  } catch (e) { /* silencioso */ }
+  return null;
+}
+
+/**
+ * Guarda resultados en caché para una query.
+ * Limita el caché a 30 entradas para no saturar localStorage.
+ */
+function setSearchCache(query, results) {
+  try {
+    const cache = JSON.parse(localStorage.getItem(SEARCH_CACHE_KEY) || '{}');
+    const key = query.toLowerCase().trim();
+    cache[key] = { results, timestamp: Date.now() };
+    const keys = Object.keys(cache);
+    if (keys.length > 30) {
+      delete cache[keys[0]]; // eliminar la entrada más antigua
+    }
+    localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) { /* silencioso */ }
+}
+
+/* ==========================================================
+   NUEVO: SKELETON FACTORIES
+   Crean tarjetas "fantasma" con animación shimmer que se
+   muestran SOLO en posters, títulos y textos descriptivos.
+   Se usan mientras llegan los datos reales.
+   ========================================================= */
+
+/**
+ * Crea N tarjetas skeleton para el carrusel de sugerencias.
+ * Coincide exactamente con el tamaño de suggestion-card.
+ */
+function createSkeletonSuggestionCards(count) {
+  count = count || 8;
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement('div');
+    div.className = 'suggestion-card';
+    div.style.cssText = 'flex-shrink:0;cursor:default;pointer-events:none;';
+
+    // Poster skeleton — misma altura que suggestion-poster (170px)
+    const skelImg = document.createElement('div');
+    skelImg.className = 'skeleton-base';
+    skelImg.style.cssText = 'width:100%;height:170px;border-radius:8px;';
+
+    // Título skeleton — misma tipografía que suggestion-title (~11px)
+    const skelTitle = document.createElement('div');
+    skelTitle.className = 'skeleton-base';
+    skelTitle.style.cssText = 'height:11px;margin-top:6px;border-radius:4px;width:' + (68 + (i % 3) * 8) + '%;';
+
+    div.appendChild(skelImg);
+    div.appendChild(skelTitle);
+    fragment.appendChild(div);
+  }
+  return fragment;
+}
+
+/**
+ * Crea N tarjetas skeleton para la cuadrícula de búsqueda.
+ * Usa la clase movie-poster para heredar exactamente el height
+ * definido en el CSS existente (180px / 270px responsive).
+ */
+function createSkeletonMovieCards(count) {
+  count = count || 6;
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement('div');
+    div.className = 'movie-card';
+    div.style.cssText = 'pointer-events:none;cursor:default;';
+
+    // Poster skeleton — hereda height de .movie-poster via CSS
+    const skelImg = document.createElement('div');
+    skelImg.className = 'skeleton-base movie-poster';
+    skelImg.style.cssText = 'display:block;';
+
+    const meta = document.createElement('div');
+    meta.className = 'movie-meta';
+
+    // Título skeleton
+    const skelT = document.createElement('div');
+    skelT.className = 'skeleton-base';
+    skelT.style.cssText = 'height:13px;border-radius:4px;width:' + (78 + (i % 3) * 6) + '%;margin-bottom:8px;';
+
+    // Año skeleton
+    const skelY = document.createElement('div');
+    skelY.className = 'skeleton-base';
+    skelY.style.cssText = 'height:11px;border-radius:4px;width:' + (38 + (i % 2) * 12) + '%;';
+
+    meta.appendChild(skelT);
+    meta.appendChild(skelY);
+    div.appendChild(skelImg);
+    div.appendChild(meta);
+    fragment.appendChild(div);
+  }
+  return fragment;
+}
 
 /* ==========================================================
    FUNCIONES DE COPIA AL PORTAPAPELES
@@ -1028,7 +1133,8 @@ function safeImage(url){
   return (url.startsWith('http')) ? url : 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster';
 }
 
-function showCustomModal(title, message, isError = false) {
+function showCustomModal(title, message, isError) {
+    isError = isError || false;
     alertTitleEl.textContent = title;
     alertMessageEl.textContent = message;
     
@@ -1086,20 +1192,76 @@ function closeSearchModal() {
     modalLoading.style.display = 'none';
 }
 
-// Crear tarjeta de película para resultados de búsqueda
+/* MODIFICADO: createMovieCard ahora incluye skeleton en poster y textos.
+   La tarjeta muestra shimmer hasta que el poster termina de cargar,
+   luego revela imagen, título y año automáticamente. */
 function createMovieCard(movie) {
     const card = document.createElement('div');
     card.className = 'movie-card';
     card.dataset.id = movie.id || movie.titulo;
-    
-    card.innerHTML = `
-        <img class="movie-poster" src="${safeImage(movie.imagen_url)}" alt="${movie.titulo}" loading="lazy">
-        <div class="movie-meta">
-            <div class="movie-title">${movie.titulo || 'Película'}</div>
-            <div class="movie-year">${movie.año || movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A'}</div>
-        </div>
-    `;
-    
+    // position:relative ya definido en CSS .movie-card — sin cambio de estilos
+    card.style.position = 'relative';
+
+    /* ── SKELETON POSTER OVERLAY ──
+       Cubre exactamente el área del poster usando la misma clase CSS
+       movie-poster para heredar height (180px / 270px responsive). */
+    const skelPoster = document.createElement('div');
+    skelPoster.className = 'skeleton-base movie-poster';
+    skelPoster.style.cssText = 'display:block;position:absolute;top:0;left:0;z-index:2;pointer-events:none;border-radius:10px 10px 0 0;';
+
+    const img = document.createElement('img');
+    img.className = 'movie-poster';
+    img.alt = movie.titulo || 'Película';
+    img.loading = 'lazy';
+    img.style.cssText = 'opacity:0;transition:opacity .35s ease;';
+
+    const meta = document.createElement('div');
+    meta.className = 'movie-meta';
+
+    /* ── SKELETON TEXTO ── */
+    const skelT = document.createElement('div');
+    skelT.className = 'skeleton-base';
+    skelT.style.cssText = 'height:13px;border-radius:4px;width:88%;margin-bottom:8px;';
+
+    const skelY = document.createElement('div');
+    skelY.className = 'skeleton-base';
+    skelY.style.cssText = 'height:11px;border-radius:4px;width:48%;';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'movie-title';
+    titleEl.textContent = movie.titulo || 'Película';
+    titleEl.style.display = 'none';
+
+    const yearVal = movie.año || (movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A');
+    const yearEl = document.createElement('div');
+    yearEl.className = 'movie-year';
+    yearEl.textContent = yearVal;
+    yearEl.style.display = 'none';
+
+    function revealMovieCard() {
+        img.style.opacity = '1';
+        if (skelPoster.parentNode) skelPoster.remove();
+        if (skelT.parentNode) skelT.remove();
+        if (skelY.parentNode) skelY.remove();
+        titleEl.style.display = '';
+        yearEl.style.display = '';
+    }
+
+    img.onload  = revealMovieCard;
+    img.onerror = revealMovieCard;
+    img.src = safeImage(movie.imagen_url);
+    // Por si la imagen ya está en caché del navegador (Safari)
+    if (img.complete) revealMovieCard();
+
+    meta.appendChild(skelT);
+    meta.appendChild(skelY);
+    meta.appendChild(titleEl);
+    meta.appendChild(yearEl);
+
+    card.appendChild(skelPoster);
+    card.appendChild(img);
+    card.appendChild(meta);
+
     card.addEventListener('click', () => {
         closeSearchModal();
         handleViewMovieDetails(movie, 'search');
@@ -1108,14 +1270,19 @@ function createMovieCard(movie) {
     return card;
 }
 
-// Buscar películas por texto
+/* MODIFICADO: searchMovies ahora consulta caché localStorage antes
+   de hacer fetch. Guarda resultados para evitar recargas innecesarias. */
 async function searchMovies(query) {
     if (!query || query.length < 2) {
         return [];
     }
-    
-    modalLoading.style.display = 'block';
-    modalNoResults.style.display = 'none';
+
+    // ── CACHÉ: si ya buscamos esto recientemente, lo devolvemos directo ──
+    const cached = getSearchCache(query);
+    if (cached) {
+        console.log('[PeliPREX Cache] Resultados desde localStorage para: "' + query + '"');
+        return cached;
+    }
     
     try {
         const response = await fetch(`${PELIPREX_BASE_URL}/buscar?q=${encodeURIComponent(query)}`);
@@ -1125,18 +1292,22 @@ async function searchMovies(query) {
         }
         
         const data = await response.json();
-        return data.resultados || [];
+        const results = data.resultados || [];
+
+        // ── CACHÉ: guardar para próximas búsquedas ──
+        setSearchCache(query, results);
+        
+        return results;
         
     } catch (error) {
         console.error('Error buscando películas:', error);
         showErrorModal('Error al buscar películas. Intenta de nuevo.');
         return [];
-    } finally {
-        modalLoading.style.display = 'none';
     }
 }
 
-// Configurar búsqueda en tiempo real
+/* MODIFICADO: el listener ahora muestra skeleton cards mientras carga,
+   en lugar del texto "Buscando películas...". */
 mainSearchInput.addEventListener('input', function(e) {
     const query = e.target.value.trim();
     
@@ -1145,16 +1316,19 @@ mainSearchInput.addEventListener('input', function(e) {
     if (query.length < 2) {
         modalSearchResults.innerHTML = '';
         modalNoResults.style.display = 'none';
+        modalLoading.style.display = 'none';
         return;
     }
     
-    modalLoading.style.display = 'block';
+    // Ocultar texto de carga, mostrar skeleton cards de inmediato
+    modalLoading.style.display = 'none';
     modalNoResults.style.display = 'none';
+    modalSearchResults.innerHTML = '';
+    modalSearchResults.appendChild(createSkeletonMovieCards(6));
     
     searchTimeout = setTimeout(async () => {
         const results = await searchMovies(query);
         
-        modalLoading.style.display = 'none';
         modalSearchResults.innerHTML = '';
         
         if (results.length > 0) {
@@ -1167,7 +1341,7 @@ mainSearchInput.addEventListener('input', function(e) {
     }, 500);
 });
 
-// Configurar sugerencias de búsqueda
+// Configurar sugerencias de búsqueda (sin cambios)
 document.querySelectorAll('[data-suggestion]').forEach(button => {
     button.addEventListener('click', function() {
         const suggestion = this.dataset.suggestion;
@@ -1177,14 +1351,12 @@ document.querySelectorAll('[data-suggestion]').forEach(button => {
 });
 
 /* ==========================================================
-   PLAN INDICATOR / FIREBASE UI UPDATER (ACTUALIZADO)
+   PLAN INDICATOR / FIREBASE UI UPDATER
    ========================================================= */
 function updatePlanIndicator(userData) {
-    // ELIMINADO: Función del diamante flotante
-    // No hacemos nada
+    // Sin cambios
 }
 
-// NUEVA FUNCIÓN PARA ACTUALIZAR LA SECCIÓN DEL PLAN
 function updateProfileUI(userData) {
     if (!userData) {
         console.error("No se pudo obtener la data de usuario desde Firestore.");
@@ -1194,7 +1366,6 @@ function updateProfileUI(userData) {
 
     updatePlanIndicator(userData);
 
-    // Actualizar la nueva sección de información del plan
     const planInfoSection = document.getElementById('plan-info-section');
     const planDetailsList = document.getElementById('plan-details-list');
     
@@ -1214,7 +1385,6 @@ function updateProfileUI(userData) {
                 </div>
             `;
         } else if (userData.tipoPlan === 'ilimitado') {
-            // Obtener fechas (con soporte para diferentes formatos)
             let fechaActivacion = 'N/A';
             let fechaVencimiento = 'N/A';
             
@@ -1226,7 +1396,6 @@ function updateProfileUI(userData) {
                 fechaVencimiento = formatDate(userData.planIlimitadoHasta);
             }
             
-            // Calcular días restantes
             let diasRestantes = 'N/A';
             let mensajeDias = '';
             
@@ -1288,10 +1457,8 @@ function updateProfileUI(userData) {
 
 /* ==========================================================
    LÓGICA DE DEDUCCIÓN DE CRÉDITOS Y TEMPORIZADOR
-   MODIFICADO: Todas las películas consumen 0 créditos
    ========================================================= */
 async function deductCreditsOnTimer(amount, movieTitle, uid) {
-    // MODIFICADO: Siempre retorna true sin descontar créditos
     console.log(`No se descuentan créditos por "${movieTitle}" (configurado a 0 créditos)`);
     return true;
 }
@@ -1368,7 +1535,6 @@ async function fetchProfileData(email) {
             profileNameEl.textContent = perfil.email.split('@')[0];
             profileEmailEl.textContent = perfil.email;
             
-            // Mostrar UID si está disponible
             if (USER_UID) {
                 userIdEl.textContent = `ID: ${USER_UID}`;
             } else {
@@ -1429,9 +1595,13 @@ async function fetchActivityData(email) {
     }
 }
 
+/* MODIFICADO: fetchSuggestions ahora muestra skeleton cards mientras
+   carga, en lugar de los puntitos pulse. Reemplaza automáticamente
+   cuando llegan los datos reales. */
 async function fetchSuggestions() {
-    loadingSuggestionsProfileEl.style.display = 'flex';
+    // Limpiar y mostrar skeleton cards (8 tarjetas fantasma)
     sugerenciasCarouselEl.innerHTML = '';
+    sugerenciasCarouselEl.appendChild(createSkeletonSuggestionCards(8));
     
     try {
         const apiURL = `${PELIPREX_BASE_URL}/peliculas`;
@@ -1443,11 +1613,11 @@ async function fetchSuggestions() {
         
         const data = await response.json();
         
-        loadingSuggestionsProfileEl.style.display = 'none';
+        // Reemplazar skeletons con tarjetas reales
+        sugerenciasCarouselEl.innerHTML = '';
         
         if (Array.isArray(data)) {
             const shuffledData = shuffleArray(data);
-
             shuffledData.slice(0, 12).forEach(item => {
                 sugerenciasCarouselEl.appendChild(createSuggestionCard(item));
             });
@@ -1457,7 +1627,7 @@ async function fetchSuggestions() {
         }
     } catch (error) {
         console.error("Error al cargar sugerencias:", error);
-        loadingSuggestionsProfileEl.style.display = 'none';
+        sugerenciasCarouselEl.innerHTML = '';
         showErrorModal("Error al cargar sugerencias. Intenta de nuevo.");
     }
 }
@@ -1541,22 +1711,56 @@ async function toggleFavorite(movie) {
     }
 }
 
+/* MODIFICADO: createSuggestionCard ahora incluye skeleton en poster y
+   título. La animación shimmer se muestra mientras carga el poster y
+   desaparece automáticamente cuando la imagen está lista. */
 function createSuggestionCard(item){
     const div = document.createElement('div');
     div.className = 'suggestion-card poster';
     div.title = item.titulo;
+    div.style.position = 'relative'; // necesario para el overlay absoluto
+
+    /* ── SKELETON POSTER OVERLAY ──
+       Usa suggestion-poster para heredar exactamente: width 100%,
+       height 170px, border-radius 8px. skeleton-base añade shimmer. */
+    const skelPoster = document.createElement('div');
+    skelPoster.className = 'skeleton-base suggestion-poster';
+    skelPoster.style.cssText = 'display:block;position:absolute;top:0;left:0;z-index:2;pointer-events:none;';
+
+    /* ── SKELETON TÍTULO ── */
+    const skelTitle = document.createElement('div');
+    skelTitle.className = 'skeleton-base';
+    skelTitle.style.cssText = 'height:11px;margin-top:6px;border-radius:4px;width:74%;';
 
     const poster = document.createElement('img');
     poster.className = 'suggestion-poster';
     poster.alt = `Póster de ${item.titulo}`;
-    poster.src = safeImage(item.imagen_url);
+    poster.style.cssText = 'opacity:0;transition:opacity .35s ease;';
     poster.loading = 'lazy';
 
     const title = document.createElement('div');
     title.className = 'suggestion-title';
     title.textContent = item.titulo;
+    title.style.visibility = 'hidden';
 
+    // Cuando el poster carga (o falla), revelar contenido y quitar skeletons
+    function revealSuggestionCard() {
+        poster.style.opacity = '1';
+        title.style.visibility = 'visible';
+        if (skelPoster.parentNode) skelPoster.remove();
+        if (skelTitle.parentNode) skelTitle.remove();
+    }
+
+    poster.onload  = revealSuggestionCard;
+    poster.onerror = revealSuggestionCard;
+    // Asignar src DESPUÉS de onload (evita que imágenes cacheadas se pierdan)
+    poster.src = safeImage(item.imagen_url);
+    // Por si la imagen ya está en caché del navegador (Safari / Chromium cached)
+    if (poster.complete) revealSuggestionCard();
+
+    div.appendChild(skelPoster);
     div.appendChild(poster);
+    div.appendChild(skelTitle);
     div.appendChild(title);
 
     div.addEventListener('click', ()=> {
@@ -1595,7 +1799,6 @@ async function handleViewMovieDetails(movie, source){
         canProceed = true;
         console.log("Plan Ilimitado. Reproducción inmediata.");
     } else if (userData.tipoPlan === 'creditos') {
-        // MODIFICADO: Permitir siempre reproducción sin verificar créditos
         canProceed = true;
         requiresTimer = true;
     } else {
@@ -1685,23 +1888,30 @@ function displayMovieDetails(movie) {
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 }
 
+/* MODIFICADO: fetchSuggestionsToModal ahora muestra skeleton cards en
+   la sección "También podría gustarte" mientras llegan los resultados.
+   Funciona correctamente también en la segunda y tercera apertura del modal. */
 async function fetchSuggestionsToModal(){
-    loadingSuggestions.style.display = 'flex';
+    // Limpiar fila (incluyendo los puntitos pulse del HTML estático)
+    // y mostrar skeleton cards de inmediato
     suggestionsRow.innerHTML = '';
+    suggestionsRow.appendChild(createSkeletonSuggestionCards(6));
+
     try {
         const apiURL = `${PELIPREX_BASE_URL}/peliculas`;
         const response = await fetch(apiURL);
         const data = await response.json();
-        loadingSuggestions.style.display = 'none';
+
+        // Reemplazar skeletons con tarjetas reales
+        suggestionsRow.innerHTML = '';
+
         if (Array.isArray(data)) {
             const shuffledData = shuffleArray(data);
-
             shuffledData.slice(0, 10).forEach(item => {
                 suggestionsRow.appendChild(createSuggestionCard(item));
             });
         }
     } catch (error) {
-        loadingSuggestions.style.display = 'none';
         suggestionsRow.innerHTML = '<p style="color:var(--accent); font-size:14px; margin-top:0;">Error al cargar sugerencias.</p>';
     }
 }
@@ -1765,15 +1975,9 @@ async function generateAnalysisWithGemini(movieTitle, movieDescription) {
 
 /* ==========================================================
    FUNCIÓN PARA BAJA DEFINITIVA (DERECHO AL OLVIDO)
-   - Orden obligatorio:
-     1) Borrar Firestore (/usuarios/{userId})
-     2) Borrar Firebase Auth (user.delete())
-     3) Redirigir a login.html
-   - Manejo de auth/requires-recent-login
    ========================================================= */
 async function deleteAccountPermanently() {
     try {
-        // Cancelar cualquier temporizador de deducción pendiente
         cancelDeductionTimer();
 
         const user = auth.currentUser;
@@ -1782,26 +1986,20 @@ async function deleteAccountPermanently() {
             return;
         }
 
-        // 1) Eliminar datos del usuario en Firestore (ANTES de eliminar auth)
         await db.collection("usuarios").doc(user.uid).delete();
-
-        // 2) Eliminar cuenta en Firebase Authentication
         await user.delete();
 
-        // 3) Limpiar datos locales (manteniendo el resto intacto)
         localStorage.removeItem('planIndicatorClosed');
         globalFavoritesData = [];
         currentMovie = null;
         USER_EMAIL = 'ejemplo@example.com';
         USER_UID = null;
 
-        // 4) Redirigir al login
         window.location.href = "login.html";
 
     } catch (error) {
         console.error("Error al eliminar la cuenta definitivamente:", error);
 
-        // Manejo específico: requiere login reciente
         if (error && error.code === 'auth/requires-recent-login') {
             showErrorModal("Por seguridad, necesitas volver a iniciar sesión para poder eliminar tu cuenta. Cierra sesión e inicia sesión nuevamente, y vuelve a intentarlo.");
             return;
@@ -1817,7 +2015,6 @@ async function deleteAccountPermanently() {
 async function logoutSession() {
     try {
         await auth.signOut();
-        // Redirigir al login después de cerrar sesión
         window.location.href = "login.html";
     } catch (error) {
         console.error("Error al cerrar sesión:", error);
@@ -1886,7 +2083,6 @@ document.getElementById('btn-favoritos').onclick = () => window.location.href = 
 document.getElementById('btn-historial').onclick = () => window.location.href = 'historial.html';
 document.getElementById('btn-last-activity').onclick = () => window.location.href = 'actividad.html';
 
-// Event listeners para copiar al portapapeles
 copyEmailIcon.addEventListener('click', () => {
     const email = profileEmailEl.textContent;
     copyToClipboard(email, copyEmailIcon);
@@ -1899,30 +2095,24 @@ copyIdIcon.addEventListener('click', () => {
     }
 });
 
-// CAMBIO: Botón de búsqueda en la cabecera
 document.getElementById('btn-open-search').addEventListener('click', openSearchModal);
 
-// Cerrar modal de búsqueda
 closeSearchBtn.addEventListener('click', closeSearchModal);
 
-// Cerrar modal al hacer clic fuera
 searchModal.addEventListener('click', (e) => {
     if (e.target === searchModal) {
         closeSearchModal();
     }
 });
 
-// Cerrar con ESC
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeSearchModal();
     }
 });
 
-// MODIFICACIÓN: Ahora el enlace lleva directamente a planes.html
 document.getElementById('link-credits').onclick = (e) => { e.preventDefault(); window.location.href = 'planes.html'; };
 document.getElementById('link-support').onclick = (e) => { e.preventDefault(); window.location.href = 'ayuda.html'; };
-// COMPARTIR: Ambos botones (del reproductor y de "Más funciones") usan la misma referencia
 document.getElementById('link-share').onclick = (e) => { 
     e.preventDefault(); 
     document.getElementById('banner').style.display = 'flex'; 
@@ -1933,35 +2123,28 @@ document.getElementById('modal-share-btn').onclick = (e) => {
 };
 document.getElementById('link-legal').onclick = (e) => { e.preventDefault(); window.location.href = 'avisolegalpeliprex.html'; };
 
-// NUEVO: "Cerrar sesión" ejecuta logout
 document.getElementById('link-logout-session').onclick = (e) => {
     e.preventDefault();
     logoutSession();
 };
 
-// MODIFICACIÓN: "Darme de baja" ejecuta la eliminación permanente de la cuenta
 document.getElementById('link-logout').onclick = (e) => {
     e.preventDefault();
 
-    // Modal de confirmación (irreversible)
     showCustomModal(
         "Eliminar cuenta (irreversible)",
         "Esta acción es irreversible: se borrarán tus créditos, historial y todos tus datos. ¿Deseas eliminar tu cuenta definitivamente?",
         true
     );
 
-    // Sobrescribir el botón de aceptar del modal para que ejecute la baja definitiva
     const alertBtn = document.getElementById('close-alert-modal');
     const originalOnClick = alertBtn.onclick;
     alertBtn.onclick = async () => {
         alertModalEl.classList.remove('active');
         await deleteAccountPermanently();
-        // Restaurar el comportamiento original
         alertBtn.onclick = originalOnClick;
     };
 };
-
-// ELIMINADO: closePlanIndicatorBtn event listener
 
 closeAlertModalBtn.addEventListener('click', () => {
     alertModalEl.classList.remove('active');
@@ -1986,7 +2169,6 @@ document.getElementById('analysis-close-btn').onclick = () => {
     document.getElementById('analysis-result-container').innerHTML = '';
 };
 
-// Botón de atrás
 document.getElementById('btn-back-profile').addEventListener('click', (e) => {
     e.preventDefault();
     if (document.referrer && (document.referrer.includes(window.location.hostname) || document.referrer.startsWith('/'))) {
@@ -2009,7 +2191,6 @@ document.getElementById('btn-back-profile').addEventListener('click', (e) => {
 </div>
 
 <style>
-    /* Banner (Oculto por defecto) */  
     .banner {  
         width: 100%;  
         background: linear-gradient(to right, #00264D, #003366);  
@@ -2022,7 +2203,7 @@ document.getElementById('btn-back-profile').addEventListener('click', (e) => {
         border-top-left-radius: 15px;  
         border-top-right-radius: 15px;  
         box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
-        display: none; /* Ocultamos el banner al inicio */  
+        display: none;
         flex-direction: column;  
         align-items: center;  
         text-align: center;  
@@ -2043,7 +2224,6 @@ document.getElementById('btn-back-profile').addEventListener('click', (e) => {
         margin-bottom: 20px;  
     }  
 
-    /* Botones del Banner */  
     .cta-button, .close-modal {  
         width: 100%;  
         padding: 16px;  
