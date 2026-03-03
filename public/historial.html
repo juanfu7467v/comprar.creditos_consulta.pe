@@ -597,15 +597,15 @@
   }
 
   /* --------------------------------------------------------------
-     INDICADOR DE PLAN FLOTANTE
+     ✅ INDICADOR DE PLAN FLOTANTE - MODIFICADO (verde turquesa, texto "Gratis")
      -------------------------------------------------------------- */
   #plan-indicator {
       position: fixed;
       bottom: 20px; 
       right: 20px;
       z-index: 1000;
-      background: var(--plan-bg); 
-      color: var(--plan-text);
+      background: #20c997; /* Verde turquesa / verde menta */
+      color: #111; /* Texto oscuro (casi negro) */
       padding: 10px 14px;
       border-radius: 999px;
       font-weight: 800;
@@ -617,11 +617,11 @@
       transition: opacity 0.3s;
   }
   #plan-indicator i.fa-gem {
-      color: var(--plan-text); 
+      color: #111; /* Diamante negro */
   }
   #plan-indicator .close-btn {
       background: rgba(0,0,0,0.1); 
-      color: var(--plan-text);
+      color: #111;
       border: none;
       width: 20px;
       height: 20px;
@@ -699,7 +699,7 @@
       font-size: 16px;
   }
 
-  /* ✅ NUEVO: Tarjetas de búsqueda en 2 columnas */
+  /* Tarjetas de búsqueda en 2 columnas */
   .detail-grid .card {
       width: calc(50% - 5px);
       flex-shrink: 0;
@@ -773,7 +773,7 @@
       }
   }
 
-  /* ✅ NUEVO: Skeleton para Historial */
+  /* Skeleton para Historial */
   .skeleton-hist-card {
       background: var(--card);
       border-radius: 10px;
@@ -814,7 +814,7 @@
       .skeleton-hist-poster { height: 210px; }
   }
 
-  /* ✅ NUEVO: Skeleton para Sugerencias */
+  /* Skeleton para Sugerencias */
   .skeleton-sug-card {
       width: 120px;
       flex-shrink: 0;
@@ -892,9 +892,10 @@
     <i class="fa-solid fa-angle-up"></i>
   </button>
   
+  <!-- ✅ INDICADOR DE PLAN - MODIFICADO: Fondo verde turquesa, texto "Gratis", diamante negro -->
   <div id="plan-indicator" style="display:none;">
     <i class="fa-solid fa-gem"></i> 
-    <span id="plan-text">Cargando...</span>
+    <span id="plan-text">Gratis</span>
     <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
@@ -1065,7 +1066,7 @@ loadConfig();
 let globalHistoryData = [];
 let currentMovie = null;
 
-/* ✅ NUEVO: Estado de búsqueda para preservar resultados al volver del reproductor */
+/* Estado de búsqueda para preservar resultados al volver del reproductor */
 let searchState = {
   query: '',
   results: [],
@@ -1168,7 +1169,7 @@ confirmationModal.addEventListener('click', (e)=>{
 });
 
 /* ==========================================================
-   ✅ NUEVAS FUNCIONES: SKELETON SCREENS
+   FUNCIONES: SKELETON SCREENS
    ========================================================== */
 
 /** Crea una tarjeta skeleton para el historial */
@@ -1261,7 +1262,7 @@ function clearSearchSkeletons() {
 }
 
 /* ==========================================================
-   LÓGICA DEL PLAN Y UI
+   LÓGICA DEL PLAN Y UI - MODIFICADA (texto siempre "Gratis")
    ========================================================== */
 function updatePlanIndicator(userData) {
     if (localStorage.getItem('planIndicatorClosed') === 'true') {
@@ -1273,35 +1274,9 @@ function updatePlanIndicator(userData) {
         return;
     }
     planIndicator.style.display = 'flex';
-    if (userData.tipoPlan === 'ilimitado') {
-        planText.textContent = 'Plan Ilimitado';
-        planIndicator.style.background = 'linear-gradient(135deg, var(--accent), #b00710)'; 
-        planIndicator.style.color = '#fff';
-        planIndicator.querySelector('i').style.color = '#fff';
-        closePlanIndicatorBtn.style.background = 'rgba(255,255,255,0.2)';
-        closePlanIndicatorBtn.style.color = '#fff';
-    } else if (userData.tipoPlan === 'creditos') {
-        const remaining = parseInt(userData.creditos) || 0; 
-        planText.textContent = `${remaining} Créditos`;
-        if (remaining > 0) {
-            planIndicator.style.background = 'linear-gradient(45deg, #10ac84, #00b09b)'; 
-            planIndicator.style.color = '#0b0c0f';
-            planIndicator.querySelector('i').style.color = '#0b0c0f';
-        } else {
-            planIndicator.style.background = 'linear-gradient(45deg,#ffdd57,#ffb84d)'; 
-            planIndicator.style.color = '#0b0c0f';
-            planIndicator.querySelector('i').style.color = '#0b0c0f';
-        }
-        closePlanIndicatorBtn.style.background = 'rgba(0,0,0,0.1)';
-        closePlanIndicatorBtn.style.color = planIndicator.style.color || 'var(--plan-text)'; 
-    } else {
-        planText.textContent = 'Plan No Activo';
-        planIndicator.style.background = 'linear-gradient(135deg, #8b8f95, #555)';
-        planIndicator.style.color = '#fff';
-        planIndicator.querySelector('i').style.color = '#fff';
-        closePlanIndicatorBtn.style.background = 'rgba(255,255,255,0.2)';
-        closePlanIndicatorBtn.style.color = '#fff';
-    }
+    // El texto siempre es "Gratis" sin importar el plan
+    planText.textContent = 'Gratis';
+    // El color ya está fijo en CSS (verde turquesa, texto negro)
 }
 
 closePlanIndicatorBtn.addEventListener('click', () => {
@@ -1314,49 +1289,11 @@ function updateProfileUI(userData) {
 }
 
 /* ==========================================================
-   LÓGICA DE DEDUCCIÓN DE CRÉDITOS
+   LÓGICA DE DEDUCCIÓN DE CRÉDITOS - MODIFICADA (siempre 0)
    ========================================================== */
 async function deductCredits(amount, movieTitle) {
-    const user = auth.currentUser;
-    if (!user) {
-        showErrorModal('Necesitas iniciar sesión para deducir créditos.');
-        return false;
-    }
-    const userRef = db.collection("usuarios").doc(user.uid);
-    try {
-        await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(userRef);
-            if (!doc.exists) {
-                throw new Error("Datos de usuario no encontrados.");
-            }
-            const userData = doc.data();
-            if (userData.tipoPlan === 'ilimitado') {
-                return true;
-            }
-            if (userData.tipoPlan === 'creditos') {
-                const currentCredits = parseInt(userData.creditos) || 0;
-                if (currentCredits < amount) {
-                    throw new Error(`CRÉDITOS INSUFICIENTES: Necesitas ${amount} créditos para ver "${movieTitle}". Solo tienes ${currentCredits}.`);
-                }
-                const newCredits = currentCredits - amount;
-                transaction.update(userRef, { creditos: newCredits });
-                userData.creditos = newCredits;
-                updateProfileUI(userData); 
-                return true;
-            }
-            throw new Error("Tipo de plan desconocido o no activo.");
-        });
-        return true;
-    } catch (error) {
-        console.error("Error en la deducción de créditos:", error);
-        if (error.message.startsWith('CRÉDITOS INSUFICIENTES')) {
-            const parts = error.message.split(':');
-            showErrorModal(parts[1].trim());
-        } else {
-            showErrorModal(`No se pudo deducir el crédito. Error: ${error.message}`);
-        }
-        return false;
-    }
+    // ✅ AHORA SIEMPRE RETORNA TRUE (sin descontar créditos)
+    return true;
 }
 
 /* ==========================================================
@@ -1561,11 +1498,10 @@ async function addMovieToFavorites(movie) {
 }
 
 /* ==========================================================
-   LÓGICA DEL HEARTBEAT
+   LÓGICA DEL HEARTBEAT - MODIFICADA (eliminada deducción)
    ========================================================== */
 let heartbeatIntervalId = null;
 let movieStartTime = 0;
-const CREDIT_CONSUMPTION_TIME_SECONDS = 20 * 60;
 const HEARTBEAT_INTERVAL_MS = 60 * 1000;
 
 function stopHeartbeat() {
@@ -1580,7 +1516,6 @@ function stopHeartbeat() {
 async function startHeartbeat(movie, creditCost) {
     if (heartbeatIntervalId !== null) return;
     movieStartTime = Date.now();
-    let creditDeductedFlag = false;
 
     async function sendPulse() {
         const user = auth.currentUser;
@@ -1590,18 +1525,7 @@ async function startHeartbeat(movie, creditCost) {
         }
         const elapsedSeconds = Math.floor((Date.now() - movieStartTime) / 1000);
         const totalDuration = 7200;
-        if (elapsedSeconds >= CREDIT_CONSUMPTION_TIME_SECONDS && !creditDeductedFlag) {
-            console.log(`¡20 minutos alcanzados (${elapsedSeconds}s)! DEDUCCIÓN DE CRÉDITOS INICIADA.`);
-            const deductionSuccessful = await deductCredits(creditCost, movie.titulo);
-            if (deductionSuccessful) {
-                creditDeductedFlag = true;
-                console.log("Crédito deducido con éxito.");
-            } else {
-                stopHeartbeat();
-                closeMovieModalAndRefresh(); 
-                return; 
-            }
-        }
+        
         try {
             const apiUrl = `${PELIPREX_BASE_URL}/user/heartbeat?email=${encodeURIComponent(user.email)}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}¤tTime=${elapsedSeconds}&totalDuration=${totalDuration}&titulo=${encodeURIComponent(movie.titulo)}`;
             const response = await fetch(apiUrl);
@@ -1657,11 +1581,8 @@ function renderSuggestions(data){
     });
 }
 
-/* ✅ MODIFICADO: fetchSuggestions ahora usa skeletons en lugar de pulsing dots */
 async function fetchSuggestions(){
-    /* Mostrar skeletons mientras carga */
     showSuggestionSkeletons(6);
-
     try {
         const apiURL = `${PELIPREX_BASE_URL}/peliculas`;
         const response = await fetch(apiURL);
@@ -1669,7 +1590,6 @@ async function fetchSuggestions(){
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        /* Reemplazar skeletons con contenido real */
         suggestionsRow.innerHTML = '';
         if (Array.isArray(data)) {
             const shuffled = data.sort(() => 0.5 - Math.random());
@@ -1684,13 +1604,11 @@ async function fetchSuggestions(){
     }
 }
 
-/* ✅ MODIFICADO: closeMovieModalAndRefresh restaura búsqueda si corresponde */
 function closeMovieModalAndRefresh() {
     stopHeartbeat();
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
 
-    /* Si el usuario llegó desde el buscador, restaurar resultados */
     if (searchState.isActive && searchState.query) {
         detailViewModal.classList.add('active');
         detailViewTitle.textContent = `Resultados para "${searchState.query}"`;
@@ -1698,16 +1616,13 @@ function closeMovieModalAndRefresh() {
         detailResultsContainer.innerHTML = '';
 
         if (searchState.results && searchState.results.length > 0) {
-            /* Restaurar sin nueva petición usando datos cacheados */
             searchState.results.forEach(movie => {
                 detailResultsContainer.appendChild(createMovieCard(movie));
             });
         } else {
-            /* Resultados no disponibles, volver a buscar */
             handleSearch(searchState.query);
         }
     } else {
-        /* Sin búsqueda previa: recargar historial */
         main();
     }
 }
@@ -1746,7 +1661,6 @@ function displayMovieDetails(movie) {
     const closeBtnInIframe = document.getElementById('player-close-btn-in-iframe');
     closeBtnInIframe.onclick = closeMovieModalAndRefresh; 
 
-    /* ✅ MODIFICADO: Botón de búsqueda en reproductor con manejo de estado */
     const searchBtnInPlayer = document.getElementById('modal-search-btn');
     if (searchBtnInPlayer) {
         searchBtnInPlayer.onclick = () => {
@@ -1755,7 +1669,6 @@ function displayMovieDetails(movie) {
             modalPlayer.innerHTML = '';
             detailViewModal.classList.add('active');
 
-            /* Si hay búsqueda cacheada, restaurarla; si no, abrir vacío */
             if (searchState.query && searchState.results && searchState.results.length > 0) {
                 detailViewTitle.textContent = `Resultados para "${searchState.query}"`;
                 searchInput.value = searchState.query;
@@ -1811,7 +1724,7 @@ async function handleViewMovieDetails(movie, source){
         return;
     }
     
-    const creditCost = source === 'history' ? 2 : 3; 
+    const creditCost = 0; // ✅ SIEMPRE 0 (gratis)
     let finalUrl = movie.pelicula_url;
     
     if (finalUrl && finalUrl.includes('drive.google.com')) {
@@ -1858,7 +1771,6 @@ function hideSearchLoading() {
     if (searchInlineLoading) searchInlineLoading.style.display = 'none';
 }
 
-/* ✅ MODIFICADO: createMovieCard cierra búsqueda y guarda estado antes de abrir película */
 function createMovieCard(item){
     const div = document.createElement('div');
     div.className = 'card';
@@ -1886,7 +1798,6 @@ function createMovieCard(item){
     div.appendChild(meta);
 
     div.addEventListener('click', ()=> {
-        /* ✅ Guardar estado de búsqueda y cerrar modal antes de abrir película */
         searchState.isActive = true;
         detailViewModal.classList.remove('active');
         handleViewMovieDetails(item, 'suggestion'); 
@@ -1895,7 +1806,6 @@ function createMovieCard(item){
     return div;
 }
 
-/* ✅ MODIFICADO: handleSearch guarda resultados en searchState */
 async function handleSearch(query) {
     searchState.query = query;
 
@@ -1921,7 +1831,6 @@ async function handleSearch(query) {
         clearSearchSkeletons();
 
         if (data && data.resultados && data.resultados.length > 0) {
-            /* ✅ Guardar resultados en caché */
             searchState.results = data.resultados;
             data.resultados.forEach(movie => {
                 detailResultsContainer.appendChild(createMovieCard(movie));
@@ -2042,14 +1951,10 @@ function renderHistoryGrid(data){
   historyTotalItemsEl.textContent = `Últimos ${data.length} elementos`;
 }
 
-/* ✅ MODIFICADO: main() muestra skeletons antes de cargar el historial */
 async function main(){
-  /* Mostrar skeletons inmediatamente */
   showHistorySkeletons(9);
-  /* Cargar datos reales */
   const data = await fetchRealHistory();
   globalHistoryData = data;
-  /* Reemplazar skeletons con contenido real */
   renderHistoryGrid(data);
 }
 
@@ -2066,11 +1971,9 @@ document.getElementById('btn-back').addEventListener('click', () => {
   }
 }); 
 
-/* ✅ MODIFICADO: Cerrar búsqueda limpia el estado de búsqueda guardado */
 document.getElementById('detail-close-btn').onclick = () => {
     detailViewModal.classList.remove('active');
     searchInput.value = '';
-    /* Limpiar estado de búsqueda al cerrar explícitamente */
     searchState.isActive = false;
     searchState.query = '';
     searchState.results = [];
