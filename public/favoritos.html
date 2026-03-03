@@ -601,15 +601,15 @@
 
 
   /* --------------------------------------------------------------
-     INDICADOR DE PLAN FLOTANTE (Diamante)
+     ✅ INDICADOR DE PLAN FLOTANTE - MODIFICADO (verde turquesa, texto "Gratis")
      -------------------------------------------------------------- */
   #plan-indicator {
       position: fixed;
       bottom: 20px; 
       right: 20px;
       z-index: 1000;
-      background: var(--plan-bg);
-      color: var(--plan-text);
+      background: #20c997; /* Verde turquesa / verde menta */
+      color: #111; /* Texto oscuro (casi negro) */
       padding: 10px 14px;
       border-radius: 999px;
       font-weight: 800;
@@ -620,32 +620,12 @@
       gap: 6px;
       transition: opacity 0.3s;
   }
-  
-  .plan-warning {
-      background: linear-gradient(45deg, #ffdd57, #ffb84d) !important; 
-      color: #0b0c0f !important;
-  }
-  
   #plan-indicator i.fa-gem {
-      color: var(--plan-text);
+      color: #111; /* Diamante negro */
   }
-
-  .plan-warning i.fa-gem, .plan-warning .close-btn {
-      color: #0b0c0f !important;
-  }
-  .plan-warning .close-btn {
-      background: rgba(0,0,0,0.1) !important;
-  }
-  #plan-indicator:not(.plan-warning) {
-      background: var(--plan-bg);
-  }
-  #plan-indicator:not(.plan-warning) i.fa-gem, #plan-indicator:not(.plan-warning) .close-btn {
-      color: var(--plan-text);
-  }
-
   #plan-indicator .close-btn {
       background: rgba(0,0,0,0.1); 
-      color: var(--plan-text);
+      color: #111;
       border: none;
       width: 20px;
       height: 20px;
@@ -971,9 +951,10 @@
     <i class="fa-solid fa-angle-up"></i>
   </button>
   
+  <!-- ✅ INDICADOR DE PLAN - MODIFICADO: Fondo verde turquesa, texto "Gratis", diamante negro -->
   <div id="plan-indicator" style="display:none;">
     <i class="fa-solid fa-gem"></i> 
-    <span id="plan-text">Cargando...</span>
+    <span id="plan-text">Gratis</span>
     <button class="close-btn" id="close-plan-indicator" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
@@ -1106,15 +1087,14 @@
    CONFIGURACIÓN E INICIALIZACIÓN REAL DE FIREBASE
    ========================================================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg", // <--- TU API KEY AQUÍ
-  authDomain: "consulta-pe-abf99.firebaseapp.com", // <--- TU AUTH DOMAIN AQUÍ
-  projectId: "consulta-pe-abf99", // <--- TU PROJECT ID AQUÍ
-  storageBucket: "consulta-pe-abf99.firebasestorage.app", // <--- TU STORAGE BUCKET AQUÍ
-  messagingSenderId: "610275972424", // <--- TU MESSAGING SENDER ID AQUÍ
-  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d" // <--- TU APP ID AQUÍ
+  apiKey: "AIzaSyAvzBfVUN_xRw-fuBEZdhoTasTMws1yERg",
+  authDomain: "consulta-pe-abf99.firebaseapp.com",
+  projectId: "consulta-pe-abf99",
+  storageBucket: "consulta-pe-abf99.firebasestorage.app",
+  messagingSenderId: "610275972424",
+  appId: "1:610275972424:android:19d11c9ed5fdce6dc64f7d"
 };
 
-// Inicialización
 if(firebase.apps.length === 0){
     firebase.initializeApp(firebaseConfig);
 }
@@ -1368,52 +1348,21 @@ function clearSearchSkeletons() {
 }
 
 /* ==========================================================
-   LÓGICA DEL PLAN Y UI
+   LÓGICA DEL PLAN Y UI - MODIFICADA (texto siempre "Gratis")
    ========================================================== */
 function updatePlanIndicator(userData) {
     if (localStorage.getItem('planIndicatorClosed') === 'true') {
         planIndicator.style.display = 'none';
         return;
     }
-    
     if (!userData) {
         planIndicator.style.display = 'none';
         return;
     }
-
     planIndicator.style.display = 'flex';
-    planIndicator.classList.remove('plan-warning');
-
-    if (userData.tipoPlan === 'ilimitado') {
-        planText.textContent = 'Plan Ilimitado';
-        planIndicator.style.background = 'linear-gradient(135deg, var(--accent), #b00710)'; 
-        planIndicator.style.color = '#fff';
-        planIndicator.querySelector('i').style.color = '#fff';
-        closePlanIndicatorBtn.style.background = 'rgba(255,255,255,0.2)';
-        closePlanIndicatorBtn.style.color = '#fff';
-
-    } else if (userData.tipoPlan === 'creditos') {
-        const remaining = parseInt(userData.creditos) || 0; 
-        planText.textContent = `${remaining} Créditos`;
-
-        if (remaining === 0) {
-            planIndicator.classList.add('plan-warning');
-        } else {
-            planIndicator.style.background = 'var(--plan-bg)'; 
-            planIndicator.style.color = 'var(--plan-text)';
-            planIndicator.querySelector('i').style.color = 'var(--plan-text)';
-            closePlanIndicatorBtn.style.background = 'rgba(0,0,0,0.1)';
-            closePlanIndicatorBtn.style.color = 'var(--plan-text)';
-        }
-
-    } else {
-        planText.textContent = 'Plan No Activo';
-        planIndicator.style.background = 'linear-gradient(135deg, #8b8f95, #555)';
-        planIndicator.style.color = '#fff';
-        planIndicator.querySelector('i').style.color = '#fff';
-        closePlanIndicatorBtn.style.background = 'rgba(255,255,255,0.2)';
-        closePlanIndicatorBtn.style.color = '#fff';
-    }
+    // El texto siempre es "Gratis" sin importar el plan
+    planText.textContent = 'Gratis';
+    // El color ya está fijo en CSS (verde turquesa, texto negro)
 }
 
 closePlanIndicatorBtn.addEventListener('click', () => {
@@ -1426,50 +1375,11 @@ function updateProfileUI(userData) {
 }
 
 /* ==========================================================
-   LÓGICA DE DEDUCCIÓN DE CRÉDITOS
+   ✅ LÓGICA DE DEDUCCIÓN DE CRÉDITOS - MODIFICADA (siempre 0)
    ========================================================== */
 async function deductCredits(amount, movieTitle) {
-    const user = auth.currentUser;
-    if (!user) {
-        showErrorModal('Necesitas iniciar sesión para deducir créditos.');
-        return false;
-    }
-    
-    const userRef = db.collection("usuarios").doc(user.uid);
-    try {
-        await db.runTransaction(async (transaction) => {
-            const doc = await transaction.get(userRef);
-            if (!doc.exists) {
-                throw new Error("Datos de usuario no encontrados.");
-            }
-            const userData = doc.data();
-            if (userData.tipoPlan === 'ilimitado') {
-                return true;
-            }
-            if (userData.tipoPlan === 'creditos') {
-                const currentCredits = parseInt(userData.creditos) || 0;
-                if (currentCredits < amount) {
-                    throw new Error(`CRÉDITOS INSUFICIENTES: Necesitas ${amount} créditos para ver "${movieTitle}". Solo tienes ${currentCredits}.`);
-                }
-                const newCredits = currentCredits - amount;
-                transaction.update(userRef, { creditos: newCredits });
-                userData.creditos = newCredits;
-                updateProfileUI(userData); 
-                return true;
-            }
-            throw new Error("Tipo de plan desconocido o no activo.");
-        });
-        return true;
-    } catch (error) {
-        console.error("Error en la deducción de créditos:", error);
-        if (error.message.startsWith('CRÉDITOS INSUFICIENTES')) {
-            const parts = error.message.split(':');
-            showErrorModal(parts[1].trim());
-        } else {
-            showErrorModal(`No se pudo deducir el crédito. Error: ${error.message}`);
-        }
-        return false;
-    }
+    // ✅ AHORA SIEMPRE RETORNA TRUE (sin descontar créditos)
+    return true;
 }
 
 /* ==========================================================
@@ -1976,16 +1886,12 @@ modal.addEventListener('click', (e)=>{
   }
 });
 
+/* ✅ MODIFICADO: handleViewMovieDetails - apertura inmediata sin demora */
 async function handleViewMovieDetails(movie, source) {
-    const cost = source === 'list' ? 2 : 1; 
-    const isPlaybackAllowed = await deductCredits(cost, movie.titulo);
-
-    if (isPlaybackAllowed) {
-        displayMovieDetails(movie);
-        addMovieToHistory(movie); 
-    } else {
-        console.log("Reproducción bloqueada por falta de créditos.");
-    }
+    // ✅ SIN VALIDACIONES DE CRÉDITOS - apertura inmediata
+    displayMovieDetails(movie);
+    // El historial se registra en segundo plano sin bloquear
+    addMovieToHistory(movie);
 }
 
 /* ==========================================================
@@ -2446,12 +2352,34 @@ window.addEventListener('beforeunload', function() {
     async function generateAnalysisWithGemini(movieTitle, movieDescription) {
         const analysisModal = document.getElementById('analysis-modal');
         const analysisTitleEl = document.getElementById('analysis-title');
-        const resultContainer = document.getElementById('analysis-result-container');
-        const loadingEl = document.getElementById('analysis-loading');
+        const analysisContentEl = document.getElementById('analysis-content');
+        const analysisHeaderEl = document.getElementById('analysis-header');
 
         analysisTitleEl.textContent = `Análisis de: ${movieTitle}`;
-        resultContainer.innerHTML = '';
-        loadingEl.style.display = 'flex';
+        analysisContentEl.innerHTML = `
+            <div style="display:flex;justify-content:center;align-items:center;padding:40px;gap:10px;">
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+            </div>
+            <p style="text-align:center;color:var(--muted);margin-top:0;">Generando análisis experto de "<strong>${movieTitle}</strong>"...</p>
+        `;
+
+        if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.imagen_url) {
+            analysisHeaderEl.style.backgroundImage = `url(${safeImage(currentMovie.imagen_url)})`;
+        }
+
+        document.getElementById('analysis-back-btn').onclick = () => {
+            analysisModal.classList.remove('active');
+            if (typeof currentMovie !== 'undefined' && currentMovie) {
+                displayMovieDetails(currentMovie);
+            }
+        };
+
+        document.getElementById('analysis-report-btn').onclick = () => {
+            showCustomModal('Reportar Error', 'Esta acción reporta un error en el análisis a los administradores.', false);
+        };
+
         analysisModal.classList.add('active');
         document.getElementById('modal').classList.remove('active');
 
@@ -2462,10 +2390,20 @@ window.addEventListener('beforeunload', function() {
                 body: JSON.stringify({ movieTitle, movieDescription })
             });
 
-            const data = await response.json();
-            loadingEl.style.display = 'none';
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
 
-            if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
+            const data = await response.json();
+
+            if (
+                data.candidates &&
+                data.candidates[0] &&
+                data.candidates[0].content &&
+                data.candidates[0].content.parts &&
+                data.candidates[0].content.parts[0] &&
+                data.candidates[0].content.parts[0].text
+            ) {
                 let analysisText = data.candidates[0].content.parts[0].text;
                 let finalHtml = analysisText.replace(/\*\*/g, '');
                 const parts = finalHtml.split('\n');
@@ -2475,26 +2413,30 @@ window.addEventListener('beforeunload', function() {
                 parts.forEach(line => {
                     line = line.trim();
                     if (!line) return;
-                    if (line.match(/^(Trama y Desarrollo|Aspectos Destacados|Veredicto Final)/i)) {
+                    if (line.match(/^(Trama|Aspectos|Veredicto|Ficha|Reseña|Análisis|Protagonistas|Dirección|Música|Conclusión|Sinopsis|Reparto|Puntuación|Género|Resumen|Historia|Crítica|Director|Elenco|Nota|Banda)/i)) {
                         if (inList) { output += '</ul>'; inList = false; }
-                        output += `<h3>${line.replace(/.$/, '')}</h3>`;
+                        output += `<h3>${line.replace(/:$/, '')}</h3>`;
                     } else if (line.startsWith('*') || line.startsWith('•') || line.match(/^[0-9]+\./)) {
                         if (!inList) { output += '<ul>'; inList = true; }
-                        output += `<li>${line.replace(/^[*\•] ?|^[0-9]+\. ?/, '')}</li>`;
+                        output += `<li>${line.replace(/^[*•] ?|^[0-9]+\. ?/, '')}</li>`;
                     } else {
                         if (inList) { output += '</ul>'; inList = false; }
                         output += `<p>${line}</p>`;
                     }
                 });
+
                 if (inList) { output += '</ul>'; }
-                resultContainer.innerHTML = output;
+                analysisContentEl.innerHTML = output;
             } else {
-                resultContainer.innerHTML = '<p style="color:var(--accent);">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
+                analysisContentEl.innerHTML = '<p style="color:var(--accent); text-align:center; padding:20px;">No se pudo generar el análisis. Intenta de nuevo más tarde.</p>';
             }
         } catch (error) {
-            loadingEl.style.display = 'none';
-            resultContainer.innerHTML = '<p style="color:var(--accent);">Error de conexión al servidor. Intenta de nuevo.</p>';
+            console.error("Error en análisis Gemini:", error);
+            analysisContentEl.innerHTML = `<p style="color:var(--accent); text-align:center; padding:20px;">Error de conexión al servidor de análisis. Intenta de nuevo.<br><small style="color:var(--muted);">${error.message}</small></p>`;
         }
+
+        const container = analysisModal.querySelector('.analysis-container');
+        if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
     }
 </script>
 </body>
