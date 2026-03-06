@@ -582,6 +582,11 @@
   @media (min-width:720px){
     .poster .img{height:150px}
   }
+.sircle-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); animation: pulse-dot 1.6s infinite; }
+.sircle-dot:nth-child(2) { animation-delay: 0.4s; }
+.sircle-dot:nth-child(3) { animation-delay: 0.8s; }
+@keyframes pulse-dot { 0% { transform: scale(0.6); opacity: 0.7; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.6); opacity: 0.7; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 <!-- Plyr.io para reproductor HTML5 moderno -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
@@ -1101,6 +1106,83 @@ function createMovieCard(movie) {
 }
 
 /* ✨ MODIFICADO — searchMovies con lectura/escritura en localStorage */
+
+// --- MEJORA DE LOADING CON LOGS ---
+let logInterval = null;
+const searchLogs = [
+    "Buscando en almacén principal...",
+    "Buscando en almacén extendido...",
+    "Analizando servidores remotos...",
+    "Verificando disponibilidad en la nube...",
+    "Sincronizando base de datos de películas...",
+    "Optimizando resultados para ti..."
+];
+
+function showEnhancedLoading() {
+    const loadingEl = document.getElementById('loading-results');
+    if (!loadingEl) return;
+
+    loadingEl.style.display = 'block';
+    
+    const renderDots = () => {
+        loadingEl.innerHTML = `
+            <div style="display:flex; gap:8px; justify-content:center; align-items:center; padding: 20px 0;">
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+            </div>`;
+    };
+
+    const renderLog = (index) => {
+        loadingEl.innerHTML = `
+            <div style="display:flex; justify-content:center; align-items:center; min-height:60px; padding: 20px 0;">
+                <span style="font-size: 14px; color: var(--muted); font-weight: 600; animation: fadeIn 0.5s; text-align:center;">
+                    ${searchLogs[index % searchLogs.length]}
+                </span>
+            </div>`;
+    };
+
+    renderDots();
+    let currentStep = 0;
+    let logIndex = 0;
+
+    if (logInterval) clearInterval(logInterval);
+
+    const stepLogic = () => {
+        if (loadingEl.style.display === 'none') {
+            clearInterval(logInterval);
+            return;
+        }
+
+        if (currentStep % 2 === 0) {
+            renderDots();
+            logInterval = setTimeout(() => {
+                currentStep++;
+                stepLogic();
+            }, 5000);
+        } else {
+            renderLog(logIndex);
+            logIndex++;
+            logInterval = setTimeout(() => {
+                currentStep++;
+                stepLogic();
+            }, 3000);
+        }
+    };
+    stepLogic();
+}
+
+function hideEnhancedLoading() {
+    const loadingEl = document.getElementById('loading-results');
+    if (loadingEl) {
+        loadingEl.style.display = 'none';
+        if (logInterval) {
+            clearTimeout(logInterval);
+            logInterval = null;
+        }
+    }
+}
+
 async function searchMovies(query) {
     if (!query || query.length < 2) return [];
 
@@ -1133,7 +1215,29 @@ async function searchMovies(query) {
 }
 
 /* ✨ MODIFICADO — listener del input con skeleton + caché instantánea */
-mainSearchInput.addEventListener('input', function(e) {
+
+    // Mejora: Búsqueda solo al pulsar Enter
+    mainSearchInput.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+            const query = e.target.value.trim();
+            if (query.length < 2) return;
+            
+            modalSearchResults.innerHTML = '';
+            modalNoResults.style.display = 'none';
+            showEnhancedLoading();
+            const results = await searchMovies(query);
+            hideEnhancedLoading();
+            
+            if (results.length > 0) {
+                results.forEach(movie => modalSearchResults.appendChild(createMovieCard(movie)));
+            } else {
+                modalNoResults.style.display = 'block';
+            }
+        }
+    });
+    
+    // Búsqueda automática desactivada
+  mainSearchInput.addEventListener('input_disabled', function(e) {
     const query = e.target.value.trim();
 
     clearTimeout(searchTimeout);

@@ -851,6 +851,7 @@
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
   }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 <!-- Plyr.io para reproductor HTML5 moderno -->
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
@@ -1807,11 +1808,90 @@ let searchTimeout = null;
 let searchSkeletonTimeout = null;
 
 const searchInlineLoading = document.getElementById('search-inline-loading');
+
+// --- MEJORA DE LOADING CON LOGS ---
+let logInterval = null;
+const searchLogs = [
+    "Buscando en almacén principal...",
+    "Buscando en almacén extendido...",
+    "Analizando servidores remotos...",
+    "Verificando disponibilidad en la nube...",
+    "Sincronizando base de datos de películas...",
+    "Optimizando resultados para ti..."
+];
+
+function showEnhancedLoading() {
+    const loadingEl = document.getElementById('search-inline-loading');
+    if (!loadingEl) return;
+
+    loadingEl.style.display = 'flex';
+    loadingEl.style.flexDirection = 'column';
+    loadingEl.style.gap = '12px';
+    
+    const renderDots = () => {
+        loadingEl.innerHTML = `
+            <div style="display:flex; gap:8px; justify-content:center; align-items:center;">
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+                <div class="sircle-dot"></div>
+            </div>`;
+    };
+
+    const renderLog = (index) => {
+        loadingEl.innerHTML = `
+            <div style="display:flex; justify-content:center; align-items:center; min-height:40px;">
+                <span style="font-size: 14px; color: var(--muted); font-weight: 600; animation: fadeIn 0.5s; text-align:center;">
+                    ${searchLogs[index % searchLogs.length]}
+                </span>
+            </div>`;
+    };
+
+    renderDots();
+    let currentStep = 0;
+    let logIndex = 0;
+
+    if (logInterval) clearInterval(logInterval);
+
+    const stepLogic = () => {
+        if (loadingEl.style.display === 'none') {
+            clearInterval(logInterval);
+            return;
+        }
+
+        if (currentStep % 2 === 0) {
+            renderDots();
+            logInterval = setTimeout(() => {
+                currentStep++;
+                stepLogic();
+            }, 5000);
+        } else {
+            renderLog(logIndex);
+            logIndex++;
+            logInterval = setTimeout(() => {
+                currentStep++;
+                stepLogic();
+            }, 3000);
+        }
+    };
+    stepLogic();
+}
+
+function hideEnhancedLoading() {
+    const loadingEl = document.getElementById('search-inline-loading');
+    if (loadingEl) {
+        loadingEl.style.display = 'none';
+        if (logInterval) {
+            clearTimeout(logInterval);
+            logInterval = null;
+        }
+    }
+}
+
 function showSearchLoading() {
-    if (searchInlineLoading) searchInlineLoading.style.display = 'flex';
+    showEnhancedLoading();
 }
 function hideSearchLoading() {
-    if (searchInlineLoading) searchInlineLoading.style.display = 'none';
+    hideEnhancedLoading();
 }
 
 function createMovieCard(item){
@@ -2045,7 +2125,8 @@ if (btnSearch) {
     });
 }
 
-searchInput.addEventListener('input', (e) => {
+// Búsqueda automática desactivada por solicitud
+  searchInput.addEventListener('input_disabled', (e) => {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => handleSearch(e.target.value), 500);
 });
@@ -2175,6 +2256,7 @@ auth.onAuthStateChanged(async (user) => {
         margin-right: 8px;  
         color: #FF00FF;  
     }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
 
 <script>
