@@ -911,6 +911,9 @@
       animation: skeleton-loading 1.5s infinite;
   }
 </style>
+<!-- Plyr.io para reproductor HTML5 moderno -->
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 </head>
 <body>
 
@@ -1739,16 +1742,18 @@ function closeMovieModalAndRefresh() {
     }
 }
 
+function isFlyioUrl(url) {
+    return url && url.includes('peliprex') && url.includes('fly.dev');
+}
+
 function displayMovieDetails(movie) {
     currentMovie = movie;
-    const embedUrl = getEmbedUrl(movie.pelicula_url);
     
     modalPlayer.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)"peliPREX </div>
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted)">peliPREX</div>
         
         <div class="player-controls-overlay">
             <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
-            <!-- ✅ NUEVO: Botón de búsqueda en reproductor (copiado de historial) -->
             <button class="icon-btn player-favorite" id="modal-search-btn" title="Buscar películas" style="margin-right: auto; margin-left: 10px;">
                 <i class="fa-solid fa-search"></i>
             </button>
@@ -1756,32 +1761,70 @@ function displayMovieDetails(movie) {
         </div>
     `;
     
-    if(embedUrl){
-        const iframe = document.createElement('iframe');
-        iframe.src = embedUrl;
-        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-        iframe.allowFullscreen = true;
-        iframe.frameBorder = 0;
-        iframe.style.objectFit = 'fill'; 
-        iframe.style.position = 'absolute';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        modalPlayer.insertBefore(iframe, modalPlayer.firstChild); 
-    } else {
-         modalPlayer.innerHTML = `
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text);padding:20px;text-align:center;">
-                <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
-                <h4 style="margin:0;">Error de URL de Reproducción</h4>
-                <p style="color:var(--muted); font-size:14px; margin-top:5px;">No se pudo generar la URL de incrustación (embed). Verifica la fuente.</p>
-            </div>
+    if(isFlyioUrl(movie.pelicula_url)){
+        // Usar reproductor HTML5 con Plyr.io para Fly.io
+        const playerContainer = document.createElement('div');
+        playerContainer.className = 'reproductor-container';
+        playerContainer.innerHTML = `
+            <video id="peliPrexPlayer" controls crossorigin playsinline>
+                <source src="${movie.pelicula_url}" type="video/mp4">
+                Tu navegador no soporta el formato de video.
+            </video>
         `;
-        modalPlayer.insertAdjacentHTML('beforeend', `
-            <div class="player-controls-overlay">
-                <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
-                <button class="icon-btn player-favorite" id="modal-search-btn" title="Buscar películas" style="margin-right: auto; margin-left: 10px;"><i class="fa-solid fa-search"></i></button>
-                <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
-            </div>
-        `);
+        playerContainer.style.position = 'absolute';
+        playerContainer.style.width = '100%';
+        playerContainer.style.height = '100%';
+        playerContainer.style.top = '0';
+        playerContainer.style.left = '0';
+        modalPlayer.insertBefore(playerContainer, modalPlayer.firstChild);
+        
+        // Inicializar Plyr.io
+        setTimeout(() => {
+            const player = new Plyr('#peliPrexPlayer', {
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+                quality: { default: 720, options: [360, 720, 1080] },
+                speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+                keyboard: { focused: true, global: true },
+                tooltips: { controls: true, seek: true },
+                autoplay: false,
+                clickToPlay: true,
+                invertTime: false,
+                toggleInvert: true,
+                ratio: '16:9',
+                storage: { enabled: true, key: 'plyr' }
+            });
+        }, 100);
+    } else {
+        // Usar iframe para Google Drive, YouTube y otros
+        const embedUrl = getEmbedUrl(movie.pelicula_url);
+        
+        if(embedUrl){
+            const iframe = document.createElement('iframe');
+            iframe.src = embedUrl;
+            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+            iframe.allowFullscreen = true;
+            iframe.frameBorder = 0;
+            iframe.style.objectFit = 'fill'; 
+            iframe.style.position = 'absolute';
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            modalPlayer.insertBefore(iframe, modalPlayer.firstChild); 
+        } else {
+             modalPlayer.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text);padding:20px;text-align:center;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
+                    <h4 style="margin:0;">Error de URL de Reproducción</h4>
+                    <p style="color:var(--muted); font-size:14px; margin-top:5px;">No se pudo generar la URL de incrustación (embed). Verifica la fuente.</p>
+                </div>
+            `;
+            modalPlayer.insertAdjacentHTML('beforeend', `
+                <div class="player-controls-overlay">
+                    <button class="icon-btn player-close" id="player-close-btn-in-iframe" title="Cerrar/Atrás"><i class="fa-solid fa-arrow-left"></i></button> 
+                    <button class="icon-btn player-favorite" id="modal-search-btn" title="Buscar películas" style="margin-right: auto; margin-left: 10px;"><i class="fa-solid fa-search"></i></button>
+                    <button class="icon-btn player-favorite" id="player-favorite-btn" title="Añadir a Favoritos"><i class="fa-regular fa-heart"></i></button>
+                </div>
+            `);
+        }
     }
 
     const releaseYear = movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : movie.año || 'N/A';
