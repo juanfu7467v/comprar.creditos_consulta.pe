@@ -1357,6 +1357,16 @@ async function fetchSuggestions() {
         sugerenciasCarouselEl.innerHTML = '';
 
         if (Array.isArray(data)) {
+            // Verificar si hay una película para reproducir automáticamente
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieToPlay = urlParams.get('movie');
+            if (movieToPlay) {
+                const pelicula = data.find(p => p.id == movieToPlay || p.titulo == movieToPlay);
+                if (pelicula) {
+                    handleViewMovieDetails(pelicula, 'direct_link');
+                }
+            }
+
             shuffleArray(data).slice(0, 12).forEach(item => {
                 sugerenciasCarouselEl.appendChild(createSuggestionCard(item));
             });
@@ -1808,20 +1818,27 @@ document.getElementById('btn-back-profile').addEventListener('click', (e) => {
     .close-modal { background-color: red; color: #FFFFFF; }  
     .close-modal:hover { background-color: darkred; transform: scale(1.08); }  
     .icon { margin-right: 8px; color: #FF00FF; }
-</style>
+</st    function sharePage() {  
+        let url = window.location.href;  
+        let title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
+        let text = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
 
-<script>
-    function sharePage() {  
-        const url   = window.location.href;  
-        const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la app Consulta PE";  
-        const text  = "¡Hey! Te recomiendo la app Consulta PE, súper útil para consultar tu DNI, RUC, placas y más, todo desde tu móvil. ¡Pruébala!";  
-        if (navigator.share) {
-            navigator.share({ title, text, url }).catch(error => console.log("Error al compartir:", error));
-        } else {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, "_blank");
+        if (typeof currentMovie !== 'undefined' && currentMovie) {
+            const movieParam = encodeURIComponent(currentMovie.id || currentMovie.titulo);
+            const baseUrl = window.location.origin + window.location.pathname;
+            url = `${baseUrl}?movie=${movieParam}`;
+            title = `¡Mira esta película en PeliPREX!: ${currentMovie.titulo}`;
+            text = `¡Mira esta película en PeliPREX!: ${currentMovie.titulo}. Dale play ahora mismo.`;
         }
-    }  
-    function closeBanner() { document.getElementById('banner').style.display = 'none'; }
+
+        if (navigator.share) {  
+            navigator.share({ title, text, url })  
+                .catch(error => console.log("Error al compartir:", error));  
+        } else {  
+            const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`;
+            window.open(whatsappLink, '_blank');
+        }  
+    }ion closeBanner() { document.getElementById('banner').style.display = 'none'; }
 </script>
 </body>
 </html>
