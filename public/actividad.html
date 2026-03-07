@@ -2084,11 +2084,18 @@ document.getElementById('btn-back-profile').addEventListener('click', (e) => {
             title = `🎬 ${currentMovie.titulo} | PeliPREX HD`;
             const desc = currentMovie.descripcion ? currentMovie.descripcion.substring(0, 120) + '...' : 'Dale play ahora mismo en PeliPREX HD.';
             const imgUrl = currentMovie.imagen_url || '';
-            /* La imagen al inicio del mensaje hace que WhatsApp, Telegram y Messenger
-               generen automáticamente la miniatura de la película en la vista previa */
+            /* Se asegura que la miniatura se obtenga correctamente desde el campo imagen_url */
             whatsappText = imgUrl
-                ? `${imgUrl}\n\n🎬 *${currentMovie.titulo}*\n${desc}\n\n▶️ Ver ahora: ${url}`
-                : `🎬 *${currentMovie.titulo}*\n${desc}\n\n▶️ Ver ahora: ${url}`;
+                ? `${imgUrl}
+
+🎬 *${currentMovie.titulo}*
+${desc}
+
+▶️ Ver ahora: ${url}`
+                : `🎬 *${currentMovie.titulo}*
+${desc}
+
+▶️ Ver ahora: ${url}`;
             text = `🎬 ${currentMovie.titulo} - ${desc}`;
         }
 
