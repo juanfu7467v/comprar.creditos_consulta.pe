@@ -83,6 +83,8 @@ const cspDomains = [
   "https://auth.masitaprex.com",
   "https://peliprex-31wrsa.fly.dev",
   "https://cdn.plyr.io",
+  "https://*.effectivegatecpm.com",
+  "https://*.adsterra.com",
   "https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css",
   "https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.js",
   "https://lh3.googleusercontent.com",
