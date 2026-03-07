@@ -465,11 +465,11 @@
       width: 50px;
       height: 50px;
       border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top-color: var(--accent);
+      border-top-color: #fff;
       border-radius: 50%;
       animation: spin-player 0.8s linear infinite;
   }
-  .player-loading-text {
+  .player-loading-text { display: none;  display: none;  display: none; 
       color: var(--text);
       font-size: 14px;
       font-weight: 600;
@@ -958,7 +958,7 @@
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-body-full">
             <div class="modal-player" id="modal-player-container">
-                <div class="player-loading-indicator" id="player-loading-indicator">
+                <div class="player-loading-indicator hidden" id="player-loading-indicator">
                     <div class="player-loading-spinner"></div>
                     <div class="player-loading-text">Cargando video...</div>
                 </div>
@@ -1711,7 +1711,7 @@ function displayMovieDetails(movie) {
     updateOGTags(movie);
     
     modalPlayer.innerHTML = `
-        <div class="player-loading-indicator" id="player-loading-indicator">
+        <div class="player-loading-indicator hidden" id="player-loading-indicator">
             <div class="player-loading-spinner"></div>
             <div class="player-loading-text">Cargando video...</div>
         </div>
@@ -1756,6 +1756,32 @@ function displayMovieDetails(movie) {
                     ratio: '16:9',
                     storage: { enabled: true, key: 'plyr' }
                 });
+                // Mejoras en el loading: mostrar solo al dar play y ocultar al empezar
+                player.on('play', () => {
+                    const loadingIndicator = document.getElementById('player-loading-indicator');
+                    if (loadingIndicator && player.buffered < 0.1) {
+                        loadingIndicator.classList.remove('hidden');
+                    }
+                });
+                player.on('playing', () => {
+                    const loadingIndicator = document.getElementById('player-loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+                player.on('waiting', () => {
+                    const loadingIndicator = document.getElementById('player-loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.remove('hidden');
+                    }
+                });
+                player.on('canplay', () => {
+                    const loadingIndicator = document.getElementById('player-loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
+                
                 // Ocultar indicador de carga cuando el video está listo
                 const video = document.getElementById('peliPrexPlayer');
                 if (video) {
@@ -1779,13 +1805,11 @@ function displayMovieDetails(movie) {
             iframe.style.width = '100%';
             iframe.style.height = '100%';
             modalPlayer.insertBefore(iframe, modalPlayer.firstChild);
-            // Ocultar indicador de carga después de un tiempo para iframe
-            setTimeout(() => {
-                const loadingIndicator = document.getElementById('player-loading-indicator');
-                if (loadingIndicator) {
-                    loadingIndicator.classList.add('hidden');
-                }
-            }, 2000);
+            // Loading oculto para iframes externos (Google Drive, YouTube, etc)
+            const loadingIndicator = document.getElementById('player-loading-indicator');
+            if (loadingIndicator) {
+                loadingIndicator.classList.add('hidden');
+            }
         }
     }
 
