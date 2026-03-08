@@ -2554,18 +2554,31 @@ async function main() {
     const bannerPromise = fetchData('/peliculas', { showGlobalLoading: false });
 
     // Verificar si hay una película para reproducir automáticamente
-    bannerPromise.then(allMovies => {
-        if (Array.isArray(allMovies)) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const movieToPlay = urlParams.get('movie');
-            if (movieToPlay) {
-                const pelicula = allMovies.find(p => p.id == movieToPlay || p.titulo == movieToPlay);
-                if (pelicula) {
-                    handleViewMovieDetails(pelicula, 'direct_link');
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieToPlay = urlParams.get('movie');
+    if (movieToPlay) {
+        fetchData(`/buscar?q=${encodeURIComponent(movieToPlay)}`, { showGlobalLoading: false })
+            .then(data => {
+                if (data && data.resultados && data.resultados.length > 0) {
+                    // Buscar coincidencia exacta por ID o título
+                    const pelicula = data.resultados.find(p => p.id == movieToPlay || p.titulo == movieToPlay) || data.resultados[0];
+                    if (pelicula) {
+                        handleViewMovieDetails(pelicula, 'direct_link');
+                    }
+                } else {
+                    // Si no se encuentra en búsqueda, intentar en el catálogo general
+                    return bannerPromise.then(allMovies => {
+                        if (Array.isArray(allMovies)) {
+                            const pelicula = allMovies.find(p => p.id == movieToPlay || p.titulo == movieToPlay);
+                            if (pelicula) {
+                                handleViewMovieDetails(pelicula, 'direct_link');
+                            }
+                        }
+                    });
                 }
-            }
-        }
-    });
+            })
+            .catch(err => console.error("Error al cargar película compartida:", err));
+    }
 
     const categoryFetches = CATEGORIES.map(category => {
         if (category.genre === 'destacadas') {
@@ -2867,42 +2880,46 @@ _noCreditObs.observe(document.getElementById('no-credits-modal'),{attributes:tru
 </style>
 
 <script>
-    function sharePage() {  
+     function sharePage() {  
         let url = window.location.href;  
         let title = "🎬 PeliPREX HD | Ver Películas Gratis Online en Alta Calidad";  
         let text = "🍿 ¡Mira películas gratis en HD sin instalar nada! Entra a PeliPREX y disfruta el mejor catálogo de estrenos online.";
-        let whatsappText = text + " " + url;
+        let shareData = { title, text, url };
 
         if (typeof currentMovie !== 'undefined' && currentMovie) {
             const movieParam = encodeURIComponent(currentMovie.id || currentMovie.titulo);
             const baseUrl = window.location.origin + window.location.pathname;
             url = `${baseUrl}?movie=${movieParam}`;
             title = `🎬 ${currentMovie.titulo} | PeliPREX HD`;
-            const desc = currentMovie.descripcion ? currentMovie.descripcion.substring(0, 120) + '...' : 'Dale play ahora mismo en PeliPREX HD.';
-            const imgUrl = currentMovie.imagen_url || '';
-            /* Se asegura que la miniatura se obtenga correctamente desde el campo imagen_url */
-            whatsappText = imgUrl
-                ? `${imgUrl}
-
-🎬 *${currentMovie.titulo}*
-${desc}
-
-▶️ Ver ahora: ${url}`
-                : `🎬 *${currentMovie.titulo}*
-${desc}
-
-▶️ Ver ahora: ${url}`;
+            const desc = currentMovie.descripcion 
+                ? (currentMovie.descripcion.length > 120 ? currentMovie.descripcion.substring(0, 117) + "..." : currentMovie.descripcion)
+                : "¡No te pierdas esta increíble película!";
+            
             text = `🎬 ${currentMovie.titulo} - ${desc}`;
+            
+            shareData = {
+                title: title,
+                text: text,
+                url: url
+            };
+
+            // Si existe imagen_url, intentamos incluirla en el share nativo
+            if (currentMovie.imagen_url) {
+                // Nota: navigator.share soporta 'files', pero para una URL de imagen simple
+                // lo más compatible en texto es incluirla en el cuerpo del mensaje.
+                shareData.text = `${text}\n\n${currentMovie.imagen_url}`;
+            }
         }
 
         if (navigator.share) {  
-            navigator.share({ title, text, url })  
+            navigator.share(shareData)  
                 .catch(error => console.log("Error al compartir:", error));  
         } else {  
+            let whatsappText = shareData.text + " " + shareData.url;
             const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}`;
             window.open(whatsappLink, '_blank');
         }  
-    }  
+    }}  
 
     function closeBanner() {  
         document.getElementById('banner').style.display = 'none';  
