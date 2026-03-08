@@ -2454,11 +2454,7 @@ ${desc}
         }
 
         if (navigator.share) {  
-            let shareData = { title, text, url };
-            if (typeof currentMovie !== 'undefined' && currentMovie && currentMovie.imagen_url) {
-                shareData.text = `${text}\n\n${currentMovie.imagen_url}`;
-            }
-            navigator.share(shareData)  
+            navigator.share({ title, text, url })  
                 .catch(error => console.log("Error al compartir:", error));  
         } else {  
             const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}`;
