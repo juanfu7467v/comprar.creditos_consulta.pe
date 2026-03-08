@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Página no encontrada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Canvas 3D galaxia — fondo absoluto */
+        #galaxy-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Contenido original — encima del canvas */
+        .content-wrapper {
+            position: relative;
+            z-index: 10;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 120px;
+            margin: 0;
+            text-shadow: 0 0 40px rgba(180, 140, 255, 0.9), 0 0 80px rgba(120, 80, 220, 0.6);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        p {
+            font-size: 24px;
+            margin: 20px 0;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+        }
+
+        .btn {
+            color: white;
+            text-decoration: none;
+            background: rgba(255,255,255,0.2);
+            padding: 12px 25px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 20px;
+            transition: 0.3s;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 40px rgba(180, 140, 255, 0.9), 0 0 80px rgba(120, 80, 220, 0.6); }
+            50%       { text-shadow: 0 0 60px rgba(200, 160, 255, 1),   0 0 120px rgba(150, 100, 255, 0.8); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FONDO 3D GALAXIA (WebGL) -->
+    <canvas id="galaxy-canvas"></canvas>
+
+    <!-- CONTENIDO ORIGINAL — SIN NINGÚN CAMBIO -->
+    <div class="content-wrapper">
+        <h1>404</h1>
+        <p>¡Oops! La página que buscas no existe.</p>
+        <div>
+            <a href="/" class="btn">Volver al inicio</a>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        const canvas = document.getElementById('galaxy-canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        if (!gl) {
+            document.body.style.background = 'linear-gradient(135deg, #0a0015 0%, #1a0035 50%, #0d0025 100%)';
+            return;
+        }
+
+        /* ── Resize ────────────────────────────────────────────────── */
+        function resize() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        /* ── Vertex Shader ──────────────────────────────────────────── */
+        const vsSource = `
+            attribute vec3  aPosition;
+            attribute float aSize;
+            attribute float aBrightness;
+            attribute float aColorVariant;
+
+            uniform mat4  uProjection;
+            uniform mat4  uView;
+            uniform float uTime;
+
+            varying float vBrightness;
+            varying float vColorVariant;
+
+            void main() {
+                float angle = uTime * 0.08 + aPosition.x * 0.002 + aPosition.z * 0.002;
+                float cosA  = cos(angle);
+                float sinA  = sin(angle);
+
+                vec3 pos = aPosition;
+                float x2 = pos.x * cosA - pos.z * sinA;
+                float z2 = pos.x * sinA + pos.z * cosA;
+                pos.x = x2;
+                pos.z = z2;
+
+                pos.y += sin(uTime * 0.3 + aPosition.x * 0.01 + aPosition.z * 0.01) * 0.8;
+
+                vec4 mvPos   = uView * vec4(pos, 1.0);
+                gl_Position  = uProjection * mvPos;
+
+                float dist   = length(mvPos.xyz);
+                gl_PointSize = aSize * (400.0 / dist);
+
+                vBrightness   = aBrightness;
+                vColorVariant = aColorVariant;
+            }
+        `;
+
+        /* ── Fragment Shader ────────────────────────────────────────── */
+        const fsSource = `
+            precision mediump float;
+
+            varying float vBrightness;
+            varying float vColorVariant;
+
+            void main() {
+                vec2  uv = gl_PointCoord - 0.5;
+                float r  = length(uv);
+                if (r > 0.5) discard;
+
+                float alpha = (1.0 - r * 2.0) * vBrightness;
+
+                vec3 cold   = vec3(0.4,  0.6,  1.0);
+                vec3 purple = vec3(0.7,  0.3,  1.0);
+                vec3 warm   = vec3(1.0,  0.95, 0.85);
+                vec3 cyan   = vec3(0.3,  0.9,  1.0);
+
+                vec3 color;
+                if      (vColorVariant < 0.25) color = mix(cold,   purple, vColorVariant * 4.0);
+                else if (vColorVariant < 0.5)  color = mix(purple, warm,   (vColorVariant - 0.25) * 4.0);
+                else if (vColorVariant < 0.75) color = mix(warm,   cyan,   (vColorVariant - 0.5)  * 4.0);
+                else                           color = mix(cyan,   cold,   (vColorVariant - 0.75) * 4.0);
+
+                gl_FragColor = vec4(color, alpha);
+            }
+        `;
+
+        /* ── Compile shaders ────────────────────────────────────────── */
+        function makeShader(type, src) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                console.error('Shader error:', gl.getShaderInfoLog(s));
+                gl.deleteShader(s); return null;
+            }
+            return s;
+        }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, makeShader(gl.VERTEX_SHADER,   vsSource));
+        gl.attachShader(prog, makeShader(gl.FRAGMENT_SHADER, fsSource));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        /* ── Generar partículas ─────────────────────────────────────── */
+        const N          = 20000;
+        const positions  = new Float32Array(N * 3);
+        const sizes      = new Float32Array(N);
+        const brights    = new Float32Array(N);
+        const colors     = new Float32Array(N);
+
+        function rnd(a, b) { return a + Math.random() * (b - a); }
+
+        for (let i = 0; i < N; i++) {
+            const i3   = i * 3;
+            const type = Math.random();
+
+            if (type < 0.55) {
+                /* Brazos espirales */
+                const arm    = Math.floor(Math.random() * 3);
+                const base   = (arm / 3) * Math.PI * 2;
+                const t      = Math.pow(Math.random(), 0.6) * 80;
+                const spiral = base + t * 0.045;
+                const spread = rnd(0.3, 1.8) * (1 - t / 100);
+                positions[i3]     = Math.cos(spiral) * t + rnd(-spread, spread);
+                positions[i3 + 1] = rnd(-3, 3) * (1 - t / 100);
+                positions[i3 + 2] = Math.sin(spiral) * t + rnd(-spread, spread);
+                sizes[i]   = rnd(0.8, 2.8);
+                brights[i] = rnd(0.5, 1.0);
+                colors[i]  = Math.random();
+
+            } else if (type < 0.80) {
+                /* Núcleo galáctico */
+                const r = Math.pow(Math.random(), 2) * 25;
+                const θ = rnd(0, Math.PI * 2);
+                const φ = rnd(-Math.PI / 6, Math.PI / 6);
+                positions[i3]     = r * Math.cos(θ) * Math.cos(φ);
+                positions[i3 + 1] = r * Math.sin(φ) * 0.4;
+                positions[i3 + 2] = r * Math.sin(θ) * Math.cos(φ);
+                sizes[i]   = rnd(1.0, 3.5);
+                brights[i] = rnd(0.6, 1.0);
+                colors[i]  = rnd(0.1, 0.4);
+
+            } else {
+                /* Campo estelar de fondo */
+                const r = rnd(90, 280);
+                const θ = rnd(0, Math.PI * 2);
+                const φ = rnd(-Math.PI / 2, Math.PI / 2);
+                positions[i3]     = r * Math.cos(θ) * Math.cos(φ);
+                positions[i3 + 1] = r * Math.sin(φ);
+                positions[i3 + 2] = r * Math.sin(θ) * Math.cos(φ);
+                sizes[i]   = rnd(0.3, 1.4);
+                brights[i] = rnd(0.15, 0.65);
+                colors[i]  = Math.random();
+            }
+        }
+
+        /* ── Subir buffers ──────────────────────────────────────────── */
+        function buf(data) {
+            const b = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, b);
+            gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+            return b;
+        }
+        const bPos = buf(positions);
+        const bSiz = buf(sizes);
+        const bBri = buf(brights);
+        const bCol = buf(colors);
+
+        /* ── Locs ───────────────────────────────────────────────────── */
+        const lPos  = gl.getAttribLocation(prog, 'aPosition');
+        const lSiz  = gl.getAttribLocation(prog, 'aSize');
+        const lBri  = gl.getAttribLocation(prog, 'aBrightness');
+        const lCol  = gl.getAttribLocation(prog, 'aColorVariant');
+        const uProj = gl.getUniformLocation(prog, 'uProjection');
+        const uView = gl.getUniformLocation(prog, 'uView');
+        const uTime = gl.getUniformLocation(prog, 'uTime');
+
+        /* ── Matrices ───────────────────────────────────────────────── */
+        function perspective(fov, asp, near, far) {
+            const f  = 1 / Math.tan(fov / 2);
+            const nf = 1 / (near - far);
+            return new Float32Array([
+                f / asp, 0, 0, 0,
+                0, f, 0, 0,
+                0, 0, (far + near) * nf, -1,
+                0, 0, 2 * far * near * nf, 0
+            ]);
+        }
+
+        function norm(v) {
+            const l = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+            return [v[0]/l, v[1]/l, v[2]/l];
+        }
+        function sub(a, b)  { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+        function cross(a,b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
+        function dot(a, b)  { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+
+        function lookAt(eye, ctr, up) {
+            const z = norm(sub(eye, ctr));
+            const x = norm(cross(up, z));
+            const y = cross(z, x);
+            return new Float32Array([
+                x[0], y[0], z[0], 0,
+                x[1], y[1], z[1], 0,
+                x[2], y[2], z[2], 0,
+                -dot(x, eye), -dot(y, eye), -dot(z, eye), 1
+            ]);
+        }
+
+        /* ── Bind attr helper ───────────────────────────────────────── */
+        function bind(b, loc, sz) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, b);
+            gl.enableVertexAttribArray(loc);
+            gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+        }
+
+        /* ── Estado ratón ───────────────────────────────────────────── */
+        let mx = 0, my = 0;
+        window.addEventListener('mousemove', e => {
+            mx = (e.clientX / window.innerWidth  - 0.5) * 2;
+            my = (e.clientY / window.innerHeight - 0.5) * 2;
+        });
+
+        /* ── GL Config ──────────────────────────────────────────────── */
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);    // Additive: brillo acumulativo
+        gl.clearColor(0.018, 0.0, 0.055, 1.0); // Fondo negro-violeta profundo
+
+        /* ── Loop ───────────────────────────────────────────────────── */
+        const t0 = performance.now();
+
+        function render() {
+            requestAnimationFrame(render);
+
+            const t   = (performance.now() - t0) * 0.001;
+            const asp = canvas.width / canvas.height;
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            const camR  = 120 + Math.sin(t * 0.07) * 15;
+            const camAng = t * 0.04 + mx * 0.15;
+            const camY   = 35 + Math.sin(t * 0.05) * 10 + my * 8;
+
+            const eye = [Math.cos(camAng) * camR, camY, Math.sin(camAng) * camR];
+
+            gl.uniformMatrix4fv(uProj, false, perspective(Math.PI / 3.5, asp, 0.5, 800));
+            gl.uniformMatrix4fv(uView, false, lookAt(eye, [0, 0, 0], [0, 1, 0]));
+            gl.uniform1f(uTime, t);
+
+            bind(bPos, lPos, 3);
+            bind(bSiz, lSiz, 1);
+            bind(bBri, lBri, 1);
+            bind(bCol, lCol, 1);
+
+            gl.drawArrays(gl.POINTS, 0, N);
+        }
+
+        render();
+    })();
+    </script>
+</body>
+</html>
