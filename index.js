@@ -80,6 +80,9 @@ app.use(cookieParser());
 const cspDomains = [
   "'self'",
   "https://masitaprex.com",
+  "https://accounts.google.com",
+  "https://identitytoolkit.googleapis.com",
+  "https://www.googleapis.com",
   "https://auth.masitaprex.com",
   "https://peliprex-31wrsa.fly.dev",
   "https://cdn.plyr.io",
