@@ -1681,35 +1681,57 @@ app.post("/api/notify-verification", async (req, res) => {
       uid, email, displayName
     });
 
-    const result = await enviarBienvenida(email, displayName || email.split('@')[0]);
-
-    if (result.success) {
-      if (db) {
-        await db.collection("usuarios").doc(uid).set({
-          creditos: admin.firestore.FieldValue.increment(0), // Asegura que el campo exista sin sobreescribir si ya tiene
-          welcomeEmailSent: true,
-          welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-        
-        // Inicializar créditos si el documento es nuevo o no tiene el campo
+    // ✅ Verificar si ya se envió el correo de bienvenida para este usuario
+    let alreadySent = false;
+    if (db) {
+      try {
         const userDoc = await db.collection("usuarios").doc(uid).get();
-        if (!userDoc.exists || userDoc.data().creditos === undefined) {
-          await db.collection("usuarios").doc(uid).set({
-            creditos: 0, // O el valor por defecto que desees, ej: 5
-            tipoPlan: "creditos"
-          }, { merge: true });
+        if (userDoc.exists && userDoc.data().welcomeEmailSent) {
+          alreadySent = true;
+          logger.info(context, '📧 Correo de bienvenida ya enviado anteriormente', { email, uid });
         }
+      } catch (dbError) {
+        logger.warn(context, 'Error verificando estado de correo de bienvenida', dbError);
       }
+    }
 
-      res.json({
-        success: true,
-        message: 'Correo de bienvenida enviado correctamente'
-      });
+    if (!alreadySent) {
+      const result = await enviarBienvenida(email, displayName || email.split('@')[0]);
+
+      if (result.success) {
+        if (db) {
+          await db.collection("usuarios").doc(uid).set({
+            creditos: admin.firestore.FieldValue.increment(0), // Asegura que el campo exista sin sobreescribir si ya tiene
+            welcomeEmailSent: true,
+            welcomeEmailSentAt: admin.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          
+          // Inicializar créditos si el documento es nuevo o no tiene el campo
+          const userDoc = await db.collection("usuarios").doc(uid).get();
+          if (!userDoc.exists || userDoc.data().creditos === undefined) {
+            await db.collection("usuarios").doc(uid).set({
+              creditos: 0,
+              tipoPlan: "creditos"
+            }, { merge: true });
+          }
+        }
+
+        return res.json({
+          success: true,
+          message: 'Correo de bienvenida enviado correctamente'
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          error: 'No se pudo enviar el correo de bienvenida',
+          details: result.error
+        });
+      }
     } else {
-      res.status(500).json({
-        success: false,
-        error: 'No se pudo enviar el correo de bienvenida',
-        details: result.error
+      // Si ya fue enviado, retornar éxito sin reenviar
+      return res.json({
+        success: true,
+        message: 'Correo de bienvenida ya había sido enviado'
       });
     }
 
