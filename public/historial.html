@@ -1823,6 +1823,15 @@ function displayMovieDetails(movie) {
                         }
                     });
                 }
+                
+                // MEJORA 1: Orientación horizontal automática en pantalla completa
+                setupFullscreenOrientationLock(player);
+                
+                // MEJORA 2: Candado de bloqueo de pantalla
+                const playerContainer = document.getElementById('modal-player-container');
+                if (playerContainer) {
+                    setupScreenLockButton(player, playerContainer);
+                }
             }, 100);
         } else {
             // Usar iframe para Google Drive, YouTube y otros
@@ -2555,6 +2564,96 @@ ${desc}
         const container = analysisModal.querySelector('.analysis-container');
         if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+// ============================================================
+// MEJORA 1: ORIENTACIÓN HORIZONTAL AUTOMÁTICA EN PANTALLA COMPLETA
+// ============================================================
+function setupFullscreenOrientationLock(player) {
+    if (!player) return;
+    
+    player.on('enterfullscreen', () => {
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(err => {
+                console.log('No se pudo bloquear orientación:', err);
+            });
+        }
+    });
+    
+    player.on('exitfullscreen', () => {
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+    });
+}
+
+// ============================================================
+// MEJORA 2: CANDADO DE BLOQUEO DE PANTALLA (SCREEN LOCK)
+// ============================================================
+function setupScreenLockButton(player, playerContainer) {
+    if (!player || !playerContainer) return;
+    
+    let isScreenLocked = false;
+    let lockOverlay = null;
+    let lockButton = null;
+    
+    function createLockButton() {
+        const btn = document.createElement('button');
+        btn.className = 'icon-btn screen-lock-btn';
+        btn.title = 'Bloquear pantalla';
+        btn.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+        btn.style.cssText = 'position: absolute; bottom: 60px; right: 14px; z-index: 25; pointer-events: all; background: rgba(0,0,0,0.6); border-radius: 50%; padding: 10px; color: var(--text); font-size: 16px; border: none; cursor: pointer; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: background 0.2s, transform 0.1s;';
+        btn.addEventListener('click', toggleScreenLock);
+        return btn;
+    }
+    
+    function createLockOverlay() {
+        const overlay = document.createElement('div');
+        overlay.className = 'screen-lock-overlay';
+        overlay.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 24; background: transparent; pointer-events: none; display: none;';
+        return overlay;
+    }
+    
+    function toggleScreenLock() {
+        isScreenLocked = !isScreenLocked;
+        
+        if (isScreenLocked) {
+            lockOverlay.style.display = 'block';
+            lockOverlay.style.pointerEvents = 'all';
+            lockButton.innerHTML = '<i class="fa-solid fa-lock"></i>';
+            lockButton.title = 'Desbloquear pantalla';
+            lockButton.style.background = 'rgba(229, 9, 20, 0.7)';
+        } else {
+            lockOverlay.style.display = 'none';
+            lockOverlay.style.pointerEvents = 'none';
+            lockButton.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+            lockButton.title = 'Bloquear pantalla';
+            lockButton.style.background = 'rgba(0,0,0,0.6)';
+        }
+    }
+    
+    player.on('enterfullscreen', () => {
+        if (!lockButton) {
+            lockButton = createLockButton();
+            playerContainer.appendChild(lockButton);
+        }
+        if (!lockOverlay) {
+            lockOverlay = createLockOverlay();
+            playerContainer.appendChild(lockOverlay);
+        }
+        lockButton.style.display = 'block';
+    });
+    
+    player.on('exitfullscreen', () => {
+        if (lockButton) {
+            lockButton.style.display = 'none';
+        }
+        if (lockOverlay) {
+            lockOverlay.style.display = 'none';
+            lockOverlay.style.pointerEvents = 'none';
+        }
+        isScreenLocked = false;
+    });
+}
 </script>
 </body>
 </html>
