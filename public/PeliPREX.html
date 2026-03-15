@@ -2339,7 +2339,7 @@ function displayMovieDetails(movie) {
             const playerContainer = document.createElement('div');
             playerContainer.className = 'reproductor-container';
             playerContainer.innerHTML = `
-                <video id="peliPrexPlayer" controls crossorigin playsinline>
+                <video id="peliPrexPlayer" controls crossorigin playsinline preload="auto">
                     <source src="${movie.pelicula_url}" type="video/mp4">
                     Tu navegador no soporta el formato de video.
                 </video>
@@ -2364,7 +2364,9 @@ function displayMovieDetails(movie) {
                     invertTime: false,
                     toggleInvert: true,
                     ratio: '16:9',
-                    storage: { enabled: true, key: 'plyr' }
+                    storage: { enabled: true, key: 'plyr' },
+                    // MEJORA: Optimización de buffering para streams de Fly.io
+                    html5: { attributes: { preload: 'auto' } }
                 });
                 // Mejoras en el loading: mostrar solo al dar play y ocultar al empezar
                 player.on('play', () => {
@@ -2396,6 +2398,32 @@ function displayMovieDetails(movie) {
                 const video = document.getElementById('peliPrexPlayer');
                 if (video) {
                     video.addEventListener('canplay', () => {
+                        const loadingIndicator = document.getElementById('player-loading-indicator');
+                        if (loadingIndicator) {
+                            loadingIndicator.classList.add('hidden');
+                        }
+                    });
+                    
+                    // MEJORA: Optimización de buffering para reducir pausas
+                    // Preload más agresivo para Fly.io
+                    video.addEventListener('progress', () => {
+                        // Mantener buffering activo sin interferir con la reproducción
+                        if (video.buffered.length > 0) {
+                            const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                            const duration = video.duration;
+                            // Si el buffer está por debajo del 30%, mostrar indicador
+                            if (bufferedEnd < duration * 0.3 && video.currentTime > 0) {
+                                const loadingIndicator = document.getElementById('player-loading-indicator');
+                                if (loadingIndicator && !video.paused) {
+                                    loadingIndicator.classList.remove('hidden');
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Mejorar manejo de errores de red
+                    video.addEventListener('error', (e) => {
+                        console.error('Error en reproducción:', e);
                         const loadingIndicator = document.getElementById('player-loading-indicator');
                         if (loadingIndicator) {
                             loadingIndicator.classList.add('hidden');
