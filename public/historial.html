@@ -1792,7 +1792,7 @@ function displayMovieDetails(movie) {
                 // Mejoras en el loading: mostrar solo al dar play y ocultar al empezar
                 player.on('play', () => {
                     const loadingIndicator = document.getElementById('player-loading-indicator');
-                    if (loadingIndicator && player.buffered < 0.1) {
+                    if (loadingIndicator) {
                         loadingIndicator.classList.remove('hidden');
                     }
                 });
@@ -1838,8 +1838,8 @@ function displayMovieDetails(movie) {
                         if (video.buffered.length > 0) {
                             const bufferedEnd = video.buffered.end(video.buffered.length - 1);
                             const duration = video.duration;
-                            // Si el buffer está por debajo del 30%, mostrar indicador
-                            if (bufferedEnd < duration * 0.3 && video.currentTime > 0) {
+                            // Si el buffer está por debajo del 10% y no hay suficiente adelantado, mostrar indicador
+                            if (bufferedEnd < video.currentTime + 2 && video.currentTime > 0) {
                                 const loadingIndicator = document.getElementById('player-loading-indicator');
                                 if (loadingIndicator && !video.paused) {
                                     loadingIndicator.classList.remove('hidden');
