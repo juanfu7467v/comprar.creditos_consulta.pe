@@ -79,9 +79,14 @@ app.use(cookieParser());
 // Lista completa de dominios para CSP
 const cspDomains = [
   "'self'",
-  "https://masitaprex.com",
+"https://masitaprex.com",
 "https://accounts.google.com",
 "https://identitytoolkit.googleapis.com",
+"https://www.googleapis.com",
+"https://firestore.googleapis.com",
+"https://identitytoolkit.googleapis.com",
+"https://securetoken.googleapis.com",
+"https://firebase.googleapis.com",
 "https://www.googleapis.com",
 "https://auth.masitaprex.com",
 "https://peliprex-31wrsa.fly.dev",
