@@ -1742,6 +1742,12 @@ function displayMovieDetails(movie) {
                         loadingIndicator.classList.add('hidden');
                     }
                 });
+                player.on('pause', () => {
+                    const loadingIndicator = document.getElementById('player-loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.classList.add('hidden');
+                    }
+                });
                 player.on('waiting', () => {
                     const loadingIndicator = document.getElementById('player-loading-indicator');
                     if (loadingIndicator) {
