@@ -1793,13 +1793,19 @@ function displayMovieDetails(movie) {
                 player.on('play', () => {
                     const loadingIndicator = document.getElementById('player-loading-indicator');
                     if (loadingIndicator) {
+                        // Mostrar brevemente, pero dejar que los eventos de 'playing' y 'canplay' lo controlen
                         loadingIndicator.classList.remove('hidden');
                     }
                 });
                 player.on('playing', () => {
                     const loadingIndicator = document.getElementById('player-loading-indicator');
                     if (loadingIndicator) {
-                        loadingIndicator.classList.add('hidden');
+                        // Ocultar después de un pequeño delay para evitar parpadeo
+                        setTimeout(() => {
+                            if (loadingIndicator) {
+                                loadingIndicator.classList.add('hidden');
+                            }
+                        }, 100);
                     }
                 });
                 player.on('pause', () => {
@@ -1817,7 +1823,12 @@ function displayMovieDetails(movie) {
                 player.on('canplay', () => {
                     const loadingIndicator = document.getElementById('player-loading-indicator');
                     if (loadingIndicator) {
-                        loadingIndicator.classList.add('hidden');
+                        // Ocultar después de un pequeño delay para evitar parpadeo
+                        setTimeout(() => {
+                            if (loadingIndicator) {
+                                loadingIndicator.classList.add('hidden');
+                            }
+                        }, 100);
                     }
                 });
                 
@@ -1833,16 +1844,31 @@ function displayMovieDetails(movie) {
                     
                     // MEJORA: Optimización de buffering para reducir pausas
                     // Preload más agresivo para Fly.io
+                    let bufferingTimeout = null;
                     video.addEventListener('progress', () => {
                         // Mantener buffering activo sin interferir con la reproducción
                         if (video.buffered.length > 0) {
                             const bufferedEnd = video.buffered.end(video.buffered.length - 1);
                             const duration = video.duration;
                             // Si el buffer está por debajo del 10% y no hay suficiente adelantado, mostrar indicador
-                            if (bufferedEnd < video.currentTime + 2 && video.currentTime > 0) {
+                            if (bufferedEnd < video.currentTime + 2 && video.currentTime > 0 && !video.paused) {
                                 const loadingIndicator = document.getElementById('player-loading-indicator');
-                                if (loadingIndicator && !video.paused) {
+                                if (loadingIndicator) {
                                     loadingIndicator.classList.remove('hidden');
+                                    // Auto-hide después de 3 segundos si el video no está esperando
+                                    clearTimeout(bufferingTimeout);
+                                    bufferingTimeout = setTimeout(() => {
+                                        if (loadingIndicator && !video.paused) {
+                                            loadingIndicator.classList.add('hidden');
+                                        }
+                                    }, 3000);
+                                }
+                            } else {
+                                // Si el buffer es suficiente, ocultar el indicador
+                                const loadingIndicator = document.getElementById('player-loading-indicator');
+                                if (loadingIndicator && bufferedEnd >= video.currentTime + 2) {
+                                    loadingIndicator.classList.add('hidden');
+                                    clearTimeout(bufferingTimeout);
                                 }
                             }
                         }

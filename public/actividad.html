@@ -1445,6 +1445,17 @@ async function fetchSuggestions() {
     }
 
     try {
+        // Esperar a que PELIPREX_BASE_URL esté disponible
+        let retries = 0;
+        while (!PELIPREX_BASE_URL && retries < 10) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+
+        if (!PELIPREX_BASE_URL) {
+            throw new Error('No se pudo cargar la URL base de la API');
+        }
+
         const apiURL   = `${PELIPREX_BASE_URL}/peliculas`;
         const response = await fetch(apiURL);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -1453,7 +1464,7 @@ async function fetchSuggestions() {
         // Reemplazar skeletons con tarjetas reales
         sugerenciasCarouselEl.innerHTML = '';
 
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
             // Verificar si hay una película para reproducir automáticamente
             const urlParams = new URLSearchParams(window.location.search);
             const movieToPlay = urlParams.get('movie');
@@ -1472,8 +1483,7 @@ async function fetchSuggestions() {
         }
     } catch (error) {
         console.error("Error al cargar sugerencias:", error);
-        sugerenciasCarouselEl.innerHTML = '';
-        showErrorModal("Error al cargar sugerencias. Intenta de nuevo.");
+        sugerenciasCarouselEl.innerHTML = '<p style="color:var(--accent); font-size:14px; padding:10px 0;">Error al cargar las sugerencias. Por favor, recarga la página.</p>';
     }
 }
 
