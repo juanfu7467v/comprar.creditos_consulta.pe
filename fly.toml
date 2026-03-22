@@ -1,48 +1,23 @@
+# fly.toml app configuration file generated for masitaprexv2 on 2026-03-22T23:06:21Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
 app = 'masitaprexv2'
-primary_region = 'gru'
+primary_region = 'iad'
 
 [build]
 
-[[services]]
-  protocol = "tcp"
-  internal_port = 80
-  processes = ["app"]
-  
-  # CONFIGURACIÓN DE AUTO-ESCALADO (Ahorro total)
-  auto_stop_machines = 'stop' 
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-
-  [[services.ports]]
-    port = 80
-    handlers = ["http"]
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ["tls", "http"]
-
-  [services.concurrency]
-    type = "requests"
-    soft_limit = 100
-    hard_limit = 150
-
-  # ESTA ES LA PARTE CLAVE
-  # idle_timeout: Cuánto tiempo esperar antes de apagar la máquina por inactividad.
-  # Lo ponemos en 15 minutos (900s) para que si el usuario está navegando 
-  # o resolviendo algo, la máquina no se apague entre clicks.
-  [services.http_checks]
-    interval = "10s"
-    timeout = "2s"
-    grace_period = "5s"
-    method = "get"
-    path = "/api/health"
-
-[[services.http_options]]
-  # Mantiene la máquina viva 15 minutos tras la última petición
-  idle_timeout = "900s"
+  processes = ['app']
 
 [[vm]]
+  memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 512
+  memory_mb = 1024
