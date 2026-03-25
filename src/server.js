@@ -80,7 +80,6 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(publicPath, 'error-404.html'));
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  logger.info('SERVER', `Servidor iniciado en el puerto ${PORT}`);
-});
+
+
+export default app;
