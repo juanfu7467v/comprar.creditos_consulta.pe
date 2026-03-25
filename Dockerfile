@@ -20,8 +20,8 @@ RUN npm install --legacy-peer-deps --no-audit --no-fund
 # 6️⃣ Copia el resto de los archivos del proyecto
 COPY . .
 
-# 7️⃣ Expone el puerto (usa el mismo que tu servidor, ej. 8080)
-EXPOSE 8080
+# 7️⃣ Expone el puerto (usa el mismo que tu servidor, ej. 80)
+EXPOSE 80
 
 # 8️⃣ Comando de arranque
 CMD ["npm", "start"]
