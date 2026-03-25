@@ -7,7 +7,8 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import logger from "./utils/logger.js";
 import apiRoutes from "./routes/index.js";
-import { verifyFirebaseAuth } from "./middleware/auth.js";
+// Importa aquí tu inicialización de Firebase si no está en las rutas
+// import "./utils/firebase-admin.js"; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.disable('x-powered-by');
 
+// Configuración de Orígenes Permitidos
 const allowedOrigins = [
   'https://masitaprex.com',
   'https://www.masitaprex.com',
@@ -55,7 +57,7 @@ app.use(helmet({
   xssFilter: true
 }));
 
-// Rutas de API
+// --- RUTAS ---
 app.use("/api", apiRoutes);
 
 // Archivos estáticos
@@ -80,6 +82,12 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(publicPath, 'error-404.html'));
 });
 
+// --- EL CAMBIO CLAVE: INICIAR EL SERVIDOR ---
+// Fly.io inyecta automáticamente la variable PORT. Si no, usamos 8080.
+const PORT = process.env.PORT || 8080;
 
+app.listen(PORT, '0.0.0.0', () => {
+  logger.info("SERVER", `🚀 Servidor activo en http://0.0.0.0:${PORT}`);
+});
 
 export default app;
