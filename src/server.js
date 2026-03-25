@@ -83,8 +83,8 @@ app.use((req, res) => {
 });
 
 // --- EL CAMBIO CLAVE: INICIAR EL SERVIDOR ---
-// Fly.io inyecta automáticamente la variable PORT. Si no, usamos 8080.
-const PORT = process.env.PORT || 8080;
+// Fly.io inyecta automáticamente la variable PORT. Si no, usamos 80.
+const PORT = process.env.PORT || 80;
 
 app.listen(PORT, '0.0.0.0', () => {
   logger.info("SERVER", `🚀 Servidor activo en http://0.0.0.0:${PORT}`);
