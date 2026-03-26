@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for masitaprexv2 on 2026-03-22T23:06:21Z
+# fly.toml app configuration file generated for masitaprexv2 on 2026-03-26T15:52:45Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -9,7 +9,7 @@ primary_region = 'iad'
 [build]
 
 [http_service]
-  internal_port = 80
+  internal_port = 8080
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
