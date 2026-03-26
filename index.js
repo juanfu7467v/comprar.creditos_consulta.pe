@@ -2865,7 +2865,7 @@ app.use((err, req, res, next) => {
 // 🚀 INICIO DEL SERVIDOR - PUERTO CORREGIDO
 // ================================================================
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
   logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, {
     hostUrl: HOST_URL,
