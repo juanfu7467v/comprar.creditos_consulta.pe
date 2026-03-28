@@ -12,7 +12,7 @@ import axios from "axios";
 import { Resend } from "resend";
 import helmet from "helmet";
 import crypto from "crypto";
-import { helmetConfig } from './cspConfig.js';
+import { helmetConfig, cspDomains } from './cspConfig.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2771,7 +2771,7 @@ app.listen(PORT, "0.0.0.0", () => {
       cors: '✅ Configurado solo para dominios específicos',
       corsDomains: allowedOrigins,
       cspEnabled: '✅ CSP activo con dominios específicos',
-      cspDomainsCount: cspDomains.length,
+      cspDomainsCount: (typeof cspDomains !== 'undefined') ? cspDomains.length : 0,
       sessionCookies: '✅ Implementado con Firebase Session Cookies',
       loginBlockStorage: '✅ Caché en memoria (más económico que Firestore)'
     },
