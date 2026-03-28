@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Cuenta - Masitaprex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .bg-gradient { background: radial-gradient(circle at top right, #1a1a1a, #000000); }
+    </style>
+</head>
+<body class="bg-gradient min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <div class="bg-black p-8 text-center">
+            <h1 class="text-3xl font-extrabold text-white tracking-widest uppercase">Masitaprex</h1>
+            <p class="text-gray-400 text-xs mt-2 tracking-widest">SEGURIDAD DE INFRAESTRUCTURA</p>
+        </div>
+        
+        <div class="p-8">
+            <div id="initial-state">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600">
+                        <i class="ri-shield-keyhole-line text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Recuperar cuenta</h2>
+                        <p class="text-sm text-gray-500">Restablece tu contraseña de forma segura</p>
+                    </div>
+                </div>
+
+                <form id="recovery-form" class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                <i class="ri-mail-line"></i>
+                            </span>
+                            <input type="email" id="email" required 
+                                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-gray-900"
+                                placeholder="tu@ejemplo.com">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-btn"
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                        <span>Enviar enlace de recuperación</span>
+                        <i class="ri-arrow-right-line"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <a href="/login.html" class="text-sm text-gray-600 hover:text-red-600 transition">
+                        <i class="ri-arrow-left-s-line"></i> Volver al inicio de sesión
+                    </a>
+                </div>
+            </div>
+
+            <div id="success-state" class="hidden text-center py-4">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto mb-4">
+                    <i class="ri-checkbox-circle-line text-4xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">¡Correo enviado!</h2>
+                <p class="text-gray-600 mb-6">
+                    Hemos enviado un enlace para restablecer tu contraseña a <strong id="sent-email"></strong>. 
+                    Por favor, revisa tu bandeja de entrada y la carpeta de spam.
+                </p>
+                <button onclick="location.reload()" class="text-red-600 font-semibold hover:underline">
+                    Intentar con otro correo
+                </button>
+            </div>
+        </div>
+        
+        <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+            <p class="text-xs text-gray-400 italic">
+                Protegido por Masitaprex Security Team (SOC)
+            </p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
+        // Obtener configuración desde el backend
+        async function init() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const app = initializeApp(config.firebaseConfig);
+                const auth = getAuth(app);
+                auth.languageCode = 'es';
+
+                const form = document.getElementById('recovery-form');
+                const submitBtn = document.getElementById('submit-btn');
+                const initialState = document.getElementById('initial-state');
+                const successState = document.getElementById('success-state');
+                const sentEmailText = document.getElementById('sent-email');
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin"></i> Enviando...';
+
+                    try {
+                        await sendPasswordResetEmail(auth, email);
+                        
+                        sentEmailText.textContent = email;
+                        initialState.classList.add('hidden');
+                        successState.classList.remove('hidden');
+                    } catch (error) {
+                        console.error("Error en recuperación:", error);
+                        let message = "Ocurrió un error al enviar el correo.";
+                        
+                        if (error.code === 'auth/user-not-found') {
+                            message = "No existe ninguna cuenta con este correo.";
+                        } else if (error.code === 'auth/invalid-email') {
+                            message = "El formato del correo no es válido.";
+                        } else if (error.code === 'auth/too-many-requests') {
+                            message = "Demasiados intentos. Inténtalo más tarde.";
+                        }
+                        
+                        alert(message);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>Enviar enlace de recuperación</span><i class="ri-arrow-right-line"></i>';
+                    }
+                });
+            } catch (err) {
+                console.error("Error inicializando Firebase:", err);
+                alert("Error de conexión con el servidor de seguridad.");
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

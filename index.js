@@ -142,21 +142,49 @@ setInterval(() => {
 async function getLocationFromIP(ip) {
   try {
     // Evitar IPs locales
-    if (ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
-      return { city: 'Local', region: 'Localhost', country: 'Local Network' };
+    if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+      return { 
+        city: 'Local', 
+        region: 'Localhost', 
+        country: 'Local Network',
+        isp: 'Red Local',
+        type: 'Privada'
+      };
     }
 
-    const response = await axios.get(`https://ipapi.co/${ip}/json/`, { timeout: 3000 });
-    const data = response.data;
+    // Intentar con api.ipquery.io para datos detallados
+    try {
+      const response = await axios.get(`https://api.ipquery.io/${ip}`, { timeout: 4000 });
+      const data = response.data;
+      
+      if (data && data.location) {
+        return {
+          city: data.location.city || 'Desconocida',
+          region: data.location.state || 'Desconocida',
+          country: data.location.country || 'Desconocido',
+          isp: data.isp?.info || 'Desconocido',
+          type: data.risk?.is_vpn ? 'VPN/Proxy' : (data.risk?.is_tor ? 'Tor' : 'Residencial/Móvil'),
+          timezone: data.location.timezone || 'Desconocida'
+        };
+      }
+    } catch (apiError) {
+      logger.warn('GEOLOCATION', 'Error con ipquery.io, intentando fallback', { ip, error: apiError.message });
+    }
+
+    // Fallback a ipapi.co si falla el primero
+    const fallbackResponse = await axios.get(`https://ipapi.co/${ip}/json/`, { timeout: 3000 });
+    const data = fallbackResponse.data;
 
     return {
       city: data.city || 'Desconocida',
       region: data.region || 'Desconocida',
-      country: data.country_name || 'Desconocido'
+      country: data.country_name || 'Desconocido',
+      isp: data.org || 'Desconocido',
+      type: 'Desconocido'
     };
   } catch (error) {
-    logger.warn('GEOLOCATION', 'Error obteniendo ubicación', { ip, error: error.message });
-    return { city: 'Desconocida', region: 'Desconocida', country: 'Desconocido' };
+    logger.warn('GEOLOCATION', 'Error crítico obteniendo ubicación', { ip, error: error.message });
+    return { city: 'Desconocida', region: 'Desconocida', country: 'Desconocido', isp: 'Desconocido', type: 'Desconocido' };
   }
 }
 
@@ -316,6 +344,8 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
     // Obtener ubicación
     const location = await getLocationFromIP(ip);
     const locationString = `${location.city}, ${location.region}, ${location.country}`;
+    const ispString = location.isp || 'Desconocido';
+    const connectionType = location.type || 'Desconocido';
 
     // Obtener nombre de usuario
     let userName = email.split('@')[0];
@@ -352,6 +382,8 @@ async function sendSuspiciousLoginEmail(email, ip, userAgent, deviceModel = null
     htmlContent = htmlContent.replace(/{{nombre}}/g, userName);
     htmlContent = htmlContent.replace(/{{ubicacion}}/g, locationString);
     htmlContent = htmlContent.replace(/{{ip}}/g, ip);
+    htmlContent = htmlContent.replace(/{{isp}}/g, ispString);
+    htmlContent = htmlContent.replace(/{{tipo_conexion}}/g, connectionType);
     htmlContent = htmlContent.replace(/{{fecha_hora}}/g, fechaHora);
     htmlContent = htmlContent.replace(/{{dispositivo}}/g, displayDevice);
 
