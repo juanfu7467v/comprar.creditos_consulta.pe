@@ -6,6 +6,17 @@ primary_region = "mia"
 
 [env]
   NODE_ENV = "production"
+  # Firebase Configuration
+  FIREBASE_PROJECT_ID = ""
+  FIREBASE_PRIVATE_KEY = ""
+  FIREBASE_CLIENT_EMAIL = ""
+  FIREBASE_SERVICE_ACCOUNT = ""
+  # Resend Email Configuration
+  RESEND_API_KEY = ""
+  # Telegram Configuration
+  TELEGRAM_BOT_TOKEN = ""
+  # Slack Configuration
+  SLACK_WEBHOOK_URL = ""
 
 [processes]
   worker = "node pingpulse/worker/monitor.js"

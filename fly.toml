@@ -21,3 +21,24 @@ primary_region = 'iad'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 512
+
+# UptimePulse Configuration
+[env]
+  # Firebase Configuration
+  FIREBASE_PROJECT_ID = ""
+  FIREBASE_PRIVATE_KEY = ""
+  FIREBASE_CLIENT_EMAIL = ""
+  FIREBASE_SERVICE_ACCOUNT = ""
+
+  # Resend Email Configuration
+  RESEND_API_KEY = ""
+
+  # Telegram Configuration
+  TELEGRAM_BOT_TOKEN = ""
+
+  # Slack Configuration
+  SLACK_WEBHOOK_URL = ""
+
+  # Application Configuration
+  HOST_URL = "https://www.masitaprex.com"
+  RECAPTCHA_CLAVE_SECRETA = ""

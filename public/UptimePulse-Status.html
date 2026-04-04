@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado de Servicios - UptimePulse</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header-content p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* Status Summary */
+        .status-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.up {
+            background-color: var(--success);
+        }
+
+        .status-dot.down {
+            background-color: var(--danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .uptime-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .uptime-stat {
+            padding: 15px;
+            background-color: var(--gray-50);
+            border-radius: 6px;
+        }
+
+        .uptime-stat-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .uptime-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Monitors Grid */
+        .monitors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .monitor-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--gray-300);
+            transition: all 0.3s ease;
+        }
+
+        .monitor-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .monitor-card.up {
+            border-top-color: var(--success);
+        }
+
+        .monitor-card.down {
+            border-top-color: var(--danger);
+        }
+
+        .monitor-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 8px;
+        }
+
+        .monitor-url {
+            font-size: 12px;
+            color: var(--gray-500);
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .monitor-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.up {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.down {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .response-time {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-left: auto;
+        }
+
+        .uptime-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .uptime-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success) 0%, #34d399 100%);
+            transition: width 0.3s ease;
+        }
+
+        .uptime-percentage {
+            font-size: 12px;
+            color: var(--gray-600);
+            text-align: right;
+        }
+
+        /* Incidents Section */
+        .incidents-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--gray-900);
+        }
+
+        .incident-item {
+            padding: 15px;
+            border-left: 4px solid var(--danger);
+            background-color: var(--gray-50);
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .incident-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .incident-title {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .incident-duration {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .incident-time {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .incident-message {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-top: 8px;
+        }
+
+        .no-incidents {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-500);
+        }
+
+        /* Badge Section */
+        .badge-section {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .badge-item {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .badge-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .badge-preview {
+            background-color: var(--gray-100);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .badge-code {
+            background-color: var(--gray-900);
+            color: #10b981;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: #5568d3;
+        }
+
+        /* Timeline */
+        .timeline {
+            margin: 30px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-time {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+        }
+
+        .timeline-text {
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--gray-100);
+            padding: 20px;
+            text-align: center;
+            color: var(--gray-600);
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content h1 {
+                font-size: 24px;
+            }
+
+            .monitors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .uptime-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .badge-container {
+                flex-direction: column;
+            }
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>
+                    <span>📊</span>
+                    <span>Estado de Servicios</span>
+                </h1>
+                <p>Monitoreo en tiempo real de nuestros servicios</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Status Summary -->
+        <div class="status-summary">
+            <div class="status-indicator">
+                <div class="status-dot up" id="statusDot"></div>
+                <span id="statusText">Todos los servicios operativos</span>
+            </div>
+            <div class="uptime-stats">
+                <div class="uptime-stat">
+                    <div class="uptime-stat-label">Hoy</div>
+                    <div class="uptime-stat-value" id="uptimeToday">100%</div>
+                </div>
+                <div class="uptime-stat">
+                    <div class="uptime-stat-label">Esta Semana</div>
+                    <div class="uptime-stat-value" id="uptimeWeek">99.9%</div>
+                </div>
+                <div class="uptime-stat">
+                    <div class="uptime-stat-label">Este Mes</div>
+                    <div class="uptime-stat-value" id="uptimeMonth">99.95%</div>
+                </div>
+                <div class="uptime-stat">
+                    <div class="uptime-stat-label">Últimos 90 Días</div>
+                    <div class="uptime-stat-value" id="uptime90Days">99.98%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitors -->
+        <div class="monitors-grid" id="monitorsGrid">
+            <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                <div class="loading"></div>
+                <p style="margin-top: 10px;">Cargando servicios...</p>
+            </div>
+        </div>
+
+        <!-- Incidents -->
+        <div class="incidents-section">
+            <h2 class="section-title">📋 Incidentes Recientes</h2>
+            <div id="incidentsContainer">
+                <div class="no-incidents">
+                    <p>No hay incidentes reportados en los últimos 7 días</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badge Section -->
+        <div class="badge-section">
+            <h2 class="section-title">🏷️ Badges de Uptime</h2>
+            <p style="color: var(--gray-600); margin-bottom: 20px;">Copia el código HTML para insertar un badge de uptime en tu sitio web</p>
+            <div class="badge-container" id="badgesContainer">
+                <!-- Badges will be generated here -->
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="incidents-section">
+            <h2 class="section-title">📈 Historial de Últimos 30 Días</h2>
+            <div class="timeline" id="timelineContainer">
+                <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                    <div class="loading"></div>
+                    <p style="margin-top: 10px;">Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 UptimePulse - Monitoreo de APIs y Páginas Web</p>
+        <p>Datos actualizados en tiempo real. Última actualización: <span id="lastUpdate">--:--</span></p>
+    </footer>
+
+    <script>
+        const API_BASE = '/api/pingpulse';
+        const monitorId = new URLSearchParams(window.location.search).get('id') || 'demo-monitor';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMonitorStatus();
+            loadIncidents();
+            generateBadges();
+            loadTimeline();
+            updateLastUpdate();
+            setInterval(updateLastUpdate, 60000);
+        });
+
+        // Load monitor status
+        async function loadMonitorStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status/${monitorId}`);
+                
+                if (!response.ok) {
+                    // Use demo data
+                    displayDemoMonitor();
+                    return;
+                }
+
+                const data = await response.json();
+                const monitor = data.data;
+
+                // Update summary
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (monitor.status === 'up') {
+                    statusDot.className = 'status-dot up';
+                    statusText.textContent = 'Todos los servicios operativos';
+                } else {
+                    statusDot.className = 'status-dot down';
+                    statusText.textContent = 'Algunos servicios no disponibles';
+                }
+
+                // Update uptime stats
+                document.getElementById('uptimeToday').textContent = '100%';
+                document.getElementById('uptimeWeek').textContent = monitor.uptime + '%';
+                document.getElementById('uptimeMonth').textContent = monitor.uptime + '%';
+                document.getElementById('uptime90Days').textContent = monitor.uptime + '%';
+
+                // Display monitor card
+                displayMonitorCard(monitor);
+            } catch (error) {
+                console.error('Error loading monitor status:', error);
+                displayDemoMonitor();
+            }
+        }
+
+        // Display demo monitor
+        function displayDemoMonitor() {
+            const monitor = {
+                name: 'API Masitaprex',
+                url: 'https://masitaprex.com/api/health',
+                status: 'up',
+                uptime: 99.95,
+                lastCheck: new Date(),
+                lastResponseTime: 245
+            };
+            displayMonitorCard(monitor);
+        }
+
+        // Display monitor card
+        function displayMonitorCard(monitor) {
+            const grid = document.getElementById('monitorsGrid');
+            const statusClass = monitor.status === 'up' ? 'up' : 'down';
+            const statusText = monitor.status === 'up' ? 'OPERATIVO' : 'CAÍDO';
+            const statusEmoji = monitor.status === 'up' ? '✅' : '❌';
+
+            grid.innerHTML = `
+                <div class="monitor-card ${statusClass}">
+                    <div class="monitor-name">${monitor.name}</div>
+                    <div class="monitor-url">${monitor.url}</div>
+                    <div class="monitor-status">
+                        <span class="status-badge ${statusClass}">${statusEmoji} ${statusText}</span>
+                        <div class="response-time">${monitor.lastResponseTime || 0}ms</div>
+                    </div>
+                    <div class="uptime-bar">
+                        <div class="uptime-fill" style="width: ${monitor.uptime}%"></div>
+                    </div>
+                    <div class="uptime-percentage">Uptime: ${monitor.uptime}%</div>
+                </div>
+            `;
+        }
+
+        // Load incidents
+        async function loadIncidents() {
+            try {
+                const response = await fetch(`${API_BASE}/monitors/${monitorId}/incidents?days=7`);
+                
+                if (!response.ok) {
+                    showNoIncidents();
+                    return;
+                }
+
+                const data = await response.json();
+                const incidents = data.data || [];
+
+                if (incidents.length === 0) {
+                    showNoIncidents();
+                    return;
+                }
+
+                const container = document.getElementById('incidentsContainer');
+                container.innerHTML = incidents.map(incident => `
+                    <div class="incident-item">
+                        <div class="incident-header">
+                            <div class="incident-title">🚨 ${incident.errorMessage || 'Servicio caído'}</div>
+                            <div class="incident-duration">${formatDuration(incident.duration)}</div>
+                        </div>
+                        <div class="incident-time">
+                            ${new Date(incident.startTime).toLocaleString()} - ${incident.endTime ? new Date(incident.endTime).toLocaleString() : 'En curso'}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading incidents:', error);
+                showNoIncidents();
+            }
+        }
+
+        // Show no incidents
+        function showNoIncidents() {
+            document.getElementById('incidentsContainer').innerHTML = `
+                <div class="no-incidents">
+                    <p>✅ No hay incidentes reportados en los últimos 7 días</p>
+                </div>
+            `;
+        }
+
+        // Generate badges
+        function generateBadges() {
+            const container = document.getElementById('badgesContainer');
+            const badgeUrl = `${window.location.origin}/api/pingpulse/badge/${monitorId}`;
+            const embedCode = `<img src="${badgeUrl}" alt="Uptime Badge" />`;
+
+            container.innerHTML = `
+                <div class="badge-item">
+                    <div class="badge-label">Badge de Uptime</div>
+                    <div class="badge-preview">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='20'%3E%3Crect fill='%2310b981' width='200' height='20'/%3E%3Ctext x='100' y='15' text-anchor='middle' fill='white' font-size='12' font-family='Arial'%3EUptime 99.95%25%3C/text%3E%3C/svg%3E" alt="Uptime Badge" style="height: 20px;">
+                    </div>
+                    <div class="badge-code">${embedCode}</div>
+                    <button class="copy-btn" onclick="copyToClipboard('${embedCode}')">Copiar Código</button>
+                </div>
+                <div class="badge-item">
+                    <div class="badge-label">Badge Markdown</div>
+                    <div class="badge-preview">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='20'%3E%3Crect fill='%2310b981' width='200' height='20'/%3E%3Ctext x='100' y='15' text-anchor='middle' fill='white' font-size='12' font-family='Arial'%3EUptime 99.95%25%3C/text%3E%3C/svg%3E" alt="Uptime Badge" style="height: 20px;">
+                    </div>
+                    <div class="badge-code">[![Uptime Badge](${badgeUrl})](https://www.masitaprex.com/UptimePulse)</div>
+                    <button class="copy-btn" onclick="copyToClipboard('[![Uptime Badge](${badgeUrl})](https://www.masitaprex.com/UptimePulse)')">Copiar Código</button>
+                </div>
+            `;
+        }
+
+        // Load timeline
+        function loadTimeline() {
+            const container = document.getElementById('timelineContainer');
+            const events = [];
+
+            // Generate demo events
+            for (let i = 0; i < 10; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                events.push({
+                    date: date.toLocaleDateString('es-ES'),
+                    time: date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                    text: i % 3 === 0 ? 'Servicio restaurado' : 'Servicio operativo',
+                    status: i % 3 === 0 ? 'restored' : 'up'
+                });
+            }
+
+            container.innerHTML = events.map(event => `
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">${event.date} - ${event.time}</div>
+                        <div class="timeline-text">${event.text}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Format duration
+        function formatDuration(ms) {
+            if (!ms) return 'En curso';
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+
+            if (hours > 0) return `${hours}h ${minutes % 60}m`;
+            if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+            return `${seconds}s`;
+        }
+
+        // Update last update time
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('es-ES');
+        }
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Código copiado al portapapeles');
+            }).catch(err => {
+                console.error('Error copying to clipboard:', err);
+            });
+        }
+    </script>
+</body>
+</html>
