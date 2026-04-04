@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PingPulse - Dashboard de Monitoreo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .status-up { color: #10b981; }
+        .status-down { color: #ef4444; }
+        .status-unknown { color: #6b7280; }
+        .bg-up { background-color: #10b981; }
+        .bg-down { background-color: #ef4444; }
+        .bg-unknown { background-color: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-pulse text-blue-600 text-2xl mr-2"></i>
+                    <span class="text-xl font-bold text-gray-900">PingPulse</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userName" class="text-gray-600">Cargando...</span>
+                    <a href="/home.html" class="text-gray-500 hover:text-gray-700">Volver al Inicio</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Mis Monitores</h1>
+            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                <i class="fas fa-plus mr-2"></i> Nuevo Monitor
+            </button>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-sm text-gray-500 mb-1">Total Monitores</div>
+                <div id="totalMonitors" class="text-3xl font-bold">0</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-sm text-gray-500 mb-1">En Línea (Up)</div>
+                <div id="upMonitors" class="text-3xl font-bold text-emerald-500">0</div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="text-sm text-gray-500 mb-1">Caídos (Down)</div>
+                <div id="downMonitors" class="text-3xl font-bold text-rose-500">0</div>
+            </div>
+        </div>
+
+        <!-- Monitors List -->
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monitor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uptime (30d)</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último Check</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="monitorsTable" class="bg-white divide-y divide-gray-200">
+                    <!-- Dynamic content here -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="hidden py-12 text-center">
+                <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+                <p class="text-gray-500">No tienes monitores configurados aún.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for New Monitor -->
+    <div id="monitorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">Configurar Nuevo Monitor</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="monitorForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Monitor</label>
+                    <input type="text" id="monitorName" placeholder="Ej: Mi API Principal" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">URL a Monitorear</label>
+                    <input type="url" id="monitorUrl" placeholder="https://api.ejemplo.com/health" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
+                        <select id="monitorFreq" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="1">Cada 1 min</option>
+                            <option value="5" selected>Cada 5 min</option>
+                            <option value="15">Cada 15 min</option>
+                            <option value="60">Cada 1 hora</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                        <select id="monitorType" class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="http">HTTP(s)</option>
+                            <option value="ssl">SSL Certificate</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">
+                        Crear Monitor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for demonstration - in production this would fetch from /api/pingpulse/monitors
+        let monitors = [
+            { id: '1', name: 'API Masitaprex', url: 'https://masitaprex.com/api/health', status: 'up', uptime: 99.98, lastCheck: 'Hace 2 min' },
+            { id: '2', name: 'Web Principal', url: 'https://masitaprex.com', status: 'down', uptime: 95.5, lastCheck: 'Hace 1 min' }
+        ];
+
+        function renderMonitors() {
+            const table = document.getElementById('monitorsTable');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (monitors.length === 0) {
+                table.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            table.innerHTML = monitors.map(m => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${m.name}</div>
+                        <div class="text-xs text-gray-500">${m.url}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-${m.status === 'up' ? 'emerald' : 'rose'}-100 text-${m.status === 'up' ? 'emerald' : 'rose'}-800">
+                            ${m.status.toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${m.uptime}%
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${m.lastCheck}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="viewStatus('${m.id}')" class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-chart-line"></i></button>
+                        <button onclick="deleteMonitor('${m.id}')" class="text-rose-600 hover:text-rose-900"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            document.getElementById('totalMonitors').innerText = monitors.length;
+            document.getElementById('upMonitors').innerText = monitors.filter(m => m.status === 'up').length;
+            document.getElementById('downMonitors').innerText = monitors.filter(m => m.status === 'down').length;
+        }
+
+        function openModal() { document.getElementById('monitorModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('monitorModal').classList.add('hidden'); }
+
+        document.getElementById('monitorForm').onsubmit = function(e) {
+            e.preventDefault();
+            const newMonitor = {
+                id: Date.now().toString(),
+                name: document.getElementById('monitorName').value,
+                url: document.getElementById('monitorUrl').value,
+                status: 'unknown',
+                uptime: 100,
+                lastCheck: 'Pendiente'
+            };
+            monitors.push(newMonitor);
+            renderMonitors();
+            closeModal();
+            this.reset();
+        };
+
+        function deleteMonitor(id) {
+            if (confirm('¿Estás seguro de eliminar este monitor?')) {
+                monitors = monitors.filter(m => m.id !== id);
+                renderMonitors();
+            }
+        }
+
+        function viewStatus(id) {
+            window.location.href = `/pingpulse-status.html?id=${id}`;
+        }
+
+        // Initial render
+        renderMonitors();
+        document.getElementById('userName').innerText = 'Usuario Demo';
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+app = "pingpulse-worker"
+primary_region = "mia"
+
+[build]
+  image = "node:20-slim"
+
+[env]
+  NODE_ENV = "production"
+
+[processes]
+  worker = "node pingpulse/worker/monitor.js"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
