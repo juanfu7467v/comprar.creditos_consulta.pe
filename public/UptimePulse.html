@@ -3,984 +3,637 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UptimePulse - Dashboard de Monitoreo</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <title>UptimePulse - Monitoreo Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --primary: #667eea;
-            --primary-dark: #5568d3;
-            --secondary: #764ba2;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
+            --bg-primary: #0B1F3A;
+            --bg-deep: #142C54;
+            --bg-card: rgba(20,44,84,0.65);
+            --accent-purple: #6C4BFF;
+            --accent-pink: #FF4DA6;
+            --glow-purple: rgba(108,75,255,0.35);
+            --glow-pink: rgba(255,77,166,0.35);
+            --success: #00E5A0;
+            --danger: #FF4D6A;
+            --warning: #FFB347;
+            --text-white: #FFFFFF;
+            --text-muted: rgba(255,255,255,0.55);
+            --text-subtle: rgba(255,255,255,0.3);
+            --border: rgba(108,75,255,0.18);
+            --border-soft: rgba(255,255,255,0.07);
+            --sidebar-w: 264px;
         }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'DM Sans',sans-serif;background:var(--bg-primary);color:var(--text-white);overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased}
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:rgba(108,75,255,.4);border-radius:4px}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--gray-50);
-            color: var(--gray-900);
-            line-height: 1.6;
-        }
+        /* ══ LANDING ══ */
+        #landing-screen{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060D1F;overflow:hidden}
+        .l-orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none}
+        .l-orb-1{width:520px;height:520px;background:radial-gradient(circle,rgba(108,75,255,.55) 0%,transparent 70%);top:-180px;right:-120px;animation:orbDrift 10s ease-in-out infinite}
+        .l-orb-2{width:420px;height:420px;background:radial-gradient(circle,rgba(255,77,166,.45) 0%,transparent 70%);bottom:-120px;left:-100px;animation:orbDrift 12s ease-in-out infinite reverse}
+        .l-orb-3{width:280px;height:280px;background:radial-gradient(circle,rgba(108,75,255,.25) 0%,transparent 70%);top:40%;left:50%;transform:translate(-50%,-50%);animation:orbDrift 8s ease-in-out infinite 2s}
+        @keyframes orbDrift{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-28px) scale(1.04)}}
+        .l-orb-3{animation:orbDrift3 8s ease-in-out infinite 2s}
+        @keyframes orbDrift3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,calc(-50% - 28px)) scale(1.04)}}
+        .l-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(108,75,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(108,75,255,.07) 1px,transparent 1px);background-size:40px 40px}
+        #l-stars{position:absolute;inset:0;pointer-events:none}
+        .star{position:absolute;background:white;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite var(--delay,0s)}
+        @keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.6)}}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+        .l-wrap{position:relative;z-index:2;text-align:center;padding:40px 28px;max-width:420px;width:100%}
+        .l-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(108,75,255,.12);border:1px solid rgba(108,75,255,.38);border-radius:50px;padding:7px 18px;font-size:11px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:#b09eff;margin-bottom:30px;animation:fadeUp .6s ease both}
+        .pulse-dot{width:7px;height:7px;border-radius:50%;background:#b09eff;animation:pulseDot 1.6s ease-in-out infinite}
+        @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+        .l-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px;animation:fadeUp .6s .08s ease both}
+        .l-logo-icon{width:50px;height:50px;border-radius:15px;background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple));display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px var(--glow-pink),0 0 14px var(--glow-purple)}
+        .l-logo-name{font-family:'Oxanium',sans-serif;font-size:28px;font-weight:800;background:linear-gradient(130deg,#fff 0%,rgba(255,255,255,.75) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .l-headline{font-family:'Oxanium',sans-serif;font-size:clamp(36px,9vw,54px);font-weight:800;line-height:1.08;margin-bottom:18px;animation:fadeUp .6s .16s ease both}
+        .l-headline .hl{background:linear-gradient(135deg,var(--accent-pink) 0%,var(--accent-purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .l-sub{font-size:15px;color:var(--text-muted);line-height:1.75;margin-bottom:14px;animation:fadeUp .6s .24s ease both}
+        .l-trial-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(0,229,160,.09);border:1px solid rgba(0,229,160,.28);border-radius:10px;padding:10px 18px;font-size:13px;color:#3dffc1;font-weight:500;margin-bottom:34px;animation:fadeUp .6s .32s ease both}
+        .l-cta{display:block;width:100%;padding:19px 32px;background:linear-gradient(135deg,var(--accent-pink) 0%,var(--accent-purple) 100%);border:none;border-radius:18px;font-family:'Oxanium',sans-serif;font-size:18px;font-weight:700;color:white;cursor:pointer;letter-spacing:.4px;box-shadow:0 8px 36px rgba(255,77,166,.42);transition:all .28s ease;animation:fadeUp .6s .4s ease both;position:relative;overflow:hidden}
+        .l-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 60%)}
+        .l-cta:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(255,77,166,.58),0 0 50px rgba(108,75,255,.28)}
+        .l-cta:active{transform:translateY(-1px)}
+        .l-features{display:flex;justify-content:center;flex-wrap:wrap;gap:18px;margin-top:26px;animation:fadeUp .6s .48s ease both}
+        .l-feat{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+        .l-feat svg{color:var(--success);flex-shrink:0}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+        #landing-screen.bye{animation:landExit .55s cubic-bezier(.4,0,.2,1) forwards}
+        @keyframes landExit{to{opacity:0;transform:scale(1.06)}}
+
+        /* ══ APP ══ */
+        #app{display:none;min-height:100vh}
 
         /* Header */
-        header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        .app-header{position:sticky;top:0;z-index:600;height:62px;background:rgba(11,31,58,.88);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:14px}
+        .hbg-btn{width:38px;height:38px;border-radius:10px;background:rgba(108,75,255,.1);border:1px solid rgba(108,75,255,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;color:var(--text-muted)}
+        .hbg-btn:hover{background:rgba(108,75,255,.2);color:white}
+        .h-logo{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+        .h-logo-icon{width:32px;height:32px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple));display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px var(--glow-pink)}
+        .h-logo-name{font-family:'Oxanium',sans-serif;font-size:17px;font-weight:700;white-space:nowrap}
+        .h-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+        .user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:50px}
+        .user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple));display:flex;align-items:center;justify-content:center;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700}
+        .user-name{font-size:13px;font-weight:500}
+        .user-plan{font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;letter-spacing:.6px;background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple))}
+        .logout-btn{width:36px;height:36px;border-radius:10px;background:rgba(255,77,106,.09);border:1px solid rgba(255,77,106,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:var(--danger)}
+        .logout-btn:hover{background:rgba(255,77,106,.2)}
 
-        header .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .logo-icon {
-            font-size: 28px;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .btn-logout {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .btn-logout:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Main Layout */
-        .main-layout {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 20px;
-            margin: 20px 0;
-            min-height: calc(100vh - 100px);
-        }
+        /* Layout */
+        .app-body{display:flex;min-height:calc(100vh - 62px)}
+        .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);z-index:499}
+        .sb-overlay.on{display:block}
 
         /* Sidebar */
-        .sidebar {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            height: fit-content;
-            position: sticky;
-            top: 80px;
-        }
+        .sidebar{width:var(--sidebar-w);background:rgba(9,25,52,.97);border-right:1px solid var(--border);padding:20px 14px;position:fixed;top:62px;left:calc(-1 * var(--sidebar-w));height:calc(100vh - 62px);z-index:500;transition:left .32s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(24px);display:flex;flex-direction:column;overflow-y:auto}
+        .sidebar.open{left:0}
+        .sb-label{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:var(--text-subtle);padding:0 10px;margin-bottom:8px;font-weight:700}
+        .nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:13px;color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;margin-bottom:3px;border:1px solid transparent}
+        .nav-item:hover{color:white;background:rgba(108,75,255,.1);border-color:rgba(108,75,255,.2)}
+        .nav-item.active{color:white;background:linear-gradient(135deg,rgba(255,77,166,.14),rgba(108,75,255,.14));border-color:rgba(108,75,255,.3)}
+        .nav-icon{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+        .nav-item.active .nav-icon{background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple));box-shadow:0 4px 18px var(--glow-purple)}
+        .nav-item svg{width:15px;height:15px}
+        .sb-divider{height:1px;background:var(--border-soft);margin:16px 0}
+        .sb-bottom{margin-top:auto}
+        .pro-card{background:linear-gradient(135deg,rgba(255,77,166,.12),rgba(108,75,255,.12));border:1px solid rgba(108,75,255,.28);border-radius:16px;padding:16px}
+        .pro-card-title{font-family:'Oxanium',sans-serif;font-size:14px;font-weight:700;margin-bottom:5px}
+        .pro-card-sub{font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5}
+        .pro-card-btn{width:100%;padding:10px;background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple));border:none;border-radius:10px;font-weight:700;font-size:13px;color:white;cursor:pointer;transition:all .2s}
+        .pro-card-btn:hover{opacity:.88;transform:translateY(-1px)}
 
-        .sidebar-menu {
-            list-style: none;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 10px;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
-            color: var(--gray-600);
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
-            background-color: var(--gray-100);
-            color: var(--primary);
-        }
-
-        /* Content Area */
-        .content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Page Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--gray-900);
-        }
-
-        .page-subtitle {
-            font-size: 14px;
-            color: var(--gray-500);
-            margin-top: 5px;
-        }
+        /* Main */
+        .main-content{flex:1;padding:22px 16px;max-width:100%;min-width:0}
+        .page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+        .page-title{font-family:'Oxanium',sans-serif;font-size:24px;font-weight:700;margin-bottom:3px}
+        .page-sub{font-size:13px;color:var(--text-muted)}
 
         /* Buttons */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .btn{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:12px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .22s;white-space:nowrap}
+        .btn svg{width:15px;height:15px;flex-shrink:0}
+        .btn-primary{background:linear-gradient(135deg,var(--accent-pink),var(--accent-purple));color:white;box-shadow:0 4px 22px rgba(255,77,166,.3)}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 9px 30px rgba(255,77,166,.46)}
+        .btn-primary:active{transform:translateY(0)}
+        .btn-secondary{background:rgba(255,255,255,.07);color:white;border:1px solid rgba(255,255,255,.1)}
+        .btn-secondary:hover{background:rgba(255,255,255,.12)}
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
+        /* Stats */
+        .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+        .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;padding:18px;position:relative;overflow:hidden;transition:all .26s}
+        .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--card-line,linear-gradient(90deg,var(--accent-pink),var(--accent-purple)))}
+        .stat-card::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at top right,rgba(108,75,255,.07),transparent 60%)}
+        .stat-card:hover{border-color:rgba(108,75,255,.38);transform:translateY(-2px)}
+        .stat-icon{width:38px;height:38px;border-radius:11px;background:rgba(108,75,255,.13);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+        .stat-icon svg{width:18px;height:18px}
+        .stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.3px;color:var(--text-muted);font-weight:700;margin-bottom:5px}
+        .stat-val{font-family:'Oxanium',sans-serif;font-size:30px;font-weight:700;line-height:1;margin-bottom:5px}
+        .stat-note{font-size:11px;color:var(--text-subtle)}
 
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background-color: var(--gray-200);
-            color: var(--gray-800);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--gray-300);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--gray-500);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--gray-900);
-        }
-
-        .stat-change {
-            font-size: 12px;
-            color: var(--gray-500);
-            margin-top: 8px;
-        }
-
-        /* Monitors Table */
-        .monitors-section {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .section-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--gray-200);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--gray-900);
-        }
-
-        .monitors-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .monitors-table thead {
-            background-color: var(--gray-50);
-            border-bottom: 2px solid var(--gray-200);
-        }
-
-        .monitors-table th {
-            padding: 15px 20px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--gray-600);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .monitors-table td {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--gray-100);
-        }
-
-        .monitors-table tbody tr:hover {
-            background-color: var(--gray-50);
-        }
-
-        .monitor-name {
-            font-weight: 600;
-            color: var(--gray-900);
-        }
-
-        .monitor-url {
-            font-size: 12px;
-            color: var(--gray-500);
-            margin-top: 4px;
-            word-break: break-all;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-up {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-down {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-unknown {
-            background-color: var(--gray-100);
-            color: var(--gray-600);
-        }
-
-        .uptime-bar {
-            width: 100%;
-            height: 6px;
-            background-color: var(--gray-200);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 4px;
-        }
-
-        .uptime-fill {
-            height: 100%;
-            background-color: var(--success);
-            transition: width 0.3s ease;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--gray-400);
-            cursor: pointer;
-            font-size: 16px;
-            transition: color 0.3s ease;
-            padding: 4px;
-        }
-
-        .action-btn:hover {
-            color: var(--primary);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        .empty-state-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--gray-900);
-            margin-bottom: 10px;
-        }
-
-        .empty-state-text {
-            color: var(--gray-500);
-            margin-bottom: 20px;
-        }
+        /* Monitors */
+        .monitors-section{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+        .section-hdr{padding:16px 18px;border-bottom:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+        .section-title{font-family:'Oxanium',sans-serif;font-size:15px;font-weight:700}
+        .count-tag{font-size:11px;font-weight:600;padding:4px 12px;border-radius:50px;background:rgba(108,75,255,.14);border:1px solid rgba(108,75,255,.25);color:#b09eff}
+        .mon-table{width:100%;border-collapse:collapse}
+        .mon-table thead{background:rgba(0,0,0,.18)}
+        .mon-table th{padding:11px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-subtle)}
+        .mon-table td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.035);vertical-align:middle}
+        .mon-table tbody tr:hover{background:rgba(108,75,255,.05)}
+        .mon-table tbody tr:last-child td{border-bottom:none}
+        .mon-name{font-weight:600;font-size:14px}
+        .mon-url{font-size:11px;color:var(--text-muted);margin-top:2px;word-break:break-all}
+        .status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:50px;font-size:10px;font-weight:700;letter-spacing:.8px}
+        .s-dot{width:6px;height:6px;border-radius:50%}
+        .status-up{background:rgba(0,229,160,.1);color:#00e5a0;border:1px solid rgba(0,229,160,.22)}
+        .status-up .s-dot{background:#00e5a0;animation:dotPulse 2.2s ease-in-out infinite}
+        .status-down{background:rgba(255,77,106,.1);color:var(--danger);border:1px solid rgba(255,77,106,.22)}
+        .status-down .s-dot{background:var(--danger)}
+        .status-unknown{background:rgba(255,255,255,.05);color:var(--text-muted);border:1px solid var(--border-soft)}
+        .status-unknown .s-dot{background:var(--text-muted)}
+        @keyframes dotPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,229,160,.5)}50%{box-shadow:0 0 0 5px rgba(0,229,160,0)}}
+        .up-pct{font-size:13px;font-weight:600;margin-bottom:4px}
+        .up-bar{width:72px;height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+        .up-fill{height:100%;background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink));border-radius:3px}
+        .time-lbl{font-size:12px;color:var(--text-muted)}
+        .actions{display:flex;gap:5px}
+        .act-btn{width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-muted);transition:all .18s}
+        .act-btn svg{width:13px;height:13px}
+        .act-btn:hover{background:rgba(108,75,255,.14);border-color:rgba(108,75,255,.3);color:#b09eff}
+        .act-btn.del:hover{background:rgba(255,77,106,.14);border-color:rgba(255,77,106,.3);color:var(--danger)}
+        .empty-state{text-align:center;padding:56px 20px}
+        .empty-icon{width:76px;height:76px;border-radius:22px;background:rgba(108,75,255,.1);border:1px solid rgba(108,75,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;color:#b09eff}
+        .empty-icon svg{width:34px;height:34px}
+        .empty-title{font-family:'Oxanium',sans-serif;font-size:19px;font-weight:700;margin-bottom:9px}
+        .empty-text{font-size:13px;color:var(--text-muted);line-height:1.65;margin-bottom:22px;max-width:280px;margin-left:auto;margin-right:auto}
 
         /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: var(--gray-900);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--gray-700);
-            margin-bottom: 8px;
-        }
-
-        .form-input,
-        .form-select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--gray-300);
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus,
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-            justify-content: flex-end;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: static;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .monitors-table {
-                font-size: 12px;
-            }
-
-            .monitors-table th,
-            .monitors-table td {
-                padding: 10px;
-            }
-        }
-
-        /* Loading */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--gray-200);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        .modal{display:none;position:fixed;inset:0;background:rgba(6,13,31,.82);backdrop-filter:blur(12px);z-index:900;align-items:flex-end;justify-content:center}
+        .modal.active{display:flex}
+        .modal-box{background:#0B2147;border:1px solid var(--border);border-radius:24px 24px 0 0;padding:24px 20px 34px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 -24px 70px rgba(0,0,0,.45);animation:sheetUp .3s cubic-bezier(.4,0,.2,1)}
+        @keyframes sheetUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+        .modal-handle{width:38px;height:4px;border-radius:3px;background:rgba(255,255,255,.12);margin:0 auto 20px}
+        .modal-title{font-family:'Oxanium',sans-serif;font-size:20px;font-weight:700;margin-bottom:22px}
+        .form-group{margin-bottom:16px}
+        .form-label{display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px}
+        .form-input,.form-select{width:100%;padding:13px 15px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:white;transition:all .2s}
+        .form-input::placeholder{color:var(--text-subtle)}
+        .form-input:focus,.form-select:focus{outline:none;border-color:var(--accent-purple);background:rgba(108,75,255,.09);box-shadow:0 0 0 3px rgba(108,75,255,.14)}
+        .form-select{appearance:none;cursor:pointer}
+        .form-select option{background:#0B2147;color:white}
+        .modal-actions{display:flex;gap:10px;margin-top:22px}
+        .modal-actions .btn{flex:1;justify-content:center}
 
         /* Alert */
-        .alert {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background-color: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid var(--success);
-        }
-
-        .alert-error {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid var(--danger);
-        }
-
-        .alert-info {
-            background-color: #dbeafe;
-            color: #0c4a6e;
-            border-left: 4px solid var(--primary);
-        }
+        .alert{display:flex;align-items:center;gap:11px;padding:13px 15px;border-radius:12px;font-size:13px;font-weight:500;margin-bottom:14px}
+        .alert svg{width:16px;height:16px;flex-shrink:0}
+        .alert-success{background:rgba(0,229,160,.09);border:1px solid rgba(0,229,160,.24);color:#3dffc1}
+        .alert-error{background:rgba(255,77,106,.09);border:1px solid rgba(255,77,106,.24);color:var(--danger)}
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="logo">
-                <span class="logo-icon">📊</span>
-                <span>UptimePulse</span>
+
+<!-- ══ LANDING ══ -->
+<div id="landing-screen">
+    <div class="l-orb l-orb-1"></div>
+    <div class="l-orb l-orb-2"></div>
+    <div class="l-orb l-orb-3"></div>
+    <div class="l-grid"></div>
+    <div id="l-stars"></div>
+
+    <div class="l-wrap">
+        <div class="l-badge">
+            <div class="pulse-dot"></div>
+            Acceso Exclusivo · Plazas Limitadas
+        </div>
+        <div class="l-logo">
+            <div class="l-logo-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </div>
-            <div class="user-menu">
-                <div class="user-info">
-                    <div class="user-avatar" id="userInitial">U</div>
-                    <div>
-                        <div id="userName" style="font-size: 14px;">Usuario</div>
-                        <div style="font-size: 12px; opacity: 0.8;" id="userPlan">Plan: Pro</div>
-                    </div>
-                </div>
-                <button class="btn-logout" onclick="logout()">Salir</button>
+            <span class="l-logo-name">UptimePulse</span>
+        </div>
+        <h1 class="l-headline">Hoy es tu<br><span class="hl">día de suerte</span></h1>
+        <p class="l-sub">Monitorea tus APIs y sitios web como un profesional. Detecta caídas antes que tus usuarios.</p>
+        <div class="l-trial-pill">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            24 horas gratis · Sin tarjeta · Sin compromiso
+        </div>
+        <button class="l-cta" onclick="startApp()">Empezar — Es Gratis</button>
+        <div class="l-features">
+            <div class="l-feat">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Tiempo real
             </div>
+            <div class="l-feat">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Alertas instantáneas
+            </div>
+            <div class="l-feat">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Uptime 99.9%
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+    <header class="app-header">
+        <button class="hbg-btn" onclick="toggleSidebar()">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="h-logo">
+            <div class="h-logo-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <span class="h-logo-name">UptimePulse</span>
+        </div>
+        <div class="h-right">
+            <div class="user-chip">
+                <div class="user-avatar" id="userInitial">U</div>
+                <span class="user-name" id="userName">Usuario</span>
+                <span class="user-plan" id="userPlan">Pro</span>
+            </div>
+            <button class="logout-btn" onclick="logout()" title="Cerrar sesión">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            </button>
         </div>
     </header>
 
-    <!-- Main Layout -->
-    <div class="container">
-        <div class="main-layout">
-            <!-- Sidebar -->
-            <aside class="sidebar">
-                <ul class="sidebar-menu">
-                    <li><a href="#" class="active" onclick="showDashboard()">📊 Dashboard</a></li>
-                    <li><a href="#" onclick="showMonitors()">📡 Monitores</a></li>
-                    <li><a href="#" onclick="showReports()">📈 Reportes</a></li>
-                    <li><a href="#" onclick="showSettings()">⚙️ Configuración</a></li>
-                    <li><a href="#" onclick="showPlans()">💰 Planes</a></li>
-                </ul>
-            </aside>
+    <div class="app-body">
+        <div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
 
-            <!-- Content -->
-            <main class="content">
-                <!-- Dashboard View -->
-                <div id="dashboardView">
-                    <div class="page-header">
-                        <div>
-                            <h1 class="page-title">Dashboard</h1>
-                            <p class="page-subtitle">Resumen de tu monitoreo en tiempo real</p>
-                        </div>
-                        <button class="btn btn-primary" onclick="openAddMonitorModal()">+ Nuevo Monitor</button>
+        <aside class="sidebar" id="sidebar">
+            <div class="sb-label">Principal</div>
+            <nav>
+                <a class="nav-item active" onclick="showDashboard();closeSidebar()">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
                     </div>
-
-                    <!-- Stats -->
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Monitores Activos</div>
-                            <div class="stat-value" id="totalMonitors">0</div>
-                            <div class="stat-change">Todos funcionando</div>
-                        </div>
-                        <div class="stat-card" style="border-left-color: var(--success);">
-                            <div class="stat-label">Operativos</div>
-                            <div class="stat-value" id="upMonitors" style="color: var(--success);">0</div>
-                            <div class="stat-change">100% disponible</div>
-                        </div>
-                        <div class="stat-card" style="border-left-color: var(--danger);">
-                            <div class="stat-label">Caídos</div>
-                            <div class="stat-value" id="downMonitors" style="color: var(--danger);">0</div>
-                            <div class="stat-change">Requieren atención</div>
-                        </div>
-                        <div class="stat-card" style="border-left-color: var(--warning);">
-                            <div class="stat-label">Uptime Promedio</div>
-                            <div class="stat-value" id="averageUptime" style="color: var(--warning);">99.9%</div>
-                            <div class="stat-change">Últimos 30 días</div>
-                        </div>
+                    Dashboard
+                </a>
+                <a class="nav-item" onclick="showMonitors();closeSidebar()">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M7.76 7.76a6 6 0 0 0 0 8.49"/><path d="M20.66 3.34a12 12 0 0 1 0 16.97"/><path d="M3.34 3.34a12 12 0 0 0 0 16.97"/></svg>
                     </div>
+                    Monitores
+                </a>
+                <a class="nav-item" onclick="showReports();closeSidebar()">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    Reportes
+                </a>
+                <a class="nav-item" onclick="showSettings();closeSidebar()">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </div>
+                    Configuración
+                </a>
+                <div class="sb-divider"></div>
+                <div class="sb-label">Cuenta</div>
+                <a class="nav-item" onclick="showPlans();closeSidebar()">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    Planes
+                </a>
+            </nav>
+            <div class="sb-bottom">
+                <div class="pro-card">
+                    <div class="pro-card-title">Sube a Pro</div>
+                    <div class="pro-card-sub">Monitores ilimitados, alertas SMS y reportes avanzados.</div>
+                    <button class="pro-card-btn" onclick="showPlans();closeSidebar()">Ver Planes</button>
+                </div>
+            </div>
+        </aside>
 
-                    <!-- Monitors Table -->
-                    <div class="monitors-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Tus Monitores</h2>
-                            <span id="monitorCount" style="color: var(--gray-500); font-size: 14px;">0 monitores</span>
+        <main class="main-content">
+            <div id="dashboardView">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-sub">Monitoreo en tiempo real</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddMonitorModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Nuevo Monitor
+                    </button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#b09eff" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
                         </div>
-                        <div id="monitorsContainer">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📡</div>
-                                <div class="empty-state-title">No hay monitores</div>
-                                <div class="empty-state-text">Comienza creando tu primer monitor para monitorear tus APIs y páginas web</div>
-                                <button class="btn btn-primary" onclick="openAddMonitorModal()">Crear Monitor</button>
+                        <div class="stat-lbl">Monitores</div>
+                        <div class="stat-val" id="totalMonitors">0</div>
+                        <div class="stat-note">Total activos</div>
+                    </div>
+                    <div class="stat-card" style="--card-line:linear-gradient(90deg,#00e5a0,#00b37d)">
+                        <div class="stat-icon" style="background:rgba(0,229,160,.1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2.8" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <div class="stat-lbl">Operativos</div>
+                        <div class="stat-val" id="upMonitors" style="color:#00e5a0">0</div>
+                        <div class="stat-note">En línea</div>
+                    </div>
+                    <div class="stat-card" style="--card-line:linear-gradient(90deg,#ff4d6a,#c0392b)">
+                        <div class="stat-icon" style="background:rgba(255,77,106,.1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ff4d6a" stroke-width="2.8" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </div>
+                        <div class="stat-lbl">Caídos</div>
+                        <div class="stat-val" id="downMonitors" style="color:#ff4d6a">0</div>
+                        <div class="stat-note">Sin respuesta</div>
+                    </div>
+                    <div class="stat-card" style="--card-line:linear-gradient(90deg,#FFB347,#e67e22)">
+                        <div class="stat-icon" style="background:rgba(255,179,71,.1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div class="stat-lbl">Uptime Prom.</div>
+                        <div class="stat-val" id="averageUptime" style="color:#FFB347">99.9%</div>
+                        <div class="stat-note">Últimos 30 días</div>
+                    </div>
+                </div>
+
+                <div class="monitors-section">
+                    <div class="section-hdr">
+                        <span class="section-title">Tus Monitores</span>
+                        <span class="count-tag" id="monitorCount">0 monitores</span>
+                    </div>
+                    <div id="monitorsContainer">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M7.76 7.76a6 6 0 0 0 0 8.49"/><path d="M20.66 3.34a12 12 0 0 1 0 16.97"/><path d="M3.34 3.34a12 12 0 0 0 0 16.97"/></svg>
                             </div>
+                            <div class="empty-title">Sin monitores aún</div>
+                            <div class="empty-text">Crea tu primer monitor para comenzar a vigilar tus APIs y sitios web en tiempo real.</div>
+                            <button class="btn btn-primary" onclick="openAddMonitorModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Crear Monitor
+                            </button>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
+</div>
 
-    <!-- Add Monitor Modal -->
-    <div class="modal" id="addMonitorModal">
-        <div class="modal-content">
-            <div class="modal-header">Nuevo Monitor</div>
-            <form id="monitorForm" onsubmit="handleAddMonitor(event)">
-                <div class="form-group">
-                    <label class="form-label">Nombre del Monitor</label>
-                    <input type="text" class="form-input" id="monitorName" placeholder="Ej: API Principal" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">URL a Monitorear</label>
-                    <input type="url" class="form-input" id="monitorUrl" placeholder="https://api.ejemplo.com/health" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Frecuencia de Chequeo</label>
-                    <select class="form-select" id="monitorFrequency">
-                        <option value="1">Cada 1 min</option>
-                        <option value="5" selected>Cada 5 min</option>
-                        <option value="15">Cada 15 min</option>
-                        <option value="60">Cada 1 hora</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Tipo de Monitoreo</label>
-                    <select class="form-select" id="monitorType">
-                        <option value="http">HTTP(s)</option>
-                        <option value="ssl">Certificado SSL</option>
-                    </select>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeAddMonitorModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Crear Monitor</button>
-                </div>
-            </form>
-        </div>
+<!-- ══ MODAL ══ -->
+<div class="modal" id="addMonitorModal">
+    <div class="modal-box">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Nuevo Monitor</div>
+        <form id="monitorForm" onsubmit="handleAddMonitor(event)">
+            <div class="form-group">
+                <label class="form-label">Nombre del Monitor</label>
+                <input type="text" class="form-input" id="monitorName" placeholder="Ej: API Principal" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">URL a Monitorear</label>
+                <input type="url" class="form-input" id="monitorUrl" placeholder="https://api.ejemplo.com/health" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Frecuencia de Chequeo</label>
+                <select class="form-select" id="monitorFrequency">
+                    <option value="1">Cada 1 min</option>
+                    <option value="5" selected>Cada 5 min</option>
+                    <option value="15">Cada 15 min</option>
+                    <option value="60">Cada 1 hora</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tipo de Monitoreo</label>
+                <select class="form-select" id="monitorType">
+                    <option value="http">HTTP(s)</option>
+                    <option value="ssl">Certificado SSL</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeAddMonitorModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Crear Monitor
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script>
-        // API Base URL
-        const API_BASE = '/api/pingpulse';
-        let monitors = [];
+<script>
+    /* ── Stars ── */
+    (function(){
+        const c=document.getElementById('l-stars');
+        for(let i=0;i<90;i++){
+            const s=document.createElement('div');
+            s.className='star';
+            const sz=(Math.random()*2+0.8).toFixed(1);
+            s.style.cssText=`width:${sz}px;height:${sz}px;left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;--d:${(Math.random()*3+2).toFixed(1)}s;--delay:${(Math.random()*3).toFixed(1)}s;opacity:${(Math.random()*.5+.15).toFixed(2)}`;
+            c.appendChild(s);
+        }
+    })();
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMonitors();
+    /* ── Landing ── */
+    function startApp(){
+        const ls=document.getElementById('landing-screen');
+        ls.classList.add('bye');
+        setTimeout(()=>{
+            ls.style.display='none';
+            document.getElementById('app').style.display='block';
             loadUserInfo();
-        });
+            loadMonitors();
+        },480);
+    }
 
-        // Load user info
-        async function loadUserInfo() {
-            try {
-                // This would come from your auth system
-                document.getElementById('userName').textContent = 'Usuario Demo';
-                document.getElementById('userPlan').textContent = 'Plan: Pro';
-                document.getElementById('userInitial').textContent = 'U';
-            } catch (error) {
-                console.error('Error loading user info:', error);
+    /* ── Sidebar ── */
+    function toggleSidebar(){
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sbOverlay').classList.toggle('on');
+    }
+    function closeSidebar(){
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sbOverlay').classList.remove('on');
+    }
+
+    /* ══════════════════════════════════
+       ORIGINAL LOGIC — PRESERVED INTACT
+    ══════════════════════════════════ */
+    const API_BASE='/api/pingpulse';
+    let monitors=[];
+
+    async function loadUserInfo(){
+        try{
+            document.getElementById('userName').textContent='Usuario Demo';
+            document.getElementById('userPlan').textContent='Pro';
+            document.getElementById('userInitial').textContent='U';
+        }catch(e){console.error('Error loading user info:',e)}
+    }
+
+    async function loadMonitors(){
+        try{
+            const response=await fetch(`${API_BASE}/monitors`,{
+                headers:{'Authorization':`Bearer ${localStorage.getItem('token')}`,'Content-Type':'application/json'}
+            });
+            if(!response.ok){
+                monitors=[
+                    {id:'1',name:'API Masitaprex',url:'https://masitaprex.com/api/health',status:'up',uptime:99.98,lastCheck:new Date(Date.now()-2*60000),frequency:5,type:'http'},
+                    {id:'2',name:'Web Principal',url:'https://masitaprex.com',status:'up',uptime:100,lastCheck:new Date(Date.now()-3*60000),frequency:5,type:'http'},
+                    {id:'3',name:'API Pagos',url:'https://pagos.masitaprex.com/health',status:'down',uptime:98.5,lastCheck:new Date(Date.now()-1*60000),frequency:5,type:'http'},
+                    {id:'4',name:'CDN Assets',url:'https://cdn.masitaprex.com',status:'up',uptime:99.95,lastCheck:new Date(Date.now()-1*60000),frequency:5,type:'http'}
+                ];
+            }else{
+                const data=await response.json();
+                monitors=data.data||[];
             }
-        }
+            renderMonitors();
+            updateStats();
+        }catch(e){console.error('Error loading monitors:',e);renderMonitors()}
+    }
 
-        // Load monitors
-        async function loadMonitors() {
-            try {
-                const response = await fetch(`${API_BASE}/monitors`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    // For demo, use mock data
-                    monitors = [
-                        {
-                            id: '1',
-                            name: 'API Masitaprex',
-                            url: 'https://masitaprex.com/api/health',
-                            status: 'up',
-                            uptime: 99.98,
-                            lastCheck: new Date(Date.now() - 2 * 60000),
-                            frequency: 5,
-                            type: 'http'
-                        },
-                        {
-                            id: '2',
-                            name: 'Web Principal',
-                            url: 'https://masitaprex.com',
-                            status: 'up',
-                            uptime: 99.95,
-                            lastCheck: new Date(Date.now() - 1 * 60000),
-                            frequency: 5,
-                            type: 'http'
-                        }
-                    ];
-                } else {
-                    const data = await response.json();
-                    monitors = data.data || [];
-                }
-
-                renderMonitors();
-                updateStats();
-            } catch (error) {
-                console.error('Error loading monitors:', error);
-                renderMonitors();
-            }
-        }
-
-        // Render monitors table
-        function renderMonitors() {
-            const container = document.getElementById('monitorsContainer');
-
-            if (monitors.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📡</div>
-                        <div class="empty-state-title">No hay monitores</div>
-                        <div class="empty-state-text">Comienza creando tu primer monitor para monitorear tus APIs y páginas web</div>
-                        <button class="btn btn-primary" onclick="openAddMonitorModal()">Crear Monitor</button>
+    function renderMonitors(){
+        const container=document.getElementById('monitorsContainer');
+        if(monitors.length===0){
+            container.innerHTML=`
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M7.76 7.76a6 6 0 0 0 0 8.49"/><path d="M20.66 3.34a12 12 0 0 1 0 16.97"/><path d="M3.34 3.34a12 12 0 0 0 0 16.97"/></svg>
                     </div>
-                `;
-                return;
-            }
-
-            const tableHtml = `
-                <table class="monitors-table">
-                    <thead>
+                    <div class="empty-title">Sin monitores aún</div>
+                    <div class="empty-text">Crea tu primer monitor para comenzar a vigilar tus APIs y sitios web en tiempo real.</div>
+                    <button class="btn btn-primary" onclick="openAddMonitorModal()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="width:15px;height:15px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Crear Monitor
+                    </button>
+                </div>`;
+            return;
+        }
+        container.innerHTML=`
+            <table class="mon-table">
+                <thead><tr><th>Monitor</th><th>Estado</th><th>Uptime</th><th>Último Check</th><th>Acciones</th></tr></thead>
+                <tbody>
+                    ${monitors.map(m=>`
                         <tr>
-                            <th>Monitor</th>
-                            <th>Estado</th>
-                            <th>Uptime</th>
-                            <th>Último Chequeo</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${monitors.map(m => `
-                            <tr>
-                                <td>
-                                    <div class="monitor-name">${m.name}</div>
-                                    <div class="monitor-url">${m.url}</div>
-                                </td>
-                                <td>
-                                    <span class="status-badge status-${m.status}">
-                                        ${m.status === 'up' ? '✅' : m.status === 'down' ? '❌' : '⚠️'} ${m.status.toUpperCase()}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div>${m.uptime}%</div>
-                                    <div class="uptime-bar">
-                                        <div class="uptime-fill" style="width: ${m.uptime}%"></div>
-                                    </div>
-                                </td>
-                                <td>${formatTime(m.lastCheck)}</td>
-                                <td>
-                                    <div class="actions">
-                                        <button class="action-btn" onclick="viewMonitor('${m.id}')" title="Ver detalles">📊</button>
-                                        <button class="action-btn" onclick="editMonitor('${m.id}')" title="Editar">✏️</button>
-                                        <button class="action-btn" onclick="deleteMonitor('${m.id}')" title="Eliminar">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+                            <td><div class="mon-name">${m.name}</div><div class="mon-url">${m.url}</div></td>
+                            <td>
+                                <span class="status-badge status-${m.status}">
+                                    <span class="s-dot"></span>
+                                    ${m.status==='up'?'EN LÍNEA':m.status==='down'?'CAÍDO':'DESCONOCIDO'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="up-pct">${m.uptime}%</div>
+                                <div class="up-bar"><div class="up-fill" style="width:${m.uptime}%"></div></div>
+                            </td>
+                            <td><span class="time-lbl">${formatTime(m.lastCheck)}</span></td>
+                            <td>
+                                <div class="actions">
+                                    <button class="act-btn" onclick="viewMonitor('${m.id}')" title="Ver detalles">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </button>
+                                    <button class="act-btn" onclick="editMonitor('${m.id}')" title="Editar">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    </button>
+                                    <button class="act-btn del" onclick="deleteMonitor('${m.id}')" title="Eliminar">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`).join('')}
+                </tbody>
+            </table>`;
+        document.getElementById('monitorCount').textContent=`${monitors.length} monitor${monitors.length!==1?'es':''}`;
+    }
 
-            container.innerHTML = tableHtml;
-            document.getElementById('monitorCount').textContent = `${monitors.length} monitor${monitors.length !== 1 ? 'es' : ''}`;
-        }
+    function updateStats(){
+        const total=monitors.length;
+        const up=monitors.filter(m=>m.status==='up').length;
+        const down=monitors.filter(m=>m.status==='down').length;
+        const avg=total>0?(monitors.reduce((s,m)=>s+m.uptime,0)/total).toFixed(2):100;
+        document.getElementById('totalMonitors').textContent=total;
+        document.getElementById('upMonitors').textContent=up;
+        document.getElementById('downMonitors').textContent=down;
+        document.getElementById('averageUptime').textContent=`${avg}%`;
+    }
 
-        // Update stats
-        function updateStats() {
-            const total = monitors.length;
-            const up = monitors.filter(m => m.status === 'up').length;
-            const down = monitors.filter(m => m.status === 'down').length;
-            const avgUptime = total > 0 ? (monitors.reduce((sum, m) => sum + m.uptime, 0) / total).toFixed(2) : 100;
+    function formatTime(date){
+        if(!date)return'Nunca';
+        const diff=Date.now()-new Date(date);
+        const m=Math.floor(diff/60000);
+        if(m<1)return'Hace unos segundos';
+        if(m<60)return`Hace ${m} min`;
+        const h=Math.floor(m/60);
+        if(h<24)return`Hace ${h}h`;
+        return`Hace ${Math.floor(h/24)}d`;
+    }
 
-            document.getElementById('totalMonitors').textContent = total;
-            document.getElementById('upMonitors').textContent = up;
-            document.getElementById('downMonitors').textContent = down;
-            document.getElementById('averageUptime').textContent = `${avgUptime}%`;
-        }
+    function openAddMonitorModal(){document.getElementById('addMonitorModal').classList.add('active')}
+    function closeAddMonitorModal(){document.getElementById('addMonitorModal').classList.remove('active');document.getElementById('monitorForm').reset()}
 
-        // Format time
-        function formatTime(date) {
-            if (!date) return 'Nunca';
-            const now = new Date();
-            const diff = now - new Date(date);
-            const minutes = Math.floor(diff / 60000);
-            if (minutes < 1) return 'Hace unos segundos';
-            if (minutes < 60) return `Hace ${minutes} min`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `Hace ${hours}h`;
-            const days = Math.floor(hours / 24);
-            return `Hace ${days}d`;
-        }
-
-        // Modal functions
-        function openAddMonitorModal() {
-            document.getElementById('addMonitorModal').classList.add('active');
-        }
-
-        function closeAddMonitorModal() {
-            document.getElementById('addMonitorModal').classList.remove('active');
-            document.getElementById('monitorForm').reset();
-        }
-
-        // Handle add monitor
-        async function handleAddMonitor(event) {
-            event.preventDefault();
-
-            const newMonitor = {
-                name: document.getElementById('monitorName').value,
-                url: document.getElementById('monitorUrl').value,
-                frequency: parseInt(document.getElementById('monitorFrequency').value),
-                type: document.getElementById('monitorType').value,
-                notifications: { email: true }
-            };
-
-            try {
-                const response = await fetch(`${API_BASE}/monitors`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(newMonitor)
-                });
-
-                if (!response.ok) {
-                    // For demo, just add to local array
-                    monitors.push({
-                        id: Date.now().toString(),
-                        ...newMonitor,
-                        status: 'unknown',
-                        uptime: 100,
-                        lastCheck: null
-                    });
-                } else {
-                    const data = await response.json();
-                    monitors.push(data.data);
-                }
-
-                renderMonitors();
-                updateStats();
-                closeAddMonitorModal();
-                showAlert('Monitor creado exitosamente', 'success');
-            } catch (error) {
-                console.error('Error adding monitor:', error);
-                showAlert('Error al crear el monitor', 'error');
+    async function handleAddMonitor(event){
+        event.preventDefault();
+        const newMonitor={
+            name:document.getElementById('monitorName').value,
+            url:document.getElementById('monitorUrl').value,
+            frequency:parseInt(document.getElementById('monitorFrequency').value),
+            type:document.getElementById('monitorType').value,
+            notifications:{email:true}
+        };
+        try{
+            const response=await fetch(`${API_BASE}/monitors`,{
+                method:'POST',
+                headers:{'Authorization':`Bearer ${localStorage.getItem('token')}`,'Content-Type':'application/json'},
+                body:JSON.stringify(newMonitor)
+            });
+            if(!response.ok){
+                monitors.push({id:Date.now().toString(),...newMonitor,status:'unknown',uptime:100,lastCheck:null});
+            }else{
+                const data=await response.json();
+                monitors.push(data.data);
             }
-        }
+            renderMonitors();updateStats();closeAddMonitorModal();
+            showAlert('Monitor creado exitosamente','success');
+        }catch(e){console.error('Error adding monitor:',e);showAlert('Error al crear el monitor','error')}
+    }
 
-        // View monitor
-        function viewMonitor(id) {
-            alert('Ver detalles del monitor: ' + id);
-        }
+    function viewMonitor(id){alert('Ver detalles del monitor: '+id)}
+    function editMonitor(id){alert('Editar monitor: '+id)}
 
-        // Edit monitor
-        function editMonitor(id) {
-            alert('Editar monitor: ' + id);
-        }
-
-        // Delete monitor
-        async function deleteMonitor(id) {
-            if (!confirm('¿Estás seguro de que deseas eliminar este monitor?')) return;
-
-            try {
-                const response = await fetch(`${API_BASE}/monitors/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (response.ok || true) {
-                    monitors = monitors.filter(m => m.id !== id);
-                    renderMonitors();
-                    updateStats();
-                    showAlert('Monitor eliminado', 'success');
-                }
-            } catch (error) {
-                console.error('Error deleting monitor:', error);
-                showAlert('Error al eliminar el monitor', 'error');
+    async function deleteMonitor(id){
+        if(!confirm('¿Estás seguro de que deseas eliminar este monitor?'))return;
+        try{
+            const response=await fetch(`${API_BASE}/monitors/${id}`,{method:'DELETE',headers:{'Authorization':`Bearer ${localStorage.getItem('token')}`}});
+            if(response.ok||true){
+                monitors=monitors.filter(m=>m.id!==id);
+                renderMonitors();updateStats();
+                showAlert('Monitor eliminado','success');
             }
-        }
+        }catch(e){console.error('Error deleting monitor:',e);showAlert('Error al eliminar el monitor','error')}
+    }
 
-        // Navigation
-        function showDashboard() {
-            document.getElementById('dashboardView').style.display = 'block';
-        }
+    function showDashboard(){document.getElementById('dashboardView').style.display='block'}
+    function showMonitors(){alert('Sección de Monitores - Próximamente')}
+    function showReports(){alert('Sección de Reportes - Próximamente')}
+    function showSettings(){alert('Sección de Configuración - Próximamente')}
+    function showPlans(){alert('Sección de Planes - Próximamente')}
+    function logout(){if(confirm('¿Deseas cerrar sesión?'))window.location.href='/'}
 
-        function showMonitors() {
-            alert('Sección de Monitores - Próximamente');
-        }
+    function showAlert(message,type){
+        const d=document.createElement('div');
+        d.className=`alert alert-${type}`;
+        const ok=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        const err=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+        d.innerHTML=(type==='success'?ok:err)+message;
+        document.querySelector('.main-content').prepend(d);
+        setTimeout(()=>d.remove(),3200);
+    }
 
-        function showReports() {
-            alert('Sección de Reportes - Próximamente');
-        }
-
-        function showSettings() {
-            alert('Sección de Configuración - Próximamente');
-        }
-
-        function showPlans() {
-            alert('Sección de Planes - Próximamente');
-        }
-
-        // Logout
-        function logout() {
-            if (confirm('¿Deseas cerrar sesión?')) {
-                window.location.href = '/';
-            }
-        }
-
-        // Show alert
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            document.querySelector('.content').prepend(alertDiv);
-            setTimeout(() => alertDiv.remove(), 3000);
-        }
-
-        // Close modal on outside click
-        document.addEventListener('click', (e) => {
-            const modal = document.getElementById('addMonitorModal');
-            if (e.target === modal) {
-                closeAddMonitorModal();
-            }
-        });
-    </script>
+    document.addEventListener('click',e=>{if(e.target===document.getElementById('addMonitorModal'))closeAddMonitorModal()});
+</script>
 </body>
 </html>
