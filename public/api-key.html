@@ -26,50 +26,58 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        /* ===== PALETA DE COLORES Y TIPOGRAFÍA DE planes.html ===== */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@400;500&display=swap');
         
         :root {
-            /* ====== NUEVA PALETA (NEÓN DARK GLASS) ====== */
-            --bg1: #070A12;               /* Azul muy oscuro, casi negro */
-            --bg2: #0B1230;               /* Azul noche oscuro */
+            --obsidian: #050505;
+            --surface-1: #0c0c0c;
+            --surface-2: #141414;
+            --surface-3: #1c1c1c;
+            --surface-4: #242424;
+            --gold: #C9A02A;
+            --gold-light: #E8C547;
+            --gold-dim: #8A6E1A;
+            --gold-glow: rgba(201, 160, 42, 0.15);
+            --crimson: #C41E3A;
+            --crimson-dim: rgba(196, 30, 58, 0.12);
+            --platinum: #C8C8C8;
+            --white: #F5F5F5;
+            --text-muted: #888888;
+            --text-subtle: #555555;
+            --border-gold: rgba(201, 160, 42, 0.25);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            
+            --bg1: var(--obsidian);
+            --bg2: var(--surface-1);
             --glass: rgba(255,255,255,.06);
             --glass2: rgba(255,255,255,.10);
-
-            --ink: #EAF0FF;               /* Blanco azulado muy claro */
-            --muted: rgba(234,240,255,.72);
-
-            --pink: #FF3D8D;
+            --ink: var(--white);
+            --muted: var(--text-muted);
+            --pink: var(--crimson);
             --ind: #6D5BFF;
             --cyan: #35D5FF;
             --ok: #16e1a4;
             --warn: #ffb020;
-
-            /* NUEVO: rojo para reemplazar rosado oscuro (mayor visibilidad) */
-            --danger: #FF1F3D;
-
-            --line: rgba(255,255,255,.14);
+            --danger: var(--crimson);
+            --line: var(--border-subtle);
             --shadow: 0 24px 80px rgba(0,0,0,.55);
-
-            /* ====== MAPEOS A VARIABLES EXISTENTES (para no tocar funcionamiento) ====== */
-            --bg: linear-gradient(180deg, var(--bg2), var(--bg1)); /* Se reemplaza por galaxia 3D animada abajo (canvas), manteniendo ancho/estructura */
-            --card: rgba(255,255,255,.06);        /* glass */
-            --pill: rgba(255,255,255,.10);        /* glass2 */
-            --accent: var(--cyan);
-            --secondary: var(--ok);
-
+            --card: var(--surface-2);
+            --pill: var(--surface-3);
+            --accent: var(--gold);
+            --secondary: var(--gold-light);
             --radius: 18px;
-            --font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            --font-family: 'Outfit', sans-serif;
         }
 
         * { box-sizing: border-box; }
 
-        /* AUMENTO LIGERO DE TAMAÑO DE TEXTO (global) */
-        html { font-size: 106.25%; } /* ~17px base en la mayoría de navegadores */
+        html { font-size: 106.25%; }
         
         body {
             margin: 0;
-            background: var(--bg);
-            color: var(--ink);
+            background: var(--obsidian);
+            color: var(--white);
             font-family: var(--font-family);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -78,121 +86,103 @@
             overflow-x: hidden;
         }
 
-        /* ===== Fondo galaxia 3D animado (APIs / movimiento vivo) ===== */
-        /* Mantiene el mismo ancho/estructura: se pone en layer fijo detrás de todo */
-        #galaxy-bg {
+        body::before {
+            content: '';
             position: fixed;
             inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            display: block;
-            background: radial-gradient(1200px 600px at 20% -10%, rgba(109,91,255,.22), transparent 55%),
-                        radial-gradient(900px 500px at 90% 10%, rgba(255,31,61,.16), transparent 55%),
-                        radial-gradient(900px 500px at 60% 110%, rgba(53,213,255,.14), transparent 55%),
-                        linear-gradient(180deg, var(--bg2), var(--bg1));
-        }
-        /* Una capa sutil para dar "glass" y profundidad */
-        .galaxy-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
             pointer-events: none;
-            background:
-                radial-gradient(800px 400px at 30% 20%, rgba(53,213,255,.08), transparent 60%),
-                radial-gradient(900px 500px at 80% 60%, rgba(109,91,255,.08), transparent 60%),
-                radial-gradient(1000px 600px at 60% 100%, rgba(255,31,61,.05), transparent 60%);
-            mix-blend-mode: screen;
+            z-index: -1;
+            opacity: 0.6;
         }
 
-        /* ===== Tailwind helper overrides (solo color, sin cambiar estructura) ===== */
-        .bg-white { background-color: rgba(255,255,255,.06) !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-        .border-gray-100 { border-color: var(--line) !important; }
-        .text-gray-500 { color: var(--muted) !important; }
-        .text-gray-800 { color: var(--ink) !important; }
-        .hover\:bg-gray-50:hover { background-color: rgba(255,255,255,.06) !important; }
-        .active\:bg-gray-100:active { background-color: rgba(255,255,255,.10) !important; }
-        .bg-gray-50 { background-color: rgba(255,255,255,.06) !important; }
-        .bg-black\/50 { background-color: rgba(0,0,0,.55) !important; }
-        /* Rosado oscuro -> ROJO (visible) */
-        .border-red-600 { border-color: var(--danger) !important; }
+        .ambient-1 {
+            position: fixed;
+            top: -20%; left: -10%;
+            width: 60vw; height: 60vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,160,42,0.04) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .ambient-2 {
+            position: fixed;
+            bottom: -20%; right: -10%;
+            width: 50vw; height: 50vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(196,30,58,0.05) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: -1;
+        }
 
-        /* ===== CABECERA (Header) ===== */
+        /* CABECERA (Header) */
         header {
             box-shadow: 0 10px 40px rgba(0,0,0,.25);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
+            background: #000000 !important;
+            border-bottom: 1px solid var(--border-gold) !important;
         }
 
-        /* ===== ESTILOS DEL MENÚ LATERAL COMPLETO (UNIFICADOS) ===== */
-        /* Overlay para el menú lateral */
+        /* ESTILOS DEL MENÚ LATERAL */
         #sidebar-overlay { 
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.75);
             z-index: 50;
             opacity: 0;
             transition: opacity 0.3s ease;
             display: none;
+            backdrop-filter: blur(4px);
         }
 
-        #sidebar-overlay.opacity-100 {
-            opacity: 1;
-        }
+        #sidebar-overlay.opacity-100 { opacity: 1; }
+        #sidebar-overlay.hidden { display: none; }
 
-        #sidebar-overlay.hidden {
-            display: none;
-        }
-
-        /* Menú lateral principal */
         #sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            width: 288px; /* w-72 = 288px */
-            background: #000 !important; /* Fondo negro puro */
-            color: #FFFFFF;
+            width: 288px;
+            background: #080808 !important;
+            border-right: 1px solid var(--border-gold);
             z-index: 60;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
             overflow-y: auto;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
             display: flex;
             flex-direction: column;
         }
 
-        #sidebar.open {
-            transform: translateX(0);
-        }
+        #sidebar.open { transform: translateX(0); }
 
-        /* Encabezado del sidebar */
         .sidebar-header-bg {
-            padding: 40px 24px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: relative;
+            padding: 40px 24px 28px;
+            background: linear-gradient(160deg, #0a0a0a 0%, #111108 100%);
+            border-bottom: 1px solid var(--border-gold);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            color: white;
-            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Contenedor del icono del sidebar */
+        .sidebar-header-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
         .sidebar-header-bg > div:first-child {
-            width: 72px;
-            height: 72px;
-            border-radius: 16px;
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
             margin-bottom: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-gold);
+            box-shadow: 0 0 20px var(--gold-glow);
         }
 
         .sidebar-header-bg img {
@@ -201,26 +191,18 @@
             object-fit: cover;
         }
 
-        .sidebar-header-bg h1, .sidebar-header-bg h2 {
-            font-size: 1.5rem;
-            font-weight: 800;
+        .sidebar-header-bg h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--gold) !important;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
             margin-top: 8px;
-            color: #FFFFFF !important;
-            letter-spacing: -0.025em;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        /* Decoración SVG en el encabezado */
-        .sidebar-header-bg > div:last-child {
-            position: absolute;
-            top: 16px; /* top-4 = 16px */
-            left: 16px; /* left-4 = 16px */
-            opacity: 0.3;
-        }
-
-        /* Opciones del menú */
         #sidebar nav {
-            padding: 16px 0;
+            padding: 12px 0;
             flex-grow: 1;
         }
 
@@ -228,125 +210,95 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 24px;
-            color: rgba(255, 255, 255, 0.8) !important;
+            padding: 13px 24px;
+            color: var(--platinum) !important;
             transition: all 0.2s ease;
             text-decoration: none;
-            border-left: 4px solid transparent;
-            margin-bottom: 2px;
+            border-left: 2px solid transparent;
+            font-size: 0.95rem;
+            font-weight: 400;
         }
 
         #sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: #FFFFFF !important;
-            border-left-color: #FF1F3D;
+            background: rgba(201,160,42,0.06);
+            color: var(--gold) !important;
+            border-left-color: var(--gold);
         }
 
         #sidebar nav a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #FFFFFF !important;
-            border-left-color: #FF1F3D;
+            background: rgba(201,160,42,0.08);
+            color: var(--gold) !important;
+            border-left-color: var(--gold);
             font-weight: 600;
         }
 
-        /* Iconos del menú */
         #sidebar nav i {
-            width: 24px;
-            height: 24px;
-            stroke-width: 2;
-            color: inherit;
+            width: 20px;
+            height: 20px;
             flex-shrink: 0;
         }
 
-        /* Estilos para el texto del menú */
-        #sidebar nav span {
-            font-size: 1.125rem; /* text-lg = 18px */
-        }
-
-        /* Estilos para redes sociales en el menú */
         .sidebar-social {
             padding: 20px 24px 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--border-subtle);
+            text-align: center;
             margin-top: auto;
         }
 
         .sidebar-social a {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 24px;
-            transition: color 0.2s ease, transform 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.06);
+            display: inline-block;
+            margin: 0 12px;
+            color: var(--text-muted) !important;
+            font-size: 1.5rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
             text-decoration: none;
         }
 
         .sidebar-social a:hover {
-            color: #FFFFFF;
-            background: rgba(255, 31, 61, 0.2);
-            transform: translateY(-2px);
+            opacity: 1;
+            color: var(--gold) !important;
         }
 
-        /* Estilos responsivos */
-        @media (max-width: 640px) {
-            #sidebar {
-                width: 280px;
-            }
-        }
+        #sidebar::-webkit-scrollbar { width: 4px; }
+        #sidebar::-webkit-scrollbar-track { background: transparent; }
+        #sidebar::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
 
-        @media (max-width: 480px) {
-            #sidebar {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-
-        /* Ajustes para scrollbar en navegadores WebKit */#sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        #sidebar::-webkit-scrollbar-thumb {
-            background: rgba(109, 91, 255, 0.5);
-            border-radius: 3px;
-        }
-
-        #sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(109, 91, 255, 0.7);
-        }
-
-        /* Estilo para los iconos de la cabecera para que sean legibles y grandes */
+        /* Estilos para iconos de cabecera */
         .header-icon {
             width: 1.75rem;
             height: 1.75rem;
-            color: var(--ink);
+            color: var(--gold);
         }
 
-        /* Banner de compartir (SE MANTIENE INTACTO su color actual) */  
+        /* Texto centrado en cabecera - Solo "Developer" */
+        .header-center-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Banner de compartir */
         .banner {  
             width: 100%;  
             max-width: 500px;
-            background: linear-gradient(to right, #00264D, #003366);  
-            color: #FFFFFF;  
+            background: var(--surface-2);
+            border: 1px solid var(--border-gold);
+            color: var(--white);  
             position: fixed;  
             bottom: 0;  
             left: 50%;  
             transform: translateX(-50%);  
             padding: 30px;  
-            border-top-left-radius: 15px;  
-            border-top-right-radius: 15px;  
-            box-shadow: 0px -5px 15px rgba(0,0,0,0.3);  
+            border-top-left-radius: 16px;  
+            border-top-right-radius: 16px;  
+            box-shadow: 0 -8px 40px rgba(0,0,0,0.6);  
             display: none;
             flex-direction: column;  
             align-items: center;  
@@ -355,56 +307,55 @@
         }  
 
         .banner-title {  
-            font-size: 24px;  
-            font-weight: bold;  
-            margin-bottom: 15px;  
-            color: #FF00FF;  
+            font-size: 1.1rem;  
+            font-weight: 700;  
+            margin-bottom: 12px;  
+            color: var(--gold);  
         }  
 
         .banner-description {  
-            font-size: 18px;  
-            line-height: 1.8;  
-            color: #FFFFFF;  
+            font-size: 0.9rem;  
+            line-height: 1.6;  
+            color: var(--text-muted);  
             margin-bottom: 20px;  
         }  
 
-        /* Botones del banner */  
         .cta-button, .close-modal {  
             width: 100%;  
-            padding: 16px;  
+            padding: 14px;  
             text-align: center;  
             text-decoration: none;  
-            border-radius: 25px;  
-            font-size: 18px;  
-            font-weight: bold;  
-            margin-bottom: 12px;  
+            border-radius: 8px;  
+            font-size: 0.95rem;  
+            font-weight: 700;  
+            margin-bottom: 10px;  
             cursor: pointer;  
-            transition: transform 0.2s ease-in-out;  
+            transition: all 0.2s ease-in-out;  
         }  
 
         .cta-button {  
-            background: linear-gradient(to right, #2ECC71, #66CC99);  
-            color: white;  
+            background: var(--gold);
+            color: #000;
         }  
 
-        .cta-button:hover { transform: scale(1.08); }  
+        .cta-button:hover { 
+            background: var(--gold-light);
+            transform: translateY(-2px);
+        }  
 
         .close-modal {  
-            background-color: red;  
-            color: #FFFFFF;  
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
         }  
 
         .close-modal:hover {  
-            background-color: darkred;  
-            transform: scale(1.08);  
+            border-color: var(--border-gold);
+            color: var(--white);
+            transform: translateY(-2px);
         }  
 
-        .banner-icon {  
-            margin-right: 8px;  
-            color: #FF00FF;  
-        }
-
-        /* ===== INTERFAZ API KEY ===== */
+        /* INTERFAZ API KEY */
         .wrap {
             width: 100%;
             max-width: 100%;
@@ -414,8 +365,8 @@
 
         h2, h3 { margin: 0; font-weight: 700; }
         .text-center { text-align: center; }
-        .text-accent { color: var(--accent); }
-        .text-secondary { color: var(--secondary); }
+        .text-accent { color: var(--gold); }
+        .text-secondary { color: var(--gold-light); }
         .font-bold { font-weight: 700; }
         .mb-4 { margin-bottom: 16px; }
 
@@ -429,7 +380,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: var(--bg);
+            background: var(--obsidian);
             z-index: 9999;
             display: none;
         }
@@ -439,7 +390,7 @@
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: linear-gradient(45deg, var(--pink), var(--ind), var(--cyan));
+            background: var(--gold);
             animation: bounce 1.4s infinite ease-in-out both;
         }
         .dot:nth-child(1) { animation-delay: -0.32s; }
@@ -450,33 +401,29 @@
             40% { transform: scale(1.0); opacity: 1; }
         }
 
-        /* Contenedores con borde degradado (nuevo gradiente neón) */
         .gradient-border { position: relative; z-index: 1; }
         .gradient-border::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             border-radius: inherit;
-            padding: 2px;
-            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
+            padding: 1px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dim));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             z-index: -1;
         }
 
-        /* Tarjeta principal de perfil */
         .profile-card {
-            background: var(--card);
-            border-radius: 24px;
+            background: var(--surface-2);
+            border-radius: 12px;
             padding: 18px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 16px;
-            border: 1px solid var(--line);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-gold);
         }
 
         .profile-header { display: flex; align-items: center; gap: 12px; }
@@ -484,21 +431,21 @@
             width: 60px;
             height: 60px;
             border-radius: 999px;
-            background: var(--pill);
+            background: var(--surface-3);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 3px solid var(--secondary);
+            border: 2px solid var(--gold);
         }
         .profile-header img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-header h2 { font-size: 20px; color: var(--ink); }
+        .profile-header h2 { font-size: 20px; color: var(--white); }
         
         .profile-stats {
             display: flex;
             justify-content: space-around;
             text-align: center;
-            border-top: 1px solid var(--line);
+            border-top: 1px solid var(--border-subtle);
             padding-top: 16px;
         }
 
@@ -506,23 +453,21 @@
         .stat-value {
             font-size: 24px;
             font-weight: 800;
-            color: var(--cyan);
-            text-shadow: 0 0 18px rgba(53,213,255,.25);
+            color: var(--gold);
+            text-shadow: 0 0 18px rgba(201,160,42,.25);
         }
-        .stat-label { font-size: 13px; color: var(--muted); }
+        .stat-label { font-size: 13px; color: var(--text-muted); }
 
         .section-card {
-            background: var(--card);
-            border-radius: 20px;
+            background: var(--surface-2);
+            border-radius: 12px;
             padding: 18px;
             margin-top: 18px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 16px;
-            border: 1px solid var(--line);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-gold);
         }
         
         .section-header {
@@ -531,43 +476,44 @@
             justify-content: space-between;
             margin-bottom: 10px;
         }
-        .section-header h3 { font-size: 18px; color: var(--ink); }
+        .section-header h3 { font-size: 18px; color: var(--white); }
 
-        /* Botón principal: Gradiente pink -> ind (pedido) */
         .btn-primary {
             display: block;
             width: 100%;
             padding: 14px;
-            border-radius: 12px;
-            background: linear-gradient(90deg, var(--danger), var(--ind));
-            color: #fff;
+            border-radius: 6px;
+            background: var(--gold);
+            color: #000;
             border: none;
             font-weight: 700;
             letter-spacing: 0.6px;
             text-align: center;
             text-decoration: none;
-            box-shadow: 0 14px 40px rgba(109,91,255,.18), 0 10px 30px rgba(255,31,61,.18);
             transition: transform 0.1s ease, filter .2s ease;
             cursor: pointer;
+            font-family: 'Outfit', sans-serif;
         }
-        .btn-primary:hover { filter: brightness(1.05); }
+        .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
         .btn-primary:active { transform: scale(0.99); }
 
         .input-group { position: relative; }
 
         .input-group input {
             width: 100%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            background: rgba(255,255,255,.08);
-            border: 1px solid var(--line);
-            color: var(--ink);
+            padding: 12px 50px 12px 16px;
+            border-radius: 6px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            color: var(--white);
             font-size: 14px;
             font-weight: 600;
             text-overflow: ellipsis;
             outline: none;
+            font-family: 'Outfit', sans-serif;
         }
-        .input-group input::placeholder { color: rgba(234,240,255,.45); }
+        .input-group input::placeholder { color: var(--text-subtle); }
+        .input-group input:focus { border-color: var(--gold); }
 
         .input-group .copy-btn {
             position: absolute;
@@ -576,9 +522,9 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--cyan);
+            color: var(--gold);
             cursor: pointer;
-            font-size: 24px;
+            font-size: 20px;
             padding: 8px;
         }
 
@@ -589,42 +535,39 @@
             gap: 8px;
             width: 100%;
             padding: 14px;
-            border-radius: 12px;
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(53,213,255,.45);
-            color: #fff;
+            border-radius: 6px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            color: var(--white);
             font-weight: 700;
             letter-spacing: 0.6px;
             margin-top: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: background 0.2s ease, border-color .2s ease, transform .1s ease;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            transition: all 0.2s ease;
+            font-family: 'Outfit', sans-serif;
         }
-        .btn-secondary:hover { background: rgba(255,255,255,.10); border-color: rgba(255,31,61,.45); }
+        .btn-secondary:hover { background: rgba(201,160,42,0.1); border-color: var(--gold); color: var(--gold); }
         .btn-secondary:active { transform: scale(0.99); }
         .btn-secondary i { font-size: 1.2em; }
 
         .info-section {
-            background: var(--card);
-            border-radius: 20px;
+            background: var(--surface-2);
+            border-radius: 12px;
             padding: 18px;
             margin-top: 18px;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
             gap: 12px;
-            border: 1px solid var(--line);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-gold);
         }
 
-        .info-section h3 { font-size: 18px; color: var(--ink); }
+        .info-section h3 { font-size: 18px; color: var(--white); }
 
         .info-section p, .info-section ul, .info-section li, .info-section div {
             font-size: 14px;
-            color: var(--muted);
+            color: var(--text-muted);
             line-height: 1.5;
             margin: 0;
         }
@@ -634,76 +577,68 @@
             align-items: flex-start;
             gap: 12px;
             padding: 10px 0;
-            border-bottom: 1px solid var(--line);
+            border-bottom: 1px solid var(--border-subtle);
         }
         .info-item:last-child { border-bottom: none; }
         .info-item i {
             font-size: 20px;
-            color: var(--cyan);
+            color: var(--gold);
             padding-top: 2px;
         }
         
-        /* Contenedores de texto con icono */
         .text-container {
             padding: 16px;
-            border-radius: 16px;
-            background: rgba(255,255,255,.06);
-            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
             margin-top: 18px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        /* Títulos y énfasis: gradiente cyan -> ind -> rojo (visibilidad) */
         .text-container-header {
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 16px;
             font-weight: 800;
-            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: var(--gold);
         }
 
-        .text-container-header i { color: var(--warn); font-size: 20px; }
+        .text-container-header i { color: var(--gold); font-size: 20px; }
 
-        .text-container p { margin: 0; font-size: 14px; color: var(--ink); }
-        .text-container strong { color: var(--cyan); }
+        .text-container p { margin: 0; font-size: 14px; color: var(--white); }
+        .text-container strong { color: var(--gold); }
 
-        /* Tabla */
         .credit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         .credit-table th, .credit-table td { padding: 10px 12px; text-align: left; font-size: 13px; }
         .credit-table thead th {
             font-weight: 700;
-            color: var(--muted);
+            color: var(--text-muted);
             text-transform: uppercase;
-            border-bottom: 1px solid var(--line);
+            border-bottom: 1px solid var(--border-subtle);
             padding-bottom: 12px;
             position: sticky;
             top: 0;
-            background: rgba(0,0,0,.25);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: var(--surface-2);
             z-index: 10;
         }
         .credit-table tbody tr {
-            background: rgba(255,255,255,.06);
-            border-radius: 12px;
+            background: var(--surface-3);
+            border-radius: 8px;
             overflow: hidden;
             font-weight: 600;
-            color: var(--ink);
-            border: 1px solid var(--line);
+            color: var(--white);
+            border: 1px solid var(--border-subtle);
         }
-        .credit-table tbody tr:nth-child(even) { background: rgba(255,255,255,.08); }
-        .credit-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .credit-table tbody tr:nth-child(even) { background: var(--surface-4); }
+        .credit-table td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
         .credit-table td:last-child {
-            border-top-right-radius: 12px;
-            border-bottom-right-radius: 12px;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
             text-align: right;
-            color: var(--cyan);
+            color: var(--gold);
             font-weight: 800;
         }
 
@@ -711,22 +646,19 @@
             max-height: 400px;
             overflow-y: auto;
             margin-top: 10px;
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            background: rgba(0,0,0,.18);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            background: var(--surface-2);
         }
         
-        /* Card de recomendación */
         .api-recommendation {
-            background: linear-gradient(135deg, rgba(53,213,255,.22) 0%, rgba(109,91,255,.22) 55%, rgba(255,31,61,.20) 100%);
-            border: 1px solid var(--line);
-            border-radius: 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
             padding: 18px;
-            color: var(--ink);
+            color: var(--white);
             box-shadow: var(--shadow);
             margin-top: 18px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
         }
         .api-recommendation h4 {
             font-size: 16px;
@@ -736,27 +668,23 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(90deg, var(--cyan), var(--ind), var(--danger));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: var(--gold);
         }
         .api-recommendation code {
             display: block;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid var(--line);
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
             padding: 8px;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 13px;
             margin-bottom: 10px;
-            white-space: nowrap;
             overflow-x: auto;
-            color: var(--ink);
+            color: var(--white);
+            font-family: 'DM Mono', monospace;
         }
-        .api-recommendation p { font-size: 14px; margin: 0; color: var(--muted); }
-        .api-recommendation strong { color: var(--warn); }
+        .api-recommendation p { font-size: 14px; margin: 0; color: var(--text-muted); }
+        .api-recommendation strong { color: var(--gold); }
 
-        /* Lista de ventajas */
         .advantage-list {
             list-style: none;
             padding: 0;
@@ -766,15 +694,14 @@
         }
         .advantage-list li {
             font-size: 14px;
-            color: var(--ink);
+            color: var(--white);
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: 600;
         }
-        .advantage-list li i { color: var(--ok); font-size: 20px; }
+        .advantage-list li i { color: var(--gold); font-size: 20px; }
         
-        /* Paquetes Disponibles */
         .package-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -784,58 +711,51 @@
         .package-grid a { text-decoration: none; color: inherit; }
         
         .package-card {
-            background: rgba(255,255,255,.06);
-            border-radius: 12px;
-            padding:  12px;
+            background: var(--surface-3);
+            border-radius: 8px;
+            padding: 12px;
             text-align: center;
-            border: 1px solid var(--line);
-            transition: border-color 0.2s ease, background 0.2s ease, transform .12s ease;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
         }
         .package-grid a:hover .package-card {
-            background: rgba(255,255,255,.10);
-            border-color: rgba(53,213,255,.6);
-            transform: translateY(-1px);
+            background: rgba(201,160,42,0.1);
+            border-color: var(--gold);
+            transform: translateY(-2px);
         }
         
         .package-grid a:nth-child(3) .package-card { 
-            border-color: rgba(22,225,164,.9); 
-            background: rgba(22,225,164,.10); 
-        }
-        .package-grid a:nth-child(3):hover .package-card { 
-            background: rgba(22,225,164,.14);
-            border-color: rgba(22,225,164,1);
+            border-color: var(--gold); 
+            background: rgba(201,160,42,0.08); 
         }
 
         .package-card .amount {
             font-size: 18px;
             font-weight: 900;
-            color: var(--cyan);
+            color: var(--gold);
             margin-bottom: 4px;
         }
         .package-card .credits {
             font-size: 14px;
             font-weight: 800;
-            color: var(--ink);
+            color: var(--white);
         }
         .package-card .benefit {
             font-size: 11px;
             font-weight: 600;
-            color: var(--muted);
+            color: var(--text-muted);
             margin-top: 6px;
         }
 
         .package-grid a:last-child { grid-column: span 2; }
         
-        /* Tabla de Planes Ilimitados */
         .unlimited-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
-            border-radius: 14px;
+            border-radius: 8px;
             overflow: hidden;
-            border: 1px solid var(--line);
+            border: 1px solid var(--border-subtle);
         }
         .unlimited-table th, .unlimited-table td {
             padding: 10px;
@@ -843,34 +763,33 @@
             font-size: 13px;
         }
         .unlimited-table thead th {
-            background: rgba(255,255,255,.06);
-            color: var(--ink);
+            background: var(--surface-3);
+            color: var(--white);
             font-weight: 800;
         }
         .unlimited-table tbody td {
-            border-bottom: 1px solid var(--line);
+            border-bottom: 1px solid var(--border-subtle);
             font-weight: 500;
-            color: var(--muted);
+            color: var(--text-muted);
         }
         .unlimited-table tbody tr:last-child td { border-bottom: none; }
-        .unlimited-table .price { font-weight: 900; color: var(--cyan); }
-        .unlimited-table .saving { color: var(--warn); font-weight: 800; }
+        .unlimited-table .price { font-weight: 900; color: var(--gold); }
+        .unlimited-table .saving { color: var(--gold-light); font-weight: 800; }
         
         .quote {
-            background: linear-gradient(90deg, rgba(53,213,255,.10), rgba(109,91,255,.10), rgba(255,31,61,.08));
-            border-left: 5px solid var(--ok);
+            background: linear-gradient(90deg, rgba(201,160,42,0.08), rgba(201,160,42,0.04));
+            border-left: 4px solid var(--gold);
             padding: 15px;
             margin: 20px 0;
-            border-radius: 8px;
+            border-radius: 6px;
             font-style: italic;
             font-size: 16px;
-            color: var(--ink);
+            color: var(--white);
             font-weight: 600;
-            border: 1px solid var(--line);
+            border: 1px solid var(--border-subtle);
         }
-        .quote i { color: var(--ok); margin-right: 5px; }
+        .quote i { color: var(--gold); margin-right: 5px; }
 
-        /* Modal (NO el banner; este modal es el de feedback) */
         .modal {
             position: fixed;
             z-index: 1000;
@@ -878,7 +797,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.55);
+            background-color: rgba(0, 0, 0, 0.75);
             display: none;
             justify-content: center;
             align-items: center;
@@ -889,41 +808,35 @@
         .modal.active { display: flex; opacity: 1; }
 
         .modal-content {
-            background-color: rgba(0,0,0,.55);
-            color: var(--ink);
+            background: var(--surface-2);
+            color: var(--white);
             padding: 20px;
             border-radius: 12px;
             text-align: center;
             box-shadow: var(--shadow);
             min-width: 250px;
-            border: 1px solid var(--line);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-gold);
         }
 
-        .modal-content.success { border: 2px solid rgba(22,225,164,.8); }
-        .modal-content.error { border: 2px solid rgba(255,31,61,.9); }
+        .modal-content.success { border: 2px solid var(--gold); }
+        .modal-content.error { border: 2px solid var(--crimson); }
 
-        /* Footer: negro puro con texto blanco (pedido) */
         footer {
             margin-top: 40px;
             padding: 20px;
             text-align: center;
-            background: transparent; /* Fondo transparente */
-            border-top: 1px solid var(--line);
-            border-radius: 16px;
+            background: transparent;
+            border-top: 1px solid var(--border-subtle);
         }
         
-        footer h3 { font-size: 16px; margin-bottom: 10px; color: var(--ink); }
-        footer p { font-size: 12px; color: rgba(234,240,255,.78); margin-bottom: 8px; }
+        footer h3 { font-size: 16px; margin-bottom: 10px; color: var(--white); }
+        footer p { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
         
-        /* ENLACES AZULES - NUEVO ESTILO */
         footer a,
         .info-section a,
         .text-container a,
-        .section-card a:not(.btn-primary):not(.btn-secondary),
-        .info-section a:not(.btn-primary) {
-            color: #35D5FF !important; /* Color azul para enlaces */
+        .section-card a:not(.btn-primary):not(.btn-secondary) {
+            color: var(--gold) !important;
             text-decoration: none;
             margin: 0 5px;
             transition: color 0.3s ease;
@@ -931,89 +844,84 @@
         footer a:hover,
         .info-section a:hover,
         .text-container a:hover,
-        .section-card a:not(.btn-primary):not(.btn-secondary):hover,
-        .info-section a:not(.btn-primary):hover {
-            color: #6D5BFF !important; /* Color diferente al pasar el mouse */
+        .section-card a:not(.btn-primary):not(.btn-secondary):hover {
+            color: var(--gold-light) !important;
             text-decoration: underline;
         }
 
         .social-icons a {
             font-size: 24px;
-            color: rgba(234,240,255,.78);
+            color: var(--text-muted);
             margin: 0 10px;
             transition: color 0.3s ease;
         }
-        .social-icons a:hover { color: var(--cyan); }
+        .social-icons a:hover { color: var(--gold); }
         
         .mb-2 { margin-bottom: 8px; }
 
-        /* WhatsApp Bubble (se mantiene verde, no es parte de la paleta principal) */
+        /* WhatsApp Bubble */
         .chat-bubble {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #25D366, #128C7E);
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
             color: white;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 30px;
+            font-size: 26px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 20px rgba(37,211,102,0.3);
             z-index: 1000;
             animation: slideIn 1s ease-out forwards;
+            transition: transform 0.2s;
         }
+
+        .chat-bubble:hover { transform: scale(1.05); }
 
         @keyframes slideIn {
             0% { transform: translateX(100%); opacity: 0; }
             100% { transform: translateX(0); opacity: 1; }
         }
 
-        .chat-bubble:hover { background: linear-gradient(45deg, #128C7E, #25D366); }
-
         .chat-text {
             position: fixed;
             bottom: 90px;
-            right: 20px;
-            background: linear-gradient(45deg, #25D366, #128C7E);
+            right: 24px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
             color: white;
-            padding: 12px 18px;
+            padding: 10px 16px;
             border-radius: 10px;
-            font-size: 15px;
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            font-size: 13px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
             white-space: nowrap;
             opacity: 0;
             transform: scale(0.9);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            transition: opacity 0.4s, transform 0.4s;
             z-index: 1001;
             cursor: pointer;
+            font-family: 'Outfit', sans-serif;
         }
 
         .chat-text.show { opacity: 1; transform: scale(1); }
         .chat-text.hide { opacity: 0; transform: scale(0.9); }
 
-        /* Ajustes puntuales de textos en línea que estaban en #111 (para tema oscuro) */
-        /* Nota: Solo color, sin tocar contenido */
-        code.font-bold { color: var(--ink); }
-
-        /* ESTILOS PARA TEXTO LEGAL */
         .legal-warning {
-            background: rgba(255, 31, 61, 0.08);
-            border: 1px solid rgba(255, 31, 61, 0.3);
-            border-left: 4px solid var(--danger);
+            background: rgba(196,30,58,0.08);
+            border: 1px solid rgba(196,30,58,0.25);
+            border-left: 4px solid var(--crimson);
             padding: 16px;
-            border-radius: 12px;
+            border-radius: 8px;
             margin-top: 16px;
             font-size: 14px;
             line-height: 1.6;
         }
 
         .legal-warning .warning-title {
-            color: var(--danger);
+            color: var(--crimson);
             font-weight: 800;
             font-size: 15px;
             margin-bottom: 8px;
@@ -1023,16 +931,16 @@
         }
 
         .legal-warning .warning-content {
-            color: var(--ink);
+            color: var(--white);
         }
 
         .legal-warning .emphasis-red {
-            color: var(--danger);
+            color: var(--crimson);
             font-weight: 700;
         }
 
         .legal-warning a {
-            color: var(--danger) !important;
+            color: var(--crimson) !important;
             text-decoration: underline;
             font-weight: 700;
         }
@@ -1040,100 +948,74 @@
         .legal-warning a:hover {
             color: #ff4d6a !important;
         }
-
-        /* Texto centrado en cabecera */
-        .header-center-text {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--ink);
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
     </style>
 </head>
 <body ondragstart="return false" onselectstart="return false" oncontextmenu="return false">
 
-    <!-- Fondo galaxia animado -->
-    <canvas id="galaxy-bg" aria-hidden="true"></canvas>
-    <div class="galaxy-overlay" aria-hidden="true"></div>
+    <div class="ambient-1"></div>
+    <div class="ambient-2"></div>
 
     <!-- CABECERA (Header) -->
-    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 border-b border-gray-100 h-16" style="background-color: #000000;">
+    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 h-16" style="background-color: #000000;">
         <div class="flex items-center gap-3">
             <!-- Icono de menú -->
-            <button id="menu-toggle" class="p-1 active:bg-gray-700 rounded-full transition-colors">
+            <button id="menu-toggle" class="p-1 rounded-full transition-colors">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
         </div>
         
-        <!-- Texto centrado en la cabecera -->
+        <!-- Texto centrado en la cabecera - Solo "Developer" (eliminado "Masitaprex") -->
         <div class="flex-1 text-center">
-            <h1 class="text-xl font-bold" style="color: #ffffff;">Developer Masitaprex</h1>
+            <h1 class="header-center-text" style="position: static; transform: none;">Developer</h1>
         </div>
         
         <div class="flex items-center gap-4">
-            <!-- Icono Perfil - Ahora lleva a actividad -->
-            <button id="profile-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
-                <i data-lucide="user" class="header-icon"></i>
-            </button>
-            <!-- Icono Compartir - Ahora abre el modal -->
-            <button id="share-btn" class="p-1 active:bg-gray-700 rounded-full transition-colors">
+            <!-- Icono Perfil - Eliminado (oculto) -->
+            <!-- Icono Compartir -->
+            <button id="share-btn" class="p-1 rounded-full transition-colors">
                 <i data-lucide="share-2" class="header-icon"></i>
             </button>
         </div>
     </header>
 
     <!-- MENU LATERAL (Sidebar) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-50 hidden opacity-0"></div>
+    <div id="sidebar-overlay"></div>
     
     <aside id="sidebar">
-        <!-- Encabezado Sidebar -->
         <div class="sidebar-header-bg">
-            <!-- Contenedor del icono -->
             <div>
-               
-    <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono masitaprex">
+                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono masitaprex">
             </div>
             <h1>masitaprex</h1>
         </div>
 
-        <!-- Opciones del Menú Actualizadas (sin cerrar sesión) -->
         <nav>
-            <!-- Nuevas opciones del menú (eliminada la opción "Inicio") -->
             <a href="home" class="menu-item">
-    <i data-lucide="layout-dashboard" class="menu-icon"></i>
-    <span class="text-lg">Inicio</span>
-</a>
-            
-<a href="api-key" class="menu-item active">
-    <i data-lucide="terminal-square" class="menu-icon"></i>
-    <span class="text-lg">Mi API Key</span>
-</a>
-            
-<a href="planes" class="menu-item">
-    <i data-lucide="credit-card" class="menu-icon"></i>
-    <span class="text-lg">Recargar</span>
-</a>
-
-<a href="API-Docs" class="menu-item">
-    <i data-lucide="file-code-2" class="menu-icon"></i>
-    <span class="text-lg">Documentación APIs</span>
-</a>
-
-<a href="PeliPREX" class="menu-item">
-    <i data-lucide="clapperboard" class="menu-icon"></i>
-    <span class="text-lg">Películas gratis</span>
-</a>
-            <a href="consultaPe-vercion-web " class="menu-item">
-    <i data-lucide="globe" class="menu-icon"></i>
-    <span class="text-lg">ConsultaPe vercion web</span>
-</a>
+                <i data-lucide="layout-dashboard" class="menu-icon"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="api-key" class="menu-item active">
+                <i data-lucide="terminal-square" class="menu-icon"></i>
+                <span>Mi API Key</span>
+            </a>
+            <a href="planes" class="menu-item">
+                <i data-lucide="credit-card" class="menu-icon"></i>
+                <span>Recargar</span>
+            </a>
+            <a href="API-Docs" class="menu-item">
+                <i data-lucide="file-code-2" class="menu-icon"></i>
+                <span>Documentación APIs</span>
+            </a>
+            <a href="PeliPREX" class="menu-item">
+                <i data-lucide="clapperboard" class="menu-icon"></i>
+                <span>Películas gratis</span>
+            </a>
+            <a href="consultaPe-vercion-web" class="menu-item">
+                <i data-lucide="globe" class="menu-icon"></i>
+                <span>ConsultaPe vercion web</span>
+            </a>
         </nav>
 
-        <!-- Redes Sociales en la parte inferior -->
         <div class="sidebar-social">
             <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
                 <i class="fab fa-facebook-f"></i>
@@ -1146,13 +1028,13 @@
 
     <!-- MODAL DE COMPARTIR -->
     <div class="banner" id="banner">  
-        <div class="banner-title"><i class="fas fa-heart banner-icon"></i> 🤭 ¡Pequeño favorcito!</div>  
+        <div class="banner-title"><i class="fas fa-heart" style="margin-right:8px;"></i> 🤭 ¡Pequeño favorcito!</div>  
         <div class="banner-description">  
             <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
             <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a la infraestructura de Masitaprex y seguir mejorando juntos..😜✨</p>  
         </div>  
-        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt banner-icon"></i> Compartir ahora</a>  
-        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times banner-icon"></i> Quizás más tarde</a>  
+        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt" style="margin-right:8px;"></i> Compartir ahora</a>  
+        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times" style="margin-right:8px;"></i> Quizás más tarde</a>  
     </div>
 
     <!-- CONTENIDO PRINCIPAL DE API KEY -->
@@ -1173,7 +1055,7 @@
                 </div>
                 <div>
                     <h2>Hola, <span id="userName"></span></h2>
-                    <p style="font-size:14px;color:var(--muted);margin:0;">¡Bienvenido(a) a la infraestructura de Masitaprex APIs!</p>
+                    <p style="font-size:14px;color:var(--text-muted);margin:0;">¡Bienvenido(a) a la infraestructura de Masitaprex APIs!</p>
                 </div>
             </div>
             <div class="profile-stats">
@@ -1184,7 +1066,7 @@
                 <div class="stat-item" id="infoIlimitado" style="display:none;">
                     <span class="stat-value" id="diasRestantes">0</span>
                     <span class="stat-label">Días restantes (Ilimitado)</span>
-                    <span style="font-size:11px;color:var(--muted);">Vence el: <span id="venceEl"></span></span>
+                    <span style="font-size:11px;color:var(--text-muted);">Vence el: <span id="venceEl"></span></span>
                 </div>
             </div>
             <a href="planes" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
@@ -1192,7 +1074,7 @@
 
         <div class="section-card gradient-border">
             <h3>Tu Token de Acceso</h3>
-            <p style="font-size:14px;color:var(--muted);">
+            <p style="font-size:14px;color:var(--text-muted);">
                 Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica Masitaprex APIs.
             </p>
             <div class="input-group">
@@ -1211,10 +1093,10 @@
 
         <div class="info-section gradient-border">
             <div class="text-container-header">
-                <i class="ri-sparkling-2-line text-secondary"></i>
+                <i class="ri-sparkling-2-line"></i>
                 ¡Felicidades por elegir la infraestructura Masitaprex! 🚀
             </div>
-            <p class="font-bold" style="color:var(--ink);">
+            <p class="font-bold" style="color:var(--white);">
                 Has tomado una de las mejores decisiones para tu proyecto.
             </p>
             <p>
@@ -1222,7 +1104,6 @@
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
             
-            <!-- NUEVO AVISO LEGAL -->
             <div class="legal-warning">
                 <div class="warning-title">
                     ⚠️ Aviso Importante
@@ -1237,20 +1118,20 @@
 
         <div class="info-section gradient-border">
             <div class="text-container-header">
-                <i class="ri-lightbulb-line" style="color: var(--warn);"></i>
+                <i class="ri-lightbulb-line"></i>
                 💡 Sobre el Consumo de Créditos
             </div>
             <p>
                 Recuerda que cada servicio de Infraestructura tecnológica Masitaprex APIs tiene su propio consumo de créditos.
             </p>
-            <p class="font-bold" style="color:var(--cyan);">
+            <p class="font-bold" style="color:var(--gold);">
                 👉 El consumo puede ser gestionado de forma independiente según las necesidades de tu sistema.
             </p>
-            <div class="text-container" style="background: rgba(53,213,255,.08); border-color: rgba(53,213,255,.25);">
-                <div class="text-container-header" style="color: transparent;">
+            <div class="text-container">
+                <div class="text-container-header">
                     ⚙️ Gestión del Consumo:
                 </div>
-                <p style="color:var(--ink);">
+                <p style="color:var(--white);">
                     Cada servicio tiene un consumo de créditos definido. Puedes gestionar el uso de las APIs según las necesidades de tu sistema. Masitaprex proporciona infraestructura tecnológica para procesamiento de datos.
                 </p>
             </div>
@@ -1258,88 +1139,35 @@
 
         <div class="section-card gradient-border">
             <div class="text-container-header">
-                <i class="ri-database-line text-accent"></i>
+                <i class="ri-database-line"></i>
                 💳 Tabla de Créditos por Servicio de Infraestructura tecnológica Masitaprex APIs
             </div>
             <div class="table-scroll">
                 <table class="credit-table">
                     <thead>
-                        <tr>
-                            <th>🔧 Servicio de Infraestructura tecnológica</th>
-                            <th>💰 Créditos</th>
-                            <th>📝 Descripción</th>
-                        </tr>
+                        <tr><th>🔧 Servicio de Infraestructura tecnológica</th><th>💰 Créditos</th><th>📝 Descripción</th></tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Consulta RENIEC por DNI</strong></td>
-                            <td>7</td>
-                            <td>Infraestructura tecnológica para acceso a datos básicos de identificación</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Telefonía por Documento</strong></td>
-                            <td>9</td>
-                            <td>Procesamiento de consultas a registros telefónicos por documento</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Telefonía por Número</strong></td>
-                            <td>8</td>
-                            <td>Servicio de consulta inversa de titularidad telefónica</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td>
-                            <td>8</td>
-                            <td>Infraestructura tecnológica para consulta de registros vehiculares</td>
-                        </tr>
-                        <tr>
-                            <td><strong>SUNAT por RUC</strong></td>
-                            <td>6</td>
-                            <td>Procesamiento de datos fiscales empresariales</td>
-                        </tr>
-                        <tr>
-                            <td><strong>SUNAT por Razón Social</strong></td>
-                            <td>5</td>
-                            <td>Servicio de búsqueda empresarial por nombre</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Empresas donde figura la persona</strong></td>
-                            <td>4</td>
-                            <td>Infraestructura tecnológica para consulta de vinculaciones empresariales</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Matrimonios Registrados</strong></td>
-                            <td>6</td>
-                            <td>Procesamiento de registros de estado civil</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Buscar DNI por Nombres y Apellidos</strong></td>
-                            <td>5</td>
-                            <td>Servicio de búsqueda inversa por datos nominales</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Buscar Venezolanos por Nombres</strong></td>
-                            <td>5</td>
-                            <td>Infraestructura tecnológica para consultas de personas venezolanas</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Consulta por Cédula Venezolana</strong></td>
-                            <td>5</td>
-                            <td>Procesamiento de consultas por documento venezolano</td>
-                        </tr>
+                        <tr><td><strong>Consulta RENIEC por DNI</strong></td><td>7</td><td>Infraestructura tecnológica para acceso a datos básicos de identificación</td></tr>
+                        <tr><td><strong>Telefonía por Documento</strong></td><td>9</td><td>Procesamiento de consultas a registros telefónicos por documento</td></tr>
+                        <tr><td><strong>Telefonía por Número</strong></td><td>8</td><td>Servicio de consulta inversa de titularidad telefónica</td></tr>
+                        <tr><td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td><td>8</td><td>Infraestructura tecnológica para consulta de registros vehiculares</td></tr>
+                        <tr><td><strong>SUNAT por RUC</strong></td><td>6</td><td>Procesamiento de datos fiscales empresariales</td></tr>
+                        <tr><td><strong>SUNAT por Razón Social</strong></td><td>5</td><td>Servicio de búsqueda empresarial por nombre</td></tr>
+                        <tr><td><strong>Empresas donde figura la persona</strong></td><td>4</td><td>Infraestructura tecnológica para consulta de vinculaciones empresariales</td></tr>
+                        <tr><td><strong>Matrimonios Registrados</strong></td><td>6</td><td>Procesamiento de registros de estado civil</td></tr>
+                        <tr><td><strong>Buscar DNI por Nombres y Apellidos</strong></td><td>5</td><td>Servicio de búsqueda inversa por datos nominales</td></tr>
+                        <tr><td><strong>Buscar Venezolanos por Nombres</strong></td><td>5</td><td>Infraestructura tecnológica para consultas de personas venezolanas</td></tr>
+                        <tr><td><strong>Consulta por Cédula Venezolana</strong></td><td>5</td><td>Procesamiento de consultas por documento venezolano</td></tr>
                     </tbody>
                     <tfoot>
-                        <tr>
-                            <td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--muted);">
-                                <strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, 
-                                procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.
-                            </td>
-                        </tr>
+                        <tr><td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--text-muted);"><strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.</td></tr>
                     </tfoot>
                 </table>
             </div>
         </div>
 
-       <div class="api-recommendation">  
+        <div class="api-recommendation">  
             <h4><i class="ri-tools-line"></i> ⚙️ Infraestructura tecnológica Masitaprex APIs Optimizada</h4>  
             <p>Accede a servicios de datos mediante nuestra Infraestructura tecnológica segura y eficiente.</p>  
             <p>Centraliza tus consultas desde una sola plataforma confiable.</p>  
@@ -1350,7 +1178,7 @@
         
         <div class="info-section gradient-border">
             <div class="text-container-header">
-                <i class="ri-rocket-line text-accent"></i>
+                <i class="ri-rocket-line"></i>
                 🧩 11 Servicios de Infraestructura tecnológica Masitaprex APIs Listos para Ti
             </div>
             <p>
@@ -1363,87 +1191,49 @@
 
         <div class="section-card gradient-border">
             <div class="text-container-header">
-                <i class="ri-money-dollar-circle-line" style="color: var(--ok);"></i>
+                <i class="ri-money-dollar-circle-line"></i>
                 💰 Paquetes Disponibles
             </div>
             <div class="package-grid">
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
-                    <div class="package-card">
-                        <div class="amount">S/10</div>
-                        <div class="credits">60 ⚡ CRÉDITOS</div>
-                        <div class="benefit">Ideal para pruebas o proyectos pequeños</div>
-                    </div>
+                    <div class="package-card"><div class="amount">S/10</div><div class="credits">60 ⚡ CRÉDITOS</div><div class="benefit">Ideal para pruebas o proyectos pequeños</div></div>
                 </a>
-                
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
-                    <div class="package-card">
-                        <div class="amount">S/20</div>
-                        <div class="credits">125 🚀 CRÉDITOS</div>
-                        <div class="benefit">Buen equilibrio entre costo y rendimiento</div>
-                    </div>
+                    <div class="package-card"><div class="amount">S/20</div><div class="credits">125 🚀 CRÉDITOS</div><div class="benefit">Buen equilibrio entre costo y rendimiento</div></div>
                 </a>
-                
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
-                    <div class="package-card" style="border-color: rgba(22,225,164,1);">
-                        <div class="amount">S/50</div>
-                        <div class="credits">330 💎 CRÉDITOS</div>
-                        <div class="benefit font-bold" style="color: rgba(22,225,164,1);">Opción inteligente y más rentable</div>
-                    </div>
+                    <div class="package-card"><div class="amount">S/50</div><div class="credits">330 💎 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold);">Opción inteligente y más rentable</div></div>
                 </a>
-                
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
-                    <div class="package-card">
-                        <div class="amount">S/100</div>
-                        <div class="credits">700 👑 CRÉDITOS</div>
-                        <div class="benefit">Plan avanzado con excelente retorno</div>
-                    </div>
+                    <div class="package-card"><div class="amount">S/100</div><div class="credits">700 👑 CRÉDITOS</div><div class="benefit">Plan avanzado con excelente retorno</div></div>
                 </a>
-                
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
-                    <div class="package-card" style="grid-column: span 2;">
-                        <div class="amount">S/200</div>
-                        <div class="credits">1500 🔥 CRÉDITOS</div>
-                        <div class="benefit font-bold" style="color: var(--warn);">La mejor relación costo-beneficio</div>
-                    </div>
+                    <div class="package-card"><div class="amount">S/200</div><div class="credits">1500 🔥 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold-light);">La mejor relación costo-beneficio</div></div>
                 </a>
             </div>
         </div>
         
         <div class="info-section gradient-border">
             <div class="text-container-header">
-                <i class="ri-line-chart-line text-accent"></i>
+                <i class="ri-line-chart-line"></i>
                 📊 Comparativa de Ahorro por Paquete
             </div>
-            <p>
-                Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong>
-            </p>
-            <p>
-                Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="text-secondary font-bold">💰 13% de ahorro</span>
-            </p>
-            <p>
-                Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span style="color: var(--warn);" class="font-bold">🔥 24% de ahorro</span>
-            </p>
-            <p class="font-bold" style="color:var(--cyan);">
-                👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.
-            </p>
+            <p>Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong></p>
+            <p>Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="font-bold" style="color: var(--gold);">💰 13% de ahorro</span></p>
+            <p>Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span class="font-bold" style="color: var(--gold-light);">🔥 24% de ahorro</span></p>
+            <p class="font-bold" style="color:var(--gold);">👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.</p>
         </div>
         
         <div class="section-card gradient-border">
             <div class="text-container-header">
-                <i class="ri-award-line" style="color: var(--warn);"></i>
+                <i class="ri-award-line"></i>
                 💎 Comparativa de Paquetes y Ahorro
             </div>
-            <p class="font-bold" style="color: var(--ink);">
-                🎯 Recomendación principal:
-                Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.
-            </p>
-            <p>
-                Pagas menos por cada crédito, obtienes más consultas por el mismo dinero,
-                y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.
-            </p>
+            <p class="font-bold" style="color: var(--white);">🎯 Recomendación principal: Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.</p>
+            <p>Pagas menos por cada crédito, obtienes más consultas por el mismo dinero, y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.</p>
 
             <div class="text-container-header" style="margin-top: 10px;">
-                <i class="ri-checkbox-circle-line text-secondary"></i>
+                <i class="ri-checkbox-circle-line"></i>
                 ✨ Ventajas exclusivas
             </div>
             <ul class="advantage-list">
@@ -1452,32 +1242,18 @@
                 <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
                 <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios de Infraestructura tecnológica Masitaprex APIs y soporte técnico directo.</li>
             </ul>
-            <p class="font-bold text-center" style="margin-top: 15px; color: var(--ink);">
-                💬 En pocas palabras:
-                Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.
-            </p>
-            <p class="font-bold text-center" style="color:var(--warn); font-size: 18px;">
-                🔥 La infraestructura Masitaprex APIs premia a los desarrolladores inteligentes.
-            </p>
+            <p class="font-bold text-center" style="margin-top: 15px; color: var(--white);">💬 En pocas palabras: Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.</p>
+            <p class="font-bold text-center" style="color:var(--gold-light); font-size: 18px;">🔥 La infraestructura Masitaprex APIs premia a los desarrolladores inteligentes.</p>
         </div>
 
         <div class="section-card gradient-border">
             <div class="text-container-header">
-                <i class="ri-global-line text-accent"></i>
+                <i class="ri-global-line"></i>
                 🌐 Planes Ilimitados (para proyectos con alto tráfico)
             </div>
-            <p>
-                Si tu app ya tiene muchos usuarios o tráfico constante,
-                el <strong>plan ilimitado</strong> es una excelente opción.
-            </p>
+            <p>Si tu app ya tiene muchos usuarios o tráfico constante, el <strong>plan ilimitado</strong> es una excelente opción.</p>
             <table class="unlimited-table">
-                <thead>
-                    <tr>
-                        <th>DURACIÓN</th>
-                        <th>PRECIO SUGERIDO</th>
-                        <th>AHORRO ESTIMADO</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>DURACIÓN</th><th>PRECIO SUGERIDO</th><th>AHORRO ESTIMADO</th></tr></thead>
                 <tbody>
                     <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
                     <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
@@ -1491,130 +1267,15 @@
 
         <div class="info-section gradient-border">
             <div class="text-container-header">
-                <i class="ri-emotion-line text-secondary"></i>
+                <i class="ri-emotion-line"></i>
                 ✨ Conclusión:
             </div>
-            <p>
-                La infraestructura Masitaprex APIs te brinda una <strong>experiencia completa, confiable y escalable</strong> al actuar como <strong>plataforma tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer.
-                Queremos que disfrutes cada integración, que sientas que tu proyecto avanza,
-                y que digas con orgullo:
-            </p>
-            <blockquote class="quote">
-                Elegí la infraestructura Masitaprex APIs… y fue la mejor decisión. 💚
-            </blockquote>
+            <p>La infraestructura Masitaprex APIs te brinda una <strong>experiencia completa, confiable y escalable</strong> al actuar como <strong>plataforma tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer. Queremos que disfrutes cada integración, que sientas que tu proyecto avanza, y que digas con orgullo:</p>
+            <blockquote class="quote">Elegí la infraestructura Masitaprex APIs… y fue la mejor decisión. 💚</blockquote>
         </div>
 
-        <div class="info-section gradient-border">
-            <h3>Preguntas Frecuentes (FAQ)</h3>
+        <!-- SECCIÓN DE PREGUNTAS FRECUENTES ELIMINADA COMPLETAMENTE -->
 
-<p><strong>1. ¿Qué tipos de planes ofrecemos?</strong><br>
-Pensando en lo que realmente necesitas, te ofrecemos 2 opciones para que elijas la que mejor se adapte a tu uso:<br><br>
-
-<strong>A.) Plan ilimitado (Recomendado ⭐):</strong><br>
-Acceso total sin límites durante los días que elijas.<br>
-Ideal si usas la plataforma con frecuencia y quieres olvidarte de contar créditos.<br><br>
-
-<strong>B.) Créditos:</strong><br>
-Pagas solo por lo que usas.<br>
-No tienen fecha de vencimiento, se consumen poco a poco según el uso que le des.<br><br>
-
-👉 Si usas el servicio constantemente, el plan ilimitado suele ser más conveniente.
-</p>
-
-<p><strong>2. ¿Qué métodos de pago están disponibles?</strong><br>
-Hemos simplificado el proceso para que puedas comprar rápido y seguro:<br><br>
-
-<strong>A.) Pago con tarjeta (Automático ⚡):</strong><br>
-Aceptamos Visa, MasterCard y más.<br>
-Solo completas tus datos y confirmas la compra.<br>
-Si el pago es aprobado, tus créditos o plan se activan automáticamente en segundos.<br><br>
-
-<strong>B.) Pago por WhatsApp:</strong><br>
-También puedes comprar con ayuda personalizada.<br>
-Un asesor te guiará en todo el proceso.<br>
-La activación puede tardar un poco, ya que depende de la atención manual.<br><br>
-
-👉 Si quieres activación inmediata, te recomendamos pagar con tarjeta.
-</p>
-
-<p><strong>3. ¿Se cobran comisiones?</strong><br>
-Queremos ser claros contigo:<br><br>
-
-<strong>A.) Compras desde la web:</strong><br>
-No cobramos comisiones adicionales, el precio que ves es el final.<br>
-En caso de reembolso, se descuenta únicamente la comisión de la pasarela de pago y el consumo realizado.<br><br>
-
-<strong>B.) Compras por WhatsApp:</strong><br>
-No cobramos comisiones ni en la compra ni en reembolsos.<br><br>
-
-👉 Siempre sabrás exactamente lo que estás pagando, sin costos ocultos.
-</p>
-
-<p><strong>4. ¿Hay horarios para comprar?</strong><br>
-
-<strong>A.) Desde la web:</strong><br>
-Puedes comprar en cualquier momento, 24/7, sin restricciones.<br><br>
-
-<strong>B.) Por WhatsApp:</strong><br>
-Horario de atención de 6:00 a.m. a 9:00 p.m.<br>
-Fuera de ese horario, algunos métodos de pago pueden no estar disponibles.<br><br>
-
-👉 Para comprar sin esperar, lo mejor es hacerlo directamente desde la web.
-</p>
-
-<p><strong>5. ¿Dónde puedo usar mis créditos o plan?</strong><br>
-Todo está conectado en una sola plataforma.<br><br>
-
-Tus créditos o plan funcionan en:<br>
-- APIs<br>
-- Películas (PeliPREX HD)<br>
-- Consulta PE<br>
-- Otros servicios disponibles<br><br>
-
-👉 No necesitas comprar por separado, todo se integra en tu cuenta.
-</p>
-
-<p><strong>6. ¿El soporte es 24/7?</strong><br>
-Sí, puedes escribirnos en cualquier momento del día, los 365 días del año.<br>
-Atendemos tanto por la web como por WhatsApp.<br><br>
-
-Si en algún momento tardamos en responder, te pedimos un poco de paciencia, ya que podemos estar atendiendo a otros usuarios.<br><br>
-
-👉 Siempre tendrás a alguien para ayudarte.
-</p>
-
-<p><strong>7. ¿Cuánto cuestan los planes?</strong><br>
-Tenemos opciones para todos:<br><br>
-
-Planes ilimitados desde 60 soles<br>
-Créditos desde 10 soles<br><br>
-
-Puedes ver la tabla completa, comparar y elegir lo que más te convenga en la sección de planes.<br><br>
-
-👉 Si usas el sistema con frecuencia, el plan ilimitado suele ser la mejor inversión.
-</p>
-
-<p><strong>8. ¿Puedo comprar para otra persona?</strong><br>
-Sí, puedes hacerlo fácilmente.<br><br>
-
-Si deseas recargar tu propia cuenta, solo realiza la compra normalmente.<br><br>
-
-Si quieres recargar a otra persona (amigo, familiar, etc.), solo debes ingresar sus datos (correo o ID) antes de completar el pago.<br><br>
-
-👉 Una vez confirmado el pago, los créditos o plan se activan directamente en la cuenta indicada.
-</p>
-
-<p><strong>9. ¿Es segura esta web?</strong><br>
-Sí, la seguridad es una prioridad para nosotros.<br><br>
-
-Contamos con sistemas de protección avanzados para cuidar tu información y evitar accesos no autorizados.<br>
-Además, realizamos pruebas constantes para mantener la plataforma protegida.<br><br>
-
-👉 Aun así, te recomendamos usar una contraseña segura para mayor protección.
-</p>
-            <p><strong>10. ¿Los datos son 100% reales?</strong><br>Sí… y no. Utilizamos servicios de Infraestructura tecnológica con <strong>fuentes oficiales y confiables</strong>, pero si la información de origen es inexacta, no podemos hacernos responsables. Por favor, revisa nuestro <a href="disclaimer-apis" class="font-bold">Aviso Legal y Descargo de Responsabilidad</a>.</p>  
-        </div>
-        
         <footer>
             <h3>Síguenos en nuestras redes sociales</h3>
             <div class="social-icons">
@@ -1629,8 +1290,8 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                 <a href="disclaimer-apis">Aviso legal apis</a> |
                 <a href="disclaimer-apis">Descargo de responsabilidad</a>
             </p>
-            <p class="text-muted">La información es proporcionada por fuentes públicas externas. El uso de estos datos es responsabilidad exclusiva del cliente según Ley 29733.</p>
-<p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento de datos y mantenimiento técnico.</p>
+            <p>La información es proporcionada por fuentes públicas externas. El uso de estos datos es responsabilidad exclusiva del cliente según Ley 29733.</p>
+            <p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento de datos y mantenimiento técnico.</p>
         </footer>
 
     </div>
@@ -1643,15 +1304,12 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
 
     <!-- WhatsApp Bubble -->
     <div class="chat-bubble" onclick="goToWhatsApp()">
-        <div class="icon">
-            <i class="fab fa-whatsapp"></i>
-        </div>
+        <i class="fab fa-whatsapp"></i>
     </div>
 
     <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
 
     <script>
-        // ===== SCRIPTS DEL MENÚ LATERAL Y CABECERA =====
         // Inicializar iconos de Lucide
         lucide.createIcons();
 
@@ -1682,7 +1340,6 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
         menuToggle.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // Cerrar menú al hacer click en un enlace
         const navLinks = sidebar.querySelectorAll('nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -1690,13 +1347,11 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
             });
         });
 
-        // Botón de compartir - abre el modal (NO automáticamente)
-        document.getElementById('profile-btn').addEventListener('click', function() { window.location.href = 'actividad.html'; });
+        // Botón de compartir
         document.getElementById('share-btn').addEventListener('click', function() {
             document.getElementById('banner').style.display = 'flex';
         });
 
-        // Funciones para el modal de compartir
         function sharePage() {  
             const url = "https://masitaprexv3.fly.dev/";  
             const title = "¿Sabías que puedes consultar tu DNI, RUC y más en segundos? Descubre cómo con la infraestructura de Masitaprex APIs";  
@@ -1714,161 +1369,54 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
             document.getElementById('banner').style.display = 'none';  
         }
 
-        /* ===== Fondo galaxia: partículas + parallax suave ===== */
-        (function () {
-            const canvas = document.getElementById('galaxy-bg');
-            const ctx = canvas.getContext('2d', { alpha: true });
+        // WhatsApp Bubble
+        const message = "¡Hola, ¿Necesitas ayuda?!";
+        const chatText = document.getElementById("chatText");
+        let index = 0;
 
-            let w = 0, h = 0, dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-            const stars = [];
-            const STAR_COUNT = 180;      // ligero (apto móvil)
-            const NEBULA_COUNT = 18;
-            let mouseX = 0.5, mouseY = 0.5;
-
-            function resize() {
-                w = canvas.clientWidth;
-                h = canvas.clientHeight;
-                canvas.width = Math.floor(w * dpr);
-                canvas.height = Math.floor(h * dpr);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        function typeWriter() {
+            if (index < message.length) {
+                chatText.textContent += message.charAt(index);
+                index++;
+                setTimeout(typeWriter, 100);
+            } else {
+                setTimeout(() => {
+                    chatText.classList.remove('show');
+                    chatText.classList.add('hide');
+                    setTimeout(resetAndRestart, 1000);
+                }, 2500);
             }
+        }
 
-            function rand(min, max) { return Math.random() * (max - min) + min; }
+        function resetAndRestart() {
+            chatText.textContent = "";
+            index = 0;
+            chatText.classList.remove('hide');
+            setTimeout(() => {
+                chatText.classList.add('show');
+                typeWriter();
+            }, 500);
+        }
 
-            function init() {
-                stars.length = 0;
+        function goToWhatsApp() {
+            const phoneNumber = '51944950234';
+            const prefilledMessage = encodeURIComponent('Hola, necesito ayuda en la web sección api-key.');
+            window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
+        }
 
-                // Estrellas
-                for (let i = 0; i < STAR_COUNT; i++) {
-                    stars.push({
-                        x: Math.random() * w,
-                        y: Math.random() * h,
-                        z: Math.random(),             // profundidad
-                        r: rand(0.6, 1.8),
-                        tw: rand(0.002, 0.01),
-                        a: rand(0.15, 0.9),
-                        hue: rand(190, 280)
-                    });
-                }
-
-                // Nebulosas (burbujas difusas)
-                for (let i = 0; i < NEBULA_COUNT; i++) {
-                    stars.push({
-                        nebula: true,
-                        x: Math.random() * w,
-                        y: Math.random() * h,
-                        z: rand(0.15, 0.9),
-                        r: rand(120, 260),
-                        a: rand(0.03, 0.10),
-                        hue: rand(190, 320),
-                        driftX: rand(-0.06, 0.06),
-                        driftY: rand(-0.05, 0.05)
-                    });
-                }
-            }
-
-            function drawBackground() {
-                // Fondo base (oscuro)
-                const g = ctx.createLinearGradient(0, 0, 0, h);
-                g.addColorStop(0, '#050710');
-                g.addColorStop(1, '#070A12');
-                ctx.fillStyle = g;
-                ctx.fillRect(0, 0, w, h);
-
-                // Vignette
-                const v = ctx.createRadialGradient(w * 0.5, h * 0.45, Math.min(w, h) * 0.1, w * 0.5, h * 0.5, Math.max(w, h) * 0.8);
-                v.addColorStop(0, 'rgba(0,0,0,0)');
-                v.addColorStop(1, 'rgba(0,0,0,0.55)');
-                ctx.fillStyle = v;
-                ctx.fillRect(0, 0, w, h);
-            }
-
-            let t = 0;
-            function render() {
-                t += 1;
-                drawBackground();
-
-                // Parallax suave
-                const px = (mouseX - 0.5) * 18;
-                const py = (mouseY - 0.5) * 12;
-
-                // Dibujar nebulosas y estrellas
-                for (const s of stars) {
-                    if (s.nebula) {
-                        s.x += s.driftX;
-                        s.y += s.driftY;
-                        if (s.x < -s.r) s.x = w + s.r;
-                        if (s.x > w + s.r) s.x = -s.r;
-                        if (s.y < -s.r) s.y = h + s.r;
-                        if (s.y > h + s.r) s.y = -s.r;
-
-                        const nx = s.x + px * s.z;
-                        const ny = s.y + py * s.z;
-                        const rg = ctx.createRadialGradient(nx, ny, 0, nx, ny, s.r);
-                        rg.addColorStop(0, `hsla(${s.hue}, 95%, 70%, ${s.a})`);
-                        rg.addColorStop(1, 'rgba(0,0,0,0)');
-                        ctx.fillStyle = rg;
-                        ctx.beginPath();
-                        ctx.arc(nx, ny, s.r, 0, Math.PI * 2);
-                        ctx.fill();
-                    } else {
-                        // Twinkle
-                        s.a += Math.sin((t * s.tw) + s.x * 0.01) * 0.004;
-                        s.a = Math.max(0.08, Math.min(0.95, s.a));
-
-                        const sx = s.x + px * s.z;
-                        const sy = s.y + py * s.z;
-
-                        ctx.fillStyle = `hsla(${s.hue}, 90%, 80%, ${s.a})`;
-                        ctx.beginPath();
-                        ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                // "Rastro" sutil para sensación 3D/movimiento
-                ctx.fillStyle = 'rgba(0,0,0,0.06)';
-                ctx.fillRect(0, 0, w, h);
-
-                requestAnimationFrame(render);
-            }
-
-            function onPointerMove(e) {
-                const rect = canvas.getBoundingClientRect();
-                mouseX = (e.clientX - rect.left) / rect.width;
-                mouseY = (e.clientY - rect.top) / rect.height;
-            }
-
-            resize();
-            init();
-            render();
-
-            window.addEventListener('resize', () => {
-                resize();
-                init();
-            }, { passive: true });
-
-            window.addEventListener('mousemove', onPointerMove, { passive: true });
-            window.addEventListener('touchmove', (e) => {
-                if (!e.touches || !e.touches[0]) return;
-                onPointerMove(e.touches[0]);
-            }, { passive: true });
-        })();
+        setTimeout(() => {
+            chatText.classList.add('show');
+            typeWriter();
+        }, 1000);
     </script>
 
     <script type="module">
-        // IMPORTANTE: La autenticación se manejará automáticamente por el servidor
-        // El middleware verifyFirebaseAuth en el backend redirigirá automáticamente a login.html
-        // si el usuario no está autenticado
-
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        // --- VARIABLE INTERNA PARA LA API KEY (NUNCA EXPUESTA EN EL DOM) ---
         let tempApiKey = "";
 
-        // Obtener configuración dinámica desde el servidor
         async function getFirebaseConfig() {
             try {
                 const response = await fetch('/api/config');
@@ -1929,7 +1477,6 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                     }, 3000);
                 }
 
-                // --- FUNCIÓN PARA GENERAR NUEVO TOKEN (ACTUALIZA tempApiKey) ---
                 async function generateNewApiKey() {
                     if (!currentUser) {
                         showFeedbackModal('No hay usuario autenticado.', true);
@@ -1943,7 +1490,6 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                         const userRef = doc(db, "usuarios", currentUser.uid);
                         await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
 
-                        // --- Actualizar variable interna y mostrar solo asteriscos ---
                         tempApiKey = newApiKey;
                         apiKeyField.value = '••••••••••••••••••••••••';
                         
@@ -1956,7 +1502,6 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                     }
                 }
 
-                // --- FUNCIÓN PARA COPIAR (USA tempApiKey) ---
                 function copyApiKey() {
                     if (!tempApiKey) {
                         showFeedbackModal('No hay token para copiar.', true);
@@ -1964,13 +1509,8 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                     }
                     if (navigator.clipboard) {
                         navigator.clipboard.writeText(tempApiKey)
-                            .then(() => {
-                                showFeedbackModal('Token copiado al portapapeles!');
-                            })
-                            .catch(err => {
-                                console.error('Error al copiar con la API de Clipboard: ', err);
-                                fallbackCopyTextToClipboard(tempApiKey);
-                            });
+                            .then(() => showFeedbackModal('Token copiado al portapapeles!'))
+                            .catch(err => fallbackCopyTextToClipboard(tempApiKey));
                     } else {
                         fallbackCopyTextToClipboard(tempApiKey);
                     }
@@ -1985,24 +1525,17 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                     tempInput.select();
                     try {
                         const successful = document.execCommand('copy');
-                        if (successful) {
-                            showFeedbackModal('Token copiado al portapapeles! (Método alternativo)');
-                        } else {
-                            showFeedbackModal('No se pudo copiar el token.', true);
-                        }
+                        if (successful) showFeedbackModal('Token copiado al portapapeles!');
+                        else showFeedbackModal('No se pudo copiar el token.', true);
                     } catch (err) {
-                        console.error('Fallback: No se pudo copiar.', err);
                         showFeedbackModal('No se pudo copiar el token.', true);
                     }
                     document.body.removeChild(tempInput);
                 }
 
-                // --- FUNCIÓN PARA CARGAR DATOS DE PERFIL (ACTUALIZA tempApiKey) ---
                 async function loadProfileData() {
                     showLoadingIndicator();
                     if (!currentUser) {
-                        // Si no hay usuario, el middleware del servidor ya debería haber redirigido
-                        // Pero por si acaso, redirigimos manualmente con returnTo
                         const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
                         window.location.href = `login.html?returnTo=${returnTo}`;
                         hideLoadingIndicator();
@@ -2031,9 +1564,7 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                         }
 
                         userNameSpan.textContent = userData.name || 'Usuario';
-                        if(currentUser.photoURL) {
-                            userPhoto.src = currentUser.photoURL;
-                        }
+                        if(currentUser.photoURL) userPhoto.src = currentUser.photoURL;
                         
                         infoCreditosDiv.style.display = 'none';
                         infoIlimitadoDiv.style.display = 'none';
@@ -2073,7 +1604,6 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                     }
                 }
 
-                // --- ASIGNAR EVENTOS A LOS BOTONES ---
                 document.getElementById('copy-api-key-btn').addEventListener('click', copyApiKey);
                 document.getElementById('generate-api-key-btn').addEventListener('click', generateNewApiKey);
 
@@ -2082,8 +1612,6 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
                         currentUser = user;
                         loadProfileData();
                     } else {
-                        // Si no hay usuario, el middleware del servidor ya debería haber redirigido
-                        // Pero por si acaso, redirigimos manualmente con returnTo
                         const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
                         window.location.href = `login.html?returnTo=${returnTo}`;
                     }
@@ -2095,50 +1623,9 @@ Además, realizamos pruebas constantes para mantener la plataforma protegida.<br
             }
         }
 
-        // WhatsApp Bubble
-        const message = "¡Hola, ¿Necesitas ayuda?!";
-        const chatText = document.getElementById("chatText");
-        let index = 0;
-
-        function typeWriter() {
-            if (index < message.length) {
-                chatText.textContent += message.charAt(index);
-                index++;
-                setTimeout(typeWriter, 100);
-            } else {
-                setTimeout(() => {
-                    chatText.classList.remove('show');
-                    chatText.classList.add('hide');
-                    setTimeout(resetAndRestart, 1000);
-                }, 2500);
-            }
-        }
-
-        function resetAndRestart() {
-            chatText.textContent = "";
-            index = 0;
-            chatText.classList.remove('hide');
-            setTimeout(() => {
-                chatText.classList.add('show');
-                typeWriter();
-            }, 500);
-        }
-
-        function goToWhatsApp() {
-            const phoneNumber = '51944950234';
-            const prefilledMessage = encodeURIComponent('Hola, necesito ayuda en la web sección api-key.');
-            window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
-        }
-
-        // Inicializar la aplicación cuando la página cargue
         window.onload = () => {
             initApp();
-            setTimeout(() => {
-                chatText.classList.add('show');
-                typeWriter();
-            }, 1000);
         };
-
     </script>
 </body>
 </html>
