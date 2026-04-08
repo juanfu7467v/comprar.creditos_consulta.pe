@@ -10,6 +10,7 @@ export const cspDomains = [
   "https://identitytoolkit.googleapis.com",
   "https://www.googleapis.com",
   "i.postimg.cc",
+  "https://archive.org/",
   "https://i.postimg.cc",
   "https://*.postimg.cc",
   "https://unpkg.com",
