@@ -1092,51 +1092,57 @@ function closeSearchModal() {
     modalLoading.style.display = 'none';
 }
 
-/* ✨ MODIFICADO — createMovieCard con skeleton screen por tarjeta */
+/* ✨ CORREGIDO — createMovieCard con skeleton screen que NO bloquea la carga de imágenes */
 function createMovieCard(movie) {
     const card = document.createElement('div');
     card.className = 'movie-card';
     card.dataset.id = movie.id || movie.titulo;
 
-    // --- Skeleton placeholder visible hasta que cargue la imagen ---
-    const skWrap = document.createElement('div');
-    skWrap.innerHTML = `
+    // Contenedor que se reemplazará cuando la imagen cargue
+    const contentWrapper = document.createElement('div');
+    
+    // Mostrar skeleton inicialmente
+    contentWrapper.innerHTML = `
       <div class="sk sk-poster"></div>
       <div style="padding:10px 8px 12px;">
         <div class="sk sk-title-line"></div>
         <div class="sk sk-year-line"></div>
       </div>
     `;
-    card.appendChild(skWrap);
+    card.appendChild(contentWrapper);
 
-    // --- Imagen real (oculta inicialmente) ---
-    const img = document.createElement('img');
-    img.className = 'movie-poster';
-    img.src   = safeImage(movie.imagen_url);
-    img.alt   = movie.titulo;
-    img.loading = 'lazy';
-    img.style.display = 'none';
-    card.appendChild(img);
-
-    // --- Meta real (oculta inicialmente) ---
-    const meta = document.createElement('div');
-    meta.className = 'movie-meta';
-    meta.style.display = 'none';
-    const yearVal = movie.año || (movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A');
-    meta.innerHTML = `
-      <div class="movie-title">${movie.titulo || 'Película'}</div>
-      <div class="movie-year">${yearVal}</div>
-    `;
-    card.appendChild(meta);
-
-    // --- Revelar contenido al cargar la imagen ---
-    const reveal = () => {
-        if (skWrap.parentNode) skWrap.remove();
-        img.style.display  = 'block';
-        meta.style.display = 'block';
+    // Cargar imagen real en background
+    const img = new Image();
+    img.onload = () => {
+        // Reemplazar skeleton con contenido real
+        card.innerHTML = `
+            <img class="movie-poster" src="${img.src}" alt="${movie.titulo}" loading="lazy">
+            <div class="movie-meta">
+                <div class="movie-title">${movie.titulo || 'Película'}</div>
+                <div class="movie-year">${movie.año || (movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A')}</div>
+            </div>
+        `;
+        // Re-añadir event listener al nuevo contenido
+        card.addEventListener('click', () => {
+            closeSearchModal();
+            handleViewMovieDetails(movie, 'search');
+        });
     };
-    img.addEventListener('load',  reveal);
-    img.addEventListener('error', reveal);
+    img.onerror = () => {
+        // Si hay error, mostrar placeholder
+        card.innerHTML = `
+            <img class="movie-poster" src="https://via.placeholder.com/500x750/111111/FFFFFF?text=No+Disp." alt="${movie.titulo}" loading="lazy">
+            <div class="movie-meta">
+                <div class="movie-title">${movie.titulo || 'Película'}</div>
+                <div class="movie-year">${movie.año || (movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : 'N/A')}</div>
+            </div>
+        `;
+        card.addEventListener('click', () => {
+            closeSearchModal();
+            handleViewMovieDetails(movie, 'search');
+        });
+    };
+    img.src = safeImage(movie.imagen_url);
 
     card.addEventListener('click', () => {
         closeSearchModal();
@@ -1436,7 +1442,7 @@ async function fetchActivityData(email) {
     }
 }
 
-/* ✨ MODIFICADO — fetchSuggestions con skeleton cards durante la carga */
+/* ✨ CORREGIDO — fetchSuggestions con skeleton que NO bloquea la carga de imágenes */
 async function fetchSuggestions() {
     // Limpiar el carrusel y mostrar skeletons inmediatamente
     sugerenciasCarouselEl.innerHTML = '';
@@ -1567,47 +1573,43 @@ async function toggleFavorite(movie) {
     } catch (error) { showErrorModal("Error de red al gestionar favoritos. Intenta de nuevo."); }
 }
 
-/* ✨ MODIFICADO — createSuggestionCard con skeleton screen por tarjeta */
+/* ✨ CORREGIDO — createSuggestionCard con skeleton que NO bloquea la carga de imágenes */
 function createSuggestionCard(item) {
     const div = document.createElement('div');
     div.className = 'suggestion-card poster';
     div.title = item.titulo;
 
-    // --- Skeleton visible hasta que cargue la imagen ---
-    const skWrap = document.createElement('div');
-    skWrap.className = 'sk-sug-wrap';
-    skWrap.innerHTML = `
+    // Contenedor que se reemplazará cuando la imagen cargue
+    const contentWrapper = document.createElement('div');
+    contentWrapper.innerHTML = `
       <div class="sk sk-sug-poster"></div>
       <div class="sk sk-sug-title"></div>
     `;
-    div.appendChild(skWrap);
+    div.appendChild(contentWrapper);
 
-    // --- Imagen real (oculta inicialmente) ---
-    const poster = document.createElement('img');
-    poster.className = 'suggestion-poster';
-    poster.alt = `Póster de ${item.titulo}`;
-    poster.src = safeImage(item.imagen_url);
-    poster.loading = 'lazy';
-    poster.style.display = 'none';
-    div.appendChild(poster);
-
-    // --- Título real (oculto inicialmente) ---
-    const title = document.createElement('div');
-    title.className = 'suggestion-title';
-    title.textContent = item.titulo;
-    title.style.display = 'none';
-    div.appendChild(title);
-
-    // --- Revelar al cargar la imagen ---
-    const reveal = () => {
-        if (skWrap.parentNode) skWrap.remove();
-        poster.style.display = '';
-        title.style.display  = '';
+    // Cargar imagen real en background
+    const img = new Image();
+    img.onload = () => {
+        // Reemplazar skeleton con contenido real
+        div.innerHTML = `
+            <img class="suggestion-poster" src="${img.src}" alt="Póster de ${item.titulo}" loading="lazy">
+            <div class="suggestion-title">${item.titulo}</div>
+        `;
+        // Re-añadir event listener
+        div.addEventListener('click', () => handleViewMovieDetails(item, 'suggestion'));
     };
-    poster.addEventListener('load',  reveal);
-    poster.addEventListener('error', reveal);
+    img.onerror = () => {
+        // Si hay error, mostrar placeholder
+        div.innerHTML = `
+            <img class="suggestion-poster" src="https://via.placeholder.com/120x170/111111/FFFFFF?text=No+Disp." alt="Póster de ${item.titulo}" loading="lazy">
+            <div class="suggestion-title">${item.titulo}</div>
+        `;
+        div.addEventListener('click', () => handleViewMovieDetails(item, 'suggestion'));
+    };
+    img.src = safeImage(item.imagen_url);
 
     div.addEventListener('click', () => handleViewMovieDetails(item, 'suggestion'));
+
     return div;
 }
 
@@ -1825,7 +1827,7 @@ function displayMovieDetails(movie) {
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 }
 
-/* ✨ MODIFICADO — fetchSuggestionsToModal con skeleton cards */
+/* ✨ CORREGIDO — fetchSuggestionsToModal con skeleton que NO bloquea */
 async function fetchSuggestionsToModal(){
     // Ocultar spinner y mostrar skeletons
     loadingSuggestions.style.display = 'none';
@@ -2145,7 +2147,7 @@ _noCreditObs_act.observe(document.getElementById('no-credits-modal'),{attributes
     .close-modal { background-color: red; color: #FFFFFF; }  
     .close-modal:hover { background-color: darkred; transform: scale(1.08); }  
     .icon { margin-right: 8px; color: #FF00FF; }
-</st    function sharePage() {  
+    function sharePage() {  
         let url = window.location.href;  
         let title = "🎬 PeliPREX HD | Ver Películas Gratis Online en Alta Calidad";  
         let text = "🍿 ¡Mira películas gratis en HD sin instalar nada! Entra a PeliPREX y disfruta el mejor catálogo de estrenos online.";
@@ -2158,7 +2160,6 @@ _noCreditObs_act.observe(document.getElementById('no-credits-modal'),{attributes
             title = `🎬 ${currentMovie.titulo} | PeliPREX HD`;
             const desc = currentMovie.descripcion ? currentMovie.descripcion.substring(0, 120) + '...' : 'Dale play ahora mismo en PeliPREX HD.';
             const imgUrl = currentMovie.imagen_url || '';
-            /* Se asegura que la miniatura se obtenga correctamente desde el campo imagen_url */
             whatsappText = imgUrl
                 ? `${imgUrl}
 
@@ -2180,7 +2181,8 @@ ${desc}
             const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}`;
             window.open(whatsappLink, '_blank');
         }  
-    }ion closeBanner() { document.getElementById('banner').style.display = 'none'; }
-</script>
+    }
+    function closeBanner() { document.getElementById('banner').style.display = 'none'; }
+</style>
 </body>
 </html>
