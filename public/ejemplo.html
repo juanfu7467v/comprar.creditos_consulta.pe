@@ -16,7 +16,7 @@
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[99] flex flex-col items-center justify-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p class="text-slate-500 font-medium">Cargando...</p>
+        <p class="text-slate-500 font-medium">Cargando perfil...</p>
     </div>
 
     <div class="max-w-md w-full px-4 py-8">
@@ -36,6 +36,7 @@
         </div>
     </div>
 
+    <script src="returnConfig.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -61,6 +62,8 @@
         async function init() {
             try {
                 const response = await fetch('/api/config');
+                if (!response.ok) throw new Error("No se pudo obtener la configuración");
+                
                 const config = await response.json();
                 const app = initializeApp(config.firebaseConfig);
                 db = getFirestore(app);
@@ -68,26 +71,37 @@
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        // Verificar si ya es empresa
-                        const empresaRef = doc(db, "empresas", user.uid);
-                        const empresaSnap = await getDoc(empresaRef);
-                        
-                        if (empresaSnap.exists() && empresaSnap.data().status === 'active') {
-                            btnActivate.disabled = true;
-                            btnActivate.classList.replace('bg-blue-600', 'bg-slate-200');
-                            btnActivate.classList.remove('hover:bg-blue-700', 'text-white');
-                            btnActivate.classList.add('text-slate-400', 'cursor-not-allowed');
-                            btnActivate.innerHTML = "<i class='fas fa-check-circle'></i> Cuenta ya activada";
-                            showStatus("Tu cuenta de empresa ya se encuentra activa.");
+                        try {
+                            // Verificar si ya es empresa
+                            const empresaRef = doc(db, "empresas", user.uid);
+                            const empresaSnap = await getDoc(empresaRef);
+                            
+                            if (empresaSnap.exists() && empresaSnap.data().status === 'active') {
+                                btnActivate.disabled = true;
+                                btnActivate.classList.replace('bg-blue-600', 'bg-slate-200');
+                                btnActivate.classList.remove('hover:bg-blue-700', 'text-white');
+                                btnActivate.classList.add('text-slate-400', 'cursor-not-allowed');
+                                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i> Cuenta ya activada";
+                                showStatus("Tu cuenta de empresa ya se encuentra activa.");
+                            }
+                        } catch (err) {
+                            console.error("Error consultando Firestore:", err);
+                        } finally {
+                            hideLoading();
                         }
-                        hideLoading();
                     } else {
-                        window.location.href = "/login.html?returnTo=ejemplo.html";
+                        // Usar ReturnConfig para una redirección robusta
+                        if (typeof ReturnConfig !== 'undefined') {
+                            ReturnConfig.redirectToLogin();
+                        } else {
+                            const currentPath = window.location.pathname + window.location.search;
+                            window.location.href = "/login.html?returnTo=" + encodeURIComponent(currentPath);
+                        }
                     }
                 });
             } catch (error) {
                 console.error("Error inicializando:", error);
-                showStatus("Error al cargar la configuración.", true);
+                showStatus("Error al conectar con el servidor.", true);
                 hideLoading();
             }
         }

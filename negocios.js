@@ -495,6 +495,50 @@ export async function enviarCorreoSospechoso(email, nombre, location, ip, userAg
   }
 }
 
+export async function enviarCorreoRechazo(email, nombre, orderId, monto, descripcion, motivo, resend) {
+  const context = 'ENVIAR_CORREO_RECHAZO';
+  try {
+    const templatePath = path.join(__dirname, 'emails', 'compra-rechazada.html');
+    if (!fs.existsSync(templatePath)) return { success: false, error: 'Plantilla no encontrada' };
+    
+    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
+    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Cliente');
+    htmlContent = htmlContent.replace(/{{orderId}}/g, orderId);
+    htmlContent = htmlContent.replace(/{{monto}}/g, monto);
+    htmlContent = htmlContent.replace(/{{descripcion}}/g, descripcion);
+    
+    // Mapeo de motivos comunes de Mercado Pago
+    const motivosMap = {
+      'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta.',
+      'cc_rejected_bad_filled_security_code': 'Código de seguridad (CVV) incorrecto.',
+      'cc_rejected_bad_filled_date': 'Fecha de expiración incorrecta.',
+      'cc_rejected_bad_filled_other': 'Datos de la tarjeta incorrectos.',
+      'cc_rejected_call_for_authorize': 'La entidad emisora requiere autorización telefónica.',
+      'cc_rejected_card_disabled': 'La tarjeta no está activa para compras por internet.',
+      'cc_rejected_card_error': 'Error al procesar la tarjeta.',
+      'cc_rejected_duplicated_payment': 'Pago duplicado detectado.',
+      'cc_rejected_high_risk': 'El pago fue rechazado por políticas de seguridad.',
+      'cc_rejected_invalid_installments': 'Número de cuotas no permitido para esta tarjeta.',
+      'cc_rejected_max_attempts': 'Se ha superado el número máximo de intentos.',
+      'cc_rejected_other_reason': 'Error general en la transacción bancaria.'
+    };
+
+    const mensajeMotivo = motivosMap[motivo] || motivo || 'No se pudo procesar el pago con la entidad bancaria.';
+    htmlContent = htmlContent.replace(/fondos insuficientes o restricción bancaria/g, mensajeMotivo);
+    
+    const result = await resend.emails.send({
+      from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
+      to: email,
+      subject: `Pago Rechazado #${orderId} - Masitaprex`,
+      html: htmlContent
+    });
+    return { success: true, id: result.id };
+  } catch (error) {
+    logger.error(context, '❌ Error enviando correo de rechazo', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // ================================================================
 // 🍪 HELPERS DE SESIÓN
 // ================================================================

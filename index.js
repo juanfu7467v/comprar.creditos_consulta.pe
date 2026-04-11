@@ -35,6 +35,7 @@ import {
   otorgarBeneficio, 
   enviarBienvenida, 
   enviarCorreoSospechoso,
+  enviarCorreoRechazo,
   createSessionCookie,
   PAQUETES_CREDITOS,
   PLANES_ILIMITADOS
@@ -346,6 +347,27 @@ app.post("/api/pay", async (req, res) => {
 
     if (result.status === 'approved') {
       await otorgarBeneficio(uid, payer.email, transaction_amount, 'MP_CARD_INSTANT', result.id.toString(), resend);
+    } else if (result.status === 'rejected') {
+      let userName = payer.email.split('@')[0];
+      try {
+        if (db) {
+          const userSnap = await db.collection('usuarios').doc(uid).get();
+          if (userSnap.exists) {
+            const userData = userSnap.data();
+            userName = userData.name || userData.displayName || userName;
+          }
+        }
+      } catch (err) {}
+      
+      enviarCorreoRechazo(
+        payer.email, 
+        userName, 
+        result.id.toString(), 
+        transaction_amount, 
+        description, 
+        result.status_detail, 
+        resend
+      ).catch(err => logger.error(context, 'Error enviando correo de rechazo', err));
     }
     res.json(result);
   } catch (error) {
@@ -372,6 +394,33 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         const metadata = paymentInfo.metadata || {};
         if (metadata.uid) {
           await otorgarBeneficio(metadata.uid, metadata.email || paymentInfo.payer?.email, metadata.amount || paymentInfo.transaction_amount, 'MP_WEBHOOK', paymentId.toString(), resend);
+        }
+      } else if (paymentInfo.status === "rejected") {
+        const metadata = paymentInfo.metadata || {};
+        const email = metadata.email || paymentInfo.payer?.email;
+        const uid = metadata.uid;
+        
+        if (email && uid) {
+          let userName = email.split('@')[0];
+          try {
+            if (db) {
+              const userSnap = await db.collection('usuarios').doc(uid).get();
+              if (userSnap.exists) {
+                const userData = userSnap.data();
+                userName = userData.name || userData.displayName || userName;
+              }
+            }
+          } catch (err) {}
+
+          enviarCorreoRechazo(
+            email,
+            userName,
+            paymentId.toString(),
+            metadata.amount || paymentInfo.transaction_amount,
+            paymentInfo.description,
+            paymentInfo.status_detail,
+            resend
+          ).catch(err => logger.error(context, 'Error enviando correo de rechazo desde webhook', err));
         }
       }
     } catch (error) {
