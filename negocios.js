@@ -465,17 +465,22 @@ export async function enviarCorreoCompra(email, nombre, orderId, monto, descripc
 export async function enviarCorreoSospechoso(email, nombre, location, ip, userAgent, resend) {
   const context = 'ENVIAR_CORREO_SOSPECHOSO';
   try {
-    const templatePath = path.join(__dirname, 'emails', 'intento-login-sospechoso.html');
-    if (!fs.existsSync(templatePath)) return { success: false, error: 'Plantilla no encontrada' };
+    const templatePath = path.join(__dirname, 'emails', 'intento-inicio-seccion-sospechoso.html');
+    if (!fs.existsSync(templatePath)) {
+      logger.error(context, 'Plantilla no encontrada en: ' + templatePath);
+      return { success: false, error: 'Plantilla no encontrada' };
+    }
     
     let htmlContent = fs.readFileSync(templatePath, 'utf-8');
+    const ubicacionStr = `${location.city || 'Desconocida'}, ${location.region || ''}, ${location.country || ''}`;
+    
     htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Usuario');
-    htmlContent = htmlContent.replace(/{{ciudad}}/g, location.city);
-    htmlContent = htmlContent.replace(/{{region}}/g, location.region);
-    htmlContent = htmlContent.replace(/{{pais}}/g, location.country);
+    htmlContent = htmlContent.replace(/{{ubicacion}}/g, ubicacionStr);
     htmlContent = htmlContent.replace(/{{ip}}/g, ip);
-    htmlContent = htmlContent.replace(/{{dispositivo}}/g, userAgent);
-    htmlContent = htmlContent.replace(/{{fecha}}/g, new Date().toLocaleString('es-PE'));
+    htmlContent = htmlContent.replace(/{{isp}}/g, location.isp || 'Desconocido');
+    htmlContent = htmlContent.replace(/{{tipo_conexion}}/g, location.type || 'Desconocido');
+    htmlContent = htmlContent.replace(/{{fecha_hora}}/g, new Date().toLocaleString('es-PE'));
+    htmlContent = htmlContent.replace(/{{dispositivo}}/g, userAgent || 'Desconocido');
     
     const result = await resend.emails.send({
       from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',

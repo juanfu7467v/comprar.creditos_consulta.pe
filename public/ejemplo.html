@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activar Cuenta de Empresa | Masitaprex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        #loading-overlay { transition: opacity 0.5s ease-out; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-[99] flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p class="text-slate-500 font-medium">Cargando...</p>
+    </div>
+
+    <div class="max-w-md w-full px-4 py-8">
+        <div id="activation-section" class="glass-card p-10 rounded-3xl shadow-2xl text-center border border-slate-200">
+            <div class="bg-blue-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                <i class="fas fa-building text-4xl text-blue-600"></i>
+            </div>
+            <h2 class="text-3xl font-black text-slate-800 mb-4">Activar cuenta de empresa</h2>
+            <p class="text-slate-500 mb-10 leading-relaxed">
+                Obtén acceso a herramientas avanzadas para la gestión de tu infraestructura y servicios B2B.
+            </p>
+            <button id="btn-activate-enterprise" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-5 rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-3">
+                <i class="fas fa-rocket"></i>
+                <span>Activar ahora</span>
+            </button>
+            <p id="status-message" class="mt-6 text-sm font-medium text-slate-400 hidden"></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+        let db, auth;
+
+        const overlay = document.getElementById('loading-overlay');
+        const statusMsg = document.getElementById('status-message');
+        const btnActivate = document.getElementById('btn-activate-enterprise');
+
+        const hideLoading = () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.classList.add('hidden'), 500);
+        };
+
+        const showStatus = (text, isError = false) => {
+            statusMsg.innerText = text;
+            statusMsg.className = `mt-6 text-sm font-medium ${isError ? 'text-red-500' : 'text-emerald-500'}`;
+            statusMsg.classList.remove('hidden');
+        };
+
+        async function init() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                const app = initializeApp(config.firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // Verificar si ya es empresa
+                        const empresaRef = doc(db, "empresas", user.uid);
+                        const empresaSnap = await getDoc(empresaRef);
+                        
+                        if (empresaSnap.exists() && empresaSnap.data().status === 'active') {
+                            btnActivate.disabled = true;
+                            btnActivate.classList.replace('bg-blue-600', 'bg-slate-200');
+                            btnActivate.classList.remove('hover:bg-blue-700', 'text-white');
+                            btnActivate.classList.add('text-slate-400', 'cursor-not-allowed');
+                            btnActivate.innerHTML = "<i class='fas fa-check-circle'></i> Cuenta ya activada";
+                            showStatus("Tu cuenta de empresa ya se encuentra activa.");
+                        }
+                        hideLoading();
+                    } else {
+                        window.location.href = "/login.html?returnTo=ejemplo.html";
+                    }
+                });
+            } catch (error) {
+                console.error("Error inicializando:", error);
+                showStatus("Error al cargar la configuración.", true);
+                hideLoading();
+            }
+        }
+
+        btnActivate.onclick = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            btnActivate.disabled = true;
+            btnActivate.innerHTML = "<i class='fas fa-circle-notch animate-spin'></i> Activando...";
+
+            try {
+                // Crear/Actualizar en la colección 'empresas'
+                await setDoc(doc(db, "empresas", user.uid), {
+                    uid: user.uid,
+                    email: user.email,
+                    nombre: user.displayName || user.email.split('@')[0],
+                    status: 'active',
+                    activatedAt: serverTimestamp(),
+                    type: 'standard',
+                    source: 'manual_activation'
+                }, { merge: true });
+
+                showStatus("¡Cuenta de empresa activada exitosamente!");
+                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i> ¡Activado!";
+                btnActivate.classList.replace('bg-blue-600', 'bg-emerald-500');
+                
+                setTimeout(() => {
+                    window.location.href = "/actividad.html";
+                }, 2000);
+
+            } catch (e) {
+                console.error("Error al activar:", e);
+                showStatus("Error al activar: " + e.message, true);
+                btnActivate.disabled = false;
+                btnActivate.innerHTML = "<i class='fas fa-rocket'></i> Activar ahora";
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>

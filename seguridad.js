@@ -251,6 +251,7 @@ export async function registerFailedLogin(email, req, deviceModel = null) {
     return {
       blocked: false,
       attempts: newAttempts,
+      maxAttempts: MAX_LOGIN_ATTEMPTS,
       remaining: MAX_LOGIN_ATTEMPTS - newAttempts
     };
 
