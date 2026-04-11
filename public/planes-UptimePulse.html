@@ -14,6 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="returnConfig.js"></script>
     <style>
         *{box-sizing:border-box;margin:0;padding:0;}
         :root{
@@ -592,7 +593,7 @@
                 const res = await fetch('/api/config');
                 const cfg = await res.json();
                 if (!firebase.apps.length) firebase.initializeApp(cfg.firebaseConfig);
-                firebase.auth().onAuthStateChanged(u => { currentUser = u; if (!u) { const path = window.location.pathname + window.location.search; window.location.href = 'login.html?returnTo=' + encodeURIComponent(path); } });
+                firebase.auth().onAuthStateChanged(u => { currentUser = u; if (!u) { ReturnConfig.redirectToLogin(); } });
                 handlePaymentCallback();
             } catch(e) { console.error('Error auth:', e); }
         }

@@ -31,6 +31,7 @@
   <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="returnConfig.js"></script>
   <style>
     :root {
         --primary: #007bff; 
@@ -620,36 +621,12 @@
     }
 
     function getUrlParameter(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
+        return ReturnConfig.getUrlParameter(name);
     }
 
     // ✅ Función de redirección usando returnTo y sessionStorage
     function redirectAfterAuth(user) {
-        if (user && !user.emailVerified) {
-            window.location.href = "verificacion.html";
-            return;
-        }
-
-        let returnTo = getUrlParameter('returnTo');
-        if (!returnTo || returnTo === 'null' || returnTo === 'undefined') {
-            returnTo = sessionStorage.getItem('returnTo');
-        }
-
-        if (returnTo) {
-            try {
-                const decodedUrl = decodeURIComponent(returnTo);
-                if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
-                    sessionStorage.removeItem('returnTo');
-                    window.location.href = decodedUrl;
-                    return;
-                }
-            } catch (e) {
-                console.warn('URL de retorno inválida:', e);
-            }
-        }
-        
-        window.location.href = "actividad";
+        ReturnConfig.redirectAfterAuth(user, "actividad");
     }
 
     // Función para convertir errores técnicos a mensajes amigables
@@ -913,7 +890,7 @@
             if (user.emailVerified) {
                 redirectAfterAuth(user);
             } else {
-                const returnTo = getUrlParameter('returnTo');
+                const returnTo = ReturnConfig.getUrlParameter('returnTo') || sessionStorage.getItem('returnTo');
                 const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
                 window.location.href = verificationUrl;
             }
@@ -1093,7 +1070,7 @@
           // ✅ 1. VALIDAR CON EL BACKEND ANTES DE FIREBASE
           const deviceId = getDeviceId();
           const deviceModel = await getDeviceModel();
-          const returnTo = getUrlParameter('returnTo') || sessionStorage.getItem('returnTo') || '';
+          const returnTo = ReturnConfig.getUrlParameter('returnTo') || sessionStorage.getItem('returnTo') || '';
           
           const backendResponse = await fetch('/api/login', {
               method: 'POST',
@@ -1215,10 +1192,7 @@
           const userCredential = await createUserWithEmailAndPassword(auth, email, password);
           await saveUserProfile(userCredential.user, name);
           
-          const returnTo = getUrlParameter('returnTo');
-          if (returnTo) {
-              sessionStorage.setItem('returnTo', returnTo);
-          }
+          ReturnConfig.saveReturnToSession();
           
           fetch('/api/send-verification-email', {
               method: 'POST',
@@ -1275,10 +1249,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const returnTo = getUrlParameter('returnTo');
-        if (returnTo) {
-            sessionStorage.setItem('returnTo', returnTo);
-        }
+        ReturnConfig.saveReturnToSession();
         
         hideAllForms();
         showLoadingOverlay();

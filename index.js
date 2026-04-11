@@ -13,6 +13,7 @@ import { Resend } from "resend";
 import helmet from "helmet";
 import crypto from "crypto";
 import { helmetConfig, cspDomains } from './cspConfig.js';
+import ReturnConfigServer from './returnConfigServer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1392,8 +1393,7 @@ async function verifyFirebaseAuth(req, res, next) {
         originalUrl: req.originalUrl
       });
 
-      const returnTo = encodeURIComponent(req.originalUrl);
-      return res.redirect(`/login?returnTo=${returnTo}`);
+      return res.redirect(ReturnConfigServer.getLoginRedirect(req));
     }
 
     // Si tenemos idToken, verificarlo
@@ -1434,8 +1434,7 @@ async function verifyFirebaseAuth(req, res, next) {
       path: req.path
     });
 
-    const returnTo = encodeURIComponent(req.originalUrl);
-    return res.redirect(`/login?returnTo=${returnTo}`);
+    return res.redirect(ReturnConfigServer.getLoginRedirect(req));
   }
 }
 
@@ -1859,7 +1858,7 @@ app.post("/api/login", async (req, res) => {
       }
     }
 
-    const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
+    const redirectPath = ReturnConfigServer.getFinalRedirectPath(returnTo, '/actividad');
 
     logger.info(context, 'Login validado exitosamente, esperando autenticación real del frontend', { email, redirectPath });
 
@@ -1942,14 +1941,14 @@ app.post("/api/register", async (req, res) => {
       }
     }
 
-    const redirectPath = returnTo && returnTo !== 'undefined' && returnTo !== 'null' ? returnTo : '/actividad';
+    const redirectPath = ReturnConfigServer.getFinalRedirectPath(returnTo, '/actividad');
 
     logger.info(context, 'Registro exitoso, redirigiendo a verify con returnTo', { email, redirectPath });
 
     res.json({
       success: true,
       message: 'Registration successful (reCAPTCHA validated)',
-      redirectTo: `/verify?returnTo=${encodeURIComponent(redirectPath)}`,
+      redirectTo: ReturnConfigServer.getVerifyRedirect(redirectPath),
       timestamp: new Date().toISOString()
     });
 

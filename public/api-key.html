@@ -22,6 +22,7 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="returnConfig.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
@@ -1536,8 +1537,7 @@
                 async function loadProfileData() {
                     showLoadingIndicator();
                     if (!currentUser) {
-                        const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-                        window.location.href = `login.html?returnTo=${returnTo}`;
+                        ReturnConfig.redirectToLogin();
                         hideLoadingIndicator();
                         return;
                     }
@@ -1612,8 +1612,7 @@
                         currentUser = user;
                         loadProfileData();
                     } else {
-                        const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-                        window.location.href = `login.html?returnTo=${returnTo}`;
+                        ReturnConfig.redirectToLogin();
                     }
                 });
 

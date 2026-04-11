@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="returnConfig.js"></script>
   <style>
     * {
         margin: 0;
@@ -352,24 +353,17 @@
     function hideLoading() { loadingEl.style.display = 'none'; }
 
     function getUrlParameter(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
+      return ReturnConfig.getUrlParameter(name);
     }
 
     function redirectAfterVerification() {
-      const returnTo = getUrlParameter('returnTo');
-      if (returnTo && returnTo !== 'null' && returnTo !== 'undefined') {
-        try {
-          const decodedUrl = decodeURIComponent(returnTo);
-          if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
-            window.location.href = decodedUrl;
-            return;
-          }
-        } catch (e) {
-          console.warn('URL de retorno inválida:', e);
-        }
+      const returnPath = ReturnConfig.getReturnPath();
+      if (returnPath) {
+        ReturnConfig.clearReturnToSession();
+        window.location.href = returnPath;
+      } else {
+        window.location.href = '/actividad';
       }
-      window.location.href = '/actividad';
     }
     
     function showMessage(text, isError = false) {
