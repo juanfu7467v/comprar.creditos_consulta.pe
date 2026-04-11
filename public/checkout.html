@@ -1695,15 +1695,18 @@
                                 },
                                 body: JSON.stringify({
                                     token: formData.token,
-                                    amount: formData.amount,
+                                    transaction_amount: formData.amount,
                                     payment_method_id: formData.paymentMethodId,
-                                    issuer_id: formData.issuerId,
                                     installments: formData.installments,
-                                    email: formData.cardholderEmail,
-                                    identificationType: formData.identificationType,
-                                    identificationNumber: formData.identificationNumber,
-                                    uid: uid,
-                                    description: description
+                                    description: description,
+                                    payer: {
+                                        email: formData.cardholderEmail,
+                                        identification: {
+                                            type: formData.identificationType,
+                                            number: formData.identificationNumber
+                                        }
+                                    },
+                                    uid: uid
                                 })
                             });
 
@@ -1762,6 +1765,9 @@
         initMercadoPago();
     }
 
+    // El evento submit ya es manejado por cardForm.onSubmit
+    // Eliminamos el listener redundante para evitar interferencias
+    /*
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('form-checkout');
         if (form) {
@@ -1773,6 +1779,7 @@
             });
         }
     });
+    */
     
     // 🆕 LIMPIAR INTERVAL AL CERRAR LA PÁGINA
     window.addEventListener('beforeunload', () => {

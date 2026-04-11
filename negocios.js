@@ -523,8 +523,8 @@ export async function enviarCorreoRechazo(email, nombre, orderId, monto, descrip
       'cc_rejected_other_reason': 'Error general en la transacción bancaria.'
     };
 
-    const mensajeMotivo = motivosMap[motivo] || motivo || 'No se pudo procesar el pago con la entidad bancaria.';
-    htmlContent = htmlContent.replace(/fondos insuficientes o restricción bancaria/g, mensajeMotivo);
+    const mensajeMotivo = motivosMap[motivo] || motivo || 'fondos insuficientes o restricción bancaria';
+    htmlContent = htmlContent.replace(/\(fondos insuficientes o restricción bancaria\)/g, `(${mensajeMotivo})`);
     
     const result = await resend.emails.send({
       from: 'Facturación Masitaprex <facturacion@masitaprex.com>',

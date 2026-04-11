@@ -331,6 +331,12 @@ app.post("/api/pay", async (req, res) => {
     const { transaction_amount, token, description, installments, payment_method_id, payer, uid } = req.body;
     if (!mpClient) return res.status(503).json({ error: 'Mercado Pago not configured' });
 
+    // Validación defensiva para evitar errores de 'undefined'
+    if (!payer || !payer.email) {
+      logger.error(context, 'Payer email missing in request body');
+      return res.status(400).json({ error: 'Payer email is required' });
+    }
+
     const payment = new Payment(mpClient);
     const result = await payment.create({
       body: {
