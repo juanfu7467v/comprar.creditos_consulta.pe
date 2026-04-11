@@ -1,5 +1,6 @@
 import express from "express";
 import admin from "firebase-admin";
+import crypto from "crypto";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { MercadoPagoConfig, Payment } from "mercadopago";
@@ -149,6 +150,20 @@ app.post("/api/login-success", async (req, res) => {
           updateData.welcomeEmailSentAt = admin.firestore.FieldValue.serverTimestamp();
         }
         await userRef.set(updateData, { merge: true });
+
+        // Nueva lógica: Guardar en colección "empresas" y generar token seguro
+        const empresaRef = db.collection("empresas").doc(uid);
+        const secureToken = crypto.randomBytes(32).toString('hex');
+        await empresaRef.set({
+          uid,
+          email,
+          nombre,
+          apiToken: secureToken,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          status: 'active'
+        }, { merge: true });
+        logger.info(context, 'Datos guardados en colección empresas', { uid, email });
       }
     }
 
@@ -190,6 +205,20 @@ app.post("/api/notify-verification", async (req, res) => {
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
           await db.collection("usuarios").doc(uid).set({ creditos: 0, tipoPlan: "creditos" }, { merge: true });
         }
+
+        // Nueva lógica: Guardar en colección "empresas" y generar token seguro tras verificación
+        const empresaRef = db.collection("empresas").doc(uid);
+        const secureToken = crypto.randomBytes(32).toString('hex');
+        await empresaRef.set({
+          uid,
+          email,
+          nombre: displayName || email.split('@')[0],
+          apiToken: secureToken,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          status: 'active'
+        }, { merge: true });
+        logger.info(context, 'Datos guardados en colección empresas tras verificación', { uid, email });
       }
       return res.json({ success: result.success, message: result.success ? 'Correo enviado' : 'Error enviando correo' });
     }
