@@ -920,7 +920,7 @@
                 </div>
             </div>
 
-            <form id="form-checkout">
+            <form id="form-checkout" onsubmit="return false;">
                 <div class="form-group">
                     <label class="label">Número de tarjeta</label>
                     <div id="form-checkout__cardNumber" class="mp-container with-icon"></div>
@@ -1650,6 +1650,7 @@
                     onFormMounted: error => {
                         if (error) {
                             console.error("Error montando formulario:", error);
+                            alert("Error al cargar el formulario de pago. Por favor, recarga la página.");
                             return;
                         }
                         
@@ -1669,6 +1670,7 @@
                     },
                     onSubmit: async (event) => {
                         event.preventDefault();
+                        console.log('🚀 Formulario enviado, iniciando proceso de pago...');
                         
                         // 🆕 Detener rotación al enviar formulario
                         stopLogoRotation();
@@ -1680,10 +1682,17 @@
                         submitBtn.disabled = true;
 
                         try {
+                            console.log('Obteniendo datos del formulario de tarjeta...');
                             const formData = cardForm.getCardFormData();
+                            console.log('Datos obtenidos:', { 
+                                amount: formData.amount, 
+                                method: formData.paymentMethodId,
+                                hasToken: !!formData.token 
+                            });
                             
                             if (!formData.token) {
-                                throw new Error('No se pudo generar el token de pago');
+                                console.error('❌ No se generó el token de Mercado Pago');
+                                throw new Error('No se pudo generar el token de pago. Verifica los datos de tu tarjeta.');
                             }
                             
                             console.log('Enviando pago al servidor...');
@@ -1723,8 +1732,13 @@
                                 showFailedScreen(result.id, result.status_detail);
                             }
                         } catch (error) {
-                            console.error('Error procesando pago:', error);
+                            console.error('❌ Error en el proceso de pago:', error);
+                            alert('Error: ' + error.message);
                             showFailedScreen(null, 'cc_rejected_other_reason');
+                        } finally {
+                            // Restaurar botón si no hubo éxito (en caso de error capturado)
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
                         }
                     },
                     onFetching: (resource) => {
@@ -1765,21 +1779,23 @@
         initMercadoPago();
     }
 
-    // El evento submit ya es manejado por cardForm.onSubmit
-    // Eliminamos el listener redundante para evitar interferencias
-    /*
+    // Asegurar que el botón de submit funcione correctamente
     document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('form-checkout');
-        if (form) {
-            form.addEventListener('submit', (e) => {
-                const submitBtn = document.getElementById('form-checkout__submit');
-                if (!submitBtn.disabled) {
-                    console.log('Formulario enviado');
+        const submitBtn = document.getElementById('form-checkout__submit');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', (e) => {
+                console.log('🖱️ Click en botón de pago detectado');
+                const form = document.getElementById('form-checkout');
+                // Si el formulario no es válido por campos requeridos nativos
+                if (!form.checkValidity()) {
+                    console.log('⚠️ Formulario no válido nativamente');
+                    form.reportValidity();
+                } else {
+                    console.log('✅ Formulario válido, esperando a que el SDK procese...');
                 }
             });
         }
     });
-    */
     
     // 🆕 LIMPIAR INTERVAL AL CERRAR LA PÁGINA
     window.addEventListener('beforeunload', () => {

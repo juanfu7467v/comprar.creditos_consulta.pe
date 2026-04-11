@@ -524,7 +524,9 @@ export async function enviarCorreoRechazo(email, nombre, orderId, monto, descrip
     };
 
     const mensajeMotivo = motivosMap[motivo] || motivo || 'fondos insuficientes o restricción bancaria';
+    // Reemplazar tanto con paréntesis como sin ellos por si acaso
     htmlContent = htmlContent.replace(/\(fondos insuficientes o restricción bancaria\)/g, `(${mensajeMotivo})`);
+    htmlContent = htmlContent.replace(/fondos insuficientes o restricción bancaria/g, mensajeMotivo);
     
     const result = await resend.emails.send({
       from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
