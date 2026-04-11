@@ -31,7 +31,6 @@
   <script src="https://www.google.com/recaptcha/api.js?render=explicit&onload=recaptchaOnLoad" async defer></script>
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="returnConfig.js"></script>
   <style>
     :root {
         --primary: #007bff; 
@@ -351,240 +350,219 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: #fff;
+        background: white;
+        border-radius: 24px;
+        padding: 32px 24px;
         width: 90%;
-        max-width: 380px;
-        border-radius: 28px;
-        padding: 35px 25px;
+        max-width: 360px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         text-align: center;
-        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
-        z-index: 50001;
-        display: none;
-        flex-direction: column;
-        align-items: center;
+        animation: slideInModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .message-modal-content.show {
-        display: flex;
-        animation: slideInModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    .message-modal-content.closing {
+        animation: slideOutModal 0.3s ease-out forwards;
     }
 
-    .message-modal-content.hide {
-        animation: slideOutModal 0.3s forwards ease-in;
+    .message-modal-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
     }
 
-    .msg-icon-wrapper {
-        width: 75px;
-        height: 75px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
+    .message-modal-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #334155;
+        line-height: 1.5;
+        margin: 0;
     }
 
-    .msg-icon-wrapper i {
-        font-size: 38px;
+    @media (max-width: 480px) {
+        h3 { font-size: 2rem; }
+        .screen { padding: 20px; }
     }
-
-    .msg-success { background: #ecfdf5; color: #10b981; }
-    .msg-error { background: #fef2f2; color: #ef4444; }
-    .msg-warning { background: #fffbeb; color: #f59e0b; }
-    .msg-info { background: #eff6ff; color: #3b82f6; }
-
-    .msg-title {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #1a1e2e;
-        margin-bottom: 12px;
-    }
-
-    .msg-text {
-        font-size: 0.95rem;
-        color: #64748b;
-        line-height: 1.6;
-        margin-bottom: 28px;
-    }
-
-    .msg-btn {
-        width: 100%;
-        height: 54px;
-        border-radius: 18px;
-        border: none;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .msg-btn-primary {
-        background: #1a1e2e;
-        color: #fff;
-    }
-
-    .msg-btn-primary:active {
-        transform: scale(0.96);
-    }
-
-    /* Loading Overlay 3D */
-    #loading-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(12px);
-        z-index: 100000;
-        display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .spinner-3d {
-        width: 60px;
-        height: 60px;
-        border: 5px solid #f1f5f9;
-        border-top: 5px solid var(--primary);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
   </style>
 </head>
 <body>
-
-    <div id="loading-overlay">
-        <div class="spinner-3d"></div>
-        <p style="margin-top: 20px; font-weight: 600; color: #1a1e2e;">Procesando...</p>
-    </div>
-
-    <!-- MODAL DE MENSAJES PROFESIONAL -->
-    <div class="message-modal-overlay" id="msg-overlay"></div>
-    <div class="message-modal-content" id="msg-modal">
-        <div class="msg-icon-wrapper" id="msg-icon-bg">
-            <i class="material-icons" id="msg-icon">info</i>
-        </div>
-        <h2 class="msg-title" id="msg-title">Título</h2>
-        <p class="msg-text" id="msg-text">Este es un mensaje de prueba para el modal profesional.</p>
-        <button class="msg-btn msg-btn-primary" onclick="closeMessageModal()">Entendido</button>
-    </div>
-
-    <div id="app-container">
-        <!-- Pantalla Bienvenida -->
-        <div id="welcome-screen" class="screen">
-            <i class="material-icons welcome-icon">shield</i>
-            <h3>Masitaprex</h3>
-            <p class="form-subtitle">Bienvenido a la infraestructura de élite. Selecciona una opción para continuar.</p>
-            
-            <button class="btn btn-primary-gradient" onclick="showLoginForm()">
-                <i class="material-icons">login</i> Iniciar con Email
-            </button>
-            
-            <div class="separator"><span>o continúa con</span></div>
-            
-            <button class="btn btn-google" onclick="signInWithGoogle()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
-                Google
-            </button>
-            
-            <button class="btn btn-github" onclick="signInWithGithub()">
-                <img src="https://cdn-icons-png.flaticon.com/128/733/733553.png" width="20" style="filter: invert(1);" alt="GitHub">
-                GitHub
-            </button>
-            
-            <button class="register-btn" onclick="showRegisterForm()">
-                Crear una cuenta nueva
-            </button>
+  <div id="app-container">
+    
+    <div id="welcome-screen" class="screen" style="display: flex;">
+        <img src="https://cdn-icons-png.flaticon.com/128/17202/17202358.png" alt="Seguridad" style="width: 80px; height: 80px; margin-bottom: 20px;">
+        <h1 class="text-4xl font-extrabold mb-2 tracking-tight">Masitaprex</h1>
+        <p class="text-slate-500 mb-10 text-center px-6">Acceso exclusivo a la infraestructura de alto rendimiento.</p>
+        
+        <button class="btn btn-primary-gradient" onclick="showRegisterFormFromWelcome()">
+          <span class="material-icons">person_add</span>
+          <span>Crear cuenta gratis</span>
+        </button>
+        
+        <div class="w-full flex items-center my-4">
+            <div class="flex-1 h-px bg-slate-200"></div>
+            <span class="px-3 text-xs text-slate-400 font-bold uppercase">O accede con</span>
+            <div class="flex-1 h-px bg-slate-200"></div>
         </div>
 
-        <!-- Pantalla Login -->
-        <div id="login-form" class="screen login-form">
-            <i class="material-icons" style="font-size: 48px; color: var(--primary); margin-bottom: 16px;">account_circle</i>
-            <h3>Acceso</h3>
-            <p class="form-subtitle">Ingresa tus credenciales para continuar</p>
-            
-            <div class="input-group">
-                <input type="email" id="login-email" class="input-field" placeholder="Correo electrónico">
-                <i class="material-icons field-icon">email</i>
-            </div>
-            
-            <div class="input-group">
-                <input type="password" id="login-password" class="input-field" placeholder="Contraseña">
-                <i class="material-icons field-icon">lock</i>
-                <i class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</i>
-            </div>
+        <button class="btn btn-google" onclick="signInWithGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20">
+          <span>Continuar con Google</span>
+        </button>
+        
+        <button class="btn btn-github" onclick="signInWithGithub()">
+          <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.042-1.416-4.042-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg>
+          <span>Acceder con GitHub</span>
+        </button>
+        
+        <button class="btn btn-login-red" onclick="showLoginFormFromWelcome()">
+          <span class="material-icons">login</span>
+          <span>Ingreso tradicional</span>
+        </button>
 
-            <div id="login-recaptcha" class="recaptcha-container"></div>
-            
-            <button class="primary-btn" onclick="loginWithEmail()">
-                <i class="material-icons">arrow_forward</i> Entrar
-            </button>
-            
-            <p class="text-link"><a href="#" onclick="showRecoverPasswordForm()">¿Olvidaste tu contraseña?</a></p>
-            <p class="text-link">¿No tienes cuenta? <a href="#" onclick="showRegisterForm()">Regístrate aquí</a></p>
-            <button class="btn-login-red" style="margin-top: 20px; height: 45px; font-size: 0.9rem;" onclick="goToWelcomeScreen()">
-                <i class="material-icons">arrow_back</i> Volver
-            </button>
-        </div>
-
-        <!-- Pantalla Registro -->
-        <div id="register-form" class="screen register-form">
-            <i class="material-icons" style="font-size: 48px; color: var(--secondary); margin-bottom: 16px;">person_add</i>
-            <h3>Registro</h3>
-            <p class="form-subtitle">Crea tu cuenta Masitaprex en segundos</p>
-            
-            <div class="input-group">
-                <input type="text" id="register-name" class="input-field" placeholder="Nombre completo">
-                <i class="material-icons field-icon">person</i>
+        <div class="mt-8 text-xs text-slate-400 font-medium text-center">
+            <p class="mb-2">Antes de iniciar sesión en nuestra infraestructura tecnológica, es importante que leas detenidamente nuestros Términos y Política de Privacidad.</p>
+            <div class="flex gap-4 justify-center">
+                <a href="politica-privacidad.html">Privacidad</a>
+                <span>•</span>
+                <a href="terminos-condiciones.html">Términos</a>
             </div>
-            
-            <div class="input-group">
-                <input type="email" id="register-email" class="input-field" placeholder="Correo electrónico">
-                <i class="material-icons field-icon">email</i>
-            </div>
-            
-            <div class="input-group">
-                <input type="password" id="register-password" class="input-field" placeholder="Contraseña">
-                <i class="material-icons field-icon">lock</i>
-                <i class="material-icons password-toggle" onclick="togglePasswordVisibility('register-password', this)">visibility</i>
-            </div>
-
-            <div id="register-recaptcha" class="recaptcha-container"></div>
-            
-            <button class="primary-btn" style="background: var(--secondary); box-shadow: 0 12px 24px -6px rgba(0, 230, 118, 0.4);" onclick="registerWithEmail()">
-                <i class="material-icons">check_circle</i> Crear Cuenta
-            </button>
-            
-            <p class="text-link">¿Ya tienes cuenta? <a href="#" onclick="showLoginForm()">Inicia sesión</a></p>
-            <button class="btn-login-red" style="margin-top: 20px; height: 45px; font-size: 0.9rem;" onclick="goToWelcomeScreen()">
-                <i class="material-icons">arrow_back</i> Volver
-            </button>
-        </div>
-
-        <!-- Pantalla Recuperar Contraseña -->
-        <div id="recover-password-form" class="screen recover-password-form">
-            <i class="material-icons" style="font-size: 48px; color: var(--accent); margin-bottom: 16px;">lock_reset</i>
-            <h3>Recuperar</h3>
-            <p class="form-subtitle">Te enviaremos un enlace para restablecer tu contraseña</p>
-            
-            <div class="input-group">
-                <input type="email" id="recover-email" class="input-field" placeholder="Correo electrónico">
-                <i class="material-icons field-icon">email</i>
-            </div>
-            
-            <button class="recover-btn" style="background: #ff4081; box-shadow: 0 12px 24px -6px rgba(255, 64, 129, 0.4);" onclick="recoverPassword()">
-                <i class="material-icons">send</i> Enviar Enlace
-            </button>
-            
-            <p class="text-link"><a href="#" onclick="showLoginForm()">Volver al inicio de sesión</a></p>
         </div>
     </div>
 
-    <script type="module">
+    <div id="login-screen" class="screen" style="display: none;">
+      <div id="login-form" class="login-form">
+          <h3 style="font-size: 2rem;">Bienvenido</h3>
+          <p class="form-subtitle">Ingresa tus credenciales para acceder</p>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">alternate_email</span>
+              <input type="email" id="login-email" placeholder="Email" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">lock_outline</span>
+              <input type="password" id="login-password" placeholder="Contraseña" class="input-field">
+              <span class="material-icons password-toggle" onclick="togglePasswordVisibility('login-password', this)">visibility</span>
+          </div>
+          
+          <div class="recaptcha-container">
+              <div id="login-recaptcha"></div>
+          </div>
+          
+          <button class="primary-btn" onclick="loginWithEmail()">
+              <span>Iniciar Sesión</span>
+          </button>
+          
+          <div class="text-link">
+              <a href="#" onclick="showRecoverPasswordForm(); return false;">¿Problemas para entrar? Recuperar</a>
+          </div>
+          
+          <div class="separator"><span>o</span></div>
+          
+          <button class="register-btn" onclick="showRegisterForm()">No tengo cuenta, registrarme</button>
+      </div>
+
+      <div id="register-form" class="register-form">
+          <h3 style="font-size: 2rem;">Crear cuenta</h3>
+          <p class="form-subtitle">Forma parte de nuestra comunidad</p>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">person_outline</span>
+              <input type="text" id="register-name" placeholder="Nombre completo" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">mail_outline</span>
+              <input type="email" id="register-email" placeholder="Email institucional" class="input-field">
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">lock_open</span>
+              <input type="password" id="register-password" placeholder="Contraseña (mín. 6)" class="input-field">
+              <span class="material-icons password-toggle" onclick="togglePasswordVisibility('register-password', this)">visibility</span>
+          </div>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">shield</span>
+              <input type="password" id="register-confirm-password" placeholder="Confirmar contraseña" class="input-field">
+              <span class="material-icons password-toggle" onclick="togglePasswordVisibility('register-confirm-password', this)">visibility</span>
+          </div>
+          
+          <div class="recaptcha-container">
+              <div id="register-recaptcha"></div>
+          </div>
+          
+          <button class="primary-btn" onclick="openTermsModal()">
+              <span>Registrarse ahora</span>
+          </button>
+          
+          <div class="text-link">
+              ¿Ya eres miembro? <a href="#" onclick="showLoginForm(); return false;">Inicia sesión</a>
+          </div>
+      </div>
+
+      <div id="recover-password-form" class="recover-password-form">
+          <div class="text-center mb-6">
+              <span class="material-icons text-blue-500 text-6xl">key</span>
+          </div>
+          <h3 style="font-size: 2rem;">¿Olvidaste tu clave?</h3>
+          <p class="form-subtitle">Enviaremos instrucciones a tu correo</p>
+          
+          <div class="input-group">
+              <span class="material-icons field-icon">mark_email_read</span>
+              <input type="email" id="recover-email" placeholder="Email registrado" class="input-field">
+          </div>
+          
+          <button class="recover-btn" onclick="recoverPassword()">
+              <span>Enviar enlace de recuperación</span>
+          </button>
+          
+          <div class="text-link">
+              <a href="#" onclick="showLoginForm(); return false;" class="flex items-center justify-center gap-2">
+                  <span class="material-icons text-sm">arrow_back</span> Volver al inicio
+              </a>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="terms-modal" class="modal-overlay fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[20000] hidden flex items-center justify-center p-4">
+    <div class="modal-3d animate-in zoom-in duration-300">
+        <div class="flex flex-col items-center text-center">
+            <span class="material-icons text-5xl text-emerald-500 mb-4">verified</span>
+            <h4 class="text-xl font-bold mb-2">Términos de Servicio</h4>
+            <div class="bg-slate-50 p-4 rounded-2xl text-sm text-slate-600 mb-6 text-left border border-slate-100">
+                Al registrarte, confirmas que eres mayor de edad y que harás un uso responsable de los servicios de Masitaprex. No se permiten actividades ilícitas.
+            </div>
+            <label class="flex items-start gap-3 mb-6 cursor-pointer group">
+                <input type="checkbox" id="accept-terms-check" class="mt-1 w-5 h-5 accent-blue-600 rounded">
+                <span class="text-sm text-slate-500 text-left group-hover:text-slate-700 transition-colors">Acepto los términos y el aviso de privacidad de datos.</span>
+            </label>
+            <button id="confirm-terms-btn" class="primary-btn !m-0 disabled:opacity-50 disabled:shadow-none" disabled>
+                Confirmar Registro
+            </button>
+            <button onclick="closeTermsModal()" class="mt-4 text-sm font-semibold text-slate-400">Quizás más tarde</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- NUEVO: Modal de mensajes amigables -->
+  <div id="message-modal" class="message-modal-overlay">
+    <div id="message-modal-content" class="message-modal-content">
+      <div id="message-modal-icon" class="message-modal-icon">
+        <span class="material-icons" style="font-size: 56px; color: #3b82f6;">info</span>
+      </div>
+      <p id="message-modal-text" class="message-modal-text"></p>
+    </div>
+  </div>
+  
+  <div id="loading-indicator" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[10000] hidden items-center justify-center">
+      <div class="flex gap-2">
+          <div class="w-4 h-4 rounded-full bg-blue-600 animate-bounce"></div>
+          <div class="w-4 h-4 rounded-full bg-emerald-500 animate-bounce [animation-delay:-.3s]"></div>
+          <div class="w-4 h-4 rounded-full bg-blue-600 animate-bounce [animation-delay:-.5s]"></div>
+      </div>
+  </div>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, onAuthStateChanged, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
