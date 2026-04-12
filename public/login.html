@@ -564,6 +564,731 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { 
+      getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+      onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, 
+      GithubAuthProvider, signInWithPopup, sendEmailVerification, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { 
+      getFirestore, doc, setDoc, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    let auth, db;
+    let recaptchaSiteKey = "6Lfy85ssAAAAAAV0CGl1-aoW-mLKjuKxxm0-YpNn";
+    let appConfig;
+    
+    let loginRecaptchaWidgetId = null;
+    let registerRecaptchaWidgetId = null;
+    let recaptchaRefreshTimer = null;
+
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const loginScreen = document.getElementById('login-screen');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const recoverPasswordForm = document.getElementById('recover-password-form');
+    const termsModal = document.getElementById('terms-modal');
+    const termsCheck = document.getElementById('accept-terms-check');
+    const confirmTermsBtn = document.getElementById('confirm-terms-btn');
+
+    // NUEVO: Sistema de mensajes amigables
+    const messageModal = document.getElementById('message-modal');
+    const messageModalContent = document.getElementById('message-modal-content');
+    const messageModalIcon = document.getElementById('message-modal-icon');
+    const messageModalText = document.getElementById('message-modal-text');
+
+    // ✅ Generar deviceId único
+    async function getDeviceModel() {
+        try {
+            if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+                const uaData = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
+                return uaData.model || uaData.platform || 'Unknown Device';
+            }
+        } catch (e) {
+            console.error('Error getting device model:', e);
+        }
+        return 'Unknown Device';
+    }
+
+    function getDeviceId() {
+        let deviceId = localStorage.getItem('deviceId');
+        if (!deviceId) {
+            deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('deviceId', deviceId);
+        }
+        return deviceId;
+    }
+
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // ✅ Función de redirección usando returnTo y sessionStorage
+    function redirectAfterAuth(user) {
+        if (user && !user.emailVerified) {
+            window.location.href = "verificacion.html";
+            return;
+        }
+
+        let returnTo = getUrlParameter('returnTo');
+        if (!returnTo || returnTo === 'null' || returnTo === 'undefined') {
+            returnTo = sessionStorage.getItem('returnTo');
+        }
+
+        if (returnTo) {
+            try {
+                const decodedUrl = decodeURIComponent(returnTo);
+                if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
+                    sessionStorage.removeItem('returnTo');
+                    window.location.href = decodedUrl;
+                    return;
+                }
+            } catch (e) {
+                console.warn('URL de retorno inválida:', e);
+            }
+        }
+        
+        window.location.href = "actividad";
+    }
+
+    // Función para convertir errores técnicos a mensajes amigables
+    function getFriendlyErrorMessage(error) {
+        const errorCode = error.code || '';
+        const errorMessage = error.message || '';
+        
+        const errorMessages = {
+            'auth/email-already-in-use': 'Este correo ya está registrado. Intenta iniciar sesión o usa otro correo.',
+            'auth/invalid-email': 'El formato del correo electrónico no es válido.',
+            'auth/operation-not-allowed': 'Esta operación no está permitida en este momento.',
+            'auth/weak-password': 'La contraseña es muy débil. Usa al menos 6 caracteres.',
+            'auth/user-disabled': 'Esta cuenta ha sido deshabilitada.',
+            'auth/user-not-found': 'No existe una cuenta con este correo electrónico.',
+            'auth/wrong-password': 'Contraseña incorrecta. Por favor verifica tus datos.',
+            'auth/invalid-credential': 'Las credenciales proporcionadas son incorrectas.',
+            'auth/too-many-requests': 'Demasiados intentos fallidos. Intenta más tarde.',
+            'auth/network-request-failed': 'Error de conexión. Verifica tu internet e intenta nuevamente.',
+            'auth/popup-closed-by-user': 'Has cerrado la ventana de autenticación.',
+            'auth/cancelled-popup-request': 'Operación cancelada.',
+            'auth/popup-blocked': 'El navegador bloqueó la ventana emergente. Permite ventanas emergentes e intenta nuevamente.',
+            'auth/account-exists-with-different-credential': 'Ya existe una cuenta con este correo usando otro método de acceso.',
+            'auth/invalid-verification-code': 'El código de verificación no es válido.',
+            'auth/invalid-verification-id': 'El ID de verificación no es válido.',
+            'auth/missing-verification-code': 'Falta el código de verificación.',
+            'auth/missing-verification-id': 'Falta el ID de verificación.',
+            'auth/requires-recent-login': 'Por seguridad, debes iniciar sesión nuevamente.',
+            'auth/expired-action-code': 'El código ha expirado. Solicita uno nuevo.',
+            'auth/invalid-action-code': 'El código no es válido. Solicita uno nuevo.',
+        };
+
+        if (errorMessages[errorCode]) {
+            return errorMessages[errorCode];
+        }
+
+        if (errorMessage.toLowerCase().includes('firebase')) {
+            return 'Ocurrió un error inesperado. Por favor intenta nuevamente.';
+        }
+
+        return 'Ha ocurrido un problema. Intenta nuevamente en unos momentos.';
+    }
+
+    // Función para mostrar modal de mensajes
+    function showMessageModal(message, type = 'info') {
+        const iconElement = messageModalIcon.querySelector('.material-icons');
+        
+        const icons = {
+            'success': { icon: 'check_circle', color: '#10b981' },
+            'error': { icon: 'error', color: '#ef4444' },
+            'info': { icon: 'info', color: '#3b82f6' },
+            'warning': { icon: 'warning', color: '#f59e0b' }
+        };
+
+        const iconConfig = icons[type] || icons.info;
+        iconElement.textContent = iconConfig.icon;
+        iconElement.style.color = iconConfig.color;
+        
+        messageModalText.textContent = message;
+        messageModal.classList.add('show');
+        messageModalContent.classList.remove('closing');
+
+        setTimeout(() => {
+            closeMessageModal();
+        }, 3000);
+    }
+
+    // Función para cerrar el modal
+    function closeMessageModal() {
+        messageModalContent.classList.add('closing');
+        setTimeout(() => {
+            messageModal.classList.remove('show');
+            messageModalContent.classList.remove('closing');
+        }, 300);
+    }
+
+    messageModal.addEventListener('click', (e) => {
+        if (e.target === messageModal) {
+            closeMessageModal();
+        }
+    });
+
+    function showLoadingOverlay() { loadingIndicator.style.display = 'flex'; }
+    function hideLoadingOverlay() { loadingIndicator.style.display = 'none'; }
+
+    function hideAllForms() {
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'none';
+        if (recoverPasswordForm) recoverPasswordForm.style.display = 'none';
+    }
+
+    window.goToWelcomeScreen = function() {
+        welcomeScreen.style.display = 'flex';
+        loginScreen.style.display = 'none';
+        hideAllForms();
+    };
+
+    window.showLoginFormFromWelcome = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        showLoginForm();
+    };
+
+    window.showRegisterFormFromWelcome = function() {
+        welcomeScreen.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        showRegisterForm();
+    };
+
+    window.openTermsModal = () => {
+        const name = document.getElementById('register-name')?.value;
+        const email = document.getElementById('register-email')?.value;
+        const password = document.getElementById('register-password')?.value;
+        
+        const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
+        if (!recaptchaResponse) {
+            showMessageModal('Por favor, verifica que no eres un robot', 'warning');
+            return;
+        }
+        
+        if (!name || !email || !password) {
+            showMessageModal('Completa todos los campos antes de continuar', 'warning');
+            return;
+        }
+        
+        termsModal.style.display = 'flex';
+    };
+
+    window.closeTermsModal = () => {
+        termsModal.style.display = 'none';
+    };
+
+    window.showTermsModal = function() {
+        termsModal.style.display = 'flex';
+        if (termsCheck) termsCheck.checked = false;
+        if (confirmTermsBtn) confirmTermsBtn.disabled = true;
+    };
+
+    if (termsCheck) {
+        termsCheck.addEventListener('change', () => {
+            if (confirmTermsBtn) confirmTermsBtn.disabled = !termsCheck.checked;
+        });
+    }
+
+    if (confirmTermsBtn) {
+        confirmTermsBtn.addEventListener('click', () => {
+            closeTermsModal();
+            registerNewAccount();
+        });
+    }
+
+    window.recaptchaOnLoad = function() {
+        if (loginForm?.style.display === 'flex') {
+            initLoginRecaptcha();
+        } else if (registerForm?.style.display === 'flex') {
+            initRegisterRecaptcha();
+        }
+    };
+
+    function initLoginRecaptcha() {
+        if (loginRecaptchaWidgetId !== null) {
+            grecaptcha.reset(loginRecaptchaWidgetId);
+            return;
+        }
+        const container = document.getElementById('login-recaptcha');
+        if (container && window.grecaptcha) {
+            loginRecaptchaWidgetId = grecaptcha.render(container, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'callback': () => startRecaptchaRefreshTimer(loginRecaptchaWidgetId)
+            });
+        }
+    }
+
+    function initRegisterRecaptcha() {
+        if (registerRecaptchaWidgetId !== null) {
+            grecaptcha.reset(registerRecaptchaWidgetId);
+            return;
+        }
+        const container = document.getElementById('register-recaptcha');
+        if (container && window.grecaptcha) {
+            registerRecaptchaWidgetId = grecaptcha.render(container, {
+                'sitekey': recaptchaSiteKey,
+                'theme': 'light',
+                'callback': () => startRecaptchaRefreshTimer(registerRecaptchaWidgetId)
+            });
+        }
+    }
+
+    function startRecaptchaRefreshTimer(widgetId) {
+        if (recaptchaRefreshTimer) clearTimeout(recaptchaRefreshTimer);
+        recaptchaRefreshTimer = setTimeout(() => {
+            if (widgetId !== null && window.grecaptcha) {
+                grecaptcha.reset(widgetId);
+                startRecaptchaRefreshTimer(widgetId);
+            }
+        }, 50000);
+    }
+
+    window.showRegisterForm = () => {
+        hideAllForms();
+        if (registerForm) registerForm.style.display = 'flex';
+        setTimeout(() => initRegisterRecaptcha(), 100);
+    };
+
+    window.showLoginForm = () => {
+        hideAllForms();
+        if (loginForm) loginForm.style.display = 'flex';
+        setTimeout(() => initLoginRecaptcha(), 100);
+    };
+
+    window.showRecoverPasswordForm = () => {
+        hideAllForms();
+        if (recoverPasswordForm) recoverPasswordForm.style.display = 'flex';
+        if (recaptchaRefreshTimer) {
+            clearTimeout(recaptchaRefreshTimer);
+            recaptchaRefreshTimer = null;
+        }
+    };
+
+    window.togglePasswordVisibility = (inputId, icon) => {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility_off';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility';
+        }
+    };
+
+    async function validateRecaptchaWithBackend(recaptchaResponse) {
+        try {
+            const response = await fetch('/api/validate-recaptcha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recaptchaResponse })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Error validando reCAPTCHA');
+            return data.success;
+        } catch (error) {
+            console.error('Error validando reCAPTCHA:', error);
+            throw error;
+        }
+    }
+
+    async function initFirebase() {
+      try {
+        const response = await fetch('/api/config');
+        appConfig = await response.json();
+        const app = initializeApp(appConfig.firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (appConfig.recaptchaSiteKey) {
+            recaptchaSiteKey = appConfig.recaptchaSiteKey;
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            if (user.emailVerified) {
+                redirectAfterAuth(user);
+            } else {
+                const returnTo = getUrlParameter('returnTo');
+                const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
+                window.location.href = verificationUrl;
+            }
+          } else {
+            setTimeout(() => {
+                goToWelcomeScreen();
+                hideLoadingOverlay();
+            }, 500);
+          }
+        });
+      } catch (error) {
+        console.error("Error al cargar configuración:", error);
+        setTimeout(() => {
+            goToWelcomeScreen();
+            hideLoadingOverlay();
+        }, 500);
+      }
+    }
+
+    initFirebase();
+
+    // ================================================================
+    // ✅ SOLUCIÓN DEFINITIVA: keepalive: true + await + delays
+    // ================================================================
+    async function notifyBackendWelcomeEmail(user) {
+        console.log('[🔔 NOTIFY] Iniciando notificación backend', {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName
+        });
+
+        try {
+            if (!user || !user.uid || !user.email) {
+                console.warn('[⚠️ NOTIFY] Datos incompletos');
+                return;
+            }
+
+            // ✅ keepalive: true asegura que la petición NO se cancele al redirigir
+            const response = await fetch('/api/notify-verification', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || null
+                }),
+                keepalive: true  // ✅ CLAVE: Mantiene la petición viva después de redirect
+            });
+
+            console.log('[📥 NOTIFY] Respuesta recibida', {
+                status: response.status,
+                ok: response.ok
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('[✅ NOTIFY] Correo enviado exitosamente', data);
+            } else {
+                console.error('[❌ NOTIFY] Error del servidor:', response.status);
+            }
+
+        } catch (err) {
+            console.error('[❌ NOTIFY] Error en petición:', err.message);
+        }
+    }
+
+    // ================================================================
+    // ✅ GOOGLE LOGIN: await + delay 500ms + delay 1000ms
+    // ================================================================
+    window.signInWithGoogle = async function() {
+        try {
+            showLoadingOverlay();
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            
+            console.log('[🔵 GOOGLE] Iniciando autenticación...');
+            const result = await signInWithPopup(auth, provider);
+            console.log('[🔵 GOOGLE] Login exitoso:', result.user.email);
+
+            // 1. Guardar perfil
+            await saveUserProfile(result.user, result.user.displayName);
+            console.log('[🔵 GOOGLE] Perfil guardado');
+
+            // 2. ✅ Notificar al backend (con keepalive)
+            console.log('[🔵 GOOGLE] Notificando backend...');
+            await notifyBackendWelcomeEmail(result.user);
+            
+            // 3. ✅ Delay de seguridad 500ms
+            console.log('[🔵 GOOGLE] Delay seguridad 500ms...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // 4. Mostrar mensaje
+            showMessageModal('Inicio de sesión exitoso', 'success');
+            
+            // 5. ✅ Delay antes de redirección 1000ms
+            console.log('[🔵 GOOGLE] Delay pre-redirect 1000ms...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 6. Redirigir
+            console.log('[🔵 GOOGLE] Redirigiendo...');
+            redirectAfterAuth(result.user);
+            
+        } catch (error) {
+            console.error('[❌ GOOGLE] Error:', error);
+            hideLoadingOverlay();
+            showMessageModal(getFriendlyErrorMessage(error), 'error');
+        }
+    };
+
+    // ================================================================
+    // ✅ GITHUB LOGIN: await + delay 500ms + delay 1000ms
+    // ================================================================
+    window.signInWithGithub = async function() {
+        try {
+            showLoadingOverlay();
+            const provider = new GithubAuthProvider();
+            provider.setCustomParameters({ allow_signup: 'true' });
+            
+            console.log('[⚫ GITHUB] Iniciando autenticación...');
+            const result = await signInWithPopup(auth, provider);
+            console.log('[⚫ GITHUB] Login exitoso:', result.user.email);
+
+            // 1. Guardar perfil
+            await saveUserProfile(result.user, result.user.displayName);
+            console.log('[⚫ GITHUB] Perfil guardado');
+
+            // 2. ✅ Notificar al backend (con keepalive)
+            console.log('[⚫ GITHUB] Notificando backend...');
+            await notifyBackendWelcomeEmail(result.user);
+            
+            // 3. ✅ Delay de seguridad 500ms
+            console.log('[⚫ GITHUB] Delay seguridad 500ms...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // 4. Mostrar mensaje
+            showMessageModal('Inicio de sesión exitoso', 'success');
+            
+            // 5. ✅ Delay antes de redirección 1000ms
+            console.log('[⚫ GITHUB] Delay pre-redirect 1000ms...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // 6. Redirigir
+            console.log('[⚫ GITHUB] Redirigiendo...');
+            redirectAfterAuth(result.user);
+            
+        } catch (error) {
+            console.error('[❌ GITHUB] Error:', error);
+            hideLoadingOverlay();
+            showMessageModal(getFriendlyErrorMessage(error), 'error');
+        }
+    };
+
+    // ================================================================
+    // ✅ LOGIN CON EMAIL - CORREGIDO: NO REPORTAR FALLOS SI ES EXITOSO
+    // ================================================================
+    window.loginWithEmail = async () => {
+      const email = document.getElementById('login-email')?.value;
+      const password = document.getElementById('login-password')?.value;
+      
+      if (!email || !password) { 
+          showMessageModal('Por favor completa todos los campos', 'warning');
+          return; 
+      }
+      
+      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
+      if (!recaptchaResponse) { 
+          showMessageModal('Por favor, verifica que no eres un robot', 'warning');
+          return; 
+      }
+      
+      showLoadingOverlay();
+      
+      try {
+          // ✅ 1. VALIDAR CON EL BACKEND ANTES DE FIREBASE
+          const deviceId = getDeviceId();
+          const deviceModel = await getDeviceModel();
+          const returnTo = getUrlParameter('returnTo') || sessionStorage.getItem('returnTo') || '';
+          
+          const backendResponse = await fetch('/api/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  email,
+                  password,
+                  recaptchaResponse,
+                  returnTo,
+                  deviceId,
+                  deviceModel
+              })
+          });
+
+          const backendData = await backendResponse.json();
+
+          // ✅ 2. SI EL BACKEND DEVUELVE ERROR account_blocked, DETENER
+          if (!backendResponse.ok) {
+              hideLoadingOverlay();
+              if (loginRecaptchaWidgetId !== null) grecaptcha.reset(loginRecaptchaWidgetId);
+
+              if (backendData.error === 'account_blocked') {
+                  const hoursRemaining = Math.ceil(backendData.remainingMinutes / 60);
+                  showMessageModal(
+                      `Tu cuenta está bloqueada por seguridad debido a múltiples intentos fallidos. Intenta nuevamente en ${hoursRemaining} hora(s).`,
+                      'error'
+                  );
+                  return;
+              }
+
+              showMessageModal(backendData.error || 'Error en la validación', 'error');
+              return;
+          }
+
+          // ✅ 3. SI EL BACKEND RESPONDE OK, CONTINUAR CON FIREBASE AUTH
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          await saveUserProfile(userCredential.user);
+          
+          // ✅ 4. LOGIN EXITOSO - NO REPORTAR COMO FALLO
+          hideLoadingOverlay();
+          
+          if (!userCredential.user.emailVerified) {
+              const verificationUrl = returnTo ? `verificacion.html?returnTo=${encodeURIComponent(returnTo)}` : "verificacion.html";
+              window.location.href = verificationUrl;
+          } else {
+              redirectAfterAuth(userCredential.user);
+          }
+
+      } catch (error) {
+          hideLoadingOverlay();
+          if (loginRecaptchaWidgetId !== null) grecaptcha.reset(loginRecaptchaWidgetId);
+
+          // ✅ 5. SOLO REPORTAR SI REALMENTE FALLÓ LA AUTENTICACIÓN
+          const errorCode = error.code || '';
+          
+          if (errorCode === 'auth/invalid-credential' || 
+              errorCode === 'auth/wrong-password' || 
+              errorCode === 'auth/user-not-found') {
+              
+	              // ✅ REPORTAR INTENTO FALLIDO AL BACKEND
+	              try {
+	                  const deviceModel = await getDeviceModel();
+	                  const reportResponse = await fetch('/api/report-failed-login', {
+	                      method: 'POST',
+	                      headers: { 'Content-Type': 'application/json' },
+	                      body: JSON.stringify({ email, deviceModel })
+	                  });
+
+                  const reportData = await reportResponse.json();
+
+                  if (reportData.success) {
+                      const remainingAttempts = reportData.maxAttempts - reportData.currentAttempts;
+                      
+                      if (reportData.isBlocked) {
+                          const hoursRemaining = Math.ceil(reportData.remainingMinutes / 60);
+                          showMessageModal(
+                              `Tu cuenta ha sido bloqueada por seguridad. Intenta nuevamente en ${hoursRemaining} hora(s).`,
+                              'error'
+                          );
+                      } else {
+                          showMessageModal(
+                              `Credenciales incorrectas. Te quedan ${remainingAttempts} intentos antes de que tu cuenta sea bloqueada por seguridad.`,
+                              'error'
+                          );
+                      }
+                  } else {
+                      showMessageModal(getFriendlyErrorMessage(error), 'error');
+                  }
+              } catch (reportError) {
+                  console.error('Error reportando intento fallido:', reportError);
+                  showMessageModal(getFriendlyErrorMessage(error), 'error');
+              }
+          } else {
+              showMessageModal(getFriendlyErrorMessage(error), 'error');
+          }
+      }
+    };
+
+    window.registerNewAccount = async () => {
+      const name = document.getElementById('register-name')?.value;
+      const email = document.getElementById('register-email')?.value;
+      const password = document.getElementById('register-password')?.value;
+      const confirm = document.getElementById('register-confirm-password')?.value;
+      
+      if (password !== confirm) { 
+          showMessageModal('Las contraseñas no coinciden. Verifica e intenta nuevamente.', 'error');
+          return; 
+      }
+      
+      const recaptchaResponse = grecaptcha.getResponse(registerRecaptchaWidgetId);
+      if (!recaptchaResponse) { 
+          showMessageModal('Por favor, verifica que no eres un robot', 'warning');
+          return; 
+      }
+      
+      showLoadingOverlay();
+      try {
+          await validateRecaptchaWithBackend(recaptchaResponse);
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          await saveUserProfile(userCredential.user, name);
+          
+          const returnTo = getUrlParameter('returnTo');
+          if (returnTo) {
+              sessionStorage.setItem('returnTo', returnTo);
+          }
+          
+          fetch('/api/send-verification-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                  email: userCredential.user.email,
+                  name: name || userCredential.user.displayName || userCredential.user.email.split('@')[0]
+              })
+          }).catch(err => console.error('Error fetch email:', err));
+          
+          showMessageModal('Cuenta creada exitosamente. Revisa tu correo para verificar tu cuenta.', 'success');
+          setTimeout(() => {
+              window.location.href = "verificacion.html";
+          }, 2000);
+      } catch (error) {
+          hideLoadingOverlay();
+          if (registerRecaptchaWidgetId !== null) grecaptcha.reset(registerRecaptchaWidgetId);
+          showMessageModal(getFriendlyErrorMessage(error), 'error');
+      }
+    };
+
+    window.recoverPassword = async () => {
+        const email = document.getElementById('recover-email')?.value;
+        
+        if (!email) { 
+            showMessageModal('Por favor ingresa tu correo electrónico', 'warning');
+            return; 
+        }
+        
+        showLoadingOverlay();
+        try {
+            await sendPasswordResetEmail(auth, email);
+            hideLoadingOverlay();
+            showMessageModal('Hemos enviado un enlace de recuperación a tu correo. Revisa tu bandeja de entrada.', 'success');
+            setTimeout(() => showLoginForm(), 3000);
+        } catch (error) {
+            hideLoadingOverlay();
+            showMessageModal(getFriendlyErrorMessage(error), 'error');
+        }
+    };
+
+    async function saveUserProfile(user, name = null) {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+          email: user.email,
+          name: name || user.displayName || user.email.split('@')[0],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (e) { 
+          console.error('Error perfil:', e); 
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const returnTo = getUrlParameter('returnTo');
+        if (returnTo) {
+            sessionStorage.setItem('returnTo', returnTo);
+        }
+        
+        hideAllForms();
+        showLoadingOverlay();
+    });
+  </script>
+</body>
+</html>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, onAuthStateChanged, updateProfile, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
