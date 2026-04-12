@@ -1686,6 +1686,44 @@ function updateOGTags(movie) {
     setMeta('meta[name="description"]', 'content', descripcion);
 }
 
+/* ==========================================================
+   ✨ FUNCIÓN MEJORADA: COMPARTIR (CORREGIDA)
+   ========================================================= */
+function shareCurrentMovie() {
+    if (!currentMovie || !currentMovie.titulo) {
+        showErrorModal("No hay ninguna película seleccionada para compartir.");
+        return;
+    }
+    
+    const titulo = currentMovie.titulo;
+    const descripcion = currentMovie.descripcion ? currentMovie.descripcion.substring(0, 150) + '...' : 'Dale play ahora mismo en PeliPREX HD.';
+    const imagen = currentMovie.imagen_url || '';
+    const movieParam = encodeURIComponent(currentMovie.id || currentMovie.titulo);
+    const url = `${window.location.origin}${window.location.pathname}?movie=${movieParam}`;
+    
+    const shareText = imagen 
+        ? `${imagen}\n\n🎬 *${titulo}*\n${descripcion}\n\n▶️ Ver ahora: ${url}`
+        : `🎬 *${titulo}*\n${descripcion}\n\n▶️ Ver ahora: ${url}`;
+    
+    if (navigator.share && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        navigator.share({
+            title: `🎬 ${titulo} | PeliPREX HD`,
+            text: descripcion,
+            url: url
+        }).catch(error => {
+            if (error.name !== 'AbortError') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+            }
+        });
+    } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+}
+
+function closeShareBanner() {
+    document.getElementById('banner').style.display = 'none';
+}
+
 function displayMovieDetails(movie) {
     currentMovie = movie;
     updateOGTags(movie);
@@ -1812,15 +1850,11 @@ function displayMovieDetails(movie) {
     }
 
     document.getElementById('modal-play').onclick      = (e) => { e.preventDefault(); window.location.href = "planes.html"; };
+    
+    // ✨ BOTÓN COMPARTIR CORREGIDO: ahora funciona y abre el banner con la opción real de compartir
     document.getElementById('modal-share-btn').onclick = (e) => {
         e.preventDefault();
-        if (currentMovie && currentMovie.titulo) {
-            const bannerTitle = document.getElementById('banner-dynamic-title');
-            const bannerMovieName = document.getElementById('banner-movie-name');
-            if (bannerTitle) bannerTitle.textContent = `🎬 ¡Comparte "${currentMovie.titulo}"!`;
-            if (bannerMovieName) bannerMovieName.textContent = `¿Te gustó "${currentMovie.titulo}"? ¡Compártela con tus amigos en WhatsApp, Telegram o Messenger! 📲`;
-        }
-        document.getElementById('banner').style.display = 'flex';
+        shareCurrentMovie();
     };
 
     fetchSuggestionsToModal();
@@ -2007,23 +2041,11 @@ document.getElementById('link-credits').onclick  = (e) => { e.preventDefault(); 
 document.getElementById('link-support').onclick  = (e) => { e.preventDefault(); window.location.href = 'ayuda.html'; };
 document.getElementById('link-share').onclick    = (e) => {
     e.preventDefault();
-    if (currentMovie && currentMovie.titulo) {
-        const bannerTitle = document.getElementById('banner-dynamic-title');
-        const bannerMovieName = document.getElementById('banner-movie-name');
-        if (bannerTitle) bannerTitle.textContent = `🎬 ¡Comparte "${currentMovie.titulo}"!`;
-        if (bannerMovieName) bannerMovieName.textContent = `¿Te gustó "${currentMovie.titulo}"? ¡Compártela con tus amigos en WhatsApp, Telegram o Messenger! 📲`;
-    }
-    document.getElementById('banner').style.display = 'flex';
+    shareCurrentMovie();
 };
 document.getElementById('modal-share-btn').onclick= (e) => {
     e.preventDefault();
-    if (currentMovie && currentMovie.titulo) {
-        const bannerTitle = document.getElementById('banner-dynamic-title');
-        const bannerMovieName = document.getElementById('banner-movie-name');
-        if (bannerTitle) bannerTitle.textContent = `🎬 ¡Comparte "${currentMovie.titulo}"!`;
-        if (bannerMovieName) bannerMovieName.textContent = `¿Te gustó "${currentMovie.titulo}"? ¡Compártela con tus amigos en WhatsApp, Telegram o Messenger! 📲`;
-    }
-    document.getElementById('banner').style.display = 'flex';
+    shareCurrentMovie();
 };
 document.getElementById('link-legal').onclick    = (e) => { e.preventDefault(); window.location.href = 'avisolegalpeliprex.html'; };
 
@@ -2109,8 +2131,8 @@ _noCreditObs_act.observe(document.getElementById('no-credits-modal'),{attributes
         <p id="banner-movie-name">¿Te gustó esta película? ¡Compártela con tus amigos en WhatsApp, Telegram o Messenger! 🎬📲</p>  
         <p>Descubre más estrenos y películas en HD totalmente gratis en <strong>PeliPREX</strong>. ¡Dale play sin instalar nada! 🍿✨</p>  
     </div>  
-    <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
-    <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
+    <a href="#" class="cta-button" onclick="shareCurrentMovie(); return false;"><i class="fas fa-share-alt icon"></i> Compartir ahora</a>  
+    <a href="#" class="close-modal" onclick="closeShareBanner(); return false;"><i class="fas fa-times icon"></i> Quizás más tarde</a>  
 </div>
 
 <style>
@@ -2148,42 +2170,6 @@ _noCreditObs_act.observe(document.getElementById('no-credits-modal'),{attributes
     .close-modal { background-color: red; color: #FFFFFF; }  
     .close-modal:hover { background-color: darkred; transform: scale(1.08); }  
     .icon { margin-right: 8px; color: #FF00FF; }
-    function sharePage() {  
-        let url = window.location.href;  
-        let title = "🎬 PeliPREX HD | Ver Películas Gratis Online en Alta Calidad";  
-        let text = "🍿 ¡Mira películas gratis en HD sin instalar nada! Entra a PeliPREX y disfruta el mejor catálogo de estrenos online.";
-        let whatsappText = text + " " + url;
-
-        if (typeof currentMovie !== 'undefined' && currentMovie) {
-            const movieParam = encodeURIComponent(currentMovie.id || currentMovie.titulo);
-            const baseUrl = window.location.origin + window.location.pathname;
-            url = `${baseUrl}?movie=${movieParam}`;
-            title = `🎬 ${currentMovie.titulo} | PeliPREX HD`;
-            const desc = currentMovie.descripcion ? currentMovie.descripcion.substring(0, 120) + '...' : 'Dale play ahora mismo en PeliPREX HD.';
-            const imgUrl = currentMovie.imagen_url || '';
-            whatsappText = imgUrl
-                ? `${imgUrl}
-
-🎬 *${currentMovie.titulo}*
-${desc}
-
-▶️ Ver ahora: ${url}`
-                : `🎬 *${currentMovie.titulo}*
-${desc}
-
-▶️ Ver ahora: ${url}`;
-            text = `🎬 ${currentMovie.titulo} - ${desc}`;
-        }
-
-        if (navigator.share) {  
-            navigator.share({ title, text, url })  
-                .catch(error => console.log("Error al compartir:", error));  
-        } else {  
-            const whatsappLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}`;
-            window.open(whatsappLink, '_blank');
-        }  
-    }
-    function closeBanner() { document.getElementById('banner').style.display = 'none'; }
 </style>
 </body>
 </html>
