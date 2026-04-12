@@ -1926,7 +1926,7 @@ async function deleteAccountPermanently() {
         window.location.href = "login.html";
     } catch (error) {
         if (error && error.code === 'auth/requires-recent-login') {
-            showErrorModal("Por seguridad, necesitas volver a iniciar sesión para poder eliminar tu cuenta. Cierra sesión e inicia sesión nuevamente, y vuelve a intentarlo.");
+            showErrorModal("Por tu seguridad, necesitamos confirmar que realmente eres el propietario de la cuenta. Para continuar, cierra sesión y vuelve a iniciar sesión nuevamente. Luego podrás eliminar tu cuenta sin inconvenientes. Este paso adicional protege tu información y evita accesos no autorizados ");
             return;
         }
         showErrorModal("No se pudo eliminar la cuenta definitivamente. Intenta de nuevo.");
