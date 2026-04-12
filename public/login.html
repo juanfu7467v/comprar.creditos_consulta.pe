@@ -625,10 +625,30 @@
     }
 
     // ✅ Función de redirección usando returnTo y sessionStorage
-    function redirectAfterAuth(user) {
+    async function redirectAfterAuth(user) {
         if (user && !user.emailVerified) {
             window.location.href = "verificacion.html";
             return;
+        }
+
+        // Notificar login exitoso al backend con el modelo de dispositivo
+        try {
+            const deviceModel = await getDeviceModel();
+            const idToken = await user.getIdToken();
+            await fetch('/api/login-success', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user.email,
+                    uid: user.uid,
+                    displayName: user.displayName,
+                    idToken: idToken,
+                    deviceModel: deviceModel
+                }),
+                keepalive: true
+            });
+        } catch (e) {
+            console.error('Error notificando login exitoso:', e);
         }
 
         let returnTo = getUrlParameter('returnTo');

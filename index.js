@@ -119,8 +119,46 @@ const mpClient = MERCADOPAGO_ACCESS_TOKEN ? new MercadoPagoConfig({
 app.post("/api/login-success", async (req, res) => {
   const context = 'LOGIN_SUCCESS_API';
   try {
-    const { email, uid, displayName, isNewUser, idToken } = req.body;
+    const { email, uid, displayName, isNewUser, idToken, deviceModel } = req.body;
     if (!email) return res.status(400).json({ success: false, error: 'Email is required' });
+
+    // Verificar si es un inicio de sesión desde un dispositivo nuevo/sospechoso
+    try {
+      if (db && uid) {
+        const userRef = db.collection("usuarios").doc(uid);
+        const userDoc = await userRef.get();
+        
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          const lastDevice = userData.lastDeviceModel;
+          
+          // Si ya tenía un dispositivo registrado y el actual es diferente, es sospechoso
+          if (lastDevice && deviceModel && lastDevice !== deviceModel) {
+            const ip = getClientIp(req);
+            const location = await getLocationFromIP(ip);
+            const nombre = displayName || userData.name || email.split('@')[0];
+            
+            logger.warn(context, '⚠️ Inicio de sesión sospechoso detectado (cambio de dispositivo)', {
+              email, uid, oldDevice: lastDevice, newDevice: deviceModel, ip
+            });
+            
+            // Enviar correo de alerta (sin bloquear el flujo principal)
+            enviarCorreoSospechoso(email, nombre, location, ip, req.headers['user-agent'], resend)
+              .catch(err => logger.error(context, 'Error enviando correo sospechoso', err));
+          }
+          
+          // Actualizar el modelo del último dispositivo
+          if (deviceModel) {
+            await userRef.update({ 
+              lastDeviceModel: deviceModel,
+              lastLoginAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+          }
+        }
+      }
+    } catch (deviceError) {
+      logger.error(context, 'Error verificando dispositivo sospechoso', deviceError);
+    }
 
     await resetLoginAttempts(email);
 
