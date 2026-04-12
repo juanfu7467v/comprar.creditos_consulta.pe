@@ -541,6 +541,42 @@ export async function enviarCorreoRechazo(email, nombre, orderId, monto, descrip
   }
 }
 
+export async function enviarCorreoSoporte(data, resend) {
+  const context = 'ENVIAR_CORREO_SOPORTE';
+  try {
+    const { name, email, subject, message, timestamp } = data;
+    const CORREO_SUPPORT = process.env.CORREO_SUPPORT || 'soporte@masitaprex.com';
+    
+    const htmlContent = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+        <h2 style="color: #7B2F9D; border-bottom: 2px solid #00F0FF; padding-bottom: 10px;">Nueva Consulta de Soporte</h2>
+        <p><strong>De:</strong> ${name} (${email})</p>
+        <p><strong>Motivo:</strong> ${subject.replace(/_/g, ' ')}</p>
+        <p><strong>Fecha:</strong> ${new Date(timestamp).toLocaleString('es-PE')}</p>
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 4px solid #7B2F9D;">
+          <p style="white-space: pre-wrap;">${message}</p>
+        </div>
+        <footer style="margin-top: 30px; font-size: 12px; color: #888; text-align: center;">
+          Este es un mensaje automático generado desde el Centro de Ayuda de Masitaprex.
+        </footer>
+      </div>
+    `;
+
+    const result = await resend.emails.send({
+      from: 'Centro de Soporte <soporte@masitaprex.com>',
+      to: CORREO_SUPPORT,
+      subject: `[SOPORTE] ${subject.replace(/_/g, ' ').toUpperCase()} - ${name}`,
+      html: htmlContent,
+      reply_to: email
+    });
+
+    return { success: true, id: result.id };
+  } catch (error) {
+    logger.error(context, '❌ Error enviando correo de soporte', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // ================================================================
 // 🍪 HELPERS DE SESIÓN
 // ================================================================

@@ -36,6 +36,7 @@ import {
   enviarBienvenida, 
   enviarCorreoSospechoso,
   enviarCorreoRechazo,
+  enviarCorreoSoporte,
   createSessionCookie,
   PAQUETES_CREDITOS,
   PLANES_ILIMITADOS
@@ -516,6 +517,31 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api", (req, res) => res.json({ status: "ok" }));
+
+// Endpoint de Centro de Ayuda y Soporte
+app.post("/api/support/send", async (req, res) => {
+  const context = 'SUPPORT_SEND_API';
+  try {
+    const { name, email, subject, message, timestamp } = req.body;
+    
+    if (!name || !email || !subject || !message) {
+      return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
+    }
+
+    logger.info(context, 'Recibida nueva consulta de soporte', { email, subject });
+
+    const result = await enviarCorreoSoporte({ name, email, subject, message, timestamp }, resend);
+
+    if (result.success) {
+      res.json({ success: true, message: 'Consulta enviada correctamente' });
+    } else {
+      res.status(500).json({ success: false, error: 'Error al enviar el correo de soporte' });
+    }
+  } catch (error) {
+    logger.error(context, 'Error procesando envío de soporte', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
 
 // Manejo de errores global
 app.use((err, req, res, next) => {

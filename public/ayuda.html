@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Centro de Ayuda y Soporte | Masitaprex</title>
+  <meta name="description" content="¿Necesitas ayuda? Contacta con nuestro equipo de soporte para resolver dudas, problemas técnicos o consultas sobre créditos y APIs.">
+  
+  <!-- Iconos y Fuentes -->
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070A12;
+      --bg-card: rgba(15, 23, 42, 0.6);
+      --accent-primary: #00F0FF;
+      --accent-secondary: #7B2F9D;
+      --text-main: #EAF0FF;
+      --text-muted: rgba(234, 240, 255, 0.7);
+      --border-glass: rgba(255, 255, 255, 0.1);
+      --radius: 24px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(123, 47, 157, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .input-field {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-primary);
+      background: rgba(255, 255, 255, 0.08);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
+    }
+
+    .btn-submit {
+      background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+      border-radius: 14px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 240, 255, 0.2);
+      filter: brightness(1.1);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Animaciones */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-up {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* Loader */
+    .loader {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid var(--accent-primary);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <header class="mb-10 text-center animate-fade-up">
+      <div class="flex justify-center mb-6">
+        <a href="home.html">
+          <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Logo" class="w-16 h-16 drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+        </a>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-extrabold mb-3">
+        Centro de <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00F0FF] to-[#7B2F9D]">Ayuda y Soporte</span>
+      </h1>
+      <p class="text-muted text-lg max-w-2xl mx-auto">
+        Estamos aquí para ayudarte. Completa el formulario y nuestro equipo te responderá lo antes posible.
+      </p>
+    </header>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Info Column -->
+      <div class="md:col-span-1 space-y-6 animate-fade-up" style="animation-delay: 0.1s;">
+        <div class="glass-card p-6">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fas fa-info-circle text-[#00F0FF]"></i> Información
+          </h3>
+          <ul class="space-y-4 text-sm">
+            <li class="flex gap-3">
+              <i class="fas fa-clock text-muted mt-1"></i>
+              <span>Respuesta estimada en menos de 24 horas hábiles.</span>
+            </li>
+            <li class="flex gap-3">
+              <i class="fas fa-shield-alt text-muted mt-1"></i>
+              <span>Tu información está protegida por nuestras políticas de privacidad.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="glass-card p-6">
+          <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+            <i class="fas fa-lightbulb text-[#7B2F9D]"></i> FAQ Rápidas
+          </h3>
+          <div class="space-y-3 text-sm">
+            <details class="cursor-pointer group">
+              <summary class="font-medium hover:text-[#00F0FF] transition-colors">¿Cómo comprar créditos?</summary>
+              <p class="mt-2 text-muted pl-2 border-l-2 border-[#00F0FF]">Ve a la sección de planes, elige tu paquete y paga con Mercado Pago o Flow.</p>
+            </details>
+            <details class="cursor-pointer group">
+              <summary class="font-medium hover:text-[#00F0FF] transition-colors">¿Mis créditos expiran?</summary>
+              <p class="mt-2 text-muted pl-2 border-l-2 border-[#00F0FF]">No, los créditos comprados no tienen fecha de vencimiento.</p>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Column -->
+      <div class="md:col-span-2 animate-fade-up" style="animation-delay: 0.2s;">
+        <div class="glass-card p-8">
+          <form id="support-form" class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+              <!-- Nombre -->
+              <div class="space-y-2">
+                <label for="name" class="text-sm font-semibold text-muted ml-1">Nombre Completo</label>
+                <input type="text" id="name" name="name" required placeholder="Tu nombre" 
+                       class="w-full p-4 input-field">
+              </div>
+              <!-- Correo -->
+              <div class="space-y-2">
+                <label for="email" class="text-sm font-semibold text-muted ml-1">Correo Electrónico</label>
+                <input type="email" id="email" name="email" required placeholder="correo@ejemplo.com" 
+                       class="w-full p-4 input-field">
+                <p id="email-detect-msg" class="text-[10px] text-[#00F0FF] mt-1 hidden italic">
+                  <i class="fas fa-check-circle"></i> Detectado automáticamente de tu sesión
+                </p>
+              </div>
+            </div>
+
+            <!-- Tipo de Consulta -->
+            <div class="space-y-2">
+              <label for="subject" class="text-sm font-semibold text-muted ml-1">Motivo del Contacto</label>
+              <select id="subject" name="subject" required class="w-full p-4 input-field appearance-none">
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option value="problema_tecnico">Problema Técnico / Error</option>
+                <option value="consulta_pagos">Consulta sobre Pagos / Créditos</option>
+                <option value="api_soporte">Soporte para APIs</option>
+                <option value="sugerencia">Sugerencia / Feedback</option>
+                <option value="otro">Otro asunto</option>
+              </select>
+            </div>
+
+            <!-- Mensaje -->
+            <div class="space-y-2">
+              <label for="message" class="text-sm font-semibold text-muted ml-1">Detalles de tu consulta</label>
+              <textarea id="message" name="message" required rows="5" placeholder="Cuéntanos en qué podemos ayudarte..." 
+                        class="w-full p-4 input-field resize-none"></textarea>
+            </div>
+
+            <!-- Botón -->
+            <button type="submit" id="btn-submit" class="w-full p-4 btn-submit text-white shadow-lg">
+              <span id="btn-text">Enviar Mensaje</span>
+              <span id="btn-loader" class="hidden"><div class="loader mr-2"></div> Enviando...</span>
+            </button>
+          </form>
+
+          <!-- Success Message -->
+          <div id="success-msg" class="hidden mt-6 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-center">
+            <i class="fas fa-check-circle text-emerald-500 text-4xl mb-3"></i>
+            <h4 class="text-xl font-bold text-emerald-500 mb-1">¡Mensaje Enviado!</h4>
+            <p class="text-muted">Hemos recibido tu consulta. Te contactaremos pronto.</p>
+            <button onclick="location.reload()" class="mt-4 text-sm font-semibold underline hover:text-white transition-colors">Enviar otro mensaje</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-muted text-sm pb-8">
+      <p>&copy; 2026 Masitaprex. Todos los derechos reservados.</p>
+      <div class="mt-4 flex justify-center gap-6">
+        <a href="terminos-condiciones.html" class="hover:text-white transition-colors">Términos</a>
+        <a href="politica-privacidad.html" class="hover:text-white transition-colors">Privacidad</a>
+        <a href="home.html" class="hover:text-white transition-colors">Inicio</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Firebase & Lógica -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="returnConfig.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const form = document.getElementById('support-form');
+      const btnSubmit = document.getElementById('btn-submit');
+      const btnText = document.getElementById('btn-text');
+      const btnLoader = document.getElementById('btn-loader');
+      const successMsg = document.getElementById('success-msg');
+      const emailInput = document.getElementById('email');
+      const nameInput = document.getElementById('name');
+      const emailDetectMsg = document.getElementById('email-detect-msg');
+
+      // 1. Obtener configuración e inicializar Firebase
+      try {
+        const configRes = await fetch('/api/config');
+        const config = await configRes.json();
+        
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config.firebaseConfig);
+        }
+
+        // 2. Detección automática del correo
+        firebase.auth().onAuthStateChanged((user) => {
+          if (user) {
+            emailInput.value = user.email;
+            emailInput.readOnly = true;
+            emailDetectMsg.classList.remove('hidden');
+            if (user.displayName) {
+              nameInput.value = user.displayName;
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Error al inicializar soporte:', err);
+      }
+
+      // 3. Manejo del envío
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = {
+          name: nameInput.value,
+          email: emailInput.value,
+          subject: document.getElementById('subject').value,
+          message: document.getElementById('message').value,
+          timestamp: new Date().toISOString()
+        };
+
+        // UI State: Loading
+        btnSubmit.disabled = true;
+        btnText.classList.add('hidden');
+        btnLoader.classList.remove('hidden');
+
+        try {
+          const response = await fetch('/api/support/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            form.classList.add('hidden');
+            successMsg.classList.remove('hidden');
+          } else {
+            throw new Error(result.error || 'Error al enviar el mensaje');
+          }
+        } catch (err) {
+          alert('Error: ' + err.message);
+          btnSubmit.disabled = false;
+          btnText.classList.remove('hidden');
+          btnLoader.classList.add('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
