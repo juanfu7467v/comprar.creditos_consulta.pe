@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Activar Cuenta de Empresa | Masitaprex</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -63,27 +63,46 @@
             pointer-events: none; z-index: 0;
         }
 
-        /* ── LOADING ── */
+        /* ── LOADING MODERNO (3 círculos animados) ── */
         #loading-overlay {
             position: fixed; inset: 0;
             background: var(--obsidian);
-            z-index: 99;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            transition: opacity 0.5s ease-out;
+            z-index: 9999;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        #loading-overlay .spin {
-            width: 40px; height: 40px; border-radius: 50%;
-            border: 2px solid var(--border-subtle);
-            border-top-color: var(--gold);
-            animation: spin 0.9s linear infinite;
-            margin-bottom: 14px;
+        
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        #loading-overlay p {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem; letter-spacing: 0.2em;
-            text-transform: uppercase; color: var(--text-muted);
+        
+        .loading-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            box-shadow: 0 0 20px rgba(201, 160, 42, 0.5);
+            animation: loadingBounce 1.4s ease-in-out infinite;
+        }
+        
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dot:nth-child(3) { animation-delay: 0s; }
+        
+        @keyframes loadingBounce {
+            0%, 80%, 100% { 
+                transform: scale(0.6);
+                opacity: 0.5;
+            }
+            40% { 
+                transform: scale(1.2);
+                opacity: 1;
+            }
         }
 
         .hidden { display: none !important; }
@@ -94,27 +113,90 @@
             width: 100%; min-height: 100vh;
             display: flex; flex-direction: column;
             align-items: center; justify-content: flex-start;
-            padding: 48px 20px 80px;
+            padding: 24px 20px 80px;
         }
 
-        /* ── STEP INDICATOR ── */
-        .steps-bar {
-            display: flex; gap: 8px; align-items: center;
-            margin-bottom: 48px; width: 100%; max-width: 420px;
+        /* ── PROGRESS INDICATOR (números encerrados) ── */
+        .progress-header {
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 32px;
+            padding: 12px 0;
         }
-        .step-dot {
-            flex: 1; height: 3px; border-radius: 99px;
+        
+        .progress-numbers {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+        
+        .progress-number {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+        
+        .number-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: var(--surface-2);
+            border: 2px solid var(--border-subtle);
+            color: var(--text-muted);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .number-circle.active {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            border-color: var(--gold);
+            color: #000;
+            box-shadow: 0 4px 20px rgba(201, 160, 42, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .number-circle.completed {
+            background: var(--gold-dim);
+            border-color: var(--gold-dim);
+            color: #000;
+        }
+        
+        .number-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-subtle);
+            text-align: center;
+        }
+        
+        .progress-line {
+            flex: 1;
+            height: 2px;
             background: var(--surface-4);
-            transition: background 0.4s ease;
+            margin: 0 -5px;
+            position: relative;
+            z-index: 1;
         }
-        .step-dot.active { background: var(--gold); }
-        .step-dot.done { background: var(--gold-dim); }
+        
+        .progress-line.fill {
+            background: linear-gradient(90deg, var(--gold-dim) 0%, var(--gold) 100%);
+        }
 
         /* ── HERO SECTION ── */
-        #section-hero {
+        #section-hero, #section-form, #section-protocol {
             width: 100%; max-width: 480px;
-            text-align: center;
-            animation: fadeUp 0.8s ease forwards;
+            animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         .hero-eyebrow {
@@ -149,35 +231,81 @@
             font-weight: 300; max-width: 400px; margin-left: auto; margin-right: auto;
         }
 
-        /* ── COUNTER ── */
-        .counter-card {
-            background: var(--surface-2);
-            border: 1px solid var(--border-gold);
-            border-radius: 12px; padding: 18px 24px;
-            margin-bottom: 32px; position: relative;
-            overflow: hidden;
+        /* ── ESTADÍSTICAS DINÁMICAS ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 32px;
         }
-        .counter-card::before {
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: 16px;
+            padding: 20px 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 160px;
+        }
+        
+        .stat-card::before {
             content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
             background: linear-gradient(90deg, transparent, var(--crimson), transparent);
         }
-        .counter-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem; letter-spacing: 0.2em;
-            text-transform: uppercase; color: var(--text-muted);
-            margin-bottom: 8px;
+        
+        .stat-card:nth-child(2)::before {
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
-        .counter-value {
+        
+        .stat-icon {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+        
+        .stat-value {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.4rem; font-weight: 700;
-            color: var(--crimson); letter-spacing: -0.02em;
-            display: flex; align-items: baseline; gap: 6px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.2;
+            margin-bottom: 4px;
         }
-        .counter-value span { font-size: 1.2rem; color: var(--text-muted); font-weight: 400; }
-        .counter-sub {
-            font-size: 0.75rem; color: var(--text-subtle);
-            margin-top: 6px; font-style: italic;
+        
+        .stat-value.crimson {
+            color: var(--crimson);
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+            margin-bottom: auto;
+        }
+        
+        .stat-trend {
+            font-size: 0.7rem;
+            color: #4ade80;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+            width: 100%;
         }
 
         /* ── CTA BUTTON ── */
@@ -188,18 +316,41 @@
             font-family: 'Outfit', sans-serif;
             font-weight: 800; font-size: 0.9rem;
             letter-spacing: 0.1em; text-transform: uppercase;
-            border-radius: 8px; border: none; cursor: pointer;
-            transition: all 0.25s ease;
+            border-radius: 12px; border: none; cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 4px 30px rgba(201,160,42,0.25);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .cta-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
         .cta-btn:hover:not(:disabled) {
             background: var(--gold-light);
             transform: translateY(-2px);
             box-shadow: 0 10px 40px rgba(201,160,42,0.35);
         }
+        
         .cta-btn:disabled {
             opacity: 0.45; cursor: not-allowed; transform: none;
         }
+        
         .cta-btn.activated {
             background: #1a3a1a; color: #4ade80;
             box-shadow: 0 4px 20px rgba(74,222,128,0.15);
@@ -207,7 +358,7 @@
 
         .cta-micro {
             font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; margin-top: 10px;
+            text-align: center; margin-top: 12px;
             letter-spacing: 0.04em;
         }
         .cta-micro i { color: var(--gold-dim); margin-right: 4px; }
@@ -219,9 +370,7 @@
 
         /* ── FORM SECTION ── */
         #section-form {
-            width: 100%; max-width: 480px;
             display: none;
-            animation: fadeUp 0.5s ease forwards;
         }
 
         .form-header { text-align: center; margin-bottom: 36px; }
@@ -245,10 +394,13 @@
         .form-card {
             background: var(--surface-1);
             border: 1px solid var(--border-gold);
-            border-radius: 14px; overflow: hidden;
+            border-radius: 20px; 
+            overflow: hidden;
             position: relative;
-            box-shadow: 0 0 60px rgba(201,160,42,0.06);
+            box-shadow: 0 8px 60px rgba(201,160,42,0.08);
+            width: 100%;
         }
+        
         .form-card::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0; height: 2px;
@@ -256,51 +408,53 @@
         }
         .form-body { padding: 28px 22px 24px; }
 
-        .form-group { margin-bottom: 20px; }
+        .form-group { margin-bottom: 24px; }
         .form-group label {
             display: block;
             font-size: 0.7rem; font-weight: 700;
             color: var(--text-muted);
             letter-spacing: 0.12em; text-transform: uppercase;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .form-group select,
         .form-group input[type="text"] {
-            width: 100%; padding: 14px 14px;
+            width: 100%; padding: 16px 16px;
             background: var(--surface-3);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 12px;
             font-family: 'Outfit', sans-serif;
-            font-size: 0.93rem; color: var(--white);
-            transition: border-color 0.25s, box-shadow 0.25s;
+            font-size: 0.95rem; color: var(--white);
+            transition: all 0.25s ease;
             outline: none; appearance: none;
             -webkit-appearance: none;
         }
         .form-group select:focus,
         .form-group input[type="text"]:focus {
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201,160,42,0.1);
+            box-shadow: 0 0 0 4px rgba(201,160,42,0.1);
+            background: var(--surface-4);
         }
         .form-group select option { background: #1a1a1a; color: var(--white); }
         .form-group input::placeholder { color: var(--text-subtle); }
 
-        /* Radio group for motivación */
-        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+        /* Radio group */
+        .radio-group { display: flex; flex-direction: column; gap: 12px; }
         .radio-option {
             display: flex; align-items: center; gap: 14px;
             background: var(--surface-3);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px; padding: 14px 16px;
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 12px; padding: 16px 18px;
             cursor: pointer; transition: all 0.2s ease;
         }
-        .radio-option:hover { border-color: var(--border-gold); }
+        .radio-option:hover { border-color: var(--border-gold); background: var(--surface-4); }
         .radio-option.selected {
             border-color: var(--gold);
-            background: rgba(201,160,42,0.07);
+            background: rgba(201,160,42,0.08);
+            box-shadow: 0 4px 20px rgba(201,160,42,0.1);
         }
         .radio-option input[type="radio"] { display: none; }
         .radio-dot {
-            width: 18px; height: 18px; border-radius: 50%;
+            width: 20px; height: 20px; border-radius: 50%;
             border: 2px solid var(--text-subtle);
             flex-shrink: 0; position: relative;
             transition: border-color 0.2s;
@@ -312,27 +466,27 @@
             content: '';
             position: absolute; top: 50%; left: 50%;
             transform: translate(-50%,-50%);
-            width: 8px; height: 8px; border-radius: 50%;
+            width: 10px; height: 10px; border-radius: 50%;
             background: var(--gold);
         }
         .radio-option .radio-text {
-            font-size: 0.9rem; font-weight: 500; color: var(--platinum);
+            font-size: 0.95rem; font-weight: 500; color: var(--platinum);
         }
         .radio-option .radio-icon {
-            font-size: 1.1rem; margin-left: auto;
+            font-size: 1.2rem; margin-left: auto;
             color: var(--text-subtle);
         }
         .radio-option.selected .radio-icon { color: var(--gold); }
 
-        /* ── NEXT BUTTON ── */
+        /* Next button */
         .next-btn {
             display: flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; padding: 18px 24px;
             background: var(--gold); color: #000;
             font-family: 'Outfit', sans-serif;
-            font-weight: 800; font-size: 0.9rem;
+            font-weight: 800; font-size: 0.95rem;
             letter-spacing: 0.1em; text-transform: uppercase;
-            border-radius: 8px; border: none; cursor: pointer;
+            border-radius: 12px; border: none; cursor: pointer;
             transition: all 0.25s ease; margin-top: 8px;
             box-shadow: 0 4px 30px rgba(201,160,42,0.2);
         }
@@ -344,20 +498,116 @@
         .next-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
         .next-btn-micro {
             font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; margin-top: 10px;
+            text-align: center; margin-top: 12px;
             display: flex; align-items: center; justify-content: center; gap: 6px;
         }
 
         .form-footer-note {
             font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; padding: 14px 22px 20px;
+            text-align: center; padding: 16px 22px 20px;
             border-top: 1px solid var(--border-subtle);
             line-height: 1.5;
         }
 
+        /* ── PANTALLA 3: PROTOCOLO ── */
+        #section-protocol {
+            display: none;
+            text-align: center;
+        }
+        
+        .protocol-container {
+            background: linear-gradient(135deg, var(--surface-1) 0%, var(--surface-2) 100%);
+            border: 2px solid var(--border-gold);
+            border-radius: 24px;
+            padding: 40px 28px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(201, 160, 42, 0.1);
+        }
+        
+        .protocol-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), var(--crimson), var(--gold), transparent);
+        }
+        
+        .protocol-icon {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        
+        .protocol-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 24px;
+            line-height: 1.3;
+        }
+        
+        .protocol-title em {
+            color: var(--gold);
+            font-style: italic;
+        }
+        
+        .protocol-text {
+            font-size: 1rem;
+            color: var(--platinum);
+            line-height: 1.8;
+            margin-bottom: 32px;
+            font-weight: 300;
+        }
+        
+        .protocol-text strong {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        
+        .protocol-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 18px 24px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            color: #000;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 30px rgba(201, 160, 42, 0.3);
+        }
+        
+        .protocol-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(201, 160, 42, 0.4);
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+        }
+        
+        .protocol-btn i {
+            font-size: 1.1rem;
+        }
+
         /* ── ANIMATIONS ── */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
@@ -372,22 +622,46 @@
     <div class="ambient-1"></div>
     <div class="ambient-2"></div>
 
-    <!-- Loading overlay -->
+    <!-- Loading overlay moderno (3 círculos animados) -->
     <div id="loading-overlay">
-        <div class="spin"></div>
-        <p>Cargando perfil...</p>
+        <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
     </div>
 
     <main>
-        <!-- Step indicator -->
-        <div class="steps-bar">
-            <div class="step-dot active" id="dot-1"></div>
-            <div class="step-dot" id="dot-2"></div>
+        <!-- Progress indicator con números encerrados -->
+        <div class="progress-header">
+            <div class="progress-numbers">
+                <div class="progress-number">
+                    <div class="number-circle active" id="progress-1">①</div>
+                    <span class="number-label">Inicio</span>
+                </div>
+                <div class="progress-line" id="line-1"></div>
+                
+                <div class="progress-number">
+                    <div class="number-circle" id="progress-2">②</div>
+                    <span class="number-label">Perfil</span>
+                </div>
+                <div class="progress-line" id="line-2"></div>
+                
+                <div class="progress-number">
+                    <div class="number-circle" id="progress-3">③</div>
+                    <span class="number-label">Protocolo</span>
+                </div>
+                <div class="progress-line" id="line-3"></div>
+                
+                <div class="progress-number">
+                    <div class="number-circle" id="progress-4">④</div>
+                    <span class="number-label">Panel</span>
+                </div>
+            </div>
         </div>
 
-        <!-- ══════════ HERO / ACTIVATION SECTION ══════════ -->
+        <!-- ══════════ PANTALLA 1: HERO / ACTIVATION SECTION ══════════ -->
         <div id="section-hero">
-
             <div class="hero-eyebrow">Masitaprex</div>
 
             <h1 class="hero-title">
@@ -400,17 +674,38 @@
             <p class="hero-desc">
                 Cada minuto que pasa puede representar dinero que no se recupera.
                 Nuestro sistema está listo para ayudarte a automatizar el proceso
-                y mejorar tus cobros. Activa tu empresa y empieza a recuperar
-                ingresos de forma eficiente.
+                y mejorar tus cobros.
             </p>
 
-            <!-- Dynamic counter -->
-            <div class="counter-card">
-                <div class="counter-label">Dinero perdido por empresas sin automatización en este minuto</div>
-                <div class="counter-value" id="counter-display">
-                    S/ <span id="counter-num">0</span>
+            <!-- Estadísticas dinámicas tipo contador -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value crimson" id="stat-money">
+                        S/ <span id="money-counter">12.8K</span>
+                    </div>
+                    <div class="stat-label">Perdido este minuto</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+S/ 142/s</span>
+                    </div>
                 </div>
-                <div class="counter-sub">y contando… ¿cuánto representa para ti?</div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-value" id="stat-companies">
+                        <span id="companies-counter">847</span>
+                    </div>
+                    <div class="stat-label">Empresas afectadas</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-clock"></i>
+                        <span>En tiempo real</span>
+                    </div>
+                </div>
             </div>
 
             <!-- CTA -->
@@ -418,24 +713,21 @@
                 <i class="fas fa-rocket"></i>
                 <span>Activar mi empresa ahora</span>
             </button>
-            <p class="cta-micro"><i class="fas fa-bolt"></i> Solo toma unos segundos activarlo</p>
+            <p class="cta-micro"><i class="fas fa-bolt"></i> Activación inmediata • Sin compromiso</p>
             <p id="status-message" class="hidden"></p>
-
         </div>
 
-        <!-- ══════════ FORM SECTION ══════════ -->
+        <!-- ══════════ PANTALLA 2: FORM SECTION ══════════ -->
         <div id="section-form">
-
             <div class="form-header">
                 <div class="form-eyebrow">Perfil de empresa</div>
                 <h2>Cuéntanos<br><em>sobre tu negocio</em></h2>
-                <p>Esta información nos ayuda a personalizar tu experiencia y mejorar tus cobros más rápido.</p>
+                <p>Esta información nos ayuda a personalizar tu experiencia</p>
             </div>
 
             <div class="form-card">
                 <div class="form-body">
-
-                    <!-- Campo 1: Punto de dolor -->
+                    <!-- Campo 1 -->
                     <div class="form-group">
                         <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas?</label>
                         <select id="campo-dolor">
@@ -448,7 +740,7 @@
                         </select>
                     </div>
 
-                    <!-- Campo 2: Volumen -->
+                    <!-- Campo 2 -->
                     <div class="form-group">
                         <label>¿Cuántos cobros fallidos tiene en promedio al mes?</label>
                         <select id="campo-volumen">
@@ -460,7 +752,7 @@
                         </select>
                     </div>
 
-                    <!-- Campo 3: Herramientas actuales -->
+                    <!-- Campo 3 -->
                     <div class="form-group">
                         <label>¿Qué sistema de pagos utiliza actualmente?</label>
                         <select id="campo-herramientas">
@@ -474,7 +766,7 @@
                         </select>
                     </div>
 
-                    <!-- Campo 4: Nivel de autoridad -->
+                    <!-- Campo 4 -->
                     <div class="form-group">
                         <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos?</label>
                         <select id="campo-autoridad">
@@ -485,7 +777,7 @@
                         </select>
                     </div>
 
-                    <!-- Campo 5: Motivación principal (radio) -->
+                    <!-- Campo 5 -->
                     <div class="form-group">
                         <label>¿Qué es más importante para usted?</label>
                         <div class="radio-group">
@@ -503,11 +795,10 @@
                             </label>
                         </div>
                     </div>
-
-                </div><!-- /form-body -->
+                </div>
 
                 <div style="padding: 0 22px 24px;">
-                    <button class="next-btn" id="btn-next" onclick="goToPanel()">
+                    <button class="next-btn" id="btn-next" onclick="goToProtocol()">
                         <span>Siguiente</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
@@ -518,14 +809,35 @@
                 </div>
 
                 <div class="form-footer-note">
-                    Al continuar aceptas nuestros Términos de Servicio.<br>
-                    Puedes actualizar estos datos en cualquier momento desde tu panel.
+                    Al continuar aceptas nuestros Términos de Servicio.
                 </div>
+            </div>
+        </div>
 
-            </div><!-- /form-card -->
-
-        </div><!-- /section-form -->
-
+        <!-- ══════════ PANTALLA 3: PROTOCOLO ══════════ -->
+        <div id="section-protocol">
+            <div class="protocol-container">
+                <div class="protocol-icon">
+                    <i class="fas fa-shield-hal"></i>
+                </div>
+                
+                <h2 class="protocol-title">
+                    Protocolo de<br>
+                    <em>recuperación activado</em>
+                </h2>
+                
+                <div class="protocol-text" id="protocol-message">
+                    Hemos vinculado tu organización <strong id="org-name">[Nombre]</strong> al sistema de alta prioridad. 
+                    Desde ahora, se están identificando oportunidades de recuperación de ingresos de forma automática. 
+                    Mantén esta ventana abierta.
+                </div>
+                
+                <button class="protocol-btn" onclick="goToFacturacion()">
+                    <span>Siguiente</span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </main>
 
     <script src="returnConfig.js"></script>
@@ -544,7 +856,7 @@
 
         const hideLoading = () => {
             overlay.style.opacity = '0';
-            setTimeout(() => overlay.classList.add('hidden'), 500);
+            setTimeout(() => overlay.classList.add('hidden'), 400);
         };
 
         const showStatus = (text, isError = false) => {
@@ -568,6 +880,12 @@
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
+                        // Actualizar nombre en protocolo
+                        const orgNameSpan = document.getElementById('org-name');
+                        if (orgNameSpan) {
+                            orgNameSpan.textContent = user.displayName || user.email?.split('@')[0] || 'Tu Empresa';
+                        }
+                        
                         try {
                             const empresaRef  = doc(db, "empresas", user.uid);
                             const empresaSnap = await getDoc(empresaRef);
@@ -624,7 +942,7 @@
                 btnActivate.classList.add('activated');
                 btnActivate.innerHTML = "<i class='fas fa-check-circle'></i><span>¡Activado!</span>";
 
-                setTimeout(() => showFormSection(), 1200);
+                setTimeout(() => showFormSection(), 800);
 
             } catch (e) {
                 console.error("Error al activar:", e);
@@ -634,8 +952,8 @@
             }
         };
 
-        // ── Guardar formulario + navegar a panel ──
-        window.goToPanel = async () => {
+        // ── Navegar a Protocolo (Pantalla 3) ──
+        window.goToProtocol = async () => {
             const user = window._auth?.currentUser;
 
             const formData = {
@@ -644,7 +962,7 @@
                 perfil_herramientas:document.getElementById('campo-herramientas').value || null,
                 perfil_autoridad:   document.getElementById('campo-autoridad').value || null,
                 perfil_motivacion:  window._selectedMotivacion || null,
-                perfilCompletadoAt: null // se llenará con serverTimestamp si hay user
+                perfilCompletadoAt: null
             };
 
             if (user && window._db) {
@@ -656,29 +974,51 @@
                 }
             }
 
-            window.location.href = "/panel.html";
+            // Mostrar pantalla 3
+            showProtocolSection();
+        };
+
+        // ── Ir a facturación ──
+        window.goToFacturacion = function() {
+            window.location.href = "facturacion.html";
         };
 
         init();
     </script>
 
     <script>
-        /* ──── Counter dinámico ──── */
-        let counterVal = 12840;
-        const counterEl = document.getElementById('counter-num');
+        /* ──── Contadores dinámicos mejorados ──── */
+        let moneyValue = 12840;
+        let companiesValue = 847;
+        const moneyEl = document.getElementById('money-counter');
+        const companiesEl = document.getElementById('companies-counter');
 
-        function formatNum(n) {
-            return n.toLocaleString('es-PE');
+        function formatMoney(n) {
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+            return n.toString();
         }
 
-        function tickCounter() {
-            const increment = Math.floor(Math.random() * 180) + 60;
-            counterVal += increment;
-            counterEl.textContent = formatNum(counterVal);
+        function updateCounters() {
+            // Incremento realista del dinero
+            const moneyIncrement = Math.floor(Math.random() * 250) + 100;
+            moneyValue += moneyIncrement;
+            
+            // Incremento de empresas afectadas (más lento)
+            if (Math.random() > 0.6) {
+                companiesValue += 1;
+            }
+            
+            moneyEl.textContent = formatMoney(moneyValue);
+            companiesEl.textContent = companiesValue;
         }
 
-        counterEl.textContent = formatNum(counterVal);
-        setInterval(tickCounter, 1400);
+        // Inicializar
+        moneyEl.textContent = formatMoney(moneyValue);
+        companiesEl.textContent = companiesValue;
+        
+        // Actualizar cada 1.2 segundos
+        setInterval(updateCounters, 1200);
 
         /* ──── Radio selection ──── */
         window._selectedMotivacion = null;
@@ -689,25 +1029,80 @@
             window._selectedMotivacion = val;
         };
 
-        /* ──── Show form section ──── */
+        /* ──── Actualizar progreso ──── */
+        function updateProgress(step) {
+            const circles = ['progress-1', 'progress-2', 'progress-3', 'progress-4'];
+            const lines = ['line-1', 'line-2', 'line-3'];
+            
+            circles.forEach((id, index) => {
+                const circle = document.getElementById(id);
+                if (index < step) {
+                    circle.classList.add('completed');
+                    circle.classList.remove('active');
+                } else if (index === step) {
+                    circle.classList.add('active');
+                    circle.classList.remove('completed');
+                } else {
+                    circle.classList.remove('active', 'completed');
+                }
+            });
+            
+            lines.forEach((id, index) => {
+                const line = document.getElementById(id);
+                if (index < step - 1) {
+                    line.classList.add('fill');
+                } else {
+                    line.classList.remove('fill');
+                }
+            });
+        }
+
+        /* ──── Show form section (Pantalla 2) ──── */
         window.showFormSection = function() {
             const heroEl = document.getElementById('section-hero');
             const formEl = document.getElementById('section-form');
+            const protocolEl = document.getElementById('section-protocol');
 
-            // Step dots
-            document.getElementById('dot-1').classList.remove('active');
-            document.getElementById('dot-1').classList.add('done');
-            document.getElementById('dot-2').classList.add('active');
+            updateProgress(1); // Paso 2 activo
 
             heroEl.style.opacity = '0';
             heroEl.style.transform = 'translateY(-16px)';
-            heroEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            heroEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            
             setTimeout(() => {
                 heroEl.style.display = 'none';
                 formEl.style.display = 'block';
+                protocolEl.style.display = 'none';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 380);
+            }, 300);
         };
+
+        /* ──── Show protocol section (Pantalla 3) ──── */
+        window.showProtocolSection = function() {
+            const heroEl = document.getElementById('section-hero');
+            const formEl = document.getElementById('section-form');
+            const protocolEl = document.getElementById('section-protocol');
+
+            updateProgress(2); // Paso 3 activo
+
+            formEl.style.opacity = '0';
+            formEl.style.transform = 'translateY(-16px)';
+            formEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            
+            setTimeout(() => {
+                heroEl.style.display = 'none';
+                formEl.style.display = 'none';
+                protocolEl.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        };
+
+        // Auto-transición después de activar
+        const originalActivate = document.getElementById('btn-activate-enterprise').onclick;
+        const btn = document.getElementById('btn-activate-enterprise');
+        btn.addEventListener('click', function() {
+            // La transición se maneja en el éxito de la activación
+        });
     </script>
 
 </body>
