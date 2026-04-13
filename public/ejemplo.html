@@ -38,6 +38,8 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         body::before {
@@ -110,10 +112,10 @@
         /* ── MAIN LAYOUT ── */
         main {
             position: relative; z-index: 1;
-            width: 100%; min-height: 100vh;
+            width: 100%; flex: 1;
             display: flex; flex-direction: column;
             align-items: center; justify-content: flex-start;
-            padding: 24px 20px 80px;
+            padding: 24px 20px 40px;
         }
 
         /* ── PROGRESS INDICATOR (números encerrados) ── */
@@ -368,7 +370,7 @@
             font-weight: 500; text-align: center;
         }
 
-        /* ── FORM SECTION ── */
+        /* ── FORM SECTION (SIN CONTENEDOR DE FONDO) ── */
         #section-form {
             display: none;
         }
@@ -391,37 +393,26 @@
             margin-top: 10px; line-height: 1.7;
         }
 
-        .form-card {
-            background: var(--surface-1);
-            border: 1px solid var(--border-gold);
-            border-radius: 20px; 
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 8px 60px rgba(201,160,42,0.08);
+        .form-body { 
+            padding: 0;
             width: 100%;
         }
-        
-        .form-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
-        }
-        .form-body { padding: 28px 22px 24px; }
 
-        .form-group { margin-bottom: 24px; }
+        .form-group { margin-bottom: 28px; }
         .form-group label {
             display: block;
-            font-size: 0.7rem; font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.12em; text-transform: uppercase;
-            margin-bottom: 10px;
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--platinum);
+            letter-spacing: 0.08em; 
+            text-transform: uppercase;
+            margin-bottom: 12px;
         }
         .form-group select,
         .form-group input[type="text"] {
             width: 100%; padding: 16px 16px;
             background: var(--surface-3);
             border: 1.5px solid var(--border-subtle);
-            border-radius: 12px;
+            border-radius: 14px;
             font-family: 'Outfit', sans-serif;
             font-size: 0.95rem; color: var(--white);
             transition: all 0.25s ease;
@@ -443,7 +434,7 @@
             display: flex; align-items: center; gap: 14px;
             background: var(--surface-3);
             border: 1.5px solid var(--border-subtle);
-            border-radius: 12px; padding: 16px 18px;
+            border-radius: 14px; padding: 16px 18px;
             cursor: pointer; transition: all 0.2s ease;
         }
         .radio-option:hover { border-color: var(--border-gold); background: var(--surface-4); }
@@ -478,16 +469,43 @@
         }
         .radio-option.selected .radio-icon { color: var(--gold); }
 
-        /* Next button */
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        
+        .back-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 18px 24px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600; font-size: 0.9rem;
+            letter-spacing: 0.05em; text-transform: uppercase;
+            border-radius: 14px; border: 1.5px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            flex: 1;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--border-gold);
+            color: var(--platinum);
+            background: rgba(201, 160, 42, 0.05);
+        }
+
         .next-btn {
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 18px 24px;
+            flex: 2;
+            padding: 18px 24px;
             background: var(--gold); color: #000;
             font-family: 'Outfit', sans-serif;
             font-weight: 800; font-size: 0.95rem;
             letter-spacing: 0.1em; text-transform: uppercase;
-            border-radius: 12px; border: none; cursor: pointer;
-            transition: all 0.25s ease; margin-top: 8px;
+            border-radius: 14px; border: none; cursor: pointer;
+            transition: all 0.25s ease;
             box-shadow: 0 4px 30px rgba(201,160,42,0.2);
         }
         .next-btn:hover {
@@ -496,49 +514,27 @@
             box-shadow: 0 10px 40px rgba(201,160,42,0.35);
         }
         .next-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        
         .next-btn-micro {
             font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; margin-top: 12px;
+            text-align: center; margin-top: 16px;
             display: flex; align-items: center; justify-content: center; gap: 6px;
         }
 
-        .form-footer-note {
-            font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; padding: 16px 22px 20px;
-            border-top: 1px solid var(--border-subtle);
-            line-height: 1.5;
-        }
-
-        /* ── PANTALLA 3: PROTOCOLO ── */
+        /* ── PANTALLA 3: PROTOCOLO (SIN CONTENEDOR) ── */
         #section-protocol {
             display: none;
             text-align: center;
         }
         
-        .protocol-container {
-            background: linear-gradient(135deg, var(--surface-1) 0%, var(--surface-2) 100%);
-            border: 2px solid var(--border-gold);
-            border-radius: 24px;
-            padding: 40px 28px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(201, 160, 42, 0.1);
-        }
-        
-        .protocol-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--gold), var(--crimson), var(--gold), transparent);
+        .protocol-content {
+            padding: 20px 0;
         }
         
         .protocol-icon {
-            font-size: 4rem;
+            font-size: 4.5rem;
             color: var(--gold);
-            margin-bottom: 24px;
+            margin-bottom: 32px;
             animation: pulse 2s ease-in-out infinite;
         }
         
@@ -549,10 +545,10 @@
         
         .protocol-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 600;
             color: var(--white);
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             line-height: 1.3;
         }
         
@@ -565,8 +561,9 @@
             font-size: 1rem;
             color: var(--platinum);
             line-height: 1.8;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
             font-weight: 300;
+            padding: 0 8px;
         }
         
         .protocol-text strong {
@@ -588,11 +585,12 @@
             font-size: 1rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            border-radius: 12px;
+            border-radius: 14px;
             border: none;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 8px 30px rgba(201, 160, 42, 0.3);
+            margin-bottom: 16px;
         }
         
         .protocol-btn:hover {
@@ -603,6 +601,78 @@
         
         .protocol-btn i {
             font-size: 1.1rem;
+        }
+
+        .protocol-back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px 24px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        
+        .protocol-back-btn:hover {
+            border-color: var(--border-gold);
+            color: var(--platinum);
+            background: rgba(201, 160, 42, 0.05);
+        }
+
+        /* ── FOOTER ── */
+        .app-footer {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 32px 20px 24px;
+            text-align: center;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .footer-copyright {
+            font-size: 0.75rem;
+            color: var(--text-subtle);
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+        
+        .footer-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-link {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-link:hover {
+            color: var(--gold);
+        }
+        
+        .footer-separator {
+            color: var(--text-subtle);
+            font-size: 0.5rem;
         }
 
         /* ── ANIMATIONS ── */
@@ -717,7 +787,7 @@
             <p id="status-message" class="hidden"></p>
         </div>
 
-        <!-- ══════════ PANTALLA 2: FORM SECTION ══════════ -->
+        <!-- ══════════ PANTALLA 2: FORM SECTION (SIN CONTENEDOR) ══════════ -->
         <div id="section-form">
             <div class="form-header">
                 <div class="form-eyebrow">Perfil de empresa</div>
@@ -725,98 +795,97 @@
                 <p>Esta información nos ayuda a personalizar tu experiencia</p>
             </div>
 
-            <div class="form-card">
-                <div class="form-body">
-                    <!-- Campo 1 -->
-                    <div class="form-group">
-                        <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas?</label>
-                        <select id="campo-dolor">
-                            <option value="" disabled selected>Selecciona un rango</option>
-                            <option value="menos-1k">Menos de S/ 1,000</option>
-                            <option value="1k-5k">S/ 1,000 – S/ 5,000</option>
-                            <option value="5k-15k">S/ 5,000 – S/ 15,000</option>
-                            <option value="15k-50k">S/ 15,000 – S/ 50,000</option>
-                            <option value="mas-50k">Más de S/ 50,000</option>
-                        </select>
-                    </div>
+            <div class="form-body">
+                <!-- Campo 1 -->
+                <div class="form-group">
+                    <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas?</label>
+                    <select id="campo-dolor">
+                        <option value="" disabled selected>Selecciona un rango</option>
+                        <option value="menos-1k">Menos de S/ 1,000</option>
+                        <option value="1k-5k">S/ 1,000 – S/ 5,000</option>
+                        <option value="5k-15k">S/ 5,000 – S/ 15,000</option>
+                        <option value="15k-50k">S/ 15,000 – S/ 50,000</option>
+                        <option value="mas-50k">Más de S/ 50,000</option>
+                    </select>
+                </div>
 
-                    <!-- Campo 2 -->
-                    <div class="form-group">
-                        <label>¿Cuántos cobros fallidos tiene en promedio al mes?</label>
-                        <select id="campo-volumen">
-                            <option value="" disabled selected>Selecciona un rango</option>
-                            <option value="1-10">1 – 10 cobros fallidos</option>
-                            <option value="10-50">10 – 50 cobros fallidos</option>
-                            <option value="50-200">50 – 200 cobros fallidos</option>
-                            <option value="mas-200">Más de 200 cobros fallidos</option>
-                        </select>
-                    </div>
+                <!-- Campo 2 -->
+                <div class="form-group">
+                    <label>¿Cuántos cobros fallidos tiene en promedio al mes?</label>
+                    <select id="campo-volumen">
+                        <option value="" disabled selected>Selecciona un rango</option>
+                        <option value="1-10">1 – 10 cobros fallidos</option>
+                        <option value="10-50">10 – 50 cobros fallidos</option>
+                        <option value="50-200">50 – 200 cobros fallidos</option>
+                        <option value="mas-200">Más de 200 cobros fallidos</option>
+                    </select>
+                </div>
 
-                    <!-- Campo 3 -->
-                    <div class="form-group">
-                        <label>¿Qué sistema de pagos utiliza actualmente?</label>
-                        <select id="campo-herramientas">
-                            <option value="" disabled selected>Selecciona una opción</option>
-                            <option value="ninguno">Ninguno / manual</option>
-                            <option value="banco">Transferencias bancarias</option>
-                            <option value="yape-plin">Yape / Plin</option>
-                            <option value="mercadopago">MercadoPago</option>
-                            <option value="culqi">Culqi</option>
-                            <option value="otro">Otro sistema</option>
-                        </select>
-                    </div>
+                <!-- Campo 3 -->
+                <div class="form-group">
+                    <label>¿Qué sistema de pagos utiliza actualmente?</label>
+                    <select id="campo-herramientas">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="ninguno">Ninguno / manual</option>
+                        <option value="banco">Transferencias bancarias</option>
+                        <option value="yape-plin">Yape / Plin</option>
+                        <option value="mercadopago">MercadoPago</option>
+                        <option value="culqi">Culqi</option>
+                        <option value="otro">Otro sistema</option>
+                    </select>
+                </div>
 
-                    <!-- Campo 4 -->
-                    <div class="form-group">
-                        <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos?</label>
-                        <select id="campo-autoridad">
-                            <option value="" disabled selected>Selecciona una opción</option>
-                            <option value="si-total">Sí, decisión total</option>
-                            <option value="si-parcial">Sí, pero requiero aprobación</option>
-                            <option value="no">No, debo consultarlo</option>
-                        </select>
-                    </div>
+                <!-- Campo 4 -->
+                <div class="form-group">
+                    <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos?</label>
+                    <select id="campo-autoridad">
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="si-total">Sí, decisión total</option>
+                        <option value="si-parcial">Sí, pero requiero aprobación</option>
+                        <option value="no">No, debo consultarlo</option>
+                    </select>
+                </div>
 
-                    <!-- Campo 5 -->
-                    <div class="form-group">
-                        <label>¿Qué es más importante para usted?</label>
-                        <div class="radio-group">
-                            <label class="radio-option" id="radio-dinero" onclick="selectRadio('dinero')">
-                                <input type="radio" name="motivacion" value="dinero">
-                                <div class="radio-dot"></div>
-                                <span class="radio-text">Recuperar dinero rápidamente</span>
-                                <span class="radio-icon"><i class="fas fa-dollar-sign"></i></span>
-                            </label>
-                            <label class="radio-option" id="radio-cliente" onclick="selectRadio('cliente')">
-                                <input type="radio" name="motivacion" value="cliente">
-                                <div class="radio-dot"></div>
-                                <span class="radio-text">Mejorar la relación con el cliente</span>
-                                <span class="radio-icon"><i class="fas fa-heart"></i></span>
-                            </label>
-                        </div>
+                <!-- Campo 5 -->
+                <div class="form-group">
+                    <label>¿Qué es más importante para usted?</label>
+                    <div class="radio-group">
+                        <label class="radio-option" id="radio-dinero" onclick="selectRadio('dinero')">
+                            <input type="radio" name="motivacion" value="dinero">
+                            <div class="radio-dot"></div>
+                            <span class="radio-text">Recuperar dinero rápidamente</span>
+                            <span class="radio-icon"><i class="fas fa-dollar-sign"></i></span>
+                        </label>
+                        <label class="radio-option" id="radio-cliente" onclick="selectRadio('cliente')">
+                            <input type="radio" name="motivacion" value="cliente">
+                            <div class="radio-dot"></div>
+                            <span class="radio-text">Mejorar la relación con el cliente</span>
+                            <span class="radio-icon"><i class="fas fa-heart"></i></span>
+                        </label>
                     </div>
                 </div>
 
-                <div style="padding: 0 22px 24px;">
+                <div class="action-buttons">
+                    <button class="back-btn" onclick="goBackToHero()">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Atrás</span>
+                    </button>
                     <button class="next-btn" id="btn-next" onclick="goToProtocol()">
                         <span>Siguiente</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
-                    <p class="next-btn-micro">
-                        <i class="fas fa-shield-alt" style="color: var(--gold-dim);"></i>
-                        Tu información es confidencial y segura
-                    </p>
                 </div>
-
-                <div class="form-footer-note">
-                    Al continuar aceptas nuestros Términos de Servicio.
-                </div>
+                
+                <p class="next-btn-micro">
+                    <i class="fas fa-shield-alt" style="color: var(--gold-dim);"></i>
+                    Tu información es confidencial y segura
+                </p>
             </div>
         </div>
 
-        <!-- ══════════ PANTALLA 3: PROTOCOLO ══════════ -->
+        <!-- ══════════ PANTALLA 3: PROTOCOLO (SIN CONTENEDOR) ══════════ -->
         <div id="section-protocol">
-            <div class="protocol-container">
+            <div class="protocol-content">
                 <div class="protocol-icon">
                     <i class="fas fa-shield-hal"></i>
                 </div>
@@ -836,9 +905,26 @@
                     <span>Siguiente</span>
                     <i class="fas fa-chevron-right"></i>
                 </button>
+                
+                <button class="protocol-back-btn" onclick="goBackToForm()">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Atrás</span>
+                </button>
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-copyright">
+            Masitaprex © – Todos los derechos reservados
+        </div>
+        <div class="footer-links">
+            <a href="#" class="footer-link">Política de privacidad</a>
+            <span class="footer-separator">•</span>
+            <a href="#" class="footer-link">Términos y condiciones</a>
+        </div>
+    </footer>
 
     <script src="returnConfig.js"></script>
     <script type="module">
@@ -1057,6 +1143,49 @@
             });
         }
 
+        /* ──── Navegación hacia atrás ──── */
+        window.goBackToHero = function() {
+            const heroEl = document.getElementById('section-hero');
+            const formEl = document.getElementById('section-form');
+            const protocolEl = document.getElementById('section-protocol');
+
+            updateProgress(0); // Paso 1 activo
+
+            formEl.style.opacity = '0';
+            formEl.style.transform = 'translateY(16px)';
+            formEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            
+            setTimeout(() => {
+                heroEl.style.display = 'block';
+                formEl.style.display = 'none';
+                protocolEl.style.display = 'none';
+                heroEl.style.opacity = '1';
+                heroEl.style.transform = 'translateY(0)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        };
+
+        window.goBackToForm = function() {
+            const heroEl = document.getElementById('section-hero');
+            const formEl = document.getElementById('section-form');
+            const protocolEl = document.getElementById('section-protocol');
+
+            updateProgress(1); // Paso 2 activo
+
+            protocolEl.style.opacity = '0';
+            protocolEl.style.transform = 'translateY(16px)';
+            protocolEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            
+            setTimeout(() => {
+                heroEl.style.display = 'none';
+                formEl.style.display = 'block';
+                protocolEl.style.display = 'none';
+                formEl.style.opacity = '1';
+                formEl.style.transform = 'translateY(0)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
+        };
+
         /* ──── Show form section (Pantalla 2) ──── */
         window.showFormSection = function() {
             const heroEl = document.getElementById('section-hero');
@@ -1096,13 +1225,6 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }, 300);
         };
-
-        // Auto-transición después de activar
-        const originalActivate = document.getElementById('btn-activate-enterprise').onclick;
-        const btn = document.getElementById('btn-activate-enterprise');
-        btn.addEventListener('click', function() {
-            // La transición se maneja en el éxito de la activación
-        });
     </script>
 
 </body>
