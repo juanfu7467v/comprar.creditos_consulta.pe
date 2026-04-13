@@ -428,13 +428,12 @@
         .form-group select option { background: #1a1a1a; color: var(--white); }
         .form-group input::placeholder { color: var(--text-subtle); }
 
-        /* Radio group - centrado verticalmente */
+        /* Radio group - AJUSTADO: centrado vertical, círculo izquierda, texto derecha */
         .radio-group { 
             display: flex; 
             flex-direction: column; 
             gap: 12px; 
         }
-        
         .radio-option {
             display: flex; 
             align-items: center; 
@@ -442,53 +441,40 @@
             background: var(--surface-3);
             border: 1.5px solid var(--border-subtle);
             border-radius: 14px; 
-            padding: 18px 18px;
+            padding: 18px 20px;
             cursor: pointer; 
             transition: all 0.2s ease;
-            min-height: 64px;
         }
-        
-        .radio-option:hover { 
-            border-color: var(--border-gold); 
-            background: var(--surface-4); 
-        }
-        
+        .radio-option:hover { border-color: var(--border-gold); background: var(--surface-4); }
         .radio-option.selected {
             border-color: var(--gold);
             background: rgba(201,160,42,0.08);
             box-shadow: 0 4px 20px rgba(201,160,42,0.1);
         }
-        
-        .radio-option input[type="radio"] { 
-            display: none; 
-        }
-        
+        .radio-option input[type="radio"] { display: none; }
         .radio-dot {
-            width: 20px; 
-            height: 20px; 
+            width: 22px; 
+            height: 22px; 
             border-radius: 50%;
             border: 2px solid var(--text-subtle);
             flex-shrink: 0; 
             position: relative;
             transition: border-color 0.2s;
         }
-        
         .radio-option.selected .radio-dot {
             border-color: var(--gold);
         }
-        
         .radio-option.selected .radio-dot::after {
             content: '';
             position: absolute; 
             top: 50%; 
             left: 50%;
             transform: translate(-50%,-50%);
-            width: 10px; 
-            height: 10px; 
+            width: 12px; 
+            height: 12px; 
             border-radius: 50%;
             background: var(--gold);
         }
-        
         .radio-option .radio-text {
             font-size: 0.95rem; 
             font-weight: 500; 
@@ -496,52 +482,21 @@
             flex: 1;
             text-align: left;
         }
-        
         .radio-option .radio-icon {
             font-size: 1.2rem; 
+            margin-left: auto;
             color: var(--text-subtle);
-            flex-shrink: 0;
         }
-        
-        .radio-option.selected .radio-icon { 
-            color: var(--gold); 
-        }
+        .radio-option.selected .radio-icon { color: var(--gold); }
 
-        /* Botones de acción - Ahora en columna */
+        /* Botones de acción - AJUSTADO: Siguiente ancho completo, Atrás debajo */
         .action-buttons {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-top: 32px;
-            width: 100%;
         }
         
-        .back-btn {
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px;
-            width: 100%;
-            padding: 18px 24px;
-            background: transparent;
-            color: var(--text-muted);
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600; 
-            font-size: 0.9rem;
-            letter-spacing: 0.05em; 
-            text-transform: uppercase;
-            border-radius: 14px; 
-            border: 1.5px solid var(--border-subtle);
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        
-        .back-btn:hover {
-            border-color: var(--border-gold);
-            color: var(--platinum);
-            background: rgba(201, 160, 42, 0.05);
-        }
-
         .next-btn {
             display: flex; 
             align-items: center; 
@@ -568,11 +523,32 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 40px rgba(201,160,42,0.35);
         }
+        .next-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
         
-        .next-btn:disabled { 
-            opacity: 0.45; 
-            cursor: not-allowed; 
-            transform: none; 
+        .back-btn {
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+            width: 100%;
+            padding: 16px 24px;
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600; 
+            font-size: 0.9rem;
+            letter-spacing: 0.05em; 
+            text-transform: uppercase;
+            border-radius: 14px; 
+            border: 1.5px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--border-gold);
+            color: var(--platinum);
+            background: rgba(201, 160, 42, 0.05);
         }
         
         .next-btn-micro {
@@ -586,21 +562,21 @@
             gap: 6px;
         }
 
-        /* ── PANTALLA 3: PROTOCOLO (SIN CONTENEDOR) ── */
+        /* ── PANTALLA 3: PROTOCOLO (AJUSTADO: contenido hacia arriba) ── */
         #section-protocol {
             display: none;
             text-align: center;
         }
         
         .protocol-content {
-            padding: 0 0 20px 0;
+            padding: 0;
+            margin-top: -10px;
         }
         
         .protocol-icon {
-            font-size: 4rem;
+            font-size: 3.5rem;
             color: var(--gold);
-            margin-bottom: 24px;
-            margin-top: 8px;
+            margin-bottom: 20px;
             animation: pulse 2s ease-in-out infinite;
         }
         
@@ -611,10 +587,10 @@
         
         .protocol-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 600;
             color: var(--white);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             line-height: 1.3;
         }
         
@@ -624,10 +600,10 @@
         }
         
         .protocol-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--platinum);
-            line-height: 1.8;
-            margin-bottom: 36px;
+            line-height: 1.7;
+            margin-bottom: 32px;
             font-weight: 300;
             padding: 0 8px;
         }
@@ -656,7 +632,7 @@
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 8px 30px rgba(201, 160, 42, 0.3);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
         
         .protocol-btn:hover {
@@ -912,7 +888,7 @@
                     </select>
                 </div>
 
-                <!-- Campo 5 -->
+                <!-- Campo 5 - AJUSTADO: centrado vertical, círculo izquierda, texto derecha -->
                 <div class="form-group">
                     <label>¿Qué es más importante para usted?</label>
                     <div class="radio-group">
@@ -931,6 +907,7 @@
                     </div>
                 </div>
 
+                <!-- Botones: Siguiente ancho completo, Atrás debajo -->
                 <div class="action-buttons">
                     <button class="next-btn" id="btn-next" onclick="goToProtocol()">
                         <span>Siguiente</span>
@@ -949,7 +926,7 @@
             </div>
         </div>
 
-        <!-- ══════════ PANTALLA 3: PROTOCOLO (SIN CONTENEDOR) ══════════ -->
+        <!-- ══════════ PANTALLA 3: PROTOCOLO (AJUSTADO: contenido arriba) ══════════ -->
         <div id="section-protocol">
             <div class="protocol-content">
                 <div class="protocol-icon">
