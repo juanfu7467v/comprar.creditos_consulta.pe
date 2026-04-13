@@ -428,8 +428,13 @@
         .form-group select option { background: #1a1a1a; color: var(--white); }
         .form-group input::placeholder { color: var(--text-subtle); }
 
-        /* Radio group - AJUSTADO: texto a la derecha, centrado verticalmente */
-        .radio-group { display: flex; flex-direction: column; gap: 12px; }
+        /* Radio group - centrado verticalmente */
+        .radio-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+        
         .radio-option {
             display: flex; 
             align-items: center; 
@@ -440,34 +445,50 @@
             padding: 18px 18px;
             cursor: pointer; 
             transition: all 0.2s ease;
-            min-height: 70px;
+            min-height: 64px;
         }
-        .radio-option:hover { border-color: var(--border-gold); background: var(--surface-4); }
+        
+        .radio-option:hover { 
+            border-color: var(--border-gold); 
+            background: var(--surface-4); 
+        }
+        
         .radio-option.selected {
             border-color: var(--gold);
             background: rgba(201,160,42,0.08);
             box-shadow: 0 4px 20px rgba(201,160,42,0.1);
         }
-        .radio-option input[type="radio"] { display: none; }
+        
+        .radio-option input[type="radio"] { 
+            display: none; 
+        }
+        
         .radio-dot {
-            width: 22px; 
-            height: 22px; 
+            width: 20px; 
+            height: 20px; 
             border-radius: 50%;
             border: 2px solid var(--text-subtle);
             flex-shrink: 0; 
             position: relative;
             transition: border-color 0.2s;
         }
+        
         .radio-option.selected .radio-dot {
             border-color: var(--gold);
         }
+        
         .radio-option.selected .radio-dot::after {
             content: '';
-            position: absolute; top: 50%; left: 50%;
+            position: absolute; 
+            top: 50%; 
+            left: 50%;
             transform: translate(-50%,-50%);
-            width: 12px; height: 12px; border-radius: 50%;
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%;
             background: var(--gold);
         }
+        
         .radio-option .radio-text {
             font-size: 0.95rem; 
             font-weight: 500; 
@@ -475,19 +496,24 @@
             flex: 1;
             text-align: left;
         }
+        
         .radio-option .radio-icon {
             font-size: 1.2rem; 
-            margin-left: 0;
             color: var(--text-subtle);
             flex-shrink: 0;
         }
-        .radio-option.selected .radio-icon { color: var(--gold); }
+        
+        .radio-option.selected .radio-icon { 
+            color: var(--gold); 
+        }
 
-        /* Botones de acción - AJUSTADO: mismo tamaño y ancho */
+        /* Botones de acción - Ahora en columna */
         .action-buttons {
             display: flex;
+            flex-direction: column;
             gap: 12px;
             margin-top: 32px;
+            width: 100%;
         }
         
         .back-btn {
@@ -495,8 +521,8 @@
             align-items: center; 
             justify-content: center; 
             gap: 8px;
-            flex: 1;
-            padding: 18px 16px;
+            width: 100%;
+            padding: 18px 24px;
             background: transparent;
             color: var(--text-muted);
             font-family: 'Outfit', sans-serif;
@@ -521,13 +547,13 @@
             align-items: center; 
             justify-content: center; 
             gap: 10px;
-            flex: 1;
-            padding: 18px 16px;
+            width: 100%;
+            padding: 18px 24px;
             background: var(--gold); 
             color: #000;
             font-family: 'Outfit', sans-serif;
             font-weight: 800; 
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             letter-spacing: 0.1em; 
             text-transform: uppercase;
             border-radius: 14px; 
@@ -536,20 +562,31 @@
             transition: all 0.25s ease;
             box-shadow: 0 4px 30px rgba(201,160,42,0.2);
         }
+        
         .next-btn:hover {
             background: var(--gold-light);
             transform: translateY(-2px);
             box-shadow: 0 10px 40px rgba(201,160,42,0.35);
         }
-        .next-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        
+        .next-btn:disabled { 
+            opacity: 0.45; 
+            cursor: not-allowed; 
+            transform: none; 
+        }
         
         .next-btn-micro {
-            font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; margin-top: 16px;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: 0.72rem; 
+            color: var(--text-subtle);
+            text-align: center; 
+            margin-top: 16px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px;
         }
 
-        /* ── PANTALLA 3: PROTOCOLO (AJUSTADO: subido hacia arriba) ── */
+        /* ── PANTALLA 3: PROTOCOLO (SIN CONTENEDOR) ── */
         #section-protocol {
             display: none;
             text-align: center;
@@ -590,7 +627,7 @@
             font-size: 1rem;
             color: var(--platinum);
             line-height: 1.8;
-            margin-bottom: 32px;
+            margin-bottom: 36px;
             font-weight: 300;
             padding: 0 8px;
         }
@@ -875,7 +912,7 @@
                     </select>
                 </div>
 
-                <!-- Campo 5 - AJUSTADO: opciones centradas verticalmente, texto a la derecha -->
+                <!-- Campo 5 -->
                 <div class="form-group">
                     <label>¿Qué es más importante para usted?</label>
                     <div class="radio-group">
@@ -895,13 +932,13 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="back-btn" onclick="goBackToHero()">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Atrás</span>
-                    </button>
                     <button class="next-btn" id="btn-next" onclick="goToProtocol()">
                         <span>Siguiente</span>
                         <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="back-btn" onclick="goBackToHero()">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Atrás</span>
                     </button>
                 </div>
                 
@@ -912,7 +949,7 @@
             </div>
         </div>
 
-        <!-- ══════════ PANTALLA 3: PROTOCOLO (AJUSTADO: contenido subido) ══════════ -->
+        <!-- ══════════ PANTALLA 3: PROTOCOLO (SIN CONTENEDOR) ══════════ -->
         <div id="section-protocol">
             <div class="protocol-content">
                 <div class="protocol-icon">
