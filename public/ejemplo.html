@@ -5,36 +5,528 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activar Cuenta de Empresa | Masitaprex</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
-        #loading-overlay { transition: opacity 0.5s ease-out; }
+        :root {
+            --obsidian: #050505;
+            --surface-1: #0c0c0c;
+            --surface-2: #141414;
+            --surface-3: #1c1c1c;
+            --surface-4: #242424;
+            --gold: #C9A02A;
+            --gold-light: #E8C547;
+            --gold-dim: #8A6E1A;
+            --gold-glow: rgba(201, 160, 42, 0.15);
+            --crimson: #C41E3A;
+            --crimson-dim: rgba(196, 30, 58, 0.12);
+            --platinum: #C8C8C8;
+            --white: #F5F5F5;
+            --text-muted: #888888;
+            --text-subtle: #555555;
+            --border-gold: rgba(201, 160, 42, 0.25);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--obsidian);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .ambient-1 {
+            position: fixed; top: -20%; left: -10%;
+            width: 60vw; height: 60vw; border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,160,42,0.05) 0%, transparent 65%);
+            pointer-events: none; z-index: 0;
+        }
+        .ambient-2 {
+            position: fixed; bottom: -20%; right: -10%;
+            width: 50vw; height: 50vw; border-radius: 50%;
+            background: radial-gradient(circle, rgba(196,30,58,0.05) 0%, transparent 65%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── LOADING ── */
+        #loading-overlay {
+            position: fixed; inset: 0;
+            background: var(--obsidian);
+            z-index: 99;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        #loading-overlay .spin {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 2px solid var(--border-subtle);
+            border-top-color: var(--gold);
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 14px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-overlay p {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+
         .hidden { display: none !important; }
+
+        /* ── MAIN LAYOUT ── */
+        main {
+            position: relative; z-index: 1;
+            width: 100%; min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start;
+            padding: 48px 20px 80px;
+        }
+
+        /* ── STEP INDICATOR ── */
+        .steps-bar {
+            display: flex; gap: 8px; align-items: center;
+            margin-bottom: 48px; width: 100%; max-width: 420px;
+        }
+        .step-dot {
+            flex: 1; height: 3px; border-radius: 99px;
+            background: var(--surface-4);
+            transition: background 0.4s ease;
+        }
+        .step-dot.active { background: var(--gold); }
+        .step-dot.done { background: var(--gold-dim); }
+
+        /* ── HERO SECTION ── */
+        #section-hero {
+            width: 100%; max-width: 480px;
+            text-align: center;
+            animation: fadeUp 0.8s ease forwards;
+        }
+
+        .hero-eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem; letter-spacing: 0.3em;
+            text-transform: uppercase; color: var(--text-muted);
+            margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .hero-eyebrow::before, .hero-eyebrow::after {
+            content: ''; flex: 1; max-width: 40px;
+            height: 1px; background: var(--border-gold);
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.2rem, 8vw, 3.6rem);
+            font-weight: 600; line-height: 1.1;
+            color: var(--white); margin-bottom: 4px;
+        }
+        .hero-title em { font-style: italic; color: var(--gold); }
+
+        .hero-divider {
+            width: 50px; height: 1px;
+            background: var(--gold);
+            margin: 22px auto;
+        }
+
+        .hero-desc {
+            font-size: 0.93rem; color: var(--text-muted);
+            line-height: 1.8; margin-bottom: 36px;
+            font-weight: 300; max-width: 400px; margin-left: auto; margin-right: auto;
+        }
+
+        /* ── COUNTER ── */
+        .counter-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px; padding: 18px 24px;
+            margin-bottom: 32px; position: relative;
+            overflow: hidden;
+        }
+        .counter-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+        }
+        .counter-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .counter-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.4rem; font-weight: 700;
+            color: var(--crimson); letter-spacing: -0.02em;
+            display: flex; align-items: baseline; gap: 6px;
+        }
+        .counter-value span { font-size: 1.2rem; color: var(--text-muted); font-weight: 400; }
+        .counter-sub {
+            font-size: 0.75rem; color: var(--text-subtle);
+            margin-top: 6px; font-style: italic;
+        }
+
+        /* ── CTA BUTTON ── */
+        .cta-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px 24px;
+            background: var(--gold); color: #000;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800; font-size: 0.9rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border-radius: 8px; border: none; cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 30px rgba(201,160,42,0.25);
+        }
+        .cta-btn:hover:not(:disabled) {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(201,160,42,0.35);
+        }
+        .cta-btn:disabled {
+            opacity: 0.45; cursor: not-allowed; transform: none;
+        }
+        .cta-btn.activated {
+            background: #1a3a1a; color: #4ade80;
+            box-shadow: 0 4px 20px rgba(74,222,128,0.15);
+        }
+
+        .cta-micro {
+            font-size: 0.72rem; color: var(--text-subtle);
+            text-align: center; margin-top: 10px;
+            letter-spacing: 0.04em;
+        }
+        .cta-micro i { color: var(--gold-dim); margin-right: 4px; }
+
+        #status-message {
+            margin-top: 14px; font-size: 0.85rem;
+            font-weight: 500; text-align: center;
+        }
+
+        /* ── FORM SECTION ── */
+        #section-form {
+            width: 100%; max-width: 480px;
+            display: none;
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        .form-header { text-align: center; margin-bottom: 36px; }
+        .form-header .form-eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem; letter-spacing: 0.28em;
+            text-transform: uppercase; color: var(--gold);
+            margin-bottom: 12px;
+        }
+        .form-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.8rem, 6vw, 2.8rem);
+            font-weight: 400; color: var(--white); line-height: 1.2;
+        }
+        .form-header h2 em { font-style: italic; color: var(--gold); }
+        .form-header p {
+            font-size: 0.85rem; color: var(--text-muted);
+            margin-top: 10px; line-height: 1.7;
+        }
+
+        .form-card {
+            background: var(--surface-1);
+            border: 1px solid var(--border-gold);
+            border-radius: 14px; overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 60px rgba(201,160,42,0.06);
+        }
+        .form-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .form-body { padding: 28px 22px 24px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            font-size: 0.7rem; font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.12em; text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .form-group select,
+        .form-group input[type="text"] {
+            width: 100%; padding: 14px 14px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.93rem; color: var(--white);
+            transition: border-color 0.25s, box-shadow 0.25s;
+            outline: none; appearance: none;
+            -webkit-appearance: none;
+        }
+        .form-group select:focus,
+        .form-group input[type="text"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,160,42,0.1);
+        }
+        .form-group select option { background: #1a1a1a; color: var(--white); }
+        .form-group input::placeholder { color: var(--text-subtle); }
+
+        /* Radio group for motivación */
+        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+        .radio-option {
+            display: flex; align-items: center; gap: 14px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px; padding: 14px 16px;
+            cursor: pointer; transition: all 0.2s ease;
+        }
+        .radio-option:hover { border-color: var(--border-gold); }
+        .radio-option.selected {
+            border-color: var(--gold);
+            background: rgba(201,160,42,0.07);
+        }
+        .radio-option input[type="radio"] { display: none; }
+        .radio-dot {
+            width: 18px; height: 18px; border-radius: 50%;
+            border: 2px solid var(--text-subtle);
+            flex-shrink: 0; position: relative;
+            transition: border-color 0.2s;
+        }
+        .radio-option.selected .radio-dot {
+            border-color: var(--gold);
+        }
+        .radio-option.selected .radio-dot::after {
+            content: '';
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--gold);
+        }
+        .radio-option .radio-text {
+            font-size: 0.9rem; font-weight: 500; color: var(--platinum);
+        }
+        .radio-option .radio-icon {
+            font-size: 1.1rem; margin-left: auto;
+            color: var(--text-subtle);
+        }
+        .radio-option.selected .radio-icon { color: var(--gold); }
+
+        /* ── NEXT BUTTON ── */
+        .next-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px 24px;
+            background: var(--gold); color: #000;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800; font-size: 0.9rem;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            border-radius: 8px; border: none; cursor: pointer;
+            transition: all 0.25s ease; margin-top: 8px;
+            box-shadow: 0 4px 30px rgba(201,160,42,0.2);
+        }
+        .next-btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(201,160,42,0.35);
+        }
+        .next-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+        .next-btn-micro {
+            font-size: 0.72rem; color: var(--text-subtle);
+            text-align: center; margin-top: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+
+        .form-footer-note {
+            font-size: 0.72rem; color: var(--text-subtle);
+            text-align: center; padding: 14px 22px 20px;
+            border-top: 1px solid var(--border-subtle);
+            line-height: 1.5;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center">
+<body>
 
-    <div id="loading-overlay" class="fixed inset-0 bg-white z-[99] flex flex-col items-center justify-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p class="text-slate-500 font-medium">Cargando perfil...</p>
+    <div class="ambient-1"></div>
+    <div class="ambient-2"></div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+        <div class="spin"></div>
+        <p>Cargando perfil...</p>
     </div>
 
-    <div class="max-w-md w-full px-4 py-8">
-        <div id="activation-section" class="glass-card p-10 rounded-3xl shadow-2xl text-center border border-slate-200">
-            <div class="bg-blue-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                <i class="fas fa-building text-4xl text-blue-600"></i>
-            </div>
-            <h2 class="text-3xl font-black text-slate-800 mb-4">Activar cuenta de empresa</h2>
-            <p class="text-slate-500 mb-10 leading-relaxed">
-                Obtén acceso a herramientas avanzadas para la gestión de tu infraestructura y servicios B2B.
-            </p>
-            <button id="btn-activate-enterprise" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-5 rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95 flex items-center justify-center gap-3">
-                <i class="fas fa-rocket"></i>
-                <span>Activar ahora</span>
-            </button>
-            <p id="status-message" class="mt-6 text-sm font-medium text-slate-400 hidden"></p>
+    <main>
+        <!-- Step indicator -->
+        <div class="steps-bar">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
         </div>
-    </div>
+
+        <!-- ══════════ HERO / ACTIVATION SECTION ══════════ -->
+        <div id="section-hero">
+
+            <div class="hero-eyebrow">Masitaprex</div>
+
+            <h1 class="hero-title">
+                Tu flujo de caja está en<br>
+                <em>cuidados intensivos</em>
+            </h1>
+
+            <div class="hero-divider"></div>
+
+            <p class="hero-desc">
+                Cada minuto que pasa puede representar dinero que no se recupera.
+                Nuestro sistema está listo para ayudarte a automatizar el proceso
+                y mejorar tus cobros. Activa tu empresa y empieza a recuperar
+                ingresos de forma eficiente.
+            </p>
+
+            <!-- Dynamic counter -->
+            <div class="counter-card">
+                <div class="counter-label">Dinero perdido por empresas sin automatización en este minuto</div>
+                <div class="counter-value" id="counter-display">
+                    S/ <span id="counter-num">0</span>
+                </div>
+                <div class="counter-sub">y contando… ¿cuánto representa para ti?</div>
+            </div>
+
+            <!-- CTA -->
+            <button id="btn-activate-enterprise" class="cta-btn">
+                <i class="fas fa-rocket"></i>
+                <span>Activar mi empresa ahora</span>
+            </button>
+            <p class="cta-micro"><i class="fas fa-bolt"></i> Solo toma unos segundos activarlo</p>
+            <p id="status-message" class="hidden"></p>
+
+        </div>
+
+        <!-- ══════════ FORM SECTION ══════════ -->
+        <div id="section-form">
+
+            <div class="form-header">
+                <div class="form-eyebrow">Perfil de empresa</div>
+                <h2>Cuéntanos<br><em>sobre tu negocio</em></h2>
+                <p>Esta información nos ayuda a personalizar tu experiencia y mejorar tus cobros más rápido.</p>
+            </div>
+
+            <div class="form-card">
+                <div class="form-body">
+
+                    <!-- Campo 1: Punto de dolor -->
+                    <div class="form-group">
+                        <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas?</label>
+                        <select id="campo-dolor">
+                            <option value="" disabled selected>Selecciona un rango</option>
+                            <option value="menos-1k">Menos de S/ 1,000</option>
+                            <option value="1k-5k">S/ 1,000 – S/ 5,000</option>
+                            <option value="5k-15k">S/ 5,000 – S/ 15,000</option>
+                            <option value="15k-50k">S/ 15,000 – S/ 50,000</option>
+                            <option value="mas-50k">Más de S/ 50,000</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo 2: Volumen -->
+                    <div class="form-group">
+                        <label>¿Cuántos cobros fallidos tiene en promedio al mes?</label>
+                        <select id="campo-volumen">
+                            <option value="" disabled selected>Selecciona un rango</option>
+                            <option value="1-10">1 – 10 cobros fallidos</option>
+                            <option value="10-50">10 – 50 cobros fallidos</option>
+                            <option value="50-200">50 – 200 cobros fallidos</option>
+                            <option value="mas-200">Más de 200 cobros fallidos</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo 3: Herramientas actuales -->
+                    <div class="form-group">
+                        <label>¿Qué sistema de pagos utiliza actualmente?</label>
+                        <select id="campo-herramientas">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="ninguno">Ninguno / manual</option>
+                            <option value="banco">Transferencias bancarias</option>
+                            <option value="yape-plin">Yape / Plin</option>
+                            <option value="mercadopago">MercadoPago</option>
+                            <option value="culqi">Culqi</option>
+                            <option value="otro">Otro sistema</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo 4: Nivel de autoridad -->
+                    <div class="form-group">
+                        <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos?</label>
+                        <select id="campo-autoridad">
+                            <option value="" disabled selected>Selecciona una opción</option>
+                            <option value="si-total">Sí, decisión total</option>
+                            <option value="si-parcial">Sí, pero requiero aprobación</option>
+                            <option value="no">No, debo consultarlo</option>
+                        </select>
+                    </div>
+
+                    <!-- Campo 5: Motivación principal (radio) -->
+                    <div class="form-group">
+                        <label>¿Qué es más importante para usted?</label>
+                        <div class="radio-group">
+                            <label class="radio-option" id="radio-dinero" onclick="selectRadio('dinero')">
+                                <input type="radio" name="motivacion" value="dinero">
+                                <div class="radio-dot"></div>
+                                <span class="radio-text">Recuperar dinero rápidamente</span>
+                                <span class="radio-icon"><i class="fas fa-dollar-sign"></i></span>
+                            </label>
+                            <label class="radio-option" id="radio-cliente" onclick="selectRadio('cliente')">
+                                <input type="radio" name="motivacion" value="cliente">
+                                <div class="radio-dot"></div>
+                                <span class="radio-text">Mejorar la relación con el cliente</span>
+                                <span class="radio-icon"><i class="fas fa-heart"></i></span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div><!-- /form-body -->
+
+                <div style="padding: 0 22px 24px;">
+                    <button class="next-btn" id="btn-next" onclick="goToPanel()">
+                        <span>Siguiente</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <p class="next-btn-micro">
+                        <i class="fas fa-shield-alt" style="color: var(--gold-dim);"></i>
+                        Tu información es confidencial y segura
+                    </p>
+                </div>
+
+                <div class="form-footer-note">
+                    Al continuar aceptas nuestros Términos de Servicio.<br>
+                    Puedes actualizar estos datos en cualquier momento desde tu panel.
+                </div>
+
+            </div><!-- /form-card -->
+
+        </div><!-- /section-form -->
+
+    </main>
 
     <script src="returnConfig.js"></script>
     <script type="module">
@@ -43,9 +535,11 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
         let db, auth;
+        window._db = null;
+        window._auth = null;
 
-        const overlay = document.getElementById('loading-overlay');
-        const statusMsg = document.getElementById('status-message');
+        const overlay    = document.getElementById('loading-overlay');
+        const statusMsg  = document.getElementById('status-message');
         const btnActivate = document.getElementById('btn-activate-enterprise');
 
         const hideLoading = () => {
@@ -55,7 +549,8 @@
 
         const showStatus = (text, isError = false) => {
             statusMsg.innerText = text;
-            statusMsg.className = `mt-6 text-sm font-medium ${isError ? 'text-red-500' : 'text-emerald-500'}`;
+            statusMsg.className = `mt-4 text-sm font-medium ${isError ? '' : ''}`;
+            statusMsg.style.color = isError ? '#f87171' : '#4ade80';
             statusMsg.classList.remove('hidden');
         };
 
@@ -63,26 +558,28 @@
             try {
                 const response = await fetch('/api/config');
                 if (!response.ok) throw new Error("No se pudo obtener la configuración");
-                
+
                 const config = await response.json();
                 const app = initializeApp(config.firebaseConfig);
-                db = getFirestore(app);
+                db  = getFirestore(app);
                 auth = getAuth(app);
+                window._db   = db;
+                window._auth = auth;
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         try {
-                            // Verificar si ya es empresa
-                            const empresaRef = doc(db, "empresas", user.uid);
+                            const empresaRef  = doc(db, "empresas", user.uid);
                             const empresaSnap = await getDoc(empresaRef);
-                            
+
                             if (empresaSnap.exists() && empresaSnap.data().status === 'active') {
                                 btnActivate.disabled = true;
-                                btnActivate.classList.replace('bg-blue-600', 'bg-slate-200');
-                                btnActivate.classList.remove('hover:bg-blue-700', 'text-white');
-                                btnActivate.classList.add('text-slate-400', 'cursor-not-allowed');
-                                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i> Cuenta ya activada";
+                                btnActivate.classList.add('activated');
+                                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i><span>Cuenta ya activada</span>";
                                 showStatus("Tu cuenta de empresa ya se encuentra activa.");
+
+                                // Ir directo al formulario si ya está activado
+                                setTimeout(() => showFormSection(), 900);
                             }
                         } catch (err) {
                             console.error("Error consultando Firestore:", err);
@@ -90,7 +587,6 @@
                             hideLoading();
                         }
                     } else {
-                        // Usar ReturnConfig para una redirección robusta
                         if (typeof ReturnConfig !== 'undefined') {
                             ReturnConfig.redirectToLogin();
                         } else {
@@ -107,14 +603,13 @@
         }
 
         btnActivate.onclick = async () => {
-            const user = auth.currentUser;
+            const user = auth?.currentUser || window._auth?.currentUser;
             if (!user) return;
 
             btnActivate.disabled = true;
-            btnActivate.innerHTML = "<i class='fas fa-circle-notch animate-spin'></i> Activando...";
+            btnActivate.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i><span>Activando...</span>";
 
             try {
-                // Crear/Actualizar en la colección 'empresas'
                 await setDoc(doc(db, "empresas", user.uid), {
                     uid: user.uid,
                     email: user.email,
@@ -126,22 +621,94 @@
                 }, { merge: true });
 
                 showStatus("¡Cuenta de empresa activada exitosamente!");
-                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i> ¡Activado!";
-                btnActivate.classList.replace('bg-blue-600', 'bg-emerald-500');
-                
-                setTimeout(() => {
-                    window.location.href = "/actividad.html";
-                }, 2000);
+                btnActivate.classList.add('activated');
+                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i><span>¡Activado!</span>";
+
+                setTimeout(() => showFormSection(), 1200);
 
             } catch (e) {
                 console.error("Error al activar:", e);
                 showStatus("Error al activar: " + e.message, true);
                 btnActivate.disabled = false;
-                btnActivate.innerHTML = "<i class='fas fa-rocket'></i> Activar ahora";
+                btnActivate.innerHTML = "<i class='fas fa-rocket'></i><span>Activar mi empresa ahora</span>";
             }
+        };
+
+        // ── Guardar formulario + navegar a panel ──
+        window.goToPanel = async () => {
+            const user = window._auth?.currentUser;
+
+            const formData = {
+                perfil_dolor:       document.getElementById('campo-dolor').value     || null,
+                perfil_volumen:     document.getElementById('campo-volumen').value   || null,
+                perfil_herramientas:document.getElementById('campo-herramientas').value || null,
+                perfil_autoridad:   document.getElementById('campo-autoridad').value || null,
+                perfil_motivacion:  window._selectedMotivacion || null,
+                perfilCompletadoAt: null // se llenará con serverTimestamp si hay user
+            };
+
+            if (user && window._db) {
+                try {
+                    formData.perfilCompletadoAt = serverTimestamp();
+                    await setDoc(doc(window._db, "empresas", user.uid), formData, { merge: true });
+                } catch (e) {
+                    console.warn("No se pudo guardar el formulario:", e);
+                }
+            }
+
+            window.location.href = "/panel.html";
         };
 
         init();
     </script>
+
+    <script>
+        /* ──── Counter dinámico ──── */
+        let counterVal = 12840;
+        const counterEl = document.getElementById('counter-num');
+
+        function formatNum(n) {
+            return n.toLocaleString('es-PE');
+        }
+
+        function tickCounter() {
+            const increment = Math.floor(Math.random() * 180) + 60;
+            counterVal += increment;
+            counterEl.textContent = formatNum(counterVal);
+        }
+
+        counterEl.textContent = formatNum(counterVal);
+        setInterval(tickCounter, 1400);
+
+        /* ──── Radio selection ──── */
+        window._selectedMotivacion = null;
+
+        window.selectRadio = function(val) {
+            document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById('radio-' + val).classList.add('selected');
+            window._selectedMotivacion = val;
+        };
+
+        /* ──── Show form section ──── */
+        window.showFormSection = function() {
+            const heroEl = document.getElementById('section-hero');
+            const formEl = document.getElementById('section-form');
+
+            // Step dots
+            document.getElementById('dot-1').classList.remove('active');
+            document.getElementById('dot-1').classList.add('done');
+            document.getElementById('dot-2').classList.add('active');
+
+            heroEl.style.opacity = '0';
+            heroEl.style.transform = 'translateY(-16px)';
+            heroEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            setTimeout(() => {
+                heroEl.style.display = 'none';
+                formEl.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 380);
+        };
+    </script>
+
 </body>
 </html>
