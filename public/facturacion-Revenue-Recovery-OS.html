@@ -631,7 +631,7 @@
             } catch(e) { console.error('Error auth:', e); }
         }
 
-        function selectPlan(key) { if (!currentUser) { window.location.href = 'login.html'; return; } const p = PLANS[key]; const url = `/checkout.html?amount=${p.amount}&uid=${currentUser.uid}&email=${encodeURIComponent(currentUser.email)}&description=${encodeURIComponent(p.desc)}`; document.getElementById('loadingOverlay').classList.add('active'); setTimeout(() => { window.location.href = url; }, 600); }
+        function selectPlan(key) { if (!currentUser) { window.location.href = 'login.html'; return; } const p = PLANS[key]; const url = `/checkout-Revenue-Recovery-OS.html?amount=${p.amount}&uid=${currentUser.uid}&email=${encodeURIComponent(currentUser.email)}&description=${encodeURIComponent(p.desc)}`; document.getElementById('loadingOverlay').classList.add('active'); setTimeout(() => { window.location.href = url; }, 600); }
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function showSuccess(body) { document.getElementById('successBody').innerHTML = (body||'').replace(/\n/g,'<br>'); document.getElementById('successModal').classList.add('active'); }
