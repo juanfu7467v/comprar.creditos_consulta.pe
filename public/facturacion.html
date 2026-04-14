@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planes de Monitoreo | Masitaprex – Uptime Profesional</title>
-    <meta name="description" content="Supervisa tus APIs y páginas web en tiempo real con Masitaprex. Alertas instantáneas, página de estado pública y uptime profesional desde $9/mes.">
+    <title>Revenue Recovery OS | Recupera ingresos perdidos</title>
+    <meta name="description" content="Sistema automatizado de recuperación de liquidez para pagos fallidos. Recupera hasta el 95% de tus ingresos perdidos con integración global.">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
     <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
@@ -22,6 +22,7 @@
             --grad:linear-gradient(90deg,var(--blue),var(--green));
             --card:#ffffff;--border:#e5e7eb;
             --shadow:0 4px 16px rgba(0,0,0,0.12);
+            --gold:#f59e0b;
         }
         body{
             font-family:'Inter',sans-serif;
@@ -47,58 +48,8 @@
         .diamond:nth-child(4){width:60px;height:60px;top:28%;left:72%;animation:floatSlow 9s ease-in-out infinite 2s;}
         .diamond:nth-child(5){width:45px;height:45px;top:48%;left:48%;animation:float 7.5s ease-in-out infinite 1.5s;}
 
-        /* ── SIDEBAR ── */
-        #sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:50;opacity:0;display:none;transition:opacity .3s;}
-        #sidebar-overlay.vis{opacity:1;}
-        #sidebar{
-            position:fixed;top:0;left:0;height:100%;width:280px;
-            background:#000;color:#fff;z-index:60;
-            box-shadow:0 24px 80px rgba(0,0,0,0.6);
-            overflow-y:auto;
-            transition:transform .3s cubic-bezier(.4,0,.2,1);
-            transform:translateX(-100%);
-            display:flex;flex-direction:column;
-        }
-        #sidebar.open{transform:translateX(0);}
-        .sb-head{
-            padding:36px 20px 24px;
-            background:linear-gradient(135deg,#1a1a2e,#16213e);
-            border-bottom:1px solid rgba(255,255,255,0.1);
-            display:flex;flex-direction:column;align-items:center;
-        }
-        .sb-logo{width:64px;height:64px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.12);margin-bottom:10px;}
-        .sb-logo img{width:100%;height:100%;object-fit:cover;}
-        .sb-title{font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-.02em;}
-        #sidebar nav{padding:12px 0;flex:1;}
-        #sidebar nav a{
-            display:flex;align-items:center;gap:10px;
-            padding:13px 20px;
-            color:rgba(255,255,255,.75);text-decoration:none;
-            border-left:3px solid transparent;
-            transition:all .2s;font-size:1rem;
-        }
-        #sidebar nav a:hover{background:rgba(255,255,255,.07);color:#fff;border-left-color:#FF1F3D;}
-        #sidebar nav a.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:#FF1F3D;font-weight:600;}
-        .sb-footer{padding:16px 20px 28px;border-top:1px solid rgba(255,255,255,.08);text-align:center;}
-        .sb-footer a{display:inline-block;margin:0 10px;color:#fff;opacity:.6;font-size:1.6rem;transition:opacity .2s;}
-        .sb-footer a:hover{opacity:1;}
-        #sidebar::-webkit-scrollbar{width:4px;}
-        #sidebar::-webkit-scrollbar-thumb{background:rgba(99,102,241,.5);border-radius:2px;}
-
-        /* ── HEADER ── */
-        .app-header{
-            position:sticky;top:0;z-index:40;
-            background:rgba(0,0,0,.9);backdrop-filter:blur(12px);
-            border-bottom:1px solid rgba(255,255,255,.07);
-            display:flex;align-items:center;padding:0 14px;height:52px;gap:10px;
-        }
-        .menu-btn{background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;display:flex;align-items:center;transition:background .2s;}
-        .menu-btn:hover{background:rgba(255,255,255,.08);}
-        .header-title{flex:1;font-size:.95rem;font-weight:700;color:#fff;letter-spacing:-.01em;}
-        .header-icon{width:1.6rem;height:1.6rem;color:#fff;}
-
         /* ── MAIN ── */
-        .main{width:100%;max-width:480px;margin:0 auto;padding:0 14px 80px;position:relative;z-index:1;}
+        .main{width:100%;max-width:480px;margin:0 auto;padding:0 14px 40px;position:relative;z-index:1;}
 
         /* ── HERO ── */
         .hero{padding:1.75rem 0 1.25rem;text-align:center;}
@@ -117,7 +68,7 @@
             background:linear-gradient(90deg,#60a5fa,#34d399);
             -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         }
-        .hero-sub{font-size:.88rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:300px;margin:0 auto;}
+        .hero-sub{font-size:.88rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:340px;margin:0 auto;}
         .live-bar{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:1.1rem;}
         @keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(52,211,153,.4)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
         .live-dot{width:8px;height:8px;border-radius:50%;background:#34d399;animation:pulseDot 2s infinite;}
@@ -145,6 +96,9 @@
         }
         .trial-ico{width:46px;height:46px;border-radius:13px;background:rgba(99,102,241,.18);
             display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+        .trial-ico i {
+            color: #ffffff;
+        }
         .trial h4{font-size:.9rem;font-weight:700;color:#fff;margin-bottom:3px;}
         .trial p{font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;}
 
@@ -152,7 +106,7 @@
         .sec-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
             color:rgba(255,255,255,.3);padding:1.4rem 0 .6rem;}
 
-        /* ── PLAN CARDS (MEJORADAS con sombra suave y decorativo SVG) ── */
+        /* ── PLAN CARDS ── */
         .plans{display:flex;flex-direction:column;gap:11px;}
         .plan{
             background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
@@ -172,7 +126,6 @@
         .plan.business{--pc:linear-gradient(90deg,#f59e0b,#fbbf24);background:rgba(245,158,11,.05);border-color:rgba(245,158,11,.28);}
         .plan.agency{--pc:linear-gradient(90deg,#8b5cf6,#a78bfa);}
 
-        /* Elemento decorativo SVG en la parte superior derecha de cada plan */
         .plan-svg-deco {
             position: absolute;
             top: 0;
@@ -194,11 +147,11 @@
             display: block;
         }
 
-        /* Etiqueta "⭐ Más popular" reposicionada arriba a la derecha completa */
+        /* Etiqueta "Más popular" */
         .plan-best{
             position:absolute;
             top:0;
-            right:0;
+            left:0;
             background:linear-gradient(90deg,#f59e0b,#fbbf24);
             color:#000;
             font-size:.7rem;
@@ -206,19 +159,21 @@
             letter-spacing:.06em;
             text-transform:uppercase;
             padding:8px 18px;
-            border-radius:0 16px 0 18px;
-            box-shadow:-2px 2px 8px rgba(0,0,0,0.15);
+            border-radius:16px 0 18px 0;
+            box-shadow:2px 2px 8px rgba(0,0,0,0.15);
             z-index:3;
             line-height:1.2;
             text-align:center;
         }
-        .plan.business .plan-top {
-            margin-top: 6px;
-        }
+
         .plan-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.9rem; position:relative; z-index:2;}
         .plan-id{display:flex;align-items:center;gap:9px;}
         .plan-emo{width:40px;height:40px;border-radius:11px;background:rgba(255,255,255,.08);
-            display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+            display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;}
+        .plan-emo i {
+            color: #fbbf24;
+            text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+        }
         .plan-name{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:#fff;line-height:1.2;}
         .plan-tag{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px;}
         .plan-price-col{text-align:right;flex-shrink:0;}
@@ -249,7 +204,43 @@
         .plan-btn.feat:hover{filter:brightness(1.07);}
         .plan-btn:active{transform:scale(.97);}
 
-        /* ── HORIZONTAL SCROLL IMAGES ── */
+        /* ── FORMULARIO ── */
+        .form-card {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 20px;
+            padding: 1.5rem 1.2rem;
+            margin: 1.5rem 0;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 0.4rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #34d399;
+        }
+        .form-group select option {
+            background: #1a1a2e;
+        }
+
+        /* ── SCROLL IMAGES ── */
         .image-scroll-container {
             margin: 1.2rem 0 0.8rem;
             width: 100%;
@@ -300,10 +291,6 @@
             object-position: top;
             aspect-ratio: auto;
         }
-        /* Espaciado reducido entre el contenedor CTA y el footer */
-        .spacer-after-scroll {
-            margin-bottom: 1rem;
-        }
 
         /* ── WHY US ── */
         .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
@@ -336,44 +323,59 @@
         }
         .faq-a strong{color:rgba(255,255,255,.8);}
 
-        /* ── CTA FINAL (nuevo bloque) ── */
-        .cta-final{
-            background:linear-gradient(135deg,rgba(30,64,175,.18),rgba(5,150,105,.12));
-            border:1px solid rgba(52,211,153,.18);border-radius:18px;
-            padding:1.6rem 1.25rem;text-align:center;margin:10px 0 4px;
+        /* ── CTA FINAL ── */
+        .cta-final-transparente {
+            text-align: center;
+            padding: 1.5rem 0.5rem 0.5rem 0.5rem;
+            margin: 0;
+            background: transparent;
+            border: none;
         }
-        .cta-final h3{font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.45rem;}
-        .cta-final p{font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.5;}
+        .cta-final-transparente h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .cta-final-transparente p {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.5;
+            max-width: 320px;
+            margin: 0 auto 1.2rem auto;
+        }
 
-        /* Botón rojo llamativo "Empezar ahora" integrado nativamente */
         .btn-rojo-empezar {
             display: block;
             width: 100%;
-            background: linear-gradient(95deg, #e11d2e, #ff3b4a);
-            border: none;
+            background: transparent;
+            border: 2px solid #e11d2e;
             border-radius: 60px;
             padding: 0.9rem 0.8rem;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             font-weight: 800;
             font-size: 1.05rem;
-            color: white;
+            color: #e11d2e;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 8px 18px -6px rgba(225, 29, 46, 0.4);
             font-family: 'Space Grotesk', sans-serif;
             letter-spacing: 0.5px;
         }
         .btn-rojo-empezar:hover {
-            background: linear-gradient(95deg, #c41a28, #e62e3c);
+            background: rgba(225, 29, 46, 0.1);
+            border-color: #ff3b4a;
+            color: #ff3b4a;
             transform: translateY(-2px);
-            box-shadow: 0 14px 24px -8px rgba(225, 29, 46, 0.6);
+            box-shadow: 0 8px 18px -6px rgba(225, 29, 46, 0.2);
         }
         .btn-rojo-empezar:active {
             transform: translateY(1px);
         }
 
-        /* ── FOOTER (espaciado reducido) ── */
+        /* ── FOOTER ── */
         .footer{
             background:#000;
             padding:1.25rem 1rem;
@@ -381,7 +383,7 @@
             border-top:1px solid rgba(255,255,255,.07);
             position:relative;
             z-index:1;
-            margin-top: -0.5rem;
+            margin-top: 0;
         }
         .footer h3{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:.85rem;}
         .footer .soc a{color:rgba(255,255,255,.45);font-size:1.5rem;margin:0 .35rem;transition:color .2s;}
@@ -440,129 +442,158 @@
     <div class="diamond"></div>
     <div class="diamond"></div>
 
-    <header class="app-header">
-        <button id="menu-toggle" class="menu-btn">
-            <i data-lucide="menu" class="header-icon"></i>
-        </button>
-        <span class="header-title">Planes de Monitoreo</span>
-    </header>
-
-    <div id="sidebar-overlay"></div>
-
-    <aside id="sidebar">
-        <div class="sb-head">
-            <div class="sb-logo">
-                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="masitaprex">
-            </div>
-            <div class="sb-title">masitaprex</div>
-        </div>
-        <nav>
-            <a href="home"><i data-lucide="layout-dashboard" style="width:20px;height:20px;flex-shrink:0;"></i><span>Inicio</span></a>
-            <a href="api-key"><i data-lucide="terminal-square" style="width:20px;height:20px;flex-shrink:0;"></i><span>Mi API Key</span></a>
-            <a href="planes.html" class="active"><i data-lucide="shield-check" style="width:20px;height:20px;flex-shrink:0;"></i><span>Planes</span></a>
-            <a href="API-Docs"><i data-lucide="file-code-2" style="width:20px;height:20px;flex-shrink:0;"></i><span>Documentación APIs</span></a>
-            <a href="PeliPREX"><i data-lucide="clapperboard" style="width:20px;height:20px;flex-shrink:0;"></i><span>Películas gratis</span></a>
-            <a href="consultaPe-vercion-web"><i data-lucide="globe" style="width:20px;height:20px;flex-shrink:0;"></i><span>ConsultaPe web</span></a>
-        </nav>
-        <div class="sb-footer">
-            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
-        </div>
-    </aside>
-
     <main class="main">
         <div class="hero">
-            <div class="hero-badge"><i class="fas fa-satellite-dish" style="font-size:.62rem;"></i> Monitoreo Profesional en Tiempo Real</div>
-            <h1 class="hero-title">Tu servicio siempre<br><span class="grad">en línea.</span> Siempre.</h1>
-            <p class="hero-sub">Detecta fallos antes que tus usuarios. Transmite confianza con uptime profesional y alertas instantáneas.</p>
-            <div class="live-bar"><div class="live-dot"></div><span class="live-txt">Monitoreo activo — 24/7 — 365 días</span></div>
+            <div class="hero-badge"><i class="fas fa-coins" style="font-size:.62rem;"></i> Recuperación de Liquidez · No Custodio</div>
+            <h1 class="hero-title">Recupera el control de<br><span class="grad">tus pagos fallidos</span></h1>
+            <p class="hero-sub">Cada 24 horas, una parte de tus ingresos se pierde por pagos fallidos. No es culpa del banco, es dinero que tu empresa está dejando ir por no tener un sistema de recuperación adecuado. ¿Vas a seguir perdiendo ingresos o vas a tomar el control hoy?</p>
+            <div class="live-bar"><div class="live-dot"></div><span class="live-txt">Recuperación automatizada 24/7 · 365 días</span></div>
         </div>
 
         <div class="uptime-card">
-            <div class="uptime-top"><span class="uptime-name">📡 Historial de uptime — últimos 30 días</span><span class="uptime-pct">99.97%</span></div>
+            <div class="uptime-top"><span class="uptime-name"><i class="fas fa-chart-line" style="margin-right:6px;"></i>Tasa de recuperación promedio</span><span class="uptime-pct">95%</span></div>
             <div class="uptime-bars-wrap" id="uptimeBars"></div>
-            <div class="uptime-leg"><span>Hace 30 días</span><span>Hoy</span></div>
+            <div class="uptime-leg"><span>Últimos 30 días</span><span>Hoy</span></div>
         </div>
 
         <div class="trial">
-            <div class="trial-ico">🎁</div>
-            <div><h4>Prueba gratuita por 24 horas</h4><p>Activa tu cuenta hoy y accede a todas las funciones sin costo ni compromiso. Sin tarjeta requerida.</p></div>
+            <div class="trial-ico"><i class="fas fa-shield-alt"></i></div>
+            <div><h4>Arquitectura No Custodia · Escalable · Segura</h4><p>Integración con Adyen, PayPal, Mercado Pago, Stripe y más. Tokenización AES-256. Sin acceso a tus fondos.</p></div>
         </div>
 
-        <div class="sec-label">Elige tu plan</div>
+        <!-- FORMULARIO -->
+        <div class="form-card">
+            <h3 style="color:white; font-weight:700; margin-bottom:1.2rem; font-size:1rem;"><i class="fas fa-clipboard-list" style="margin-right:8px;"></i>Diagnóstico rápido de recuperación</h3>
+            <div class="form-group">
+                <label><i class="fas fa-dollar-sign" style="margin-right:6px;"></i>¿Cuánto dinero pierdes al mes por pagos fallidos?</label>
+                <input type="text" placeholder="Ej: $2,500 USD" value="">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-credit-card" style="margin-right:6px;"></i>¿Qué plataforma usas actualmente?</label>
+                <select>
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option>Stripe</option>
+                    <option>PayPal / Braintree</option>
+                    <option>Mercado Pago</option>
+                    <option>Adyen</option>
+                    <option>PayU</option>
+                    <option>Kushki / Niubiz</option>
+                    <option>Otra</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user-tie" style="margin-right:6px;"></i>¿Cuál es tu rol en la empresa?</label>
+                <select>
+                    <option value="" disabled selected>Selecciona tu cargo</option>
+                    <option>Dueño / Founder</option>
+                    <option>CEO / Director</option>
+                    <option>Administrador / CFO</option>
+                    <option>Gerente de Operaciones</option>
+                    <option>Desarrollador / CTO</option>
+                    <option>Otro</option>
+                </select>
+            </div>
+            <button class="btn-rojo-empezar" style="margin-top:0.5rem;" onclick="selectPlan('business')"><i class="fas fa-search" style="margin-right:8px;"></i>ANALIZAR MI POTENCIAL DE RECUPERACIÓN</button>
+        </div>
+
+        <div class="sec-label"><i class="fas fa-box" style="margin-right:6px;"></i>Planes Mensuales</div>
         <div class="plans">
-            <!-- STARTER con SVG decorativo -->
+            <!-- STARTER -->
             <div class="plan starter" onclick="selectPlan('starter')">
                 <div class="plan-svg-deco"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#0F62FE" d="M39.4,-61.1C47.7,-55.9,48.8,-39.3,55.1,-25.2C61.5,-11.1,73.2,0.5,70.8,9.5C68.5,18.5,52.2,24.8,42.5,37.9C32.8,51,29.8,71,21.5,73.7C13.2,76.4,-0.3,61.7,-9.9,51C-19.5,40.3,-25.3,33.6,-32.8,27.1C-40.3,20.7,-49.6,14.6,-57.7,4C-65.9,-6.5,-73,-21.6,-71,-35.2C-69.1,-48.8,-58,-61,-44.7,-63.9C-31.4,-66.8,-15.7,-60.5,-0.1,-60.4C15.5,-60.2,31.1,-66.4,39.4,-61.1Z" transform="translate(100 100)" /></svg></div>
-                <div class="plan-top"><div class="plan-id"><div class="plan-emo">🥉</div><div><div class="plan-name">Starter</div><div class="plan-tag">Para empezar con el pie derecho</div></div></div><div class="plan-price-col"><div class="plan-price"><sup>$</sup>9</div><div class="plan-per">por mes</div></div></div>
+                <div class="plan-top"><div class="plan-id"><div class="plan-emo"><i class="fas fa-seedling"></i></div><div><div class="plan-name">Starter</div><div class="plan-tag">Ideal para pequeños negocios</div></div></div><div class="plan-price-col"><div class="plan-price"><sup>$</sup>29</div><div class="plan-per">por mes</div></div></div>
                 <div class="divider"></div>
-                <ul class="feats"><li><span class="feat-chk"><i class="fas fa-check"></i></span>Hasta <strong>5 endpoints</strong> monitoreados</li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Verificación cada <strong>5 minutos</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Alertas por <strong>Email y Telegram</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Página de estado <strong>básica</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Prueba gratis <strong>24 horas</strong></li></ul>
-                <p class="plan-tip">👉 Perfecto para freelancers y proyectos pequeños que quieren verse profesionales.</p>
+                <ul class="feats">
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Hasta <strong>$1,000 recuperados al mes</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Integración con <strong>Stripe y PayPal</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Alertas inteligentes de <strong>fallos de pago</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Dashboard de <strong>dinero recuperado</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Prevención proactiva (Pre-Dunning)</li>
+                </ul>
+                <p class="plan-tip"><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Perfecto para freelancers y pequeños comercios que quieren detener la fuga de ingresos.</p>
                 <button class="plan-btn def"><i class="fas fa-arrow-right"></i> Comenzar con Starter</button>
             </div>
-            <!-- PRO con SVG -->
+            <!-- BUSINESS -->
             <div class="plan pro" onclick="selectPlan('pro')">
                 <div class="plan-svg-deco"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#0F62FE" d="M39.4,-61.1C47.7,-55.9,48.8,-39.3,55.1,-25.2C61.5,-11.1,73.2,0.5,70.8,9.5C68.5,18.5,52.2,24.8,42.5,37.9C32.8,51,29.8,71,21.5,73.7C13.2,76.4,-0.3,61.7,-9.9,51C-19.5,40.3,-25.3,33.6,-32.8,27.1C-40.3,20.7,-49.6,14.6,-57.7,4C-65.9,-6.5,-73,-21.6,-71,-35.2C-69.1,-48.8,-58,-61,-44.7,-63.9C-31.4,-66.8,-15.7,-60.5,-0.1,-60.4C15.5,-60.2,31.1,-66.4,39.4,-61.1Z" transform="translate(100 100)" /></svg></div>
-                <div class="plan-top"><div class="plan-id"><div class="plan-emo">🥈</div><div><div class="plan-name">Pro</div><div class="plan-tag">Para proyectos en crecimiento</div></div></div><div class="plan-price-col"><div class="plan-price"><sup>$</sup>24</div><div class="plan-per">por mes</div></div></div>
+                <div class="plan-top"><div class="plan-id"><div class="plan-emo"><i class="fas fa-chart-line"></i></div><div><div class="plan-name">Business</div><div class="plan-tag">Perfecto para empresas en crecimiento</div></div></div><div class="plan-price-col"><div class="plan-price"><sup>$</sup>79</div><div class="plan-per">por mes</div></div></div>
                 <div class="divider"></div>
-                <ul class="feats"><li><span class="feat-chk"><i class="fas fa-check"></i></span>Hasta <strong>20 endpoints</strong> monitoreados</li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Verificación cada <strong>1 minuto</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Alertas por <strong>Email, Telegram y Slack</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Página de estado <strong>completa</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Historial de <strong>uptime</strong></li></ul>
-                <p class="plan-tip">👉 Ideal para startups que no pueden permitirse tiempos de caída.</p>
-                <button class="plan-btn def"><i class="fas fa-arrow-right"></i> Activar Plan Pro</button>
+                <ul class="feats">
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Hasta <strong>$5,000 recuperados al mes</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Integración con <strong>Stripe, PayPal, Mercado Pago, Adyen</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Webhooks personalizados + <strong>Slack/Telegram</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Personalización de <strong>marca blanca</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Prevención proactiva avanzada</li>
+                </ul>
+                <p class="plan-tip"><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Ideal para startups y SaaS que no pueden permitirse perder ingresos recurrentes.</p>
+                <button class="plan-btn def"><i class="fas fa-arrow-right"></i> Activar Plan Business</button>
             </div>
-            <!-- BUSINESS con SVG -->
+            <!-- ENTERPRISE (MÁS POPULAR) -->
             <div class="plan business" onclick="selectPlan('business')">
-                <div class="plan-best">⭐ Más popular</div>
+                <div class="plan-best"><i class="fas fa-star"></i> Más popular</div>
                 <div class="plan-svg-deco"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#0F62FE" d="M39.4,-61.1C47.7,-55.9,48.8,-39.3,55.1,-25.2C61.5,-11.1,73.2,0.5,70.8,9.5C68.5,18.5,52.2,24.8,42.5,37.9C32.8,51,29.8,71,21.5,73.7C13.2,76.4,-0.3,61.7,-9.9,51C-19.5,40.3,-25.3,33.6,-32.8,27.1C-40.3,20.7,-49.6,14.6,-57.7,4C-65.9,-6.5,-73,-21.6,-71,-35.2C-69.1,-48.8,-58,-61,-44.7,-63.9C-31.4,-66.8,-15.7,-60.5,-0.1,-60.4C15.5,-60.2,31.1,-66.4,39.4,-61.1Z" transform="translate(100 100)" /></svg></div>
-                <div class="plan-top"><div class="plan-id"><div class="plan-emo">🥇</div><div><div class="plan-name">Business</div><div class="plan-tag">Nivel profesional real</div></div></div><div class="plan-price-col"><div class="plan-price"><sup>$</sup>49</div><div class="plan-per">por mes</div></div></div>
+
+                <!-- ↓ ÚNICO CAMBIO: margin-top:1.8rem empuja el contenido
+                     hacia abajo, dejando espacio libre bajo la etiqueta     -->
+                <div class="plan-top" style="margin-top:1.8rem;">
+                    <div class="plan-id">
+                        <div class="plan-emo"><i class="fas fa-crown"></i></div>
+                        <div>
+                            <div class="plan-name">Enterprise</div>
+                            <div class="plan-tag">Diseñado para agencias y alto volumen</div>
+                        </div>
+                    </div>
+                    <div class="plan-price-col">
+                        <div class="plan-price"><sup>$</sup>199</div>
+                        <div class="plan-per">por mes</div>
+                    </div>
+                </div>
+
                 <div class="divider"></div>
-                <ul class="feats"><li><span class="feat-chk"><i class="fas fa-check"></i></span>Hasta <strong>75 endpoints</strong> monitoreados</li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Verificación cada <strong>30 segundos</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Todas las notificaciones <strong>+ Webhooks</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Reportes automáticos <strong>de rendimiento</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Alertas de vencimiento <strong>SSL</strong></li></ul>
-                <p class="plan-tip">👉 Pensado para negocios que no pueden fallar.</p>
-                <button class="plan-btn feat"><i class="fas fa-bolt"></i> Activar Business</button>
-            </div>
-            <!-- AGENCY con SVG -->
-            <div class="plan agency" onclick="selectPlan('agency')">
-                <div class="plan-svg-deco"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path fill="#0F62FE" d="M39.4,-61.1C47.7,-55.9,48.8,-39.3,55.1,-25.2C61.5,-11.1,73.2,0.5,70.8,9.5C68.5,18.5,52.2,24.8,42.5,37.9C32.8,51,29.8,71,21.5,73.7C13.2,76.4,-0.3,61.7,-9.9,51C-19.5,40.3,-25.3,33.6,-32.8,27.1C-40.3,20.7,-49.6,14.6,-57.7,4C-65.9,-6.5,-73,-21.6,-71,-35.2C-69.1,-48.8,-58,-61,-44.7,-63.9C-31.4,-66.8,-15.7,-60.5,-0.1,-60.4C15.5,-60.2,31.1,-66.4,39.4,-61.1Z" transform="translate(100 100)" /></svg></div>
-                <div class="plan-top"><div class="plan-id"><div class="plan-emo">🚀</div><div><div class="plan-name">Agency</div><div class="plan-tag">Máximo rendimiento y control</div></div></div><div class="plan-price-col"><div class="plan-price"><sup>$</sup>99</div><div class="plan-per">por mes</div></div></div>
-                <div class="divider"></div>
-                <ul class="feats"><li><span class="feat-chk"><i class="fas fa-check"></i></span>Hasta <strong>200 endpoints</strong> monitoreados</li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Verificación cada <strong>30 seg. (prioritaria)</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span><strong>Soporte prioritario</strong> dedicado</li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Gestión <strong>multicuenta</strong></li><li><span class="feat-chk"><i class="fas fa-check"></i></span>Panel con <strong>marca blanca</strong></li></ul>
-                <p class="plan-tip">👉 Para agencias y empresas que gestionan múltiples clientes.</p>
-                <button class="plan-btn def"><i class="fas fa-arrow-right"></i> Contratar Agency</button>
+                <ul class="feats">
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span><strong>Sin límites estrictos</strong> de recuperación</li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Todos los procesadores globales <strong>+ Latam (PayU, Kushki)</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Gestión <strong>multicuenta y marca blanca total</strong></li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Soporte prioritario dedicado</li>
+                    <li><span class="feat-chk"><i class="fas fa-check"></i></span>Reportes automáticos de ROI</li>
+                </ul>
+                <p class="plan-tip"><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Para agencias y grandes empresas que gestionan múltiples cuentas y necesitan máxima capacidad.</p>
+                <button class="plan-btn feat"><i class="fas fa-bolt"></i> Activar Enterprise</button>
             </div>
         </div>
 
         <div class="image-scroll-container">
             <div class="image-scroll-track">
-                <div class="scroll-image-card"><img src="https://i.postimg.cc/brW32Vyx/image.jpg" alt="monitoreo dashboard" loading="lazy"></div>
-                <div class="scroll-image-card"><img src="https://i.postimg.cc/rsKfs2kC/image.jpg" alt="alertas en tiempo real" loading="lazy"></div>
-                <div class="scroll-image-card"><img src="https://i.postimg.cc/PJPSJnjQ/image.jpg" alt="métricas de uptime" loading="lazy"></div>
-                <div class="scroll-image-card"><img src="https://i.postimg.cc/Wzh5zcv7/image.jpg" alt="página de estado" loading="lazy"></div>
-                <div class="scroll-image-card"><img src="https://i.postimg.cc/tJYBJGj5/image.jpg" alt="reportes automáticos" loading="lazy"></div>
+                <div class="scroll-image-card"><img src="https://i.postimg.cc/brW32Vyx/image.jpg" alt="dashboard recuperación" loading="lazy"></div>
+                <div class="scroll-image-card"><img src="https://i.postimg.cc/rsKfs2kC/image.jpg" alt="métricas de dinero recuperado" loading="lazy"></div>
+                <div class="scroll-image-card"><img src="https://i.postimg.cc/PJPSJnjQ/image.jpg" alt="webhooks de pago" loading="lazy"></div>
+                <div class="scroll-image-card"><img src="https://i.postimg.cc/Wzh5zcv7/image.jpg" alt="branding personalizado" loading="lazy"></div>
+                <div class="scroll-image-card"><img src="https://i.postimg.cc/tJYBJGj5/image.jpg" alt="prevención de fallos" loading="lazy"></div>
             </div>
         </div>
-        <div class="spacer-after-scroll"></div>
 
-        <div class="sec-label">¿Por qué elegirnos?</div>
+        <div class="sec-label"><i class="fas fa-network-wired" style="margin-right:6px;"></i>Infraestructura Global</div>
         <div class="why-grid">
-            <div class="why-item"><div class="why-ico g"><i class="fas fa-satellite-dish"></i></div><div class="why-t">Monitoreo en tiempo real</div><div class="why-d">Detectamos fallos antes que tus usuarios.</div></div>
-            <div class="why-item"><div class="why-ico b"><i class="fas fa-bell"></i></div><div class="why-t">Alertas inmediatas</div><div class="why-d">Email, Telegram, Slack o webhook a tu elección.</div></div>
-            <div class="why-item"><div class="why-ico y"><i class="fas fa-chart-line"></i></div><div class="why-t">Reportes automáticos</div><div class="why-d">Métricas e historial de uptime listos para mostrar.</div></div>
-            <div class="why-item"><div class="why-ico p"><i class="fas fa-shield-alt"></i></div><div class="why-t">Ahorro real</div><div class="why-d">Mucho más accesible que Pingdom o Datadog.</div></div>
+            <div class="why-item"><div class="why-ico g"><i class="fas fa-globe"></i></div><div class="why-t">Integración Internacional</div><div class="why-d">Adyen, PayPal, Checkout.com, Stripe.</div></div>
+            <div class="why-item"><div class="why-ico b"><i class="fas fa-map-pin"></i></div><div class="why-t">Enfoque en Latam</div><div class="why-d">Mercado Pago, PayU, Kushki, Niubiz.</div></div>
+            <div class="why-item"><div class="why-ico y"><i class="fas fa-shield-halved"></i></div><div class="why-t">Seguridad No Custodia</div><div class="why-d">Tokenización AES-256. Sin acceso a fondos.</div></div>
+            <div class="why-item"><div class="why-ico p"><i class="fas fa-chart-pie"></i></div><div class="why-t">ROI Inmediato</div><div class="why-d">Recupera hasta 95% de ingresos fallidos.</div></div>
         </div>
 
-        <div class="sec-label">Preguntas frecuentes</div>
+        <div class="sec-label"><i class="fas fa-circle-question" style="margin-right:6px;"></i>Preguntas frecuentes</div>
         <div class="faq-list">
-            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué es un endpoint y cómo se monitorea?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Un endpoint es cualquier URL de tu servicio: una API, página web o webhook. Masitaprex lo verifica a intervalos regulares y te notifica si está caído, lento o con errores.</div></div>
-            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Puedo cambiar de plan en cualquier momento?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Sí. Puedes hacer upgrade o downgrade cuando quieras. Los cambios se aplican de forma inmediata y el cobro se ajusta al período restante.</div></div>
-            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Cómo funcionan las alertas?<i class="fas fa-chevron-right"></i></div><div class="faq-a">En cuanto detectamos un fallo recibes una alerta instantánea por <strong>Email, Telegram, Slack o webhook</strong> (según tu plan). También recibes una notificación de recuperación cuando el servicio vuelve a estar en línea.</div></div>
-            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué es la página de estado pública?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Una página que puedes compartir con tus clientes. Muestra el estado actual e historial de uptime de tus servicios en tiempo real. Genera confianza y reduce los tickets de soporte.</div></div>
-            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿El pago es seguro?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Procesamos pagos a través de <strong>Mercado Pago</strong>, la plataforma líder en Latinoamérica. Aceptamos Visa, MasterCard, Amex y más. La activación es inmediata y automática tras la confirmación del pago.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Cómo recupera Revenue Recovery OS mis pagos fallidos?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Nuestro sistema escucha los webhooks de tu procesador de pagos. Cuando detecta un fallo (tarjeta vencida, fondos insuficientes, etc.), inicia automáticamente una secuencia de recuperación inteligente con recordatorios y reintentos optimizados para maximizar la tasa de éxito.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Es seguro? ¿Acceden a mis fondos?<i class="fas fa-chevron-right"></i></div><div class="faq-a"><strong>No custodia.</strong> Revenue Recovery OS nunca toca tu dinero. Solo recibe notificaciones de estado de los pagos y envía comunicaciones a tus clientes. Las API Keys se almacenan en un Vault encriptado con AES-256.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué procesadores de pago soportan?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Soportamos Stripe, PayPal/Braintree, Adyen, Checkout.com, Mercado Pago, PayU, Kushki y Niubiz. Nuestra arquitectura modular permite añadir nuevos procesadores rápidamente.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Qué es el "Pre-Dunning"?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Es nuestra función de prevención proactiva. Detecta tarjetas que están por vencer y envía un recordatorio amable al cliente *antes* de que el pago falle, reduciendo drásticamente la tasa de fallos.</div></div>
+            <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">¿Puedo personalizar los correos con mi marca?<i class="fas fa-chevron-right"></i></div><div class="faq-a">Sí. Desde el plan Business tienes acceso al editor de marca blanca (logo, colores, tono de voz) para que todas las comunicaciones de recuperación se vean 100% como tuyas.</div></div>
         </div>
 
-        <!-- BLOQUE CTA FINAL + BOTÓN ROJO -->
-        <div class="cta-final">
-            <h3>Tu sistema, siempre bajo control</h3>
-            <p>Detecta fallos antes que tus usuarios y transmite confianza real con uptime profesional. Un solo plan, todo el control.</p>
-            <button id="btnEmpezarAhora" class="btn-rojo-empezar">🔥 Empezar ahora</button>
+        <!-- BLOQUE CTA FINAL -->
+        <div class="cta-final-transparente">
+            <h3>No dejes que el dinero se escape</h3>
+            <p>Cada día que pasa sin un sistema de recuperación es dinero perdido. Activa Revenue Recovery OS y empieza a recuperar hasta el 95% de tus ingresos fallidos hoy mismo.</p>
+            <button id="btnEmpezarAhora" class="btn-rojo-empezar">RECUPERAR MIS INGRESOS AHORA</button>
         </div>
     </main>
 
@@ -570,13 +601,13 @@
         <footer>
             <h3>Síguenos en redes sociales</h3>
             <div class="soc"><a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-square"></i></a><a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube-square"></i></a></div>
-            <p>Infraestructura tecnológica masitaprex © 2026 — Todos los derechos reservados</p>
+            <p>Infraestructura Revenue Recovery OS © 2026 — Todos los derechos reservados</p>
             <p><a href="terminos-condiciones">Términos y condiciones</a> | <a href="politica-privacidad">Política de privacidad</a> | <a href="politica.compras">Política de compras</a></p>
         </footer>
     </div>
 
-    <div id="successModal" class="modal-overlay"><div class="modal-box suc"><h4>✅ Plan Activado</h4><p id="successBody"></p><button class="btn-close" onclick="closeModal('successModal')">¡Genial, empezar!</button></div></div>
-    <div id="errorModal" class="modal-overlay"><div class="modal-box err"><h4>❌ Error en la transacción</h4><p id="errorBody"></p><button class="btn-close" onclick="closeModal('errorModal')">Aceptar</button></div></div>
+    <div id="successModal" class="modal-overlay"><div class="modal-box suc"><h4><i class="fas fa-check-circle" style="margin-right:8px;"></i>Plan Activado</h4><p id="successBody"></p><button class="btn-close" onclick="closeModal('successModal')">¡Genial, empezar!</button></div></div>
+    <div id="errorModal" class="modal-overlay"><div class="modal-box err"><h4><i class="fas fa-times-circle" style="margin-right:8px;"></i>Error en la transacción</h4><p id="errorBody"></p><button class="btn-close" onclick="closeModal('errorModal')">Aceptar</button></div></div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div><p>Iniciando pago seguro...</p></div>
 
     <div class="wa-btn" onclick="goToWA()"><i class="fab fa-whatsapp"></i></div>
@@ -585,7 +616,7 @@
     <script>
         lucide.createIcons();
 
-        const PLANS = { starter: { amount: 9, desc: 'Plan Starter – Monitoreo Profesional' }, pro: { amount: 24, desc: 'Plan Pro – Monitoreo Avanzado' }, business: { amount: 49, desc: 'Plan Business – Monitoreo Empresarial' }, agency: { amount: 99, desc: 'Plan Agency – Monitoreo Agencia' } };
+        const PLANS = { starter: { amount: 29, desc: 'Plan Starter – Recuperación de Ingresos' }, pro: { amount: 79, desc: 'Plan Business – Recuperación Avanzada' }, business: { amount: 199, desc: 'Plan Enterprise – Recuperación Empresarial' }, agency: { amount: 99, desc: 'Plan Agency – Recuperación Agencia' } };
         let currentUser = null;
 
         async function initApp() {
@@ -606,22 +637,15 @@
 
         function handlePaymentCallback() { const p = new URLSearchParams(window.location.search); const path = window.location.pathname; if (path.endsWith('/payment/success') && p.has('msg')) { try { const m = JSON.parse(decodeURIComponent(p.get('msg'))); if (m && m.titulo) showSuccess(m.cuerpo || m.titulo); } catch(e) { showError('Pago confirmado. Revisa tu cuenta.'); } return; } if (path.endsWith('/payment/rejected')) showError(`Transacción rechazada (${(p.get('status')||'').toUpperCase()}). Intenta de nuevo.`); if (path.endsWith('/payment/error') && p.has('msg')) showError('Error de activación: ' + decodeURIComponent(p.get('msg'))); }
 
-        const overlay = document.getElementById('sidebar-overlay');
-        const sidebar = document.getElementById('sidebar');
-        function toggleSidebar() { const open = sidebar.classList.toggle('open'); if (open) { overlay.style.display = 'block'; document.body.style.overflow = 'hidden'; setTimeout(() => overlay.classList.add('vis'), 10); } else { overlay.classList.remove('vis'); document.body.style.overflow = ''; setTimeout(() => { if(!sidebar.classList.contains('open')) overlay.style.display='none'; }, 300); } }
-        document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
-        sidebar.querySelectorAll('nav a').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); toggleSidebar(); setTimeout(() => { window.location.href = a.getAttribute('href'); }, 280); }); });
-
         function toggleFaq(el) { const item = el.closest('.faq-item'); const ans = el.nextElementSibling; const open = item.classList.toggle('open'); ans.style.display = open ? 'block' : 'none'; }
 
-        function renderBars() { const c = document.getElementById('uptimeBars'); const incidents = new Set([7, 21]); let h = ''; for (let i = 0; i < 30; i++) { const ht = Math.floor(Math.random()*38)+60; const inc = incidents.has(i); h += `<div class="uptime-bar${inc?' inc':''}" style="height:${inc?28:ht}%;animation-delay:${(i*.025).toFixed(3)}s"></div>`; } c.innerHTML = h; }
+        function renderBars() { const c = document.getElementById('uptimeBars'); const incidents = new Set([2, 19]); let h = ''; for (let i = 0; i < 30; i++) { const ht = Math.floor(Math.random()*25)+70; const inc = incidents.has(i); h += `<div class="uptime-bar${inc?' inc':''}" style="height:${inc?35:ht}%;animation-delay:${(i*.025).toFixed(3)}s"></div>`; } c.innerHTML = h; }
 
-        const MSG = '¡Activa tu plan de monitoreo!';
+        const MSG = '¡Activa tu plan de recuperación!';
         const watxt = document.getElementById('waText');
         let wi = 0;
         function typeWA() { if (wi < MSG.length) { watxt.textContent += MSG[wi++]; setTimeout(typeWA, 100); } else { setTimeout(() => { watxt.classList.remove('show'); watxt.classList.add('hide'); setTimeout(() => { watxt.textContent=''; wi=0; watxt.classList.remove('hide'); setTimeout(()=>{ watxt.classList.add('show'); typeWA(); }, 500); }, 900); }, 2500); } }
-        function goToWA() { window.open(`https://wa.me/51944950234?text=${encodeURIComponent('Hola, quiero activar un plan de monitoreo en Masitaprex.')}`, '_blank'); }
+        function goToWA() { window.open(`https://wa.me/51944950234?text=${encodeURIComponent('Hola, quiero activar un plan de recuperación de ingresos en Revenue Recovery OS.')}`, '_blank'); }
 
         document.addEventListener('DOMContentLoaded', () => {
             initApp(); renderBars(); setTimeout(() => { watxt.classList.add('show'); typeWA(); }, 2500);
