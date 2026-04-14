@@ -130,7 +130,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 10px;
+            padding: 0 4px;
         }
         
         .progress-number {
@@ -142,14 +142,14 @@
         }
         
         .number-circle {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'DM Mono', monospace;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             background: var(--surface-2);
             border: 2px solid var(--border-subtle);
@@ -196,7 +196,7 @@
         }
 
         /* ── HERO SECTION ── */
-        #section-hero, #section-form, #section-protocol {
+        #section-hero, #section-form, #section-marca, #section-config, #section-protocol {
             width: 100%; max-width: 480px;
             animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
@@ -727,6 +727,209 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
+
+        /* ── COLOR PICKER ── */
+        .color-field-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 10px 16px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .color-field-wrapper:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(201,160,42,0.1);
+            background: var(--surface-4);
+        }
+        .color-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 2px solid var(--border-subtle);
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+        }
+        .color-swatch input[type="color"] {
+            position: absolute;
+            inset: -4px;
+            width: calc(100% + 8px);
+            height: calc(100% + 8px);
+            opacity: 0;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .color-hex-input {
+            flex: 1;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 0 !important;
+            font-family: 'DM Mono', monospace !important;
+            font-size: 0.9rem !important;
+            color: var(--white) !important;
+            outline: none;
+            box-shadow: none !important;
+        }
+        .color-hex-input::placeholder { color: var(--text-subtle); }
+        .color-hex-input:focus {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        /* ── TOKEN DISPLAY ── */
+        .token-display {
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-gold);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .token-label {
+            font-size: 0.65rem;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .token-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--gold);
+            word-break: break-all;
+            line-height: 1.5;
+            background: rgba(201,160,42,0.06);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 10px;
+        }
+        .token-copy-btn {
+            background: transparent;
+            border: 1px solid var(--border-gold);
+            border-radius: 8px;
+            color: var(--gold);
+            font-size: 0.72rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .token-copy-btn:hover {
+            background: rgba(201,160,42,0.1);
+        }
+
+        /* ── SECURE BADGE ── */
+        .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(74,222,128,0.07);
+            border: 1px solid rgba(74,222,128,0.2);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.68rem;
+            color: #4ade80;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* ── FORM INPUT TYPE PASSWORD ── */
+        .form-group input[type="password"] {
+            width: 100%; padding: 16px 16px;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 14px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem; color: var(--white);
+            transition: all 0.25s ease;
+            outline: none; appearance: none;
+            -webkit-appearance: none;
+        }
+        .form-group input[type="password"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(201,160,42,0.1);
+            background: var(--surface-4);
+        }
+        .form-group input[type="email"] {
+            width: 100%; padding: 16px 16px;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; color: var(--white);
+            transition: all 0.25s ease;
+            outline: none; appearance: none;
+            -webkit-appearance: none;
+        }
+        .form-group input[type="email"]:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(201,160,42,0.1);
+            background: var(--surface-4);
+        }
+        .form-group input[type="email"]::placeholder { color: var(--text-subtle); }
+        .form-group input[type="password"]::placeholder { color: var(--text-subtle); }
+
+        /* ── API KEY HINT ── */
+        .field-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .field-hint i { color: var(--gold-dim); font-size: 0.65rem; }
+
+        /* ── PROCESSOR LOGO ── */
+        .processor-badge {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(201,160,42,0.07);
+            border: 1px solid var(--border-gold);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 10px;
+            font-size: 0.78rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .processor-badge.show { display: flex; }
+        .processor-badge i { font-size: 1rem; }
+
+        /* ── LOGO PREVIEW ── */
+        .logo-preview {
+            display: none;
+            margin-top: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-gold);
+            background: var(--surface-3);
+            max-height: 80px;
+            text-align: center;
+            padding: 8px;
+        }
+        .logo-preview img {
+            max-height: 60px;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .logo-preview.show { display: block; }
     </style>
 </head>
 <body>
@@ -761,12 +964,18 @@
                 
                 <div class="progress-number">
                     <div class="number-circle" id="progress-3">③</div>
-                    <span class="number-label">Protocolo</span>
+                    <span class="number-label">Marca</span>
                 </div>
                 <div class="progress-line" id="line-3"></div>
                 
                 <div class="progress-number">
                     <div class="number-circle" id="progress-4">④</div>
+                    <span class="number-label">Config</span>
+                </div>
+                <div class="progress-line" id="line-4"></div>
+                
+                <div class="progress-number">
+                    <div class="number-circle" id="progress-5">⑤</div>
                     <span class="number-label">Panel</span>
                 </div>
             </div>
@@ -829,16 +1038,36 @@
             <p id="status-message" class="hidden"></p>
         </div>
 
-        <!-- ══════════ PANTALLA 2: FORM SECTION (SIN CONTENEDOR) ══════════ -->
+        <!-- ══════════ PANTALLA 2: PERFIL ══════════ -->
         <div id="section-form">
             <div class="form-header">
-                <div class="form-eyebrow">Perfil de empresa</div>
-                <h2>Cuéntanos<br><em>sobre tu negocio</em></h2>
-                <p>Esta información nos ayuda a personalizar tu experiencia</p>
+                <div class="form-eyebrow">Paso 1 de 3 — Perfil</div>
+                <h2>Datos de<br><em>tu empresa</em></h2>
+                <p>Esta información identifica tu negocio en el sistema</p>
             </div>
 
             <div class="form-body">
-                <!-- Campo 1 -->
+                <!-- Nombre Comercial -->
+                <div class="form-group">
+                    <label>Nombre Comercial de la Empresa</label>
+                    <input type="text" id="campo-nombre-comercial" placeholder="Ej: Distribuidora San Martín S.A.C." />
+                    <p class="field-hint"><i class="fas fa-info-circle"></i> Aparecerá en los correos enviados a tus clientes</p>
+                </div>
+
+                <!-- Email Corporativo -->
+                <div class="form-group">
+                    <label>Email Corporativo</label>
+                    <input type="email" id="campo-email" placeholder="hola@tuempresa.com" />
+                </div>
+
+                <!-- WhatsApp -->
+                <div class="form-group">
+                    <label>WhatsApp de Contacto</label>
+                    <input type="text" id="campo-whatsapp" placeholder="+51 999 999 999" />
+                    <p class="field-hint"><i class="fas fa-info-circle"></i> Para recibir alertas críticas del sistema</p>
+                </div>
+
+                <!-- Pérdida mensual -->
                 <div class="form-group">
                     <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas?</label>
                     <select id="campo-dolor">
@@ -851,7 +1080,7 @@
                     </select>
                 </div>
 
-                <!-- Campo 2 -->
+                <!-- Volumen -->
                 <div class="form-group">
                     <label>¿Cuántos cobros fallidos tiene en promedio al mes?</label>
                     <select id="campo-volumen">
@@ -863,7 +1092,7 @@
                     </select>
                 </div>
 
-                <!-- Campo 3 -->
+                <!-- Herramientas -->
                 <div class="form-group">
                     <label>¿Qué sistema de pagos utiliza actualmente?</label>
                     <select id="campo-herramientas">
@@ -877,7 +1106,7 @@
                     </select>
                 </div>
 
-                <!-- Campo 4 -->
+                <!-- Autoridad -->
                 <div class="form-group">
                     <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos?</label>
                     <select id="campo-autoridad">
@@ -888,7 +1117,7 @@
                     </select>
                 </div>
 
-                <!-- Campo 5 - AJUSTADO: centrado vertical, círculo izquierda, texto derecha -->
+                <!-- Motivación -->
                 <div class="form-group">
                     <label>¿Qué es más importante para usted?</label>
                     <div class="radio-group">
@@ -907,9 +1136,8 @@
                     </div>
                 </div>
 
-                <!-- Botones: Siguiente ancho completo, Atrás debajo -->
                 <div class="action-buttons">
-                    <button class="next-btn" id="btn-next" onclick="goToProtocol()">
+                    <button class="next-btn" id="btn-next-perfil" onclick="goToMarca()">
                         <span>Siguiente</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
@@ -926,11 +1154,166 @@
             </div>
         </div>
 
-        <!-- ══════════ PANTALLA 3: PROTOCOLO (CONTENIDO MÁS ARRIBA) ══════════ -->
+        <!-- ══════════ PANTALLA 3: MARCA BLANCA ══════════ -->
+        <div id="section-marca" style="display:none; width:100%; max-width:480px; animation: fadeUp 0.6s cubic-bezier(0.4,0,0.2,1) forwards;">
+            <div class="form-header">
+                <div class="form-eyebrow">Paso 2 de 3 — Identidad Visual</div>
+                <h2>Marca<br><em>blanca</em></h2>
+                <p>Personaliza cómo aparece tu empresa ante tus clientes</p>
+            </div>
+
+            <div class="form-body">
+                <!-- Logo URL -->
+                <div class="form-group">
+                    <label>URL del Logo Oficial</label>
+                    <input type="text" id="campo-logo-url" placeholder="https://tuempresa.com/logo.png" oninput="previewLogo(this.value)" />
+                    <p class="field-hint"><i class="fas fa-info-circle"></i> Enlace directo a tu logo (PNG, SVG o JPG)</p>
+                    <div class="logo-preview" id="logo-preview">
+                        <img id="logo-preview-img" src="" alt="Vista previa del logo" onerror="this.parentElement.classList.remove('show')" />
+                    </div>
+                </div>
+
+                <!-- Color Primario -->
+                <div class="form-group">
+                    <label>Color Primario <span style="color:var(--text-subtle); font-size:0.65rem; font-weight:400; letter-spacing:0.02em; text-transform:none;">(Botones, encabezados)</span></label>
+                    <div class="color-field-wrapper">
+                        <div class="color-swatch" id="swatch-primario" style="background: #3b82f6;">
+                            <input type="color" id="picker-primario" value="#3b82f6" oninput="syncColor('primario', this.value)" />
+                        </div>
+                        <input type="text" class="color-hex-input" id="campo-color-primario" value="#3b82f6" placeholder="#3b82f6" maxlength="7" oninput="syncColorFromHex('primario', this.value)" />
+                        <i class="fas fa-eyedropper" style="color:var(--text-subtle); font-size:0.8rem;"></i>
+                    </div>
+                </div>
+
+                <!-- Color Secundario -->
+                <div class="form-group">
+                    <label>Color Secundario <span style="color:var(--text-subtle); font-size:0.65rem; font-weight:400; letter-spacing:0.02em; text-transform:none;">(Fondos, acentos)</span></label>
+                    <div class="color-field-wrapper">
+                        <div class="color-swatch" id="swatch-secundario" style="background: #1e293b;">
+                            <input type="color" id="picker-secundario" value="#1e293b" oninput="syncColor('secundario', this.value)" />
+                        </div>
+                        <input type="text" class="color-hex-input" id="campo-color-secundario" value="#1e293b" placeholder="#1e293b" maxlength="7" oninput="syncColorFromHex('secundario', this.value)" />
+                        <i class="fas fa-eyedropper" style="color:var(--text-subtle); font-size:0.8rem;"></i>
+                    </div>
+                </div>
+
+                <!-- Tono de Comunicación -->
+                <div class="form-group">
+                    <label>Tono de Comunicación</label>
+                    <select id="campo-tono">
+                        <option value="" disabled selected>Selecciona el tono</option>
+                        <option value="professional">🎩 Profesional — Formal y directo</option>
+                        <option value="friendly">😊 Amigable — Cercano y empático</option>
+                        <option value="urgent">⚡ Urgente — Enfocado en acción inmediata</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="next-btn" id="btn-next-marca" onclick="goToConfig()">
+                        <span>Siguiente</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="back-btn" onclick="goBackToPerfil()">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Atrás</span>
+                    </button>
+                </div>
+                
+                <p class="next-btn-micro">
+                    <i class="fas fa-shield-alt" style="color: var(--gold-dim);"></i>
+                    Los datos se guardan de forma segura
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════ PANTALLA 4: PROCESADOR + CREDENCIALES ══════════ -->
+        <div id="section-config" style="display:none; width:100%; max-width:480px; animation: fadeUp 0.6s cubic-bezier(0.4,0,0.2,1) forwards;">
+            <div class="form-header">
+                <div class="form-eyebrow">Paso 3 de 3 — Credenciales</div>
+                <h2>Procesador<br><em>de pagos</em></h2>
+                <p>Conecta tu pasarela para activar la recuperación automática</p>
+            </div>
+
+            <div class="form-body">
+                <div style="text-align:center; margin-bottom:24px;">
+                    <span class="secure-badge">
+                        <i class="fas fa-lock"></i>
+                        Encriptación AES-256 — Nivel bancario
+                    </span>
+                </div>
+
+                <!-- Procesador -->
+                <div class="form-group">
+                    <label>Procesador de Pagos</label>
+                    <select id="campo-procesador" onchange="updateProcessorBadge(this.value)">
+                        <option value="" disabled selected>Selecciona tu procesador</option>
+                        <optgroup label="Global">
+                            <option value="stripe">Stripe</option>
+                            <option value="adyen">Adyen</option>
+                            <option value="paypal-braintree">PayPal / Braintree</option>
+                            <option value="checkout">Checkout.com</option>
+                        </optgroup>
+                        <optgroup label="Latinoamérica">
+                            <option value="mercadopago">Mercado Pago</option>
+                            <option value="payu">PayU</option>
+                            <option value="kushki">Kushki</option>
+                            <option value="niubiz">Niubiz</option>
+                            <option value="culqi">Culqi</option>
+                        </optgroup>
+                    </select>
+                    <div class="processor-badge" id="processor-badge">
+                        <i class="fas fa-plug"></i>
+                        <span id="processor-badge-text">Webhook listo para activar</span>
+                    </div>
+                </div>
+
+                <!-- API Key -->
+                <div class="form-group">
+                    <label>API Key del Procesador</label>
+                    <input type="password" id="campo-api-key" placeholder="sk_live_••••••••••••••••••••••" autocomplete="new-password" />
+                    <p class="field-hint"><i class="fas fa-lock"></i> Cifrada con Fernet (AES-256) antes de almacenarse en Vault</p>
+                </div>
+
+                <!-- Moneda Base -->
+                <div class="form-group">
+                    <label>Moneda Base</label>
+                    <select id="campo-moneda">
+                        <option value="" disabled selected>Selecciona la moneda</option>
+                        <option value="PEN">🇵🇪 PEN — Sol Peruano</option>
+                        <option value="USD">🇺🇸 USD — Dólar Americano</option>
+                        <option value="MXN">🇲🇽 MXN — Peso Mexicano</option>
+                        <option value="COP">🇨🇴 COP — Peso Colombiano</option>
+                        <option value="ARS">🇦🇷 ARS — Peso Argentino</option>
+                        <option value="CLP">🇨🇱 CLP — Peso Chileno</option>
+                        <option value="BRL">🇧🇷 BRL — Real Brasileño</option>
+                        <option value="EUR">🇪🇺 EUR — Euro</option>
+                        <option value="GBP">🇬🇧 GBP — Libra Esterlina</option>
+                    </select>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="next-btn" id="btn-next-config" onclick="goToProtocol()">
+                        <i class="fas fa-rocket"></i>
+                        <span>Activar Sistema</span>
+                    </button>
+                    <button class="back-btn" onclick="goBackToMarca()">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Atrás</span>
+                    </button>
+                </div>
+                
+                <p class="next-btn-micro">
+                    <i class="fas fa-shield-alt" style="color: var(--gold-dim);"></i>
+                    Credenciales cifradas y almacenadas en Vault seguro
+                </p>
+            </div>
+        </div>
+
+        <!-- ══════════ PANTALLA 5: PROTOCOLO ══════════ -->
         <div id="section-protocol">
             <div class="protocol-content">
                 <div class="protocol-icon">
-                    <i class="fas fa-shield-hal"></i>
+                    <i class="fas fa-shield-check" style="font-size:2.6rem;"></i>
                 </div>
                 
                 <h2 class="protocol-title">
@@ -940,16 +1323,27 @@
                 
                 <div class="protocol-text" id="protocol-message">
                     Hemos vinculado tu organización <strong id="org-name">[Nombre]</strong> al sistema de alta prioridad. 
-                    Desde ahora, se están identificando oportunidades de recuperación de ingresos de forma automática. 
-                    Mantén esta ventana abierta.
+                    Se están identificando oportunidades de recuperación de ingresos de forma automática.
+                </div>
+
+                <!-- Token de Acceso -->
+                <div class="token-display" id="token-display" style="display:none;">
+                    <div class="token-label">Tu Token de Acceso (X-Token)</div>
+                    <div class="token-value" id="token-value">—</div>
+                    <button class="token-copy-btn" onclick="copyToken()">
+                        <i class="fas fa-copy"></i> Copiar Token
+                    </button>
+                    <p style="font-size:0.68rem; color:var(--text-subtle); margin-top:10px; line-height:1.5;">
+                        Guarda este token en un lugar seguro. Lo necesitarás para autenticarte en el panel.
+                    </p>
                 </div>
                 
                 <button class="protocol-btn" onclick="goToFacturacion()">
-                    <span>Siguiente</span>
+                    <span>Ir al Panel de Control</span>
                     <i class="fas fa-chevron-right"></i>
                 </button>
                 
-                <button class="protocol-back-btn" onclick="goBackToForm()">
+                <button class="protocol-back-btn" onclick="goBackToConfig()">
                     <i class="fas fa-arrow-left"></i>
                     <span>Atrás</span>
                 </button>
@@ -990,10 +1384,19 @@
 
         const showStatus = (text, isError = false) => {
             statusMsg.innerText = text;
-            statusMsg.className = `mt-4 text-sm font-medium ${isError ? '' : ''}`;
+            statusMsg.className = `mt-4 text-sm font-medium`;
             statusMsg.style.color = isError ? '#f87171' : '#4ade80';
             statusMsg.classList.remove('hidden');
         };
+
+        // ── Generador de token único ──
+        function generateToken() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const segments = [8, 4, 4, 4, 12];
+            return segments.map(len =>
+                Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+            ).join('-');
+        }
 
         async function init() {
             try {
@@ -1009,7 +1412,6 @@
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        // Actualizar nombre en protocolo
                         const orgNameSpan = document.getElementById('org-name');
                         if (orgNameSpan) {
                             orgNameSpan.textContent = user.displayName || user.email?.split('@')[0] || 'Tu Empresa';
@@ -1024,8 +1426,6 @@
                                 btnActivate.classList.add('activated');
                                 btnActivate.innerHTML = "<i class='fas fa-check-circle'></i><span>Cuenta ya activada</span>";
                                 showStatus("Tu cuenta de empresa ya se encuentra activa.");
-
-                                // Ir directo al formulario si ya está activado
                                 setTimeout(() => showFormSection(), 900);
                             }
                         } catch (err) {
@@ -1081,30 +1481,163 @@
             }
         };
 
-        // ── Navegar a Protocolo (Pantalla 3) ──
-        window.goToProtocol = async () => {
+        // ── Ir a Marca (guardar Perfil en empresas + draft_leads) ──
+        window.goToMarca = async () => {
             const user = window._auth?.currentUser;
+            const nombreComercial = document.getElementById('campo-nombre-comercial').value.trim();
+            const email = document.getElementById('campo-email').value.trim();
+            const whatsapp = document.getElementById('campo-whatsapp').value.trim();
 
-            const formData = {
-                perfil_dolor:       document.getElementById('campo-dolor').value     || null,
-                perfil_volumen:     document.getElementById('campo-volumen').value   || null,
-                perfil_herramientas:document.getElementById('campo-herramientas').value || null,
-                perfil_autoridad:   document.getElementById('campo-autoridad').value || null,
-                perfil_motivacion:  window._selectedMotivacion || null,
-                perfilCompletadoAt: null
+            if (!nombreComercial || !email) {
+                const hint = document.createElement('p');
+                hint.style.cssText = 'color:#f87171;font-size:0.8rem;text-align:center;margin-top:10px;';
+                hint.textContent = '⚠ Completa al menos el nombre comercial y email.';
+                const btn = document.getElementById('btn-next-perfil');
+                if (!btn.nextElementSibling || !btn.nextElementSibling.style) {
+                    btn.parentElement.insertAdjacentElement('afterend', hint);
+                    setTimeout(() => hint.remove(), 3000);
+                }
+                return;
+            }
+
+            const perfilData = {
+                nombre_comercial:    nombreComercial,
+                email:               email,
+                whatsapp:            whatsapp,
+                perfil_dolor:        document.getElementById('campo-dolor').value || null,
+                perfil_volumen:      document.getElementById('campo-volumen').value || null,
+                perfil_herramientas: document.getElementById('campo-herramientas').value || null,
+                perfil_autoridad:    document.getElementById('campo-autoridad').value || null,
+                perfil_motivacion:   window._selectedMotivacion || null,
+                perfilCompletadoAt:  null
             };
 
             if (user && window._db) {
                 try {
-                    formData.perfilCompletadoAt = serverTimestamp();
-                    await setDoc(doc(window._db, "empresas", user.uid), formData, { merge: true });
+                    perfilData.perfilCompletadoAt = serverTimestamp();
+                    // Guardar en empresas
+                    await setDoc(doc(window._db, "empresas", user.uid), perfilData, { merge: true });
+                    // Guardar también en draft_leads
+                    await setDoc(doc(window._db, "draft_leads", user.uid), {
+                        ...perfilData,
+                        uid: user.uid,
+                        step: 'perfil',
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
                 } catch (e) {
-                    console.warn("No se pudo guardar el formulario:", e);
+                    console.warn("No se pudo guardar el perfil:", e);
                 }
             }
 
-            // Mostrar pantalla 3
+            showMarcaSection();
+        };
+
+        // ── Ir a Config (guardar Marca en empresas + draft_leads) ──
+        window.goToConfig = async () => {
+            const user = window._auth?.currentUser;
+
+            const marcaData = {
+                branding: {
+                    logo_url:        document.getElementById('campo-logo-url').value.trim() || null,
+                    primary_color:   document.getElementById('campo-color-primario').value || '#3b82f6',
+                    secondary_color: document.getElementById('campo-color-secundario').value || '#1e293b',
+                    tone:            document.getElementById('campo-tono').value || null,
+                    company_name:    document.getElementById('campo-nombre-comercial').value.trim() || null
+                },
+                marcaCompletadaAt: null
+            };
+
+            if (user && window._db) {
+                try {
+                    marcaData.marcaCompletadaAt = serverTimestamp();
+                    await setDoc(doc(window._db, "empresas", user.uid), marcaData, { merge: true });
+                    await setDoc(doc(window._db, "draft_leads", user.uid), {
+                        branding: marcaData.branding,
+                        step: 'marca',
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                } catch (e) {
+                    console.warn("No se pudo guardar la marca:", e);
+                }
+            }
+
+            showConfigSection();
+        };
+
+        // ── Ir a Protocolo (guardar Config + generar token) ──
+        window.goToProtocol = async () => {
+            const user = window._auth?.currentUser;
+
+            const procesador = document.getElementById('campo-procesador').value;
+            const moneda     = document.getElementById('campo-moneda').value;
+            const apiKey     = document.getElementById('campo-api-key').value.trim();
+
+            // Generar token automáticamente
+            const accessToken = generateToken();
+            window._generatedToken = accessToken;
+
+            const configData = {
+                procesador:    procesador || null,
+                moneda_base:   moneda || null,
+                // La API key se envía al backend Vault — aquí solo guardamos la referencia
+                vault_api_key_set: apiKey.length > 0,
+                token:         accessToken,
+                status:        'active',
+                configCompletadaAt: null
+            };
+
+            if (user && window._db) {
+                try {
+                    configData.configCompletadaAt = serverTimestamp();
+                    await setDoc(doc(window._db, "empresas", user.uid), configData, { merge: true });
+
+                    // Si hay API key, intentar guardarla vía el backend Vault
+                    if (apiKey && procesador) {
+                        try {
+                            await fetch('/api/v1/organization/vault/api-key', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'X-Token': accessToken },
+                                body: JSON.stringify({ processor: procesador, api_key: apiKey })
+                            });
+                        } catch (vaultErr) {
+                            console.warn("Vault no disponible, la clave se procesará después:", vaultErr);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("No se pudo guardar config:", e);
+                }
+            }
+
+            // Actualizar nombre en protocolo
+            const orgNameSpan = document.getElementById('org-name');
+            if (orgNameSpan) {
+                const nombreComercial = document.getElementById('campo-nombre-comercial').value.trim();
+                orgNameSpan.textContent = nombreComercial || user?.displayName || user?.email?.split('@')[0] || 'Tu Empresa';
+            }
+
+            // Mostrar token
+            const tokenDisplay = document.getElementById('token-display');
+            const tokenValue   = document.getElementById('token-value');
+            if (tokenDisplay && tokenValue) {
+                tokenValue.textContent = accessToken;
+                tokenDisplay.style.display = 'block';
+            }
+
             showProtocolSection();
+        };
+
+        // ── Copiar token ──
+        window.copyToken = function() {
+            const token = window._generatedToken || document.getElementById('token-value').textContent;
+            navigator.clipboard.writeText(token).then(() => {
+                const btn = document.querySelector('.token-copy-btn');
+                if (btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> ¡Copiado!';
+                    btn.style.color = '#4ade80';
+                    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+                }
+            });
         };
 
         // ── Ir a facturación ──
@@ -1129,24 +1662,15 @@
         }
 
         function updateCounters() {
-            // Incremento realista del dinero
             const moneyIncrement = Math.floor(Math.random() * 250) + 100;
             moneyValue += moneyIncrement;
-            
-            // Incremento de empresas afectadas (más lento)
-            if (Math.random() > 0.6) {
-                companiesValue += 1;
-            }
-            
+            if (Math.random() > 0.6) companiesValue += 1;
             moneyEl.textContent = formatMoney(moneyValue);
             companiesEl.textContent = companiesValue;
         }
 
-        // Inicializar
         moneyEl.textContent = formatMoney(moneyValue);
         companiesEl.textContent = companiesValue;
-        
-        // Actualizar cada 1.2 segundos
         setInterval(updateCounters, 1200);
 
         /* ──── Radio selection ──── */
@@ -1158,13 +1682,61 @@
             window._selectedMotivacion = val;
         };
 
-        /* ──── Actualizar progreso ──── */
+        /* ──── Color pickers ──── */
+        window.syncColor = function(which, hex) {
+            document.getElementById('swatch-' + which).style.background = hex;
+            document.getElementById('campo-color-' + which).value = hex;
+        };
+
+        window.syncColorFromHex = function(which, hex) {
+            if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                document.getElementById('swatch-' + which).style.background = hex;
+                document.getElementById('picker-' + which).value = hex;
+            }
+        };
+
+        /* ──── Logo preview ──── */
+        window.previewLogo = function(url) {
+            const preview = document.getElementById('logo-preview');
+            const img = document.getElementById('logo-preview-img');
+            if (url && url.startsWith('http')) {
+                img.src = url;
+                preview.classList.add('show');
+            } else {
+                preview.classList.remove('show');
+            }
+        };
+
+        /* ──── Processor badge ──── */
+        window.updateProcessorBadge = function(value) {
+            const badge = document.getElementById('processor-badge');
+            const labels = {
+                stripe: 'Webhook: /api/v1/webhooks/stripe',
+                adyen: 'Webhook: /api/v1/webhooks/processors/adyen',
+                'paypal-braintree': 'Webhook: /api/v1/webhooks/processors/paypal-braintree',
+                checkout: 'Webhook: /api/v1/webhooks/processors/checkout',
+                mercadopago: 'Webhook: /api/v1/webhooks/processors/mercadopago',
+                payu: 'Webhook: /api/v1/webhooks/processors/payu',
+                kushki: 'Webhook: /api/v1/webhooks/processors/kushki-niubiz',
+                niubiz: 'Webhook: /api/v1/webhooks/processors/kushki-niubiz',
+                culqi: 'Webhook listo para Culqi'
+            };
+            if (value && labels[value]) {
+                document.getElementById('processor-badge-text').textContent = labels[value];
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+        };
+
+        /* ──── Actualizar progreso (5 pasos) ──── */
         function updateProgress(step) {
-            const circles = ['progress-1', 'progress-2', 'progress-3', 'progress-4'];
-            const lines = ['line-1', 'line-2', 'line-3'];
+            const circles = ['progress-1', 'progress-2', 'progress-3', 'progress-4', 'progress-5'];
+            const lines   = ['line-1', 'line-2', 'line-3', 'line-4'];
             
             circles.forEach((id, index) => {
                 const circle = document.getElementById(id);
+                if (!circle) return;
                 if (index < step) {
                     circle.classList.add('completed');
                     circle.classList.remove('active');
@@ -1178,6 +1750,7 @@
             
             lines.forEach((id, index) => {
                 const line = document.getElementById(id);
+                if (!line) return;
                 if (index < step - 1) {
                     line.classList.add('fill');
                 } else {
@@ -1186,85 +1759,119 @@
             });
         }
 
-        /* ──── Navegación hacia atrás ──── */
-        window.goBackToHero = function() {
-            const heroEl = document.getElementById('section-hero');
-            const formEl = document.getElementById('section-form');
-            const protocolEl = document.getElementById('section-protocol');
+        /* ──── Función genérica de transición de sección ──── */
+        function transitionTo(fromEl, toEl, direction = 'forward') {
+            const outY = direction === 'forward' ? '-16px' : '16px';
+            const inY  = direction === 'forward' ? '24px' : '-24px';
 
-            updateProgress(0); // Paso 1 activo
-
-            formEl.style.opacity = '0';
-            formEl.style.transform = 'translateY(16px)';
-            formEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            fromEl.style.opacity = '0';
+            fromEl.style.transform = `translateY(${outY})`;
+            fromEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             
             setTimeout(() => {
-                heroEl.style.display = 'block';
-                formEl.style.display = 'none';
-                protocolEl.style.display = 'none';
-                heroEl.style.opacity = '1';
-                heroEl.style.transform = 'translateY(0)';
+                fromEl.style.display = 'none';
+                toEl.style.display = 'block';
+                toEl.style.opacity = '0';
+                toEl.style.transform = `translateY(${inY})`;
+                toEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                requestAnimationFrame(() => {
+                    toEl.style.opacity = '1';
+                    toEl.style.transform = 'translateY(0)';
+                });
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }, 300);
+        }
+
+        /* ──── Navegación ──── */
+        window.goBackToHero = function() {
+            updateProgress(0);
+            transitionTo(
+                document.getElementById('section-form'),
+                document.getElementById('section-hero'),
+                'back'
+            );
+        };
+
+        window.goBackToPerfil = function() {
+            updateProgress(1);
+            transitionTo(
+                document.getElementById('section-marca'),
+                document.getElementById('section-form'),
+                'back'
+            );
+        };
+
+        window.goBackToMarca = function() {
+            updateProgress(2);
+            transitionTo(
+                document.getElementById('section-config'),
+                document.getElementById('section-marca'),
+                'back'
+            );
+        };
+
+        window.goBackToConfig = function() {
+            updateProgress(3);
+            transitionTo(
+                document.getElementById('section-protocol'),
+                document.getElementById('section-config'),
+                'back'
+            );
         };
 
         window.goBackToForm = function() {
-            const heroEl = document.getElementById('section-hero');
-            const formEl = document.getElementById('section-form');
-            const protocolEl = document.getElementById('section-protocol');
-
-            updateProgress(1); // Paso 2 activo
-
-            protocolEl.style.opacity = '0';
-            protocolEl.style.transform = 'translateY(16px)';
-            protocolEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            
-            setTimeout(() => {
-                heroEl.style.display = 'none';
-                formEl.style.display = 'block';
-                protocolEl.style.display = 'none';
-                formEl.style.opacity = '1';
-                formEl.style.transform = 'translateY(0)';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 300);
+            updateProgress(1);
+            transitionTo(
+                document.getElementById('section-protocol'),
+                document.getElementById('section-form'),
+                'back'
+            );
         };
 
-        /* ──── Show form section (Pantalla 2) ──── */
+        /* ──── Show sections ──── */
         window.showFormSection = function() {
-            const heroEl = document.getElementById('section-hero');
+            updateProgress(1);
+            document.getElementById('section-hero').style.display     = 'none';
+            document.getElementById('section-marca').style.display    = 'none';
+            document.getElementById('section-config').style.display   = 'none';
+            document.getElementById('section-protocol').style.display = 'none';
             const formEl = document.getElementById('section-form');
-            const protocolEl = document.getElementById('section-protocol');
-
-            updateProgress(1); // Paso 2 activo
-
-            heroEl.style.opacity = '0';
-            heroEl.style.transform = 'translateY(-16px)';
-            heroEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            
-            setTimeout(() => {
-                heroEl.style.display = 'none';
-                formEl.style.display = 'block';
-                protocolEl.style.display = 'none';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 300);
+            formEl.style.display = 'block';
+            formEl.style.opacity = '1';
+            formEl.style.transform = 'translateY(0)';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        /* ──── Show protocol section (Pantalla 3) ──── */
+        window.showMarcaSection = function() {
+            updateProgress(2);
+            transitionTo(
+                document.getElementById('section-form'),
+                document.getElementById('section-marca'),
+                'forward'
+            );
+        };
+
+        window.showConfigSection = function() {
+            updateProgress(3);
+            transitionTo(
+                document.getElementById('section-marca'),
+                document.getElementById('section-config'),
+                'forward'
+            );
+        };
+
         window.showProtocolSection = function() {
-            const heroEl = document.getElementById('section-hero');
-            const formEl = document.getElementById('section-form');
-            const protocolEl = document.getElementById('section-protocol');
-
-            updateProgress(2); // Paso 3 activo
-
-            formEl.style.opacity = '0';
-            formEl.style.transform = 'translateY(-16px)';
-            formEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            
+            updateProgress(4);
+            const fromEl = document.getElementById('section-config');
+            const toEl   = document.getElementById('section-protocol');
+            fromEl.style.opacity = '0';
+            fromEl.style.transform = 'translateY(-16px)';
+            fromEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
             setTimeout(() => {
-                heroEl.style.display = 'none';
-                formEl.style.display = 'none';
-                protocolEl.style.display = 'block';
+                fromEl.style.display   = 'none';
+                toEl.style.display     = 'block';
+                toEl.style.opacity     = '1';
+                toEl.style.transform   = 'translateY(0)';
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }, 300);
         };
