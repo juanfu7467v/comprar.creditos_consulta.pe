@@ -428,6 +428,13 @@
         .form-group select option { background: #1a1a1a; color: var(--white); }
         .form-group input::placeholder { color: var(--text-subtle); }
 
+        /* Campo con error */
+        .form-group.error input,
+        .form-group.error select {
+            border-color: var(--crimson) !important;
+            box-shadow: 0 0 0 4px rgba(196, 30, 58, 0.15) !important;
+        }
+
         /* Radio group - AJUSTADO: centrado vertical, círculo izquierda, texto derecha */
         .radio-group { 
             display: flex; 
@@ -784,50 +791,9 @@
             background: transparent !important;
         }
 
-        /* ── TOKEN DISPLAY ── */
+        /* ── TOKEN DISPLAY (OCULTO) ── */
         .token-display {
-            background: var(--surface-3);
-            border: 1.5px solid var(--border-gold);
-            border-radius: 14px;
-            padding: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        .token-label {
-            font-size: 0.65rem;
-            font-family: 'DM Mono', monospace;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-        .token-value {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.78rem;
-            color: var(--gold);
-            word-break: break-all;
-            line-height: 1.5;
-            background: rgba(201,160,42,0.06);
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 10px;
-        }
-        .token-copy-btn {
-            background: transparent;
-            border: 1px solid var(--border-gold);
-            border-radius: 8px;
-            color: var(--gold);
-            font-size: 0.72rem;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            padding: 8px 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .token-copy-btn:hover {
-            background: rgba(201,160,42,0.1);
+            display: none !important;
         }
 
         /* ── SECURE BADGE ── */
@@ -930,6 +896,19 @@
             border-radius: 6px;
         }
         .logo-preview.show { display: block; }
+
+        /* Mensaje de error de validación */
+        .validation-error {
+            color: var(--crimson);
+            font-size: 0.7rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .validation-error i {
+            font-size: 0.65rem;
+        }
     </style>
 </head>
 <body>
@@ -1048,28 +1027,37 @@
 
             <div class="form-body">
                 <!-- Nombre Comercial -->
-                <div class="form-group">
-                    <label>Nombre Comercial de la Empresa</label>
+                <div class="form-group" id="group-nombre-comercial">
+                    <label>Nombre Comercial de la Empresa <span style="color: var(--crimson);">*</span></label>
                     <input type="text" id="campo-nombre-comercial" placeholder="Ej: Distribuidora San Martín S.A.C." />
                     <p class="field-hint"><i class="fas fa-info-circle"></i> Aparecerá en los correos enviados a tus clientes</p>
+                    <div class="validation-error" id="error-nombre-comercial" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Este campo es obligatorio
+                    </div>
                 </div>
 
                 <!-- Email Corporativo -->
-                <div class="form-group">
-                    <label>Email Corporativo</label>
+                <div class="form-group" id="group-email">
+                    <label>Email Corporativo <span style="color: var(--crimson);">*</span></label>
                     <input type="email" id="campo-email" placeholder="hola@tuempresa.com" />
+                    <div class="validation-error" id="error-email" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Este campo es obligatorio
+                    </div>
                 </div>
 
                 <!-- WhatsApp -->
-                <div class="form-group">
-                    <label>WhatsApp de Contacto</label>
+                <div class="form-group" id="group-whatsapp">
+                    <label>WhatsApp de Contacto <span style="color: var(--crimson);">*</span></label>
                     <input type="text" id="campo-whatsapp" placeholder="+51 999 999 999" />
                     <p class="field-hint"><i class="fas fa-info-circle"></i> Para recibir alertas críticas del sistema</p>
+                    <div class="validation-error" id="error-whatsapp" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Este campo es obligatorio
+                    </div>
                 </div>
 
                 <!-- Pérdida mensual -->
-                <div class="form-group">
-                    <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas?</label>
+                <div class="form-group" id="group-dolor">
+                    <label>¿Cuál es su mayor pérdida mensual por facturas no cobradas? <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-dolor">
                         <option value="" disabled selected>Selecciona un rango</option>
                         <option value="menos-1k">Menos de S/ 1,000</option>
@@ -1078,11 +1066,14 @@
                         <option value="15k-50k">S/ 15,000 – S/ 50,000</option>
                         <option value="mas-50k">Más de S/ 50,000</option>
                     </select>
+                    <div class="validation-error" id="error-dolor" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una opción
+                    </div>
                 </div>
 
                 <!-- Volumen -->
-                <div class="form-group">
-                    <label>¿Cuántos cobros fallidos tiene en promedio al mes?</label>
+                <div class="form-group" id="group-volumen">
+                    <label>¿Cuántos cobros fallidos tiene en promedio al mes? <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-volumen">
                         <option value="" disabled selected>Selecciona un rango</option>
                         <option value="1-10">1 – 10 cobros fallidos</option>
@@ -1090,11 +1081,14 @@
                         <option value="50-200">50 – 200 cobros fallidos</option>
                         <option value="mas-200">Más de 200 cobros fallidos</option>
                     </select>
+                    <div class="validation-error" id="error-volumen" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una opción
+                    </div>
                 </div>
 
                 <!-- Herramientas -->
-                <div class="form-group">
-                    <label>¿Qué sistema de pagos utiliza actualmente?</label>
+                <div class="form-group" id="group-herramientas">
+                    <label>¿Qué sistema de pagos utiliza actualmente? <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-herramientas">
                         <option value="" disabled selected>Selecciona una opción</option>
                         <option value="ninguno">Ninguno / manual</option>
@@ -1104,22 +1098,28 @@
                         <option value="culqi">Culqi</option>
                         <option value="otro">Otro sistema</option>
                     </select>
+                    <div class="validation-error" id="error-herramientas" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una opción
+                    </div>
                 </div>
 
                 <!-- Autoridad -->
-                <div class="form-group">
-                    <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos?</label>
+                <div class="form-group" id="group-autoridad">
+                    <label>¿Tiene capacidad de decisión sobre la infraestructura de pagos? <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-autoridad">
                         <option value="" disabled selected>Selecciona una opción</option>
                         <option value="si-total">Sí, decisión total</option>
                         <option value="si-parcial">Sí, pero requiero aprobación</option>
                         <option value="no">No, debo consultarlo</option>
                     </select>
+                    <div class="validation-error" id="error-autoridad" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una opción
+                    </div>
                 </div>
 
                 <!-- Motivación -->
-                <div class="form-group">
-                    <label>¿Qué es más importante para usted?</label>
+                <div class="form-group" id="group-motivacion">
+                    <label>¿Qué es más importante para usted? <span style="color: var(--crimson);">*</span></label>
                     <div class="radio-group">
                         <label class="radio-option" id="radio-dinero" onclick="selectRadio('dinero')">
                             <input type="radio" name="motivacion" value="dinero">
@@ -1134,10 +1134,13 @@
                             <span class="radio-icon"><i class="fas fa-heart"></i></span>
                         </label>
                     </div>
+                    <div class="validation-error" id="error-motivacion" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una opción
+                    </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button class="next-btn" id="btn-next-perfil" onclick="goToMarca()">
+                    <button class="next-btn" id="btn-next-perfil" onclick="validateAndGoToMarca()">
                         <span>Siguiente</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
@@ -1164,18 +1167,21 @@
 
             <div class="form-body">
                 <!-- Logo URL -->
-                <div class="form-group">
-                    <label>URL del Logo Oficial</label>
+                <div class="form-group" id="group-logo-url">
+                    <label>URL del Logo Oficial <span style="color: var(--crimson);">*</span></label>
                     <input type="text" id="campo-logo-url" placeholder="https://tuempresa.com/logo.png" oninput="previewLogo(this.value)" />
                     <p class="field-hint"><i class="fas fa-info-circle"></i> Enlace directo a tu logo (PNG, SVG o JPG)</p>
                     <div class="logo-preview" id="logo-preview">
                         <img id="logo-preview-img" src="" alt="Vista previa del logo" onerror="this.parentElement.classList.remove('show')" />
                     </div>
+                    <div class="validation-error" id="error-logo-url" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Este campo es obligatorio
+                    </div>
                 </div>
 
                 <!-- Color Primario -->
-                <div class="form-group">
-                    <label>Color Primario <span style="color:var(--text-subtle); font-size:0.65rem; font-weight:400; letter-spacing:0.02em; text-transform:none;">(Botones, encabezados)</span></label>
+                <div class="form-group" id="group-color-primario">
+                    <label>Color Primario <span style="color:var(--text-subtle); font-size:0.65rem; font-weight:400; letter-spacing:0.02em; text-transform:none;">(Botones, encabezados)</span> <span style="color: var(--crimson);">*</span></label>
                     <div class="color-field-wrapper">
                         <div class="color-swatch" id="swatch-primario" style="background: #3b82f6;">
                             <input type="color" id="picker-primario" value="#3b82f6" oninput="syncColor('primario', this.value)" />
@@ -1183,11 +1189,14 @@
                         <input type="text" class="color-hex-input" id="campo-color-primario" value="#3b82f6" placeholder="#3b82f6" maxlength="7" oninput="syncColorFromHex('primario', this.value)" />
                         <i class="fas fa-eyedropper" style="color:var(--text-subtle); font-size:0.8rem;"></i>
                     </div>
+                    <div class="validation-error" id="error-color-primario" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona un color
+                    </div>
                 </div>
 
                 <!-- Color Secundario -->
-                <div class="form-group">
-                    <label>Color Secundario <span style="color:var(--text-subtle); font-size:0.65rem; font-weight:400; letter-spacing:0.02em; text-transform:none;">(Fondos, acentos)</span></label>
+                <div class="form-group" id="group-color-secundario">
+                    <label>Color Secundario <span style="color:var(--text-subtle); font-size:0.65rem; font-weight:400; letter-spacing:0.02em; text-transform:none;">(Fondos, acentos)</span> <span style="color: var(--crimson);">*</span></label>
                     <div class="color-field-wrapper">
                         <div class="color-swatch" id="swatch-secundario" style="background: #1e293b;">
                             <input type="color" id="picker-secundario" value="#1e293b" oninput="syncColor('secundario', this.value)" />
@@ -1195,21 +1204,27 @@
                         <input type="text" class="color-hex-input" id="campo-color-secundario" value="#1e293b" placeholder="#1e293b" maxlength="7" oninput="syncColorFromHex('secundario', this.value)" />
                         <i class="fas fa-eyedropper" style="color:var(--text-subtle); font-size:0.8rem;"></i>
                     </div>
+                    <div class="validation-error" id="error-color-secundario" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona un color
+                    </div>
                 </div>
 
                 <!-- Tono de Comunicación -->
-                <div class="form-group">
-                    <label>Tono de Comunicación</label>
+                <div class="form-group" id="group-tono">
+                    <label>Tono de Comunicación <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-tono">
                         <option value="" disabled selected>Selecciona el tono</option>
                         <option value="professional">🎩 Profesional — Formal y directo</option>
                         <option value="friendly">😊 Amigable — Cercano y empático</option>
                         <option value="urgent">⚡ Urgente — Enfocado en acción inmediata</option>
                     </select>
+                    <div class="validation-error" id="error-tono" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una opción
+                    </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button class="next-btn" id="btn-next-marca" onclick="goToConfig()">
+                    <button class="next-btn" id="btn-next-marca" onclick="validateAndGoToConfig()">
                         <span>Siguiente</span>
                         <i class="fas fa-arrow-right"></i>
                     </button>
@@ -1243,8 +1258,8 @@
                 </div>
 
                 <!-- Procesador -->
-                <div class="form-group">
-                    <label>Procesador de Pagos</label>
+                <div class="form-group" id="group-procesador">
+                    <label>Procesador de Pagos <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-procesador" onchange="updateProcessorBadge(this.value)">
                         <option value="" disabled selected>Selecciona tu procesador</option>
                         <optgroup label="Global">
@@ -1265,18 +1280,24 @@
                         <i class="fas fa-plug"></i>
                         <span id="processor-badge-text">Webhook listo para activar</span>
                     </div>
+                    <div class="validation-error" id="error-procesador" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona un procesador
+                    </div>
                 </div>
 
                 <!-- API Key -->
-                <div class="form-group">
-                    <label>API Key del Procesador</label>
+                <div class="form-group" id="group-api-key">
+                    <label>API Key del Procesador <span style="color: var(--crimson);">*</span></label>
                     <input type="password" id="campo-api-key" placeholder="sk_live_••••••••••••••••••••••" autocomplete="new-password" />
                     <p class="field-hint"><i class="fas fa-lock"></i> Cifrada con Fernet (AES-256) antes de almacenarse en Vault</p>
+                    <div class="validation-error" id="error-api-key" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Este campo es obligatorio
+                    </div>
                 </div>
 
                 <!-- Moneda Base -->
-                <div class="form-group">
-                    <label>Moneda Base</label>
+                <div class="form-group" id="group-moneda">
+                    <label>Moneda Base <span style="color: var(--crimson);">*</span></label>
                     <select id="campo-moneda">
                         <option value="" disabled selected>Selecciona la moneda</option>
                         <option value="PEN">🇵🇪 PEN — Sol Peruano</option>
@@ -1289,10 +1310,13 @@
                         <option value="EUR">🇪🇺 EUR — Euro</option>
                         <option value="GBP">🇬🇧 GBP — Libra Esterlina</option>
                     </select>
+                    <div class="validation-error" id="error-moneda" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Selecciona una moneda
+                    </div>
                 </div>
 
                 <div class="action-buttons">
-                    <button class="next-btn" id="btn-next-config" onclick="goToProtocol()">
+                    <button class="next-btn" id="btn-next-config" onclick="validateAndGoToProtocol()">
                         <i class="fas fa-rocket"></i>
                         <span>Activar Sistema</span>
                     </button>
@@ -1326,8 +1350,8 @@
                     Se están identificando oportunidades de recuperación de ingresos de forma automática.
                 </div>
 
-                <!-- Token de Acceso -->
-                <div class="token-display" id="token-display" style="display:none;">
+                <!-- Token de Acceso (OCULTO - no se muestra al usuario) -->
+                <div class="token-display" id="token-display">
                     <div class="token-label">Tu Token de Acceso (X-Token)</div>
                     <div class="token-value" id="token-value">—</div>
                     <button class="token-copy-btn" onclick="copyToken()">
@@ -1481,24 +1505,150 @@
             }
         };
 
+        // ── Función para limpiar errores de validación ──
+        function clearValidationErrors(section) {
+            const groups = document.querySelectorAll(`#${section} .form-group`);
+            groups.forEach(group => {
+                group.classList.remove('error');
+                const errorEl = group.querySelector('.validation-error');
+                if (errorEl) errorEl.style.display = 'none';
+            });
+        }
+
+        // ── Función para mostrar error y hacer scroll al campo ──
+        function showFieldError(fieldId, errorId, groupId) {
+            const field = document.getElementById(fieldId);
+            const group = document.getElementById(groupId);
+            const errorEl = document.getElementById(errorId);
+            
+            if (group) {
+                group.classList.add('error');
+            }
+            if (errorEl) {
+                errorEl.style.display = 'flex';
+            }
+            if (field) {
+                field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                field.focus();
+            }
+            return false;
+        }
+
+        // ── Validación de Perfil ──
+        function validatePerfil() {
+            clearValidationErrors('section-form');
+            
+            const nombreComercial = document.getElementById('campo-nombre-comercial').value.trim();
+            if (!nombreComercial) {
+                return showFieldError('campo-nombre-comercial', 'error-nombre-comercial', 'group-nombre-comercial');
+            }
+            
+            const email = document.getElementById('campo-email').value.trim();
+            if (!email) {
+                return showFieldError('campo-email', 'error-email', 'group-email');
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('error-email').innerHTML = '<i class="fas fa-exclamation-circle"></i> Email inválido';
+                return showFieldError('campo-email', 'error-email', 'group-email');
+            }
+            
+            const whatsapp = document.getElementById('campo-whatsapp').value.trim();
+            if (!whatsapp) {
+                return showFieldError('campo-whatsapp', 'error-whatsapp', 'group-whatsapp');
+            }
+            
+            const dolor = document.getElementById('campo-dolor').value;
+            if (!dolor) {
+                return showFieldError('campo-dolor', 'error-dolor', 'group-dolor');
+            }
+            
+            const volumen = document.getElementById('campo-volumen').value;
+            if (!volumen) {
+                return showFieldError('campo-volumen', 'error-volumen', 'group-volumen');
+            }
+            
+            const herramientas = document.getElementById('campo-herramientas').value;
+            if (!herramientas) {
+                return showFieldError('campo-herramientas', 'error-herramientas', 'group-herramientas');
+            }
+            
+            const autoridad = document.getElementById('campo-autoridad').value;
+            if (!autoridad) {
+                return showFieldError('campo-autoridad', 'error-autoridad', 'group-autoridad');
+            }
+            
+            if (!window._selectedMotivacion) {
+                const group = document.getElementById('group-motivacion');
+                const errorEl = document.getElementById('error-motivacion');
+                if (group) group.classList.add('error');
+                if (errorEl) errorEl.style.display = 'flex';
+                group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+            
+            return true;
+        }
+
+        // ── Validación de Marca ──
+        function validateMarca() {
+            clearValidationErrors('section-marca');
+            
+            const logoUrl = document.getElementById('campo-logo-url').value.trim();
+            if (!logoUrl) {
+                return showFieldError('campo-logo-url', 'error-logo-url', 'group-logo-url');
+            }
+            
+            const colorPrimario = document.getElementById('campo-color-primario').value.trim();
+            if (!colorPrimario) {
+                return showFieldError('campo-color-primario', 'error-color-primario', 'group-color-primario');
+            }
+            
+            const colorSecundario = document.getElementById('campo-color-secundario').value.trim();
+            if (!colorSecundario) {
+                return showFieldError('campo-color-secundario', 'error-color-secundario', 'group-color-secundario');
+            }
+            
+            const tono = document.getElementById('campo-tono').value;
+            if (!tono) {
+                return showFieldError('campo-tono', 'error-tono', 'group-tono');
+            }
+            
+            return true;
+        }
+
+        // ── Validación de Config ──
+        function validateConfig() {
+            clearValidationErrors('section-config');
+            
+            const procesador = document.getElementById('campo-procesador').value;
+            if (!procesador) {
+                return showFieldError('campo-procesador', 'error-procesador', 'group-procesador');
+            }
+            
+            const apiKey = document.getElementById('campo-api-key').value.trim();
+            if (!apiKey) {
+                return showFieldError('campo-api-key', 'error-api-key', 'group-api-key');
+            }
+            
+            const moneda = document.getElementById('campo-moneda').value;
+            if (!moneda) {
+                return showFieldError('campo-moneda', 'error-moneda', 'group-moneda');
+            }
+            
+            return true;
+        }
+
         // ── Ir a Marca (guardar Perfil en empresas + draft_leads) ──
-        window.goToMarca = async () => {
+        window.validateAndGoToMarca = async () => {
+            if (!validatePerfil()) {
+                return;
+            }
+            
             const user = window._auth?.currentUser;
             const nombreComercial = document.getElementById('campo-nombre-comercial').value.trim();
             const email = document.getElementById('campo-email').value.trim();
             const whatsapp = document.getElementById('campo-whatsapp').value.trim();
-
-            if (!nombreComercial || !email) {
-                const hint = document.createElement('p');
-                hint.style.cssText = 'color:#f87171;font-size:0.8rem;text-align:center;margin-top:10px;';
-                hint.textContent = '⚠ Completa al menos el nombre comercial y email.';
-                const btn = document.getElementById('btn-next-perfil');
-                if (!btn.nextElementSibling || !btn.nextElementSibling.style) {
-                    btn.parentElement.insertAdjacentElement('afterend', hint);
-                    setTimeout(() => hint.remove(), 3000);
-                }
-                return;
-            }
 
             const perfilData = {
                 nombre_comercial:    nombreComercial,
@@ -1533,7 +1683,11 @@
         };
 
         // ── Ir a Config (guardar Marca en empresas + draft_leads) ──
-        window.goToConfig = async () => {
+        window.validateAndGoToConfig = async () => {
+            if (!validateMarca()) {
+                return;
+            }
+            
             const user = window._auth?.currentUser;
 
             const marcaData = {
@@ -1565,7 +1719,11 @@
         };
 
         // ── Ir a Protocolo (guardar Config + generar token) ──
-        window.goToProtocol = async () => {
+        window.validateAndGoToProtocol = async () => {
+            if (!validateConfig()) {
+                return;
+            }
+            
             const user = window._auth?.currentUser;
 
             const procesador = document.getElementById('campo-procesador').value;
@@ -1615,28 +1773,17 @@
                 orgNameSpan.textContent = nombreComercial || user?.displayName || user?.email?.split('@')[0] || 'Tu Empresa';
             }
 
-            // Mostrar token
-            const tokenDisplay = document.getElementById('token-display');
-            const tokenValue   = document.getElementById('token-value');
-            if (tokenDisplay && tokenValue) {
-                tokenValue.textContent = accessToken;
-                tokenDisplay.style.display = 'block';
-            }
+            // Token generado pero NO se muestra en la interfaz
 
             showProtocolSection();
         };
 
-        // ── Copiar token ──
+        // ── Copiar token (mantenido por si se necesita en el futuro) ──
         window.copyToken = function() {
-            const token = window._generatedToken || document.getElementById('token-value').textContent;
+            const token = window._generatedToken || '';
+            if (!token) return;
             navigator.clipboard.writeText(token).then(() => {
-                const btn = document.querySelector('.token-copy-btn');
-                if (btn) {
-                    const orig = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i> ¡Copiado!';
-                    btn.style.color = '#4ade80';
-                    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
-                }
+                // No se muestra feedback ya que está oculto
             });
         };
 
@@ -1680,18 +1827,36 @@
             document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
             document.getElementById('radio-' + val).classList.add('selected');
             window._selectedMotivacion = val;
+            
+            // Limpiar error si existe
+            const group = document.getElementById('group-motivacion');
+            const errorEl = document.getElementById('error-motivacion');
+            if (group) group.classList.remove('error');
+            if (errorEl) errorEl.style.display = 'none';
         };
 
         /* ──── Color pickers ──── */
         window.syncColor = function(which, hex) {
             document.getElementById('swatch-' + which).style.background = hex;
             document.getElementById('campo-color-' + which).value = hex;
+            
+            // Limpiar error si existe
+            const group = document.getElementById('group-color-' + which);
+            const errorEl = document.getElementById('error-color-' + which);
+            if (group) group.classList.remove('error');
+            if (errorEl) errorEl.style.display = 'none';
         };
 
         window.syncColorFromHex = function(which, hex) {
             if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
                 document.getElementById('swatch-' + which).style.background = hex;
                 document.getElementById('picker-' + which).value = hex;
+                
+                // Limpiar error si existe
+                const group = document.getElementById('group-color-' + which);
+                const errorEl = document.getElementById('error-color-' + which);
+                if (group) group.classList.remove('error');
+                if (errorEl) errorEl.style.display = 'none';
             }
         };
 
@@ -1705,6 +1870,12 @@
             } else {
                 preview.classList.remove('show');
             }
+            
+            // Limpiar error si existe
+            const group = document.getElementById('group-logo-url');
+            const errorEl = document.getElementById('error-logo-url');
+            if (group) group.classList.remove('error');
+            if (errorEl) errorEl.style.display = 'none';
         };
 
         /* ──── Processor badge ──── */
@@ -1727,7 +1898,46 @@
             } else {
                 badge.classList.remove('show');
             }
+            
+            // Limpiar error si existe
+            const group = document.getElementById('group-procesador');
+            const errorEl = document.getElementById('error-procesador');
+            if (group) group.classList.remove('error');
+            if (errorEl) errorEl.style.display = 'none';
         };
+
+        // Limpiar errores al escribir en campos de texto
+        document.addEventListener('DOMContentLoaded', () => {
+            const textInputs = ['campo-nombre-comercial', 'campo-email', 'campo-whatsapp', 'campo-logo-url', 'campo-api-key'];
+            textInputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', function() {
+                        const group = this.closest('.form-group');
+                        if (group) {
+                            group.classList.remove('error');
+                            const errorEl = group.querySelector('.validation-error');
+                            if (errorEl) errorEl.style.display = 'none';
+                        }
+                    });
+                }
+            });
+            
+            const selects = ['campo-dolor', 'campo-volumen', 'campo-herramientas', 'campo-autoridad', 'campo-tono', 'campo-procesador', 'campo-moneda'];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('change', function() {
+                        const group = this.closest('.form-group');
+                        if (group) {
+                            group.classList.remove('error');
+                            const errorEl = group.querySelector('.validation-error');
+                            if (errorEl) errorEl.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
 
         /* ──── Actualizar progreso (5 pasos) ──── */
         function updateProgress(step) {
