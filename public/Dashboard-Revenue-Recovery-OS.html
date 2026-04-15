@@ -64,7 +64,7 @@
         }
         .ambient-2 {
             position: fixed; bottom: -20%; right: -10%;
-            width: 50vw; height: 50vw; border-radius: 50%;
+            width:50vw; height: 50vw; border-radius: 50%;
             background: radial-gradient(circle, rgba(196,30,58,0.05) 0%, transparent 65%);
             pointer-events: none; z-index: 0;
         }
@@ -170,51 +170,75 @@
             color: var(--gold);
         }
 
-        /* Company Badge */
-        .company-badge {
+        /* Cards Scroll Container */
+        .cards-scroll-container {
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+        
+        .cards-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .cards-wrapper {
+            display: flex;
+            gap: 12px;
+            scroll-snap-align: start;
+        }
+        
+        .info-card {
+            flex: 0 0 calc(100% - 32px);
+            scroll-snap-align: start;
             background: linear-gradient(135deg, rgba(201,160,42,0.1) 0%, rgba(201,160,42,0.05) 100%);
             border: 1px solid var(--border-gold);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
+            border-radius: 16px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            min-width: calc(100% - 32px);
         }
         
-        .company-info {
+        .card-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         
-        .company-avatar {
-            width: 44px;
-            height: 44px;
+        .card-avatar {
+            width: 48px;
+            height: 48px;
             background: var(--surface-3);
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             color: var(--gold);
             border: 1px solid var(--border-gold);
+            flex-shrink: 0;
         }
         
-        .company-details h3 {
-            font-size: 16px;
+        .card-details h3 {
+            font-size: 15px;
             font-weight: 700;
             color: var(--white);
             margin-bottom: 2px;
         }
         
-        .company-details p {
+        .card-details p {
             font-size: 11px;
             color: var(--text-muted);
             font-family: 'DM Mono', monospace;
         }
         
-        .status-badge {
+        .card-badge {
             background: rgba(16, 185, 129, 0.15);
             border: 1px solid rgba(16, 185, 129, 0.3);
             border-radius: 20px;
@@ -224,6 +248,46 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--emerald);
+            white-space: nowrap;
+        }
+        
+        .card-badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #F59E0B;
+        }
+        
+        .card-badge.expiring {
+            background: rgba(196, 30, 58, 0.15);
+            border-color: rgba(196, 30, 58, 0.3);
+            color: var(--crimson);
+        }
+        
+        .scroll-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .scroll-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-subtle);
+            transition: all 0.3s;
+        }
+        
+        .scroll-dot.active {
+            width: 20px;
+            background: var(--gold);
+            border-radius: 10px;
+        }
+
+        /* Company Badge - Oculto, reemplazado por scroll */
+        .company-badge {
+            display: none;
         }
 
         /* Welcome Message */
@@ -351,6 +415,7 @@
             color: var(--gold);
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
         }
 
         /* Activity List */
@@ -604,6 +669,215 @@
             font-size: 10px;
         }
 
+        /* ===== PANTALLA COMPLETA DE ACTIVIDAD ===== */
+        .fullscreen-activity {
+            position: fixed;
+            inset: 0;
+            background: var(--obsidian);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .fullscreen-activity.active {
+            display: flex;
+        }
+        
+        .activity-full-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            background: var(--surface-1);
+        }
+        
+        .activity-full-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        
+        .activity-full-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--white);
+        }
+        
+        .activity-full-title span {
+            color: var(--gold);
+        }
+        
+        .search-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .search-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        
+        /* Buscador Moderno */
+        .search-container {
+            padding: 16px 20px;
+            background: var(--surface-1);
+            border-bottom: 1px solid var(--border-subtle);
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .search-container.active {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .search-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 12px 16px;
+            transition: all 0.2s;
+        }
+        
+        .search-input-wrapper:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 160, 42, 0.15);
+        }
+        
+        .search-input-wrapper i {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .search-input-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--white);
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+        }
+        
+        .search-input-wrapper input::placeholder {
+            color: var(--text-subtle);
+        }
+        
+        .search-cancel {
+            background: transparent;
+            border: none;
+            color: var(--gold);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .filter-chip {
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .filter-chip.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: #000;
+            font-weight: 600;
+        }
+        
+        .filter-chip i {
+            margin-right: 6px;
+            font-size: 10px;
+        }
+        
+        .activity-full-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        
+        .activity-full-content .activity-list {
+            margin: 0;
+            border-radius: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        .activity-full-content .activity-item {
+            background: transparent;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        
+        .no-results i {
+            font-size: 48px;
+            color: var(--text-subtle);
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
         /* Animations */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -631,7 +905,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            z-index: 1000;
+            z-index: 10001;
             max-width: 90%;
             box-shadow: 0 8px 30px rgba(0,0,0,0.5);
             animation: slideUp 0.3s ease;
@@ -714,21 +988,49 @@
             </div>
         </header>
 
-        <!-- Company Badge -->
-        <div class="company-badge animate-in delay-1">
-            <div class="company-info">
-                <div class="company-avatar">
-                    <i class="fas fa-building"></i>
+        <!-- Cards Scroll Container (Perfil + Plan) -->
+        <div class="cards-scroll-container animate-in delay-1" id="cardsScrollContainer">
+            <div class="cards-wrapper" id="cardsWrapper">
+                <!-- Card de Perfil -->
+                <div class="info-card">
+                    <div class="card-info">
+                        <div class="card-avatar">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="card-details">
+                            <h3 id="card-company-name">Cargando...</h3>
+                            <p id="card-company-email">-</p>
+                        </div>
+                    </div>
+                    <div class="card-badge">
+                        <i class="fas fa-circle" style="font-size: 6px; margin-right: 4px; color: var(--emerald);"></i>
+                        Activo
+                    </div>
                 </div>
-                <div class="company-details">
-                    <h3 id="company-name">Cargando...</h3>
-                    <p id="company-email">-</p>
+                
+                <!-- Card de Plan -->
+                <div class="info-card" id="plan-card">
+                    <div class="card-info">
+                        <div class="card-avatar">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="card-details">
+                            <h3 id="plan-name">Plan Enterprise</h3>
+                            <p id="plan-expiry">Vence en 23 días</p>
+                        </div>
+                    </div>
+                    <div class="card-badge" id="plan-badge">
+                        <i class="fas fa-star" style="margin-right: 4px;"></i>
+                        Activo
+                    </div>
                 </div>
             </div>
-            <div class="status-badge">
-                <i class="fas fa-circle" style="font-size: 6px; margin-right: 4px; color: var(--emerald);"></i>
-                Activo
-            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator animate-in delay-1" id="scrollIndicator">
+            <div class="scroll-dot active" data-index="0"></div>
+            <div class="scroll-dot" data-index="1"></div>
         </div>
 
         <!-- Welcome Section -->
@@ -860,7 +1162,7 @@
         <div class="animate-in delay-3">
             <div class="section-header">
                 <h3 class="section-title">Actividad Reciente</h3>
-                <a href="#" class="section-link" onclick="showToast('Historial completo pronto', 'info'); return false;">
+                <a class="section-link" onclick="openFullscreenActivity()">
                     Ver todo <i class="fas fa-arrow-right" style="margin-left: 4px;"></i>
                 </a>
             </div>
@@ -885,6 +1187,55 @@
         </footer>
     </div>
 
+    <!-- Pantalla Completa de Actividad -->
+    <div class="fullscreen-activity" id="fullscreenActivity">
+        <div class="activity-full-header">
+            <div class="activity-full-header-left">
+                <div class="back-btn" onclick="closeFullscreenActivity()">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div class="activity-full-title">
+                    Revenue<span>OS</span>
+                </div>
+            </div>
+            <div class="search-btn" onclick="toggleSearch()">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        
+        <!-- Buscador Moderno -->
+        <div class="search-container" id="searchContainer">
+            <div class="search-wrapper">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar en actividad..." oninput="filterActivity()">
+                </div>
+                <button class="search-cancel" onclick="toggleSearch()">Cancelar</button>
+            </div>
+            <div class="search-filters">
+                <div class="filter-chip active" data-filter="all" onclick="setFilter('all')">
+                    <i class="fas fa-list"></i> Todos
+                </div>
+                <div class="filter-chip" data-filter="recovered" onclick="setFilter('recovered')">
+                    <i class="fas fa-check-circle"></i> Recuperados
+                </div>
+                <div class="filter-chip" data-filter="pending" onclick="setFilter('pending')">
+                    <i class="fas fa-clock"></i> Pendientes
+                </div>
+                <div class="filter-chip" data-filter="failed" onclick="setFilter('failed')">
+                    <i class="fas fa-times-circle"></i> Fallidos
+                </div>
+            </div>
+        </div>
+        
+        <div class="activity-full-content" id="fullActivityList">
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Cargando historial completo...</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ===== CONFIGURACIÓN GLOBAL =====
         let currentUser = null;
@@ -892,6 +1243,9 @@
         let companyData = null;
         let db = null;
         let auth = null;
+        let allActivities = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
         
         const API_BASE_URL = window.location.origin;
         
@@ -958,6 +1312,88 @@
             document.getElementById('last-updated').textContent = `Actualizado ${timeStr}`;
         }
 
+        // ===== SCROLL INDICATOR =====
+        function setupScrollIndicator() {
+            const container = document.getElementById('cardsScrollContainer');
+            const dots = document.querySelectorAll('.scroll-dot');
+            
+            container.addEventListener('scroll', () => {
+                const scrollLeft = container.scrollLeft;
+                const cardWidth = container.clientWidth - 32;
+                const activeIndex = Math.round(scrollLeft / (cardWidth + 12));
+                
+                dots.forEach((dot, index) => {
+                    if (index === activeIndex) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // ===== CARGAR DATOS DEL PLAN =====
+        async function loadPlanData() {
+            if (!currentUser || !db) return;
+            
+            try {
+                const empresaRef = db.collection('empresas').doc(currentUser.uid);
+                const empresaDoc = await empresaRef.get();
+                
+                if (empresaDoc.exists) {
+                    const data = empresaDoc.data();
+                    
+                    // Determinar plan basado en el tipo o token
+                    let planName = 'Plan Starter';
+                    let planType = 'starter';
+                    let expiryDays = 30;
+                    
+                    if (data.plan) {
+                        planName = data.plan;
+                    } else if (data.type === 'enterprise') {
+                        planName = 'Plan Enterprise';
+                        planType = 'enterprise';
+                    } else if (data.type === 'business') {
+                        planName = 'Plan Business';
+                        planType = 'business';
+                    }
+                    
+                    // Calcular días restantes
+                    if (data.planExpiry) {
+                        const expiry = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
+                        const now = new Date();
+                        const diffTime = expiry - now;
+                        expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    } else if (data.activatedAt) {
+                        const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
+                        const now = new Date();
+                        const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
+                        expiryDays = Math.max(0, 30 - daysSince);
+                    }
+                    
+                    // Actualizar UI
+                    document.getElementById('plan-name').textContent = planName;
+                    
+                    const expiryText = expiryDays > 0 ? `Vence en ${expiryDays} días` : 'Vence hoy';
+                    document.getElementById('plan-expiry').textContent = expiryText;
+                    
+                    const badge = document.getElementById('plan-badge');
+                    if (expiryDays <= 3) {
+                        badge.className = 'card-badge expiring';
+                        badge.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i> Por vencer';
+                    } else if (expiryDays <= 7) {
+                        badge.className = 'card-badge warning';
+                        badge.innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i> Renovar pronto';
+                    } else {
+                        badge.className = 'card-badge';
+                        badge.innerHTML = '<i class="fas fa-star" style="margin-right: 4px;"></i> Activo';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading plan data:', error);
+            }
+        }
+
         // ===== API CALLS CON TOKEN =====
         async function apiCall(endpoint, options = {}) {
             if (!userToken) {
@@ -1000,11 +1436,9 @@
             refreshIcon.style.display = 'inline-block';
             
             try {
-                // Intentar obtener métricas del endpoint
                 const metrics = await apiCall('/api/v1/dashboard/metrics');
                 
                 if (metrics) {
-                    // Actualizar con datos reales
                     document.getElementById('stat-recovered').textContent = formatMoney(metrics.recovered_amount || 0);
                     document.getElementById('stat-rate').textContent = (metrics.recovery_rate || 0).toFixed(1) + '%';
                     document.getElementById('stat-at-risk').textContent = metrics.accounts_at_risk || 0;
@@ -1014,7 +1448,6 @@
                     document.getElementById('stat-success-rate').textContent = (metrics.recovery_rate || 0).toFixed(1) + '%';
                     document.getElementById('welcome-message').textContent = metrics.message_summary || 'Monitoreando tus recuperaciones en tiempo real.';
                     
-                    // Calcular progreso mensual (simulado)
                     const monthlyTarget = (metrics.recovered_amount || 1000) * 0.3;
                     const monthlyRecovered = metrics.monthly_recovered || 0;
                     const progressPercent = Math.min((monthlyRecovered / monthlyTarget) * 100, 100);
@@ -1023,11 +1456,9 @@
                         `${formatMoney(monthlyRecovered)} / ${formatMoney(monthlyTarget)}`;
                     document.getElementById('monthly-progress-bar').style.width = progressPercent + '%';
                     
-                    // Tendencia
                     document.getElementById('stat-recovered-trend').textContent = 
                         `+${metrics.recovery_rate > 80 ? '15' : '8'}% vs mes anterior`;
                 } else {
-                    // Fallback con datos de Firestore
                     await loadMetricsFromFirestore();
                 }
             } catch (error) {
@@ -1039,7 +1470,6 @@
             }
         }
 
-        // ===== FALLBACK: CARGAR DESDE FIRESTORE =====
         async function loadMetricsFromFirestore() {
             if (!currentUser || !db) return;
             
@@ -1050,7 +1480,6 @@
                 if (empresaDoc.exists) {
                     const data = empresaDoc.data();
                     
-                    // Valores simulados basados en datos reales
                     const recoveredAmount = data.recovered_amount || 15750.50;
                     const recoveryRate = data.recovery_rate || 87.5;
                     const accountsAtRisk = data.accounts_at_risk || 12;
@@ -1068,7 +1497,6 @@
                     document.getElementById('welcome-message').textContent = 
                         data.message_summary || `¡Excelente! Has recuperado ${formatMoney(recoveredAmount)} este año.`;
                     
-                    // Progreso mensual
                     const monthlyTarget = recoveredAmount * 0.25;
                     const progressPercent = Math.min((monthlyRecovered / monthlyTarget) * 100, 100);
                     
@@ -1081,7 +1509,6 @@
                 }
             } catch (error) {
                 console.error('Error loading from Firestore:', error);
-                // Valores por defecto
                 setDefaultMetrics();
             }
         }
@@ -1100,112 +1527,198 @@
             document.getElementById('stat-recovered-trend').textContent = '+8.5% vs mes anterior';
         }
 
+        // ===== CARGAR TODAS LAS ACTIVIDADES =====
+        async function loadAllActivities() {
+            const activities = [];
+            
+            if (!currentUser || !db) return activities;
+            
+            try {
+                const logsRef = db.collection('recovery_logs')
+                    .where('org_id', '==', currentUser.uid)
+                    .orderBy('timestamp', 'desc')
+                    .limit(50);
+                
+                const snapshot = await logsRef.get();
+                
+                if (!snapshot.empty) {
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        activities.push({
+                            id: doc.id,
+                            event: data.event || 'Evento de recuperación',
+                            description: data.description || 'Procesando...',
+                            status: data.status || 'info',
+                            timestamp: data.timestamp ? data.timestamp.toDate() : new Date(),
+                            amount: data.amount || null
+                        });
+                    });
+                } else {
+                    // Datos de ejemplo
+                    const now = new Date();
+                    activities.push(
+                        { id: '1', event: 'Pago recuperado', description: 'Factura #INV-2024-089 por S/ 450.00', status: 'recovered', timestamp: new Date(now - 3600000), amount: 450 },
+                        { id: '2', event: 'Reintento programado', description: '3 facturas pendientes para las 14:00', status: 'pending', timestamp: new Date(now - 7200000), amount: null },
+                        { id: '3', event: 'Recordatorio enviado', description: 'Cliente: Empresa ABC S.A.C.', status: 'info', timestamp: new Date(now - 10800000), amount: null },
+                        { id: '4', event: 'Pago recuperado', description: 'Factura #INV-2024-076 por S/ 1,280.00', status: 'recovered', timestamp: new Date(now - 86400000), amount: 1280 },
+                        { id: '5', event: 'Pago fallido', description: 'Tarjeta vencida - Cliente XYZ', status: 'failed', timestamp: new Date(now - 90000000), amount: 750 },
+                        { id: '6', event: 'Recordatorio WhatsApp', description: 'Enviado a +51 999 888 777', status: 'info', timestamp: new Date(now - 100000000), amount: null },
+                        { id: '7', event: 'Pago recuperado', description: 'Factura #INV-2024-045 por S/ 2,100.00', status: 'recovered', timestamp: new Date(now - 172800000), amount: 2100 }
+                    );
+                }
+            } catch (error) {
+                console.error('Error loading all activities:', error);
+            }
+            
+            return activities;
+        }
+
         // ===== CARGAR ACTIVIDAD RECIENTE =====
         async function loadRecentActivity() {
             const activityList = document.getElementById('activity-list');
             
             if (!currentUser || !db) {
-                activityList.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>Conectando...</p>
-                    </div>
-                `;
+                activityList.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>Conectando...</p></div>`;
                 return;
             }
             
             try {
-                // Intentar obtener de recovery_logs
-                const logsRef = db.collection('recovery_logs')
-                    .where('org_id', '==', currentUser.uid)
-                    .orderBy('timestamp', 'desc')
-                    .limit(5);
+                const activities = await loadAllActivities();
+                allActivities = activities;
                 
-                const snapshot = await logsRef.get();
+                const recentActivities = activities.slice(0, 4);
                 
-                if (!snapshot.empty) {
+                if (recentActivities.length > 0) {
                     let html = '';
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : 'Ahora';
-                        const iconType = data.status === 'recovered' ? 'success' : 
-                                        data.status === 'failed' ? 'danger' : 
-                                        data.status === 'pending' ? 'warning' : 'info';
-                        const icon = data.status === 'recovered' ? 'fa-check-circle' :
-                                    data.status === 'failed' ? 'fa-times-circle' :
-                                    data.status === 'pending' ? 'fa-clock' : 'fa-info-circle';
-                        
-                        html += `
-                            <div class="activity-item">
-                                <div class="activity-icon ${iconType}">
-                                    <i class="fas ${icon}"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-title">${data.event || 'Evento de recuperación'}</div>
-                                    <div class="activity-desc">${data.description || 'Procesando...'}</div>
-                                </div>
-                                <div class="activity-time">${time}</div>
-                            </div>
-                        `;
+                    recentActivities.forEach(activity => {
+                        html += renderActivityItem(activity);
                     });
                     activityList.innerHTML = html;
                 } else {
-                    // Actividad de ejemplo
-                    activityList.innerHTML = `
-                        <div class="activity-item">
-                            <div class="activity-icon success">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Pago recuperado</div>
-                                <div class="activity-desc">Factura #INV-2024-089 por S/ 450.00</div>
-                            </div>
-                            <div class="activity-time">10:30</div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon warning">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Reintento programado</div>
-                                <div class="activity-desc">3 facturas pendientes para las 14:00</div>
-                            </div>
-                            <div class="activity-time">09:15</div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon info">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Recordatorio enviado</div>
-                                <div class="activity-desc">Cliente: Empresa ABC S.A.C.</div>
-                            </div>
-                            <div class="activity-time">08:45</div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon success">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Pago recuperado</div>
-                                <div class="activity-desc">Factura #INV-2024-076 por S/ 1,280.00</div>
-                            </div>
-                            <div class="activity-time">Ayer</div>
-                        </div>
-                    `;
+                    activityList.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>No hay actividad reciente</p></div>`;
                 }
             } catch (error) {
                 console.error('Error loading activity:', error);
-                activityList.innerHTML = `
-                    <div class="activity-item">
-                        <div class="activity-icon success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-title">Sistema activo</div>
-                            <div class="activity-desc">Monitoreando pagos en tiempo real</div>
-                        </div>
-                        <div class="activity-time">Ahora</div>
+                activityList.innerHTML = `<div class="activity-item"><div class="activity-icon success"><i class="fas fa-check-circle"></i></div><div class="activity-content"><div class="activity-title">Sistema activo</div><div class="activity-desc">Monitoreando pagos en tiempo real</div></div><div class="activity-time">Ahora</div></div>`;
+            }
+        }
+
+        function renderActivityItem(activity) {
+            const time = activity.timestamp ? activity.timestamp.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : 'Ahora';
+            const iconType = activity.status === 'recovered' ? 'success' : 
+                            activity.status === 'failed' ? 'danger' : 
+                            activity.status === 'pending' ? 'warning' : 'info';
+            const icon = activity.status === 'recovered' ? 'fa-check-circle' :
+                        activity.status === 'failed' ? 'fa-times-circle' :
+                        activity.status === 'pending' ? 'fa-clock' : 'fa-info-circle';
+            
+            return `
+                <div class="activity-item" data-status="${activity.status}" data-searchable="${activity.event} ${activity.description}">
+                    <div class="activity-icon ${iconType}">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${activity.event}</div>
+                        <div class="activity-desc">${activity.description}</div>
+                    </div>
+                    <div class="activity-time">${time}</div>
+                </div>
+            `;
+        }
+
+        // ===== PANTALLA COMPLETA DE ACTIVIDAD =====
+        async function openFullscreenActivity() {
+            const fullscreen = document.getElementById('fullscreenActivity');
+            const fullList = document.getElementById('fullActivityList');
+            
+            fullscreen.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Cargar todas las actividades
+            const activities = await loadAllActivities();
+            allActivities = activities;
+            
+            renderFullActivityList();
+        }
+        
+        function closeFullscreenActivity() {
+            const fullscreen = document.getElementById('fullscreenActivity');
+            const searchContainer = document.getElementById('searchContainer');
+            
+            fullscreen.classList.remove('active');
+            searchContainer.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Limpiar búsqueda
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            currentFilter = 'all';
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            document.querySelector('.filter-chip[data-filter="all"]').classList.add('active');
+        }
+        
+        function toggleSearch() {
+            const searchContainer = document.getElementById('searchContainer');
+            searchContainer.classList.toggle('active');
+            
+            if (!searchContainer.classList.contains('active')) {
+                document.getElementById('searchInput').value = '';
+                searchQuery = '';
+                renderFullActivityList();
+            } else {
+                setTimeout(() => document.getElementById('searchInput').focus(), 100);
+            }
+        }
+        
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active');
+            
+            renderFullActivityList();
+        }
+        
+        function filterActivity() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            renderFullActivityList();
+        }
+        
+        function renderFullActivityList() {
+            const fullList = document.getElementById('fullActivityList');
+            
+            let filtered = allActivities;
+            
+            // Aplicar filtro por estado
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(a => a.status === currentFilter);
+            }
+            
+            // Aplicar búsqueda
+            if (searchQuery) {
+                filtered = filtered.filter(a => 
+                    a.event.toLowerCase().includes(searchQuery) || 
+                    a.description.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            if (filtered.length > 0) {
+                let html = '<div class="activity-list">';
+                filtered.forEach(activity => {
+                    html += renderActivityItem(activity);
+                });
+                html += '</div>';
+                fullList.innerHTML = html;
+            } else {
+                fullList.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>No se encontraron resultados</p>
+                        <p style="font-size: 12px; margin-top: 8px;">Intenta con otra búsqueda</p>
                     </div>
                 `;
             }
@@ -1223,31 +1736,32 @@
                     companyData = empresaDoc.data();
                     userToken = companyData.token;
                     
-                    // Actualizar UI
-                    document.getElementById('company-name').textContent = 
-                        companyData.nombre_comercial || companyData.nombre || currentUser.displayName || 'Mi Empresa';
-                    document.getElementById('company-email').textContent = 
-                        companyData.email || currentUser.email || '-';
+                    const companyName = companyData.nombre_comercial || companyData.nombre || currentUser.displayName || 'Mi Empresa';
+                    const companyEmail = companyData.email || currentUser.email || '-';
                     
-                    // Si no hay token, mostrar advertencia
+                    document.getElementById('card-company-name').textContent = companyName;
+                    document.getElementById('card-company-email').textContent = companyEmail;
+                    
                     if (!userToken) {
                         console.warn('No token found for company');
                         showToast('Configura tu cuenta para obtener el token de acceso', 'info');
                     }
                 } else {
-                    document.getElementById('company-name').textContent = currentUser.displayName || 'Nueva Empresa';
-                    document.getElementById('company-email').textContent = currentUser.email || '-';
+                    document.getElementById('card-company-name').textContent = currentUser.displayName || 'Nueva Empresa';
+                    document.getElementById('card-company-email').textContent = currentUser.email || '-';
                 }
             } catch (error) {
                 console.error('Error loading company data:', error);
-                document.getElementById('company-name').textContent = currentUser.displayName || 'Empresa';
-                document.getElementById('company-email').textContent = currentUser.email || '-';
+                document.getElementById('card-company-name').textContent = currentUser.displayName || 'Empresa';
+                document.getElementById('card-company-email').textContent = currentUser.email || '-';
             }
         }
 
         // ===== REFRESCAR DASHBOARD =====
         async function refreshDashboard() {
             showToast('Actualizando datos...', 'info');
+            await loadCompanyData();
+            await loadPlanData();
             await loadDashboardMetrics();
             await loadRecentActivity();
             showToast('Datos actualizados', 'success');
@@ -1256,13 +1770,11 @@
         // ===== INICIALIZACIÓN =====
         async function initDashboard() {
             try {
-                // Obtener configuración de Firebase
                 const configRes = await fetch('/api/config');
                 if (!configRes.ok) throw new Error('No se pudo obtener configuración');
                 
                 const config = await configRes.json();
                 
-                // Inicializar Firebase
                 if (!firebase.apps.length) {
                     firebase.initializeApp(config.firebaseConfig);
                 }
@@ -1270,16 +1782,16 @@
                 db = firebase.firestore();
                 auth = firebase.auth();
                 
-                // Esperar autenticación
                 auth.onAuthStateChanged(async (user) => {
                     if (user) {
                         currentUser = user;
                         await loadCompanyData();
+                        await loadPlanData();
                         await loadDashboardMetrics();
                         await loadRecentActivity();
+                        setupScrollIndicator();
                         hideLoading();
                     } else {
-                        // Redirigir a login
                         window.location.href = '/login.html?returnTo=' + encodeURIComponent(window.location.pathname);
                     }
                 });
@@ -1290,17 +1802,22 @@
             }
         }
 
-        // Hacer refresh disponible globalmente
+        // Exponer funciones globalmente
         window.refreshDashboard = refreshDashboard;
+        window.openFullscreenActivity = openFullscreenActivity;
+        window.closeFullscreenActivity = closeFullscreenActivity;
+        window.toggleSearch = toggleSearch;
+        window.setFilter = setFilter;
+        window.filterActivity = filterActivity;
+        window.showToast = showToast;
+        window.showUserMenu = showUserMenu;
 
-        // Iniciar cuando el DOM esté listo
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initDashboard);
         } else {
             initDashboard();
         }
 
-        // Auto-refresh cada 60 segundos
         setInterval(() => {
             if (currentUser) {
                 loadDashboardMetrics();
