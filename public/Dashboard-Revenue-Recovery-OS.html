@@ -750,12 +750,22 @@
             border-bottom: 1px solid var(--border-subtle);
             background: var(--surface-1);
             width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-full-header.search-active .activity-full-title {
+            display: none;
+        }
+        
+        .activity-full-header.search-active .search-btn {
+            display: none;
         }
         
         .activity-full-header-left {
             display: flex;
             align-items: center;
             gap: 12px;
+            flex: 1;
         }
         
         .back-btn {
@@ -770,6 +780,7 @@
             color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
         
         .back-btn:hover {
@@ -782,10 +793,79 @@
             font-size: clamp(18px, 5vw, 20px);
             font-weight: 600;
             color: var(--white);
+            transition: all 0.3s ease;
         }
         
         .activity-full-title span {
             color: var(--gold);
+        }
+        
+        .header-search-wrapper {
+            display: none;
+            flex: 1;
+            align-items: center;
+            margin-left: 12px;
+        }
+        
+        .activity-full-header.search-active .header-search-wrapper {
+            display: flex;
+        }
+        
+        .header-search-input {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 10px 16px;
+            transition: all 0.2s;
+        }
+        
+        .header-search-input:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 160, 42, 0.15);
+        }
+        
+        .header-search-input i {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .header-search-input input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--white);
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+        }
+        
+        .header-search-input input::placeholder {
+            color: var(--text-subtle);
+        }
+        
+        .close-search-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--surface-3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+        
+        .close-search-btn:hover {
+            border-color: var(--crimson);
+            color: var(--crimson);
         }
         
         .search-btn {
@@ -800,6 +880,7 @@
             color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
         
         .search-btn:hover {
@@ -807,7 +888,7 @@
             color: var(--gold);
         }
         
-        /* Buscador Moderno */
+        /* Buscador Moderno (filtros) */
         .search-container {
             padding: 16px 20px;
             background: var(--surface-1);
@@ -826,64 +907,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .search-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-        }
-        
-        .search-input-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            background: var(--surface-3);
-            border: 1.5px solid var(--border-subtle);
-            border-radius: 14px;
-            padding: 12px 16px;
-            transition: all 0.2s;
-        }
-        
-        .search-input-wrapper:focus-within {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(201, 160, 42, 0.15);
-        }
-        
-        .search-input-wrapper i {
-            color: var(--text-muted);
-            font-size: 16px;
-            margin-right: 10px;
-        }
-        
-        .search-input-wrapper input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--white);
-            font-family: 'Outfit', sans-serif;
-            font-size: 15px;
-        }
-        
-        .search-input-wrapper input::placeholder {
-            color: var(--text-subtle);
-        }
-        
-        .search-cancel {
-            background: transparent;
-            border: none;
-            color: var(--gold);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 8px 12px;
-            white-space: nowrap;
-        }
-        
         .search-filters {
             display: flex;
             gap: 8px;
-            margin-top: 12px;
             overflow-x: auto;
             overflow-y: hidden;
             -webkit-overflow-scrolling: touch;
@@ -1269,7 +1295,7 @@
 
     <!-- Pantalla Completa de Actividad -->
     <div class="fullscreen-activity" id="fullscreenActivity">
-        <div class="activity-full-header">
+        <div class="activity-full-header" id="activityFullHeader">
             <div class="activity-full-header-left">
                 <div class="back-btn" onclick="closeFullscreenActivity()">
                     <i class="fas fa-arrow-left"></i>
@@ -1277,21 +1303,24 @@
                 <div class="activity-full-title">
                     Revenue<span>OS</span>
                 </div>
+                <!-- Campo de búsqueda en la cabecera (inicialmente oculto) -->
+                <div class="header-search-wrapper">
+                    <div class="header-search-input">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="headerSearchInput" placeholder="Buscar en actividad..." oninput="syncSearchInputs()">
+                    </div>
+                    <div class="close-search-btn" onclick="closeHeaderSearch()">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
             </div>
-            <div class="search-btn" onclick="toggleSearch()">
+            <div class="search-btn" onclick="openHeaderSearch()">
                 <i class="fas fa-search"></i>
             </div>
         </div>
         
-        <!-- Buscador Moderno -->
+        <!-- Buscador Moderno (filtros) -->
         <div class="search-container" id="searchContainer">
-            <div class="search-wrapper">
-                <div class="search-input-wrapper">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Buscar en actividad..." oninput="filterActivity()">
-                </div>
-                <button class="search-cancel" onclick="toggleSearch()">Cancelar</button>
-            </div>
             <div class="search-filters">
                 <div class="filter-chip active" data-filter="all" onclick="setFilter('all')">
                     <i class="fas fa-list"></i> Todos
@@ -1764,14 +1793,14 @@
         
         function closeFullscreenActivity() {
             const fullscreen = document.getElementById('fullscreenActivity');
-            const searchContainer = document.getElementById('searchContainer');
+            const header = document.getElementById('activityFullHeader');
             
             fullscreen.classList.remove('active');
-            searchContainer.classList.remove('active');
+            header.classList.remove('search-active');
             document.body.style.overflow = '';
             
             // Limpiar búsqueda
-            document.getElementById('searchInput').value = '';
+            document.getElementById('headerSearchInput').value = '';
             searchQuery = '';
             currentFilter = 'all';
             document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -1780,17 +1809,23 @@
             document.querySelector('.filter-chip[data-filter="all"]').classList.add('active');
         }
         
-        function toggleSearch() {
-            const searchContainer = document.getElementById('searchContainer');
-            searchContainer.classList.toggle('active');
-            
-            if (!searchContainer.classList.contains('active')) {
-                document.getElementById('searchInput').value = '';
-                searchQuery = '';
-                renderFullActivityList();
-            } else {
-                setTimeout(() => document.getElementById('searchInput').focus(), 100);
-            }
+        function openHeaderSearch() {
+            const header = document.getElementById('activityFullHeader');
+            header.classList.add('search-active');
+            setTimeout(() => document.getElementById('headerSearchInput').focus(), 100);
+        }
+        
+        function closeHeaderSearch() {
+            const header = document.getElementById('activityFullHeader');
+            header.classList.remove('search-active');
+            document.getElementById('headerSearchInput').value = '';
+            searchQuery = '';
+            renderFullActivityList();
+        }
+        
+        function syncSearchInputs() {
+            searchQuery = document.getElementById('headerSearchInput').value.toLowerCase();
+            renderFullActivityList();
         }
         
         function setFilter(filter) {
@@ -1801,11 +1836,6 @@
             });
             document.querySelector(`.filter-chip[data-filter="${filter}"]`).classList.add('active');
             
-            renderFullActivityList();
-        }
-        
-        function filterActivity() {
-            searchQuery = document.getElementById('searchInput').value.toLowerCase();
             renderFullActivityList();
         }
         
@@ -1935,9 +1965,10 @@
         window.refreshDashboard = refreshDashboard;
         window.openFullscreenActivity = openFullscreenActivity;
         window.closeFullscreenActivity = closeFullscreenActivity;
-        window.toggleSearch = toggleSearch;
+        window.openHeaderSearch = openHeaderSearch;
+        window.closeHeaderSearch = closeHeaderSearch;
+        window.syncSearchInputs = syncSearchInputs;
         window.setFilter = setFilter;
-        window.filterActivity = filterActivity;
         window.showToast = showToast;
 
         if (document.readyState === 'loading') {
