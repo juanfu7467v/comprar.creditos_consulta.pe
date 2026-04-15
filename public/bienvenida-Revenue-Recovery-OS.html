@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Revenue Recovery OS | Recupera tus ingresos</title>
+    <meta name="description" content="Sistema automatizado de recuperación de liquidez para pagos fallidos. Recupera hasta el 95% de tus ingresos perdidos.">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: white;
+        }
+
+        /* Efectos de fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(30, 64, 175, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(5, 150, 105, 0.12) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Diamantes flotantes */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-28px) rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .diamond {
+            position: fixed;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.25), rgba(5, 150, 105, 0.25));
+            pointer-events: none;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        .diamond:nth-child(1) { width: 50px; height: 50px; top: 8%; left: 5%; animation: float 6s ease-in-out infinite; }
+        .diamond:nth-child(2) { width: 70px; height: 70px; top: 58%; left: 85%; animation: floatSlow 8s ease-in-out infinite; }
+        .diamond:nth-child(3) { width: 38px; height: 38px; top: 78%; left: 12%; animation: float 7s ease-in-out infinite 1s; }
+        .diamond:nth-child(4) { width: 60px; height: 60px; top: 25%; left: 75%; animation: floatSlow 9s ease-in-out infinite 2s; }
+
+        /* Contenedor principal */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px 40px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0 8px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #34d399);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+        }
+        .logo-text span {
+            color: #34d399;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 20px 0 24px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+        }
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 12px;
+        }
+        .hero-title .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: linear-gradient(90deg, #3b82f6, #34d399);
+            border: none;
+            border-radius: 60px;
+            padding: 16px 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+            text-decoration: none;
+            margin-bottom: 32px;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
+        }
+        .cta-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px 16px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .stat-icon.green { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .stat-icon.orange { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
+            line-height: 1.4;
+        }
+
+        /* Problem Section */
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        .problem-card {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        .problem-example {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .problem-example:last-child {
+            border-bottom: none;
+        }
+        .problem-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(239, 68, 68, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f87171;
+            font-size: 18px;
+        }
+        .problem-content {
+            flex: 1;
+        }
+        .problem-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .problem-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+        .problem-loss {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            color: #f87171;
+            font-size: 16px;
+        }
+
+        /* Solution Section */
+        .solution-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding: 20px 0;
+        }
+        .flow-step {
+            text-align: center;
+            flex: 1;
+        }
+        .flow-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 8px;
+            color: #60a5fa;
+        }
+        .flow-arrow {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 20px;
+        }
+        .flow-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 2px;
+        }
+        .flow-desc {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .feature-check {
+            width: 28px;
+            height: 28px;
+            background: rgba(52, 211, 153, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #34d399;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .feature-content h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .feature-content p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
+            line-height: 1.4;
+        }
+
+        /* 3D Visual Element */
+        .recovery-visual {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.2), rgba(5, 150, 105, 0.1));
+            border-radius: 28px;
+            padding: 28px 20px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .recovery-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .recovery-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 12px;
+            height: 120px;
+            margin: 20px 0;
+            position: relative;
+            z-index: 2;
+        }
+        .bar {
+            width: 45px;
+            background: linear-gradient(180deg, #34d399, #059669);
+            border-radius: 12px 12px 6px 6px;
+            transition: height 0.3s ease;
+            box-shadow: 0 4px 12px rgba(52, 211, 153, 0.2);
+        }
+        .bar.lost {
+            background: linear-gradient(180deg, #6b7280, #4b5563);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+        }
+        .bar-label {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .bar-label span {
+            color: #34d399;
+        }
+
+        /* Trust Section */
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 60px;
+            margin-bottom: 24px;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .trust-item i {
+            color: #34d399;
+            font-size: 14px;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+        .final-cta h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .final-cta p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 24px;
+        }
+        .btn-empezar {
+            display: block;
+            width: 100%;
+            background: transparent;
+            border: 2px solid #e11d2e;
+            border-radius: 60px;
+            padding: 16px;
+            font-weight: 800;
+            font-size: 18px;
+            color: #e11d2e;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            text-decoration: none;
+        }
+        .btn-empezar:hover {
+            background: rgba(225, 29, 46, 0.1);
+            border-color: #ff3b4a;
+            color: #ff3b4a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(225, 29, 46, 0.2);
+        }
+
+        /* Animaciones de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .delay-1 { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-4 { animation-delay: 0.4s; opacity: 0; animation-fill-mode: forwards; }
+
+        /* Footer - Estilo WhatsApp */
+        .footer {
+            background: #000000;
+            padding: 30px 20px 25px;
+            margin-top: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .footer-content {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px 18px;
+            margin-bottom: 18px;
+        }
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.45);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: color 0.2s ease;
+        }
+        .footer-links a:hover {
+            color: #34d399;
+        }
+        .footer-links .separator {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 10px;
+        }
+        .footer-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+        .footer-social a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.2s ease;
+        }
+        .footer-social a:hover {
+            color: #34d399;
+        }
+        .footer-copyright {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+            line-height: 1.6;
+        }
+        .footer-copyright p {
+            margin-bottom: 4px;
+        }
+        .footer-version {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            margin-top: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 0.5px;
+        }
+        .footer-legal {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 5px 12px;
+            margin-bottom: 15px;
+        }
+        .footer-legal a {
+            color: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            font-size: 11px;
+            transition: color 0.2s ease;
+        }
+        .footer-legal a:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .footer-legal .separator {
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Diamantes de fondo -->
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+    <div class="diamond"></div>
+
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header animate-in">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="logo-text">
+                    Revenue<span>OS</span>
+                </div>
+            </div>
+            <div style="color: rgba(255,255,255,0.3); font-size: 12px;">
+                <i class="fas fa-lock"></i> No Custodio
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero animate-in delay-1">
+            <div class="hero-badge">
+                <i class="fas fa-bolt"></i> RECUPERACIÓN AUTOMATIZADA
+            </div>
+            <h1 class="hero-title">
+                Cada pago fallido es <span class="gradient-text">dinero que pierdes</span>
+            </h1>
+            <p class="hero-subtitle">
+                El 15% de tus ingresos recurrentes desaparecen por tarjetas vencidas, fondos insuficientes o errores bancarios. 
+                <strong style="color: white;">Revenue Recovery OS</strong> los recupera automáticamente.
+            </p>
+            <a href="home-Revenue-Recovery-OS.html" class="cta-button">
+                <i class="fas fa-rocket"></i> Recuperar mis ingresos ahora
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </section>
+
+        <!-- Estadísticas en tiempo real -->
+        <section class="stats-grid animate-in delay-2">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-value">$2.4M+</div>
+                <div class="stat-label">Recuperados para nuestros clientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value">95%</div>
+                <div class="stat-label">Tasa de recuperación promedio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Monitoreo automatizado</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="stat-value">15+</div>
+                <div class="stat-label">Procesadores integrados</div>
+            </div>
+        </section>
+
+        <!-- El Problema (Situaciones reales) -->
+        <section class="animate-in delay-3">
+            <h2 class="section-title">💰 El problema silencioso</h2>
+            <div class="problem-card">
+                <div class="problem-example">
+                    <div class="problem-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-title">Tarjeta vencida</div>
+                        <div class="problem-desc">Cliente no actualiza sus datos</div>
+                    </div>
+                    <div class="problem-loss">-$1,250</div>
+                </div>
+                <div class="problem-example">
+                    <div class="problem-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-title">Fondos insuficientes</div>
+                        <div class="problem-desc">Cobro falla el día de pago</div>
+                    </div>
+                    <div class="problem-loss">-$3,400</div>
+                </div>
+                <div class="problem-example">
+                    <div class="problem-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="problem-content">
+                        <div class="problem-title">Bloqueo del banco</div>
+                        <div class="problem-desc">Transacción marcada como sospechosa</div>
+                    </div>
+                    <div class="problem-loss">-$890</div>
+                </div>
+                <div style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; text-align: center;">
+                    <span style="color: #f87171; font-weight: 700;">⚠️ Pérdida mensual estimada: $5,540</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- La Solución - Cómo funciona -->
+        <section class="animate-in delay-4">
+            <h2 class="section-title">🚀 Cómo lo recuperamos</h2>
+            <div class="solution-flow">
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="flow-label">Detecta</div>
+                    <div class="flow-desc">Pago fallido</div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-rotate-right"></i>
+                    </div>
+                    <div class="flow-label">Reintenta</div>
+                    <div class="flow-desc">Inteligente</div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="flow-label">Notifica</div>
+                    <div class="flow-desc">Al cliente</div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon" style="color: #34d399;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="flow-label">Recupera</div>
+                    <div class="flow-desc">El ingreso</div>
+                </div>
+            </div>
+
+            <!-- Visual 3D de recuperación -->
+            <div class="recovery-visual">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 14px; color: rgba(255,255,255,0.6);">Sin Revenue OS</span>
+                    <span style="font-size: 14px; color: #34d399;">Con Revenue OS</span>
+                </div>
+                <div class="recovery-bars">
+                    <div style="text-align: center;">
+                        <div class="bar lost" style="height: 45px;"></div>
+                        <div class="bar-label" style="color: #6b7280;">Perdido</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div class="bar" style="height: 95px;"></div>
+                        <div class="bar-label"><span>+95%</span> recuperado</div>
+                    </div>
+                </div>
+                <p style="text-align: center; font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 16px;">
+                    <i class="fas fa-shield" style="color: #34d399; margin-right: 6px;"></i>
+                    Secuencias de recuperación inteligentes que se adaptan a cada tipo de fallo
+                </p>
+            </div>
+        </section>
+
+        <!-- Beneficios clave -->
+        <section>
+            <h2 class="section-title">✨ Beneficios que notarás</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Recuperación automatizada 24/7</h4>
+                        <p>El sistema nunca duerme. Cada pago fallido activa una secuencia de recuperación inmediata.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Prevención proactiva (Pre-Dunning)</h4>
+                        <p>Detectamos tarjetas por vencer y notificamos al cliente ANTES de que el pago falle.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Arquitectura No Custodia</h4>
+                        <p>Nunca tocamos tu dinero. Solo recibimos notificaciones y enviamos recordatorios.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-check">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h4>Dashboard en tiempo real</h4>
+                        <p>Visualiza exactamente cuánto dinero has recuperado y tu ROI en tiempo real.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Generar confianza -->
+        <section>
+            <div class="trust-badge">
+                <div class="trust-item">
+                    <i class="fas fa-lock"></i>
+                    <span>AES-256</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-building"></i>
+                    <span>No Custodio</span>
+                </div>
+                <div class="trust-item">
+                    <i class="fas fa-globe"></i>
+                    <span>15+ Procesadores</span>
+                </div>
+            </div>
+            <p style="text-align: center; font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 20px;">
+                Integración nativa con Stripe, PayPal, Mercado Pago, Adyen, PayU y más.
+            </p>
+        </section>
+
+        <!-- CTA Final -->
+        <section class="final-cta">
+            <h3>No dejes que el dinero se escape</h3>
+            <p>Cada día sin Revenue Recovery OS es dinero que no volverá. Activa tu sistema de recuperación hoy mismo.</p>
+            <a href="home-Revenue-Recovery-OS.html" class="btn-empezar">
+                EMPEZAR AHORA <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+            </a>
+        </section>
+    </div>
+
+    <!-- Footer - Estilo WhatsApp -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#"><strong>Masitaprex</strong></a>
+                <span class="separator">•</span>
+                <a href="#">Consulta PE APK</a>
+                <span class="separator">•</span>
+                <a href="#">PeliPREX HD</a>
+                <span class="separator">•</span>
+                <a href="#">Masitaprex</a>
+            </div>
+            
+            <div class="footer-legal">
+                <a href="terminos-condiciones">Términos y condiciones</a>
+                <span class="separator">|</span>
+                <a href="politica-privacidad">Política de privacidad</a>
+                <span class="separator">|</span>
+                <a href="disclaimer-apis">Aviso legal APIS</a>
+                <span class="separator">|</span>
+                <a href="aviso-legal-peliprex">Aviso legal peliPREX</a>
+            </div>
+            
+            <div class="footer-social">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="https://wa.me/51944950234" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+            
+            <div class="footer-copyright">
+                <p><strong>Masitaprex</strong> © 2025 - Todos los derechos reservados</p>
+                <p style="font-size: 10px; max-width: 380px; margin: 8px auto;">
+                    Infraestructura tecnológica funciona con apis externas. No somos responsables por el contenido o servicios ofrecidos por terceros.
+                </p>
+                <p style="margin-top: 10px;">
+                    Síguenos en nuestras redes sociales para más información sobre <strong>Consulta PE</strong> y <strong>PeliPREX</strong>
+                </p>
+                <p style="margin-top: 12px; color: rgba(255,255,255,0.2);">
+                    Masitaprex - consulta Pe - peliPREX | <strong>Cajamarca, Perú</strong><br>
+                    <strong>Representante: JOSÉ RENÉ CUBAS PÉREZ | RUC: 10736224351</strong>
+                </p>
+            </div>
+            
+            <div class="footer-version">
+                V 2.4.0
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Animaciones suaves al hacer scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Efecto de números animados para estadísticas (simulado)
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                if (value >= 1000000) {
+                    element.textContent = '$' + (value / 1000000).toFixed(1) + 'M+';
+                } else {
+                    element.textContent = value + (element.textContent.includes('%') ? '%' : '');
+                }
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Iniciar animación de números cuando sean visibles
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const valueEl = entry.target.querySelector('.stat-value');
+                    if (valueEl && !valueEl.dataset.animated) {
+                        valueEl.dataset.animated = 'true';
+                        if (valueEl.textContent.includes('M')) {
+                            animateValue(valueEl, 0, 2.4, 1500);
+                        } else if (valueEl.textContent.includes('%')) {
+                            animateValue(valueEl, 0, 95, 1500);
+                        }
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.stat-card').forEach(card => {
+            statsObserver.observe(card);
+        });
+    </script>
+</body>
+</html>
