@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Panel de Control | Revenue Recovery OS</title>
     <meta name="description" content="Panel de control para monitorear la recuperación de ingresos">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
@@ -45,6 +45,9 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         body::before {
@@ -64,7 +67,7 @@
         }
         .ambient-2 {
             position: fixed; bottom: -20%; right: -10%;
-            width:50vw; height: 50vw; border-radius: 50%;
+            width: 50vw; height: 50vw; border-radius: 50%;
             background: radial-gradient(circle, rgba(196,30,58,0.05) 0%, transparent 65%);
             pointer-events: none; z-index: 0;
         }
@@ -107,13 +110,43 @@
 
         .hidden { display: none !important; }
 
-        /* Main Container */
+        /* Main Container - Responsive */
         .dashboard-container {
             position: relative;
             z-index: 10;
-            max-width: 480px;
+            width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 16px 16px 32px;
+        }
+
+        /* Para tablets y desktop, ajustar grid de stats */
+        @media (min-width: 640px) {
+            .dashboard-container {
+                padding: 24px 32px 40px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+            .cards-scroll-container {
+                max-width: 100%;
+            }
+            .info-card {
+                min-width: 400px !important;
+                flex: 0 0 400px !important;
+            }
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-container {
+                padding: 32px 48px 48px;
+            }
+            .recovery-card {
+                max-width: 100%;
+            }
         }
 
         /* Header */
@@ -122,6 +155,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 12px 0 20px;
+            width: 100%;
         }
         
         .logo-section {
@@ -180,6 +214,7 @@
             margin-bottom: 16px;
             padding-bottom: 8px;
             scrollbar-width: none;
+            width: 100%;
         }
         
         .cards-scroll-container::-webkit-scrollbar {
@@ -285,14 +320,10 @@
             border-radius: 10px;
         }
 
-        /* Company Badge - Oculto, reemplazado por scroll */
-        .company-badge {
-            display: none;
-        }
-
         /* Welcome Message */
         .welcome-section {
             margin-bottom: 24px;
+            width: 100%;
         }
         
         .welcome-eyebrow {
@@ -306,7 +337,7 @@
         
         .welcome-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 28px;
+            font-size: clamp(24px, 6vw, 28px);
             font-weight: 600;
             line-height: 1.2;
             color: var(--white);
@@ -330,6 +361,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 24px;
+            width: 100%;
         }
         
         .stat-card {
@@ -361,7 +393,7 @@
         
         .stat-value {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 28px;
+            font-size: clamp(22px, 5vw, 28px);
             font-weight: 700;
             color: var(--white);
             margin-bottom: 6px;
@@ -401,11 +433,12 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 16px;
+            width: 100%;
         }
         
         .section-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
+            font-size: clamp(18px, 4vw, 20px);
             font-weight: 600;
             color: var(--white);
         }
@@ -425,6 +458,7 @@
             border-radius: 18px;
             overflow: hidden;
             margin-bottom: 24px;
+            width: 100%;
         }
         
         .activity-item {
@@ -500,6 +534,7 @@
             grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 8px;
             margin-bottom: 24px;
+            width: 100%;
         }
         
         .quick-action-btn {
@@ -541,6 +576,7 @@
             border-radius: 20px;
             padding: 24px;
             margin-bottom: 24px;
+            width: 100%;
         }
         
         .recovery-header {
@@ -552,7 +588,7 @@
         
         .recovery-header h4 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 18px;
+            font-size: clamp(16px, 4vw, 18px);
             font-weight: 600;
         }
         
@@ -613,7 +649,7 @@
         
         .recovery-stat .value {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 20px;
+            font-size: clamp(16px, 4vw, 20px);
             font-weight: 700;
             color: var(--white);
         }
@@ -631,6 +667,7 @@
             padding-top: 20px;
             margin-top: 10px;
             border-top: 1px solid var(--border-subtle);
+            width: 100%;
         }
         
         .footer-text {
@@ -644,6 +681,7 @@
             align-items: center;
             justify-content: center;
             gap: 16px;
+            flex-wrap: wrap;
         }
         
         .footer-link {
@@ -652,6 +690,24 @@
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        .soc {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 12px 0;
+        }
+        
+        .soc a {
+            color: var(--text-muted);
+            font-size: 24px;
+            transition: color 0.2s;
+        }
+        
+        .soc a:hover {
+            color: var(--gold);
         }
 
         /* Refresh Indicator */
@@ -663,6 +719,7 @@
             margin-bottom: 8px;
             font-size: 10px;
             color: var(--text-subtle);
+            width: 100%;
         }
         
         .refresh-indicator i {
@@ -678,6 +735,7 @@
             display: none;
             flex-direction: column;
             overflow: hidden;
+            width: 100%;
         }
         
         .fullscreen-activity.active {
@@ -691,6 +749,7 @@
             padding: 16px 20px;
             border-bottom: 1px solid var(--border-subtle);
             background: var(--surface-1);
+            width: 100%;
         }
         
         .activity-full-header-left {
@@ -720,7 +779,7 @@
         
         .activity-full-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
+            font-size: clamp(18px, 5vw, 20px);
             font-weight: 600;
             color: var(--white);
         }
@@ -755,6 +814,7 @@
             border-bottom: 1px solid var(--border-subtle);
             display: none;
             animation: slideDown 0.3s ease;
+            width: 100%;
         }
         
         .search-container.active {
@@ -770,6 +830,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            width: 100%;
         }
         
         .search-input-wrapper {
@@ -816,12 +877,24 @@
             font-weight: 600;
             cursor: pointer;
             padding: 8px 12px;
+            white-space: nowrap;
         }
         
         .search-filters {
             display: flex;
             gap: 8px;
             margin-top: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+            width: 100%;
+        }
+        
+        .search-filters::-webkit-scrollbar {
+            display: none;
         }
         
         .filter-chip {
@@ -834,6 +907,7 @@
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .filter-chip.active {
@@ -852,6 +926,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 8px 0;
+            width: 100%;
         }
         
         .activity-full-content .activity-list {
@@ -983,8 +1058,8 @@
                 </div>
             </div>
             <div class="header-actions">
-                <i class="fas fa-bell" onclick="showToast('Notificaciones en desarrollo', 'info')"></i>
-                <i class="fas fa-user-circle" onclick="showUserMenu()"></i>
+                <i class="fas fa-headset" onclick="window.location.href='ayuda.html'" title="Ayuda y Soporte"></i>
+                <i class="fas fa-user-circle" onclick="window.location.href='actividad.html'" title="Mi Actividad"></i>
             </div>
         </header>
 
@@ -1176,11 +1251,19 @@
 
         <!-- Footer -->
         <footer class="dashboard-footer">
-            <footer>
-            <h3>Síguenos en redes sociales</h3>
-            <div class="soc"><a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-square"></i></a><a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube-square"></i></a></div>
-            <p>Infraestructura Revenue Recovery OS © 2026 — Todos los derechos reservados</p>
-            <p><a href="terminos-condiciones">Términos y condiciones</a> | <a href="politica-privacidad">Política de privacidad</a> | <a href="politica.compras">Política de compras</a></p>
+            <h3 style="font-size: 14px; margin-bottom: 12px; color: var(--text-muted);">Síguenos en redes sociales</h3>
+            <div class="soc">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-square"></i></a>
+                <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube-square"></i></a>
+            </div>
+            <p style="font-size: 12px; color: var(--text-subtle); margin: 12px 0;">Infraestructura Revenue Recovery OS © 2026 — Todos los derechos reservados</p>
+            <div class="footer-links">
+                <a href="terminos-condiciones" class="footer-link">Términos y condiciones</a>
+                <span style="color: var(--text-subtle);">|</span>
+                <a href="politica-privacidad" class="footer-link">Política de privacidad</a>
+                <span style="color: var(--text-subtle);">|</span>
+                <a href="politica.compras" class="footer-link">Política de compras</a>
+            </div>
         </footer>
     </div>
 
@@ -1253,12 +1336,6 @@
             setTimeout(() => overlay.classList.add('hidden'), 400);
         }
         
-        function showLoading() {
-            const overlay = document.getElementById('loading-overlay');
-            overlay.classList.remove('hidden');
-            overlay.style.opacity = '1';
-        }
-        
         function showToast(message, type = 'success') {
             const existingToast = document.querySelector('.toast');
             if (existingToast) existingToast.remove();
@@ -1284,23 +1361,12 @@
             }, 3000);
         }
         
-        function showUserMenu() {
-            showToast('Perfil de usuario en desarrollo', 'info');
-        }
-        
         function formatMoney(amount) {
             if (amount === null || amount === undefined) return 'S/ 0';
             const num = parseFloat(amount);
             if (num >= 1000000) return 'S/ ' + (num / 1000000).toFixed(1) + 'M';
             if (num >= 1000) return 'S/ ' + (num / 1000).toFixed(1) + 'K';
             return 'S/ ' + num.toFixed(2);
-        }
-        
-        function formatNumber(num) {
-            if (num === null || num === undefined) return '0';
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toString();
         }
         
         function updateLastUpdated() {
@@ -1313,6 +1379,8 @@
         function setupScrollIndicator() {
             const container = document.getElementById('cardsScrollContainer');
             const dots = document.querySelectorAll('.scroll-dot');
+            
+            if (!container) return;
             
             container.addEventListener('scroll', () => {
                 const scrollLeft = container.scrollLeft;
@@ -1329,6 +1397,49 @@
             });
         }
 
+        // ===== VALIDAR PLAN Y REDIRIGIR SI VENCIÓ =====
+        async function validatePlanAndRedirect() {
+            if (!currentUser || !db) return;
+            
+            try {
+                const empresaRef = db.collection('empresas').doc(currentUser.uid);
+                const empresaDoc = await empresaRef.get();
+                
+                if (empresaDoc.exists) {
+                    const data = empresaDoc.data();
+                    let expiryDays = 30;
+                    let isExpired = false;
+                    
+                    // Calcular días restantes
+                    if (data.planExpiry) {
+                        const expiry = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
+                        const now = new Date();
+                        const diffTime = expiry - now;
+                        expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        isExpired = expiryDays <= 0;
+                    } else if (data.activatedAt) {
+                        const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
+                        const now = new Date();
+                        const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
+                        expiryDays = Math.max(0, 30 - daysSince);
+                        isExpired = expiryDays <= 0;
+                    }
+                    
+                    // Verificar estado del plan
+                    if (data.planStatus === 'expired' || isExpired) {
+                        showToast('Tu plan ha vencido. Redirigiendo a facturación...', 'error');
+                        setTimeout(() => {
+                            window.location.href = 'facturacion-Revenue-Recovery-OS.html';
+                        }, 2000);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('Error validating plan:', error);
+            }
+            return false;
+        }
+
         // ===== CARGAR DATOS DEL PLAN =====
         async function loadPlanData() {
             if (!currentUser || !db) return;
@@ -1340,19 +1451,16 @@
                 if (empresaDoc.exists) {
                     const data = empresaDoc.data();
                     
-                    // Determinar plan basado en el tipo o token
                     let planName = 'Plan Starter';
-                    let planType = 'starter';
                     let expiryDays = 30;
+                    let isExpired = false;
                     
                     if (data.plan) {
                         planName = data.plan;
                     } else if (data.type === 'enterprise') {
                         planName = 'Plan Enterprise';
-                        planType = 'enterprise';
                     } else if (data.type === 'business') {
                         planName = 'Plan Business';
-                        planType = 'business';
                     }
                     
                     // Calcular días restantes
@@ -1361,30 +1469,47 @@
                         const now = new Date();
                         const diffTime = expiry - now;
                         expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        isExpired = expiryDays <= 0;
                     } else if (data.activatedAt) {
                         const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
                         const now = new Date();
                         const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
                         expiryDays = Math.max(0, 30 - daysSince);
+                        isExpired = expiryDays <= 0;
                     }
                     
                     // Actualizar UI
                     document.getElementById('plan-name').textContent = planName;
                     
-                    const expiryText = expiryDays > 0 ? `Vence en ${expiryDays} días` : 'Vence hoy';
-                    document.getElementById('plan-expiry').textContent = expiryText;
+                    let expiryText;
+                    let badge = document.getElementById('plan-badge');
                     
-                    const badge = document.getElementById('plan-badge');
-                    if (expiryDays <= 3) {
+                    if (isExpired || data.planStatus === 'expired') {
+                        expiryText = 'Plan vencido';
                         badge.className = 'card-badge expiring';
-                        badge.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i> Por vencer';
-                    } else if (expiryDays <= 7) {
-                        badge.className = 'card-badge warning';
-                        badge.innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i> Renovar pronto';
+                        badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i> Vencido';
+                        
+                        // Redirigir a facturación
+                        showToast('Tu plan ha vencido. Redirigiendo a facturación...', 'error');
+                        setTimeout(() => {
+                            window.location.href = 'facturacion-Revenue-Recovery-OS.html';
+                        }, 2000);
                     } else {
-                        badge.className = 'card-badge';
-                        badge.innerHTML = '<i class="fas fa-star" style="margin-right: 4px;"></i> Activo';
+                        expiryText = expiryDays > 0 ? `Vence en ${expiryDays} días` : 'Vence hoy';
+                        
+                        if (expiryDays <= 3) {
+                            badge.className = 'card-badge expiring';
+                            badge.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i> Por vencer';
+                        } else if (expiryDays <= 7) {
+                            badge.className = 'card-badge warning';
+                            badge.innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i> Renovar pronto';
+                        } else {
+                            badge.className = 'card-badge';
+                            badge.innerHTML = '<i class="fas fa-star" style="margin-right: 4px;"></i> Activo';
+                        }
                     }
+                    
+                    document.getElementById('plan-expiry').textContent = expiryText;
                 }
             } catch (error) {
                 console.error('Error loading plan data:', error);
@@ -1626,7 +1751,6 @@
         // ===== PANTALLA COMPLETA DE ACTIVIDAD =====
         async function openFullscreenActivity() {
             const fullscreen = document.getElementById('fullscreenActivity');
-            const fullList = document.getElementById('fullActivityList');
             
             fullscreen.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1783,6 +1907,14 @@
                     if (user) {
                         currentUser = user;
                         await loadCompanyData();
+                        
+                        // Validar plan antes de continuar
+                        const isExpired = await validatePlanAndRedirect();
+                        if (isExpired) {
+                            hideLoading();
+                            return;
+                        }
+                        
                         await loadPlanData();
                         await loadDashboardMetrics();
                         await loadRecentActivity();
@@ -1807,7 +1939,6 @@
         window.setFilter = setFilter;
         window.filterActivity = filterActivity;
         window.showToast = showToast;
-        window.showUserMenu = showUserMenu;
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initDashboard);
