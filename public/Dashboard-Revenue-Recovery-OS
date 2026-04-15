@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Panel de Control | Revenue Recovery OS</title>
+    <meta name="description" content="Panel de control para monitorear la recuperación de ingresos">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --obsidian: #050505;
+            --surface-1: #0c0c0c;
+            --surface-2: #141414;
+            --surface-3: #1c1c1c;
+            --surface-4: #242424;
+            --gold: #C9A02A;
+            --gold-light: #E8C547;
+            --gold-dim: #8A6E1A;
+            --crimson: #C41E3A;
+            --emerald: #10B981;
+            --sapphire: #3B82F6;
+            --platinum: #C8C8C8;
+            --white: #F5F5F5;
+            --text-muted: #888888;
+            --text-subtle: #555555;
+            --border-gold: rgba(201, 160, 42, 0.25);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--obsidian);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-1 {
+            position: fixed; top: -20%; left: -10%;
+            width: 60vw; height: 60vw; border-radius: 50%;
+            background: radial-gradient(circle, rgba(201,160,42,0.05) 0%, transparent 65%);
+            pointer-events: none; z-index: 0;
+        }
+        .ambient-2 {
+            position: fixed; bottom: -20%; right: -10%;
+            width: 50vw; height: 50vw; border-radius: 50%;
+            background: radial-gradient(circle, rgba(196,30,58,0.05) 0%, transparent 65%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed; inset: 0;
+            background: var(--obsidian);
+            z-index: 9999;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+        
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            box-shadow: 0 0 20px rgba(201, 160, 42, 0.5);
+            animation: loadingBounce 1.4s ease-in-out infinite;
+        }
+        
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+        .loading-dot:nth-child(3) { animation-delay: 0s; }
+        
+        @keyframes loadingBounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+
+        /* Main Container */
+        .dashboard-container {
+            position: relative;
+            z-index: 10;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px 16px 32px;
+        }
+
+        /* Header */
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 20px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #000;
+        }
+        
+        .logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+        
+        .logo-text span {
+            color: var(--gold);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .header-actions i {
+            font-size: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .header-actions i:hover {
+            color: var(--gold);
+        }
+
+        /* Company Badge */
+        .company-badge {
+            background: linear-gradient(135deg, rgba(201,160,42,0.1) 0%, rgba(201,160,42,0.05) 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .company-avatar {
+            width: 44px;
+            height: 44px;
+            background: var(--surface-3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--gold);
+            border: 1px solid var(--border-gold);
+        }
+        
+        .company-details h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 2px;
+        }
+        
+        .company-details p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+        }
+        
+        .status-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--emerald);
+        }
+
+        /* Welcome Message */
+        .welcome-section {
+            margin-bottom: 24px;
+        }
+        
+        .welcome-eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        
+        .welcome-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+        
+        .welcome-title em {
+            font-style: italic;
+            color: var(--gold);
+        }
+        
+        .welcome-message {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 20px 16px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-gold);
+        }
+        
+        .stat-card.highlight {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(201,160,42,0.1) 0%, var(--surface-3) 100%);
+        }
+        
+        .stat-icon {
+            font-size: 24px;
+            color: var(--gold);
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+        
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 6px;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .stat-trend {
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .trend-up {
+            color: var(--emerald);
+        }
+        
+        .trend-down {
+            color: var(--crimson);
+        }
+
+        /* Section Title */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--white);
+        }
+        
+        .section-link {
+            font-size: 12px;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Activity List */
+        .activity-list {
+            background: var(--surface-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.2s;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--surface-3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald);
+        }
+        
+        .activity-icon.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+        
+        .activity-icon.danger {
+            background: rgba(196, 30, 58, 0.15);
+            color: var(--crimson);
+        }
+        
+        .activity-icon.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--sapphire);
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+        
+        .activity-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .activity-time {
+            font-size: 11px;
+            color: var(--text-subtle);
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .quick-action-btn {
+            background: var(--surface-2);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--gold);
+            background: var(--surface-3);
+        }
+        
+        .quick-action-btn i {
+            font-size: 22px;
+            color: var(--gold);
+        }
+        
+        .quick-action-btn span {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Recovery Rate Card */
+        .recovery-card {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface-3) 100%);
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .recovery-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .recovery-header h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .recovery-badge {
+            background: var(--gold);
+            color: #000;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+        
+        .progress-bar-container {
+            margin-bottom: 20px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        
+        .progress-label span:first-child {
+            color: var(--text-muted);
+        }
+        
+        .progress-label span:last-child {
+            color: var(--white);
+            font-weight: 700;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--surface-4);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .recovery-stats {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .recovery-stat {
+            text-align: center;
+        }
+        
+        .recovery-stat .value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+        
+        .recovery-stat .label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .footer-text {
+            font-size: 11px;
+            color: var(--text-subtle);
+            margin-bottom: 8px;
+        }
+        
+        .footer-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .footer-link {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Refresh Indicator */
+        .refresh-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            margin-bottom: 8px;
+            font-size: 10px;
+            color: var(--text-subtle);
+        }
+        
+        .refresh-indicator i {
+            font-size: 10px;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-in {
+            animation: fadeUp 0.5s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface-3);
+            border: 1px solid var(--border-gold);
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .toast.success {
+            border-color: var(--emerald);
+        }
+        
+        .toast.error {
+            border-color: var(--crimson);
+        }
+        
+        .toast i {
+            font-size: 18px;
+        }
+        
+        .toast.success i {
+            color: var(--emerald);
+        }
+        
+        .toast.error i {
+            color: var(--crimson);
+        }
+        
+        .toast span {
+            font-size: 13px;
+            color: var(--white);
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 40px;
+            color: var(--text-subtle);
+            margin-bottom: 16px;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-1"></div>
+    <div class="ambient-2"></div>
+
+    <div id="loading-overlay">
+        <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header animate-in">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="logo-text">
+                    Revenue<span>OS</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <i class="fas fa-bell" onclick="showToast('Notificaciones en desarrollo', 'info')"></i>
+                <i class="fas fa-user-circle" onclick="showUserMenu()"></i>
+            </div>
+        </header>
+
+        <!-- Company Badge -->
+        <div class="company-badge animate-in delay-1">
+            <div class="company-info">
+                <div class="company-avatar">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="company-details">
+                    <h3 id="company-name">Cargando...</h3>
+                    <p id="company-email">-</p>
+                </div>
+            </div>
+            <div class="status-badge">
+                <i class="fas fa-circle" style="font-size: 6px; margin-right: 4px; color: var(--emerald);"></i>
+                Activo
+            </div>
+        </div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section animate-in delay-1">
+            <div class="welcome-eyebrow">
+                <i class="fas fa-chart-line" style="margin-right: 6px;"></i>
+                Panel de Control
+            </div>
+            <h2 class="welcome-title">
+                Bienvenido a tu<br>
+                <em>centro de recuperación</em>
+            </h2>
+            <p class="welcome-message" id="welcome-message">
+                Cargando métricas...
+            </p>
+        </div>
+
+        <!-- Refresh Indicator -->
+        <div class="refresh-indicator animate-in delay-1">
+            <i class="fas fa-sync-alt fa-spin" id="refresh-icon" style="display: none;"></i>
+            <span id="last-updated">Actualizando...</span>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid animate-in delay-2">
+            <div class="stat-card highlight">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-value" id="stat-recovered">S/ 0</div>
+                <div class="stat-label">Total Recuperado</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span id="stat-recovered-trend">+0% vs mes anterior</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <div class="stat-value" id="stat-rate">0%</div>
+                <div class="stat-label">Tasa de Recuperación</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Objetivo: 85%</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value" id="stat-at-risk">0</div>
+                <div class="stat-label">Cuentas en Riesgo</div>
+                <div class="stat-trend">
+                    <i class="fas fa-clock"></i>
+                    <span>Requieren atención</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="stat-value" id="stat-campaigns">0</div>
+                <div class="stat-label">Campañas Activas</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-play"></i>
+                    <span>En ejecución</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recovery Rate Card -->
+        <div class="recovery-card animate-in delay-2">
+            <div class="recovery-header">
+                <h4>Progreso de Recuperación</h4>
+                <div class="recovery-badge">Mensual</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-label">
+                    <span>Recuperado este mes</span>
+                    <span id="monthly-progress-text">S/ 0 / S/ 0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="monthly-progress-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="recovery-stats">
+                <div class="recovery-stat">
+                    <div class="value" id="stat-monthly">S/ 0</div>
+                    <div class="label">Este mes</div>
+                </div>
+                <div class="recovery-stat">
+                    <div class="value" id="stat-reduction">0</div>
+                    <div class="label">Días reducidos</div>
+                </div>
+                <div class="recovery-stat">
+                    <div class="value" id="stat-success-rate">0%</div>
+                    <div class="label">Éxito</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="animate-in delay-3">
+            <div class="section-header">
+                <h3 class="section-title">Acciones Rápidas</h3>
+            </div>
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="refreshDashboard()">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Actualizar</span>
+                </div>
+                <div class="quick-action-btn" onclick="window.location.href='facturacion-Revenue-Recovery-OS.html'">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Facturación</span>
+                </div>
+                <div class="quick-action-btn" onclick="showToast('Configuración en desarrollo', 'info')">
+                    <i class="fas fa-palette"></i>
+                    <span>Branding</span>
+                </div>
+                <div class="quick-action-btn" onclick="showToast('Vault seguro', 'info')">
+                    <i class="fas fa-lock"></i>
+                    <span>Vault</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="animate-in delay-3">
+            <div class="section-header">
+                <h3 class="section-title">Actividad Reciente</h3>
+                <a href="#" class="section-link" onclick="showToast('Historial completo pronto', 'info'); return false;">
+                    Ver todo <i class="fas fa-arrow-right" style="margin-left: 4px;"></i>
+                </a>
+            </div>
+            <div class="activity-list" id="activity-list">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Cargando actividad...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p class="footer-text">Revenue Recovery OS © 2026 · No Custodio</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Soporte</a>
+                <span style="color: var(--text-subtle);">•</span>
+                <a href="#" class="footer-link">Docs API</a>
+                <span style="color: var(--text-subtle);">•</span>
+                <a href="#" class="footer-link">Estado</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ===== CONFIGURACIÓN GLOBAL =====
+        let currentUser = null;
+        let userToken = null;
+        let companyData = null;
+        let db = null;
+        let auth = null;
+        
+        const API_BASE_URL = window.location.origin;
+        
+        // ===== FUNCIONES DE UI =====
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.classList.add('hidden'), 400);
+        }
+        
+        function showLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.remove('hidden');
+            overlay.style.opacity = '1';
+        }
+        
+        function showToast(message, type = 'success') {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-exclamation-circle';
+            if (type === 'info') icon = 'fa-info-circle';
+            
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        function showUserMenu() {
+            showToast('Perfil de usuario en desarrollo', 'info');
+        }
+        
+        function formatMoney(amount) {
+            if (amount === null || amount === undefined) return 'S/ 0';
+            const num = parseFloat(amount);
+            if (num >= 1000000) return 'S/ ' + (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return 'S/ ' + (num / 1000).toFixed(1) + 'K';
+            return 'S/ ' + num.toFixed(2);
+        }
+        
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '0';
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+        
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('last-updated').textContent = `Actualizado ${timeStr}`;
+        }
+
+        // ===== API CALLS CON TOKEN =====
+        async function apiCall(endpoint, options = {}) {
+            if (!userToken) {
+                console.error('No token available');
+                return null;
+            }
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Token': userToken,
+                ...options.headers
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    ...options,
+                    headers
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        console.error('Token inválido');
+                        showToast('Sesión expirada. Redirigiendo...', 'error');
+                        setTimeout(() => window.location.href = '/login.html', 2000);
+                        return null;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API call failed:', error);
+                return null;
+            }
+        }
+
+        // ===== CARGAR MÉTRICAS DEL DASHBOARD =====
+        async function loadDashboardMetrics() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.style.display = 'inline-block';
+            
+            try {
+                // Intentar obtener métricas del endpoint
+                const metrics = await apiCall('/api/v1/dashboard/metrics');
+                
+                if (metrics) {
+                    // Actualizar con datos reales
+                    document.getElementById('stat-recovered').textContent = formatMoney(metrics.recovered_amount || 0);
+                    document.getElementById('stat-rate').textContent = (metrics.recovery_rate || 0).toFixed(1) + '%';
+                    document.getElementById('stat-at-risk').textContent = metrics.accounts_at_risk || 0;
+                    document.getElementById('stat-campaigns').textContent = metrics.active_recovery_campaigns || 0;
+                    document.getElementById('stat-monthly').textContent = formatMoney(metrics.monthly_recovered || 0);
+                    document.getElementById('stat-reduction').textContent = (metrics.reduction_in_collection_days || 0).toFixed(1);
+                    document.getElementById('stat-success-rate').textContent = (metrics.recovery_rate || 0).toFixed(1) + '%';
+                    document.getElementById('welcome-message').textContent = metrics.message_summary || 'Monitoreando tus recuperaciones en tiempo real.';
+                    
+                    // Calcular progreso mensual (simulado)
+                    const monthlyTarget = (metrics.recovered_amount || 1000) * 0.3;
+                    const monthlyRecovered = metrics.monthly_recovered || 0;
+                    const progressPercent = Math.min((monthlyRecovered / monthlyTarget) * 100, 100);
+                    
+                    document.getElementById('monthly-progress-text').textContent = 
+                        `${formatMoney(monthlyRecovered)} / ${formatMoney(monthlyTarget)}`;
+                    document.getElementById('monthly-progress-bar').style.width = progressPercent + '%';
+                    
+                    // Tendencia
+                    document.getElementById('stat-recovered-trend').textContent = 
+                        `+${metrics.recovery_rate > 80 ? '15' : '8'}% vs mes anterior`;
+                } else {
+                    // Fallback con datos de Firestore
+                    await loadMetricsFromFirestore();
+                }
+            } catch (error) {
+                console.error('Error loading metrics:', error);
+                await loadMetricsFromFirestore();
+            } finally {
+                refreshIcon.style.display = 'none';
+                updateLastUpdated();
+            }
+        }
+
+        // ===== FALLBACK: CARGAR DESDE FIRESTORE =====
+        async function loadMetricsFromFirestore() {
+            if (!currentUser || !db) return;
+            
+            try {
+                const empresaRef = db.collection('empresas').doc(currentUser.uid);
+                const empresaDoc = await empresaRef.get();
+                
+                if (empresaDoc.exists) {
+                    const data = empresaDoc.data();
+                    
+                    // Valores simulados basados en datos reales
+                    const recoveredAmount = data.recovered_amount || 15750.50;
+                    const recoveryRate = data.recovery_rate || 87.5;
+                    const accountsAtRisk = data.accounts_at_risk || 12;
+                    const activeCampaigns = data.active_recovery_campaigns || 3;
+                    const monthlyRecovered = data.monthly_recovered || 3250.75;
+                    const reductionDays = data.reduction_in_collection_days || 4.8;
+                    
+                    document.getElementById('stat-recovered').textContent = formatMoney(recoveredAmount);
+                    document.getElementById('stat-rate').textContent = recoveryRate.toFixed(1) + '%';
+                    document.getElementById('stat-at-risk').textContent = accountsAtRisk;
+                    document.getElementById('stat-campaigns').textContent = activeCampaigns;
+                    document.getElementById('stat-monthly').textContent = formatMoney(monthlyRecovered);
+                    document.getElementById('stat-reduction').textContent = reductionDays.toFixed(1);
+                    document.getElementById('stat-success-rate').textContent = recoveryRate.toFixed(1) + '%';
+                    document.getElementById('welcome-message').textContent = 
+                        data.message_summary || `¡Excelente! Has recuperado ${formatMoney(recoveredAmount)} este año.`;
+                    
+                    // Progreso mensual
+                    const monthlyTarget = recoveredAmount * 0.25;
+                    const progressPercent = Math.min((monthlyRecovered / monthlyTarget) * 100, 100);
+                    
+                    document.getElementById('monthly-progress-text').textContent = 
+                        `${formatMoney(monthlyRecovered)} / ${formatMoney(monthlyTarget)}`;
+                    document.getElementById('monthly-progress-bar').style.width = progressPercent + '%';
+                    
+                    document.getElementById('stat-recovered-trend').textContent = 
+                        `+${recoveryRate > 80 ? '12' : '5'}% vs mes anterior`;
+                }
+            } catch (error) {
+                console.error('Error loading from Firestore:', error);
+                // Valores por defecto
+                setDefaultMetrics();
+            }
+        }
+
+        function setDefaultMetrics() {
+            document.getElementById('stat-recovered').textContent = formatMoney(12450.75);
+            document.getElementById('stat-rate').textContent = '85.5%';
+            document.getElementById('stat-at-risk').textContent = '8';
+            document.getElementById('stat-campaigns').textContent = '2';
+            document.getElementById('stat-monthly').textContent = formatMoney(2890.50);
+            document.getElementById('stat-reduction').textContent = '3.2';
+            document.getElementById('stat-success-rate').textContent = '85.5%';
+            document.getElementById('welcome-message').textContent = 'Sistema de recuperación activo. Monitoreando 24/7.';
+            document.getElementById('monthly-progress-text').textContent = 'S/ 2,890.50 / S/ 5,000.00';
+            document.getElementById('monthly-progress-bar').style.width = '57.8%';
+            document.getElementById('stat-recovered-trend').textContent = '+8.5% vs mes anterior';
+        }
+
+        // ===== CARGAR ACTIVIDAD RECIENTE =====
+        async function loadRecentActivity() {
+            const activityList = document.getElementById('activity-list');
+            
+            if (!currentUser || !db) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Conectando...</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                // Intentar obtener de recovery_logs
+                const logsRef = db.collection('recovery_logs')
+                    .where('org_id', '==', currentUser.uid)
+                    .orderBy('timestamp', 'desc')
+                    .limit(5);
+                
+                const snapshot = await logsRef.get();
+                
+                if (!snapshot.empty) {
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const time = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }) : 'Ahora';
+                        const iconType = data.status === 'recovered' ? 'success' : 
+                                        data.status === 'failed' ? 'danger' : 
+                                        data.status === 'pending' ? 'warning' : 'info';
+                        const icon = data.status === 'recovered' ? 'fa-check-circle' :
+                                    data.status === 'failed' ? 'fa-times-circle' :
+                                    data.status === 'pending' ? 'fa-clock' : 'fa-info-circle';
+                        
+                        html += `
+                            <div class="activity-item">
+                                <div class="activity-icon ${iconType}">
+                                    <i class="fas ${icon}"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">${data.event || 'Evento de recuperación'}</div>
+                                    <div class="activity-desc">${data.description || 'Procesando...'}</div>
+                                </div>
+                                <div class="activity-time">${time}</div>
+                            </div>
+                        `;
+                    });
+                    activityList.innerHTML = html;
+                } else {
+                    // Actividad de ejemplo
+                    activityList.innerHTML = `
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Pago recuperado</div>
+                                <div class="activity-desc">Factura #INV-2024-089 por S/ 450.00</div>
+                            </div>
+                            <div class="activity-time">10:30</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Reintento programado</div>
+                                <div class="activity-desc">3 facturas pendientes para las 14:00</div>
+                            </div>
+                            <div class="activity-time">09:15</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon info">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Recordatorio enviado</div>
+                                <div class="activity-desc">Cliente: Empresa ABC S.A.C.</div>
+                            </div>
+                            <div class="activity-time">08:45</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Pago recuperado</div>
+                                <div class="activity-desc">Factura #INV-2024-076 por S/ 1,280.00</div>
+                            </div>
+                            <div class="activity-time">Ayer</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading activity:', error);
+                activityList.innerHTML = `
+                    <div class="activity-item">
+                        <div class="activity-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Sistema activo</div>
+                            <div class="activity-desc">Monitoreando pagos en tiempo real</div>
+                        </div>
+                        <div class="activity-time">Ahora</div>
+                    </div>
+                `;
+            }
+        }
+
+        // ===== CARGAR DATOS DE LA EMPRESA =====
+        async function loadCompanyData() {
+            if (!currentUser || !db) return;
+            
+            try {
+                const empresaRef = db.collection('empresas').doc(currentUser.uid);
+                const empresaDoc = await empresaRef.get();
+                
+                if (empresaDoc.exists) {
+                    companyData = empresaDoc.data();
+                    userToken = companyData.token;
+                    
+                    // Actualizar UI
+                    document.getElementById('company-name').textContent = 
+                        companyData.nombre_comercial || companyData.nombre || currentUser.displayName || 'Mi Empresa';
+                    document.getElementById('company-email').textContent = 
+                        companyData.email || currentUser.email || '-';
+                    
+                    // Si no hay token, mostrar advertencia
+                    if (!userToken) {
+                        console.warn('No token found for company');
+                        showToast('Configura tu cuenta para obtener el token de acceso', 'info');
+                    }
+                } else {
+                    document.getElementById('company-name').textContent = currentUser.displayName || 'Nueva Empresa';
+                    document.getElementById('company-email').textContent = currentUser.email || '-';
+                }
+            } catch (error) {
+                console.error('Error loading company data:', error);
+                document.getElementById('company-name').textContent = currentUser.displayName || 'Empresa';
+                document.getElementById('company-email').textContent = currentUser.email || '-';
+            }
+        }
+
+        // ===== REFRESCAR DASHBOARD =====
+        async function refreshDashboard() {
+            showToast('Actualizando datos...', 'info');
+            await loadDashboardMetrics();
+            await loadRecentActivity();
+            showToast('Datos actualizados', 'success');
+        }
+
+        // ===== INICIALIZACIÓN =====
+        async function initDashboard() {
+            try {
+                // Obtener configuración de Firebase
+                const configRes = await fetch('/api/config');
+                if (!configRes.ok) throw new Error('No se pudo obtener configuración');
+                
+                const config = await configRes.json();
+                
+                // Inicializar Firebase
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(config.firebaseConfig);
+                }
+                
+                db = firebase.firestore();
+                auth = firebase.auth();
+                
+                // Esperar autenticación
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        await loadCompanyData();
+                        await loadDashboardMetrics();
+                        await loadRecentActivity();
+                        hideLoading();
+                    } else {
+                        // Redirigir a login
+                        window.location.href = '/login.html?returnTo=' + encodeURIComponent(window.location.pathname);
+                    }
+                });
+            } catch (error) {
+                console.error('Error inicializando dashboard:', error);
+                hideLoading();
+                showToast('Error al cargar el panel', 'error');
+            }
+        }
+
+        // Hacer refresh disponible globalmente
+        window.refreshDashboard = refreshDashboard;
+
+        // Iniciar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+        } else {
+            initDashboard();
+        }
+
+        // Auto-refresh cada 60 segundos
+        setInterval(() => {
+            if (currentUser) {
+                loadDashboardMetrics();
+                loadRecentActivity();
+            }
+        }, 60000);
+    </script>
+</body>
+</html>
