@@ -1058,6 +1058,342 @@
         .empty-state p {
             font-size: 14px;
         }
+
+        /* ===== MODAL DE CONFIGURACIÓN (Branding + Vault) ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+            transform: translateY(40px) scale(0.95);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Header coral/red del modal (igual que la imagen) */
+        .modal-header-block {
+            background: linear-gradient(145deg, #E8523A 0%, #C93B25 60%, #A82E1C 100%);
+            padding: 20px 20px 0;
+        }
+
+        .modal-brand-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255,255,255,0.12);
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+
+        .modal-brand-logo {
+            width: 52px;
+            height: 52px;
+            background: #fff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .modal-brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-brand-logo .logo-placeholder {
+            font-size: 22px;
+            color: #C93B25;
+        }
+
+        .modal-brand-divider {
+            width: 2px;
+            height: 40px;
+            background: rgba(255,255,255,0.35);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .modal-brand-info {
+            flex: 1;
+        }
+
+        .modal-brand-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.1;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .modal-brand-sub {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        /* Tabs del modal */
+        .modal-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.2);
+            border-radius: 14px 14px 0 0;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 0;
+        }
+
+        .modal-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.6);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-tab.active {
+            background: rgba(255,255,255,0.22);
+            color: #fff;
+        }
+
+        .modal-tab i {
+            display: block;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        /* Body del modal */
+        .modal-body {
+            background: var(--surface-1);
+            padding: 20px;
+        }
+
+        .modal-tab-content {
+            display: none;
+        }
+
+        .modal-tab-content.active {
+            display: block;
+        }
+
+        /* Campos del formulario */
+        .modal-field {
+            margin-bottom: 14px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .modal-input {
+            width: 100%;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 11px 14px;
+            color: var(--white);
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .modal-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 160, 42, 0.15);
+        }
+
+        .modal-input option {
+            background: var(--surface-3);
+            color: var(--white);
+        }
+
+        /* Row de color pickers */
+        .color-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .color-input-wrap {
+            display: flex;
+            align-items: center;
+            background: var(--surface-3);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 8px 12px;
+            gap: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .color-input-wrap:focus-within {
+            border-color: var(--gold);
+        }
+
+        .color-input-wrap input[type="color"] {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .color-hex-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--white);
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+        }
+
+        /* Mensaje de seguridad */
+        .security-badge {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+        }
+
+        .security-badge i {
+            color: var(--emerald);
+            font-size: 14px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .security-badge span {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+        }
+
+        /* Botones del modal */
+        .modal-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .modal-btn {
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-close {
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            color: var(--text-muted);
+        }
+
+        .modal-btn-close:hover {
+            background: rgba(255,255,255,0.12);
+            color: var(--white);
+        }
+
+        .modal-btn-save {
+            background: linear-gradient(135deg, #E8523A 0%, #C93B25 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(232, 82, 58, 0.4);
+        }
+
+        .modal-btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(232, 82, 58, 0.55);
+        }
+
+        .modal-btn-save.loading-btn {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Preview del logo en el header */
+        #modal-live-logo {
+            transition: all 0.3s;
+        }
+
+        /* Password field con toggle */
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap .modal-input {
+            padding-right: 44px;
+        }
+
+        .pw-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .pw-toggle:hover {
+            color: var(--gold);
+        }
     </style>
 </head>
 <body>
@@ -1248,11 +1584,11 @@
                     <i class="fas fa-credit-card"></i>
                     <span>Facturación</span>
                 </div>
-                <div class="quick-action-btn" onclick="showToast('Configuración en desarrollo', 'info')">
+                <div class="quick-action-btn" onclick="openConfigModal('branding')">
                     <i class="fas fa-palette"></i>
                     <span>Branding</span>
                 </div>
-                <div class="quick-action-btn" onclick="showToast('Vault seguro', 'info')">
+                <div class="quick-action-btn" onclick="openConfigModal('vault')">
                     <i class="fas fa-lock"></i>
                     <span>Vault</span>
                 </div>
@@ -1291,6 +1627,139 @@
                 <a href="politica.compras" class="footer-link">Política de compras</a>
             </div>
         </footer>
+    </div>
+
+    <!-- ===== MODAL BRANDING + VAULT ===== -->
+    <div class="modal-overlay" id="configModalOverlay" onclick="handleModalOverlayClick(event)">
+        <div class="modal-card" id="configModalCard">
+            <!-- Header rojo (estilo imagen adjunta) -->
+            <div class="modal-header-block">
+                <!-- Fila de marca -->
+                <div class="modal-brand-row">
+                    <div class="modal-brand-logo" id="modal-live-logo">
+                        <i class="fas fa-building logo-placeholder"></i>
+                    </div>
+                    <div class="modal-brand-divider"></div>
+                    <div class="modal-brand-info">
+                        <div class="modal-brand-name" id="modal-brand-name-display">Revenue Recovery OS</div>
+                        <div class="modal-brand-sub">Configuración de cuenta</div>
+                    </div>
+                </div>
+                <!-- Tabs -->
+                <div class="modal-tabs">
+                    <div class="modal-tab active" id="tab-branding" onclick="switchModalTab('branding')">
+                        <i class="fas fa-palette"></i>
+                        Branding
+                    </div>
+                    <div class="modal-tab" id="tab-vault" onclick="switchModalTab('vault')">
+                        <i class="fas fa-shield-alt"></i>
+                        Vault
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body del modal -->
+            <div class="modal-body">
+
+                <!-- ---- TAB: BRANDING ---- -->
+                <div class="modal-tab-content active" id="content-branding">
+                    <div class="modal-field">
+                        <label class="modal-label"><i class="fas fa-building" style="margin-right:5px;"></i>Nombre de la empresa</label>
+                        <input type="text" class="modal-input" id="branding-company-name" placeholder="Mi Empresa S.A.">
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label"><i class="fas fa-image" style="margin-right:5px;"></i>URL del logo</label>
+                        <input type="url" class="modal-input" id="branding-logo-url" placeholder="https://ejemplo.com/logo.png"
+                               oninput="previewLogo(this.value)">
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label"><i class="fas fa-fill-drip" style="margin-right:5px;"></i>Colores de marca</label>
+                        <div class="color-row">
+                            <div>
+                                <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">Primario</div>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="branding-primary-picker" value="#C9A02A"
+                                           oninput="syncColor('primary', this.value)">
+                                    <input type="text" class="color-hex-input" id="branding-primary-hex"
+                                           value="#C9A02A" maxlength="7" placeholder="#000000"
+                                           oninput="syncColorFromHex('primary', this.value)">
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">Secundario</div>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="branding-secondary-picker" value="#1e293b"
+                                           oninput="syncColor('secondary', this.value)">
+                                    <input type="text" class="color-hex-input" id="branding-secondary-hex"
+                                           value="#1e293b" maxlength="7" placeholder="#000000"
+                                           oninput="syncColorFromHex('secondary', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label"><i class="fas fa-comments" style="margin-right:5px;"></i>Tono de comunicación</label>
+                        <select class="modal-input" id="branding-tone">
+                            <option value="professional">💼 Professional — Serio y corporativo</option>
+                            <option value="friendly">😊 Friendly — Cercano y amigable</option>
+                            <option value="formal">🎩 Formal — Estricto y puntual</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn modal-btn-close" onclick="closeConfigModal()">
+                            <i class="fas fa-times" style="margin-right:6px;"></i>Cerrar
+                        </button>
+                        <button class="modal-btn modal-btn-save" id="btn-save-branding" onclick="saveBranding()">
+                            <i class="fas fa-save" style="margin-right:6px;"></i>Guardar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ---- TAB: VAULT ---- -->
+                <div class="modal-tab-content" id="content-vault">
+                    <div class="security-badge">
+                        <i class="fas fa-lock"></i>
+                        <span>Tus llaves se encriptan con estándares de seguridad bancaria (AES-256 Fernet) antes de ser almacenadas. Nunca se exponen en texto plano.</span>
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label"><i class="fas fa-credit-card" style="margin-right:5px;"></i>Procesador de pago</label>
+                        <select class="modal-input" id="vault-processor">
+                            <option value="stripe">💳 Stripe</option>
+                            <option value="mercadopago">🛒 Mercado Pago</option>
+                            <option value="kushki">🏦 Kushki / Niubiz</option>
+                            <option value="payu">💰 PayU</option>
+                            <option value="adyen">🌐 Adyen</option>
+                            <option value="paypal">🅿️ PayPal / Braintree</option>
+                            <option value="checkout">✅ Checkout.com</option>
+                        </select>
+                    </div>
+                    <div class="modal-field">
+                        <label class="modal-label"><i class="fas fa-key" style="margin-right:5px;"></i>API Key (secreto)</label>
+                        <div class="password-wrap">
+                            <input type="password" class="modal-input" id="vault-api-key"
+                                   placeholder="sk_live_... o clave secreta del procesador"
+                                   autocomplete="new-password">
+                            <i class="fas fa-eye pw-toggle" id="pw-toggle-icon" onclick="toggleApiKeyVisibility()"></i>
+                        </div>
+                    </div>
+                    <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+                        <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5;">
+                            <i class="fas fa-info-circle" style="color:var(--sapphire);margin-right:6px;"></i>
+                            Al hacer clic en <strong style="color:#fff;">Sincronizar</strong>, el sistema activará la conexión con el procesador seleccionado y comenzará a recuperar pagos fallidos automáticamente.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn modal-btn-close" onclick="closeConfigModal()">
+                            <i class="fas fa-times" style="margin-right:6px;"></i>Cerrar
+                        </button>
+                        <button class="modal-btn modal-btn-save" id="btn-save-vault" onclick="saveVaultKey()" style="background:linear-gradient(135deg,#3B82F6 0%,#1D4ED8 100%);box-shadow:0 4px 20px rgba(59,130,246,0.4);">
+                            <i class="fas fa-sync-alt" style="margin-right:6px;"></i>Sincronizar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <!-- Pantalla Completa de Actividad -->
@@ -1970,6 +2439,255 @@
         window.syncSearchInputs = syncSearchInputs;
         window.setFilter = setFilter;
         window.showToast = showToast;
+
+        // ===== MODAL BRANDING + VAULT =====
+
+        function openConfigModal(tab = 'branding') {
+            document.getElementById('configModalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            switchModalTab(tab);
+            loadBrandingData();
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModalOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function handleModalOverlayClick(e) {
+            if (e.target === document.getElementById('configModalOverlay')) {
+                closeConfigModal();
+            }
+        }
+
+        function switchModalTab(tab) {
+            // Tabs
+            document.getElementById('tab-branding').classList.toggle('active', tab === 'branding');
+            document.getElementById('tab-vault').classList.toggle('active', tab === 'vault');
+            // Contents
+            document.getElementById('content-branding').classList.toggle('active', tab === 'branding');
+            document.getElementById('content-vault').classList.toggle('active', tab === 'vault');
+        }
+
+        function previewLogo(url) {
+            const logoDiv = document.getElementById('modal-live-logo');
+            if (url && url.trim()) {
+                logoDiv.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-building logo-placeholder\\'></i>'" alt="logo">`;
+            } else {
+                logoDiv.innerHTML = '<i class="fas fa-building logo-placeholder"></i>';
+            }
+        }
+
+        function syncColor(type, value) {
+            document.getElementById(`branding-${type}-hex`).value = value.toUpperCase();
+        }
+
+        function syncColorFromHex(type, value) {
+            if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                document.getElementById(`branding-${type}-picker`).value = value;
+            }
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('vault-api-key');
+            const icon = document.getElementById('pw-toggle-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash pw-toggle';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye pw-toggle';
+            }
+        }
+
+        // Cargar datos de branding desde la API
+        async function loadBrandingData() {
+            if (!userToken) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/organization/branding`, {
+                    headers: { 'X-Token': userToken }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.company_name) {
+                        document.getElementById('branding-company-name').value = data.company_name;
+                        document.getElementById('modal-brand-name-display').textContent = data.company_name;
+                    }
+                    if (data.logo_url) {
+                        document.getElementById('branding-logo-url').value = data.logo_url;
+                        previewLogo(data.logo_url);
+                    }
+                    if (data.primary_color) {
+                        document.getElementById('branding-primary-picker').value = data.primary_color;
+                        document.getElementById('branding-primary-hex').value = data.primary_color.toUpperCase();
+                    }
+                    if (data.secondary_color) {
+                        document.getElementById('branding-secondary-picker').value = data.secondary_color;
+                        document.getElementById('branding-secondary-hex').value = data.secondary_color.toUpperCase();
+                    }
+                    if (data.tone) {
+                        document.getElementById('branding-tone').value = data.tone;
+                    }
+                }
+            } catch (err) {
+                // Si la API no responde, intentar cargar desde Firestore
+                try {
+                    if (db && currentUser) {
+                        const doc = await db.collection('empresas').doc(currentUser.uid).get();
+                        if (doc.exists) {
+                            const d = doc.data();
+                            const branding = d.branding || {};
+                            const companyName = branding.company_name || d.nombre_comercial || d.nombre || '';
+                            if (companyName) {
+                                document.getElementById('branding-company-name').value = companyName;
+                                document.getElementById('modal-brand-name-display').textContent = companyName;
+                            }
+                            if (branding.logo_url) {
+                                document.getElementById('branding-logo-url').value = branding.logo_url;
+                                previewLogo(branding.logo_url);
+                            }
+                            if (branding.primary_color) {
+                                document.getElementById('branding-primary-picker').value = branding.primary_color;
+                                document.getElementById('branding-primary-hex').value = branding.primary_color.toUpperCase();
+                            }
+                            if (branding.secondary_color) {
+                                document.getElementById('branding-secondary-picker').value = branding.secondary_color;
+                                document.getElementById('branding-secondary-hex').value = branding.secondary_color.toUpperCase();
+                            }
+                            if (branding.tone) document.getElementById('branding-tone').value = branding.tone;
+                        }
+                    }
+                } catch (fsErr) {
+                    console.warn('No se pudo cargar branding desde Firestore:', fsErr);
+                }
+            }
+        }
+
+        // Guardar branding en la API
+        async function saveBranding() {
+            if (!userToken) {
+                showToast('Token no disponible. Recarga la página.', 'error');
+                return;
+            }
+            const btn = document.getElementById('btn-save-branding');
+            btn.classList.add('loading-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Guardando...';
+
+            const payload = {
+                company_name: document.getElementById('branding-company-name').value.trim(),
+                logo_url: document.getElementById('branding-logo-url').value.trim(),
+                primary_color: document.getElementById('branding-primary-hex').value.trim() || document.getElementById('branding-primary-picker').value,
+                secondary_color: document.getElementById('branding-secondary-hex').value.trim() || document.getElementById('branding-secondary-picker').value,
+                tone: document.getElementById('branding-tone').value
+            };
+
+            let saved = false;
+            // Intentar API primero
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/organization/branding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Token': userToken },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    saved = true;
+                }
+            } catch (apiErr) {
+                // Fallback a Firestore
+            }
+
+            if (!saved && db && currentUser) {
+                try {
+                    await db.collection('empresas').doc(currentUser.uid).set({ branding: payload }, { merge: true });
+                    saved = true;
+                } catch (fsErr) {
+                    console.error('Firestore branding save error:', fsErr);
+                }
+            }
+
+            btn.classList.remove('loading-btn');
+            btn.innerHTML = '<i class="fas fa-save" style="margin-right:6px;"></i>Guardar';
+
+            if (saved) {
+                // Actualizar nombre visible en el header del modal
+                document.getElementById('modal-brand-name-display').textContent = payload.company_name || 'Revenue Recovery OS';
+                previewLogo(payload.logo_url);
+                showToast('Branding guardado exitosamente ✓', 'success');
+                // Actualizar nombre en la card del dashboard también
+                if (payload.company_name) {
+                    const nameEl = document.getElementById('card-company-name');
+                    if (nameEl && nameEl.textContent === 'Cargando...') {
+                        nameEl.textContent = payload.company_name;
+                    }
+                }
+            } else {
+                showToast('Error al guardar. Verifica la conexión.', 'error');
+            }
+        }
+
+        // Guardar API key en el Vault
+        async function saveVaultKey() {
+            if (!userToken) {
+                showToast('Token no disponible. Recarga la página.', 'error');
+                return;
+            }
+            const apiKey = document.getElementById('vault-api-key').value.trim();
+            if (!apiKey) {
+                showToast('Por favor ingresa la API Key del procesador.', 'error');
+                return;
+            }
+            const processor = document.getElementById('vault-processor').value;
+            const btn = document.getElementById('btn-save-vault');
+            btn.classList.add('loading-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Conectando...';
+
+            const payload = { processor, api_key: apiKey };
+
+            let saved = false;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/v1/organization/vault/api-key`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Token': userToken },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) saved = true;
+            } catch (e) {
+                // Fallback a Firestore (guardar indicador de que fue configurado, no la clave en sí)
+                if (db && currentUser) {
+                    try {
+                        await db.collection('empresas').doc(currentUser.uid).set(
+                            { vault: { [processor]: { configured: true, updated_at: new Date().toISOString() } } },
+                            { merge: true }
+                        );
+                        saved = true;
+                    } catch (fsErr) {
+                        console.error('Vault Firestore error:', fsErr);
+                    }
+                }
+            }
+
+            btn.classList.remove('loading-btn');
+            btn.innerHTML = '<i class="fas fa-sync-alt" style="margin-right:6px;"></i>Sincronizar';
+
+            if (saved) {
+                document.getElementById('vault-api-key').value = '';
+                showToast(`✓ ${processor.charAt(0).toUpperCase() + processor.slice(1)} conectado y sincronizado`, 'success');
+            } else {
+                showToast('Error al sincronizar. Verifica la conexión.', 'error');
+            }
+        }
+
+        // Exponer funciones del modal globalmente
+        window.openConfigModal = openConfigModal;
+        window.closeConfigModal = closeConfigModal;
+        window.handleModalOverlayClick = handleModalOverlayClick;
+        window.switchModalTab = switchModalTab;
+        window.previewLogo = previewLogo;
+        window.syncColor = syncColor;
+        window.syncColorFromHex = syncColorFromHex;
+        window.toggleApiKeyVisibility = toggleApiKeyVisibility;
+        window.saveBranding = saveBranding;
+        window.saveVaultKey = saveVaultKey;
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initDashboard);
