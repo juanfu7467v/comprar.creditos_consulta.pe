@@ -1134,6 +1134,7 @@
     const uid = urlParams.get('uid');
     const email = urlParams.get('email');
     const description = urlParams.get('description') || 'Créditos Consulta PE';
+    const tipoPlan = urlParams.get('tipoPlan') || 'creditos';
 
     let currentPaymentId = null;
     let currentPaymentData = {};
@@ -1506,7 +1507,7 @@
 
             // Actualizar información general
             document.getElementById('success-email').textContent = paymentData.email || email;
-            document.getElementById('success-amount').textContent = `S/ ${parseFloat(paymentData.monto).toFixed(2)}`;
+            document.getElementById('success-amount').textContent = `$ ${parseFloat(paymentData.monto).toFixed(2)} USD`;
             document.getElementById('success-date').textContent = fecha;  // 🔵 Fecha REAL
             document.getElementById('success-time').textContent = hora;   // 🔵 Hora REAL
             document.getElementById('success-transaction-id').textContent = paymentId;
@@ -1515,8 +1516,8 @@
             const benefitLabel = document.getElementById('benefit-label');
             const benefitValue = document.getElementById('benefit-value');
             
-            if (paymentData.tipoPlan === 'ilimitado') {
-                // Si es plan ilimitado, mostrar información de días
+            if (paymentData.tipoPlan === 'ilimitado' || paymentData.tipoPlan === 'revenue_recovery') {
+                // Si es plan ilimitado o Revenue Recovery, mostrar información de días
                 benefitLabel.textContent = 'Plan activado';
                 
                 // Extraer días de la descripción o usar el valor de créditos como días
@@ -1533,9 +1534,9 @@
                     dias = paymentData.creditos || 0;
                 }
                 
-                benefitValue.textContent = `Ilimitado (${dias} días)`;
+                benefitValue.textContent = `Revenue Recovery (${dias} días)`;
                 
-                console.log('✨ Plan ilimitado detectado:', { dias, descripcion });
+                console.log('✨ Plan Revenue Recovery detectado:', { dias, descripcion });
                 
             } else {
                 // Si es compra de créditos, mostrar créditos como siempre
@@ -1557,7 +1558,7 @@
             const { fecha, hora } = getRealDateTime();
             
             document.getElementById('success-email').textContent = email;
-            document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
+            document.getElementById('success-amount').textContent = `$ ${parseFloat(amount).toFixed(2)} USD`;
             document.getElementById('benefit-label').textContent = 'Créditos otorgados';
             document.getElementById('benefit-value').textContent = '60';
             document.getElementById('success-date').textContent = fecha;  // 🔵 Fecha REAL
@@ -1579,7 +1580,7 @@
         // 🔵 Obtener fecha y hora REAL
         const { fecha, hora } = getRealDateTime();
         
-        document.getElementById('failed-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
+        document.getElementById('failed-amount').textContent = `$ ${parseFloat(amount).toFixed(2)} USD`;
         document.getElementById('failed-date').textContent = fecha;  // 🔵 Fecha REAL
         document.getElementById('failed-time').textContent = hora;   // 🔵 Hora REAL
         document.getElementById('failed-transaction-id').textContent = paymentId || 'N/A';
@@ -1608,7 +1609,7 @@
     // ===== INICIALIZAR MERCADO PAGO =====
     async function initMercadoPago() {
         try {
-            document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
+            document.getElementById('display-amount').textContent = `$ ${parseFloat(amount).toFixed(2)} USD`;
             
             const response = await fetch('/api/config');
             if (!response.ok) {
@@ -1728,6 +1729,7 @@
                                     payment_method_id: formData.paymentMethodId,
                                     installments: formData.installments,
                                     description: description,
+                                    tipoPlan: tipoPlan,
                                     payer: {
                                         email: formData.cardholderEmail,
                                         identification: {

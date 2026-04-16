@@ -112,7 +112,7 @@ export async function initFirebase(serviceAccount) {
 // ================================================================
 
 export const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
-export const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70 };
+export const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70, 29: 30, 79: 30, 199: 30 };
 
 export const processedPaymentsCache = new Map();
 export const paymentLocks = new Map();
@@ -206,7 +206,7 @@ export async function uploadPDFToStorage(pdfPath, paymentId) {
 /**
  * Otorgar beneficios al usuario tras un pago exitoso
  */
-export async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRefString, resend) {
+export async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRefString, resend, tipoPlanSolicitado) {
   const context = 'OTORGAR_BENEFICIO';
   
   if (!db) {
@@ -291,16 +291,32 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
           fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
         }
 
+        const isRevenueRecovery = [29, 79, 199].includes(montoNum) || tipoPlanSolicitado === 'revenue_recovery';
+        const planType = isRevenueRecovery ? "revenue_recovery" : "ilimitado";
+        const planName = montoNum === 29 ? "Plan Starter" : montoNum === 79 ? "Plan Business" : montoNum === 199 ? "Plan Enterprise" : (isRevenueRecovery ? "Plan Revenue Recovery" : "Plan Ilimitado");
+
         t.update(userDoc, {
           duracionDias: duracionTotalDias,
           planIlimitadoHasta: fechaFinPlan,
           creditos: 0,
-          tipoPlan: "ilimitado",
+          tipoPlan: planType,
           fechaActivacion: tienePlanIlimitadoActivo
             ? fechaActivacionActual
             : admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
+
+        // Actualizar colección empresas si es un plan de Revenue Recovery
+        if (isRevenueRecovery) {
+          const empresaRef = db.collection("empresas").doc(uid);
+          t.set(empresaRef, {
+            plan: planName,
+            planStatus: 'active',
+            planExpiry: fechaFinPlan,
+            activatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        }
 
         planOtorgado = {
           dias: duracionTotalDias,
@@ -324,7 +340,7 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
         creditosNuevos: PLANES_ILIMITADOS[montoNum] ? 0 : (creditosActuales + creditosOtorgados),
         planOtorgado,
         tipoPlanAnterior: tipoPlanActual,
-        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos"
+        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? (isRevenueRecovery ? "revenue_recovery" : "ilimitado") : "creditos"
       });
 
       return {
@@ -335,7 +351,7 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
         planOtorgado,
         descripcion,
         tipoPlanAnterior: tipoPlanActual,
-        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? "ilimitado" : "creditos"
+        tipoPlanNuevo: PLANES_ILIMITADOS[montoNum] ? (isRevenueRecovery ? "revenue_recovery" : "ilimitado") : "creditos"
       };
     });
 

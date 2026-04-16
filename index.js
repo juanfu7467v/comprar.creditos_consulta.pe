@@ -199,6 +199,7 @@ app.post("/api/login-success", async (req, res) => {
           email,
           nombre,
           apiToken: secureToken,
+          token: secureToken, // Mantener consistencia entre apiToken y token
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           status: 'active'
@@ -254,6 +255,7 @@ app.post("/api/notify-verification", async (req, res) => {
           email,
           nombre: displayName || email.split('@')[0],
           apiToken: secureToken,
+          token: secureToken, // Mantener consistencia entre apiToken y token
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           status: 'active'
@@ -367,7 +369,7 @@ app.post("/api/report-failed-login", async (req, res) => {
 app.post("/api/pay", async (req, res) => {
   const context = 'PAY_API';
   try {
-    const { transaction_amount, token, description, installments, payment_method_id, payer, uid } = req.body;
+    const { transaction_amount, token, description, installments, payment_method_id, payer, uid, tipoPlan } = req.body;
     if (!mpClient) return res.status(503).json({ error: 'Mercado Pago not configured' });
 
     // Validación defensiva para evitar errores de 'undefined'
@@ -386,12 +388,12 @@ app.post("/api/pay", async (req, res) => {
         payment_method_id,
         payer,
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
-        metadata: { uid, email: payer.email, amount: transaction_amount }
+        metadata: { uid, email: payer.email, amount: transaction_amount, tipoPlan }
       }
     });
 
     if (result.status === 'approved') {
-      await otorgarBeneficio(uid, payer.email, transaction_amount, 'MP_CARD_INSTANT', result.id.toString(), resend);
+      await otorgarBeneficio(uid, payer.email, transaction_amount, 'MP_CARD_INSTANT', result.id.toString(), resend, tipoPlan);
     } else if (result.status === 'rejected') {
       let userName = payer.email.split('@')[0];
       try {
@@ -438,7 +440,7 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
       if (paymentInfo.status === "approved") {
         const metadata = paymentInfo.metadata || {};
         if (metadata.uid) {
-          await otorgarBeneficio(metadata.uid, metadata.email || paymentInfo.payer?.email, metadata.amount || paymentInfo.transaction_amount, 'MP_WEBHOOK', paymentId.toString(), resend);
+          await otorgarBeneficio(metadata.uid, metadata.email || paymentInfo.payer?.email, metadata.amount || paymentInfo.transaction_amount, 'MP_WEBHOOK', paymentId.toString(), resend, metadata.tipoPlan);
         }
       } else if (paymentInfo.status === "rejected") {
         const metadata = paymentInfo.metadata || {};

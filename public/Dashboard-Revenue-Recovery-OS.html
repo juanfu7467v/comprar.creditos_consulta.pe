@@ -1860,7 +1860,7 @@
         let currentFilter = 'all';
         let searchQuery = '';
         
-        const API_BASE_URL = window.location.origin;
+        const API_BASE_URL = 'https://revenue-recovery-os.fly.dev';
         
         // ===== FUNCIONES DE UI =====
         function hideLoading() {
@@ -1895,11 +1895,11 @@
         }
         
         function formatMoney(amount) {
-            if (amount === null || amount === undefined) return 'S/ 0';
+            if (amount === null || amount === undefined) return '$0.00';
             const num = parseFloat(amount);
-            if (num >= 1000000) return 'S/ ' + (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return 'S/ ' + (num / 1000).toFixed(1) + 'K';
-            return 'S/ ' + num.toFixed(2);
+            if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
         
         function updateLastUpdated() {
