@@ -28,6 +28,9 @@
             font-family:'Inter',sans-serif;
             background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);
             min-height:100vh;overflow-x:hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         body::before{
             content:'';position:fixed;inset:0;
@@ -49,7 +52,186 @@
         .diamond:nth-child(5){width:45px;height:45px;top:48%;left:48%;animation:float 7.5s ease-in-out infinite 1.5s;}
 
         /* ── MAIN ── */
-        .main{width:100%;max-width:480px;margin:0 auto;padding:0 14px 40px;position:relative;z-index:1;}
+        .main{
+            width:100%;
+            max-width:480px;
+            margin:0 auto;
+            padding:0 14px 40px;
+            position:relative;
+            z-index:1;
+        }
+
+        /* Responsive para tablets */
+        @media (min-width: 640px) {
+            .main {
+                max-width: 640px;
+                padding: 0 24px 50px;
+            }
+            .hero-title {
+                font-size: 2.2rem !important;
+            }
+            .hero-sub {
+                font-size: 1rem !important;
+                max-width: 480px !important;
+            }
+            .plans {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+            .why-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 12px !important;
+            }
+            .image-scroll-container {
+                margin: 2rem 0 1.5rem !important;
+            }
+            .scroll-image-card {
+                max-width: 400px !important;
+            }
+        }
+
+        /* Responsive para laptops y desktop */
+        @media (min-width: 1024px) {
+            .main {
+                max-width: 1200px;
+                padding: 0 40px 60px;
+            }
+            .hero {
+                padding: 2.5rem 0 2rem !important;
+            }
+            .hero-title {
+                font-size: 2.8rem !important;
+            }
+            .hero-sub {
+                font-size: 1.1rem !important;
+                max-width: 600px !important;
+            }
+            .plans {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 20px !important;
+            }
+            .uptime-card {
+                max-width: 600px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            .trial {
+                max-width: 800px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            .form-card {
+                max-width: 700px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding: 2rem 2rem !important;
+            }
+            .form-group input, 
+            .form-group select {
+                padding: 1rem 1.2rem !important;
+                font-size: 1rem !important;
+            }
+            .why-grid {
+                gap: 16px !important;
+            }
+            .why-item {
+                padding: 1.2rem !important;
+            }
+            .why-t {
+                font-size: 0.9rem !important;
+            }
+            .why-d {
+                font-size: 0.8rem !important;
+            }
+            .faq-list {
+                max-width: 800px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            .faq-q {
+                font-size: 0.95rem !important;
+                padding: 1.1rem 1.5rem !important;
+            }
+            .faq-a {
+                font-size: 0.9rem !important;
+                padding: 1rem 1.5rem 1.2rem !important;
+            }
+            .cta-final-transparente {
+                max-width: 700px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            .cta-final-transparente h3 {
+                font-size: 1.8rem !important;
+            }
+            .cta-final-transparente p {
+                font-size: 1rem !important;
+                max-width: 500px !important;
+            }
+            .btn-rojo-empezar {
+                max-width: 500px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding: 1.1rem 1.5rem !important;
+                font-size: 1.2rem !important;
+            }
+            .sec-label {
+                font-size: 0.75rem !important;
+                text-align: center !important;
+            }
+            .image-scroll-container {
+                max-width: 100% !important;
+            }
+            .scroll-image-card {
+                max-width: 450px !important;
+            }
+            .footer {
+                width: 100% !important;
+                padding: 2rem 2rem !important;
+            }
+            .footer .soc a {
+                font-size: 1.8rem !important;
+            }
+            .footer p {
+                font-size: 0.85rem !important;
+            }
+            .plan {
+                padding: 1.5rem !important;
+            }
+            .plan-name {
+                font-size: 1.1rem !important;
+            }
+            .plan-price {
+                font-size: 1.8rem !important;
+            }
+            .feats li {
+                font-size: 0.9rem !important;
+            }
+            .plan-tip {
+                font-size: 0.8rem !important;
+            }
+            .plan-btn {
+                padding: 0.9rem !important;
+                font-size: 0.95rem !important;
+            }
+        }
+
+        /* Responsive para pantallas muy grandes */
+        @media (min-width: 1440px) {
+            .main {
+                max-width: 1400px;
+            }
+            .plans {
+                gap: 24px !important;
+            }
+            .plan {
+                padding: 1.8rem !important;
+            }
+            .hero-title {
+                font-size: 3.2rem !important;
+            }
+        }
 
         /* ── HERO ── */
         .hero{padding:1.75rem 0 1.25rem;text-align:center;}
@@ -384,6 +566,7 @@
             position:relative;
             z-index:1;
             margin-top: 0;
+            width: 100%;
         }
         .footer h3{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:.85rem;}
         .footer .soc a{color:rgba(255,255,255,.45);font-size:1.5rem;margin:0 .35rem;transition:color .2s;}
