@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="returnConfig.js"></script>
+    <script src="RecoveryOS.js"></script>
 
     <style>
         :root {
@@ -1698,6 +1699,7 @@
     </footer>
 
     <script src="returnConfig.js"></script>
+    <script src="RecoveryOS.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -1733,6 +1735,12 @@
         }
 
         async function init() {
+            // Redirigir si el onboarding ya fue completado
+            if (window.RecoveryOSConfig && window.RecoveryOSConfig.isOnboardingCompleted()) {
+                window.location.href = "Dashboard-Revenue-Recovery-OS.html";
+                return;
+            }
+
             try {
                 const response = await fetch('/api/config');
                 if (!response.ok) throw new Error("No se pudo obtener la configuración");
@@ -2094,7 +2102,11 @@
 
         // ── Ir a facturación ──
         window.goToFacturacion = function() {
-            window.location.href = "facturacion-Revenue-Recovery-OS.html";
+            // Marcar onboarding como completado antes de redirigir
+            if (window.RecoveryOSConfig) {
+                window.RecoveryOSConfig.completeOnboarding();
+            }
+            window.location.href = "Dashboard-Revenue-Recovery-OS.html";
         };
 
         init();
