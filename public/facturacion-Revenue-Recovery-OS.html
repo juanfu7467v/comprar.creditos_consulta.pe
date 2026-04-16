@@ -28,9 +28,6 @@
             font-family:'Inter',sans-serif;
             background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);
             min-height:100vh;overflow-x:hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
         body::before{
             content:'';position:fixed;inset:0;
@@ -52,186 +49,7 @@
         .diamond:nth-child(5){width:45px;height:45px;top:48%;left:48%;animation:float 7.5s ease-in-out infinite 1.5s;}
 
         /* ── MAIN ── */
-        .main{
-            width:100%;
-            max-width:480px;
-            margin:0 auto;
-            padding:0 14px 40px;
-            position:relative;
-            z-index:1;
-        }
-
-        /* Responsive para tablets */
-        @media (min-width: 640px) {
-            .main {
-                max-width: 640px;
-                padding: 0 24px 50px;
-            }
-            .hero-title {
-                font-size: 2.2rem !important;
-            }
-            .hero-sub {
-                font-size: 1rem !important;
-                max-width: 480px !important;
-            }
-            .plans {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 16px !important;
-            }
-            .why-grid {
-                grid-template-columns: repeat(4, 1fr) !important;
-                gap: 12px !important;
-            }
-            .image-scroll-container {
-                margin: 2rem 0 1.5rem !important;
-            }
-            .scroll-image-card {
-                max-width: 400px !important;
-            }
-        }
-
-        /* Responsive para laptops y desktop */
-        @media (min-width: 1024px) {
-            .main {
-                max-width: 1200px;
-                padding: 0 40px 60px;
-            }
-            .hero {
-                padding: 2.5rem 0 2rem !important;
-            }
-            .hero-title {
-                font-size: 2.8rem !important;
-            }
-            .hero-sub {
-                font-size: 1.1rem !important;
-                max-width: 600px !important;
-            }
-            .plans {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 20px !important;
-            }
-            .uptime-card {
-                max-width: 600px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-            }
-            .trial {
-                max-width: 800px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-            }
-            .form-card {
-                max-width: 700px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-                padding: 2rem 2rem !important;
-            }
-            .form-group input, 
-            .form-group select {
-                padding: 1rem 1.2rem !important;
-                font-size: 1rem !important;
-            }
-            .why-grid {
-                gap: 16px !important;
-            }
-            .why-item {
-                padding: 1.2rem !important;
-            }
-            .why-t {
-                font-size: 0.9rem !important;
-            }
-            .why-d {
-                font-size: 0.8rem !important;
-            }
-            .faq-list {
-                max-width: 800px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-            }
-            .faq-q {
-                font-size: 0.95rem !important;
-                padding: 1.1rem 1.5rem !important;
-            }
-            .faq-a {
-                font-size: 0.9rem !important;
-                padding: 1rem 1.5rem 1.2rem !important;
-            }
-            .cta-final-transparente {
-                max-width: 700px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-            }
-            .cta-final-transparente h3 {
-                font-size: 1.8rem !important;
-            }
-            .cta-final-transparente p {
-                font-size: 1rem !important;
-                max-width: 500px !important;
-            }
-            .btn-rojo-empezar {
-                max-width: 500px !important;
-                margin-left: auto !important;
-                margin-right: auto !important;
-                padding: 1.1rem 1.5rem !important;
-                font-size: 1.2rem !important;
-            }
-            .sec-label {
-                font-size: 0.75rem !important;
-                text-align: center !important;
-            }
-            .image-scroll-container {
-                max-width: 100% !important;
-            }
-            .scroll-image-card {
-                max-width: 450px !important;
-            }
-            .footer {
-                width: 100% !important;
-                padding: 2rem 2rem !important;
-            }
-            .footer .soc a {
-                font-size: 1.8rem !important;
-            }
-            .footer p {
-                font-size: 0.85rem !important;
-            }
-            .plan {
-                padding: 1.5rem !important;
-            }
-            .plan-name {
-                font-size: 1.1rem !important;
-            }
-            .plan-price {
-                font-size: 1.8rem !important;
-            }
-            .feats li {
-                font-size: 0.9rem !important;
-            }
-            .plan-tip {
-                font-size: 0.8rem !important;
-            }
-            .plan-btn {
-                padding: 0.9rem !important;
-                font-size: 0.95rem !important;
-            }
-        }
-
-        /* Responsive para pantallas muy grandes */
-        @media (min-width: 1440px) {
-            .main {
-                max-width: 1400px;
-            }
-            .plans {
-                gap: 24px !important;
-            }
-            .plan {
-                padding: 1.8rem !important;
-            }
-            .hero-title {
-                font-size: 3.2rem !important;
-            }
-        }
+        .main{width:100%;max-width:480px;margin:0 auto;padding:0 14px 40px;position:relative;z-index:1;}
 
         /* ── HERO ── */
         .hero{padding:1.75rem 0 1.25rem;text-align:center;}
@@ -566,7 +384,6 @@
             position:relative;
             z-index:1;
             margin-top: 0;
-            width: 100%;
         }
         .footer h3{font-size:.85rem;font-weight:600;color:rgba(255,255,255,.6);margin-bottom:.85rem;}
         .footer .soc a{color:rgba(255,255,255,.45);font-size:1.5rem;margin:0 .35rem;transition:color .2s;}
@@ -615,6 +432,97 @@
             white-space:nowrap;opacity:0;transform:scale(.9);transition:opacity .4s,transform .4s;z-index:801;cursor:pointer;}
         .wa-txt.show{opacity:1;transform:scale(1);}
         .wa-txt.hide{opacity:0;transform:scale(.9);}
+
+        /* ═══════════════════════════════════════════════
+           RESPONSIVE — TABLET (768 px+)
+           El diseño móvil se mantiene intacto por debajo.
+           ═══════════════════════════════════════════════ */
+        @media (min-width: 768px) {
+            .main {
+                max-width: min(92vw, 860px);
+                padding: 0 28px 60px;
+            }
+            .hero { padding: 2.5rem 0 2rem; }
+            .hero-title { font-size: 2.5rem; }
+            .hero-sub { font-size: .95rem; max-width: 620px; }
+            .uptime-card { padding: 1.4rem 1.8rem; }
+            .trial { padding: 1.4rem 1.8rem; gap: 16px; }
+            .trial-ico { width: 52px; height: 52px; font-size: 1.5rem; }
+            .form-card { padding: 1.8rem 2rem; }
+            .plans {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+                flex-direction: unset;
+            }
+            .plan.business { grid-column: 1 / -1; }
+            .why-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+            .why-item { padding: 1rem 1.1rem; }
+            .scroll-image-card { width: 55%; max-width: 420px; }
+            .faq-q { font-size: .88rem; }
+            .faq-a { font-size: .82rem; }
+            .cta-final-transparente h3 { font-size: 1.6rem; }
+            .cta-final-transparente p { max-width: 560px; font-size: .9rem; }
+            .btn-rojo-empezar { max-width: 480px; margin-left: auto; margin-right: auto; }
+        }
+
+        /* ═══════════════════════════════════════════════
+           RESPONSIVE — DESKTOP / LAPTOP (1024 px+)
+           ═══════════════════════════════════════════════ */
+        @media (min-width: 1024px) {
+            .main {
+                max-width: min(94vw, 1160px);
+                padding: 0 52px 90px;
+            }
+            .hero { padding: 3.5rem 0 2.8rem; }
+            .hero-title { font-size: 3.3rem; letter-spacing: -.045em; }
+            .hero-sub { font-size: 1rem; max-width: 780px; }
+            .live-txt { font-size: .8rem; }
+            .uptime-card { padding: 1.6rem 2.2rem; }
+            .trial { padding: 1.6rem 2.4rem; gap: 20px; }
+            .trial-ico { width: 58px; height: 58px; font-size: 1.65rem; border-radius: 16px; }
+            .trial h4 { font-size: 1rem; }
+            .trial p { font-size: .8rem; }
+            .form-card { padding: 2.2rem 2.8rem; }
+            .plans {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+            .plan.business { grid-column: auto; }
+            .plan { padding: 1.7rem 1.6rem; }
+            .plan-name { font-size: 1.08rem; }
+            .plan-price { font-size: 1.8rem; }
+            .feats li { font-size: .87rem; padding: 5px 0; }
+            .plan-tip { font-size: .77rem; }
+            .why-grid { gap: 16px; }
+            .why-item { padding: 1.2rem 1.1rem; gap: 9px; }
+            .why-ico { width: 38px; height: 38px; font-size: 1rem; }
+            .why-t { font-size: .83rem; }
+            .why-d { font-size: .75rem; }
+            .scroll-image-card { width: 38%; max-width: 500px; }
+            .faq-q { font-size: .9rem; padding: 1.1rem 1.4rem; }
+            .faq-a { font-size: .84rem; padding: .8rem 1.4rem 1.1rem; }
+            .cta-final-transparente h3 { font-size: 2rem; }
+            .cta-final-transparente p { max-width: 700px; font-size: .95rem; }
+            .btn-rojo-empezar { max-width: 560px; font-size: 1.1rem; }
+        }
+
+        /* ═══════════════════════════════════════════════
+           RESPONSIVE — PANTALLA GRANDE (1400 px+)
+           ═══════════════════════════════════════════════ */
+        @media (min-width: 1400px) {
+            .main {
+                max-width: min(90vw, 1340px);
+                padding: 0 64px 100px;
+            }
+            .hero-title { font-size: 3.8rem; }
+            .hero-sub { font-size: 1.05rem; max-width: 860px; }
+            .plan { padding: 1.9rem 1.8rem; }
+            .plan-price { font-size: 2rem; }
+            .feats li { font-size: .9rem; }
+            .scroll-image-card { width: 32%; max-width: 560px; }
+            .cta-final-transparente h3 { font-size: 2.3rem; }
+        }
     </style>
 </head>
 <body>
