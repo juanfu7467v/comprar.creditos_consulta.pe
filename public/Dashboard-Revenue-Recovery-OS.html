@@ -1211,9 +1211,10 @@
             display: block;
         }
 
-        /* Campos del formulario */
+        /* Campos del formulario - todos con mismo ancho */
         .modal-field {
             margin-bottom: 14px;
+            width: 100%;
         }
 
         .modal-label {
@@ -1224,6 +1225,7 @@
             letter-spacing: 0.8px;
             color: var(--text-muted);
             margin-bottom: 6px;
+            width: 100%;
         }
 
         .modal-input {
@@ -1250,11 +1252,22 @@
             color: var(--white);
         }
 
-        /* Row de color pickers */
-        .color-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        /* Color fields - ahora en columna */
+        .color-field {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .color-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .color-field-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .color-input-wrap {
@@ -1266,6 +1279,7 @@
             padding: 8px 12px;
             gap: 10px;
             transition: border-color 0.2s;
+            width: 100%;
         }
 
         .color-input-wrap:focus-within {
@@ -1273,14 +1287,15 @@
         }
 
         .color-input-wrap input[type="color"] {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: none;
             background: none;
             cursor: pointer;
             padding: 0;
             border-radius: 8px;
             outline: none;
+            flex-shrink: 0;
         }
 
         .color-hex-input {
@@ -1291,6 +1306,20 @@
             color: var(--white);
             font-family: 'DM Mono', monospace;
             font-size: 12px;
+            min-width: 0;
+        }
+
+        .color-edit-icon {
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .color-edit-icon:hover {
+            color: var(--gold);
         }
 
         /* Mensaje de seguridad */
@@ -1303,6 +1332,7 @@
             border-radius: 12px;
             padding: 12px 14px;
             margin-bottom: 14px;
+            width: 100%;
         }
 
         .security-badge i {
@@ -1324,6 +1354,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 16px;
+            width: 100%;
         }
 
         .modal-btn {
@@ -1374,6 +1405,7 @@
         /* Password field con toggle */
         .password-wrap {
             position: relative;
+            width: 100%;
         }
 
         .password-wrap .modal-input {
@@ -1674,26 +1706,28 @@
                     </div>
                     <div class="modal-field">
                         <label class="modal-label"><i class="fas fa-fill-drip" style="margin-right:5px;"></i>Colores de marca</label>
-                        <div class="color-row">
-                            <div>
-                                <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">Primario</div>
-                                <div class="color-input-wrap">
-                                    <input type="color" id="branding-primary-picker" value="#C9A02A"
-                                           oninput="syncColor('primary', this.value)">
-                                    <input type="text" class="color-hex-input" id="branding-primary-hex"
-                                           value="#C9A02A" maxlength="7" placeholder="#000000"
-                                           oninput="syncColorFromHex('primary', this.value)">
-                                </div>
+                        <!-- Color Primario -->
+                        <div class="color-field">
+                            <div class="color-field-label">Primario</div>
+                            <div class="color-input-wrap">
+                                <input type="color" id="branding-primary-picker" value="#C9A02A"
+                                       oninput="syncColor('primary', this.value)">
+                                <input type="text" class="color-hex-input" id="branding-primary-hex"
+                                       value="#C9A02A" maxlength="7" placeholder="#000000"
+                                       oninput="syncColorFromHex('primary', this.value)">
+                                <i class="fas fa-pen color-edit-icon" onclick="focusHexInput('primary')" title="Editar manualmente"></i>
                             </div>
-                            <div>
-                                <div style="font-size:10px;color:var(--text-muted);margin-bottom:5px;">Secundario</div>
-                                <div class="color-input-wrap">
-                                    <input type="color" id="branding-secondary-picker" value="#1e293b"
-                                           oninput="syncColor('secondary', this.value)">
-                                    <input type="text" class="color-hex-input" id="branding-secondary-hex"
-                                           value="#1e293b" maxlength="7" placeholder="#000000"
-                                           oninput="syncColorFromHex('secondary', this.value)">
-                                </div>
+                        </div>
+                        <!-- Color Secundario -->
+                        <div class="color-field">
+                            <div class="color-field-label">Secundario</div>
+                            <div class="color-input-wrap">
+                                <input type="color" id="branding-secondary-picker" value="#1e293b"
+                                       oninput="syncColor('secondary', this.value)">
+                                <input type="text" class="color-hex-input" id="branding-secondary-hex"
+                                       value="#1e293b" maxlength="7" placeholder="#000000"
+                                       oninput="syncColorFromHex('secondary', this.value)">
+                                <i class="fas fa-pen color-edit-icon" onclick="focusHexInput('secondary')" title="Editar manualmente"></i>
                             </div>
                         </div>
                     </div>
@@ -1742,7 +1776,7 @@
                             <i class="fas fa-eye pw-toggle" id="pw-toggle-icon" onclick="toggleApiKeyVisibility()"></i>
                         </div>
                     </div>
-                    <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+                    <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;width:100%;">
                         <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5;">
                             <i class="fas fa-info-circle" style="color:var(--sapphire);margin-right:6px;"></i>
                             Al hacer clic en <strong style="color:#fff;">Sincronizar</strong>, el sistema activará la conexión con el procesador seleccionado y comenzará a recuperar pagos fallidos automáticamente.
@@ -2488,6 +2522,12 @@
             }
         }
 
+        function focusHexInput(type) {
+            const input = document.getElementById(`branding-${type}-hex`);
+            input.focus();
+            input.select();
+        }
+
         function toggleApiKeyVisibility() {
             const input = document.getElementById('vault-api-key');
             const icon = document.getElementById('pw-toggle-icon');
@@ -2685,6 +2725,7 @@
         window.previewLogo = previewLogo;
         window.syncColor = syncColor;
         window.syncColorFromHex = syncColorFromHex;
+        window.focusHexInput = focusHexInput;
         window.toggleApiKeyVisibility = toggleApiKeyVisibility;
         window.saveBranding = saveBranding;
         window.saveVaultKey = saveVaultKey;
