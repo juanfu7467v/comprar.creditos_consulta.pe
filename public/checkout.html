@@ -1131,6 +1131,7 @@
     const uid = urlParams.get('uid');
     const email = urlParams.get('email');
     const description = urlParams.get('description') || 'Créditos Consulta PE';
+    const tipoPlan = urlParams.get('tipoPlan') || 'creditos';
 
     let currentPaymentId = null;
     let currentPaymentData = {};
@@ -1715,7 +1716,8 @@
                                             number: formData.identificationNumber
                                         }
                                     },
-                                    uid: uid
+                                    uid: uid,
+                                    tipoPlan: tipoPlan
                                 })
                             });
 

@@ -495,6 +495,7 @@ app.get("/api/payment/:paymentId", async (req, res) => {
       hora: fecha.toLocaleTimeString('es-PE'),
       estado: data.estado,
       procesado: data.procesado,
+      tipoPlan: data.tipoPlanNuevo || 'creditos',
       pdfUrl: data.pdfUrl || null
     });
   } catch (error) {

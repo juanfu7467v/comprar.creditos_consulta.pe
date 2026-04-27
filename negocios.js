@@ -236,13 +236,31 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
       return { status: 'already_processed', pdfUrl: pagoSnap.data().pdfUrl };
     }
 
+    // Asegurar que el documento de pago existe antes de la transacción para evitar error NOT_FOUND en t.update
+    if (!pagoSnap.exists) {
+      logger.info(context, 'Creando documento de pago inicial', { paymentRef: paymentRefString });
+      await pagoDoc.set({
+        email: email,
+        monto: montoPagado,
+        uid: uid,
+        estado: "pending",
+        procesado: false,
+        fechaRegistro: admin.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
     const montoNum = Number(montoPagado);
     const result = await db.runTransaction(async (t) => {
       const userDoc = db.collection("usuarios").doc(uid);
       const userSnap = await t.get(userDoc);
 
       if (!userSnap.exists) {
-        throw new Error(`Usuario ${uid} no encontrado`);
+        // Si el usuario no existe en 'usuarios', intentamos buscarlo en 'empresas' o crearlo
+        logger.warn(context, 'Usuario no encontrado en colección usuarios, buscando en empresas', { uid });
+        const empresaDoc = await t.get(db.collection("empresas").doc(uid));
+        if (!empresaDoc.exists) {
+          throw new Error(`Usuario ${uid} no encontrado en ninguna colección`);
+        }
       }
 
       const userData = userSnap.data();

@@ -1642,9 +1642,17 @@
             if (!email || !uid || !selected) return;
             paymentLoading.style.display = 'block'; mpButton.style.display = 'none';
             let amount, description;
-            if (currentPurchaseType === 'CREDITOS') { amount = parseInt(selected); description = `Créditos Masitaprex: ${CREDITS_MAP[selected]?.credits || ''} créditos`; } 
-            else { amount = UNLIMITED_MAP[selected].amount; description = `Plan ${UNLIMITED_MAP[selected].duration}`; }
-            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}`;
+            let tipoPlan = 'creditos';
+            if (currentPurchaseType === 'CREDITOS') { 
+                amount = parseInt(selected); 
+                description = `Créditos Masitaprex: ${CREDITS_MAP[selected]?.credits || ''} créditos`; 
+                tipoPlan = 'creditos';
+            } else { 
+                amount = UNLIMITED_MAP[selected].amount; 
+                description = `Plan ${UNLIMITED_MAP[selected].duration}`; 
+                tipoPlan = 'ilimitado';
+            }
+            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}&tipoPlan=${tipoPlan}`;
         }
 
         function clearStorageAfterPayment() { localStorage.removeItem(STORAGE_KEY_EMAIL); localStorage.removeItem(STORAGE_KEY_UID); }
