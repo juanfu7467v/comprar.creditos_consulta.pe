@@ -1259,7 +1259,7 @@
             color: #FFFFFF;
             z-index: 60;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
-            overflow-y: auto;
+            overflow: hidden;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
             display: flex;
@@ -1325,8 +1325,7 @@
         /* Opciones del menú */
         #sidebar nav {
             padding: 16px 0;
-            flex-grow: 1;
-        }
+            }
 
         #sidebar nav a {
             display: flex;
@@ -1515,7 +1514,31 @@
         .faq-answer-content strong {
             color: #1e293b;
         }
-    </style>
+    
+        #sidebar { --sb-thumb: rgba(0,240,255,.30); --sb-thumb-hover: rgba(0,240,255,.55); }
+
+        /* ── SIDEBAR SCROLL AREA (fix: nav scrollable, header+footer fixed) ── */
+        .sb-scroll-area {
+            flex: 1 1 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--sb-thumb, rgba(0,240,255,.30)) transparent;
+        }
+        .sb-scroll-area::-webkit-scrollbar { width: 3px; }
+        .sb-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .sb-scroll-area::-webkit-scrollbar-thumb {
+            background: var(--sb-thumb, rgba(0,240,255,.28));
+            border-radius: 2px;
+        }
+        .sb-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: var(--sb-thumb-hover, rgba(0,240,255,.55));
+        }
+
+        </style>
 </head>
 <body>
     <!-- Botón de apertura del menú (ícono superior izquierdo) -->
@@ -1544,6 +1567,7 @@
             </div>
         </div>
 
+        <div class="sb-scroll-area">
         <nav>
             <a href="home" class="menu-item">
                 <i data-lucide="layout-dashboard" class="menu-icon"></i>
@@ -1573,7 +1597,27 @@
                 <i data-lucide="globe" class="menu-icon"></i>
                 <span class="text-lg">ConsultaPe vercion web</span>
             </a>
+
+            <!-- Próximamente -->
+            <div style="padding:18px 22px 6px;font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,200,200,.32);">Próximamente</div>
+            <a href="home-Revenue-Recovery-OS" class="menu-item" style="position:relative;">
+                <i data-lucide="bot" class="menu-icon"></i>
+                <span>Revenue-Recovery-OS</span>
+                <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:linear-gradient(90deg,#7B2F9D,#6D5BFF);color:#fff;margin-left:auto;flex-shrink:0;">Pronto</span>
+            </a>
+
+            <!-- Cuenta -->
+            <div style="padding:18px 22px 6px;font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,200,200,.32);">Cuenta</div>
+            <a href="ayuda" class="menu-item">
+                <i data-lucide="life-buoy" class="menu-icon"></i>
+                <span>Ayuda y soporte</span>
+            </a>
+            <a href="actividad" class="menu-item">
+                <i data-lucide="user-circle-2" class="menu-icon"></i>
+                <span>Mi cuenta</span>
+            </a>
         </nav>
+        </div>
         <!-- Redes Sociales en el pie del menú lateral -->
         <div class="social-footer">
             <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
