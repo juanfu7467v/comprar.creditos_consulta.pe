@@ -265,15 +265,6 @@
     .tienda-description{color:rgba(234,240,255,.88);line-height:1.6;margin-bottom:20px;font-size:15px;}
 
     /* ═══════════════════ SCROLL HORIZONTAL - CORREGIDO ═══════════════════ */
-    /*
-      Fixes aplicados:
-      1. touch-action: pan-x  → el navegador sabe que este contenedor scrollea horizontal
-      2. overscroll-behavior-x: contain → evita que el scroll "escape" al padre
-      3. will-change: scroll-position → le avisa a la GPU con anticipación
-      4. -webkit-overflow-scrolling: touch → momentum nativo en iOS
-      5. user-select: none → evita selección accidental al arrastrar
-      6. pointer-events y draggable="false" en imágenes → sin conflictos
-    */
     .screenshots-scroll{
       display:flex;
       overflow-x:auto;
@@ -311,11 +302,10 @@
       -webkit-tap-highlight-color:transparent;
       pointer-events:auto;
       draggable:false;
-      /* Mejora rendimiento al renderizar */
       will-change:transform;
     }
     .screenshots-scroll.is-dragging .screenshot{
-      pointer-events:none; /* evita click accidental al soltar */
+      pointer-events:none;
     }
     .screenshot:hover{transform:scale(1.05);box-shadow:var(--sh-hov);}
 
@@ -533,14 +523,18 @@
     #sidebar-overlay.opacity-100{opacity:1;}
 
     #sidebar{
-      position:fixed;top:0;left:0;height:100%;width:290px;
+      position:fixed;top:0;left:0;
+      height:100%;height:100dvh; /* Soporte moderno para evitar recortes en mobile */
+      width:290px;
       background:linear-gradient(180deg,#06071a 0%,#090b1f 60%,#06071a 100%);
       border-right:1px solid rgba(0,240,255,.18);
       z-index:60;
-      /* NO overflow aquí — el scroll lo maneja .sb-scroll-area */
+      --sb-thumb: rgba(0,240,255,.30);
+      --sb-thumb-hover: rgba(0,240,255,.55);
       overflow:hidden;
       transition:transform .35s cubic-bezier(.4,0,.2,1);
-      transform:translateX(-100%);display:flex;flex-direction:column;
+      transform:translateX(-100%);
+      display:flex;flex-direction:column;
       box-shadow:6px 0 40px rgba(0,0,0,.55);
     }
     #sidebar.open{transform:translateX(0);}
@@ -548,23 +542,25 @@
     /* Zona central scrollable: nav + categorías */
     .sb-scroll-area{
       flex:1 1 0;          /* ocupa todo el espacio entre header y footer */
+      min-height:0;        /* FIX CLAVE: permite al flex-item encogerse y activar el scroll */
       overflow-y:auto;
       overflow-x:hidden;
       overscroll-behavior:contain;
       -webkit-overflow-scrolling:touch;
       scroll-behavior:smooth;
+      padding-bottom:12px; /* Un poco de aire al final */
       /* Barra elegante */
       scrollbar-width:thin;
-      scrollbar-color:rgba(0,240,255,.30) transparent;
+      scrollbar-color:var(--sb-thumb) transparent;
     }
-    .sb-scroll-area::-webkit-scrollbar{width:3px;}
+    .sb-scroll-area::-webkit-scrollbar{width:4px;}
     .sb-scroll-area::-webkit-scrollbar-track{background:transparent;}
     .sb-scroll-area::-webkit-scrollbar-thumb{
-      background:rgba(0,240,255,.28);
-      border-radius:2px;
+      background:var(--sb-thumb);
+      border-radius:4px;
     }
     .sb-scroll-area::-webkit-scrollbar-thumb:hover{
-      background:rgba(0,240,255,.55);
+      background:var(--sb-thumb-hover);
     }
 
     .sb-header{
@@ -573,6 +569,7 @@
       border-bottom:1px solid rgba(0,240,255,.15);
       display:flex;flex-direction:column;align-items:center;
       position:relative;overflow:hidden;
+      flex-shrink:0; /* Evita que el header se achique por el contenido del scroll */
     }
     .sb-header::before{
       content:'';position:absolute;top:0;left:0;right:0;height:2px;
