@@ -1828,12 +1828,26 @@
                             const empresaRef  = doc(db, "empresas", user.uid);
                             const empresaSnap = await getDoc(empresaRef);
 
-                            if (empresaSnap.exists() && empresaSnap.data().status === 'active') {
-                                btnActivate.disabled = true;
-                                btnActivate.classList.add('activated');
-                                btnActivate.innerHTML = "<i class='fas fa-check-circle'></i><span>Cuenta ya activada</span>";
-                                showStatus("Tu cuenta de empresa ya se encuentra activa.");
-                                setTimeout(() => showFormSection(), 900);
+                            if (empresaSnap.exists()) {
+                                const data = empresaSnap.data();
+                                
+                                // Si ya completó el onboarding (marcado en Firestore)
+                                if (data.onboardingCompleted === true) {
+                                    // Asegurar que también esté en localStorage para consistencia
+                                    if (window.RecoveryOSConfig) {
+                                        window.RecoveryOSConfig.completeOnboarding();
+                                    }
+                                    window.location.href = "Dashboard-Revenue-Recovery-OS.html";
+                                    return;
+                                }
+
+                                if (data.status === 'active') {
+                                    btnActivate.disabled = true;
+                                    btnActivate.classList.add('activated');
+                                    btnActivate.innerHTML = "<i class='fas fa-check-circle'></i><span>Cuenta ya activada</span>";
+                                    showStatus("Tu cuenta de empresa ya se encuentra activa.");
+                                    setTimeout(() => showFormSection(), 900);
+                                }
                             }
                         } catch (err) {
                             console.error("Error consultando Firestore:", err);
@@ -2166,11 +2180,26 @@
         };
 
         // ── Ir a facturación ──
-        window.goToFacturacion = function() {
-            // Marcar onboarding como completado antes de redirigir
+        window.goToFacturacion = async function() {
+            const user = window._auth?.currentUser;
+            
+            // Marcar onboarding como completado en Firestore para persistencia
+            if (user && window._db) {
+                try {
+                    await setDoc(doc(window._db, "empresas", user.uid), {
+                        onboardingCompleted: true,
+                        onboardingCompletedAt: serverTimestamp()
+                    }, { merge: true });
+                } catch (e) {
+                    console.warn("No se pudo persistir el estado del onboarding en Firestore:", e);
+                }
+            }
+
+            // Marcar onboarding como completado en localStorage (opcional, por compatibilidad)
             if (window.RecoveryOSConfig) {
                 window.RecoveryOSConfig.completeOnboarding();
             }
+            
             window.location.href = "Dashboard-Revenue-Recovery-OS.html";
         };
 
