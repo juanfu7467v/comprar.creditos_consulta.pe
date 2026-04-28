@@ -941,80 +941,78 @@
 
     <!-- Overlay para el menú lateral -->
     <div id="sidebar-overlay" class="hidden"></div>
+<!-- ═══ SIDEBAR ═══ -->
+  <aside id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo-box">
+        <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex">
+      </div>
+      <div class="sb-brand">Masitaprex</div>
+      <div class="sb-tagline">Infraestructura Tecnológica • LATAM</div>
+    </div>
 
-    <!-- Menú lateral principal -->
-    <aside id="sidebar">
-        <div class="sidebar-header-bg">
-            <!-- Icono del sidebar -->
-            <div>
-               
-    <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono masitaprex">
+    <div class="sb-scroll-area">
+    <nav>
+      <!-- General -->
+      <div class="sb-cat">General</div>
+      <a href="home" class="active">
+        <i class="fas fa-home sb-icon"></i>
+        <span>Inicio</span>
+      </a>
+      <a href="planes">
+        <i class="fas fa-bolt sb-icon"></i>
+        <span>Recargar</span>
+      </a>
+      <!-- Herramientas API -->
+      <div class="sb-cat">Herramientas API</div>
+      <a href="api-key">
+        <i class="fas fa-key sb-icon"></i>
+        <span>Mi API Key</span>
+      </a>
+      <a href="API-Docs">
+        <i class="fas fa-file-code sb-icon"></i>
+        <span>Documentación APIs</span>
+      </a>
+      <a href="consultaPe-vercion-web">
+        <i class="fas fa-globe sb-icon"></i>
+        <span>ConsultaPe versión web</span>
+      </a
 
-            </div>
-            <h1>masitaprex</h1>
-            <!-- Decoración SVG -->
-            <div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="header-icon">
-                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-                </svg>
-            </div>
-        </div>
+      <!-- Entretenimiento -->
+      <div class="sb-cat">Entretenimiento</div>
+      <a href="PeliPREX">
+        <i class="fas fa-film sb-icon"></i>
+        <span>Películas gratis</span>
+      </a>
 
-        <nav>
-            <a href="home" class="menu-item">
-                <i data-lucide="layout-dashboard" class="menu-icon"></i>
-                <span class="text-lg">Inicio</span>
-            </a>
-            
-            <a href="api-key" class="menu-item">
-                <i data-lucide="terminal-square" class="menu-icon"></i>
-                <span class="text-lg">Mi APi Key</span>
-            </a>
-            
-            <a href="planes.html" class="menu-item">
-                <i data-lucide="credit-card" class="menu-icon"></i>
-                <span class="text-lg">Recargar</span>
-            </a>
+      <!-- Próximamente -->
+      <div class="sb-cat">Próximamente</div>
+      <a href="bienvenida-Revenue-Recovery-OS">
+        <i class="fas fa-robot sb-icon"></i>
+        <span>Revenue-Recovery-OS</span>
+        <span class="sb-badge">Pronto</span>
+      </a>
 
-            <a href="API-Docs" class="menu-item active">
-                <i data-lucide="file-code-2" class="menu-icon"></i>
-                <span class="text-lg">Documentación APIs</span>
-            </a>
+      <!-- Cuenta -->
+      <div class="sb-cat">Cuenta</div>
+      <a href="ayuda">
+        <i class="fas fa-headset sb-icon"></i>
+        <span>Ayuda y soporte</span>
+      </a>
+      <a href="actividad">
+        <i class="fas fa-user-circle sb-icon"></i>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+    </div><!-- /sb-scroll-area -->
 
-            <a href="PeliPREX" class="menu-item">
-                <i data-lucide="clapperboard" class="menu-icon"></i>
-                <span class="text-lg">Películas gratis</span>
-            </a>
-            <a href="consultaPe-vercion-web " class="menu-item">
-    <i data-lucide="globe" class="menu-icon"></i>
-    <span class="text-lg">ConsultaPe vercion web</span>
-</a>
-
-            <!-- Próximamente -->
-            <div style="padding:18px 22px 6px;font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,200,200,.32);">Próximamente</div>
-            <a href="home-Revenue-Recovery-OS" class="menu-item" style="position:relative;">
-                <i data-lucide="bot" class="menu-icon"></i>
-                <span>Revenue-Recovery-OS</span>
-                <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:linear-gradient(90deg,#7B2F9D,#6D5BFF);color:#fff;margin-left:auto;flex-shrink:0;">Pronto</span>
-            </a>
-
-            <!-- Cuenta -->
-            <div style="padding:18px 22px 6px;font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,200,200,.32);">Cuenta</div>
-            <a href="ayuda" class="menu-item">
-                <i data-lucide="life-buoy" class="menu-icon"></i>
-                <span>Ayuda y soporte</span>
-            </a>
-            <a href="actividad" class="menu-item">
-                <i data-lucide="user-circle-2" class="menu-icon"></i>
-                <span>Mi cuenta</span>
-            </a>
-        </nav>
-        <!-- Redes Sociales en el pie del menú lateral -->
-        <div class="social-footer">
-            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
-        </div>
-    </aside>
+    <div class="sb-footer">
+      <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://youtube.com/@eltiojota628" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      <a href="https://wa.me/51944950234" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </aside>
+    
     <!-- Tooltip global -->
     <div class="global-tooltip" id="globalTooltip">Copiado al portapapeles</div>
 
