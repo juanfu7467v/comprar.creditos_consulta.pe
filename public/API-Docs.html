@@ -31,12 +31,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn-icons-png.flaticon.com">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
         :root {
             --color-primary-start: #1E3A8A;
             --color-primary-end: #047857;
@@ -50,6 +50,21 @@
             --color-success: #10B981;
             --color-warning: #F59E0B;
             --color-danger: #EF4444;
+
+            /* Sidebar Élite Colors */
+            --navy-deep: #0A1628;
+            --navy-surface: #0F1F3D;
+            --emerald: #00C853;
+            --emerald-light: #69F0AE;
+            --emerald-dark: #00A844;
+            --emerald-glow: rgba(0, 200, 83, 0.2);
+            --gold: #FFD700;
+            --gold-light: #FFED4A;
+            --gold-glow: rgba(255, 215, 0, 0.15);
+            --text-primary: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-active: rgba(0,200,83,0.25);
         }
         * {
             box-sizing: border-box;
@@ -72,225 +87,200 @@
             padding: 0 15px;
         }
 
-        /* ===== ESTILOS DEL MENÚ LATERAL COMPLETO ===== */
-
-        /* Overlay para el menú lateral */
+        /* ═══ SIDEBAR ÉLITE ═══ */
         #sidebar-overlay { 
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 50;
             opacity: 0;
             transition: opacity 0.3s ease;
             display: none;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
+        #sidebar-overlay.opacity-100 { opacity: 1; }
+        #sidebar-overlay.hidden { display: none; }
 
-        #sidebar-overlay.opacity-100 {
-            opacity: 1;
-        }
-
-        #sidebar-overlay.hidden {
-            display: none;
-        }
-
-        /* Menú lateral principal */
         #sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100%;
-            width: 288px; /* w-72 = 288px */
-            background: #000 !important; /* Fondo negro puro */
-            color: #FFFFFF;
+            width: 290px;
+            background: linear-gradient(180deg, #0A1628 0%, #0F1F3D 100%) !important;
+            border-right: 1px solid var(--border-active);
             z-index: 60;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
-            overflow-y: auto;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
             display: flex;
             flex-direction: column;
+            box-shadow: 8px 0 40px rgba(0,0,0,0.5);
         }
+        #sidebar.open { transform: translateX(0); }
 
-        #sidebar.open {
-            transform: translateX(0);
-        }
-
-        /* Encabezado del sidebar */
-        .sidebar-header-bg {
-            padding: 40px 24px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .sb-header {
+            padding: 32px 20px 20px;
+            background: linear-gradient(160deg, #0A1628 0%, #0F1F3D 100%);
+            border-bottom: 1px solid var(--border-active);
+            text-align: center;
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            overflow: hidden;
             flex-shrink: 0;
         }
-
-        /* Contenedor del icono del sidebar */
-        .sidebar-header-bg > div:first-child {
-            width: 72px;
-            height: 72px;
-            border-radius: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-header-bg img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .sidebar-header-bg h1, .sidebar-header-bg h2 {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-top: 8px;
-            color: #FFFFFF !important;
-            letter-spacing: -0.025em;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Decoración SVG en el encabezado */
-        .sidebar-header-bg > div:last-child {
+        .sb-header::before {
+            content: '';
             position: absolute;
-            top: 16px; /* top-4 = 16px */
-            left: 16px; /* left-4 = 16px */
-            opacity: 0.3;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--emerald), var(--gold), transparent);
+            animation: shimmerHeader 3s infinite;
         }
-
-        /* Opciones del menú */
-        #sidebar nav {
-            padding: 16px 0;
-            flex-grow: 1;
+        @keyframes shimmerHeader {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
         }
-
+        .sb-logo-box {
+            width: 68px; height: 68px;
+            margin: 0 auto 12px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 2px solid var(--border-active);
+            box-shadow: 0 0 25px var(--emerald-glow);
+            transition: transform 0.3s ease;
+            background: rgba(0,200,83,0.05);
+        }
+        .sb-logo-box:hover { transform: scale(1.1) rotate(5deg); }
+        .sb-logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        .sb-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--gold) !important;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255,215,0,0.4);
+        }
+        .sb-tagline {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .sb-scroll-area { flex: 1; overflow-y: auto; padding: 8px 0; }
+        .sb-scroll-area::-webkit-scrollbar { width: 3px; }
+        .sb-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .sb-scroll-area::-webkit-scrollbar-thumb { background: var(--emerald-dark); border-radius: 3px; }
+        .sb-cat {
+            padding: 14px 24px 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--emerald);
+        }
         #sidebar nav a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 24px;
-            color: rgba(255, 255, 255, 0.8) !important;
-            transition: all 0.2s ease;
+            padding: 12px 24px;
+            color: var(--text-primary) !important;
+            transition: all 0.25s ease;
             text-decoration: none;
-            border-left: 4px solid transparent;
-            margin-bottom: 2px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
         }
-
+        #sidebar nav a::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--emerald);
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
+        }
         #sidebar nav a:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: #FFFFFF !important;
-            border-left-color: #FF1F3D;
+            background: rgba(0,200,83,0.08);
+            color: var(--emerald-light) !important;
+            transform: translateX(4px);
         }
-
+        #sidebar nav a:hover::before { transform: scaleY(1); }
         #sidebar nav a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #FFFFFF !important;
-            border-left-color: #FF1F3D;
-            font-weight: 600;
+            background: linear-gradient(90deg, rgba(0,200,83,0.12) 0%, transparent 100%);
+            color: var(--emerald) !important;
+            font-weight: 700;
         }
-
-        /* Iconos del menú */
-        #sidebar nav i {
-            width: 24px;
-            height: 24px;
-            stroke-width: 2;
-            color: inherit;
+        #sidebar nav a.active::before { transform: scaleY(1); }
+        .sb-icon {
+            width: 20px; height: 20px;
             flex-shrink: 0;
-        }
-
-        /* Estilos para el texto del menú */
-        #sidebar nav span {
-            font-size: 1.125rem; /* text-lg = 18px */
-        }
-
-        /* Estilos responsivos */
-        @media (max-width: 640px) {
-            #sidebar {
-                width: 280px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #sidebar {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-
-        /* Ajustes para scrollbar en navegadores WebKit */
-        #sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-
-        #sidebar::-webkit-scrollbar-thumb {
-            background: rgba(109, 91, 255, 0.5);
-            border-radius: 3px;
-        }
-
-        #sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(109, 91, 255, 0.7);
-        }
-
-        /* Estilos para el footer de redes sociales dentro del sidebar */
-        #sidebar .social-footer {
-            padding: 20px 24px 30px 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1rem;
             text-align: center;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
+        }
+        #sidebar nav a:hover .sb-icon,
+        #sidebar nav a.active .sb-icon { color: var(--emerald); }
+        .sb-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+            color: #000;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            animation: pulse 2s infinite;
+            margin-left: auto;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .sb-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            background: rgba(0,0,0,0.2);
             flex-shrink: 0;
         }
-
-        #sidebar .social-footer a {
-            display: inline-block;
-            margin: 0 12px;
-            color: #FFFFFF !important;
-            font-size: 1.8rem;
-            opacity: 0.8;
-            transition: opacity 0.2s ease;
-            text-decoration: none;
+        .sb-footer a {
+            color: var(--text-muted) !important;
+            font-size: 1.3rem;
+            transition: all 0.25s ease;
         }
+        .sb-footer a:hover { color: var(--emerald) !important; transform: translateY(-3px); }
 
-        #sidebar .social-footer a:hover {
-            opacity: 1;
-        }
-
-        /* Botón de hamburguesa */
+        /* Botón hamburguesa */
         #menu-toggle {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            top: 16px; left: 16px;
             z-index: 100;
-            background: rgba(30, 58, 138, 0.9);
-            color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
+            background: rgba(15, 31, 61, 0.9);
+            color: var(--emerald);
+            border: 1px solid var(--border-active);
+            width: 44px; height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-
         #menu-toggle:hover {
-            transform: scale(1.05);
-            background: rgba(30, 58, 138, 1);
+            transform: scale(1.08);
+            background: rgba(0,200,83,0.1);
+            box-shadow: 0 6px 20px var(--emerald-glow);
         }
+        #menu-toggle i { color: var(--emerald); font-size: 20px; }
 
         header {
             background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
@@ -693,7 +683,7 @@
             gap: 10px;
         }
         
-        /* Tooltip global - CENTRADO EN ANCHO Y ALTO, TEXTO CENTRADO */
+        /* Tooltip global */
         .global-tooltip {
             display: none;
             position: fixed;
@@ -712,11 +702,9 @@
             pointer-events: none;
             text-align: center;
         }
-        
         .global-tooltip.show {
             display: block;
         }
-        
         @keyframes tooltipFadeIn {
             from {
                 opacity: 0;
@@ -877,6 +865,9 @@
                 overflow-x: auto;
             }
         }
+        @media (max-width: 640px) {
+            #sidebar { width: 100%; max-width: 300px; }
+        }
         @media (max-width: 480px) {
             .container {
                 padding: 0 10px;
@@ -941,78 +932,74 @@
 
     <!-- Overlay para el menú lateral -->
     <div id="sidebar-overlay" class="hidden"></div>
-<!-- ═══ SIDEBAR ═══ -->
-  <aside id="sidebar">
-    <div class="sb-header">
-      <div class="sb-logo-box">
-        <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex">
-      </div>
-      <div class="sb-brand">Masitaprex</div>
-      <div class="sb-tagline">Infraestructura Tecnológica • LATAM</div>
-    </div>
 
-    <div class="sb-scroll-area">
-    <nav>
-      <!-- General -->
-      <div class="sb-cat">General</div>
-      <a href="home" class="active">
-        <i class="fas fa-home sb-icon"></i>
-        <span>Inicio</span>
-      </a>
-      <a href="planes">
-        <i class="fas fa-bolt sb-icon"></i>
-        <span>Recargar</span>
-      </a>
-      <!-- Herramientas API -->
-      <div class="sb-cat">Herramientas API</div>
-      <a href="api-key">
-        <i class="fas fa-key sb-icon"></i>
-        <span>Mi API Key</span>
-      </a>
-      <a href="API-Docs">
-        <i class="fas fa-file-code sb-icon"></i>
-        <span>Documentación APIs</span>
-      </a>
-      <a href="consultaPe-vercion-web">
-        <i class="fas fa-globe sb-icon"></i>
-        <span>ConsultaPe versión web</span>
-      </a
+    <!-- ═══ SIDEBAR ÉLITE ═══ -->
+    <aside id="sidebar">
+        <div class="sb-header">
+            <div class="sb-logo-box">
+                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex">
+            </div>
+            <div class="sb-brand">Masitaprex</div>
+            <div class="sb-tagline">Infraestructura Tecnológica • LATAM</div>
+        </div>
+        <div class="sb-scroll-area">
+            <nav>
+                <!-- General -->
+                <div class="sb-cat">General</div>
+                <a href="home">
+                    <i class="fas fa-home sb-icon"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="planes">
+                    <i class="fas fa-bolt sb-icon"></i>
+                    <span>Recargar</span>
+                </a>
+                <!-- Herramientas API -->
+                <div class="sb-cat">Herramientas API</div>
+                <a href="api-key">
+                    <i class="fas fa-key sb-icon"></i>
+                    <span>Mi API Key</span>
+                </a>
+                <a href="API-Docs" class="active">
+                    <i class="fas fa-file-code sb-icon"></i>
+                    <span>Documentación APIs</span>
+                </a>
+                <a href="consultaPe-vercion-web">
+                    <i class="fas fa-globe sb-icon"></i>
+                    <span>ConsultaPe versión web</span>
+                </a>
+                <!-- Entretenimiento -->
+                <div class="sb-cat">Entretenimiento</div>
+                <a href="PeliPREX">
+                    <i class="fas fa-film sb-icon"></i>
+                    <span>Películas gratis</span>
+                </a>
+                <!-- Próximamente -->
+                <div class="sb-cat">Próximamente</div>
+                <a href="bienvenida-Revenue-Recovery-OS">
+                    <i class="fas fa-robot sb-icon"></i>
+                    <span>Revenue-Recovery-OS</span>
+                    <span class="sb-badge">Pronto</span>
+                </a>
+                <!-- Cuenta -->
+                <div class="sb-cat">Cuenta</div>
+                <a href="ayuda">
+                    <i class="fas fa-headset sb-icon"></i>
+                    <span>Ayuda y soporte</span>
+                </a>
+                <a href="actividad">
+                    <i class="fas fa-user-circle sb-icon"></i>
+                    <span>Mi cuenta</span>
+                </a>
+            </nav>
+        </div>
+        <div class="sb-footer">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://youtube.com/@eltiojota628" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/51944950234" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </aside>
 
-      <!-- Entretenimiento -->
-      <div class="sb-cat">Entretenimiento</div>
-      <a href="PeliPREX">
-        <i class="fas fa-film sb-icon"></i>
-        <span>Películas gratis</span>
-      </a>
-
-      <!-- Próximamente -->
-      <div class="sb-cat">Próximamente</div>
-      <a href="bienvenida-Revenue-Recovery-OS">
-        <i class="fas fa-robot sb-icon"></i>
-        <span>Revenue-Recovery-OS</span>
-        <span class="sb-badge">Pronto</span>
-      </a>
-
-      <!-- Cuenta -->
-      <div class="sb-cat">Cuenta</div>
-      <a href="ayuda">
-        <i class="fas fa-headset sb-icon"></i>
-        <span>Ayuda y soporte</span>
-      </a>
-      <a href="actividad">
-        <i class="fas fa-user-circle sb-icon"></i>
-        <span>Mi cuenta</span>
-      </a>
-    </nav>
-    </div><!-- /sb-scroll-area -->
-
-    <div class="sb-footer">
-      <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://youtube.com/@eltiojota628" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-      <a href="https://wa.me/51944950234" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-    </div>
-  </aside>
-    
     <!-- Tooltip global -->
     <div class="global-tooltip" id="globalTooltip">Copiado al portapapeles</div>
 
@@ -1197,7 +1184,7 @@ print(response.json())</pre>
                                 <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                     <i class="far fa-copy"></i> Copiar
                                 </button>
-                                <pre><?php
+                                <pre>&lt;?php
 $url = 'https://api.masitaprex.com/v3/consulta/dni';
 $data = array('dni' => '12345678');
 $headers = array(
@@ -1214,7 +1201,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
 echo $response;
-?></pre>
+?&gt;</pre>
                             </div>
                         </div>
                     </div>
@@ -1601,7 +1588,7 @@ if response.status_code == 200:
                             <button class="code-copy-btn" onclick="copyCodeBlock(this)">
                                 <i class="far fa-copy"></i> Copiar
                             </button>
-                            <pre><?php
+                            <pre>&lt;?php
 $url = 'https://api.masitaprex.com/v3/consulta/ruc';
 $data = array('data' => '20123456789');
 $headers = array(
@@ -1618,7 +1605,7 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
 echo $response;
-?></pre>
+?&gt;</pre>
                         </div>
                     </div>
                     <div class="response-example">
@@ -2530,38 +2517,35 @@ print(response.json())</pre>
         };
 
         // === LÓGICA DEL MENÚ LATERAL ===
-        // Inicializar iconos de Lucide
         lucide.createIcons();
 
-        // Control del menú lateral
         const menuToggle = document.getElementById('menu-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
+        const sidebarEl = document.getElementById('sidebar');
+        const overlayEl = document.getElementById('sidebar-overlay');
 
         function toggleMenu() {
-            const isOpen = sidebar.classList.toggle('open');
+            const isOpen = sidebarEl.classList.toggle('open');
             if (isOpen) {
-                overlay.classList.remove('hidden');
-                overlay.style.display = 'block';
+                overlayEl.classList.remove('hidden');
+                overlayEl.style.display = 'block';
                 document.body.style.overflow = 'hidden';
-                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                setTimeout(() => overlayEl.classList.add('opacity-100'), 10);
             } else {
-                overlay.classList.remove('opacity-100');
+                overlayEl.classList.remove('opacity-100');
                 document.body.style.overflow = '';
                 setTimeout(() => {
-                    if (!sidebar.classList.contains('open')) {
-                        overlay.classList.add('hidden');
-                        overlay.style.display = 'none';
+                    if (!sidebarEl.classList.contains('open')) {
+                        overlayEl.classList.add('hidden');
+                        overlayEl.style.display = 'none';
                     }
                 }, 300);
             }
         }
 
         if (menuToggle) menuToggle.addEventListener('click', toggleMenu);
-        if (overlay) overlay.addEventListener('click', toggleMenu);
+        if (overlayEl) overlayEl.addEventListener('click', toggleMenu);
 
-        // Cerrar menú al hacer click en un enlace
-        const navLinks = sidebar.querySelectorAll('nav a');
+        const navLinks = sidebarEl.querySelectorAll('nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('href');
@@ -2575,7 +2559,6 @@ print(response.json())</pre>
             });
         });
 
-        // Estilos para las animaciones
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
