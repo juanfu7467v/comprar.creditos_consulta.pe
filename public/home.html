@@ -45,9 +45,10 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
   <!-- FONTS + ICONS -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     /* ═══════════════════ PALETA DE COLORES ═══════════════════ */
@@ -523,6 +524,147 @@
       .stat-card{animation:fadeIn .5s ease forwards!important;}
       .loader-ring{animation:none!important;}
     }
+
+    /* ═══════════════════ SIDEBAR ═══════════════════ */
+    #sidebar-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:50;
+      opacity:0;transition:opacity .3s ease;display:none;backdrop-filter:blur(4px);
+    }
+    #sidebar-overlay.opacity-100{opacity:1;}
+
+    #sidebar{
+      position:fixed;top:0;left:0;height:100%;width:290px;
+      background:linear-gradient(180deg,#06071a 0%,#090b1f 60%,#06071a 100%);
+      border-right:1px solid rgba(0,240,255,.18);
+      z-index:60;
+      /* NO overflow aquí — el scroll lo maneja .sb-scroll-area */
+      overflow:hidden;
+      transition:transform .35s cubic-bezier(.4,0,.2,1);
+      transform:translateX(-100%);display:flex;flex-direction:column;
+      box-shadow:6px 0 40px rgba(0,0,0,.55);
+    }
+    #sidebar.open{transform:translateX(0);}
+
+    /* Zona central scrollable: nav + categorías */
+    .sb-scroll-area{
+      flex:1 1 0;          /* ocupa todo el espacio entre header y footer */
+      overflow-y:auto;
+      overflow-x:hidden;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+      scroll-behavior:smooth;
+      /* Barra elegante */
+      scrollbar-width:thin;
+      scrollbar-color:rgba(0,240,255,.30) transparent;
+    }
+    .sb-scroll-area::-webkit-scrollbar{width:3px;}
+    .sb-scroll-area::-webkit-scrollbar-track{background:transparent;}
+    .sb-scroll-area::-webkit-scrollbar-thumb{
+      background:rgba(0,240,255,.28);
+      border-radius:2px;
+    }
+    .sb-scroll-area::-webkit-scrollbar-thumb:hover{
+      background:rgba(0,240,255,.55);
+    }
+
+    .sb-header{
+      padding:36px 22px 24px;
+      background:linear-gradient(160deg,rgba(0,240,255,.07) 0%,rgba(123,47,157,.10) 100%);
+      border-bottom:1px solid rgba(0,240,255,.15);
+      display:flex;flex-direction:column;align-items:center;
+      position:relative;overflow:hidden;
+    }
+    .sb-header::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,transparent,var(--accent-primary),var(--accent-secondary),transparent);
+    }
+    .sb-logo-box{
+      width:62px;height:62px;border-radius:14px;margin-bottom:12px;
+      overflow:hidden;border:1px solid rgba(0,240,255,.3);
+      box-shadow:0 0 22px rgba(0,240,255,.20);
+    }
+    .sb-logo-box img{width:100%;height:100%;object-fit:cover;}
+    .sb-brand{
+      font-family:'Outfit',sans-serif;font-weight:800;font-size:1.05rem;
+      background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      letter-spacing:.12em;text-transform:uppercase;
+    }
+    .sb-tagline{font-size:11px;color:rgba(234,240,255,.45);margin-top:4px;letter-spacing:.06em;}
+
+    /* Category labels */
+    .sb-cat{
+      padding:18px 22px 6px;
+      font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+      color:rgba(234,240,255,.32);
+    }
+
+    #sidebar nav{padding:8px 0 12px;}
+
+    #sidebar nav a{
+      display:flex;align-items:center;gap:13px;
+      padding:12px 22px;color:rgba(234,240,255,.80);
+      transition:all .22s ease;text-decoration:none;
+      border-left:2px solid transparent;font-size:.92rem;font-weight:400;
+      position:relative;
+    }
+    #sidebar nav a:hover{
+      background:rgba(0,240,255,.07);color:var(--accent-primary);
+      border-left-color:var(--accent-primary);
+    }
+    #sidebar nav a.active{
+      background:rgba(0,240,255,.10);color:var(--accent-primary);
+      border-left-color:var(--accent-primary);font-weight:600;
+    }
+    #sidebar nav a i.sb-icon{
+      width:20px;height:20px;flex-shrink:0;color:inherit;
+      opacity:.75;transition:opacity .2s;
+    }
+    #sidebar nav a:hover i.sb-icon,#sidebar nav a.active i.sb-icon{opacity:1;}
+
+    /* "Pronto" badge */
+    .sb-badge{
+      font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      padding:2px 7px;border-radius:20px;
+      background:linear-gradient(90deg,var(--accent-secondary),var(--ind));
+      color:#fff;margin-left:auto;flex-shrink:0;
+    }
+
+    .sb-footer{
+      padding:18px 22px 28px;border-top:1px solid rgba(255,255,255,.07);
+      text-align:center;flex-shrink:0;
+    }
+    .sb-footer a{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:36px;height:36px;border-radius:50%;
+      background:rgba(255,255,255,.06);color:rgba(234,240,255,.55);
+      font-size:16px;margin:0 6px;
+      transition:all .2s;text-decoration:none;
+    }
+    .sb-footer a:hover{background:rgba(0,240,255,.18);color:var(--accent-primary);}
+
+    /* scrollbar del sidebar → manejado por .sb-scroll-area */
+
+    /* Hamburger btn */
+    .sb-toggle{
+      position:fixed;top:16px;left:16px;z-index:45;
+      width:46px;height:46px;border-radius:12px;
+      background:rgba(7,10,18,.85);backdrop-filter:blur(10px);
+      border:1px solid rgba(0,240,255,.22);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:all .22s ease;
+      box-shadow:0 4px 20px rgba(0,0,0,.4);
+    }
+    .sb-toggle:hover{background:rgba(0,240,255,.12);border-color:rgba(0,240,255,.45);}
+    .sb-toggle i{color:var(--accent-primary);font-size:20px;}
+
+    /* Push body when sidebar open on desktop */
+    @media(min-width:1100px){
+      body.sb-open{padding-left:290px;}
+      #sidebar{transform:translateX(0);}
+      .sb-toggle{display:none;}
+      #sidebar-overlay{display:none!important;}
+    }
   </style>
 </head>
 <body class="antialiased">
@@ -537,6 +679,87 @@
       <div class="loader-progress-fill" id="loaderProgress"></div>
     </div>
   </div>
+
+  <!-- ═══ SIDEBAR OVERLAY ═══ -->
+  <div id="sidebar-overlay"></div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo-box">
+        <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex">
+      </div>
+      <div class="sb-brand">Masitaprex</div>
+      <div class="sb-tagline">Infraestructura tecnológica Perú</div>
+    </div>
+
+    <div class="sb-scroll-area">
+    <nav>
+      <!-- General -->
+      <div class="sb-cat">General</div>
+      <a href="home" class="active">
+        <i class="fas fa-home sb-icon"></i>
+        <span>Inicio</span>
+      </a>
+
+      <!-- Herramientas API -->
+      <div class="sb-cat">Herramientas API</div>
+      <a href="api-key">
+        <i class="fas fa-key sb-icon"></i>
+        <span>Mi API Key</span>
+      </a>
+      <a href="planes">
+        <i class="fas fa-bolt sb-icon"></i>
+        <span>Recargar</span>
+      </a>
+      <a href="API-Docs">
+        <i class="fas fa-file-code sb-icon"></i>
+        <span>Documentación APIs</span>
+      </a>
+
+      <!-- Entretenimiento -->
+      <div class="sb-cat">Entretenimiento</div>
+      <a href="PeliPREX">
+        <i class="fas fa-film sb-icon"></i>
+        <span>Películas gratis</span>
+      </a>
+      <a href="consultaPe-vercion-web">
+        <i class="fas fa-globe sb-icon"></i>
+        <span>ConsultaPe versión web</span>
+      </a>
+
+      <!-- Próximamente -->
+      <div class="sb-cat">Próximamente</div>
+      <a href="home-Revenue-Recovery-OS">
+        <i class="fas fa-robot sb-icon"></i>
+        <span>Revenue-Recovery-OS</span>
+        <span class="sb-badge">Pronto</span>
+      </a>
+
+      <!-- Cuenta -->
+      <div class="sb-cat">Cuenta</div>
+      <a href="ayuda">
+        <i class="fas fa-life-ring sb-icon"></i>
+        <span>Ayuda y soporte</span>
+      </a>
+      <a href="actividad">
+        <i class="fas fa-user-circle sb-icon"></i>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+    </div><!-- /sb-scroll-area -->
+
+    <div class="sb-footer">
+      <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://youtube.com/@eltiojota628" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      <a href="https://wa.me/51944950234" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </aside>
+
+  <!-- Hamburger toggle -->
+  <button class="sb-toggle" id="sbToggle" aria-label="Abrir menú">
+    <i class="fas fa-bars"></i>
+  </button>
 
   <!-- Fondo 3D -->
   <div class="scene" aria-hidden="true">
@@ -754,6 +977,39 @@
 
   <!-- ═══════════════════ SCRIPTS OPTIMIZADOS ═══════════════════ -->
   <script>
+  /* ── SIDEBAR TOGGLE ── */
+  (function(){
+    const sidebar  = document.getElementById('sidebar');
+    const overlay  = document.getElementById('sidebar-overlay');
+    const toggle   = document.getElementById('sbToggle');
+    if(!sidebar||!overlay||!toggle) return;
+
+    function openSidebar(){
+      sidebar.classList.add('open');
+      overlay.style.display='block';
+      requestAnimationFrame(()=>overlay.classList.add('opacity-100'));
+      document.body.style.overflow='hidden';
+    }
+    function closeSidebar(){
+      sidebar.classList.remove('open');
+      overlay.classList.remove('opacity-100');
+      setTimeout(()=>{ overlay.style.display='none'; },300);
+      document.body.style.overflow='';
+    }
+    toggle.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    // Close on nav link click (mobile)
+    sidebar.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>{
+      if(window.innerWidth<1100) closeSidebar();
+    }));
+    // Desktop: always open
+    if(window.innerWidth>=1100){ document.body.classList.add('sb-open'); }
+    window.addEventListener('resize',()=>{
+      if(window.innerWidth>=1100){ document.body.classList.add('sb-open'); }
+      else { document.body.classList.remove('sb-open'); closeSidebar(); }
+    });
+  })();
+
   /* ── UTILIDADES ── */
   function preloadImages(urls){
     return Promise.all(urls.map(u => new Promise(r => {
@@ -788,6 +1044,7 @@
 
     setTimeout(() => {
       document.getElementById('loading').classList.add('hidden');
+      if(typeof lucide !== 'undefined') lucide.createIcons();
       initApiBackground();
       startTypingEffect();
       setupThreeDotsMenu();
