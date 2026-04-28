@@ -27,64 +27,67 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
     <style>
-        /* ===== PALETA DE COLORES Y TIPOGRAFÍA DE planes.html ===== */
+        /* ===== PALETA DE COLORES PSICOLÓGICA (NEUROMARKETING) ===== */
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@400;500&display=swap');
         
         :root {
-            --obsidian: #050505;
-            --surface-1: #0c0c0c;
-            --surface-2: #141414;
-            --surface-3: #1c1c1c;
-            --surface-4: #242424;
-            --gold: #C9A02A;
-            --gold-light: #E8C547;
-            --gold-dim: #8A6E1A;
-            --gold-glow: rgba(201, 160, 42, 0.15);
-            --crimson: #C41E3A;
-            --crimson-dim: rgba(196, 30, 58, 0.12);
-            --platinum: #C8C8C8;
-            --white: #F5F5F5;
-            --text-muted: #888888;
-            --text-subtle: #555555;
-            --border-gold: rgba(201, 160, 42, 0.25);
-            --border-subtle: rgba(255, 255, 255, 0.06);
+            /* Paleta de Confianza y Éxito */
+            --navy-deep: #0A1628;
+            --navy-surface: #0F1F3D;
+            --navy-card: #15294A;
+            --navy-border: #1E3A5F;
             
-            --bg1: var(--obsidian);
-            --bg2: var(--surface-1);
-            --glass: rgba(255,255,255,.06);
-            --glass2: rgba(255,255,255,.10);
-            --ink: var(--white);
-            --muted: var(--text-muted);
-            --pink: var(--crimson);
-            --ind: #6D5BFF;
-            --cyan: #35D5FF;
-            --ok: #16e1a4;
-            --warn: #ffb020;
-            --danger: var(--crimson);
-            --line: var(--border-subtle);
-            --shadow: 0 24px 80px rgba(0,0,0,.55);
-            --card: var(--surface-2);
-            --pill: var(--surface-3);
-            --accent: var(--gold);
-            --secondary: var(--gold-light);
-            --radius: 18px;
+            /* Verde Esmeralda para acciones de dinero/recarga */
+            --emerald: #00C853;
+            --emerald-light: #69F0AE;
+            --emerald-dark: #00A844;
+            --emerald-glow: rgba(0, 200, 83, 0.2);
+            
+            /* Dorado para premium/confianza */
+            --gold: #FFD700;
+            --gold-light: #FFED4A;
+            --gold-dim: #B8960F;
+            --gold-glow: rgba(255, 215, 0, 0.15);
+            
+            /* Rojo rubí para alertas/notificaciones */
+            --ruby: #E53935;
+            --ruby-light: #FF5252;
+            --ruby-glow: rgba(229, 57, 53, 0.2);
+            
+            /* Textos y superficies */
+            --white: #F8FAFC;
+            --text-primary: #E2E8F0;
+            --text-muted: #94A3B8;
+            --text-subtle: #64748B;
+            
+            /* Sombras y efectos */
+            --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+            --shadow-gold: 0 4px 20px rgba(255,215,0,0.15);
+            --shadow-emerald: 0 4px 20px rgba(0,200,83,0.2);
+            
+            /* Bordes */
+            --border-subtle: rgba(255,255,255,0.08);
+            --border-active: rgba(0,200,83,0.3);
+            
+            --radius: 16px;
+            --radius-sm: 10px;
             --font-family: 'Outfit', sans-serif;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html { font-size: 106.25%; }
+        html { font-size: 106.25%; scroll-behavior: smooth; }
         
         body {
-            margin: 0;
-            background: var(--obsidian);
-            color: var(--white);
+            background: var(--navy-deep);
+            color: var(--text-primary);
             font-family: var(--font-family);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             user-select: none;
             position: relative;
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
         body::before {
@@ -102,39 +105,48 @@
             top: -20%; left: -10%;
             width: 60vw; height: 60vw;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(201,160,42,0.04) 0%, transparent 65%);
+            background: radial-gradient(circle, rgba(0,200,83,0.03) 0%, transparent 65%);
             pointer-events: none;
             z-index: -1;
+            animation: floatAmbient 10s ease-in-out infinite;
         }
         .ambient-2 {
             position: fixed;
             bottom: -20%; right: -10%;
             width: 50vw; height: 50vw;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(196,30,58,0.05) 0%, transparent 65%);
+            background: radial-gradient(circle, rgba(255,215,0,0.04) 0%, transparent 65%);
             pointer-events: none;
             z-index: -1;
+            animation: floatAmbient 12s ease-in-out infinite reverse;
         }
 
-        /* CABECERA (Header) */
+        @keyframes floatAmbient {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -20px) scale(1.05); }
+            66% { transform: translate(-15px, 15px) scale(0.95); }
+        }
+
+        /* CABECERA PREMIUM */
         header {
-            box-shadow: 0 10px 40px rgba(0,0,0,.25);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            background: #000000 !important;
-            border-bottom: 1px solid var(--border-gold) !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,.35);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(10,22,40,0.95) 0%, rgba(15,31,61,0.95) 100%) !important;
+            border-bottom: 1px solid var(--border-active) !important;
         }
 
-        /* ESTILOS DEL MENÚ LATERAL */
+        /* ═══ SIDEBAR ÉLITE ═══ */
         #sidebar-overlay { 
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.8);
             z-index: 50;
             opacity: 0;
             transition: opacity 0.3s ease;
             display: none;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
 
         #sidebar-overlay.opacity-100 { opacity: 1; }
@@ -145,167 +157,251 @@
             top: 0;
             left: 0;
             height: 100%;
-            width: 288px;
-            background: #080808 !important;
-            border-right: 1px solid var(--border-gold);
+            width: 290px;
+            background: linear-gradient(180deg, #0A1628 0%, #0F1F3D 100%) !important;
+            border-right: 1px solid var(--border-active);
             z-index: 60;
-            overflow-y: auto;
+            overflow: hidden;
             transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateX(-100%);
             display: flex;
             flex-direction: column;
+            box-shadow: 8px 0 40px rgba(0,0,0,0.5);
         }
 
         #sidebar.open { transform: translateX(0); }
 
-        .sidebar-header-bg {
-            padding: 40px 24px 28px;
-            background: linear-gradient(160deg, #0a0a0a 0%, #111108 100%);
-            border-bottom: 1px solid var(--border-gold);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .sb-header {
+            padding: 32px 20px 20px;
+            background: linear-gradient(160deg, #0A1628 0%, #0F1F3D 100%);
+            border-bottom: 1px solid var(--border-active);
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        .sidebar-header-bg::before {
+        .sb-header::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--emerald), var(--gold), transparent);
+            animation: shimmerHeader 3s infinite;
         }
 
-        .sidebar-header-bg > div:first-child {
-            width: 64px;
-            height: 64px;
-            border-radius: 12px;
-            margin-bottom: 12px;
+        @keyframes shimmerHeader {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .sb-logo-box {
+            width: 68px;
+            height: 68px;
+            margin: 0 auto 12px;
+            border-radius: 18px;
             overflow: hidden;
-            border: 1px solid var(--border-gold);
-            box-shadow: 0 0 20px var(--gold-glow);
+            border: 2px solid var(--border-active);
+            box-shadow: 0 0 25px var(--emerald-glow);
+            transition: transform 0.3s ease;
+            background: rgba(0,200,83,0.05);
         }
 
-        .sidebar-header-bg img {
+        .sb-logo-box:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .sb-logo-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .sidebar-header-bg h1 {
+        .sb-brand {
             font-family: 'Outfit', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 800;
+            font-size: 1.3rem;
             color: var(--gold) !important;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            margin-top: 8px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.4);
         }
 
-        #sidebar nav {
-            padding: 12px 0;
-            flex-grow: 1;
+        .sb-tagline {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.15em;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        .sb-scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .sb-scroll-area::-webkit-scrollbar { width: 3px; }
+        .sb-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .sb-scroll-area::-webkit-scrollbar-thumb { background: var(--emerald-dark); border-radius: 3px; }
+
+        .sb-cat {
+            padding: 14px 24px 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--emerald);
         }
 
         #sidebar nav a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 13px 24px;
-            color: var(--platinum) !important;
-            transition: all 0.2s ease;
+            padding: 12px 24px;
+            color: var(--text-primary) !important;
+            transition: all 0.25s ease;
             text-decoration: none;
-            border-left: 2px solid transparent;
-            font-size: 0.95rem;
-            font-weight: 400;
+            font-size: 0.9rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #sidebar nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--emerald);
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
         }
 
         #sidebar nav a:hover {
-            background: rgba(201,160,42,0.06);
-            color: var(--gold) !important;
-            border-left-color: var(--gold);
+            background: rgba(0,200,83,0.08);
+            color: var(--emerald-light) !important;
+            transform: translateX(4px);
+        }
+
+        #sidebar nav a:hover::before {
+            transform: scaleY(1);
         }
 
         #sidebar nav a.active {
-            background: rgba(201,160,42,0.08);
-            color: var(--gold) !important;
-            border-left-color: var(--gold);
-            font-weight: 600;
+            background: linear-gradient(90deg, rgba(0,200,83,0.12) 0%, transparent 100%);
+            color: var(--emerald) !important;
+            font-weight: 700;
         }
 
-        #sidebar nav i {
+        #sidebar nav a.active::before {
+            transform: scaleY(1);
+        }
+
+        .sb-icon {
             width: 20px;
             height: 20px;
             flex-shrink: 0;
-        }
-
-        .sidebar-social {
-            padding: 20px 24px 30px;
-            border-top: 1px solid var(--border-subtle);
+            font-size: 1.1rem;
             text-align: center;
-            margin-top: auto;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
         }
 
-        .sidebar-social a {
-            display: inline-block;
-            margin: 0 12px;
+        #sidebar nav a:hover .sb-icon,
+        #sidebar nav a.active .sb-icon {
+            color: var(--emerald);
+        }
+
+        .sb-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+            color: #000;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            animation: pulse 2s infinite;
+            margin-left: auto;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .sb-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .sb-footer a {
             color: var(--text-muted) !important;
-            font-size: 1.5rem;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            text-decoration: none;
+            font-size: 1.3rem;
+            transition: all 0.25s ease;
         }
 
-        .sidebar-social a:hover {
-            opacity: 1;
-            color: var(--gold) !important;
+        .sb-footer a:hover {
+            color: var(--emerald) !important;
+            transform: translateY(-3px);
         }
 
-        #sidebar::-webkit-scrollbar { width: 4px; }
-        #sidebar::-webkit-scrollbar-track { background: transparent; }
-        #sidebar::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 2px; }
-
-        /* Estilos para iconos de cabecera */
+        /* Header Icons */
         .header-icon {
             width: 1.75rem;
             height: 1.75rem;
-            color: var(--gold);
+            color: var(--emerald);
+            transition: transform 0.2s ease;
         }
 
-        /* Texto centrado en cabecera - Solo "Developer" */
+        .header-icon:hover {
+            transform: scale(1.15);
+        }
+
         .header-center-text {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             color: var(--gold);
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            letter-spacing: 0.1em;
+            text-shadow: 0 2px 12px rgba(255,215,0,0.3);
             font-family: 'Outfit', sans-serif;
         }
 
         /* Banner de compartir */
         .banner {  
             width: 100%;  
-            max-width: 500px;
-            background: var(--surface-2);
-            border: 1px solid var(--border-gold);
+            max-width: 480px;
+            background: var(--navy-card);
+            border: 1px solid var(--border-active);
             color: var(--white);  
             position: fixed;  
             bottom: 0;  
             left: 50%;  
             transform: translateX(-50%);  
-            padding: 30px;  
-            border-top-left-radius: 16px;  
-            border-top-right-radius: 16px;  
-            box-shadow: 0 -8px 40px rgba(0,0,0,0.6);  
+            padding: 26px;  
+            border-top-left-radius: 20px;  
+            border-top-right-radius: 20px;  
+            box-shadow: 0 -8px 40px rgba(0,0,0,0.7);  
             display: none;
             flex-direction: column;  
             align-items: center;  
             text-align: center;  
-            z-index: 9999;  
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
         }  
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100%); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
 
         .banner-title {  
             font-size: 1.1rem;  
@@ -315,7 +411,7 @@
         }  
 
         .banner-description {  
-            font-size: 0.9rem;  
+            font-size: 0.85rem;  
             line-height: 1.6;  
             color: var(--text-muted);  
             margin-bottom: 20px;  
@@ -326,22 +422,24 @@
             padding: 14px;  
             text-align: center;  
             text-decoration: none;  
-            border-radius: 8px;  
+            border-radius: 10px;  
             font-size: 0.95rem;  
             font-weight: 700;  
             margin-bottom: 10px;  
             cursor: pointer;  
-            transition: all 0.2s ease-in-out;  
+            transition: all 0.25s ease;  
+            font-family: 'Outfit', sans-serif;
         }  
 
         .cta-button {  
-            background: var(--gold);
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
             color: #000;
+            box-shadow: 0 4px 15px var(--emerald-glow);
         }  
 
         .cta-button:hover { 
-            background: var(--gold-light);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--emerald-glow);
         }  
 
         .close-modal {  
@@ -351,7 +449,7 @@
         }  
 
         .close-modal:hover {  
-            border-color: var(--border-gold);
+            border-color: var(--border-active);
             color: var(--white);
             transform: translateY(-2px);
         }  
@@ -367,7 +465,7 @@
         h2, h3 { margin: 0; font-weight: 700; }
         .text-center { text-align: center; }
         .text-accent { color: var(--gold); }
-        .text-secondary { color: var(--gold-light); }
+        .text-secondary { color: var(--emerald); }
         .font-bold { font-weight: 700; }
         .mb-4 { margin-bottom: 16px; }
 
@@ -381,25 +479,23 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: var(--obsidian);
+            background: rgba(10,22,40,0.95);
             z-index: 9999;
             display: none;
         }
 
-        .dots-loader { display: flex; justify-content: space-between; width: 80px; }
-        .dot {
-            width: 18px;
-            height: 18px;
+        .spinner-ring {
+            width: 50px;
+            height: 50px;
+            border: 3px solid transparent;
+            border-top-color: var(--emerald);
+            border-right-color: var(--gold);
             border-radius: 50%;
-            background: var(--gold);
-            animation: bounce 1.4s infinite ease-in-out both;
+            animation: spin 0.8s linear infinite;
         }
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
 
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1.0); opacity: 1; }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .gradient-border { position: relative; z-index: 1; }
@@ -409,66 +505,79 @@
             top: 0; left: 0; right: 0; bottom: 0;
             border-radius: inherit;
             padding: 1px;
-            background: linear-gradient(90deg, var(--gold), var(--gold-dim));
+            background: linear-gradient(135deg, var(--emerald), var(--gold), var(--emerald-dark));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             z-index: -1;
+            animation: borderGlow 3s infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .profile-card {
-            background: var(--surface-2);
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: var(--shadow);
+            background: var(--navy-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            border: 1px solid var(--border-gold);
+            gap: 18px;
         }
 
-        .profile-header { display: flex; align-items: center; gap: 12px; }
+        .profile-header { display: flex; align-items: center; gap: 14px; }
         .profile-header .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 999px;
-            background: var(--surface-3);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--emerald-dark), var(--navy-border));
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 2px solid var(--gold);
+            border: 2px solid var(--emerald);
+            box-shadow: 0 0 20px var(--emerald-glow);
+            animation: pulseAvatar 2s infinite;
         }
+
+        @keyframes pulseAvatar {
+            0%, 100% { box-shadow: 0 0 20px var(--emerald-glow); }
+            50% { box-shadow: 0 0 35px var(--emerald-glow); }
+        }
+
         .profile-header img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-header h2 { font-size: 20px; color: var(--white); }
+        .profile-header h2 { font-size: 20px; color: var(--white); font-weight: 700; }
         
         .profile-stats {
             display: flex;
             justify-content: space-around;
             text-align: center;
             border-top: 1px solid var(--border-subtle);
-            padding-top: 16px;
+            padding-top: 18px;
         }
 
         .stat-item { display: flex; flex-direction: column; gap: 4px; }
         .stat-value {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--gold);
-            text-shadow: 0 0 18px rgba(201,160,42,.25);
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--emerald);
+            text-shadow: 0 0 20px var(--emerald-glow);
+            font-family: 'DM Mono', monospace;
         }
-        .stat-label { font-size: 13px; color: var(--text-muted); }
+        .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
         .section-card {
-            background: var(--surface-2);
-            border-radius: 12px;
-            padding: 18px;
+            background: var(--navy-card);
+            border-radius: var(--radius);
+            padding: 20px;
             margin-top: 18px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             gap: 16px;
-            border: 1px solid var(--border-gold);
         }
         
         .section-header {
@@ -483,38 +592,68 @@
             display: block;
             width: 100%;
             padding: 14px;
-            border-radius: 6px;
-            background: var(--gold);
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
             color: #000;
             border: none;
-            font-weight: 700;
-            letter-spacing: 0.6px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
             text-align: center;
             text-decoration: none;
-            transition: transform 0.1s ease, filter .2s ease;
+            transition: all 0.25s ease;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
+            box-shadow: 0 4px 15px var(--emerald-glow);
+            position: relative;
+            overflow: hidden;
         }
-        .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
-        .btn-primary:active { transform: scale(0.99); }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:hover::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 25px var(--emerald-glow);
+        }
+        .btn-primary:active { transform: scale(0.98); }
 
         .input-group { position: relative; }
-
         .input-group input {
             width: 100%;
-            padding: 12px 50px 12px 16px;
-            border-radius: 6px;
-            background: var(--surface-3);
-            border: 1px solid var(--border-subtle);
+            padding: 14px 55px 14px 18px;
+            border-radius: 10px;
+            background: var(--navy-surface);
+            border: 1px solid var(--navy-border);
             color: var(--white);
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             text-overflow: ellipsis;
             outline: none;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.5px;
+            transition: all 0.25s ease;
         }
+
         .input-group input::placeholder { color: var(--text-subtle); }
-        .input-group input:focus { border-color: var(--gold); }
+        .input-group input:focus { 
+            border-color: var(--emerald); 
+            box-shadow: 0 0 20px var(--emerald-glow);
+        }
 
         .input-group .copy-btn {
             position: absolute;
@@ -523,10 +662,16 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--gold);
+            color: var(--emerald);
             cursor: pointer;
             font-size: 20px;
             padding: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .input-group .copy-btn:hover {
+            color: var(--emerald-light);
+            transform: translateY(-50%) scale(1.2);
         }
 
         .btn-secondary {
@@ -536,32 +681,36 @@
             gap: 8px;
             width: 100%;
             padding: 14px;
-            border-radius: 6px;
-            background: var(--surface-3);
-            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            background: transparent;
+            border: 1px solid var(--navy-border);
             color: var(--white);
             font-weight: 700;
             letter-spacing: 0.6px;
             margin-top: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             font-family: 'Outfit', sans-serif;
         }
-        .btn-secondary:hover { background: rgba(201,160,42,0.1); border-color: var(--gold); color: var(--gold); }
-        .btn-secondary:active { transform: scale(0.99); }
+        .btn-secondary:hover { 
+            background: rgba(0,200,83,0.08); 
+            border-color: var(--emerald); 
+            color: var(--emerald-light);
+            transform: translateY(-2px);
+        }
+        .btn-secondary:active { transform: scale(0.98); }
         .btn-secondary i { font-size: 1.2em; }
 
         .info-section {
-            background: var(--surface-2);
-            border-radius: 12px;
-            padding: 18px;
+            background: var(--navy-card);
+            border-radius: var(--radius);
+            padding: 20px;
             margin-top: 18px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            border: 1px solid var(--border-gold);
+            gap: 14px;
         }
 
         .info-section h3 { font-size: 18px; color: var(--white); }
@@ -569,7 +718,7 @@
         .info-section p, .info-section ul, .info-section li, .info-section div {
             font-size: 14px;
             color: var(--text-muted);
-            line-height: 1.5;
+            line-height: 1.6;
             margin: 0;
         }
 
@@ -583,16 +732,16 @@
         .info-item:last-child { border-bottom: none; }
         .info-item i {
             font-size: 20px;
-            color: var(--gold);
+            color: var(--emerald);
             padding-top: 2px;
         }
         
         .text-container {
-            padding: 16px;
-            border-radius: 8px;
-            background: var(--surface-3);
+            padding: 18px;
+            border-radius: var(--radius-sm);
+            background: var(--navy-surface);
             border: 1px solid var(--border-subtle);
-            margin-top: 18px;
+            margin-top: 14px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -601,15 +750,15 @@
         .text-container-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 16px;
             font-weight: 800;
-            color: var(--gold);
+            color: var(--emerald);
         }
 
-        .text-container-header i { color: var(--gold); font-size: 20px; }
+        .text-container-header i { color: var(--emerald); font-size: 20px; }
 
-        .text-container p { margin: 0; font-size: 14px; color: var(--white); }
+        .text-container p { margin: 0; font-size: 14px; color: var(--text-primary); }
         .text-container strong { color: var(--gold); }
 
         .credit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
@@ -622,25 +771,32 @@
             padding-bottom: 12px;
             position: sticky;
             top: 0;
-            background: var(--surface-2);
+            background: var(--navy-card);
             z-index: 10;
         }
         .credit-table tbody tr {
-            background: var(--surface-3);
+            background: var(--navy-surface);
             border-radius: 8px;
             overflow: hidden;
             font-weight: 600;
-            color: var(--white);
-            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
         }
-        .credit-table tbody tr:nth-child(even) { background: var(--surface-4); }
+
+        .credit-table tbody tr:hover {
+            background: var(--navy-border);
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
         .credit-table td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
         .credit-table td:last-child {
             border-top-right-radius: 8px;
             border-bottom-right-radius: 8px;
             text-align: right;
-            color: var(--gold);
+            color: var(--emerald);
             font-weight: 800;
+            font-family: 'DM Mono', monospace;
         }
 
         .table-scroll {
@@ -648,17 +804,17 @@
             overflow-y: auto;
             margin-top: 10px;
             border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+            background: var(--navy-card);
         }
         
         .api-recommendation {
-            background: var(--surface-2);
-            border: 1px solid var(--border-gold);
-            border-radius: 12px;
-            padding: 18px;
-            color: var(--white);
-            box-shadow: var(--shadow);
+            background: var(--navy-card);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius);
+            padding: 20px;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-card);
             margin-top: 18px;
         }
         .api-recommendation h4 {
@@ -669,18 +825,18 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--gold);
+            color: var(--emerald);
         }
         .api-recommendation code {
             display: block;
-            background: var(--surface-3);
+            background: var(--navy-surface);
             border: 1px solid var(--border-subtle);
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: var(--radius-sm);
             font-size: 13px;
             margin-bottom: 10px;
             overflow-x: auto;
-            color: var(--white);
+            color: var(--gold);
             font-family: 'DM Mono', monospace;
         }
         .api-recommendation p { font-size: 14px; margin: 0; color: var(--text-muted); }
@@ -691,55 +847,59 @@
             padding: 0;
             margin: 0;
             display: grid;
-            gap: 10px;
+            gap: 12px;
         }
         .advantage-list li {
             font-size: 14px;
-            color: var(--white);
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: 600;
         }
-        .advantage-list li i { color: var(--gold); font-size: 20px; }
+        .advantage-list li i { color: var(--emerald); font-size: 20px; }
         
         .package-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
         }
         .package-grid a { text-decoration: none; color: inherit; }
         
         .package-card {
-            background: var(--surface-3);
-            border-radius: 8px;
-            padding: 12px;
+            background: var(--navy-surface);
+            border-radius: var(--radius-sm);
+            padding: 16px;
             text-align: center;
             border: 1px solid var(--border-subtle);
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
         .package-grid a:hover .package-card {
-            background: rgba(201,160,42,0.1);
-            border-color: var(--gold);
-            transform: translateY(-2px);
+            background: rgba(0,200,83,0.1);
+            border-color: var(--emerald);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px var(--emerald-glow);
         }
         
         .package-grid a:nth-child(3) .package-card { 
-            border-color: var(--gold); 
-            background: rgba(201,160,42,0.08); 
+            border-color: var(--emerald); 
+            background: rgba(0,200,83,0.08); 
+            box-shadow: 0 0 20px var(--emerald-glow);
         }
 
         .package-card .amount {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 900;
-            color: var(--gold);
+            color: var(--emerald);
             margin-bottom: 4px;
+            font-family: 'DM Mono', monospace;
         }
         .package-card .credits {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 800;
-            color: var(--white);
+            color: var(--text-primary);
         }
         .package-card .benefit {
             font-size: 11px;
@@ -747,26 +907,30 @@
             color: var(--text-muted);
             margin-top: 6px;
         }
-
-        .package-grid a:last-child { grid-column: span 2; }
         
         .unlimited-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             overflow: hidden;
             border: 1px solid var(--border-subtle);
         }
         .unlimited-table th, .unlimited-table td {
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             font-size: 13px;
         }
         .unlimited-table thead th {
-            background: var(--surface-3);
-            color: var(--white);
+            background: var(--navy-surface);
+            color: var(--text-primary);
             font-weight: 800;
+        }
+        .unlimited-table tbody tr {
+            transition: background 0.2s ease;
+        }
+        .unlimited-table tbody tr:hover {
+            background: rgba(0,200,83,0.05);
         }
         .unlimited-table tbody td {
             border-bottom: 1px solid var(--border-subtle);
@@ -774,22 +938,22 @@
             color: var(--text-muted);
         }
         .unlimited-table tbody tr:last-child td { border-bottom: none; }
-        .unlimited-table .price { font-weight: 900; color: var(--gold); }
-        .unlimited-table .saving { color: var(--gold-light); font-weight: 800; }
+        .unlimited-table .price { font-weight: 900; color: var(--emerald); }
+        .unlimited-table .saving { color: var(--gold); font-weight: 800; }
         
         .quote {
-            background: linear-gradient(90deg, rgba(201,160,42,0.08), rgba(201,160,42,0.04));
-            border-left: 4px solid var(--gold);
+            background: linear-gradient(90deg, rgba(0,200,83,0.08), rgba(255,215,0,0.04));
+            border-left: 4px solid var(--emerald);
             padding: 15px;
             margin: 20px 0;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             font-style: italic;
             font-size: 16px;
-            color: var(--white);
+            color: var(--text-primary);
             font-weight: 600;
-            border: 1px solid var(--border-subtle);
+            text-shadow: 0 0 10px rgba(0,200,83,0.2);
         }
-        .quote i { color: var(--gold); margin-right: 5px; }
+        .quote i { color: var(--emerald); margin-right: 5px; }
 
         .modal {
             position: fixed;
@@ -798,106 +962,121 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: rgba(0, 0, 0, 0.8);
             display: none;
             justify-content: center;
             align-items: center;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            backdrop-filter: blur(4px);
         }
 
         .modal.active { display: flex; opacity: 1; }
 
         .modal-content {
-            background: var(--surface-2);
-            color: var(--white);
-            padding: 20px;
-            border-radius: 12px;
+            background: var(--navy-card);
+            color: var(--text-primary);
+            padding: 24px;
+            border-radius: var(--radius);
             text-align: center;
-            box-shadow: var(--shadow);
-            min-width: 250px;
-            border: 1px solid var(--border-gold);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            min-width: 280px;
+            border: 1px solid var(--border-active);
+            animation: modalPop 0.3s ease;
         }
 
-        .modal-content.success { border: 2px solid var(--gold); }
-        .modal-content.error { border: 2px solid var(--crimson); }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content.success { border: 2px solid var(--emerald); box-shadow: 0 0 30px var(--emerald-glow); }
+        .modal-content.error { border: 2px solid var(--ruby); box-shadow: 0 0 30px var(--ruby-glow); }
 
         footer {
             margin-top: 40px;
-            padding: 20px;
+            padding: 24px;
             text-align: center;
             background: transparent;
             border-top: 1px solid var(--border-subtle);
         }
         
-        footer h3 { font-size: 16px; margin-bottom: 10px; color: var(--white); }
-        footer p { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+        footer h3 { font-size: 16px; margin-bottom: 14px; color: var(--text-primary); }
+        footer p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
         
         footer a,
         .info-section a,
         .text-container a,
         .section-card a:not(.btn-primary):not(.btn-secondary) {
-            color: var(--gold) !important;
+            color: var(--emerald) !important;
             text-decoration: none;
             margin: 0 5px;
             transition: color 0.3s ease;
+            font-weight: 600;
         }
         footer a:hover,
         .info-section a:hover,
         .text-container a:hover,
         .section-card a:not(.btn-primary):not(.btn-secondary):hover {
-            color: var(--gold-light) !important;
+            color: var(--emerald-light) !important;
             text-decoration: underline;
         }
 
         .social-icons a {
-            font-size: 24px;
+            font-size: 26px;
             color: var(--text-muted);
-            margin: 0 10px;
-            transition: color 0.3s ease;
+            margin: 0 12px;
+            transition: all 0.3s ease;
         }
-        .social-icons a:hover { color: var(--gold); }
+        .social-icons a:hover { 
+            color: var(--emerald); 
+            transform: translateY(-3px);
+            filter: drop-shadow(0 4px 8px var(--emerald-glow));
+        }
         
         .mb-2 { margin-bottom: 8px; }
 
         /* WhatsApp Bubble */
         .chat-bubble {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 56px;
-            height: 56px;
+            bottom: 28px;
+            right: 28px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, #25D366, #128C7E);
             color: white;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 26px;
+            font-size: 28px;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+            box-shadow: 0 6px 25px rgba(37,211,102,0.4);
             z-index: 1000;
-            animation: slideIn 1s ease-out forwards;
-            transition: transform 0.2s;
+            animation: floatBubble 3s ease-in-out infinite;
+            transition: all 0.3s ease;
         }
 
-        .chat-bubble:hover { transform: scale(1.05); }
+        @keyframes floatBubble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
 
-        @keyframes slideIn {
-            0% { transform: translateX(100%); opacity: 0; }
-            100% { transform: translateX(0); opacity: 1; }
+        .chat-bubble:hover { 
+            transform: scale(1.1); 
+            box-shadow: 0 8px 35px rgba(37,211,102,0.5);
         }
 
         .chat-text {
             position: fixed;
-            bottom: 90px;
-            right: 24px;
+            bottom: 98px;
+            right: 28px;
             background: linear-gradient(135deg, #25D366, #128C7E);
             color: white;
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 12px 18px;
+            border-radius: 14px;
             font-size: 13px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             white-space: nowrap;
             opacity: 0;
             transform: scale(0.9);
@@ -905,49 +1084,57 @@
             z-index: 1001;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
+            font-weight: 600;
         }
 
         .chat-text.show { opacity: 1; transform: scale(1); }
         .chat-text.hide { opacity: 0; transform: scale(0.9); }
 
         .legal-warning {
-            background: rgba(196,30,58,0.08);
-            border: 1px solid rgba(196,30,58,0.25);
-            border-left: 4px solid var(--crimson);
-            padding: 16px;
-            border-radius: 8px;
+            background: rgba(229,57,53,0.06);
+            border: 1px solid rgba(229,57,53,0.2);
+            border-left: 4px solid var(--ruby);
+            padding: 18px;
+            border-radius: var(--radius-sm);
             margin-top: 16px;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.6;
         }
 
         .legal-warning .warning-title {
-            color: var(--crimson);
+            color: var(--ruby);
             font-weight: 800;
             font-size: 15px;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .legal-warning .warning-content {
-            color: var(--white);
+            color: var(--text-primary);
         }
 
         .legal-warning .emphasis-red {
-            color: var(--crimson);
+            color: var(--ruby);
             font-weight: 700;
         }
 
         .legal-warning a {
-            color: var(--crimson) !important;
+            color: var(--ruby-light) !important;
             text-decoration: underline;
             font-weight: 700;
         }
 
         .legal-warning a:hover {
-            color: #ff4d6a !important;
+            color: var(--white) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .wrap { padding: 10px; }
+            .package-grid { grid-template-columns: 1fr 1fr; }
+            .profile-stats { flex-direction: column; gap: 12px; }
         }
     </style>
 </head>
@@ -956,93 +1143,97 @@
     <div class="ambient-1"></div>
     <div class="ambient-2"></div>
 
-    <!-- CABECERA (Header) -->
-    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 h-16" style="background-color: #000000;">
+    <!-- CABECERA PREMIUM -->
+    <header class="px-4 py-3 flex items-center justify-between sticky top-0 z-40 h-16">
         <div class="flex items-center gap-3">
-            <!-- Icono de menú -->
-            <button id="menu-toggle" class="p-1 rounded-full transition-colors">
+            <button id="menu-toggle" class="p-2 rounded-full transition-all hover:bg-white/5">
                 <i data-lucide="menu" class="header-icon"></i>
             </button>
         </div>
         
-        <!-- Texto centrado en la cabecera - Solo "Developer" (eliminado "Masitaprex") -->
         <div class="flex-1 text-center">
-            <h1 class="header-center-text" style="position: static; transform: none;">Developer</h1>
+            <h1 class="header-center-text">Developer</h1>
         </div>
         
         <div class="flex items-center gap-4">
-            <!-- Icono Perfil - Eliminado (oculto) -->
-            <!-- Icono Compartir -->
-            <button id="share-btn" class="p-1 rounded-full transition-colors">
+            <button id="share-btn" class="p-2 rounded-full transition-all hover:bg-white/5">
                 <i data-lucide="share-2" class="header-icon"></i>
             </button>
         </div>
     </header>
 
-    <!-- MENU LATERAL (Sidebar) -->
+    <!-- ═══ SIDEBAR ÉLITE ═══ -->
     <div id="sidebar-overlay"></div>
     
     <aside id="sidebar">
-        <div class="sidebar-header-bg">
-            <div>
-                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono masitaprex">
+        <div class="sb-header">
+            <div class="sb-logo-box">
+                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex">
             </div>
-            <h1>masitaprex</h1>
+            <div class="sb-brand">Masitaprex</div>
+            <div class="sb-tagline">Infraestructura Tecnológica • LATAM</div>
         </div>
 
-        <nav>
-            <a href="home" class="menu-item">
-                <i data-lucide="layout-dashboard" class="menu-icon"></i>
-                <span>Inicio</span>
-            </a>
-            <a href="api-key" class="menu-item active">
-                <i data-lucide="terminal-square" class="menu-icon"></i>
-                <span>Mi API Key</span>
-            </a>
-            <a href="planes" class="menu-item">
-                <i data-lucide="credit-card" class="menu-icon"></i>
-                <span>Recargar</span>
-            </a>
-            <a href="API-Docs" class="menu-item">
-                <i data-lucide="file-code-2" class="menu-icon"></i>
-                <span>Documentación APIs</span>
-            </a>
-            <a href="PeliPREX" class="menu-item">
-                <i data-lucide="clapperboard" class="menu-icon"></i>
-                <span>Películas gratis</span>
-            </a>
-            <a href="consultaPe-vercion-web" class="menu-item">
-                <i data-lucide="globe" class="menu-icon"></i>
-                <span>ConsultaPe vercion web</span>
-            </a>
+        <div class="sb-scroll-area">
+            <nav>
+                <!-- General -->
+                <div class="sb-cat">General</div>
+                <a href="home" class="active">
+                    <i class="fas fa-home sb-icon"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="planes">
+                    <i class="fas fa-bolt sb-icon"></i>
+                    <span>Recargar</span>
+                </a>
+                
+                <!-- Herramientas API -->
+                <div class="sb-cat">Herramientas API</div>
+                <a href="api-key">
+                    <i class="fas fa-key sb-icon"></i>
+                    <span>Mi API Key</span>
+                </a>
+                <a href="API-Docs">
+                    <i class="fas fa-file-code sb-icon"></i>
+                    <span>Documentación APIs</span>
+                </a>
+                <a href="consultaPe-vercion-web">
+                    <i class="fas fa-globe sb-icon"></i>
+                    <span>ConsultaPe versión web</span>
+                </a>
 
-            <!-- Próximamente -->
-            <div style="padding:18px 22px 6px;font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,200,200,.32);">Próximamente</div>
-            <a href="home-Revenue-Recovery-OS" class="menu-item" style="position:relative;">
-                <i data-lucide="bot" class="menu-icon"></i>
-                <span>Revenue-Recovery-OS</span>
-                <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:linear-gradient(90deg,#7B2F9D,#6D5BFF);color:#fff;margin-left:auto;flex-shrink:0;">Pronto</span>
-            </a>
+                <!-- Entretenimiento -->
+                <div class="sb-cat">Entretenimiento</div>
+                <a href="PeliPREX">
+                    <i class="fas fa-film sb-icon"></i>
+                    <span>Películas gratis</span>
+                </a>
 
-            <!-- Cuenta -->
-            <div style="padding:18px 22px 6px;font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,200,200,.32);">Cuenta</div>
-            <a href="ayuda" class="menu-item">
-                <i data-lucide="life-buoy" class="menu-icon"></i>
-                <span>Ayuda y soporte</span>
-            </a>
-            <a href="actividad" class="menu-item">
-                <i data-lucide="user-circle-2" class="menu-icon"></i>
-                <span>Mi cuenta</span>
-            </a>
-        </nav>
+                <!-- Próximamente -->
+                <div class="sb-cat">Próximamente</div>
+                <a href="bienvenida-Revenue-Recovery-OS">
+                    <i class="fas fa-robot sb-icon"></i>
+                    <span>Revenue-Recovery-OS</span>
+                    <span class="sb-badge">Pronto</span>
+                </a>
 
-        <div class="sidebar-social">
-            <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube">
-                <i class="fab fa-youtube"></i>
-            </a>
+                <!-- Cuenta -->
+                <div class="sb-cat">Cuenta</div>
+                <a href="ayuda">
+                    <i class="fas fa-headset sb-icon"></i>
+                    <span>Ayuda y soporte</span>
+                </a>
+                <a href="actividad">
+                    <i class="fas fa-user-circle sb-icon"></i>
+                    <span>Mi cuenta</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="sb-footer">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://youtube.com/@eltiojota628" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/51944950234" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         </div>
     </aside>
 
@@ -1051,7 +1242,7 @@
         <div class="banner-title"><i class="fas fa-heart" style="margin-right:8px;"></i> 🤭 ¡Pequeño favorcito!</div>  
         <div class="banner-description">  
             <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
-            <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a la infraestructura de Masitaprex y seguir mejorando juntos..😜✨</p>  
+            <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a la infraestructura de Masitaprex y seguir mejorando juntos. 😜✨</p>  
         </div>  
         <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt" style="margin-right:8px;"></i> Compartir ahora</a>  
         <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times" style="margin-right:8px;"></i> Quizás más tarde</a>  
@@ -1059,11 +1250,7 @@
 
     <!-- CONTENIDO PRINCIPAL DE API KEY -->
     <div id="loading-indicator">
-        <div class="dots-loader">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-        </div>
+        <div class="spinner-ring"></div>
     </div>
     
     <div class="wrap" id="profile-container" style="display: none;">
@@ -1075,7 +1262,7 @@
                 </div>
                 <div>
                     <h2>Hola, <span id="userName"></span></h2>
-                    <p style="font-size:14px;color:var(--text-muted);margin:0;">¡Bienvenido(a) a la infraestructura de Masitaprex APIs!</p>
+                    <p style="font-size:14px;color:var(--text-muted);margin:0;">¡Bienvenido(a) a la infraestructura Masitaprex!</p>
                 </div>
             </div>
             <div class="profile-stats">
@@ -1089,25 +1276,25 @@
                     <span style="font-size:11px;color:var(--text-muted);">Vence el: <span id="venceEl"></span></span>
                 </div>
             </div>
-            <a href="planes" class="btn-primary">Recargar Créditos <i class="ri-wallet-3-line"></i></a>
+            <a href="planes" class="btn-primary">⚡ Recargar Créditos <i class="ri-wallet-3-line"></i></a>
         </div>
 
         <div class="section-card gradient-border">
-            <h3>Tu Token de Acceso</h3>
+            <h3>🔑 Tu Token de Acceso</h3>
             <p style="font-size:14px;color:var(--text-muted);">
-                Usa este token en el encabezado <code class="font-bold">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica Masitaprex APIs.
+                Usa este token en el encabezado <code class="font-bold" style="color:var(--gold);">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica Masitaprex APIs.
             </p>
             <div class="input-group">
-                <input type="text" id="api-key-field" readonly placeholder="Ma••••••••••••••••••••••" />
+                <input type="text" id="api-key-field" readonly placeholder="ma••••••••••••••••••••••pe" />
                 <button class="copy-btn" id="copy-api-key-btn" title="Copiar Token">
                     <i class="ri-file-copy-line"></i>
                 </button>
             </div>
             <button class="btn-secondary" id="generate-api-key-btn">
-                <i class="ri-refresh-line"></i> Generar Nuevo Token
+                <i class="ri-refresh-line"></i> 🔄 Generar Nuevo Token
             </button>
             <a href="API-Docs" target="_blank" class="btn-secondary">
-                <i class="ri-book-3-line"></i> Ver documentación
+                <i class="ri-book-3-line"></i> 📚 Ver documentación
             </a>
         </div>
 
@@ -1116,11 +1303,11 @@
                 <i class="ri-sparkling-2-line"></i>
                 ¡Felicidades por elegir la infraestructura Masitaprex! 🚀
             </div>
-            <p class="font-bold" style="color:var(--white);">
+            <p class="font-bold" style="color:var(--text-primary);">
                 Has tomado una de las mejores decisiones para tu proyecto.
             </p>
             <p>
-                Aquí encontrarás <strong> servicios de Infraestructura tecnológica Masitaprex APIs listos para integrar</strong>, limpios, estables y con soporte constante.
+                Aquí encontrarás <strong style="color:var(--emerald);">servicios de Infraestructura tecnológica Masitaprex APIs listos para integrar</strong>, limpios, estables y con soporte constante.
                 Tu desarrollo ahora será más rápido, más potente y con resultados profesionales.
             </p>
             
@@ -1144,14 +1331,14 @@
             <p>
                 Recuerda que cada servicio de Infraestructura tecnológica Masitaprex APIs tiene su propio consumo de créditos.
             </p>
-            <p class="font-bold" style="color:var(--gold);">
+            <p class="font-bold" style="color:var(--emerald);">
                 👉 El consumo puede ser gestionado de forma independiente según las necesidades de tu sistema.
             </p>
             <div class="text-container">
                 <div class="text-container-header">
                     ⚙️ Gestión del Consumo:
                 </div>
-                <p style="color:var(--white);">
+                <p style="color:var(--text-primary);">
                     Cada servicio tiene un consumo de créditos definido. Puedes gestionar el uso de las APIs según las necesidades de tu sistema. Masitaprex proporciona infraestructura tecnológica para procesamiento de datos.
                 </p>
             </div>
@@ -1160,12 +1347,12 @@
         <div class="section-card gradient-border">
             <div class="text-container-header">
                 <i class="ri-database-line"></i>
-                💳 Tabla de Créditos por Servicio de Infraestructura tecnológica Masitaprex APIs
+                💳 Tabla de Créditos por Servicio
             </div>
             <div class="table-scroll">
                 <table class="credit-table">
                     <thead>
-                        <tr><th>🔧 Servicio de Infraestructura tecnológica</th><th>💰 Créditos</th><th>📝 Descripción</th></tr>
+                        <tr><th>🔧 Servicio de Infraestructura</th><th>💰 Créditos</th><th>📝 Descripción</th></tr>
                     </thead>
                     <tbody>
                         <tr><td><strong>Consulta RENIEC por DNI</strong></td><td>7</td><td>Infraestructura tecnológica para acceso a datos básicos de identificación</td></tr>
@@ -1181,7 +1368,7 @@
                         <tr><td><strong>Consulta por Cédula Venezolana</strong></td><td>5</td><td>Procesamiento de consultas por documento venezolano</td></tr>
                     </tbody>
                     <tfoot>
-                        <tr><td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--text-muted);"><strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, procesamiento, servidores y mantenimiento del servicio. No representan pago por datos personales.</td></tr>
+                        <tr><td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--text-muted);"><strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, procesamiento, servidores y mantenimiento del servicio.</td></tr>
                     </tfoot>
                 </table>
             </div>
@@ -1202,10 +1389,10 @@
                 🧩 11 Servicios de Infraestructura tecnológica Masitaprex APIs Listos para Ti
             </div>
             <p>
-                Todos nuestros servicios están <strong>listos para consumir</strong>, probados y optimizados para máxima eficiencia.
+                Todos nuestros servicios están <strong style="color:var(--emerald);">listos para consumir</strong>, probados y optimizados para máxima eficiencia.
             </p>
             <p>
-                Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong>no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
+                Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong style="color:var(--gold);">no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
             </p>
         </div>
 
@@ -1222,13 +1409,13 @@
                     <div class="package-card"><div class="amount">S/20</div><div class="credits">125 🚀 CRÉDITOS</div><div class="benefit">Buen equilibrio entre costo y rendimiento</div></div>
                 </a>
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/50</div><div class="credits">330 💎 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold);">Opción inteligente y más rentable</div></div>
+                    <div class="package-card"><div class="amount">S/50</div><div class="credits">330 💎 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--emerald);">Opción inteligente y más rentable</div></div>
                 </a>
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
                     <div class="package-card"><div class="amount">S/100</div><div class="credits">700 👑 CRÉDITOS</div><div class="benefit">Plan avanzado con excelente retorno</div></div>
                 </a>
                 <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/200</div><div class="credits">1500 🔥 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold-light);">La mejor relación costo-beneficio</div></div>
+                    <div class="package-card"><div class="amount">S/200</div><div class="credits">1500 🔥 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold);">La mejor relación costo-beneficio</div></div>
                 </a>
             </div>
         </div>
@@ -1239,9 +1426,9 @@
                 📊 Comparativa de Ahorro por Paquete
             </div>
             <p>Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong></p>
-            <p>Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="font-bold" style="color: var(--gold);">💰 13% de ahorro</span></p>
-            <p>Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span class="font-bold" style="color: var(--gold-light);">🔥 24% de ahorro</span></p>
-            <p class="font-bold" style="color:var(--gold);">👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.</p>
+            <p>Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="font-bold" style="color: var(--emerald);">💰 13% de ahorro</span></p>
+            <p>Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span class="font-bold" style="color: var(--gold);">🔥 24% de ahorro</span></p>
+            <p class="font-bold" style="color:var(--emerald);">👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.</p>
         </div>
         
         <div class="section-card gradient-border">
@@ -1249,21 +1436,21 @@
                 <i class="ri-award-line"></i>
                 💎 Comparativa de Paquetes y Ahorro
             </div>
-            <p class="font-bold" style="color: var(--white);">🎯 Recomendación principal: Si realizas consultas con frecuencia, elige el paquete de <strong>S/50 (330 créditos) o superior</strong>.</p>
-            <p>Pagas menos por cada crédito, obtienes más consultas por el mismo dinero, y además te regalamos <strong>3 créditos adicionales como bono especial 🎁</strong>.</p>
+            <p class="font-bold" style="color: var(--text-primary);">🎯 Recomendación principal: Si realizas consultas con frecuencia, elige el paquete de <strong style="color:var(--emerald);">S/50 (330 créditos) o superior</strong>.</p>
+            <p>Pagas menos por cada crédito, obtienes más consultas por el mismo dinero, y además te regalamos <strong style="color:var(--gold);">3 créditos adicionales como bono especial 🎁</strong>.</p>
 
             <div class="text-container-header" style="margin-top: 10px;">
                 <i class="ri-checkbox-circle-line"></i>
                 ✨ Ventajas exclusivas
             </div>
             <ul class="advantage-list">
-                <li><i class="ri-check-line"></i> Tus créditos <strong>jamás caducan</strong>.</li>
+                <li><i class="ri-check-line"></i> Tus créditos <strong style="color:var(--emerald);">jamás caducan</strong>.</li>
                 <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
                 <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
                 <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios de Infraestructura tecnológica Masitaprex APIs y soporte técnico directo.</li>
             </ul>
-            <p class="font-bold text-center" style="margin-top: 15px; color: var(--white);">💬 En pocas palabras: Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.</p>
-            <p class="font-bold text-center" style="color:var(--gold-light); font-size: 18px;">🔥 La infraestructura Masitaprex APIs premia a los desarrolladores inteligentes.</p>
+            <p class="font-bold text-center" style="margin-top: 15px; color: var(--text-primary);">💬 En pocas palabras: Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.</p>
+            <p class="font-bold text-center" style="color:var(--gold); font-size: 18px;">🔥 La infraestructura Masitaprex APIs premia a los desarrolladores inteligentes.</p>
         </div>
 
         <div class="section-card gradient-border">
@@ -1271,7 +1458,7 @@
                 <i class="ri-global-line"></i>
                 🌐 Planes Ilimitados (para proyectos con alto tráfico)
             </div>
-            <p>Si tu app ya tiene muchos usuarios o tráfico constante, el <strong>plan ilimitado</strong> es una excelente opción.</p>
+            <p>Si tu app ya tiene muchos usuarios o tráfico constante, el <strong style="color:var(--emerald);">plan ilimitado</strong> es una excelente opción.</p>
             <table class="unlimited-table">
                 <thead><tr><th>DURACIÓN</th><th>PRECIO SUGERIDO</th><th>AHORRO ESTIMADO</th></tr></thead>
                 <tbody>
@@ -1290,11 +1477,9 @@
                 <i class="ri-emotion-line"></i>
                 ✨ Conclusión:
             </div>
-            <p>La infraestructura Masitaprex APIs te brinda una <strong>experiencia completa, confiable y escalable</strong> al actuar como <strong>plataforma tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer. Queremos que disfrutes cada integración, que sientas que tu proyecto avanza, y que digas con orgullo:</p>
+            <p>La infraestructura Masitaprex APIs te brinda una <strong style="color:var(--emerald);">experiencia completa, confiable y escalable</strong> al actuar como <strong style="color:var(--gold);">plataforma tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer. Queremos que disfrutes cada integración, que sientas que tu proyecto avanza, y que digas con orgullo:</p>
             <blockquote class="quote">Elegí la infraestructura Masitaprex APIs… y fue la mejor decisión. 💚</blockquote>
         </div>
-
-        <!-- SECCIÓN DE PREGUNTAS FRECUENTES ELIMINADA COMPLETAMENTE -->
 
         <footer>
             <h3>Síguenos en nuestras redes sociales</h3>
@@ -1497,6 +1682,18 @@
                     }, 3000);
                 }
 
+                // Función para mostrar máscara parcial del API Key
+                function maskApiKey(key) {
+                    if (!key || key.length < 8) {
+                        return 'ma••••••••••••••••pe';
+                    }
+                    const firstChars = key.substring(0, 2);
+                    const lastChars = key.substring(key.length - 2);
+                    const middleLength = key.length - 4;
+                    const maskedMiddle = '•'.repeat(Math.min(middleLength, 18));
+                    return firstChars + maskedMiddle + lastChars;
+                }
+
                 async function generateNewApiKey() {
                     if (!currentUser) {
                         showFeedbackModal('No hay usuario autenticado.', true);
@@ -1511,8 +1708,7 @@
                         await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
 
                         tempApiKey = newApiKey;
-                        const masked = newApiKey.substring(0,2) + '•'.repeat(Math.max(0, newApiKey.length - 2));
-                        apiKeyField.value = masked;
+                        apiKeyField.value = maskApiKey(newApiKey);
                         
                         showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
                     } catch (e) {
@@ -1530,7 +1726,7 @@
                     }
                     if (navigator.clipboard) {
                         navigator.clipboard.writeText(tempApiKey)
-                            .then(() => showFeedbackModal('Token copiado al portapapeles!'))
+                            .then(() => showFeedbackModal('✅ Token copiado al portapapeles!'))
                             .catch(err => fallbackCopyTextToClipboard(tempApiKey));
                     } else {
                         fallbackCopyTextToClipboard(tempApiKey);
@@ -1546,7 +1742,7 @@
                     tempInput.select();
                     try {
                         const successful = document.execCommand('copy');
-                        if (successful) showFeedbackModal('Token copiado al portapapeles!');
+                        if (successful) showFeedbackModal('✅ Token copiado al portapapeles!');
                         else showFeedbackModal('No se pudo copiar el token.', true);
                     } catch (err) {
                         showFeedbackModal('No se pudo copiar el token.', true);
@@ -1611,8 +1807,7 @@
 
                         if (userData.apiKey) {
                             tempApiKey = userData.apiKey;
-                            const masked = userData.apiKey.substring(0,2) + '•'.repeat(Math.max(0, userData.apiKey.length - 2));
-                            apiKeyField.value = masked;
+                            apiKeyField.value = maskApiKey(userData.apiKey);
                         } else {
                             generateNewApiKey();
                         }
