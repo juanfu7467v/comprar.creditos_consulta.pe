@@ -9,7 +9,60 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* ── SIDEBAR ── */
+        #sb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:50;opacity:0;transition:opacity .3s;display:none;backdrop-filter:blur(4px);}
+        #sb-overlay.show{opacity:1;}
+        #sidebar{position:fixed;top:0;left:0;height:100%;width:280px;background:linear-gradient(180deg,#06071a,#090b1f 60%,#06071a);border-right:1px solid rgba(30,64,175,.3);z-index:60;overflow: hidden;transition:transform .35s cubic-bezier(.4,0,.2,1);transform:translateX(-100%);display:flex;flex-direction:column;box-shadow:6px 0 40px rgba(0,0,0,.55);}
+        #sidebar.open{transform:translateX(0);}
+        .sb-hdr{padding:34px 20px 22px;background:linear-gradient(160deg,rgba(30,64,175,.12),rgba(5,150,105,.1));border-bottom:1px solid rgba(30,64,175,.2);display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;}
+        .sb-hdr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#1e40af,#059669,transparent);}
+        .sb-logo{width:58px;height:58px;border-radius:14px;border:1px solid rgba(30,64,175,.4);box-shadow:0 0 20px rgba(30,64,175,.2);overflow:hidden;margin-bottom:10px;}
+        .sb-logo img{width:100%;height:100%;object-fit:cover;}
+        .sb-brand{font-weight:800;font-size:1rem;background:linear-gradient(90deg,#60a5fa,#34d399);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.1em;text-transform:uppercase;}
+        .sb-tag{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px;}
+        .sb-cat{padding:16px 20px 5px;font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.28);}
+        #sidebar nav{padding:8px 0;}
+        #sidebar nav a{display:flex;align-items:center;gap:12px;padding:11px 20px;color:rgba(255,255,255,.72);transition:all .2s;text-decoration:none;border-left:2px solid transparent;font-size:.9rem;}
+        #sidebar nav a:hover{background:rgba(30,64,175,.12);color:#60a5fa;border-left-color:#60a5fa;}
+        #sidebar nav a.active{background:rgba(30,64,175,.15);color:#60a5fa;border-left-color:#60a5fa;font-weight:600;}
+        .sb-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:linear-gradient(90deg,#7B2F9D,#6D5BFF);color:#fff;margin-left:auto;flex-shrink:0;}
+        .sb-ftr{padding:16px 20px 26px;border-top:1px solid rgba(255,255,255,.07);text-align:center;
+            flex-shrink: 0;
+        }
+        .sb-ftr a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);font-size:14px;margin:0 5px;transition:all .2s;text-decoration:none;}
+        .sb-ftr a:hover{background:rgba(30,64,175,.25);color:#60a5fa;}
+        #sidebar::-webkit-scrollbar{width:4px;}#sidebar::-webkit-scrollbar-track{background:transparent;}#sidebar::-webkit-scrollbar-thumb{background:rgba(30,64,175,.3);border-radius:2px;}
+        .sb-toggle{position:fixed;top:14px;left:14px;z-index:45;width:44px;height:44px;border-radius:12px;background:rgba(10,10,20,.85);backdrop-filter:blur(10px);border:1px solid rgba(30,64,175,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(0,0,0,.4);}
+        .sb-toggle:hover{background:rgba(30,64,175,.2);}
+        .sb-toggle i{color:#60a5fa;font-size:18px;}
+        @media(min-width:1100px){#sidebar{transform:translateX(0);}.sb-toggle{display:none;}#sb-overlay{display:none!important;}.main-container{padding-left:300px;}}
+    
+        #sidebar { --sb-thumb: rgba(30,64,175,.45); --sb-thumb-hover: rgba(30,64,175,.75); }
+
+        /* ── SIDEBAR SCROLL AREA (fix: nav scrollable, header+footer fixed) ── */
+        .sb-scroll-area {
+            flex: 1 1 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--sb-thumb, rgba(0,240,255,.30)) transparent;
+        }
+        .sb-scroll-area::-webkit-scrollbar { width: 3px; }
+        .sb-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .sb-scroll-area::-webkit-scrollbar-thumb {
+            background: var(--sb-thumb, rgba(0,240,255,.28));
+            border-radius: 2px;
+        }
+        .sb-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: var(--sb-thumb-hover, rgba(0,240,255,.55));
+        }
+
+        </style>
         * {
             margin: 0;
             padding: 0;
@@ -1024,6 +1077,51 @@
     </style>
 </head>
 <body>
+    <!-- SIDEBAR OVERLAY -->
+    <div id="sb-overlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <div class="sb-hdr">
+            <div class="sb-logo"><img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex"></div>
+            <div class="sb-brand">Masitaprex</div>
+            <div class="sb-tag">Infraestructura tecnológica Perú</div>
+        </div>
+        <div class="sb-scroll-area">
+        <nav>
+            <div class="sb-cat">General</div>
+            <a href="home"><i class="fas fa-home" style="width:18px;"></i><span>Inicio</span></a>
+
+            <div class="sb-cat">Herramientas API</div>
+            <a href="api-key"><i class="fas fa-key" style="width:18px;"></i><span>Mi API Key</span></a>
+            <a href="planes"><i class="fas fa-bolt" style="width:18px;"></i><span>Recargar</span></a>
+            <a href="API-Docs"><i class="fas fa-file-code" style="width:18px;"></i><span>Documentación APIs</span></a>
+
+            <div class="sb-cat">Entretenimiento</div>
+            <a href="PeliPREX"><i class="fas fa-film" style="width:18px;"></i><span>Películas gratis</span></a>
+            <a href="consultaPe-vercion-web"><i class="fas fa-globe" style="width:18px;"></i><span>ConsultaPe versión web</span></a>
+
+            <div class="sb-cat">Próximamente</div>
+            <a href="home-Revenue-Recovery-OS" class="active">
+                <i class="fas fa-robot" style="width:18px;"></i>
+                <span>Revenue-Recovery-OS</span>
+                <span class="sb-badge">Pronto</span>
+            </a>
+
+            <div class="sb-cat">Cuenta</div>
+            <a href="ayuda"><i class="fas fa-life-ring" style="width:18px;"></i><span>Ayuda y soporte</span></a>
+            <a href="actividad"><i class="fas fa-user-circle" style="width:18px;"></i><span>Mi cuenta</span></a>
+        </nav>
+        </div>
+        <div class="sb-ftr">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://youtube.com/@eltiojota628" target="_blank"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/51944950234" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </aside>
+
+    <!-- Hamburger -->
+    <button class="sb-toggle" id="sbToggle" aria-label="Menú"><i class="fas fa-bars"></i></button>
     <!-- Diamantes de fondo -->
     <div class="diamond"></div>
     <div class="diamond"></div>
@@ -1390,6 +1488,19 @@
         document.querySelectorAll('.stat-card').forEach(card => {
             statsObserver.observe(card);
         });
+
+        // Sidebar toggle
+        (function(){
+            const sb=document.getElementById('sidebar');
+            const ov=document.getElementById('sb-overlay');
+            const btn=document.getElementById('sbToggle');
+            if(!sb||!ov||!btn) return;
+            function open(){sb.classList.add('open');ov.style.display='block';requestAnimationFrame(()=>ov.classList.add('show'));document.body.style.overflow='hidden';}
+            function close(){sb.classList.remove('open');ov.classList.remove('show');setTimeout(()=>ov.style.display='none',300);document.body.style.overflow='';}
+            btn.addEventListener('click',open);
+            ov.addEventListener('click',close);
+            sb.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>{ if(window.innerWidth<1100) close(); }));
+        })();
     </script>
 </body>
 </html>
