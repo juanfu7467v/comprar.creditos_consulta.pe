@@ -1930,7 +1930,7 @@
             });
         }
 
-        // ===== VALIDAR PLAN Y REDIRIGIR SI VENCIÓ =====
+        // ===== VALIDAR PLAN Y REDIRIGIR SI NO HAY PLAN ACTIVO =====
         async function validatePlanAndRedirect() {
             if (!currentUser || !db) return;
             
@@ -1938,34 +1938,42 @@
                 const empresaRef = db.collection('empresas').doc(currentUser.uid);
                 const empresaDoc = await empresaRef.get();
                 
-                if (empresaDoc.exists) {
-                    const data = empresaDoc.data();
-                    let expiryDays = 30;
-                    let isExpired = false;
-                    
-                    // Calcular días restantes
-                    if (data.planExpiry) {
-                        const expiry = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
-                        const now = new Date();
-                        const diffTime = expiry - now;
-                        expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        isExpired = expiryDays <= 0;
-                    } else if (data.activatedAt) {
-                        const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
-                        const now = new Date();
-                        const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
-                        expiryDays = Math.max(0, 30 - daysSince);
-                        isExpired = expiryDays <= 0;
-                    }
-                    
-                    // Verificar estado del plan
-                    if (data.planStatus === 'expired' || isExpired) {
-                        showToast('Tu plan ha vencido. Redirigiendo a facturación...', 'error');
-                        setTimeout(() => {
-                            window.location.href = 'facturacion-Revenue-Recovery-OS.html';
-                        }, 2000);
-                        return true;
-                    }
+                // Si no existe documento o no tiene plan activo, redirigir a facturación
+                if (!empresaDoc.exists || !empresaDoc.data().plan || empresaDoc.data().planStatus !== 'active') {
+                    console.warn('No active plan found. Redirecting to billing...');
+                    showToast('Por favor selecciona un plan para continuar', 'info');
+                    setTimeout(() => {
+                        window.location.href = 'facturacion-Revenue-Recovery-OS.html';
+                    }, 1500);
+                    return true;
+                }
+                
+                const data = empresaDoc.data();
+                let expiryDays = 30;
+                let isExpired = false;
+                
+                // Calcular días restantes
+                if (data.planExpiry) {
+                    const expiry = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
+                    const now = new Date();
+                    const diffTime = expiry - now;
+                    expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    isExpired = expiryDays <= 0;
+                } else if (data.activatedAt) {
+                    const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
+                    const now = new Date();
+                    const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
+                    expiryDays = Math.max(0, 30 - daysSince);
+                    isExpired = expiryDays <= 0;
+                }
+                
+                // Verificar estado del plan
+                if (data.planStatus === 'expired' || isExpired) {
+                    showToast('Tu plan ha vencido. Redirigiendo a facturación...', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'facturacion-Revenue-Recovery-OS.html';
+                    }, 2000);
+                    return true;
                 }
             } catch (error) {
                 console.error('Error validating plan:', error);
@@ -1973,7 +1981,7 @@
             return false;
         }
 
-        // ===== CARGAR DATOS DEL PLAN =====
+        // ===== CARGAR DATOS DEL PLAN (DATOS REALES DESDE FIRESTORE) =====
         async function loadPlanData() {
             if (!currentUser || !db) return;
             
@@ -1981,71 +1989,78 @@
                 const empresaRef = db.collection('empresas').doc(currentUser.uid);
                 const empresaDoc = await empresaRef.get();
                 
-                if (empresaDoc.exists) {
-                    const data = empresaDoc.data();
-                    
-                    let planName = 'Plan Starter';
-                    let expiryDays = 30;
-                    let isExpired = false;
-                    
-                    if (data.plan) {
-                        planName = data.plan;
-                    } else if (data.type === 'enterprise') {
-                        planName = 'Plan Enterprise';
-                    } else if (data.type === 'business') {
-                        planName = 'Plan Business';
-                    }
-                    
-                    // Calcular días restantes
-                    if (data.planExpiry) {
-                        const expiry = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
-                        const now = new Date();
-                        const diffTime = expiry - now;
-                        expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        isExpired = expiryDays <= 0;
-                    } else if (data.activatedAt) {
-                        const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
-                        const now = new Date();
-                        const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
-                        expiryDays = Math.max(0, 30 - daysSince);
-                        isExpired = expiryDays <= 0;
-                    }
-                    
-                    // Actualizar UI
-                    document.getElementById('plan-name').textContent = planName;
-                    
-                    let expiryText;
-                    let badge = document.getElementById('plan-badge');
-                    
-                    if (isExpired || data.planStatus === 'expired') {
-                        expiryText = 'Plan vencido';
-                        badge.className = 'card-badge expiring';
-                        badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i> Vencido';
-                        
-                        // Redirigir a facturación
-                        showToast('Tu plan ha vencido. Redirigiendo a facturación...', 'error');
-                        setTimeout(() => {
-                            window.location.href = 'facturacion-Revenue-Recovery-OS.html';
-                        }, 2000);
-                    } else {
-                        expiryText = expiryDays > 0 ? `Vence en ${expiryDays} días` : 'Vence hoy';
-                        
-                        if (expiryDays <= 3) {
-                            badge.className = 'card-badge expiring';
-                            badge.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i> Por vencer';
-                        } else if (expiryDays <= 7) {
-                            badge.className = 'card-badge warning';
-                            badge.innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i> Renovar pronto';
-                        } else {
-                            badge.className = 'card-badge';
-                            badge.innerHTML = '<i class="fas fa-star" style="margin-right: 4px;"></i> Activo';
-                        }
-                    }
-                    
-                    document.getElementById('plan-expiry').textContent = expiryText;
+                // Mostrar Plan 0 si no hay plan activo
+                if (!empresaDoc.exists || !empresaDoc.data().plan || empresaDoc.data().planStatus !== 'active') {
+                    document.getElementById('plan-name').textContent = 'Plan 0';
+                    document.getElementById('plan-expiry').textContent = 'Sin plan activo';
+                    const badge = document.getElementById('plan-badge');
+                    badge.className = 'card-badge';
+                    badge.innerHTML = '<i class="fas fa-info-circle" style="margin-right: 4px;"></i> Inactivo';
+                    return;
                 }
+                
+                const data = empresaDoc.data();
+                
+                // Usar datos reales del plan desde Firestore
+                let planName = data.plan || 'Plan 0';
+                let expiryDays = 0;
+                let isExpired = false;
+                
+                // Calcular días restantes basado en planExpiry real
+                if (data.planExpiry) {
+                    const expiry = data.planExpiry.toDate ? data.planExpiry.toDate() : new Date(data.planExpiry);
+                    const now = new Date();
+                    const diffTime = expiry - now;
+                    expiryDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    isExpired = expiryDays <= 0;
+                } else if (data.activatedAt) {
+                    const activated = data.activatedAt.toDate ? data.activatedAt.toDate() : new Date(data.activatedAt);
+                    const now = new Date();
+                    const daysSince = Math.floor((now - activated) / (1000 * 60 * 60 * 24));
+                    expiryDays = Math.max(0, 30 - daysSince);
+                    isExpired = expiryDays <= 0;
+                }
+                
+                // Actualizar UI con datos reales
+                document.getElementById('plan-name').textContent = planName;
+                
+                let expiryText;
+                let badge = document.getElementById('plan-badge');
+                
+                if (isExpired || data.planStatus === 'expired') {
+                    expiryText = 'Plan vencido';
+                    badge.className = 'card-badge expiring';
+                    badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right: 4px;"></i> Vencido';
+                    
+                    // Redirigir a facturación
+                    showToast('Tu plan ha vencido. Redirigiendo a facturación...', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'facturacion-Revenue-Recovery-OS.html';
+                    }, 2000);
+                } else {
+                    expiryText = expiryDays > 0 ? `Vence en ${expiryDays} días` : 'Vence hoy';
+                    
+                    if (expiryDays <= 3) {
+                        badge.className = 'card-badge expiring';
+                        badge.innerHTML = '<i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i> Por vencer';
+                    } else if (expiryDays <= 7) {
+                        badge.className = 'card-badge warning';
+                        badge.innerHTML = '<i class="fas fa-clock" style="margin-right: 4px;"></i> Renovar pronto';
+                    } else {
+                        badge.className = 'card-badge';
+                        badge.innerHTML = '<i class="fas fa-star" style="margin-right: 4px;"></i> Activo';
+                    }
+                }
+                
+                document.getElementById('plan-expiry').textContent = expiryText;
             } catch (error) {
                 console.error('Error loading plan data:', error);
+                // En caso de error, mostrar Plan 0
+                document.getElementById('plan-name').textContent = 'Plan 0';
+                document.getElementById('plan-expiry').textContent = 'Sin plan activo';
+                const badge = document.getElementById('plan-badge');
+                badge.className = 'card-badge';
+                badge.innerHTML = '<i class="fas fa-info-circle" style="margin-right: 4px;"></i> Inactivo';
             }
         }
 
