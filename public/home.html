@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -52,7 +51,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ===== SIDEBAR ÉLITE COLORS ===== */
     :root {
       --navy-deep: #0A1628;
       --navy-surface: #0F1F3D;
@@ -86,7 +84,6 @@
     *,*::before,*::after{box-sizing:border-box;}
     html{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
     
-    /* OPTIMIZACIÓN: Se eliminó el transform en el body que generaba cuellos de botella en la memoria GPU y causaba las trabas */
     body{
       margin:0;
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -178,19 +175,10 @@
       text-shadow: 0 0 20px rgba(255,215,0,0.4);
     }
     .sb-tagline { font-size: 0.7rem; font-weight: 500; color: var(--text-muted-side); letter-spacing: 0.15em; margin-top: 6px; text-transform: uppercase; }
-    
-    /* OPTIMIZACIÓN: Se añadieron propiedades nativas para habilitar el scroll vertical táctil fluido en móviles */
-    .sb-scroll-area { 
-      flex: 1; 
-      overflow-y: auto; 
-      padding: 8px 0; 
-      -webkit-overflow-scrolling: touch; 
-      overscroll-behavior-y: contain; 
-    }
+    .sb-scroll-area { flex: 1; overflow-y: auto; padding: 8px 0; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
     .sb-scroll-area::-webkit-scrollbar { width: 3px; }
     .sb-scroll-area::-webkit-scrollbar-track { background: transparent; }
     .sb-scroll-area::-webkit-scrollbar-thumb { background: var(--emerald-dark); border-radius: 3px; }
-    
     .sb-cat { padding: 14px 24px 8px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--emerald); }
     #sidebar nav a {
       display: flex; align-items: center; gap: 12px;
@@ -275,8 +263,13 @@
     .btnStartNow:hover{transform:translateY(-3px);box-shadow:var(--sh-hov);}
     .btnStartNow:hover::before{opacity:1;}
 
-    /* ═══ TIENDA ═══ */
-    .tienda-mobile{width:100%;margin:0 auto;padding:30px 16px;position:relative;background:transparent!important;max-width:900px;opacity:0;transform:translateY(20px);animation:fadeInUp .8s ease .8s forwards;}
+    /* ═══ TIENDA - ANCHO COMPLETO ═══ */
+    .tienda-mobile{
+      width:100%;margin:0 auto;padding:30px 5%;position:relative;background:transparent!important;
+      max-width:100%;opacity:0;transform:translateY(20px);animation:fadeInUp .8s ease .8s forwards;
+    }
+    @media(min-width:1400px){.tienda-mobile{padding:40px 8%;}}
+    @media(min-width:1800px){.tienda-mobile{padding:40px 12%;}}
     .tienda-content{position:relative;z-index:1;padding:16px;border-radius:16px;}
     @media(min-width:768px){.tienda-content{padding:24px;}}
     .tienda-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
@@ -285,7 +278,7 @@
     .tienda-subtitle{margin:4px 0 0;font-size:14px;color:rgba(234,240,255,.82);}
     .tienda-description{color:rgba(234,240,255,.88);line-height:1.6;margin-bottom:20px;font-size:15px;}
     
-    /* OPTIMIZACIÓN: Scroll horizontal sin trabas en móviles (se eliminó el conflicto de inercia y will-change) */
+    /* Screenshots scroll */
     .screenshots-scroll{
       display:flex;overflow-x:auto;overflow-y:hidden;gap:12px;padding:8px 4px 16px;
       -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
@@ -323,47 +316,105 @@
     .detail-item:last-child{border-bottom:none;}
     .detail-item i{width:24px;color:var(--accent-primary);text-align:center;}
     .section-title{font-size:20px;font-weight:900;margin:24px 0 12px;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;background-clip:text;color:transparent;}
-    .features-table,.additional-features-table{width:100%;margin:20px 0;border-collapse:collapse;border-radius:var(--radius);overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:var(--sh-soft);transition:box-shadow .3s ease;}
-    .features-table:hover,.additional-features-table:hover{box-shadow:var(--sh-med);}
-    .features-table th{background:linear-gradient(90deg,rgba(0,240,255,.2),rgba(123,47,157,.2));color:white;font-weight:900;font-size:18px;padding:20px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.14);}
-    .additional-features-table th{background:linear-gradient(90deg,rgba(57,255,20,.2),rgba(123,47,157,.2));color:white;font-weight:900;font-size:18px;padding:20px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.14);}
-    .features-table td,.additional-features-table td{padding:16px;border-bottom:1px solid rgba(255,255,255,.08);color:rgba(234,240,255,.90);font-size:15px;line-height:1.5;}
-    .features-table tr:last-child td,.additional-features-table tr:last-child td{border-bottom:none;}
-    .feature-title{font-weight:700;color:var(--accent-primary);margin-bottom:8px;font-size:16px;display:block;}
-    .feature-desc{color:rgba(234,240,255,.84);font-size:14px;line-height:1.5;display:block;}
 
-    /* ═══ INFRAESTRUCTURA API ═══ */
-    .api-infrastructure{width:100%;position:relative;padding:60px 20px;background:transparent!important;border-top:1px solid rgba(0,240,255,.2);border-bottom:1px solid rgba(123,47,157,.2);overflow:hidden;margin:0;}
+    /* ═══ MAPA MENTAL (reemplaza tablas) ═══ */
+    .mindmap-section{margin:20px 0;}
+    .mindmap-title{
+      font-size:18px;font-weight:900;margin-bottom:20px;
+      background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .mindmap-list{
+      position:relative;padding-left:28px;
+      border-left:2px solid rgba(0,240,255,.2);
+    }
+    .mindmap-item{
+      position:relative;margin-bottom:20px;padding-left:20px;
+    }
+    .mindmap-item::before{
+      content:attr(data-num);
+      position:absolute;left:-41px;top:0;
+      width:28px;height:28px;
+      background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
+      color:#fff;font-weight:900;font-size:13px;
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 12px rgba(0,240,255,.25);
+    }
+    .mindmap-item-title{font-weight:700;font-size:16px;color:var(--accent-primary);margin-bottom:4px;}
+    .mindmap-item-desc{font-size:14px;color:rgba(234,240,255,.75);line-height:1.5;}
+
+    /* Botón Seguir leyendo */
+    .read-more-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 24px;margin:16px 0 24px;
+      background:linear-gradient(90deg,rgba(0,240,255,.15),rgba(123,47,157,.15));
+      border:1px solid rgba(0,240,255,.3);border-radius:12px;
+      color:var(--accent-primary);font-weight:700;font-size:14px;
+      cursor:pointer;transition:all .3s ease;
+    }
+    .read-more-btn:hover{
+      background:linear-gradient(90deg,rgba(0,240,255,.25),rgba(123,47,157,.25));
+      border-color:rgba(0,240,255,.5);
+      transform:translateY(-1px);
+    }
+    .hidden-content{display:none;}
+    .hidden-content.visible{display:block;animation:fadeIn .5s ease;}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ═══ INFRAESTRUCTURA API - SCROLL CORREGIDO ═══ */
+    .api-infrastructure{
+      width:100%;position:relative;padding:60px 5%;background:transparent!important;
+      border-top:1px solid rgba(0,240,255,.2);border-bottom:1px solid rgba(123,47,157,.2);
+      overflow:hidden;margin:0;
+    }
+    @media(min-width:1400px){.api-infrastructure{padding:80px 8%;}}
+    @media(min-width:1800px){.api-infrastructure{padding:80px 12%;}}
     .api-background{position:absolute;inset:0;z-index:0;opacity:.4;background:linear-gradient(90deg,transparent 98%,rgba(0,240,255,.1) 100%),linear-gradient(0deg,transparent 98%,rgba(123,47,157,.1) 100%);background-size:40px 40px;transform:perspective(800px) rotateX(60deg);transform-origin:center top;}
-    .api-node{position:absolute;width:12px;height:12px;border-radius:50%;background:rgba(0,240,255,.8);box-shadow:0 0 20px rgba(0,240,255,.6);z-index:1;animation:nodePulse 3s infinite ease-in-out;will-change:transform;}
-    .api-connection{position:absolute;height:2px;background:linear-gradient(90deg,transparent,rgba(0,240,255,.6),rgba(123,47,157,.6),transparent);z-index:0;animation:connectionFlow 4s infinite linear;}
-    @keyframes nodePulse{0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(0,240,255,.6);}50%{transform:scale(1.3);box-shadow:0 0 30px rgba(0,240,255,.9);}}
-    @keyframes connectionFlow{0%{background-position:-200px 0;}100%{background-position:200px 0;}}
     .api-header{text-align:center;margin-bottom:40px;max-width:1200px;margin-left:auto;margin-right:auto;padding:0 20px;}
     .api-title{font-size:clamp(28px,4vw,42px);font-weight:900;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary),var(--accent-tertiary));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:16px;}
     .api-subtitle{font-size:clamp(16px,2vw,18px);color:rgba(234,240,255,.75);max-width:800px;margin:0 auto;line-height:1.6;}
-    
-    /* OPTIMIZACIÓN: Scroll horizontal perfeccionado y aligerado para el slider API */
+
+    /* Slider corregido */
+    .api-slider-wrapper{
+      position:relative;width:100%;margin:0 0 25px;
+    }
     .api-image-slider{
-      display:flex;overflow-x:auto;overflow-y:hidden;gap:28px;padding:20px 0 30px;margin:0 0 25px;
+      display:flex;overflow-x:auto;overflow-y:hidden;gap:20px;padding:10px 4px 24px;
       -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
+      scroll-behavior:smooth;
       user-select:none;-webkit-user-select:none;cursor:grab;
       scrollbar-width:thin;scrollbar-color:rgba(0,240,255,.5) transparent;
     }
-    .api-image-slider::-webkit-scrollbar{height:5px;}
+    .api-image-slider:active{cursor:grabbing;}
+    .api-image-slider::-webkit-scrollbar{height:6px;}
     .api-image-slider::-webkit-scrollbar-track{background:transparent;}
     .api-image-slider::-webkit-scrollbar-thumb{background:rgba(0,240,255,.5);border-radius:10px;}
     .api-slide{
-      flex:0 0 auto;width:100%;max-width:784px;scroll-snap-align:start;border-radius:24px;
+      flex:0 0 auto;width:85%;max-width:600px;scroll-snap-align:start;border-radius:24px;
       overflow:hidden;box-shadow:var(--sh-soft);transition:transform .3s ease,box-shadow .3s ease;
       background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);-webkit-tap-highlight-color:transparent;
     }
+    @media(min-width:768px){.api-slide{width:45%;max-width:784px;}}
+    @media(min-width:1024px){.api-slide{width:30%;}}
     .api-slide:hover{transform:translateY(-6px);box-shadow:var(--sh-hov);}
-    .api-slide img{width:100%;height:auto;aspect-ratio:784/1168;object-fit:cover;display:block;}
+    .api-slide img{width:100%;height:auto;aspect-ratio:784/1168;object-fit:cover;display:block;pointer-events:none;}
+
+    /* Flechas de navegación */
+    .slider-nav-arrows{display:flex;justify-content:center;gap:16px;margin-top:12px;}
+    .slider-arrow{
+      width:44px;height:44px;border-radius:50%;
+      background:rgba(0,240,255,.12);border:1px solid rgba(0,240,255,.3);
+      color:var(--accent-primary);font-size:18px;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .3s ease;
+    }
+    .slider-arrow:hover{background:rgba(0,240,255,.25);border-color:rgba(0,240,255,.6);transform:scale(1.05);}
     
-    .scroll-indicator{display:flex;justify-content:center;margin-top:8px;margin-bottom:30px;}
+    .scroll-indicator{display:flex;justify-content:center;margin-top:8px;margin-bottom:10px;}
     .indicator-line{width:80px;height:3px;background:rgba(0,240,255,.3);border-radius:4px;position:relative;overflow:hidden;}
     .indicator-progress{position:absolute;left:0;top:0;height:100%;width:0%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:4px;transition:width .15s ease;will-change:width;}
+
     .code-animation{background:rgba(0,0,0,.40);border-radius:16px;padding:25px;margin:30px 0;border:1px solid rgba(255,255,255,.12);position:relative;overflow:hidden;width:100%;box-shadow:var(--sh-soft);transition:box-shadow .3s ease;}
     .code-animation:hover{box-shadow:var(--sh-med);}
     .three-dots-menu{position:absolute;top:15px;right:15px;color:rgba(234,240,255,.6);cursor:pointer;font-size:18px;z-index:10;background:rgba(0,0,0,.5);width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:color .2s ease;}
@@ -379,7 +430,7 @@
     .typing-text{white-space:pre-wrap;word-break:break-all;}
     .typing-cursor{display:inline-block;width:8px;height:20px;background:var(--accent-primary);margin-left:4px;animation:blink 1s infinite;vertical-align:middle;}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-    .api-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:50px auto;max-width:650px;width:100%;padding:0 20px;position:relative;z-index:1;}
+    .api-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:50px auto;max-width:900px;width:100%;padding:0 20px;position:relative;z-index:1;}
     .stat-card{background:rgba(255,255,255,.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:18px;padding:28px 20px;text-align:center;border:1px solid rgba(255,255,255,.1);box-shadow:var(--sh-soft),inset 0 1px 0 rgba(255,255,255,.1);transition:all .4s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;opacity:0;transform:translateY(30px);animation:statCardFadeIn .6s ease forwards;}
     .stat-card:nth-child(1){animation-delay:.1s}.stat-card:nth-child(2){animation-delay:.2s}.stat-card:nth-child(3){animation-delay:.3s}.stat-card:nth-child(4){animation-delay:.4s}
     @keyframes statCardFadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
@@ -393,7 +444,7 @@
     .api-cta-button:hover{background:linear-gradient(90deg,rgba(0,240,255,.3),rgba(123,47,157,.3));border-color:rgba(0,240,255,.5);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,240,255,.25);}
 
     /* Footer */
-    .footer{background:#000;color:#fff;padding:40px 20px;text-align:center;width:100%;margin-top:0;}
+    .footer{background:#000;color:#fff;padding:40px 5%;text-align:center;width:100%;margin-top:0;}
     .footer p{margin:10px 0;color:#fff;line-height:1.6;}
     .footer a{color:var(--accent-primary);text-decoration:none;transition:color .3s ease;}
     .footer a:hover{color:var(--accent-secondary);text-decoration:underline;}
@@ -401,7 +452,6 @@
     .social-icons a{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);color:white;font-size:20px;transition:all .3s ease;}
     .social-icons a:hover{background:var(--accent-primary);transform:translateY(-3px);}
 
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
     /* Chat bubble */
@@ -412,9 +462,27 @@
     .chat-text.show{opacity:1;transform:scale(1);}
     .chat-text.hide{opacity:0;transform:scale(.9);}
 
-    @media(min-width:768px){.tienda-mobile{padding:40px 24px;}.screenshot{width:160px;}.api-infrastructure{padding:80px 40px;}.footer{padding:50px 40px;}.api-stats{grid-template-columns:repeat(4,1fr);gap:24px;max-width:900px;}.stat-card{padding:32px 24px;}.stat-number{font-size:48px;}}
-    @media(max-width:640px){.api-stats{gap:16px;padding:0 16px;margin:40px auto;}.stat-card{padding:24px 16px;}.stat-number{font-size:36px;}#sidebar{width:100%;max-width:300px;}.api-slide{max-width:90vw;}}
-    @media(prefers-reduced-motion:reduce){.orb,.grid3d{animation:none!important;}.btnStartNow,.tienda-mobile,.footer{animation:fadeIn .5s ease forwards!important;transform:none!important;}.api-node,.api-connection,.typing-cursor{animation:none!important;}.stat-card{animation:fadeIn .5s ease forwards!important;}.loader-ring{animation:none!important;}}
+    @media(min-width:768px){
+      .screenshot{width:160px;}
+      .api-stats{grid-template-columns:repeat(4,1fr);gap:24px;}
+      .stat-card{padding:32px 24px;}
+      .stat-number{font-size:48px;}
+    }
+    @media(max-width:640px){
+      .api-stats{gap:16px;padding:0 16px;margin:40px auto;}
+      .stat-card{padding:24px 16px;}
+      .stat-number{font-size:36px;}
+      #sidebar{width:100%;max-width:300px;}
+      .api-slide{width:85%;}
+      .tienda-mobile{padding:20px 4%;}
+      .api-infrastructure{padding:40px 4%;}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .orb,.grid3d{animation:none!important;}
+      .btnStartNow,.tienda-mobile,.footer{animation:fadeInUp .5s ease forwards!important;opacity:1!important;transform:none!important;}
+      .stat-card{animation:fadeInUp .5s ease forwards!important;}
+      .loader-ring{animation:none!important;}
+    }
   </style>
 </head>
 <body class="antialiased">
@@ -432,11 +500,7 @@
   </div>
 
   <!-- Botón hamburguesa -->
-  <button id="menu-toggle" aria-label="Abrir menú">
-    <i data-lucide="menu"></i>
-  </button>
-
-  <!-- Overlay -->
+  <button id="menu-toggle" aria-label="Abrir menú"><i data-lucide="menu"></i></button>
   <div id="sidebar-overlay" class="hidden"></div>
 
   <!-- ═══ SIDEBAR ÉLITE ═══ -->
@@ -496,7 +560,7 @@
     </div>
   </header>
 
-  <!-- ═══ TIENDA / APK ═══ -->
+  <!-- ═══ TIENDA / APK - ANCHO COMPLETO ═══ -->
   <section id="tienda" class="tienda-mobile">
     <div class="tienda-content">
       <div class="tienda-header">
@@ -532,49 +596,107 @@
         <div class="detail-item"><i class="fas fa-calendar-day"></i><span><strong>Fecha:</strong> 16 Abril, 2024</span></div>
         <div class="detail-item"><i class="fas fa-cogs"></i><span><strong>Clasificación de contenido:</strong> Entidades públicas</span></div>
       </div>
+
+      <!-- ═══ MAPA MENTAL - FUNCIONALIDADES PRINCIPALES ═══ -->
       <h3 class="section-title"><i class="fas fa-book-open"></i> Todo acerca de Consulta PE APK</h3>
-      <p class="tienda-description"><strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla, sin trámites complicados. Su objetivo es simplificar tus gestiones y brindarte acceso a información clave directamente desde tu dispositivo móvil. <strong>Masitaprex</strong> ofrece esta solución integral para <strong>consultar DNI</strong> y acceder a múltiples servicios públicos.</p>
-      <p class="tienda-description">Importante: para mantener claridad legal, estas funcionalidades y consultas se soportan mediante <strong>infraestructura intermediaria</strong>, que administra credenciales, control de acceso, auditoría y protección de los endpoints.</p>
-      <table class="features-table">
-        <thead><tr><th>Funcionalidades principales de Consulta PE APK</th></tr></thead>
-        <tbody>
-          <tr><td><span class="feature-title">Consulta de DNI por nombres y apellidos</span><span class="feature-desc">Ingresa nombres y apellidos para obtener información relevante como ubicación, edad, estado civil, entre otros detalles asociados al <strong>DNI</strong>.</span></td></tr>
-          <tr><td><span class="feature-title">Consulta de RUC</span><span class="feature-desc">Permite obtener la información registrada de un RUC, ya sea de una empresa o persona natural, directamente desde SUNAT.</span></td></tr>
-          <tr><td><span class="feature-title">Líneas telefónicas</span><span class="feature-desc">Revisa todas las líneas telefónicas a tu nombre registradas en Osiptel de forma rápida y segura.</span></td></tr>
-          <tr><td><span class="feature-title">Información vehicular</span><span class="feature-desc">Ingresa el número de placa de un vehículo y obtén información sobre su registro y características desde SUNARP.</span></td></tr>
-          <tr><td><span class="feature-title">Acceso a servicios públicos</span><span class="feature-desc">Conéctate fácilmente a servicios de entidades públicas como la PNP, SUNAT, DIGESA, entre otras, para realizar consultas o gestionar trámites.</span></td></tr>
-        </tbody>
-      </table>
-      <p class="tienda-description"><strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> es una aplicación que ofrece una experiencia completa y versátil para todos sus usuarios.</p>
-      <table class="additional-features-table">
-        <thead><tr><th>Exclusividades de Masitaprex: El Poder en tus Manos</th></tr></thead>
-        <tbody>
-          <tr><td><span class="feature-title">PeliPREX - Cine Ilimitado</span><span class="feature-desc">Olvida los catálogos limitados. Accede a <strong>millones de películas</strong> en alta definición. Un universo cinematográfico infinito que solo nosotros te ofrecemos sin costo.</span></td></tr>
-          <tr><td><span class="feature-title">Gestor de Contraseñas de Élite</span><span class="feature-desc">Seguridad impenetrable. Genera y administra claves robustas para proteger lo que más te importa con tecnología de grado superior.</span></td></tr>
-          <tr><td><span class="feature-title">Generador de Enlaces Magnéticos</span><span class="feature-desc">Domina tus comunicaciones. Crea links personalizados para WhatsApp y Telegram que proyectan profesionalismo y control total en cada mensaje.</span></td></tr>
-          <tr><td><span class="feature-title">Escáner QR de Alta Precisión</span><span class="feature-desc">Velocidad y seguridad absoluta al escanear productos, sitios web o documentos. La herramienta esencial para quien no tiene tiempo que perder.</span></td></tr>
-          <tr><td><span class="feature-title">Galería de Imágenes Premium</span><span class="feature-desc">Visualiza y descarga contenido visual en la más alta resolución disponible. Perfección estética en cada píxel.</span></td></tr>
-          <tr><td><span class="feature-title">Zona de Juegos Exclusiva</span><span class="feature-desc">Entretenimiento seleccionado para mentes ágiles. Una variedad de juegos gratuitos diseñados para quienes exigen calidad incluso en su tiempo libre.</span></td></tr>
-        </tbody>
-      </table>
-      <p class="tienda-description"><strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> combina funcionalidad y entretenimiento en una solución integral. Descarga la app para <strong>consultar DNI por nombres y apellidos</strong> y descubrir todo lo que puedes hacer. ¡Tu vida será más fácil con <strong>Consulta PE</strong> y <strong>PeliPREX</strong>!</p>
+      <p class="tienda-description"><strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla.</p>
+      <p class="tienda-description">Importante: para mantener claridad legal, estas funcionalidades y consultas se soportan mediante <strong>infraestructura intermediaria</strong>.</p>
+
+      <div class="mindmap-section">
+        <div class="mindmap-title"><i class="fas fa-list-check"></i> Funcionalidades principales</div>
+        <div class="mindmap-list">
+          <div class="mindmap-item" data-num="1">
+            <div class="mindmap-item-title">Consulta de DNI por nombres y apellidos</div>
+            <div class="mindmap-item-desc">Ingresa nombres y apellidos para obtener información relevante como ubicación, edad, estado civil, entre otros detalles asociados al DNI.</div>
+          </div>
+          <div class="mindmap-item" data-num="2">
+            <div class="mindmap-item-title">Consulta de RUC</div>
+            <div class="mindmap-item-desc">Permite obtener la información registrada de un RUC, ya sea de una empresa o persona natural, directamente desde SUNAT.</div>
+          </div>
+          <div class="mindmap-item" data-num="3">
+            <div class="mindmap-item-title">Líneas telefónicas</div>
+            <div class="mindmap-item-desc">Revisa todas las líneas telefónicas a tu nombre registradas en Osiptel de forma rápida y segura.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón Seguir leyendo -->
+      <button class="read-more-btn" id="readMoreBtn" onclick="toggleMoreContent()">
+        <i class="fas fa-chevron-down"></i> Seguir leyendo
+        <span style="font-size:11px;opacity:.7;">(funcionalidades adicionales)</span>
+      </button>
+
+      <!-- Contenido oculto -->
+      <div class="hidden-content" id="moreContent">
+        <div class="mindmap-section" style="margin-top:10px;">
+          <div class="mindmap-list">
+            <div class="mindmap-item" data-num="4">
+              <div class="mindmap-item-title">Información vehicular</div>
+              <div class="mindmap-item-desc">Ingresa el número de placa de un vehículo y obtén información sobre su registro y características desde SUNARP.</div>
+            </div>
+            <div class="mindmap-item" data-num="5">
+              <div class="mindmap-item-title">Acceso a servicios públicos</div>
+              <div class="mindmap-item-desc">Conéctate fácilmente a servicios de entidades públicas como la PNP, SUNAT, DIGESA, entre otras.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mindmap-section" style="margin-top:28px;">
+          <div class="mindmap-title"><i class="fas fa-crown"></i> Exclusividades de Masitaprex</div>
+          <div class="mindmap-list">
+            <div class="mindmap-item" data-num="1">
+              <div class="mindmap-item-title">PeliPREX - Cine Ilimitado</div>
+              <div class="mindmap-item-desc">Olvida los catálogos limitados. Accede a millones de películas en alta definición sin costo.</div>
+            </div>
+            <div class="mindmap-item" data-num="2">
+              <div class="mindmap-item-title">Gestor de Contraseñas de Élite</div>
+              <div class="mindmap-item-desc">Seguridad impenetrable. Genera y administra claves robustas con tecnología de grado superior.</div>
+            </div>
+            <div class="mindmap-item" data-num="3">
+              <div class="mindmap-item-title">Generador de Enlaces Magnéticos</div>
+              <div class="mindmap-item-desc">Crea links personalizados para WhatsApp y Telegram con control total en cada mensaje.</div>
+            </div>
+            <div class="mindmap-item" data-num="4">
+              <div class="mindmap-item-title">Escáner QR de Alta Precisión</div>
+              <div class="mindmap-item-desc">Velocidad y seguridad absoluta al escanear productos, sitios web o documentos.</div>
+            </div>
+            <div class="mindmap-item" data-num="5">
+              <div class="mindmap-item-title">Galería de Imágenes Premium</div>
+              <div class="mindmap-item-desc">Visualiza y descarga contenido visual en la más alta resolución disponible.</div>
+            </div>
+            <div class="mindmap-item" data-num="6">
+              <div class="mindmap-item-title">Zona de Juegos Exclusiva</div>
+              <div class="mindmap-item-desc">Entretenimiento seleccionado. Juegos gratuitos diseñados para quienes exigen calidad.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="tienda-description" style="margin-top:24px;"><strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> combina funcionalidad y entretenimiento en una solución integral. Descarga la app para <strong>consultar DNI por nombres y apellidos</strong> y descubrir todo lo que puedes hacer. ¡Tu vida será más fácil con <strong>Consulta PE</strong> y <strong>PeliPREX</strong>!</p>
       <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn"><i class="fas fa-download"></i> Descargar Consulta PE APK ahora</a>
     </div>
   </section>
 
-  <!-- ═══ INFRAESTRUCTURA API ═══ -->
+  <!-- ═══ INFRAESTRUCTURA API - SCROLL CORREGIDO ═══ -->
   <section class="api-infrastructure" aria-labelledby="apiSectionTitle">
     <div class="api-background" id="apiBackground" aria-hidden="true"></div>
     <div class="api-header">
       <h2 class="api-title" id="apiSectionTitle">Infraestructura API de Masitaprex</h2>
       <p class="api-subtitle">Operamos como un <strong>intermediario tecnológico</strong> que facilita el acceso a información de fuentes públicas (RENIEC, SUNAT, SUNARP, etc.) a través de una plataforma moderna, segura y escalable.</p>
     </div>
-    <div class="api-image-slider" id="apiImageSlider">
-      <div class="api-slide"><img src="https://i.postimg.cc/FRYt1yXf/image-14.jpg" alt="API Dashboard 1" loading="lazy" draggable="false"></div>
-      <div class="api-slide"><img src="https://i.postimg.cc/hjXFhLRX/image-23.jpg" alt="API Dashboard 2" loading="lazy" draggable="false"></div>
-      <div class="api-slide"><img src="https://i.postimg.cc/FRYt1yXS/image-12.jpg" alt="API Dashboard 3" loading="lazy" draggable="false"></div>
-      <div class="api-slide"><img src="https://i.postimg.cc/SKTFyZ3C/image-20.jpg" alt="API Dashboard 4" loading="lazy" draggable="false"></div>
-      <div class="api-slide"><img src="https://i.postimg.cc/261p3QNh/image-26.jpg" alt="API Dashboard 5" loading="lazy" draggable="false"></div>
+    <div class="api-slider-wrapper">
+      <div class="api-image-slider" id="apiImageSlider">
+        <div class="api-slide"><img src="https://i.postimg.cc/FRYt1yXf/image-14.jpg" alt="API Dashboard 1" loading="lazy" draggable="false"></div>
+        <div class="api-slide"><img src="https://i.postimg.cc/hjXFhLRX/image-23.jpg" alt="API Dashboard 2" loading="lazy" draggable="false"></div>
+        <div class="api-slide"><img src="https://i.postimg.cc/FRYt1yXS/image-12.jpg" alt="API Dashboard 3" loading="lazy" draggable="false"></div>
+        <div class="api-slide"><img src="https://i.postimg.cc/SKTFyZ3C/image-20.jpg" alt="API Dashboard 4" loading="lazy" draggable="false"></div>
+        <div class="api-slide"><img src="https://i.postimg.cc/261p3QNh/image-26.jpg" alt="API Dashboard 5" loading="lazy" draggable="false"></div>
+      </div>
+      <!-- Flechas de navegación -->
+      <div class="slider-nav-arrows">
+        <button class="slider-arrow" onclick="slideAPI(-1)" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-arrow" onclick="slideAPI(1)" aria-label="Siguiente"><i class="fas fa-chevron-right"></i></button>
+      </div>
     </div>
     <div class="scroll-indicator"><div class="indicator-line"><div class="indicator-progress" id="scrollProgress"></div></div></div>
     <div class="code-animation" id="codeBlock">
@@ -618,39 +740,30 @@
   <script>
   lucide.createIcons();
 
-  /* ── SIDEBAR ── */
+  // Sidebar
   const menuToggle = document.getElementById('menu-toggle');
   const sidebarEl = document.getElementById('sidebar');
   const overlayEl = document.getElementById('sidebar-overlay');
   function toggleMenu() {
     const isOpen = sidebarEl.classList.toggle('open');
-    if(isOpen){
-      overlayEl.classList.remove('hidden');
-      overlayEl.style.display='block';
-      document.body.style.overflow='hidden';
-      setTimeout(()=>overlayEl.classList.add('opacity-100'),10);
-    }
-    else{
-      overlayEl.classList.remove('opacity-100');
-      document.body.style.overflow='';
-      setTimeout(()=>{if(!sidebarEl.classList.contains('open')){overlayEl.classList.add('hidden');overlayEl.style.display='none';}},300);
-    }
+    if(isOpen){overlayEl.classList.remove('hidden');overlayEl.style.display='block';document.body.style.overflow='hidden';setTimeout(()=>overlayEl.classList.add('opacity-100'),10);}
+    else{overlayEl.classList.remove('opacity-100');document.body.style.overflow='';setTimeout(()=>{if(!sidebarEl.classList.contains('open')){overlayEl.classList.add('hidden');overlayEl.style.display='none';}},300);}
   }
   menuToggle.addEventListener('click',toggleMenu);
   overlayEl.addEventListener('click',toggleMenu);
-  const navLinks=sidebarEl.querySelectorAll('nav a');
-  navLinks.forEach(link=>{link.addEventListener('click',(e)=>{const href=link.getAttribute('href');if(href&&href!=='#'){e.preventDefault();toggleMenu();setTimeout(()=>{window.location.href=href;},300);}});});
+  sidebarEl.querySelectorAll('nav a').forEach(link=>{link.addEventListener('click',(e)=>{const href=link.getAttribute('href');if(href&&href!=='#'){e.preventDefault();toggleMenu();setTimeout(()=>{window.location.href=href;},300);}});});
 
-  /* ── UTILIDADES ── */
+  // Utilidades
   function preloadImages(urls){return Promise.all(urls.map(u=>new Promise(r=>{const i=new Image();i.src=u;i.onload=i.onerror=r;})));}
   const loaderProgress=document.getElementById('loaderProgress');
   function advanceProgress(to,delay){return new Promise(res=>{setTimeout(()=>{loaderProgress.style.width=to+'%';setTimeout(res,220);},delay||0);});}
   const criticalImages=['https://cdn-icons-png.flaticon.com/128/747/747965.png','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'];
 
-  document.addEventListener('DOMContentLoaded',async function(){await advanceProgress(25,0);await preloadImages(criticalImages);await advanceProgress(65,100);await advanceProgress(90,200);await advanceProgress(100,200);setTimeout(()=>{document.getElementById('loading').classList.add('hidden');initApiBackground();startTypingEffect();animateCounters();initScrollProgress('apiImageSlider','scrollProgress');initDragScroll('screenshotsScroll');initDragScroll('apiImageSlider');},350);});
+  document.addEventListener('DOMContentLoaded',async function(){await advanceProgress(25,0);await preloadImages(criticalImages);await advanceProgress(65,100);await advanceProgress(90,200);await advanceProgress(100,200);setTimeout(()=>{document.getElementById('loading').classList.add('hidden');initApiBackground();startTypingEffect();animateCounters();initScrollProgress('apiImageSlider','scrollProgress');initDragScroll('screenshotsScroll');},350);});
 
   function animateCounters(){document.querySelectorAll('.stat-number[data-target]').forEach(c=>{const target=parseFloat(c.getAttribute('data-target'));const isDecimal=target%1!==0;const duration=1800,steps=60,inc=target/steps;let cur=0,step=0;const upd=()=>{step++;cur=Math.min(cur+inc,target);if(isDecimal)c.textContent=cur.toFixed(1)+'%';else c.textContent=Math.floor(cur)+(target>=1000?'k+':'%');if(step<steps)requestAnimationFrame(upd);else{if(isDecimal)c.textContent=target.toFixed(1)+'%';else c.textContent=(target>=1000?'2k+':target+'%');}};setTimeout(()=>requestAnimationFrame(upd),400);});}
 
+  // Modal screenshots
   const modal=document.getElementById('screenshotModal');const modalImg=document.getElementById('modalImg');const screenshots=document.querySelectorAll('.screenshot');let cidx=0;
   const ssUrls=['https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800','https://i.postimg.cc/T1Vn5H0H/Servicios-gratuito-20260316-215206-0000.png','https://i.postimg.cc/rs15RYjg/Servicios-gratuito-20260320-152342-0000.png','https://i.postimg.cc/WzG0qf85/Servicios-gratuito-20260316-213526-0000.png','https://i.postimg.cc/tJ3Fnmk2/Servicios-gratuito-20260319-220603-0000.png','https://i.postimg.cc/mhfDGLGr/Servicios-gratuito-20260320-180333-0000.png'];
   screenshots.forEach((s,i)=>s.addEventListener('click',()=>{cidx=i;modalImg.src=ssUrls[cidx];modal.classList.add('active');document.body.style.overflow='hidden';}));
@@ -662,7 +775,41 @@
   function closeModal(){modal.classList.remove('active');document.body.style.overflow='auto';}
 
   function initDragScroll(id){const el=document.getElementById(id);if(!el)return;let isDown=false,startX=0,scrollLeft=0;el.addEventListener('mousedown',e=>{isDown=true;el.classList.add('is-dragging');startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;e.preventDefault();});el.addEventListener('mouseleave',()=>{isDown=false;el.classList.remove('is-dragging');});el.addEventListener('mouseup',()=>{isDown=false;el.classList.remove('is-dragging');});el.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-el.offsetLeft;el.scrollLeft=scrollLeft-(x-startX)*1.4;});}
-  function initScrollProgress(sliderId,progressId){const slider=document.getElementById(sliderId);const progress=document.getElementById(progressId);if(!slider||!progress)return;function update(){const max=slider.scrollWidth-slider.clientWidth;progress.style.width=(max>0?(slider.scrollLeft/max)*100:0)+'%';}slider.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update,{passive:true});update();}
+
+  // Scroll progress indicator
+  function initScrollProgress(sliderId,progressId){
+    const slider=document.getElementById(sliderId);
+    const progress=document.getElementById(progressId);
+    if(!slider||!progress)return;
+    function update(){const max=slider.scrollWidth-slider.clientWidth;progress.style.width=(max>0?(slider.scrollLeft/max)*100:0)+'%';}
+    slider.addEventListener('scroll',update,{passive:true});
+    window.addEventListener('resize',update,{passive:true});
+    update();
+  }
+
+  // Navegación del slider API con flechas
+  function slideAPI(direction){
+    const slider=document.getElementById('apiImageSlider');
+    if(!slider)return;
+    const slideWidth=slider.querySelector('.api-slide').offsetWidth+20;
+    slider.scrollBy({left:direction*slideWidth,behavior:'smooth'});
+  }
+  window.slideAPI=slideAPI;
+
+  // Seguir leyendo
+  function toggleMoreContent(){
+    const content=document.getElementById('moreContent');
+    const btn=document.getElementById('readMoreBtn');
+    if(content.classList.contains('visible')){
+      content.classList.remove('visible');
+      btn.innerHTML='<i class="fas fa-chevron-down"></i> Seguir leyendo <span style="font-size:11px;opacity:.7;">(funcionalidades adicionales)</span>';
+    }else{
+      content.classList.add('visible');
+      btn.innerHTML='<i class="fas fa-chevron-up"></i> Mostrar menos';
+    }
+  }
+  window.toggleMoreContent=toggleMoreContent;
+
   function initApiBackground(){const bg=document.getElementById('apiBackground');if(!bg)return;bg.innerHTML='';const nodes=[];for(let i=0;i<15;i++){const n=document.createElement('div');n.className='api-node';const l=Math.random()*90+5,t=Math.random()*80+10;n.style.left=l+'%';n.style.top=t+'%';n.style.animationDelay=(Math.random()*3)+'s';bg.appendChild(n);nodes.push({x:l,y:t});}nodes.forEach((a,i)=>nodes.forEach((b,j)=>{if(i>=j)return;const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy);if(d<40){const c=document.createElement('div');c.className='api-connection';c.style.width=d+'%';c.style.left=a.x+'%';c.style.top=a.y+'%';c.style.transform=`rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;c.style.transformOrigin='0 0';c.style.animationDelay=(Math.random()*2)+'s';bg.appendChild(c);}}));}
   function startTypingEffect(){const cc=document.getElementById('codeContent');if(!cc)return;const code=`<?php\n$api_url = "https://api.masitaprex.com/v3/consulta/dni";\n$headers = [ "x-api-key: TU_TOKEN", "Content-Type: application/json" ];\n$data = [ "dni" => "12345678" ];\n$response = http_post($api_url, $data, $headers);\n?>`;cc.innerHTML='';const el=document.createElement('div');el.className='typing-text';cc.appendChild(el);let i=0;function type(){if(i<code.length){el.innerHTML=code.substring(0,i+1).replace(/\n/g,'<br>').replace(/ /g,'&nbsp;');i++;setTimeout(type,28);}else{el.innerHTML=code.replace(/\n/g,'<br>').replace(/ /g,'&nbsp;')+'<span class="typing-cursor"></span>';}}type();}
   document.addEventListener('click',function(e){const btn=document.getElementById('codeMenuBtn');const menu=document.getElementById('codeMenu');if(!btn||!menu)return;if(btn.contains(e.target)){e.stopPropagation();menu.classList.toggle('show');}else if(!menu.contains(e.target)){menu.classList.remove('show');}});
