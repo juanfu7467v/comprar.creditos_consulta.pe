@@ -82,7 +82,11 @@ const ReturnConfig = {
      * Redirige al login incluyendo la ruta actual como returnTo.
      */
     redirectToLogin: function() {
-        const currentPath = window.location.pathname + window.location.search;
+        // Aseguramos que la ruta comience con / para que login.html la acepte como relativa
+        let currentPath = window.location.pathname + window.location.search;
+        if (!currentPath.startsWith('/')) {
+            currentPath = '/' + currentPath;
+        }
         window.location.href = "login.html?returnTo=" + encodeURIComponent(currentPath);
     }
 };

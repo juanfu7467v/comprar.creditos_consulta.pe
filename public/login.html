@@ -658,7 +658,12 @@
 
         if (returnTo) {
             try {
-                const decodedUrl = decodeURIComponent(returnTo);
+                let decodedUrl = decodeURIComponent(returnTo);
+                // Si la URL no empieza con /, se la agregamos para asegurar que sea tratada como relativa interna
+                if (!decodedUrl.startsWith('/') && !decodedUrl.includes('://')) {
+                    decodedUrl = '/' + decodedUrl;
+                }
+                
                 if (decodedUrl.startsWith('/') && !decodedUrl.includes('//')) {
                     sessionStorage.removeItem('returnTo');
                     window.location.href = decodedUrl;
