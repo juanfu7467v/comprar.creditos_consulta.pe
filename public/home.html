@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -263,106 +264,114 @@
     .btnStartNow:hover{transform:translateY(-3px);box-shadow:var(--sh-hov);}
     .btnStartNow:hover::before{opacity:1;}
 
-    /* ═══ TIENDA - ANCHO COMPLETO ═══ */
-    .tienda-mobile{
-      width:100%;margin:0 auto;padding:30px 5%;position:relative;background:transparent!important;
+    /* ═══ APP STORE STYLE SECTION ═══ */
+    .appstore-section{
+      width:100%;margin:0 auto;padding:10px 5% 40px;position:relative;background:transparent!important;
       max-width:100%;opacity:0;transform:translateY(20px);animation:fadeInUp .8s ease .8s forwards;
     }
-    @media(min-width:1400px){.tienda-mobile{padding:40px 8%;}}
-    @media(min-width:1800px){.tienda-mobile{padding:40px 12%;}}
-    .tienda-content{position:relative;z-index:1;padding:16px;border-radius:16px;}
-    @media(min-width:768px){.tienda-content{padding:24px;}}
-    .tienda-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
-    .tienda-icon{width:80px;height:80px;border-radius:20px;object-fit:cover;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);box-shadow:var(--sh-med);}
-    .tienda-title{font-size:24px;font-weight:900;margin:0;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;background-clip:text;color:transparent;}
-    .tienda-subtitle{margin:4px 0 0;font-size:14px;color:rgba(234,240,255,.82);}
-    .tienda-description{color:rgba(234,240,255,.88);line-height:1.6;margin-bottom:20px;font-size:15px;}
+    @media(min-width:1400px){.appstore-section{padding:15px 8% 50px;}}
+    @media(min-width:1800px){.appstore-section{padding:15px 12% 50px;}}
+    @media(max-width:640px){.appstore-section{padding:10px 3% 30px;}}
     
-    /* Screenshots scroll */
-    .screenshots-scroll{
-      display:flex;overflow-x:auto;overflow-y:hidden;gap:12px;padding:8px 4px 16px;
+    .appstore-hero{
+      display:flex;align-items:center;gap:20px;padding:20px 0 24px;
+      border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:24px;
+    }
+    .app-icon{
+      width:100px;height:100px;border-radius:24px;overflow:hidden;flex-shrink:0;
+      box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.1);
+      background:linear-gradient(135deg,#1a1a2e,#16213e);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .app-icon img{width:100%;height:100%;object-fit:cover;}
+    @media(min-width:768px){.app-icon{width:120px;height:120px;border-radius:28px;}}
+    
+    .app-info{flex:1;min-width:0;}
+    .app-name{font-size:clamp(20px,3vw,28px);font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:-0.02em;}
+    .app-dev{font-size:13px;color:var(--accent-primary);margin-bottom:6px;font-weight:500;}
+    .app-rating-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+    .app-rating{font-size:13px;color:var(--gold);font-weight:700;}
+    .app-rating i{font-size:11px;margin-right:1px;}
+    .app-rating-count{font-size:12px;color:var(--muted);}
+    .app-badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .app-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);padding:4px 10px;border-radius:6px;font-size:10px;color:var(--muted);font-weight:600;}
+    .app-badge i{font-size:9px;}
+    .app-get-btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:10px 28px;border-radius:60px;
+      background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));
+      color:#fff;font-weight:800;font-size:14px;text-decoration:none;
+      transition:all .3s ease;box-shadow:0 4px 16px rgba(0,240,255,.2);
+      white-space:nowrap;letter-spacing:0.3px;
+    }
+    .app-get-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,240,255,.3);}
+    
+    .appstore-screenshots{
+      display:flex;overflow-x:auto;overflow-y:hidden;gap:12px;padding:4px 0 20px;
       -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
       user-select:none;-webkit-user-select:none;cursor:grab;
-      scrollbar-width:thin;scrollbar-color:var(--accent-secondary) transparent;
+      scrollbar-width:thin;scrollbar-color:rgba(0,240,255,.3) transparent;
     }
-    .screenshots-scroll::-webkit-scrollbar{height:5px;}
-    .screenshots-scroll::-webkit-scrollbar-track{background:transparent;}
-    .screenshots-scroll::-webkit-scrollbar-thumb{background:var(--accent-secondary);border-radius:3px;}
-    .screenshot{
-      width:140px;height:250px;border-radius:16px;object-fit:cover;flex-shrink:0;
-      scroll-snap-align:start;border:1px solid rgba(255,255,255,.14);box-shadow:var(--sh-soft);
-      cursor:pointer;transition:transform .3s ease,box-shadow .3s ease;-webkit-tap-highlight-color:transparent;
+    .appstore-screenshots::-webkit-scrollbar{height:4px;}
+    .appstore-screenshots::-webkit-scrollbar-track{background:transparent;}
+    .appstore-screenshots::-webkit-scrollbar-thumb{background:rgba(0,240,255,.3);border-radius:10px;}
+    .appstore-screenshot{
+      flex:0 0 auto;width:220px;height:390px;border-radius:20px;overflow:hidden;
+      scroll-snap-align:start;border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:transform .3s ease;
     }
-    .screenshot:hover{transform:scale(1.05);box-shadow:var(--sh-hov);}
+    .appstore-screenshot:hover{transform:scale(1.03);}
+    .appstore-screenshot img{width:100%;height:100%;object-fit:cover;display:block;}
+    @media(min-width:768px){.appstore-screenshot{width:240px;height:420px;}}
     
-    .screenshot-modal{display:none;position:fixed;inset:0;background-color:rgba(0,0,0,.95);z-index:10000;align-items:center;justify-content:center;}
-    .screenshot-modal.active{display:flex;}
-    .modal-content{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;}
-    .modal-img{width:100%;height:100%;object-fit:contain;padding:20px;}
-    .modal-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);border:none;color:white;font-size:30px;width:50px;height:50px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);transition:all .3s ease;}
-    .modal-close:hover{background:var(--accent-secondary);transform:scale(1.1);}
-    .modal-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.1);border:none;color:white;font-size:24px;width:50px;height:50px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);transition:all .3s ease;}
-    .modal-nav:hover{background:var(--accent-primary);transform:translateY(-50%) scale(1.1);}
-    .modal-prev{left:20px;}.modal-next{right:20px;}
-    .download-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;margin:20px 0;background:linear-gradient(90deg,var(--accent-secondary),var(--accent-primary));color:white;text-decoration:none;border-radius:16px;font-weight:900;font-size:16px;border:1px solid rgba(255,255,255,.18);box-shadow:var(--sh-soft);transition:transform .25s ease,box-shadow .25s ease;-webkit-tap-highlight-color:transparent;}
-    .download-btn:hover{transform:translateY(-2px);box-shadow:var(--sh-med);}
-    .stores-row{display:flex;justify-content:center;gap:20px;margin:20px 0;}
-    .store-logo{height:36px;border-radius:8px;opacity:.9;transition:opacity .25s ease;}
-    .store-logo:hover{opacity:1;}
-    .app-details{background:rgba(255,255,255,.06);border-radius:var(--radius);padding:20px;margin:20px 0;border:1px solid rgba(255,255,255,.12);box-shadow:var(--sh-soft);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:box-shadow .3s ease;}
-    .app-details:hover{box-shadow:var(--sh-med);}
-    .app-details h3{color:var(--accent-primary);font-size:18px;margin:0 0 16px;text-align:center;}
-    .detail-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);}
-    .detail-item:last-child{border-bottom:none;}
-    .detail-item i{width:24px;color:var(--accent-primary);text-align:center;}
-    .section-title{font-size:20px;font-weight:900;margin:24px 0 12px;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .app-description{padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:20px;}
+    .app-description p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;}
+    .app-description p:last-child{margin-bottom:0;}
+    .app-description strong{color:#fff;}
+    
+    .section-block{padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:20px;}
+    .section-block h4{font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;}
+    .section-block h5{font-size:15px;font-weight:700;color:var(--accent-primary);margin:16px 0 8px;}
+    
+    .feature-list{list-style:none;padding:0;}
+    .feature-list li{display:flex;gap:10px;margin-bottom:10px;font-size:13px;color:var(--muted);align-items:flex-start;line-height:1.5;}
+    .feature-list li i{color:var(--accent-primary);font-size:8px;margin-top:6px;flex-shrink:0;}
+    .feature-list li strong{color:#fff;}
+    
+    .highlight-quote{
+      background:rgba(0,240,255,0.04);border-left:3px solid var(--accent-primary);
+      border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0;
+      font-style:italic;font-size:13px;color:var(--muted);line-height:1.6;
+    }
+    
+    .ratings-section{padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:20px;}
+    .ratings-section h4{font-size:18px;font-weight:800;color:#fff;margin-bottom:16px;}
+    .ratings-overview{display:flex;align-items:center;gap:24px;margin-bottom:16px;}
+    .ratings-big{text-align:center;}
+    .ratings-big-num{font-size:48px;font-weight:900;color:#fff;line-height:1;}
+    .ratings-big-stars{color:var(--gold);font-size:14px;margin-top:4px;}
+    .ratings-big-count{font-size:12px;color:var(--muted);margin-top:4px;}
+    .ratings-bars{flex:1;display:flex;flex-direction:column;gap:6px;}
+    .rating-bar-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);}
+    .rating-bar{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;}
+    .rating-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:3px;}
+    
+    .info-section{padding:16px 0;}
+    .info-section h4{font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;}
+    .info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;}
+    .info-row:last-child{border-bottom:none;}
+    .info-label{color:var(--muted);}
+    .info-value{color:#fff;text-align:right;font-weight:500;}
+    
+    .privacy-card{
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px;padding:16px;margin-top:12px;display:flex;align-items:flex-start;gap:14px;
+    }
+    .privacy-card i{font-size:20px;color:var(--muted);margin-top:2px;}
+    .privacy-card div{font-size:12px;color:var(--muted);line-height:1.5;}
+    .privacy-card div strong{color:#fff;}
 
-    /* ═══ MAPA MENTAL (reemplaza tablas) ═══ */
-    .mindmap-section{margin:20px 0;}
-    .mindmap-title{
-      font-size:18px;font-weight:900;margin-bottom:20px;
-      background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));
-      -webkit-background-clip:text;background-clip:text;color:transparent;
-    }
-    .mindmap-list{
-      position:relative;padding-left:28px;
-      border-left:2px solid rgba(0,240,255,.2);
-    }
-    .mindmap-item{
-      position:relative;margin-bottom:20px;padding-left:20px;
-    }
-    .mindmap-item::before{
-      content:attr(data-num);
-      position:absolute;left:-41px;top:0;
-      width:28px;height:28px;
-      background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));
-      color:#fff;font-weight:900;font-size:13px;
-      border-radius:50%;display:flex;align-items:center;justify-content:center;
-      box-shadow:0 4px 12px rgba(0,240,255,.25);
-    }
-    .mindmap-item-title{font-weight:700;font-size:16px;color:var(--accent-primary);margin-bottom:4px;}
-    .mindmap-item-desc{font-size:14px;color:rgba(234,240,255,.75);line-height:1.5;}
-
-    /* Botón Seguir leyendo */
-    .read-more-btn{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:12px 24px;margin:16px 0 24px;
-      background:linear-gradient(90deg,rgba(0,240,255,.15),rgba(123,47,157,.15));
-      border:1px solid rgba(0,240,255,.3);border-radius:12px;
-      color:var(--accent-primary);font-weight:700;font-size:14px;
-      cursor:pointer;transition:all .3s ease;
-    }
-    .read-more-btn:hover{
-      background:linear-gradient(90deg,rgba(0,240,255,.25),rgba(123,47,157,.25));
-      border-color:rgba(0,240,255,.5);
-      transform:translateY(-1px);
-    }
-    .hidden-content{display:none;}
-    .hidden-content.visible{display:block;animation:fadeIn .5s ease;}
-
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-
-    /* ═══ INFRAESTRUCTURA API - SCROLL CORREGIDO ═══ */
+    /* ═══ INFRAESTRUCTURA API ═══ */
     .api-infrastructure{
       width:100%;position:relative;padding:60px 5%;background:transparent!important;
       border-top:1px solid rgba(0,240,255,.2);border-bottom:1px solid rgba(123,47,157,.2);
@@ -375,15 +384,11 @@
     .api-title{font-size:clamp(28px,4vw,42px);font-weight:900;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary),var(--accent-tertiary));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:16px;}
     .api-subtitle{font-size:clamp(16px,2vw,18px);color:rgba(234,240,255,.75);max-width:800px;margin:0 auto;line-height:1.6;}
 
-    /* Slider corregido */
-    .api-slider-wrapper{
-      position:relative;width:100%;margin:0 0 25px;
-    }
+    .api-slider-wrapper{position:relative;width:100%;margin:0 0 25px;}
     .api-image-slider{
       display:flex;overflow-x:auto;overflow-y:hidden;gap:20px;padding:10px 4px 24px;
       -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;
-      scroll-behavior:smooth;
-      user-select:none;-webkit-user-select:none;cursor:grab;
+      scroll-behavior:smooth;user-select:none;-webkit-user-select:none;cursor:grab;
       scrollbar-width:thin;scrollbar-color:rgba(0,240,255,.5) transparent;
     }
     .api-image-slider:active{cursor:grabbing;}
@@ -399,17 +404,6 @@
     @media(min-width:1024px){.api-slide{width:30%;}}
     .api-slide:hover{transform:translateY(-6px);box-shadow:var(--sh-hov);}
     .api-slide img{width:100%;height:auto;aspect-ratio:784/1168;object-fit:cover;display:block;pointer-events:none;}
-
-    /* Flechas de navegación */
-    .slider-nav-arrows{display:flex;justify-content:center;gap:16px;margin-top:12px;}
-    .slider-arrow{
-      width:44px;height:44px;border-radius:50%;
-      background:rgba(0,240,255,.12);border:1px solid rgba(0,240,255,.3);
-      color:var(--accent-primary);font-size:18px;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-      transition:all .3s ease;
-    }
-    .slider-arrow:hover{background:rgba(0,240,255,.25);border-color:rgba(0,240,255,.6);transform:scale(1.05);}
     
     .scroll-indicator{display:flex;justify-content:center;margin-top:8px;margin-bottom:10px;}
     .indicator-line{width:80px;height:3px;background:rgba(0,240,255,.3);border-radius:4px;position:relative;overflow:hidden;}
@@ -462,24 +456,18 @@
     .chat-text.show{opacity:1;transform:scale(1);}
     .chat-text.hide{opacity:0;transform:scale(.9);}
 
-    @media(min-width:768px){
-      .screenshot{width:160px;}
-      .api-stats{grid-template-columns:repeat(4,1fr);gap:24px;}
-      .stat-card{padding:32px 24px;}
-      .stat-number{font-size:48px;}
-    }
+    @media(min-width:768px){.api-stats{grid-template-columns:repeat(4,1fr);gap:24px;}.stat-card{padding:32px 24px;}.stat-number{font-size:48px;}}
     @media(max-width:640px){
-      .api-stats{gap:16px;padding:0 16px;margin:40px auto;}
-      .stat-card{padding:24px 16px;}
-      .stat-number{font-size:36px;}
-      #sidebar{width:100%;max-width:300px;}
-      .api-slide{width:85%;}
-      .tienda-mobile{padding:20px 4%;}
-      .api-infrastructure{padding:40px 4%;}
+      .api-stats{gap:16px;padding:0 16px;margin:40px auto;}.stat-card{padding:24px 16px;}.stat-number{font-size:36px;}
+      #sidebar{width:100%;max-width:300px;}.api-slide{width:85%;}
+      .appstore-section{padding:10px 3% 30px;}.api-infrastructure{padding:40px 4%;}
+      .appstore-hero{flex-direction:column;align-items:flex-start;gap:12px;}
+      .app-get-btn{width:100%;text-align:center;}
+      .ratings-overview{flex-direction:column;align-items:flex-start;gap:16px;}
     }
     @media(prefers-reduced-motion:reduce){
       .orb,.grid3d{animation:none!important;}
-      .btnStartNow,.tienda-mobile,.footer{animation:fadeInUp .5s ease forwards!important;opacity:1!important;transform:none!important;}
+      .btnStartNow,.appstore-section,.footer{animation:fadeInUp .5s ease forwards!important;opacity:1!important;transform:none!important;}
       .stat-card{animation:fadeInUp .5s ease forwards!important;}
       .loader-ring{animation:none!important;}
     }
@@ -535,21 +523,14 @@
     </div>
   </aside>
 
-  <!-- Modal de screenshots -->
-  <div class="screenshot-modal" id="screenshotModal" role="dialog" aria-modal="true">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose">×</button>
-      <button class="modal-nav modal-prev" id="modalPrev"><i class="fas fa-chevron-left"></i></button>
-      <button class="modal-nav modal-next" id="modalNext"><i class="fas fa-chevron-right"></i></button>
-      <img class="modal-img" id="modalImg" src="" alt="Captura de pantalla">
-    </div>
-  </div>
-
   <!-- ═══ HERO ═══ -->
   <header class="hero" role="banner">
     <div class="wrap text-center">
       <img class="main-icon" src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex logo" width="120" height="120" onerror="this.onerror=null;this.src='https://placehold.co/256x256/111827/ffffff?text=Consulta+PE';" />
-      <p class="kicker">Infraestructura tecnológica · masitaprex</p>
+      <p class="kicker">
+        <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Icono" style="width: 28px; height: 28px; margin: 0 auto 8px auto; display: block;" />
+        Infraestructura tecnológica · masitaprex
+      </p>
       <h1 class="title">Múltiples servicios, una experiencia <b>premium</b>.</h1>
       <p class="subtitle mx-auto">
         Empieza a consultar DNI, buscar DNI por nombres, entre otras opciones.
@@ -560,124 +541,153 @@
     </div>
   </header>
 
-  <!-- ═══ TIENDA / APK - ANCHO COMPLETO ═══ -->
-  <section id="tienda" class="tienda-mobile">
-    <div class="tienda-content">
-      <div class="tienda-header">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="Icono" class="tienda-icon" width="80" height="80">
-        <div><h2 class="tienda-title">Consulta PE APK</h2><p class="tienda-subtitle">Ofrecido por <strong>Maisitaprex</strong></p></div>
+  <!-- ═══ SECCIÓN APP STORE - CONSULTA PE APK ═══ -->
+  <section class="appstore-section" id="tienda">
+    
+    <!-- App Hero -->
+    <div class="appstore-hero">
+      <div class="app-icon">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png" alt="Consulta PE" loading="lazy">
       </div>
-      <p class="tienda-description">Consulta PE APK es una herramienta rápida que te permite consultar DNI usando nombres y apellidos, además de acceder a algunos datos públicos.</p>
-      <p class="tienda-description">También puedes probar 10 funciones de la infraestructura de Consulta PE, como la consulta de DNI. <a href="consultaPe-vercion-web" style="color:var(--accent-primary);text-decoration:underline;">Ingresa aquí para probar la versión web de Consulta PE.</a></p>
-      <p class="tienda-description">Si te gusta el servicio, descarga la app Consulta PE APK para acceder a todas estas funcionalidades.</p>
-      <p class="tienda-description">Para mantener claridad legal, las consultas y servicios asociados operan mediante <strong>infraestructura intermediaria</strong> que gestiona, controla y protege el acceso a los datos.</p>
-      <div class="screenshots-scroll" id="screenshotsScroll">
-        <img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="screenshot1" class="screenshot" data-index="0" loading="lazy" draggable="false">
-        <img src="https://i.postimg.cc/T1Vn5H0H/Servicios-gratuito-20260316-215206-0000.png" alt="screenshot2" class="screenshot" data-index="1" loading="lazy" draggable="false">
-        <img src="https://i.postimg.cc/rs15RYjg/Servicios-gratuito-20260320-152342-0000.png" alt="screenshot3" class="screenshot" data-index="2" loading="lazy" draggable="false">
-        <img src="https://i.postimg.cc/WzG0qf85/Servicios-gratuito-20260316-213526-0000.png" alt="screenshot4" class="screenshot" data-index="3" loading="lazy" draggable="false">
-        <img src="https://i.postimg.cc/tJ3Fnmk2/Servicios-gratuito-20260319-220603-0000.png" alt="screenshot5" class="screenshot" data-index="4" loading="lazy" draggable="false">
-        <img src="https://i.postimg.cc/mhfDGLGr/Servicios-gratuito-20260320-180333-0000.png" alt="screenshot6" class="screenshot" data-index="5" loading="lazy" draggable="false">
-      </div>
-      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn"><i class="fas fa-download"></i> Descargar Consulta PE APK</a>
-      <div class="stores-row">
-        <a href="https://apkpure.com/es/consulta-pe/com.consulta.pe" target="_blank"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzYApxO4LnNVigFo0cNXeKwK1l18h8b7NdJH2AvBkxh9gBbrgUuYB4nYAgNm5ciCG-E_Sb6MqCiABpJfivhulbTdcPCkz1-4qJ6IcuXEDmVUbs3O4LkVXxbOQfHU3sRTr-FW2kgCMKCmUnUQ1Kjs-oiOL2WD4u-CGe7w1P42y2uVBf5S5PbtE0gizswZDe/s650/1000117704.png" alt="APKPure" class="store-logo" loading="lazy"></a>
-        <a href="https://com-masitaorex.uptodown.com/android" target="_blank"><img src="https://stc.utdstc.com/img/svgs/logo-uptodown.svg" alt="Uptodown" class="store-logo" loading="lazy"></a>
-      </div>
-      <div id="detalles" class="app-details">
-        <h3><i class="fas fa-info-circle"></i> Detalles de la Aplicación Consulta PE APK</h3>
-        <div class="detail-item"><i class="fas fa-archive"></i><span><strong>Nombre de paquete:</strong> com.masitaprex</span></div>
-        <div class="detail-item"><i class="fas fa-gem"></i><span><strong>Licencia:</strong> Gratis</span></div>
-        <div class="detail-item"><i class="fas fa-mobile-alt"></i><span><strong>Sistema operativo:</strong> Android</span></div>
-        <div class="detail-item"><i class="fas fa-th-large"></i><span><strong>Categoría:</strong> Plataforma</span></div>
-        <div class="detail-item"><i class="fas fa-language"></i><span><strong>Idioma:</strong> Español Latinoamérica</span></div>
-        <div class="detail-item"><i class="fas fa-user-tie"></i><span><strong>Ofrecido por:</strong> José C.</span></div>
-        <div class="detail-item"><i class="fas fa-download"></i><span><strong>Descargas:</strong> 2 k</span></div>
-        <div class="detail-item"><i class="fas fa-calendar-day"></i><span><strong>Fecha:</strong> 16 Abril, 2024</span></div>
-        <div class="detail-item"><i class="fas fa-cogs"></i><span><strong>Clasificación de contenido:</strong> Entidades públicas</span></div>
-      </div>
-
-      <!-- ═══ MAPA MENTAL - FUNCIONALIDADES PRINCIPALES ═══ -->
-      <h3 class="section-title"><i class="fas fa-book-open"></i> Todo acerca de Consulta PE APK</h3>
-      <p class="tienda-description"><strong>Consulta PE APK</strong> es una aplicación diseñada para facilitar el acceso rápido, seguro y eficiente a los servicios de diversas entidades públicas del Perú. Con esta herramienta, puedes realizar <strong>consultas de DNI por nombres y apellidos</strong> y otros datos importantes de forma sencilla.</p>
-      <p class="tienda-description">Importante: para mantener claridad legal, estas funcionalidades y consultas se soportan mediante <strong>infraestructura intermediaria</strong>.</p>
-
-      <div class="mindmap-section">
-        <div class="mindmap-title"><i class="fas fa-list-check"></i> Funcionalidades principales</div>
-        <div class="mindmap-list">
-          <div class="mindmap-item" data-num="1">
-            <div class="mindmap-item-title">Consulta de DNI por nombres y apellidos</div>
-            <div class="mindmap-item-desc">Ingresa nombres y apellidos para obtener información relevante como ubicación, edad, estado civil, entre otros detalles asociados al DNI.</div>
-          </div>
-          <div class="mindmap-item" data-num="2">
-            <div class="mindmap-item-title">Consulta de RUC</div>
-            <div class="mindmap-item-desc">Permite obtener la información registrada de un RUC, ya sea de una empresa o persona natural, directamente desde SUNAT.</div>
-          </div>
-          <div class="mindmap-item" data-num="3">
-            <div class="mindmap-item-title">Líneas telefónicas</div>
-            <div class="mindmap-item-desc">Revisa todas las líneas telefónicas a tu nombre registradas en Osiptel de forma rápida y segura.</div>
-          </div>
+      <div class="app-info">
+        <div class="app-name">Consulta PE APK</div>
+        <div class="app-dev">Masitaprex</div>
+        <div class="app-rating-row">
+          <span class="app-rating">4.8 <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></span>
+          <span class="app-rating-count">2 k calificaciones</span>
+        </div>
+        <div class="app-badge-row">
+          <span class="app-badge"><i class="fas fa-trophy"></i> #1 en Plataformas</span>
+          <span class="app-badge"><i class="fas fa-shield-alt"></i> Seguro</span>
+          <span class="app-badge"><i class="fas fa-mobile-alt"></i> Android</span>
         </div>
       </div>
+      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="app-get-btn">OBTENER</a>
+    </div>
 
-      <!-- Botón Seguir leyendo -->
-      <button class="read-more-btn" id="readMoreBtn" onclick="toggleMoreContent()">
-        <i class="fas fa-chevron-down"></i> Seguir leyendo
-        <span style="font-size:11px;opacity:.7;">(funcionalidades adicionales)</span>
-      </button>
+    <!-- Screenshots (Modificadas para funcionar sin modal y sin el click residual) -->
+    <div class="appstore-screenshots" id="appstoreScreenshots">
+      <div class="appstore-screenshot"><img src="https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800" alt="Screenshot 1" loading="lazy"></div>
+      <div class="appstore-screenshot"><img src="https://i.postimg.cc/T1Vn5H0H/Servicios-gratuito-20260316-215206-0000.png" alt="Screenshot 2" loading="lazy"></div>
+      <div class="appstore-screenshot"><img src="https://i.postimg.cc/rs15RYjg/Servicios-gratuito-20260320-152342-0000.png" alt="Screenshot 3" loading="lazy"></div>
+      <div class="appstore-screenshot"><img src="https://i.postimg.cc/WzG0qf85/Servicios-gratuito-20260316-213526-0000.png" alt="Screenshot 4" loading="lazy"></div>
+      <div class="appstore-screenshot"><img src="https://i.postimg.cc/tJ3Fnmk2/Servicios-gratuito-20260319-220603-0000.png" alt="Screenshot 5" loading="lazy"></div>
+      <div class="appstore-screenshot"><img src="https://i.postimg.cc/mhfDGLGr/Servicios-gratuito-20260320-180333-0000.png" alt="Screenshot 6" loading="lazy"></div>
+    </div>
 
-      <!-- Contenido oculto -->
-      <div class="hidden-content" id="moreContent">
-        <div class="mindmap-section" style="margin-top:10px;">
-          <div class="mindmap-list">
-            <div class="mindmap-item" data-num="4">
-              <div class="mindmap-item-title">Información vehicular</div>
-              <div class="mindmap-item-desc">Ingresa el número de placa de un vehículo y obtén información sobre su registro y características desde SUNARP.</div>
-            </div>
-            <div class="mindmap-item" data-num="5">
-              <div class="mindmap-item-title">Acceso a servicios públicos</div>
-              <div class="mindmap-item-desc">Conéctate fácilmente a servicios de entidades públicas como la PNP, SUNAT, DIGESA, entre otras.</div>
-            </div>
-          </div>
+    <!-- Descripción Completa -->
+    <div class="app-description">
+      <p>Consulta Pe no es una aplicación común; es <strong>la cumbre de la eficiencia</strong> en gestión de datos e infraestructura tecnológica. Hemos diseñado una herramienta de élite para quienes no aceptan respuestas lentas ni procesos burocráticos. Pertenece al prestigioso ecosistema de desarrollo de <strong>Masitaprex</strong> (www.masitaprex.com), garantizando una experiencia de usuario que otros simplemente no pueden replicar.</p>
+    </div>
+
+    <!-- Aviso de Transparencia -->
+    <div class="section-block">
+      <h4>🛡️ Aviso de Transparencia y Naturaleza Jurídica</h4>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">
+        Para los que exigen claridad: <strong>Consulta Pe no es una entidad gubernamental ni está vinculada al Estado.</strong> Somos una infraestructura tecnológica privada que actúa exclusivamente como intermediario técnico. Nuestra plataforma facilita el acceso a nodos de información pública, optimizando la visualización de datos de manera externa. No somos dueños de la información, somos los dueños de la mejor tecnología para encontrarla.
+      </p>
+    </div>
+
+    <!-- Potencia en Consultas -->
+    <div class="section-block">
+      <h4>⚡ Potencia en Consultas Especializadas</h4>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">Optimiza tu tiempo con nuestra suite de herramientas de alta precisión:</p>
+      <ul class="feature-list">
+        <li><i class="fas fa-circle"></i> <span><strong>Identidad Inteligente:</strong> Consulta de datos relacionados al DNI por número o nombres completos.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Seguridad Patrimonial:</strong> Verificación de vehículos y registros de propiedad.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Transparencia Telefónica:</strong> Gestiona y conoce cuántas líneas figuran bajo tu titularidad para evitar fraudes.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Nodos Tributarios y Sanitarios:</strong> Acceso optimizado a consultas RUC, SUNAT y registros de salud.</span></li>
+      </ul>
+    </div>
+
+    <!-- Servicios de Valor Añadido -->
+    <div class="section-block">
+      <h4>🚀 Servicios de Valor Añadido (100% Gratuitos)</h4>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">Mientras otros cobran por lo básico, nosotros te otorgamos el control total sin costo adicional. Nuestra infraestructura no solo es útil, es indispensable:</p>
+      <ul class="feature-list">
+        <li><i class="fas fa-circle"></i> <span><strong>PeliPREX:</strong> Olvida los límites. Acceso a millones de títulos. Cine de alto nivel en la palma de tu mano.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Gestor de Seguridad:</strong> Generador de contraseñas de grado militar para proteger tus redes y Wi-Fi.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Escáner QR Pro:</strong> Interacción instantánea con documentos, productos y enlaces.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Marketing Hub:</strong> Generador de enlaces personalizados para WhatsApp y Telegram.</span></li>
+        <li><i class="fas fa-circle"></i> <span><strong>Zona Gaming:</strong> Una selección curada de juegos para quienes valoran su tiempo de ocio.</span></li>
+      </ul>
+    </div>
+
+    <!-- Estructura de Costos -->
+    <div class="section-block">
+      <h4>💳 Estructura de Costos e Infraestructura</h4>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">
+        En Consulta Pe, mantenemos una política de <strong>transparencia absoluta</strong>. El acceso a la aplicación y sus servicios de utilidad (juegos, películas, gestores) es <strong>totalmente gratuito</strong>.
+      </p>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">
+        Los créditos adquiridos dentro de la plataforma se destinan exclusivamente a cubrir los costos de:
+      </p>
+      <ul class="feature-list">
+        <li><i class="fas fa-circle"></i> <span>Mantenimiento de la infraestructura tecnológica de alto rendimiento.</span></li>
+        <li><i class="fas fa-circle"></i> <span>Procesamiento de datos en tiempo real.</span></li>
+        <li><i class="fas fa-circle"></i> <span>Soporte técnico y estabilidad de los servidores.</span></li>
+      </ul>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">
+        Usted no paga por la información pública, paga por la <strong>sofisticada arquitectura tecnológica</strong> que nos permite entregársela en segundos, con la seguridad y confianza que solo nuestro equipo de desarrollo puede ofrecer.
+      </p>
+    </div>
+
+    <!-- Cita Final -->
+    <div class="highlight-quote">
+      "La decisión más inteligente que puedes tomar hoy es simple: instala la aplicación y pon a prueba nuestra infraestructura. No pedimos que confíes en promesas, sino en resultados. Si la eficiencia de nuestro ecosistema te convence —y estamos seguros de que lo hará—, habrás encontrado la herramienta definitiva. El estándar de calidad ya está aquí, tú decides si quieres formar parte de él."
+    </div>
+
+    <!-- También puedes probar -->
+    <div class="section-block" style="border-bottom:none;margin-bottom:0;">
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;">
+        También puedes probar 10 funciones de la infraestructura de Consulta PE. <a href="consultaPe-vercion-web" style="color:var(--accent-primary);text-decoration:underline;font-weight:600;">Ingresa aquí para probar la versión web de Consulta PE.</a>
+      </p>
+    </div>
+
+    <!-- Calificaciones -->
+    <div class="ratings-section">
+      <h4>Calificaciones y Reseñas</h4>
+      <div class="ratings-overview">
+        <div class="ratings-big">
+          <div class="ratings-big-num">4.8</div>
+          <div class="ratings-big-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+          <div class="ratings-big-count">2 k valoraciones</div>
         </div>
-
-        <div class="mindmap-section" style="margin-top:28px;">
-          <div class="mindmap-title"><i class="fas fa-crown"></i> Exclusividades de Masitaprex</div>
-          <div class="mindmap-list">
-            <div class="mindmap-item" data-num="1">
-              <div class="mindmap-item-title">PeliPREX - Cine Ilimitado</div>
-              <div class="mindmap-item-desc">Olvida los catálogos limitados. Accede a millones de películas en alta definición sin costo.</div>
-            </div>
-            <div class="mindmap-item" data-num="2">
-              <div class="mindmap-item-title">Gestor de Contraseñas de Élite</div>
-              <div class="mindmap-item-desc">Seguridad impenetrable. Genera y administra claves robustas con tecnología de grado superior.</div>
-            </div>
-            <div class="mindmap-item" data-num="3">
-              <div class="mindmap-item-title">Generador de Enlaces Magnéticos</div>
-              <div class="mindmap-item-desc">Crea links personalizados para WhatsApp y Telegram con control total en cada mensaje.</div>
-            </div>
-            <div class="mindmap-item" data-num="4">
-              <div class="mindmap-item-title">Escáner QR de Alta Precisión</div>
-              <div class="mindmap-item-desc">Velocidad y seguridad absoluta al escanear productos, sitios web o documentos.</div>
-            </div>
-            <div class="mindmap-item" data-num="5">
-              <div class="mindmap-item-title">Galería de Imágenes Premium</div>
-              <div class="mindmap-item-desc">Visualiza y descarga contenido visual en la más alta resolución disponible.</div>
-            </div>
-            <div class="mindmap-item" data-num="6">
-              <div class="mindmap-item-title">Zona de Juegos Exclusiva</div>
-              <div class="mindmap-item-desc">Entretenimiento seleccionado. Juegos gratuitos diseñados para quienes exigen calidad.</div>
-            </div>
-          </div>
+        <div class="ratings-bars">
+          <div class="rating-bar-row"><span>5</span><i class="fas fa-star" style="font-size:8px;color:var(--gold);"></i><div class="rating-bar"><div class="rating-bar-fill" style="width:78%;"></div></div></div>
+          <div class="rating-bar-row"><span>4</span><i class="fas fa-star" style="font-size:8px;color:var(--gold);"></i><div class="rating-bar"><div class="rating-bar-fill" style="width:15%;"></div></div></div>
+          <div class="rating-bar-row"><span>3</span><i class="fas fa-star" style="font-size:8px;color:var(--gold);"></i><div class="rating-bar"><div class="rating-bar-fill" style="width:4%;"></div></div></div>
+          <div class="rating-bar-row"><span>2</span><i class="fas fa-star" style="font-size:8px;color:var(--gold);"></i><div class="rating-bar"><div class="rating-bar-fill" style="width:2%;"></div></div></div>
+          <div class="rating-bar-row"><span>1</span><i class="fas fa-star" style="font-size:8px;color:var(--gold);"></i><div class="rating-bar"><div class="rating-bar-fill" style="width:1%;"></div></div></div>
         </div>
       </div>
+    </div>
 
-      <p class="tienda-description" style="margin-top:24px;"><strong>Consulta PE APK</strong> de <strong>Masitaprex</strong> combina funcionalidad y entretenimiento en una solución integral. Descarga la app para <strong>consultar DNI por nombres y apellidos</strong> y descubrir todo lo que puedes hacer. ¡Tu vida será más fácil con <strong>Consulta PE</strong> y <strong>PeliPREX</strong>!</p>
-      <a href="https://apk.e-droid.net/apk/app3790080-1f9e8a.apk?v=2" class="download-btn"><i class="fas fa-download"></i> Descargar Consulta PE APK ahora</a>
+    <!-- Información -->
+    <div class="info-section">
+      <h4>Información</h4>
+      <div class="info-row"><span class="info-label">Ofrecido por</span><span class="info-value">José C.</span></div>
+      <div class="info-row"><span class="info-label">Tamaño</span><span class="info-value">15.2 MB</span></div>
+      <div class="info-row"><span class="info-label">Categoría</span><span class="info-value">Plataforma</span></div>
+      <div class="info-row"><span class="info-label">Compatibilidad</span><span class="info-value">Android 5.0+</span></div>
+      <div class="info-row"><span class="info-label">Idioma</span><span class="info-value">Español Latinoamérica</span></div>
+      <div class="info-row"><span class="info-label">Clasificación</span><span class="info-value">Entidades públicas</span></div>
+      <div class="info-row"><span class="info-label">Paquete</span><span class="info-value" style="font-family:'DM Mono',monospace;font-size:11px;">com.masitaprex</span></div>
+      
+      <div class="privacy-card">
+        <i class="fas fa-shield-alt"></i>
+        <div><strong>Privacidad de la app</strong><br>El desarrollador, José C., indicó que las prácticas de privacidad pueden incluir la gestión de datos según se describe a continuación. Para obtener más información, consulta la política de privacidad del desarrollador.</div>
+      </div>
+    </div>
+
+    <!-- Stores -->
+    <div style="display:flex;justify-content:center;gap:16px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.06);">
+      <a href="https://apkpure.com/es/consulta-pe/com.consulta.pe" target="_blank"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjzYApxO4LnNVigFo0cNXeKwK1l18h8b7NdJH2AvBkxh9gBbrgUuYB4nYAgNm5ciCG-E_Sb6MqCiABpJfivhulbTdcPCkz1-4qJ6IcuXEDmVUbs3O4LkVXxbOQfHU3sRTr-FW2kgCMKCmUnUQ1Kjs-oiOL2WD4u-CGe7w1P42y2uVBf5S5PbtE0gizswZDe/s650/1000117704.png" alt="APKPure" style="height:36px;border-radius:6px;opacity:0.8;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'"></a>
+      <a href="https://com-masitaorex.uptodown.com/android" target="_blank"><img src="https://stc.utdstc.com/img/svgs/logo-uptodown.svg" alt="Uptodown" style="height:36px;opacity:0.8;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'"></a>
     </div>
   </section>
 
-  <!-- ═══ INFRAESTRUCTURA API - SCROLL CORREGIDO ═══ -->
+  <!-- ═══ INFRAESTRUCTURA API ═══ -->
   <section class="api-infrastructure" aria-labelledby="apiSectionTitle">
     <div class="api-background" id="apiBackground" aria-hidden="true"></div>
     <div class="api-header">
@@ -691,11 +701,6 @@
         <div class="api-slide"><img src="https://i.postimg.cc/FRYt1yXS/image-12.jpg" alt="API Dashboard 3" loading="lazy" draggable="false"></div>
         <div class="api-slide"><img src="https://i.postimg.cc/SKTFyZ3C/image-20.jpg" alt="API Dashboard 4" loading="lazy" draggable="false"></div>
         <div class="api-slide"><img src="https://i.postimg.cc/261p3QNh/image-26.jpg" alt="API Dashboard 5" loading="lazy" draggable="false"></div>
-      </div>
-      <!-- Flechas de navegación -->
-      <div class="slider-nav-arrows">
-        <button class="slider-arrow" onclick="slideAPI(-1)" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
-        <button class="slider-arrow" onclick="slideAPI(1)" aria-label="Siguiente"><i class="fas fa-chevron-right"></i></button>
       </div>
     </div>
     <div class="scroll-indicator"><div class="indicator-line"><div class="indicator-progress" id="scrollProgress"></div></div></div>
@@ -739,86 +744,31 @@
   <!-- ═══════════════════ SCRIPTS ═══════════════════ -->
   <script>
   lucide.createIcons();
+  const menuToggle=document.getElementById('menu-toggle'),sidebarEl=document.getElementById('sidebar'),overlayEl=document.getElementById('sidebar-overlay');
+  function toggleMenu(){const o=sidebarEl.classList.toggle('open');if(o){overlayEl.classList.remove('hidden');overlayEl.style.display='block';document.body.style.overflow='hidden';setTimeout(()=>overlayEl.classList.add('opacity-100'),10);}else{overlayEl.classList.remove('opacity-100');document.body.style.overflow='';setTimeout(()=>{if(!sidebarEl.classList.contains('open')){overlayEl.classList.add('hidden');overlayEl.style.display='none';}},300);}}
+  menuToggle.addEventListener('click',toggleMenu);overlayEl.addEventListener('click',toggleMenu);
+  sidebarEl.querySelectorAll('nav a').forEach(l=>{l.addEventListener('click',e=>{const h=l.getAttribute('href');if(h&&h!=='#'){e.preventDefault();toggleMenu();setTimeout(()=>{window.location.href=h;},300);}});});
 
-  // Sidebar
-  const menuToggle = document.getElementById('menu-toggle');
-  const sidebarEl = document.getElementById('sidebar');
-  const overlayEl = document.getElementById('sidebar-overlay');
-  function toggleMenu() {
-    const isOpen = sidebarEl.classList.toggle('open');
-    if(isOpen){overlayEl.classList.remove('hidden');overlayEl.style.display='block';document.body.style.overflow='hidden';setTimeout(()=>overlayEl.classList.add('opacity-100'),10);}
-    else{overlayEl.classList.remove('opacity-100');document.body.style.overflow='';setTimeout(()=>{if(!sidebarEl.classList.contains('open')){overlayEl.classList.add('hidden');overlayEl.style.display='none';}},300);}
-  }
-  menuToggle.addEventListener('click',toggleMenu);
-  overlayEl.addEventListener('click',toggleMenu);
-  sidebarEl.querySelectorAll('nav a').forEach(link=>{link.addEventListener('click',(e)=>{const href=link.getAttribute('href');if(href&&href!=='#'){e.preventDefault();toggleMenu();setTimeout(()=>{window.location.href=href;},300);}});});
+  function preloadImages(u){return Promise.all(u.map(r=>new Promise(s=>{const i=new Image();i.src=r;i.onload=i.onerror=s;})))}
+  const lp=document.getElementById('loaderProgress');
+  function advanceProgress(t,d){return new Promise(r=>{setTimeout(()=>{lp.style.width=t+'%';setTimeout(r,220);},d||0);})}
+  const ci=['https://cdn-icons-png.flaticon.com/128/747/747965.png','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'];
+  document.addEventListener('DOMContentLoaded',async function(){await advanceProgress(25,0);await preloadImages(ci);await advanceProgress(65,100);await advanceProgress(90,200);await advanceProgress(100,200);setTimeout(()=>{document.getElementById('loading').classList.add('hidden');initApiBackground();startTypingEffect();animateCounters();initScrollProgress('apiImageSlider','scrollProgress');},350);});
 
-  // Utilidades
-  function preloadImages(urls){return Promise.all(urls.map(u=>new Promise(r=>{const i=new Image();i.src=u;i.onload=i.onerror=r;})));}
-  const loaderProgress=document.getElementById('loaderProgress');
-  function advanceProgress(to,delay){return new Promise(res=>{setTimeout(()=>{loaderProgress.style.width=to+'%';setTimeout(res,220);},delay||0);});}
-  const criticalImages=['https://cdn-icons-png.flaticon.com/128/747/747965.png','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'];
+  function animateCounters(){document.querySelectorAll('.stat-number[data-target]').forEach(c=>{const t=parseFloat(c.getAttribute('data-target')),d=1800,s=60,i=t/s;let u=0,p=0;const f=()=>{p++;u=Math.min(u+i,t);if(t%1!==0)c.textContent=u.toFixed(1)+'%';else c.textContent=Math.floor(u)+(t>=1000?'k+':'%');if(p<s)requestAnimationFrame(f);else{if(t%1!==0)c.textContent=t.toFixed(1)+'%';else c.textContent=(t>=1000?'2k+':t+'%');}};setTimeout(()=>requestAnimationFrame(f),400);});}
 
-  document.addEventListener('DOMContentLoaded',async function(){await advanceProgress(25,0);await preloadImages(criticalImages);await advanceProgress(65,100);await advanceProgress(90,200);await advanceProgress(100,200);setTimeout(()=>{document.getElementById('loading').classList.add('hidden');initApiBackground();startTypingEffect();animateCounters();initScrollProgress('apiImageSlider','scrollProgress');initDragScroll('screenshotsScroll');},350);});
-
-  function animateCounters(){document.querySelectorAll('.stat-number[data-target]').forEach(c=>{const target=parseFloat(c.getAttribute('data-target'));const isDecimal=target%1!==0;const duration=1800,steps=60,inc=target/steps;let cur=0,step=0;const upd=()=>{step++;cur=Math.min(cur+inc,target);if(isDecimal)c.textContent=cur.toFixed(1)+'%';else c.textContent=Math.floor(cur)+(target>=1000?'k+':'%');if(step<steps)requestAnimationFrame(upd);else{if(isDecimal)c.textContent=target.toFixed(1)+'%';else c.textContent=(target>=1000?'2k+':target+'%');}};setTimeout(()=>requestAnimationFrame(upd),400);});}
-
-  // Modal screenshots
-  const modal=document.getElementById('screenshotModal');const modalImg=document.getElementById('modalImg');const screenshots=document.querySelectorAll('.screenshot');let cidx=0;
-  const ssUrls=['https://img.utdstc.com/screen/9e0/c70/9e0c7077ae3bfc5941fd1dafa9c85999cca88917d27fea87a7fe9436b0a4ac09:800','https://i.postimg.cc/T1Vn5H0H/Servicios-gratuito-20260316-215206-0000.png','https://i.postimg.cc/rs15RYjg/Servicios-gratuito-20260320-152342-0000.png','https://i.postimg.cc/WzG0qf85/Servicios-gratuito-20260316-213526-0000.png','https://i.postimg.cc/tJ3Fnmk2/Servicios-gratuito-20260319-220603-0000.png','https://i.postimg.cc/mhfDGLGr/Servicios-gratuito-20260320-180333-0000.png'];
-  screenshots.forEach((s,i)=>s.addEventListener('click',()=>{cidx=i;modalImg.src=ssUrls[cidx];modal.classList.add('active');document.body.style.overflow='hidden';}));
-  document.getElementById('modalClose').addEventListener('click',closeModal);
-  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
-  document.getElementById('modalPrev').addEventListener('click',e=>{e.stopPropagation();cidx=(cidx-1+ssUrls.length)%ssUrls.length;modalImg.src=ssUrls[cidx];});
-  document.getElementById('modalNext').addEventListener('click',e=>{e.stopPropagation();cidx=(cidx+1)%ssUrls.length;modalImg.src=ssUrls[cidx];});
-  document.addEventListener('keydown',e=>{if(!modal.classList.contains('active'))return;if(e.key==='Escape')closeModal();if(e.key==='ArrowLeft'){cidx=(cidx-1+ssUrls.length)%ssUrls.length;modalImg.src=ssUrls[cidx];}if(e.key==='ArrowRight'){cidx=(cidx+1)%ssUrls.length;modalImg.src=ssUrls[cidx];}});
-  function closeModal(){modal.classList.remove('active');document.body.style.overflow='auto';}
-
-  function initDragScroll(id){const el=document.getElementById(id);if(!el)return;let isDown=false,startX=0,scrollLeft=0;el.addEventListener('mousedown',e=>{isDown=true;el.classList.add('is-dragging');startX=e.pageX-el.offsetLeft;scrollLeft=el.scrollLeft;e.preventDefault();});el.addEventListener('mouseleave',()=>{isDown=false;el.classList.remove('is-dragging');});el.addEventListener('mouseup',()=>{isDown=false;el.classList.remove('is-dragging');});el.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-el.offsetLeft;el.scrollLeft=scrollLeft-(x-startX)*1.4;});}
-
-  // Scroll progress indicator
-  function initScrollProgress(sliderId,progressId){
-    const slider=document.getElementById(sliderId);
-    const progress=document.getElementById(progressId);
-    if(!slider||!progress)return;
-    function update(){const max=slider.scrollWidth-slider.clientWidth;progress.style.width=(max>0?(slider.scrollLeft/max)*100:0)+'%';}
-    slider.addEventListener('scroll',update,{passive:true});
-    window.addEventListener('resize',update,{passive:true});
-    update();
-  }
-
-  // Navegación del slider API con flechas
-  function slideAPI(direction){
-    const slider=document.getElementById('apiImageSlider');
-    if(!slider)return;
-    const slideWidth=slider.querySelector('.api-slide').offsetWidth+20;
-    slider.scrollBy({left:direction*slideWidth,behavior:'smooth'});
-  }
-  window.slideAPI=slideAPI;
-
-  // Seguir leyendo
-  function toggleMoreContent(){
-    const content=document.getElementById('moreContent');
-    const btn=document.getElementById('readMoreBtn');
-    if(content.classList.contains('visible')){
-      content.classList.remove('visible');
-      btn.innerHTML='<i class="fas fa-chevron-down"></i> Seguir leyendo <span style="font-size:11px;opacity:.7;">(funcionalidades adicionales)</span>';
-    }else{
-      content.classList.add('visible');
-      btn.innerHTML='<i class="fas fa-chevron-up"></i> Mostrar menos';
-    }
-  }
-  window.toggleMoreContent=toggleMoreContent;
-
-  function initApiBackground(){const bg=document.getElementById('apiBackground');if(!bg)return;bg.innerHTML='';const nodes=[];for(let i=0;i<15;i++){const n=document.createElement('div');n.className='api-node';const l=Math.random()*90+5,t=Math.random()*80+10;n.style.left=l+'%';n.style.top=t+'%';n.style.animationDelay=(Math.random()*3)+'s';bg.appendChild(n);nodes.push({x:l,y:t});}nodes.forEach((a,i)=>nodes.forEach((b,j)=>{if(i>=j)return;const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy);if(d<40){const c=document.createElement('div');c.className='api-connection';c.style.width=d+'%';c.style.left=a.x+'%';c.style.top=a.y+'%';c.style.transform=`rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;c.style.transformOrigin='0 0';c.style.animationDelay=(Math.random()*2)+'s';bg.appendChild(c);}}));}
-  function startTypingEffect(){const cc=document.getElementById('codeContent');if(!cc)return;const code=`<?php\n$api_url = "https://api.masitaprex.com/v3/consulta/dni";\n$headers = [ "x-api-key: TU_TOKEN", "Content-Type: application/json" ];\n$data = [ "dni" => "12345678" ];\n$response = http_post($api_url, $data, $headers);\n?>`;cc.innerHTML='';const el=document.createElement('div');el.className='typing-text';cc.appendChild(el);let i=0;function type(){if(i<code.length){el.innerHTML=code.substring(0,i+1).replace(/\n/g,'<br>').replace(/ /g,'&nbsp;');i++;setTimeout(type,28);}else{el.innerHTML=code.replace(/\n/g,'<br>').replace(/ /g,'&nbsp;')+'<span class="typing-cursor"></span>';}}type();}
-  document.addEventListener('click',function(e){const btn=document.getElementById('codeMenuBtn');const menu=document.getElementById('codeMenu');if(!btn||!menu)return;if(btn.contains(e.target)){e.stopPropagation();menu.classList.toggle('show');}else if(!menu.contains(e.target)){menu.classList.remove('show');}});
-
+  function initScrollProgress(s,p){const sl=document.getElementById(s),pr=document.getElementById(p);if(!sl||!pr)return;function u(){const m=sl.scrollWidth-sl.clientWidth;pr.style.width=(m>0?(sl.scrollLeft/m)*100:0)+'%';}sl.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u,{passive:true});u();}
+  function initApiBackground(){const b=document.getElementById('apiBackground');if(!b)return;b.innerHTML='';const n=[];for(let i=0;i<15;i++){const d=document.createElement('div');d.className='api-node';const l=Math.random()*90+5,t=Math.random()*80+10;d.style.left=l+'%';d.style.top=t+'%';d.style.animationDelay=(Math.random()*3)+'s';b.appendChild(d);n.push({x:l,y:t});}n.forEach((a,i)=>n.forEach((b2,j)=>{if(i>=j)return;const dx=b2.x-a.x,dy=b2.y-a.y,d=Math.sqrt(dx*dx+dy*dy);if(d<40){const c=document.createElement('div');c.className='api-connection';c.style.width=d+'%';c.style.left=a.x+'%';c.style.top=a.y+'%';c.style.transform=`rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;c.style.transformOrigin='0 0';c.style.animationDelay=(Math.random()*2)+'s';b.appendChild(c);}}));}
+  function startTypingEffect(){const cc=document.getElementById('codeContent');if(!cc)return;const code=`<?php\n$api_url = "https://api.masitaprex.com/v3/consulta/dni";\n$headers = [ "x-api-key: TU_TOKEN", "Content-Type: application/json" ];\n$data = [ "dni" => "12345678" ];\n$response = http_post($api_url, $data, $headers);\n?>`;cc.innerHTML='';const el=document.createElement('div');el.className='typing-text';cc.appendChild(el);let i=0;function t(){if(i<code.length){el.innerHTML=code.substring(0,i+1).replace(/\n/g,'<br>').replace(/ /g,'&nbsp;');i++;setTimeout(t,28);}else{el.innerHTML=code.replace(/\n/g,'<br>').replace(/ /g,'&nbsp;')+'<span class="typing-cursor"></span>';}}t();}
+  document.addEventListener('click',function(e){const b=document.getElementById('codeMenuBtn'),m=document.getElementById('codeMenu');if(!b||!m)return;if(b.contains(e.target)){e.stopPropagation();m.classList.toggle('show');}else if(!m.contains(e.target)){m.classList.remove('show');}});
   function goToWhatsApp(){window.open('https://wa.me/51944950234?text='+encodeURIComponent('Hola, neseito ayuda con la web.'),'_blank');}
-  const chatText=document.getElementById('chatText');const msg='¡Hola, Nesecitas ayuda!';let mi=0;
-  function typeChat(){if(mi<msg.length){chatText.textContent+=msg.charAt(mi);mi++;setTimeout(typeChat,90);}else{setTimeout(()=>{chatText.classList.remove('show');chatText.classList.add('hide');setTimeout(resetChat,900);},2500);}}
-  function resetChat(){chatText.textContent='';mi=0;chatText.classList.remove('hide');setTimeout(()=>{chatText.classList.add('show');typeChat();},500);}
-  window.addEventListener('load',()=>setTimeout(()=>{chatText.classList.add('show');typeChat();},1200));
+  const ct=document.getElementById('chatText'),msg='¡Hola, Nesecitas ayuda!';let mi=0;
+  function typeChat(){if(mi<msg.length){ct.textContent+=msg.charAt(mi);mi++;setTimeout(typeChat,90);}else{setTimeout(()=>{ct.classList.remove('show');ct.classList.add('hide');setTimeout(resetChat,900);},2500);}}
+  function resetChat(){ct.textContent='';mi=0;ct.classList.remove('hide');setTimeout(()=>{ct.classList.add('show');typeChat();},500);}
+  window.addEventListener('load',()=>setTimeout(()=>{ct.classList.add('show');typeChat();},1200));
   </script>
 </body>
 </html>
+
+
+```
