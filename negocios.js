@@ -439,15 +439,31 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
 
     let userName = email.split('@')[0];
     try {
-      const userSnap = await db.collection('usuarios').doc(uid).get();
+      // Intentar buscar primero en la colección correspondiente al tipo de plan
+      const collectionName = result.tipoPlanNuevo === 'revenue_recovery' ? 'empresas' : 'usuarios';
+      let userSnap = await db.collection(collectionName).doc(uid).get();
+      
+      // Si no existe en la preferida, intentar en la otra
+      if (!userSnap.exists) {
+        const alternativeCollection = collectionName === 'empresas' ? 'usuarios' : 'empresas';
+        userSnap = await db.collection(alternativeCollection).doc(uid).get();
+      }
+
       if (userSnap.exists) {
         const userData = userSnap.data();
-        userName = userData.name || userData.displayName || userName;
+        userName = userData.name || userData.displayName || userData.nombre || userName;
       }
-    } catch (err) {}
+    } catch (err) {
+      logger.error(context, 'Error obteniendo nombre de usuario para correo', err);
+    }
 
-    enviarCorreoCompra(email, userName, paymentRefString, montoPagado, result.descripcion, result.pdfUrl, resend)
-      .catch(err => logger.error(context, 'Error en envío de correo', err));
+    if (result.tipoPlanNuevo === 'revenue_recovery') {
+      enviarCorreoCompraRR(email, userName, paymentRefString, montoPagado, result.descripcion, result.pdfUrl, resend)
+        .catch(err => logger.error(context, 'Error en envío de correo RR', err));
+    } else {
+      enviarCorreoCompra(email, userName, paymentRefString, montoPagado, result.descripcion, result.pdfUrl, resend)
+        .catch(err => logger.error(context, 'Error en envío de correo general', err));
+    }
 
     releasePaymentLock(paymentRefString);
     return result;
@@ -548,6 +564,34 @@ export async function enviarCorreoSospechoso(email, nombre, location, ip, userAg
     return { success: true, id: result.id };
   } catch (error) {
     logger.error(context, '❌ Error enviando correo sospechoso', error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function enviarCorreoCompraRR(email, nombre, orderId, monto, descripcion, urlBoleta, resend) {
+  const context = 'ENVIAR_CORREO_COMPRA_RR';
+  try {
+    // Usamos la misma plantilla pero podríamos personalizarla en el futuro si se requiere
+    const templatePath = path.join(__dirname, 'emails', 'compra-exitosa.html');
+    if (!fs.existsSync(templatePath)) return { success: false, error: 'Plantilla no encontrada' };
+    
+    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
+    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Empresa');
+    htmlContent = htmlContent.replace(/{{orderId}}/g, orderId);
+    htmlContent = htmlContent.replace(/{{monto}}/g, monto);
+    htmlContent = htmlContent.replace(/{{descripcion}}/g, descripcion);
+    htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/Dashboard-Revenue-Recovery-OS.html');
+    
+    // Cambiamos el asunto para identificar que es de RR-OS
+    const result = await resend.emails.send({
+      from: 'Revenue Recovery OS <facturacion@masitaprex.com>',
+      to: email,
+      subject: `Activación Exitosa: ${descripcion} - #${orderId}`,
+      html: htmlContent
+    });
+    return { success: true, id: result.id };
+  } catch (error) {
+    logger.error(context, '❌ Error enviando correo de compra RR', error);
     return { success: false, error: error.message };
   }
 }

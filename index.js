@@ -394,14 +394,20 @@ app.post("/api/pay", async (req, res) => {
 
     if (result.status === 'approved') {
       await otorgarBeneficio(uid, payer.email, transaction_amount, 'MP_CARD_INSTANT', result.id.toString(), resend, tipoPlan);
-    } else if (result.status === 'rejected') {
+    } else if (result.status === 'rejected' || result.status === 'cancelled') {
       let userName = payer.email.split('@')[0];
       try {
         if (db) {
-          const userSnap = await db.collection('usuarios').doc(uid).get();
+          // Buscar en usuarios o empresas
+          const collectionName = tipoPlan === 'revenue_recovery' ? 'empresas' : 'usuarios';
+          let userSnap = await db.collection(collectionName).doc(uid).get();
+          if (!userSnap.exists) {
+            const alternativeCollection = collectionName === 'empresas' ? 'usuarios' : 'empresas';
+            userSnap = await db.collection(alternativeCollection).doc(uid).get();
+          }
           if (userSnap.exists) {
             const userData = userSnap.data();
-            userName = userData.name || userData.displayName || userName;
+            userName = userData.name || userData.displayName || userData.nombre || userName;
           }
         }
       } catch (err) {}
@@ -411,8 +417,8 @@ app.post("/api/pay", async (req, res) => {
         userName, 
         result.id.toString(), 
         transaction_amount, 
-        description, 
-        result.status_detail, 
+        description || 'Compra en Consulta PE', 
+        result.status_detail || result.status, 
         resend
       ).catch(err => logger.error(context, 'Error enviando correo de rechazo', err));
     }
@@ -442,19 +448,25 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
         if (metadata.uid) {
           await otorgarBeneficio(metadata.uid, metadata.email || paymentInfo.payer?.email, metadata.amount || paymentInfo.transaction_amount, 'MP_WEBHOOK', paymentId.toString(), resend, metadata.tipoPlan);
         }
-      } else if (paymentInfo.status === "rejected") {
+      } else if (paymentInfo.status === "rejected" || paymentInfo.status === "cancelled") {
         const metadata = paymentInfo.metadata || {};
         const email = metadata.email || paymentInfo.payer?.email;
         const uid = metadata.uid;
+        const tipoPlan = metadata.tipoPlan;
         
         if (email && uid) {
           let userName = email.split('@')[0];
           try {
             if (db) {
-              const userSnap = await db.collection('usuarios').doc(uid).get();
+              const collectionName = tipoPlan === 'revenue_recovery' ? 'empresas' : 'usuarios';
+              let userSnap = await db.collection(collectionName).doc(uid).get();
+              if (!userSnap.exists) {
+                const alternativeCollection = collectionName === 'empresas' ? 'usuarios' : 'empresas';
+                userSnap = await db.collection(alternativeCollection).doc(uid).get();
+              }
               if (userSnap.exists) {
                 const userData = userSnap.data();
-                userName = userData.name || userData.displayName || userName;
+                userName = userData.name || userData.displayName || userData.nombre || userName;
               }
             }
           } catch (err) {}
@@ -464,8 +476,8 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
             userName,
             paymentId.toString(),
             metadata.amount || paymentInfo.transaction_amount,
-            paymentInfo.description,
-            paymentInfo.status_detail,
+            paymentInfo.description || 'Compra en Consulta PE',
+            paymentInfo.status_detail || paymentInfo.status,
             resend
           ).catch(err => logger.error(context, 'Error enviando correo de rechazo desde webhook', err));
         }
