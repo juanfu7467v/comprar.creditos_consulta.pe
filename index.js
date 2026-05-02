@@ -505,19 +505,67 @@ app.get("/api/payment/:paymentId", async (req, res) => {
 
 // Servir archivos estáticos y manejo de rutas
 const PUBLIC_ROUTES = ['/login', '/register', '/verify', '/reset-password', '/disclaimer-apis', '/API-Docs'];
-app.use((req, res, next) => {
-  if (PUBLIC_ROUTES.includes(req.path)) {
-    const filePath = path.join(__dirname, 'public', `${req.path.substring(1)}.html`);
-    if (fs.existsSync(filePath)) return res.sendFile(filePath);
+// Función para inyectar Google Analytics en el HTML
+const injectGA = (html) => {
+  const gaId = process.env.GOOGLE_ANALYTICS_ID;
+  if (!gaId) return html;
+
+  const gaScript = `
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${gaId}', {
+        page_path: window.location.pathname,
+      });
+    </script>
+  `;
+  
+  // Insertar antes del cierre de </head> o al principio si no existe
+  if (html.includes('</head>')) {
+    return html.replace('</head>', `${gaScript}</head>`);
+  }
+  return gaScript + html;
+};
+
+// Middleware para servir HTMLs con GA inyectado
+const serveHtmlWithGA = (req, res, next) => {
+  let fileName = '';
+  if (req.path === '/') {
+    fileName = 'home.html';
+  } else if (PUBLIC_ROUTES.includes(req.path)) {
+    fileName = `${req.path.substring(1)}.html`;
+  } else if (req.path.endsWith('.html')) {
+    fileName = req.path.substring(1);
+  } else {
+    // Verificar si existe el archivo con extensión .html
+    const potentialFile = `${req.path.substring(1)}.html`;
+    if (fs.existsSync(path.join(__dirname, 'public', potentialFile))) {
+      fileName = potentialFile;
+    }
+  }
+
+  if (fileName) {
+    const filePath = path.join(__dirname, 'public', fileName);
+    if (fs.existsSync(filePath)) {
+      try {
+        let html = fs.readFileSync(filePath, 'utf8');
+        html = injectGA(html);
+        return res.send(html);
+      } catch (err) {
+        logger.error('GA_INJECTION', `Error inyectando GA en ${fileName}`, err);
+        return res.sendFile(filePath); // Fallback al archivo original
+      }
+    }
   }
   next();
-});
+};
+
+app.use(serveHtmlWithGA);
 
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'home.html'));
-});
 
 app.get("/api", (req, res) => res.json({ status: "ok" }));
 
