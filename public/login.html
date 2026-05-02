@@ -725,20 +725,29 @@
             'success': { icon: 'check_circle', color: '#10b981' },
             'error': { icon: 'error', color: '#ef4444' },
             'info': { icon: 'info', color: '#3b82f6' },
-            'warning': { icon: 'warning', color: '#f59e0b' }
+            'warning': { icon: 'warning', color: '#f59e0b' },
+            'loading': { icon: 'sync', color: '#3b82f6' }
         };
 
         const iconConfig = icons[type] || icons.info;
         iconElement.textContent = iconConfig.icon;
         iconElement.style.color = iconConfig.color;
         
+        if (type === 'loading') {
+            iconElement.classList.add('animate-spin');
+        } else {
+            iconElement.classList.remove('animate-spin');
+        }
+        
         messageModalText.textContent = message;
         messageModal.classList.add('show');
         messageModalContent.classList.remove('closing');
 
-        setTimeout(() => {
-            closeMessageModal();
-        }, 3000);
+        if (type !== 'loading') {
+            setTimeout(() => {
+                closeMessageModal();
+            }, 3000);
+        }
     }
 
     // Función para cerrar el modal
@@ -963,7 +972,7 @@
     // ================================================================
     // ✅ SOLUCIÓN DEFINITIVA: keepalive: true + await + delays
     // ================================================================
-    async function notifyBackendWelcomeEmail(user) {
+    async function notifyBackendWelcomeEmail(user, signal = null) {
         console.log('[🔔 NOTIFY] Iniciando notificación backend', {
             uid: user.uid,
             email: user.email,
@@ -977,7 +986,7 @@
             }
 
             // ✅ keepalive: true asegura que la petición NO se cancele al redirigir
-            const response = await fetch('/api/notify-verification', {
+            const fetchOptions = {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -988,8 +997,11 @@
                     email: user.email,
                     displayName: user.displayName || null
                 }),
-                keepalive: true  // ✅ CLAVE: Mantiene la petición viva después de redirect
-            });
+                keepalive: signal ? false : true  // ✅ CLAVE: Mantiene la petición viva después de redirect
+            };
+            if (signal) fetchOptions.signal = signal;
+
+            const response = await fetch('/api/notify-verification', fetchOptions);
 
             console.log('[📥 NOTIFY] Respuesta recibida', {
                 status: response.status,
@@ -1011,23 +1023,39 @@
     // ================================================================
     // ✅ GOOGLE LOGIN: await + delay 500ms + delay 1000ms
     // ================================================================
-    window.signInWithGoogle = async function() {
-        try {
-            showLoadingOverlay();
-            const provider = new GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            
-            console.log('[🔵 GOOGLE] Iniciando autenticación...');
-            const result = await signInWithPopup(auth, provider);
-            console.log('[🔵 GOOGLE] Login exitoso:', result.user.email);
-
-            // 1. Guardar perfil
-            await saveUserProfile(result.user, result.user.displayName);
-            console.log('[🔵 GOOGLE] Perfil guardado');
-
-            // 2. ✅ Notificar al backend (con keepalive)
-            console.log('[🔵 GOOGLE] Notificando backend...');
-            await notifyBackendWelcomeEmail(result.user);
+	    window.signInWithGoogle = async function() {
+	        try {
+	            showLoadingOverlay();
+	            const provider = new GoogleAuthProvider();
+	            provider.setCustomParameters({ prompt: 'select_account' });
+	            
+	            console.log('[🔵 GOOGLE] Iniciando autenticación...');
+	            const result = await signInWithPopup(auth, provider);
+	            console.log('[🔵 GOOGLE] Login exitoso:', result.user.email);
+	
+	            // 1. Guardar perfil
+	            await saveUserProfile(result.user, result.user.displayName);
+	            console.log('[🔵 GOOGLE] Perfil guardado');
+	
+	            // 2. ✅ Notificar al backend (con reintentos para cold start)
+	            console.log('[🔵 GOOGLE] Notificando backend...');
+	            let attempts = 0;
+	            const maxAttempts = 3;
+	            while (attempts < maxAttempts) {
+	                try {
+	                    const controller = new AbortController();
+	                    const timeoutId = setTimeout(() => controller.abort(), 20000);
+	                    if (attempts > 0) showMessageModal('Sincronizando con el servidor...', 'loading');
+	                    await notifyBackendWelcomeEmail(result.user, controller.signal);
+	                    clearTimeout(timeoutId);
+	                    break;
+	                } catch (e) {
+	                    attempts++;
+	                    if (attempts >= maxAttempts) console.warn('Backend notification failed after retries');
+	                    await new Promise(r => setTimeout(r, 2000));
+	                }
+	            }
+	            if (attempts > 0) closeMessageModal();
             
             // 3. ✅ Delay de seguridad 500ms
             console.log('[🔵 GOOGLE] Delay seguridad 500ms...');
@@ -1054,23 +1082,39 @@
     // ================================================================
     // ✅ GITHUB LOGIN: await + delay 500ms + delay 1000ms
     // ================================================================
-    window.signInWithGithub = async function() {
-        try {
-            showLoadingOverlay();
-            const provider = new GithubAuthProvider();
-            provider.setCustomParameters({ allow_signup: 'true' });
-            
-            console.log('[⚫ GITHUB] Iniciando autenticación...');
-            const result = await signInWithPopup(auth, provider);
-            console.log('[⚫ GITHUB] Login exitoso:', result.user.email);
-
-            // 1. Guardar perfil
-            await saveUserProfile(result.user, result.user.displayName);
-            console.log('[⚫ GITHUB] Perfil guardado');
-
-            // 2. ✅ Notificar al backend (con keepalive)
-            console.log('[⚫ GITHUB] Notificando backend...');
-            await notifyBackendWelcomeEmail(result.user);
+	    window.signInWithGithub = async function() {
+	        try {
+	            showLoadingOverlay();
+	            const provider = new GithubAuthProvider();
+	            provider.setCustomParameters({ allow_signup: 'true' });
+	            
+	            console.log('[⚫ GITHUB] Iniciando autenticación...');
+	            const result = await signInWithPopup(auth, provider);
+	            console.log('[⚫ GITHUB] Login exitoso:', result.user.email);
+	
+	            // 1. Guardar perfil
+	            await saveUserProfile(result.user, result.user.displayName);
+	            console.log('[⚫ GITHUB] Perfil guardado');
+	
+	            // 2. ✅ Notificar al backend (con reintentos para cold start)
+	            console.log('[⚫ GITHUB] Notificando backend...');
+	            let attempts = 0;
+	            const maxAttempts = 3;
+	            while (attempts < maxAttempts) {
+	                try {
+	                    const controller = new AbortController();
+	                    const timeoutId = setTimeout(() => controller.abort(), 20000);
+	                    if (attempts > 0) showMessageModal('Sincronizando con el servidor...', 'loading');
+	                    await notifyBackendWelcomeEmail(result.user, controller.signal);
+	                    clearTimeout(timeoutId);
+	                    break;
+	                } catch (e) {
+	                    attempts++;
+	                    if (attempts >= maxAttempts) console.warn('Backend notification failed after retries');
+	                    await new Promise(r => setTimeout(r, 2000));
+	                }
+	            }
+	            if (attempts > 0) closeMessageModal();
             
             // 3. ✅ Delay de seguridad 500ms
             console.log('[⚫ GITHUB] Delay seguridad 500ms...');
@@ -1097,43 +1141,68 @@
     // ================================================================
     // ✅ LOGIN CON EMAIL - CORREGIDO: NO REPORTAR FALLOS SI ES EXITOSO
     // ================================================================
-    window.loginWithEmail = async () => {
-      const email = document.getElementById('login-email')?.value;
-      const password = document.getElementById('login-password')?.value;
-      
-      if (!email || !password) { 
-          showMessageModal('Por favor completa todos los campos', 'warning');
-          return; 
-      }
-      
-      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
-      if (!recaptchaResponse) { 
-          showMessageModal('Por favor, verifica que no eres un robot', 'warning');
-          return; 
-      }
-      
-      showLoadingOverlay();
-      
-      try {
-          // ✅ 1. VALIDAR CON EL BACKEND ANTES DE FIREBASE
-          const deviceId = getDeviceId();
-          const deviceModel = await getDeviceModel();
-          const returnTo = getUrlParameter('returnTo') || sessionStorage.getItem('returnTo') || '';
-          
-          const backendResponse = await fetch('/api/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                  email,
-                  password,
-                  recaptchaResponse,
-                  returnTo,
-                  deviceId,
-                  deviceModel
-              })
-          });
+	    window.loginWithEmail = async () => {
+	      const email = document.getElementById('login-email')?.value;
+	      const password = document.getElementById('login-password')?.value;
+	      
+	      if (!email || !password) { 
+	          showMessageModal('Por favor completa todos los campos', 'warning');
+	          return; 
+	      }
+	      
+	      const recaptchaResponse = grecaptcha.getResponse(loginRecaptchaWidgetId);
+	      if (!recaptchaResponse) { 
+	          showMessageModal('Por favor, verifica que no eres un robot', 'warning');
+	          return; 
+	      }
+	      
+	      showLoadingOverlay();
+	      
+	      try {
+	          // ✅ 1. VALIDAR CON EL BACKEND ANTES DE FIREBASE
+	          const deviceId = getDeviceId();
+	          const deviceModel = await getDeviceModel();
+	          const returnTo = getUrlParameter('returnTo') || sessionStorage.getItem('returnTo') || '';
+	          
+	          let backendResponse;
+	          let backendData;
+	          let attempts = 0;
+	          const maxAttempts = 3;
 
-          const backendData = await backendResponse.json();
+	          while (attempts < maxAttempts) {
+	              try {
+	                  const controller = new AbortController();
+	                  const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
+
+	                  if (attempts > 0) {
+	                      showMessageModal('Conectando al servidor...', 'loading');
+	                  }
+
+	                  backendResponse = await fetch('/api/login', {
+	                      method: 'POST',
+	                      headers: { 'Content-Type': 'application/json' },
+	                      body: JSON.stringify({
+	                          email,
+	                          password,
+	                          recaptchaResponse,
+	                          returnTo,
+	                          deviceId,
+	                          deviceModel
+	                      }),
+	                      signal: controller.signal
+	                  });
+
+	                  clearTimeout(timeoutId);
+	                  backendData = await backendResponse.json();
+	                  break;
+	              } catch (fetchError) {
+	                  attempts++;
+	                  if (attempts >= maxAttempts) throw fetchError;
+	                  await new Promise(resolve => setTimeout(resolve, 2000));
+	              }
+	          }
+
+	          if (attempts > 0) closeMessageModal();
 
           // ✅ 2. SI EL BACKEND DEVUELVE ERROR account_blocked, DETENER
           if (!backendResponse.ok) {

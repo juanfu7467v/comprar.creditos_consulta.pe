@@ -87,11 +87,10 @@ export async function initFirebase(serviceAccount) {
         storageBucket: process.env.FIREBASE_STORAGE_BUCKET
       });
 
-      const firestoreCheck = await db.collection('_healthcheck').doc('connection').get()
-        .then(() => ({ status: 'connected', message: 'Conexión a Firestore exitosa' }))
-        .catch(error => ({ status: 'error', message: error.message }));
-
-      logger.info('FIRESTORE', 'Verificación de conexión', firestoreCheck);
+      // Verificación asíncrona (sin await para no bloquear el arranque)
+      db.collection('_healthcheck').doc('connection').get()
+        .then(() => logger.info('FIRESTORE', 'Conexión a Firestore exitosa'))
+        .catch(error => logger.error('FIRESTORE', 'Error verificando conexión', error));
 
     } catch (error) {
       logger.error('FIREBASE', 'Error crítico al inicializar Firebase Admin', error, {

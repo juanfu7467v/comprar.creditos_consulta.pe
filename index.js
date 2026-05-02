@@ -95,7 +95,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const serviceAccount = buildServiceAccountFromEnv();
 if (serviceAccount) {
-  await initFirebase(serviceAccount);
+  // Inicialización asíncrona para acelerar el cold start
+  initFirebase(serviceAccount).catch(err => {
+    logger.error('FIREBASE', 'Error crítico en inicialización asíncrona', err);
+  });
 } else {
   logger.error('FIREBASE', 'No se pudo inicializar Firebase - Service account no disponible');
 }
@@ -174,12 +177,20 @@ app.post("/api/login-success", async (req, res) => {
       }
     }
 
-    if (isNewUser && uid) {
-      const nombre = displayName || email.split('@')[0];
-      const welcomeResult = await enviarBienvenida(email, nombre, resend);
-      if (db) {
-        const userRef = db.collection("usuarios").doc(uid);
-        const userDoc = await userRef.get();
+	    if (isNewUser && uid) {
+	      const nombre = displayName || email.split('@')[0];
+	      const welcomeResult = await enviarBienvenida(email, nombre, resend);
+	      
+	      // Asegurar que Firestore esté listo (máximo 5 segundos de espera)
+	      let waitAttempts = 0;
+	      while (!db && waitAttempts < 10) {
+	        await new Promise(r => setTimeout(r, 500));
+	        waitAttempts++;
+	      }
+
+	      if (db) {
+	        const userRef = db.collection("usuarios").doc(uid);
+	        const userDoc = await userRef.get();
         const updateData = { lastLogin: admin.firestore.FieldValue.serverTimestamp() };
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
           updateData.creditos = 0;
@@ -228,11 +239,18 @@ app.post("/api/notify-verification", async (req, res) => {
     const { uid, email, displayName } = req.body;
     if (!uid || !email) return res.status(400).json({ success: false, error: 'Se requiere uid y email' });
 
-    let alreadySent = false;
-    if (db) {
-      const userDoc = await db.collection("usuarios").doc(uid).get();
-      if (userDoc.exists && userDoc.data().welcomeEmailSent) alreadySent = true;
-    }
+	    // Asegurar que Firestore esté listo
+	    let waitAttempts = 0;
+	    while (!db && waitAttempts < 10) {
+	      await new Promise(r => setTimeout(r, 500));
+	      waitAttempts++;
+	    }
+
+	    let alreadySent = false;
+	    if (db) {
+	      const userDoc = await db.collection("usuarios").doc(uid).get();
+	      if (userDoc.exists && userDoc.data().welcomeEmailSent) alreadySent = true;
+	    }
 
     if (!alreadySent) {
       const result = await enviarBienvenida(email, displayName || email.split('@')[0], resend);
