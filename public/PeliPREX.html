@@ -2638,7 +2638,7 @@ async function main() {
 
         const movieDecoded = decodeURIComponent(movieToPlay).trim().toLowerCase();
 
-        // 1️⃣ Intentar encontrar en la lista del banner primero (rápido)
+        // 1️⃣ Intentar encontrar en la lista del banner primero (optimizado)
         let pelicula = null;
         if (Array.isArray(allMovies)) {
             pelicula = allMovies.find(p =>
