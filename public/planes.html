@@ -1283,11 +1283,11 @@
                     <table class="pricing-table">
                         <thead><tr><th>Duración</th><th>Precio (S/.)</th><th>Valor adicional</th></tr></thead>
                         <tbody>
-                            <tr><td>7 días</td><td>S/ 60</td><td>+S/ 4.00</td></tr>
-                            <tr><td>15 días</td><td>S/ 80</td><td>+S/ 7.50</td></tr>
-                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 110</td><td>+S/ 17.00</td></tr>
-                            <tr><td>60 días</td><td>S/ 160</td><td>+S/ 30.00</td></tr>
-                            <tr class="best-value-row"><td>70 días 🔥</td><td>S/ 510</td><td>+S/ 50.00</td></tr>
+                            <tr><td>7 días</td><td>S/ 80</td><td>+S/ 4.00</td></tr>
+                            <tr><td>15 días</td><td>S/ 100</td><td>+S/ 7.50</td></tr>
+                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 130</td><td>+S/ 17.00</td></tr>
+                            <tr><td>60 días</td><td>S/ 180</td><td>+S/ 30.00</td></tr>
+                            <tr class="best-value-row"><td>70 días 🔥</td><td>S/ 530</td><td>+S/ 50.00</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1464,7 +1464,7 @@
         // Constantes
         const BASE_API_URL = "/api/init/mercadopago";
         const CREDITS_MAP = { "10": { credits: 60 }, "20": { credits: 125 }, "50": { credits: 330 }, "100": { credits: 700 }, "200": { credits: 1500 } };
-        const UNLIMITED_MAP = { "7-dias": { amount: 60, duration: '7 días' }, "15-dias": { amount: 80, duration: '15 días' }, "30-dias": { amount: 110, duration: '30 días' }, "60-dias": { amount: 160, duration: '60 días' }, "70-dias": { amount: 510, duration: '70 días' } };
+        const UNLIMITED_MAP = { "7-dias": { amount: 80, duration: '7 días' }, "15-dias": { amount: 100, duration: '15 días' }, "30-dias": { amount: 130, duration: '30 días' }, "60-dias": { amount: 180, duration: '60 días' }, "70-dias": { amount: 530, duration: '70 días' } };
         const STORAGE_KEY_EMAIL = 'masitaprex_user_email';
         const STORAGE_KEY_UID = 'masitaprex_user_uid';
         let auth, currentPurchaseType = 'CREDITOS';
@@ -1513,7 +1513,7 @@
                 [{ value: "10", label: "S/ 10 → 60 créditos (+3 bonus)" }, { value: "20", label: "S/ 20 → 125 créditos (+5 bonus)" }, { value: "50", label: "⭐ S/ 50 → 330 créditos (+20 bonus)" }, { value: "100", label: "S/ 100 → 700 créditos (+40 bonus)" }, { value: "200", label: "🔥 S/ 200 → 1,500 créditos (+80 bonus)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             } else {
                 selectLabel.textContent = 'Selecciona el Plan Ilimitado:';
-                [{ value: "7-dias", label: "7 días — S/ 60" }, { value: "15-dias", label: "15 días — S/ 80" }, { value: "30-dias", label: "⭐ 30 días — S/ 110" }, { value: "60-dias", label: "60 días — S/ 160" }, { value: "70-dias", label: "🔥 70 días — S/ 510" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
+                [{ value: "7-dias", label: "7 días — S/ 80" }, { value: "15-dias", label: "15 días — S/ 100" }, { value: "30-dias", label: "⭐ 30 días — S/ 130" }, { value: "60-dias", label: "60 días — S/ 180" }, { value: "70-dias", label: "🔥 70 días — S/ 530" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             }
             updatePaymentButtons();
         }
