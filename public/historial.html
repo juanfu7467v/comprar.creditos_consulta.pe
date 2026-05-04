@@ -28,6 +28,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="returnConfig.js"></script>
+<script src="credits-system.js"></script>
 <style>
   /* --------------------------------------------------------------
      Estilos Base y Variables Globales
@@ -1688,6 +1689,7 @@ function closeMovieModalAndRefresh() {
     stopHeartbeat();
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
+    cleanupCreditsSystem(); // ← limpiar rastreamiento de creditos
 
     if (searchState.isActive && searchState.query) {
         detailViewModal.classList.add('active');
@@ -1824,6 +1826,9 @@ function displayMovieDetails(movie) {
                         }
                     });
                 }
+                
+                // Inicializar sistema de creditos
+                initializeCreditsSystem(movie, player);
             }, 100);
         } else {
             // Usar iframe para Google Drive, YouTube y otros
@@ -1842,6 +1847,9 @@ function displayMovieDetails(movie) {
             if (loadingIndicator) {
                 loadingIndicator.classList.add('hidden');
             }
+            
+            // Inicializar sistema de creditos para iframe
+            initializeCreditsSystem(movie, null);
         }
     }
 

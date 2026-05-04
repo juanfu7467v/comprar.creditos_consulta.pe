@@ -22,6 +22,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 <script src="returnConfig.js"></script>
+<script src="credits-system.js"></script>
 
 <style>
   /* --------------------------------------------------------------
@@ -1811,6 +1812,9 @@ function displayMovieDetails(movie) {
                     }
                 });
             }
+            
+            // Inicializar sistema de creditos
+            initializeCreditsSystem(movie, player);
         }, 100);
     } else {
         // Mostrar indicador de carga
@@ -1838,6 +1842,9 @@ function displayMovieDetails(movie) {
                 loadingIndicator.classList.add('hidden');
             }
         }, 2000);
+        
+        // Inicializar sistema de creditos para iframe
+        initializeCreditsSystem(movie, null);
     }
     const releaseYear = movie.fecha_lanzamiento ? new Date(movie.fecha_lanzamiento).getFullYear() : movie.año || 'N/A';
     modalTitle.textContent = movie.titulo || 'Película Desconocida';
@@ -1848,6 +1855,7 @@ function displayMovieDetails(movie) {
         modal.classList.remove('active');
         modalPlayer.innerHTML = '';
         cancelDeductionTimer();
+        cleanupCreditsSystem();
     };
 
     const favoriteBtn = document.getElementById('player-favorite-btn');

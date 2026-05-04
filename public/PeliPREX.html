@@ -37,6 +37,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="returnConfig.js"></script>
+    <script src="credits-system.js"></script>
 
 
 <style>
@@ -2282,6 +2283,7 @@ function closeMovieModalAndRefresh() {
     modal.classList.remove('active');
     modalPlayer.innerHTML = '';
     clearVideoTimer(); // ← detener el timer al cerrar el reproductor
+    cleanupCreditsSystem(); // ← limpiar rastreamiento de creditos
     
     if (detailViewWasActive) {
         detailViewModal.classList.add('active');
@@ -2476,6 +2478,9 @@ function displayMovieDetails(movie) {
                         }
                     });
                 }
+                
+                // Inicializar sistema de creditos
+                initializeCreditsSystem(movie, player);
             }, 100);
         } else {
             // Usar iframe para Google Drive, YouTube y otros
@@ -2494,6 +2499,9 @@ function displayMovieDetails(movie) {
             if (loadingIndicator) {
                 loadingIndicator.classList.add('hidden');
             }
+            
+            // Inicializar sistema de creditos para iframe
+            initializeCreditsSystem(movie, null);
         }
     }
 
