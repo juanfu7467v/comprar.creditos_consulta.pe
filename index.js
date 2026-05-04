@@ -177,20 +177,20 @@ app.post("/api/login-success", async (req, res) => {
       }
     }
 
-    if (isNewUser && uid) {
-      const nombre = displayName || email.split('@')[0];
-      const welcomeResult = await enviarBienvenida(email, nombre, resend);
-      
-      // Asegurar que Firestore esté listo (máximo 5 segundos de espera)
-      let waitAttempts = 0;
-      while (!db && waitAttempts < 10) {
-        await new Promise(r => setTimeout(r, 500));
-        waitAttempts++;
-      }
+	    if (isNewUser && uid) {
+	      const nombre = displayName || email.split('@')[0];
+	      const welcomeResult = await enviarBienvenida(email, nombre, resend);
+	      
+	      // Asegurar que Firestore esté listo (máximo 5 segundos de espera)
+	      let waitAttempts = 0;
+	      while (!db && waitAttempts < 10) {
+	        await new Promise(r => setTimeout(r, 500));
+	        waitAttempts++;
+	      }
 
-      if (db) {
-        const userRef = db.collection("usuarios").doc(uid);
-        const userDoc = await userRef.get();
+	      if (db) {
+	        const userRef = db.collection("usuarios").doc(uid);
+	        const userDoc = await userRef.get();
         const updateData = { lastLogin: admin.firestore.FieldValue.serverTimestamp() };
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
           updateData.creditos = 0;
@@ -239,18 +239,18 @@ app.post("/api/notify-verification", async (req, res) => {
     const { uid, email, displayName } = req.body;
     if (!uid || !email) return res.status(400).json({ success: false, error: 'Se requiere uid y email' });
 
-    // Asegurar que Firestore esté listo
-    let waitAttempts = 0;
-    while (!db && waitAttempts < 10) {
-      await new Promise(r => setTimeout(r, 500));
-      waitAttempts++;
-    }
+	    // Asegurar que Firestore esté listo
+	    let waitAttempts = 0;
+	    while (!db && waitAttempts < 10) {
+	      await new Promise(r => setTimeout(r, 500));
+	      waitAttempts++;
+	    }
 
-    let alreadySent = false;
-    if (db) {
-      const userDoc = await db.collection("usuarios").doc(uid).get();
-      if (userDoc.exists && userDoc.data().welcomeEmailSent) alreadySent = true;
-    }
+	    let alreadySent = false;
+	    if (db) {
+	      const userDoc = await db.collection("usuarios").doc(uid).get();
+	      if (userDoc.exists && userDoc.data().welcomeEmailSent) alreadySent = true;
+	    }
 
     if (!alreadySent) {
       const result = await enviarBienvenida(email, displayName || email.split('@')[0], resend);
@@ -280,39 +280,274 @@ app.post("/api/notify-verification", async (req, res) => {
         }, { merge: true });
         logger.info(context, 'Datos guardados en colección empresas tras verificación', { uid, email });
       }
-      return res.json({ success: result.success, message: result.success ? 'Email sent' : 'Error sending email' });
+      return res.json({ success: result.success, message: result.success ? 'Correo enviado' : 'Error enviando correo' });
     }
-    res.json({ success: true, message: 'Already sent' });
+    res.json({ success: true, message: 'Ya enviado' });
   } catch (error) {
-    logger.error(context, 'Error en notify-verification', error);
+    logger.error(context, 'Error en notificación', error);
     res.status(500).json({ success: false, error: 'Internal server error' });
   }
 });
 
-// Endpoint para obtener configuración (reemplaza returnConfig.js en el cliente)
-app.get("/api/config", (req, res) => {
-  res.json(ReturnConfigServer);
+// Endpoint de análisis con Gemini
+app.post("/api/analyze", async (req, res) => {
+  const { movieTitle, movieDescription } = req.body;
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) return res.status(500).json({ error: "GEMINI_API_KEY no configurada" });
+
+  const prompt = `Actúa como un crítico de cine experto y redacta un análisis completo para "${movieTitle}". Sinopsis: "${movieDescription}". Sin negritas.`;
+  try {
+    const response = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      { contents: [{ parts: [{ text: prompt }] }] },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    res.json(response.data);
+  } catch (error) {
+    logger.error('GEMINI_API', 'Error en Gemini', error);
+    res.status(500).json({ error: "Error en Gemini" });
+  }
 });
 
-// ================================================================
-// 🔍 SISTEMA DE METADATOS DINÁMICOS (SEO & SOCIAL)
-// ================================================================
+// Endpoint de configuración
+app.get("/api/config", (req, res) => {
+  res.json({
+    mercadopagoPublicKey: process.env.MERCADOPAGO_PUBLIC_KEY,
+    recaptchaSiteKey: RECAPTCHA_SITE_KEY,
+    firebaseConfig: {
+      apiKey: process.env.FIREBASE_API_KEY,
+      authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.FIREBASE_APP_ID,
+      measurementId: process.env.FIREBASE_MEASUREMENT_ID
+    },
+    environment: process.env.NODE_ENV || 'production',
+    peliprexBaseUrl: process.env.PELIPREX_BASE_URL,
+    timestamp: new Date().toISOString()
+  });
+});
 
-const PUBLIC_ROUTES = [
-  '/home', '/PeliPREX', '/actividad', '/favoritos', '/historial', '/planes', 
-  '/checkout', '/verificacion', '/login', '/recuperar-cuenta', '/ayuda',
-  '/politica', '/terminos-condiciones', '/aviso-legal-peliprex'
-];
+// Endpoint de validación de reCAPTCHA
+app.post("/api/validate-recaptcha", async (req, res) => {
+  try {
+    const { recaptchaResponse } = req.body;
+    const result = await validateRecaptcha(recaptchaResponse, process.env.RECAPTCHA_CLAVE_SECRETA);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
 
+// Endpoint de login con bloqueo
+app.post("/api/login", async (req, res) => {
+  const context = 'LOGIN_API';
+  try {
+    const { email, recaptchaResponse, deviceId, deviceModel } = req.body;
+    if (!email || !deviceId) return res.status(400).json({ success: false, error: 'Email and deviceId required' });
+
+    const blockStatus = await checkLoginBlock(email);
+    if (blockStatus.isBlocked) {
+      return res.status(403).json({ success: false, error: 'account_blocked', remainingMinutes: blockStatus.remainingMinutes });
+    }
+
+    if (recaptchaResponse) {
+      await validateRecaptcha(recaptchaResponse, process.env.RECAPTCHA_CLAVE_SECRETA);
+    }
+
+    res.json({ success: true, message: 'Login allowed' });
+  } catch (error) {
+    logger.error(context, 'Error en login', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// Endpoint para reportar login fallido
+app.post("/api/report-failed-login", async (req, res) => {
+  const context = 'REPORT_FAILED_LOGIN';
+  try {
+    const { email, deviceModel, errorType } = req.body;
+    if (!email) return res.status(400).json({ success: false, error: 'Email is required' });
+
+    const result = await registerFailedLogin(email, req, deviceModel);
+    if (result.blocked) {
+      const ip = getClientIp(req);
+      const location = await getLocationFromIP(ip);
+      await enviarCorreoSospechoso(email, null, location, ip, req.headers['user-agent'], resend);
+    }
+    res.json({ success: true, ...result });
+  } catch (error) {
+    logger.error(context, 'Error reportando fallo', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+// Endpoint de pago
+app.post("/api/pay", async (req, res) => {
+  const context = 'PAY_API';
+  try {
+    const { transaction_amount, token, description, installments, payment_method_id, payer, uid, tipoPlan } = req.body;
+    if (!mpClient) return res.status(503).json({ error: 'Mercado Pago not configured' });
+
+    // Validación defensiva para evitar errores de 'undefined'
+    if (!payer || !payer.email) {
+      logger.error(context, 'Payer email missing in request body');
+      return res.status(400).json({ error: 'Payer email is required' });
+    }
+
+    const payment = new Payment(mpClient);
+    const result = await payment.create({
+      body: {
+        transaction_amount: Number(transaction_amount),
+        token,
+        description,
+        installments: Number(installments),
+        payment_method_id,
+        payer,
+        notification_url: `${HOST_URL}/api/webhook/mercadopago`,
+        metadata: { uid, email: payer.email, amount: transaction_amount, tipoPlan }
+      }
+    });
+
+    if (result.status === 'approved') {
+      await otorgarBeneficio(uid, payer.email, transaction_amount, 'MP_CARD_INSTANT', result.id.toString(), resend, tipoPlan);
+    } else if (result.status === 'rejected' || result.status === 'cancelled') {
+      let userName = payer.email.split('@')[0];
+      try {
+        if (db) {
+          // Buscar en usuarios o empresas
+          const collectionName = tipoPlan === 'revenue_recovery' ? 'empresas' : 'usuarios';
+          let userSnap = await db.collection(collectionName).doc(uid).get();
+          if (!userSnap.exists) {
+            const alternativeCollection = collectionName === 'empresas' ? 'usuarios' : 'empresas';
+            userSnap = await db.collection(alternativeCollection).doc(uid).get();
+          }
+          if (userSnap.exists) {
+            const userData = userSnap.data();
+            userName = userData.name || userData.displayName || userData.nombre || userName;
+          }
+        }
+      } catch (err) {}
+      
+      enviarCorreoRechazo(
+        payer.email, 
+        userName, 
+        result.id.toString(), 
+        transaction_amount, 
+        description || 'Compra en Consulta PE', 
+        result.status_detail || result.status, 
+        resend
+      ).catch(err => logger.error(context, 'Error enviando correo de rechazo', err));
+    }
+    res.json(result);
+  } catch (error) {
+    logger.error(context, 'Error en pago', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Webhook de Mercado Pago
+app.post("/api/webhook/mercadopago", async (req, res) => {
+  const context = 'WEBHOOK_MP';
+  const webhookData = req.body;
+  res.sendStatus(200);
+
+  if (!mpClient) return;
+  const isPaymentEvent = webhookData.action?.includes('payment') || webhookData.type === 'payment';
+  if (isPaymentEvent) {
+    try {
+      const paymentId = webhookData.data?.id || webhookData.id;
+      const payment = new Payment(mpClient);
+      const paymentInfo = await payment.get({ id: paymentId });
+
+      if (paymentInfo.status === "approved") {
+        const metadata = paymentInfo.metadata || {};
+        if (metadata.uid) {
+          await otorgarBeneficio(metadata.uid, metadata.email || paymentInfo.payer?.email, metadata.amount || paymentInfo.transaction_amount, 'MP_WEBHOOK', paymentId.toString(), resend, metadata.tipoPlan);
+        }
+      } else if (paymentInfo.status === "rejected" || paymentInfo.status === "cancelled") {
+        const metadata = paymentInfo.metadata || {};
+        const email = metadata.email || paymentInfo.payer?.email;
+        const uid = metadata.uid;
+        const tipoPlan = metadata.tipoPlan;
+        
+        if (email && uid) {
+          let userName = email.split('@')[0];
+          try {
+            if (db) {
+              const collectionName = tipoPlan === 'revenue_recovery' ? 'empresas' : 'usuarios';
+              let userSnap = await db.collection(collectionName).doc(uid).get();
+              if (!userSnap.exists) {
+                const alternativeCollection = collectionName === 'empresas' ? 'usuarios' : 'empresas';
+                userSnap = await db.collection(alternativeCollection).doc(uid).get();
+              }
+              if (userSnap.exists) {
+                const userData = userSnap.data();
+                userName = userData.name || userData.displayName || userData.nombre || userName;
+              }
+            }
+          } catch (err) {}
+
+          enviarCorreoRechazo(
+            email,
+            userName,
+            paymentId.toString(),
+            metadata.amount || paymentInfo.transaction_amount,
+            paymentInfo.description || 'Compra en Consulta PE',
+            paymentInfo.status_detail || paymentInfo.status,
+            resend
+          ).catch(err => logger.error(context, 'Error enviando correo de rechazo desde webhook', err));
+        }
+      }
+    } catch (error) {
+      logger.error(context, 'Error en webhook', error);
+    }
+  }
+});
+
+// Endpoint para obtener información del pago
+app.get("/api/payment/:paymentId", async (req, res) => {
+  try {
+    if (!db) return res.status(503).json({ error: 'Database not available' });
+    const pagoDoc = await db.collection("pagos_registrados").doc(req.params.paymentId).get();
+    if (!pagoDoc.exists) return res.status(404).json({ error: 'Payment not found' });
+    
+    const data = pagoDoc.data();
+    const fecha = data.fechaRegistro?.toDate() || new Date();
+    res.json({
+      id: req.params.paymentId,
+      email: data.email,
+      monto: data.monto,
+      creditos: data.creditosOtorgados || 0,
+      descripcion: data.descripcion,
+      fecha: fecha.toLocaleDateString('es-PE'),
+      hora: fecha.toLocaleTimeString('es-PE'),
+      estado: data.estado,
+      procesado: data.procesado,
+      tipoPlan: data.tipoPlanNuevo || 'creditos',
+      pdfUrl: data.pdfUrl || null
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Servir archivos estáticos y manejo de rutas
+const PUBLIC_ROUTES = ['/login', '/register', '/verify', '/reset-password', '/disclaimer-apis', '/API-Docs'];
+// Función para inyectar Google Analytics en el HTML
 const injectGA = (html) => {
+  const gaId = process.env.GOOGLE_ANALYTICS_ID;
+  if (!gaId) return html;
+
   const gaScript = `
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${gaId}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX', {
+      gtag('config', '${gaId}', {
         page_path: window.location.pathname,
       });
     </script>
@@ -343,7 +578,7 @@ const serveDynamicMetadata = async (req, res, next) => {
   const movieId = req.query.movie;
 
   // Solo procesar si hay un ID de película y es un bot o una ruta de película específica
-  if (movieId && (isBot || req.path.includes('PeliPREX.html') || req.path === '/PeliPREX' || req.path === '/actividad' || req.path === '/favoritos' || req.path === '/historial')) {
+  if (movieId && (isBot || req.path.includes('PeliPREX.html') || req.path === '/PeliPREX')) {
     try {
       if (!db) {
         return next();
@@ -370,51 +605,50 @@ const serveDynamicMetadata = async (req, res, next) => {
       if (movieData) {
         const title = `${movieData.titulo} - PeliPREX`;
         const description = movieData.descripcion || `Ver ${movieData.titulo} en línea con la mejor calidad en PeliPREX.`;
-        
-        // Optimización de Imagen: Intentar usar backdrop si existe, o usar un proxy para forzar dimensiones si es posible
-        // Como no tenemos procesamiento local, usaremos la imagen_url pero con metadatos de dimensiones correctos
-        let imageUrl = movieData.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
-        
-        // Si es una URL de TMDB, podemos intentar obtener la versión horizontal (backdrop) si conocemos el patrón
-        // Por ahora aseguramos que la URL sea absoluta y segura
-        if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
-        
+        const imageUrl = movieData.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
         const pageUrl = `${HOST_URL}${req.path}?movie=${encodeURIComponent(movieId)}`;
-
-        const metaTags = `
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${imageUrl}">
-    <meta property="og:image:secure_url" content="${imageUrl}">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:url" content="${pageUrl}">
-    <meta property="og:type" content="video.movie">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${imageUrl}">`;
 
         if (isBot) {
           // Servir HTML ligero solo con metadatos para bots
-          const botHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">${metaTags}</head><body><h1>${title}</h1><p>${description}</p><img src="${imageUrl}"></body></html>`;
+          const botHtml = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <meta property="og:type" content="video.movie">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${imageUrl}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="${pageUrl}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="${imageUrl}">
+</head>
+<body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+    <img src="${imageUrl}" alt="${title}">
+</body>
+</html>`;
           return res.send(botHtml);
         } else {
           // Para usuarios normales, inyectar los metadatos en el HTML original
+          // Esto se manejará en el siguiente middleware serveHtmlWithGA para no duplicar lectura de archivos
           req.dynamicMetadata = {
             title,
             description,
             imageUrl,
-            pageUrl,
-            metaTags
+            pageUrl
           };
         }
       }
     } catch (error) {
-      logger.error('DYNAMIC_METADATA', 'Error obteniendo metadatos', error);
+      logger.error('METADATA_BOT', `Error obteniendo metadatos para película ${movieId}`, error);
     }
   }
   next();
@@ -445,17 +679,32 @@ const serveHtmlWithGA = (req, res, next) => {
         
         // Inyectar metadatos dinámicos si existen
         if (req.dynamicMetadata) {
-          const { metaTags } = req.dynamicMetadata;
+          const { title, description, imageUrl, pageUrl } = req.dynamicMetadata;
           
-          // Eliminar etiquetas estáticas existentes para evitar duplicados y conflictos
-          html = html.replace(/<title>.*?<\/title>/i, '');
-          html = html.replace(/<meta name="description" content=".*?">/i, '');
-          html = html.replace(/<meta property="og:.*?" content=".*?">/gi, '');
-          html = html.replace(/<meta property="og:.*?" \/>/gi, '');
-          html = html.replace(/<meta name="twitter:.*?" content=".*?">/gi, '');
+          // Reemplazar título
+          html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+          
+          // Reemplazar o insertar meta descripción
+          if (html.includes('name="description"')) {
+            html = html.replace(/<meta name="description" content=".*?">/i, `<meta name="description" content="${description}">`);
+          }
 
-          // Inyectar las nuevas etiquetas al INICIO absoluto del head
-          html = html.replace('<head>', `<head>${metaTags}`);
+          // Inyectar etiquetas OG y Twitter (limpiando las existentes si las hay)
+          const dynamicMetaTags = `
+    <!-- Dynamic Open Graph -->
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:type" content="video.movie" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+          `;
+
+          // Insertar después de <head>
+          html = html.replace('<head>', `<head>${dynamicMetaTags}`);
         }
 
         html = injectGA(html);
