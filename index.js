@@ -560,6 +560,100 @@ const injectGA = (html) => {
   return gaScript + html;
 };
 
+// Lista de User-Agents de bots sociales para servir metadatos dinámicos
+const SOCIAL_BOTS = [
+  'facebookexternalhit',
+  'twitterbot',
+  'whatsapp',
+  'telegrambot',
+  'linkedinbot',
+  'discordbot',
+  'slackbot'
+];
+
+// Middleware para detectar bots y servir metadatos dinámicos de películas
+const serveDynamicMetadata = async (req, res, next) => {
+  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const isBot = SOCIAL_BOTS.some(bot => userAgent.includes(bot));
+  const movieId = req.query.movie;
+
+  // Solo procesar si hay un ID de película y es un bot o una ruta de película específica
+  if (movieId && (isBot || req.path.includes('PeliPREX.html') || req.path === '/PeliPREX')) {
+    try {
+      if (!db) {
+        return next();
+      }
+
+      // Buscar la película en Firestore por ID o título
+      let movieData = null;
+      const moviesRef = db.collection('peliculas');
+      
+      // Intentar buscar por ID primero
+      const doc = await moviesRef.doc(movieId).get();
+      if (doc.exists) {
+        movieData = doc.data();
+        movieData.id = doc.id;
+      } else {
+        // Si no existe por ID, intentar buscar por título (asumiendo que movieId puede ser el título)
+        const querySnapshot = await moviesRef.where('titulo', '==', movieId).limit(1).get();
+        if (!querySnapshot.empty) {
+          movieData = querySnapshot.docs[0].data();
+          movieData.id = querySnapshot.docs[0].id;
+        }
+      }
+
+      if (movieData) {
+        const title = `${movieData.titulo} - PeliPREX`;
+        const description = movieData.descripcion || `Ver ${movieData.titulo} en línea con la mejor calidad en PeliPREX.`;
+        const imageUrl = movieData.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
+        const pageUrl = `${HOST_URL}${req.path}?movie=${encodeURIComponent(movieId)}`;
+
+        if (isBot) {
+          // Servir HTML ligero solo con metadatos para bots
+          const botHtml = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <meta property="og:type" content="video.movie">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${imageUrl}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="${pageUrl}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="${imageUrl}">
+</head>
+<body>
+    <h1>${title}</h1>
+    <p>${description}</p>
+    <img src="${imageUrl}" alt="${title}">
+</body>
+</html>`;
+          return res.send(botHtml);
+        } else {
+          // Para usuarios normales, inyectar los metadatos en el HTML original
+          // Esto se manejará en el siguiente middleware serveHtmlWithGA para no duplicar lectura de archivos
+          req.dynamicMetadata = {
+            title,
+            description,
+            imageUrl,
+            pageUrl
+          };
+        }
+      }
+    } catch (error) {
+      logger.error('METADATA_BOT', `Error obteniendo metadatos para película ${movieId}`, error);
+    }
+  }
+  next();
+};
+
 // Middleware para servir HTMLs con GA inyectado
 const serveHtmlWithGA = (req, res, next) => {
   let fileName = '';
@@ -582,6 +676,37 @@ const serveHtmlWithGA = (req, res, next) => {
     if (fs.existsSync(filePath)) {
       try {
         let html = fs.readFileSync(filePath, 'utf8');
+        
+        // Inyectar metadatos dinámicos si existen
+        if (req.dynamicMetadata) {
+          const { title, description, imageUrl, pageUrl } = req.dynamicMetadata;
+          
+          // Reemplazar título
+          html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+          
+          // Reemplazar o insertar meta descripción
+          if (html.includes('name="description"')) {
+            html = html.replace(/<meta name="description" content=".*?">/i, `<meta name="description" content="${description}">`);
+          }
+
+          // Inyectar etiquetas OG y Twitter (limpiando las existentes si las hay)
+          const dynamicMetaTags = `
+    <!-- Dynamic Open Graph -->
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:type" content="video.movie" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+          `;
+
+          // Insertar después de <head>
+          html = html.replace('<head>', `<head>${dynamicMetaTags}`);
+        }
+
         html = injectGA(html);
         return res.send(html);
       } catch (err) {
@@ -593,6 +718,7 @@ const serveHtmlWithGA = (req, res, next) => {
   next();
 };
 
+app.use(serveDynamicMetadata);
 app.use(serveHtmlWithGA);
 
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
