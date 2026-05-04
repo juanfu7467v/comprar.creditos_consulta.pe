@@ -1592,38 +1592,7 @@ function stopHeartbeat() {
 }
 
 async function startHeartbeat(movie, creditCost) {
-    if (heartbeatIntervalId !== null) return;
-    movieStartTime = Date.now();
-
-    async function sendPulse() {
-        const user = auth.currentUser;
-        if (!user) {
-            stopHeartbeat();
-            return;
-        }
-        const elapsedSeconds = Math.floor((Date.now() - movieStartTime) / 1000);
-        const totalDuration = 7200;
-        
-        try {
-            const apiUrl = `${PELIPREX_BASE_URL}/user/heartbeat?email=${encodeURIComponent(user.email)}&pelicula_url=${encodeURIComponent(movie.pelicula_url)}¤tTime=${elapsedSeconds}&totalDuration=${totalDuration}&titulo=${encodeURIComponent(movie.titulo)}`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            if (!response.ok || data.error) {
-                throw new Error(data.error || `Error HTTP: ${response.status}`);
-            }
-            console.log(`Heartbeat exitoso a ${elapsedSeconds}s. Server response:`, data);
-            if (data.finished) {
-                stopHeartbeat();
-                closeMovieModalAndRefresh(); 
-            }
-        } catch (error) {
-            console.error("Error al enviar Heartbeat:", error);
-        }
-    }
-
-    sendPulse(); 
-    heartbeatIntervalId = setInterval(sendPulse, HEARTBEAT_INTERVAL_MS);
-    console.log(`Heartbeat iniciado para "${movie.titulo}". Pulso cada 60s.`);
+    // Obsoleto: reemplazado por credits-system.js
 }
 
 /* ==========================================================
@@ -1954,7 +1923,6 @@ async function handleViewMovieDetails(movie, source){
     
     const movieWithFixedUrl = {...movie, pelicula_url: finalUrl};
     addMovieToHistory(movieWithFixedUrl);
-    startHeartbeat(movieWithFixedUrl, creditCost);
     displayMovieDetails(movieWithFixedUrl);
 }
 

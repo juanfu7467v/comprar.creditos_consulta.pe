@@ -2099,10 +2099,9 @@ modal.addEventListener('click', (e)=>{
 
 /* ✅ MODIFICADO: handleViewMovieDetails - apertura inmediata sin demora */
 async function handleViewMovieDetails(movie, source) {
-    // ✅ SIN VALIDACIONES DE CRÉDITOS - apertura inmediata
-    displayMovieDetails(movie);
     // El historial se registra en segundo plano sin bloquear
     addMovieToHistory(movie);
+    displayMovieDetails(movie);
 }
 
 /* ==========================================================

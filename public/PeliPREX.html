@@ -2305,60 +2305,9 @@ function clearVideoTimer() {
     }
 }
 
+// La lógica de créditos ahora se maneja en credits-system.js
 function startVideoTimer(movie) {
-    clearVideoTimer(); // reiniciar si ya había un timer activo
-
-    const movieKey = (movie && (movie.id || movie.titulo)) || 'unknown';
-    _videoTimerMovieId = movieKey;
-
-    const QUINCE_MINUTOS_MS = 15 * 60 * 1000; // 900 000 ms
-
-    _videoTimerHandle = setTimeout(async () => {
-        // Verificar que el modal sigue abierto y es la misma película
-        if (!modal.classList.contains('active')) return;
-        if (_videoTimerMovieId !== movieKey) return;
-
-        const user = auth.currentUser;
-        if (!user) return;
-
-        try {
-            const userRef = db.collection("usuarios").doc(user.uid);
-            const userDoc = await userRef.get();
-            if (!userDoc.exists) return;
-
-            const userData = userDoc.data();
-            const tipoPlan = userData.tipoPlan || 'creditos';
-
-            // Solo descontar si el plan NO es ilimitado
-            if (tipoPlan === 'ilimitado') return;
-
-            const creditosActuales = parseInt(userData.creditos) || 0;
-            if (creditosActuales <= 0) {
-                // Sin créditos: mostrar modal de sin créditos y cerrar reproductor
-                closeMovieModalAndRefresh();
-                document.getElementById('no-credits-modal').classList.add('active');
-                return;
-            }
-
-            // Descuento real de 1 crédito en Firestore
-            await userRef.update({
-                creditos: firebase.firestore.FieldValue.increment(-1)
-            });
-
-            console.log(`[PeliPREX] 1 crédito descontado por 15 min en reproductor. Película: ${movie ? movie.titulo : 'N/A'}`);
-
-            // Notificación discreta al usuario
-            showCustomModal(
-                '⏱️ Crédito descontado',
-                'Llevas más de 15 minutos reproduciendo. Se ha descontado <strong>1 crédito</strong> de tu cuenta.',
-                false
-            );
-
-        } catch (err) {
-            console.error('[PeliPREX] Error al descontar crédito por tiempo de reproducción:', err);
-        }
-
-    }, QUINCE_MINUTOS_MS);
+    // Obsoleto: reemplazado por credits-system.js
 }
 
 function isFlyioUrl(url) {
@@ -2567,8 +2516,7 @@ function displayMovieDetails(movie) {
     modal.classList.add('active');
     document.querySelector('.modal-body-full').scrollTo({top:0, behavior:'smooth'});
 
-    // ← Iniciar timer de 15 minutos para descuento de 1 crédito
-    startVideoTimer(movie);
+    // Sistema de créditos integrado vía initializeCreditsSystem en displayMovieDetails
 }
 
 async function handleViewMovieDetails(movie, source){
