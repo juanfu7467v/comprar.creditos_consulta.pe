@@ -7,7 +7,7 @@
     <meta name="description" content="Sistema automatizado de recuperación de liquidez para pagos fallidos. Recupera hasta el 95% de tus ingresos perdidos con Revenue Recovery OS by Masitaprex.">
     <meta name="keywords" content="revenue recovery, recuperacion pagos, dunning automatizado, masitaprex, recuperar ingresos, pagos fallidos" />
     <meta name="robots" content="index, follow" />
-    
+
     <meta property="og:title" content="Revenue Recovery OS | Recupera tus ingresos - Masitaprex" />
     <meta property="og:description" content="Sistema automatizado de recuperación de liquidez. Recupera hasta el 95% de tus ingresos perdidos." />
     <meta property="og:type" content="website" />
@@ -25,51 +25,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
-    
+
     <style>
         /* ===== PALETA DE COLORES PSICOLÓGICA (NEUROMARKETING) ===== */
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
-        
+
         :root {
             /* Azul marino profundo - Confianza y profesionalismo */
             --navy-deep: #0A1628;
             --navy-surface: #0F1F3D;
             --navy-card: #15294A;
             --navy-border: #1E3A5F;
-            
+
             /* Verde esmeralda - Acciones de dinero/recuperación/éxito */
             --emerald: #00C853;
             --emerald-light: #69F0AE;
             --emerald-dark: #00A844;
             --emerald-glow: rgba(0, 200, 83, 0.2);
             --emerald-glow-strong: rgba(0, 200, 83, 0.35);
-            
+
             /* Dorado premium - Valor y recuperación */
             --gold: #FFD700;
             --gold-light: #FFED4A;
             --gold-dim: #B8960F;
             --gold-glow: rgba(255, 215, 0, 0.15);
-            
+
             /* Rojo rubí - Pérdidas/alertas */
             --ruby: #E53935;
             --ruby-light: #FF5252;
             --ruby-glow: rgba(229, 57, 53, 0.2);
-            
+
             /* Textos y superficies */
             --white: #F8FAFC;
             --text-primary: #E2E8F0;
             --text-muted: #94A3B8;
             --text-subtle: #64748B;
-            
+
             /* Sombras */
             --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
             --shadow-gold: 0 4px 20px rgba(255,215,0,0.15);
             --shadow-emerald: 0 4px 20px rgba(0,200,83,0.2);
-            
+
             /* Bordes */
             --border-subtle: rgba(255,255,255,0.06);
             --border-active: rgba(0,200,83,0.25);
-            
+
             --radius: 16px;
             --radius-sm: 10px;
             --font-family: 'Outfit', 'Inter', sans-serif;
@@ -153,7 +153,7 @@
         }
 
         /* ═══ SIDEBAR ÉLITE ═══ */
-        #sidebar-overlay { 
+        #sidebar-overlay {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.8);
@@ -352,9 +352,9 @@
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 520px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 0 16px 40px;
+            padding: 0 24px 40px;
         }
 
         /* Header */
@@ -800,8 +800,9 @@
         }
         .footer-content {
             width: 100%;
-            max-width: 520px;
+            max-width: 100%;
             margin: 0 auto;
+            padding: 0 24px;
         }
         .footer-links {
             display: flex;
@@ -862,7 +863,7 @@
 
         /* ===== RESPONSIVE ===== */
         @media (min-width: 640px) {
-            .main-container { max-width: 560px; padding: 0 20px 50px; }
+            .main-container { padding: 0 32px 50px; }
             .hero-title { font-size: 40px; }
             .hero-subtitle { font-size: 16px; }
             .stats-grid { gap: 16px; }
@@ -871,23 +872,37 @@
             .features-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
             .recovery-bars { gap: 28px; height: 140px; }
             .bar { width: 60px; }
-            .footer-content { max-width: 560px; }
+            .footer-content { padding: 0 32px; }
         }
 
         @media (min-width: 1024px) {
-            .main-container { max-width: 700px; padding: 0 30px 60px; }
+            .main-container { padding: 0 48px 60px; }
             .hero-title { font-size: 48px; }
             .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
             .features-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
             .bar { width: 70px; }
-            .footer-content { max-width: 700px; }
+            .footer-content { padding: 0 48px; }
             #sidebar { width: 290px; }
+            .problem-card { max-width: 100%; }
+            .recovery-visual { max-width: 100%; }
         }
 
         @media (min-width: 1440px) {
-            .main-container { max-width: 800px; }
+            .main-container { padding: 0 80px 60px; }
             .hero-title { font-size: 56px; }
-            .footer-content { max-width: 800px; }
+            .footer-content { padding: 0 80px; }
+            .stats-grid { gap: 24px; }
+            .features-grid { gap: 24px; }
+            .stat-card { padding: 28px 24px; }
+            .feature-item { padding: 22px; }
+        }
+        
+        @media (min-width: 1920px) {
+            .main-container { padding: 0 120px 60px; }
+            .footer-content { padding: 0 120px; }
+            .hero-title { font-size: 64px; }
+            .stats-grid { gap: 28px; }
+            .features-grid { gap: 28px; }
         }
     </style>
 </head>
@@ -972,7 +987,7 @@
 
     <!-- Contenido Principal -->
     <div class="main-container">
-        
+
         <!-- Header -->
         <header class="header-section animate-in">
             <div class="logo">
@@ -997,7 +1012,7 @@
                 Cada pago fallido es <span class="gradient-text">dinero que pierdes</span>
             </h1>
             <p class="hero-subtitle">
-                El <strong>15% de tus ingresos recurrentes</strong> desaparecen por tarjetas vencidas, fondos insuficientes o errores bancarios. 
+                El <strong>15% de tus ingresos recurrentes</strong> desaparecen por tarjetas vencidas, fondos insuficientes o errores bancarios.
                 <strong style="color: var(--emerald-light);">Revenue Recovery OS</strong> los recupera automáticamente.
             </p>
             <a href="home-Revenue-Recovery-OS" class="cta-primary">
@@ -1185,7 +1200,7 @@
                 <span class="separator">•</span>
                 <a href="#">Masitaprex</a>
             </div>
-            
+
             <div class="footer-legal">
                 <a href="terminos-condiciones">Términos y condiciones</a>
                 <span class="separator">|</span>
@@ -1195,13 +1210,13 @@
                 <span class="separator">|</span>
                 <a href="aviso-legal-peliprex">Aviso legal peliPREX</a>
             </div>
-            
+
             <div class="footer-social">
                 <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
                 <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
                 <a href="https://wa.me/51944950234" target="_blank"><i class="fab fa-whatsapp"></i></a>
             </div>
-            
+
             <div class="footer-copyright">
                 <p><strong style="color: var(--text-primary);">Masitaprex</strong> © 2025 - Todos los derechos reservados</p>
                 <p style="font-size: 10px; max-width: 380px; margin: 8px auto;">
@@ -1215,7 +1230,7 @@
                     <strong>Representante: JOSÉ RENÉ CUBAS PÉREZ | RUC: 10736224351</strong>
                 </p>
             </div>
-            
+
             <div class="footer-version">V 2.4.0</div>
         </div>
     </footer>
