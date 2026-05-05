@@ -651,7 +651,8 @@
             display: flex; align-items: center; gap: 12px;
         }
         .pricing-section-icon {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 40px; height: 40px;
+            border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem; flex-shrink: 0;
         }
@@ -1275,21 +1276,31 @@
                     </table>
                 </div>
 
+                <!-- ═══ PLANES ILIMITADOS (ACTUALIZADO) ═══ -->
                 <div class="pricing-section">
                     <div class="pricing-section-header">
                         <div class="pricing-section-icon crimson"><i class="fas fa-infinity"></i></div>
-                        <div><div class="pricing-section-title">Planes Ilimitados — Para los que no se detienen</div><div class="pricing-section-sub">Consultas sin límite durante los días elegidos</div></div>
+                        <div><div class="pricing-section-title">Planes Ilimitados — Para los que no se detienen</div><div class="pricing-section-sub">Uso humano y profesional estándar · Garantía de estabilidad</div></div>
                     </div>
                     <table class="pricing-table">
-                        <thead><tr><th>Duración</th><th>Precio (S/.)</th><th>Valor adicional</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Precio Sugerido (S/.)</th>
+                                <th>Límite de Seguridad</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <tr><td>7 días</td><td>S/ 80</td><td>+S/ 4.00</td></tr>
-                            <tr><td>15 días</td><td>S/ 100</td><td>+S/ 7.50</td></tr>
-                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 130</td><td>+S/ 17.00</td></tr>
-                            <tr><td>60 días</td><td>S/ 180</td><td>+S/ 30.00</td></tr>
-                            <tr class="best-value-row"><td>70 días 🔥</td><td>S/ 530</td><td>+S/ 50.00</td></tr>
+                            <tr><td>7 días</td><td>S/ 80</td><td>1,000 consultas</td></tr>
+                            <tr><td>15 días</td><td>S/ 120</td><td>2,500 consultas</td></tr>
+                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 180</td><td>5,000 consultas</td></tr>
+                            <tr><td>60 días</td><td>S/ 320</td><td>12,000 consultas</td></tr>
                         </tbody>
                     </table>
+                    <div style="padding: 16px 14px; background: rgba(0,0,0,0.1);">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"><strong>Nota de Seguridad:</strong> Nuestros planes ilimitados están diseñados para el uso humano y profesional estándar. Para garantizar la estabilidad del ecosistema Masitaprex y evitar tráfico abusivo o extracción masiva de datos, cada plan cuenta con un umbral de seguridad de consultas.</p>
+                        <p style="font-size: 0.85rem; color: var(--emerald-light);"><i class="fas fa-bolt"></i> Si tu proyecto requiere integración de alto volumen o consultas masivas por segundo, <a href="#" onclick="goToWhatsApp(); return false;" style="color: var(--emerald-light); text-decoration: underline; font-weight: bold;">contáctanos por WhatsApp</a> para habilitar un <strong>Plan Dedicado de Alta Disponibilidad</strong>.</p>
+                    </div>
                 </div>
 
                 <p style="font-size:0.8rem; color: var(--text-subtle); text-align: center;">🧠 Mientras más grande el paquete, menos pagas por consulta y más ventaja acumulas.</p>
@@ -1464,7 +1475,7 @@
         // Constantes
         const BASE_API_URL = "/api/init/mercadopago";
         const CREDITS_MAP = { "10": { credits: 60 }, "20": { credits: 125 }, "50": { credits: 330 }, "100": { credits: 700 }, "200": { credits: 1500 } };
-        const UNLIMITED_MAP = { "7-dias": { amount: 80, duration: '7 días' }, "15-dias": { amount: 100, duration: '15 días' }, "30-dias": { amount: 130, duration: '30 días' }, "60-dias": { amount: 180, duration: '60 días' }, "70-dias": { amount: 530, duration: '70 días' } };
+        const UNLIMITED_MAP = { "7-dias": { amount: 80, duration: '7 días' }, "15-dias": { amount: 120, duration: '15 días' }, "30-dias": { amount: 180, duration: '30 días' }, "60-dias": { amount: 320, duration: '60 días' } };
         const STORAGE_KEY_EMAIL = 'masitaprex_user_email';
         const STORAGE_KEY_UID = 'masitaprex_user_uid';
         let auth, currentPurchaseType = 'CREDITOS';
@@ -1513,7 +1524,7 @@
                 [{ value: "10", label: "S/ 10 → 60 créditos (+3 bonus)" }, { value: "20", label: "S/ 20 → 125 créditos (+5 bonus)" }, { value: "50", label: "⭐ S/ 50 → 330 créditos (+20 bonus)" }, { value: "100", label: "S/ 100 → 700 créditos (+40 bonus)" }, { value: "200", label: "🔥 S/ 200 → 1,500 créditos (+80 bonus)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             } else {
                 selectLabel.textContent = 'Selecciona el Plan Ilimitado:';
-                [{ value: "7-dias", label: "7 días — S/ 80" }, { value: "15-dias", label: "15 días — S/ 100" }, { value: "30-dias", label: "⭐ 30 días — S/ 130" }, { value: "60-dias", label: "60 días — S/ 180" }, { value: "70-dias", label: "🔥 70 días — S/ 530" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
+                [{ value: "7-dias", label: "7 días — S/ 80 (1,000 consultas)" }, { value: "15-dias", label: "15 días — S/ 120 (2,500 consultas)" }, { value: "30-dias", label: "⭐ 30 días — S/ 180 (5,000 consultas)" }, { value: "60-dias", label: "60 días — S/ 320 (12,000 consultas)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             }
             updatePaymentButtons();
         }
@@ -1524,10 +1535,19 @@
             const email = userEmailInput.value.trim(); const uid = userUidInput.value.trim(); const selected = purchaseDetailsSelect.value;
             if (!email || !uid || !selected) return;
             paymentLoading.style.display = 'block'; mpButton.style.display = 'none';
-            let amount, description, tipoPlan = 'creditos';
-            if (currentPurchaseType === 'CREDITOS') { amount = parseInt(selected); description = `Créditos Masitaprex: ${CREDITS_MAP[selected]?.credits || ''} créditos`; tipoPlan = 'creditos'; }
-            else { amount = UNLIMITED_MAP[selected].amount; description = `Plan ${UNLIMITED_MAP[selected].duration}`; tipoPlan = 'ilimitado'; }
-            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}&tipoPlan=${tipoPlan}`;
+            let amount, description, limiteSeguridad = '';
+            if (currentPurchaseType === 'CREDITOS') { amount = parseInt(selected); description = `Créditos Masitaprex: ${CREDITS_MAP[selected]?.credits || ''} créditos`; }
+            else { 
+                const plan = UNLIMITED_MAP[selected];
+                amount = plan.amount;
+                let limiteTexto = '';
+                if (selected === '7-dias') limiteTexto = 'Límite 1,000 consultas';
+                else if (selected === '15-dias') limiteTexto = 'Límite 2,500 consultas';
+                else if (selected === '30-dias') limiteTexto = 'Límite 5,000 consultas';
+                else if (selected === '60-dias') limiteTexto = 'Límite 12,000 consultas';
+                description = `Plan Ilimitado Masitaprex: ${plan.duration} — ${limiteTexto}`;
+            }
+            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}&tipoPlan=${currentPurchaseType === 'CREDITOS' ? 'creditos' : 'ilimitado'}`;
         }
 
         function clearStorageAfterPayment() { localStorage.removeItem(STORAGE_KEY_EMAIL); localStorage.removeItem(STORAGE_KEY_UID); }
@@ -1586,13 +1606,13 @@
 
         // WhatsApp typing
         const chatTextEl = document.getElementById("chatText");
-        const whatsappMessage = "¡Comprar créditos por Whatsapp!";
+        const whatsappMessage = "¡Comprar por Whatsapp!";
         let idx = 0;
         function typeWriterWhatsapp() {
             if (idx < whatsappMessage.length) { chatTextEl.textContent += whatsappMessage.charAt(idx++); setTimeout(typeWriterWhatsapp, 100); }
             else { setTimeout(() => { chatTextEl.classList.remove('show'); chatTextEl.classList.add('hide'); setTimeout(() => { chatTextEl.textContent = ""; idx = 0; chatTextEl.classList.remove('hide'); setTimeout(() => { chatTextEl.classList.add('show'); typeWriterWhatsapp(); }, 500); }, 1000); }, 2500); }
         }
-        function goToWhatsApp() { window.open(`https://wa.me/51944950234?text=${encodeURIComponent('Hola, necesito ayuda para comprar créditos para Masitaprex.')}`, '_blank'); }
+        window.goToWhatsApp = function() { window.open(`https://wa.me/51944950234?text=${encodeURIComponent('Hola, necesito ayuda para comprar créditos para Masitaprex.')}`, '_blank'); };
 
         document.addEventListener("DOMContentLoaded", () => { initApp(); setTimeout(() => { chatTextEl.classList.add('show'); typeWriterWhatsapp(); }, 1500); });
     </script>
