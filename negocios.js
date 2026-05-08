@@ -519,7 +519,7 @@ export async function enviarCorreoCompra(email, nombre, orderId, monto, descripc
     htmlContent = htmlContent.replace(/{{orderId}}/g, orderId);
     htmlContent = htmlContent.replace(/{{monto}}/g, monto);
     htmlContent = htmlContent.replace(/{{descripcion}}/g, descripcion);
-    htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/historial');
+    htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/home');
     
     const result = await resend.emails.send({
       from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
