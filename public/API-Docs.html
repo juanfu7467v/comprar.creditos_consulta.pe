@@ -968,12 +968,6 @@
                     <i class="fas fa-globe sb-icon"></i>
                     <span>ConsultaPe versión web</span>
                 </a>
-                <!-- Entretenimiento -->
-                <div class="sb-cat">Entretenimiento</div>
-                <a href="PeliPREX">
-                    <i class="fas fa-film sb-icon"></i>
-                    <span>Películas gratis</span>
-                </a>
                 <!-- Próximamente -->
                 <div class="sb-cat">Próximamente</div>
                 <a href="bienvenida-Revenue-Recovery-OS">
@@ -1005,12 +999,32 @@
 
     <header>
         <div class="container">
-            <h1>Documentación APIs masitaprex <span class="badge">Masitaprex</span></h1>
-            <p>infraestructura tecnológica masitaprex APIs v3 funciona exclusivamente como intermediario de infraestructura tecnológica.</p>
+            <h1>Integra consultas de DNI, RUC, telefonía y más en minutos</h1>
+            <p>Obtén tu API Key, prueba endpoints reales y escala con créditos o plan dedicado.</p>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <a href="api-key" class="btn btn-primary" style="background: #FFD700; color: #000;">Obtener API Key</a>
+                <a href="planes" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white;">Ver precios</a>
+            </div>
         </div>
     </header>
     <main class="content">
         <div class="container">
+            <!-- Quick Start -->
+            <section style="background: #f0fdf4; border-radius: 12px; padding: 20px 15px; margin-bottom: 20px; border: 1px solid #d1fae5;">
+                <h2 style="margin-top: 0; color: #047857;">🚀 Comienza en 3 pasos</h2>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <strong>1.</strong> Copia tu API Key desde tu <a href="api-key" style="color: #047857; font-weight: bold;">panel</a>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <strong>2.</strong> Prueba un endpoint con el probador
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <strong>3.</strong> <a href="planes" style="color: #047857; font-weight: bold;">Recarga créditos</a> cuando vayas a producción
+                    </div>
+                </div>
+            </section>
+
             <!-- API Tester Section -->
             <section class="api-tester">
                 <h2><i class="fas fa-vial"></i> Probador de APIs</h2>
@@ -1205,6 +1219,20 @@ echo $response;
                             </div>
                         </div>
                     </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Verificación de identidad en procesos KYC, validación de datos de clientes, integración en sistemas de registro.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato de la solicitud</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
+                    </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
@@ -1321,6 +1349,20 @@ if response.status_code == 200:
         print(f"Número: {tel['numero']}, Operador: {tel['operador']}")</pre>
                         </div>
                     </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Validación de contacto en procesos de verificación, enriquecimiento de bases de datos, comprobación de titularidad de línea.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato del documento</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
+                    </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
@@ -1414,6 +1456,20 @@ if response.status_code == 200:
   -d '{"numero": "987654321"}'</pre>
                         </div>
                     </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Verificación de identidad por número, comprobación de titularidad antes de procesos legales, enriquecimiento de perfiles.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato del número</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
+                    </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
@@ -1499,6 +1555,20 @@ if response.status_code == 200:
 .then(response => response.json())
 .then(data => console.log(data));</pre>
                         </div>
+                    </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Verificación de propiedad vehicular, procesos de compra-venta, investigaciones de seguros, validación de flotas.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato de la placa</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
                     </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
@@ -1608,6 +1678,20 @@ echo $response;
 ?&gt;</pre>
                         </div>
                     </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Verificación de proveedores, evaluación crediticia, cumplimiento normativo, integración con ERPs.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato del RUC</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
+                    </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
@@ -1695,6 +1779,20 @@ echo $response;
   -H 'Content-Type: application/json' \
   -d '{"dni": "12345678"}'</pre>
                         </div>
+                    </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Análisis de riesgo crediticio, verificación de antecedentes comerciales, prevención de fraudes corporativos.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato del DNI</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
                     </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
@@ -1793,6 +1891,20 @@ echo $response;
 .then(response => response.json())
 .then(data => console.log(data));</pre>
                         </div>
+                    </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Verificación de estado civil para trámites legales, comprobación de vínculos familiares, investigaciones patrimoniales.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato del DNI</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
                     </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
@@ -1901,6 +2013,20 @@ response = requests.post(url, headers=headers, json=data)
 print(response.json())</pre>
                         </div>
                     </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Localización de DNI a partir de datos parciales, completado de formularios, integración con sistemas de búsqueda.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato de los nombres</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
+                    </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
@@ -1994,6 +2120,20 @@ print(response.json())</pre>
   -H 'Content-Type: application/json' \
   -d '{"query": "MARIA RODRIGUEZ"}'</pre>
                         </div>
+                    </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Verificación de identidad de ciudadanos venezolanos, procesos migratorios, integración de datos en sistemas de recursos humanos.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato de la búsqueda</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
                     </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
@@ -2090,6 +2230,20 @@ print(response.json())</pre>
 .then(data => console.log(data));</pre>
                         </div>
                     </div>
+                    <div class="use-case" style="margin-top: 15px; background: #f9fafb; padding: 12px; border-radius: 8px; border-left: 4px solid #047857;">
+                        <h4><i class="fas fa-lightbulb"></i> Caso de uso real</h4>
+                        <p>Validación de documentos venezolanos, procesos de contratación, verificación de antecedentes internacionales.</p>
+                    </div>
+                    <div class="error-codes" style="margin-top: 15px;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Errores comunes</h4>
+                        <table class="parameter-table">
+                            <tr><th>Código</th><th>Significado</th><th>Acción</th></tr>
+                            <tr><td>400</td><td>Parámetros incorrectos</td><td>Revisa el formato de la cédula</td></tr>
+                            <tr><td>401</td><td>API Key inválida</td><td>Verifica tu token en el panel</td></tr>
+                            <tr><td>402</td><td>Créditos insuficientes</td><td><a href="planes">Recarga créditos aquí</a></td></tr>
+                            <tr><td>429</td><td>Demasiadas solicitudes</td><td>Reduce la frecuencia o actualiza a plan dedicado</td></tr>
+                        </table>
+                    </div>
                     <div class="response-example">
                         <h4><i class="fas fa-reply"></i> Ejemplo de Respuesta</h4>
                         <div class="code-block">
@@ -2115,6 +2269,11 @@ print(response.json())</pre>
                     </div>
                 </div>
                 
+                <!-- CTA Final sin contenedor decorativo -->
+                <div style="text-align: center; margin-top: 20px; padding: 0;">
+                    <p style="margin-bottom: 10px; color: var(--color-text-light);">¿Listo para producción? Recarga créditos o elige un plan intensivo sin límites.</p>
+                    <a href="planes" class="btn btn-primary" style="display: inline-block; background: linear-gradient(90deg, var(--color-primary-start), var(--color-primary-end)); color: white;">Ver planes y recargar</a>
+                </div>
             </section>
         </div>
     </main>
