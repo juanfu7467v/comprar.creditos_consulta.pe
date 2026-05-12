@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masitaprex — Acceso al Círculo de Élite | Recargar Créditos</title>
-    <meta name="description" content="Masitaprex no es para todos. Accede al ecosistema tecnológico más exclusivo del Perú. APIs, PeliPREX HD, Consulta PE y más. Un solo acceso para dominar la información.">
+    <title>Masitaprex — Activa tu plan en segundos | Recargar Créditos</title>
+    <meta name="description" content="Elige el plan que mejor se adapta a tu uso. APIs, PeliPREX HD, Consulta PE y más. Activación inmediata con Mercado Pago.">
     <meta name="keywords" content="planes masitaprex, comprar creditos masitaprex, recargar creditos masitaprex, suscripcion masitaprex, consultas ilimitadas peru">
     <meta name="robots" content="index, follow">
-    <meta property="og:title" content="Masitaprex — El Círculo de Élite Tecnológico" />
-    <meta property="og:description" content="Solo los que saben lo que buscan llegan aquí. Accede al ecosistema que marca la diferencia." />
+    <meta property="og:title" content="Masitaprex — Activa tu plan en segundos" />
+    <meta property="og:description" content="Créditos sin vencimiento o plan intensivo. Pago seguro y activación automática." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://masitaprex.com/planes" />
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
@@ -1026,6 +1026,100 @@
             display: flex; align-items: center; gap: 8px;
         }
 
+        /* Recomendación automática */
+        .recommendation-selector {
+            width: 100%;
+            background: var(--navy-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            padding: 28px 20px;
+            margin-bottom: 32px;
+        }
+        .recommendation-selector h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .recommendation-selector p.sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .rec-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .rec-option {
+            background: var(--navy-surface);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 18px 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .rec-option:hover {
+            border-color: var(--border-active);
+            background: rgba(0,200,83,0.05);
+            transform: translateX(4px);
+        }
+        .rec-option.selected-rec {
+            border-color: var(--emerald);
+            background: rgba(0,200,83,0.08);
+            box-shadow: 0 0 20px var(--emerald-glow);
+        }
+        .rec-option .rec-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: rgba(0,200,83,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: var(--emerald);
+            flex-shrink: 0;
+        }
+        .rec-option .rec-text strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+        .rec-option .rec-text span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .trust-block {
+            background: rgba(0,200,83,0.03);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin: 18px 0 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .trust-block .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+        }
+        .trust-block .trust-item i {
+            color: var(--emerald);
+            font-size: 0.9rem;
+            width: 18px;
+            text-align: center;
+        }
+
         @media (max-width: 640px) {
             .hero-stats { flex-wrap: wrap; }
             .stat-item { min-width: 50%; border-right: none; border-bottom: 1px solid var(--border-subtle); }
@@ -1037,11 +1131,14 @@
             #sidebar { width: 100%; max-width: 300px; }
             .purchase-body { padding: 16px 12px 20px; }
             .advantage-grid { gap: 8px; }
+            .rec-options { gap: 10px; }
         }
         @media (min-width: 768px) {
             .content-grid { padding: 0 20px; }
             .purchase-body { padding: 24px 20px 28px; }
             .slider-slide { width: 45%; }
+            .rec-options { flex-direction: row; }
+            .rec-option { flex: 1; }
         }
         @media (min-width: 1024px) {
             .content-grid { max-width: 960px; }
@@ -1070,7 +1167,7 @@
     <!-- Overlay -->
     <div id="sidebar-overlay" class="hidden"></div>
 
-    <!-- ═══ SIDEBAR ÉLITE ═══ -->
+    <!-- ═══ SIDEBAR ═══ -->
     <aside id="sidebar">
         <div class="sb-header">
             <div class="sb-logo-box">
@@ -1138,12 +1235,12 @@
         <section class="hero">
             <div class="hero-line"></div>
             <span class="hero-eyebrow">Infraestructura tecnológica · Perú · 2026</span>
-            <h1 class="hero-title"><em>Masitaprex</em><br>no es<br>para todos.</h1>
+            <h1 class="hero-title"><em>Masitaprex</em><br>Elige tu<br>plan.</h1>
             <div class="hero-divider"></div>
-            <p class="hero-tagline">Solo los que dominan la información<br>dominan su industria.</p>
-            <p class="hero-sub">Mientras otros buscan datos, tú ya tienes respuestas. APIs, consultas, streaming premium — todo en un solo acceso.</p>
+            <p class="hero-tagline">Compra créditos o un plan intensivo con activación inmediata.</p>
+            <p class="hero-sub">APIs, consultas, streaming premium — todo en un solo acceso. Sin demoras, sin complicaciones.</p>
             <button class="hero-cta" onclick="document.getElementById('purchase-section').scrollIntoView({behavior:'smooth'})">
-                <i class="fas fa-crown"></i> Asegurar mi acceso ahora
+                <i class="fas fa-bolt"></i> Activar plan ahora
             </button>
             <div class="hero-stats">
                 <div class="stat-item"><span class="stat-num">+2,400</span><span class="stat-label">Usuarios Activos</span></div>
@@ -1153,10 +1250,43 @@
             </div>
         </section>
 
-        <!-- ═══ ELITE STATEMENT ═══ -->
+        <!-- ═══ MENSAJE DE CONFIANZA ═══ -->
         <section class="elite-statement">
-            <p class="elite-quote">"Cada hora que pasa sin acceso es información que tu competencia ya está usando <em>en tu contra.</em>"</p>
-            <p class="elite-quote-sub">— El costo de no decidir también es un costo.</p>
+            <p class="elite-quote">Activa tu cuenta en segundos y empieza a usar <em>todas las herramientas.</em></p>
+            <p class="elite-quote-sub">— Pago seguro, activación automática, sin letra pequeña.</p>
+        </section>
+
+        <!-- ═══ SELECTOR DE RECOMENDACIÓN ═══ -->
+        <section class="section" id="recommendation-section">
+            <div class="content-grid">
+                <div class="recommendation-selector">
+                    <h3>¿No sabes qué plan elegir?</h3>
+                    <p class="sub">Selecciona cómo planeas usar Masitaprex y te recomendamos la mejor opción.</p>
+                    <div class="rec-options">
+                        <div class="rec-option" onclick="applyRecommendation('CREDITOS', this)">
+                            <div class="rec-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="rec-text">
+                                <strong>Consulto algunas veces por semana</strong>
+                                <span>→ Créditos: pagas solo por uso, sin vencimiento.</span>
+                            </div>
+                        </div>
+                        <div class="rec-option" onclick="applyRecommendation('INTENSIVO', this)">
+                            <div class="rec-icon"><i class="fas fa-bolt"></i></div>
+                            <div class="rec-text">
+                                <strong>Consulto a diario</strong>
+                                <span>→ Plan intensivo: sin preocuparte por créditos.</span>
+                            </div>
+                        </div>
+                        <div class="rec-option" onclick="applyRecommendation('DEDICADO', this)">
+                            <div class="rec-icon"><i class="fas fa-server"></i></div>
+                            <div class="rec-text">
+                                <strong>Integración en sistema o venta a terceros</strong>
+                                <span>→ Plan dedicado: contáctanos por WhatsApp.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══ PURCHASE SECTION ═══ -->
@@ -1164,8 +1294,8 @@
             <div class="content-grid">
                 <div>
                     <span class="section-label">Acceso al ecosistema</span>
-                    <h2 class="section-title">Elige tu <em>nivel</em> de poder.</h2>
-                    <p class="section-body">No vendemos un producto. Vendemos tiempo, ventaja y tranquilidad. Tu inversión hoy es lo que separa los que actúan de los que esperan.</p>
+                    <h2 class="section-title">Compara tus <em>opciones</em></h2>
+                    <p class="section-body">Paga solo por lo que necesitas y activa tu cuenta en segundos.</p>
                 </div>
 
                 <div class="purchase-wrapper">
@@ -1182,7 +1312,7 @@
                                 <label>Tipo de acceso:</label>
                                 <div class="type-selector">
                                     <div class="type-option selected" id="creditsType" data-type="CREDITOS"><i class="fas fa-coins"></i> Créditos</div>
-                                    <div class="type-option" id="unlimitedType" data-type="ILIMITADO"><i class="fas fa-infinity"></i> Ilimitado</div>
+                                    <div class="type-option" id="intensiveType" data-type="INTENSIVO"><i class="fas fa-bolt"></i> Plan intensivo</div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1199,6 +1329,14 @@
                                     <option value="" disabled selected>Selecciona un monto / plan</option>
                                 </select>
                             </div>
+
+                            <div class="trust-block">
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Tu compra se activa automáticamente en tu cuenta.</div>
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Créditos sin vencimiento.</div>
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Acceso desde web y APK.</div>
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Soporte si lo necesitas.</div>
+                            </div>
+
                             <div class="payment-info-text">Aceptamos todas las tarjetas</div>
                             <div class="card-icons-container">
                                 <div class="card-icon"><i class="fab fa-cc-visa"></i></div>
@@ -1223,11 +1361,10 @@
                             <button type="button" class="buy-button mp enabled" id="mpButton">
                                 <i class="fas fa-bolt"></i> Pagar con Mercado Pago
                             </button>
+                            <p class="purchase-footer-note">Pago procesado por Mercado Pago.</p>
 
                             <div class="message-container" id="paymentMessage" style="display:none;"></div>
                         </div>
-
-                        <p class="purchase-footer-note">🔒 Pago 100% seguro · Activación inmediata · Válido en todo el ecosistema Masitaprex</p>
                     </div>
                 </div>
             </div>
@@ -1244,10 +1381,11 @@
                     <p class="section-body">Mientras más grande el paquete, menor el costo por consulta. Los que piensan en grande, pagan menos por cada movimiento.</p>
                 </div>
 
-                <div class="pricing-section">
+                <!-- Créditos -->
+                <div class="pricing-section" id="creditsPricingSection">
                     <div class="pricing-section-header">
                         <div class="pricing-section-icon gold"><i class="fas fa-coins"></i></div>
-                        <div><div class="pricing-section-title">Créditos — Paga solo lo que usas</div><div class="pricing-section-sub">Sin vencimiento · Acumulables · Bonus por volumen</div></div>
+                        <div><div class="pricing-section-title">Créditos — Ideal si consultas de forma ocasional</div><div class="pricing-section-sub">Sin vencimiento · Acumulables · Bonus por volumen</div></div>
                     </div>
                     <table class="pricing-table">
                         <thead><tr><th>Monto (S/.)</th><th>Créditos</th><th>Bonus</th></tr></thead>
@@ -1261,6 +1399,34 @@
                     </table>
                 </div>
 
+                <!-- Plan intensivo -->
+                <div class="pricing-section" id="intensivePricingSection">
+                    <div class="pricing-section-header">
+                        <div class="pricing-section-icon crimson"><i class="fas fa-bolt"></i></div>
+                        <div><div class="pricing-section-title">Plan intensivo — Ideal si consultas a diario</div><div class="pricing-section-sub">Uso humano normal sujeto a política de uso razonable · Sin contar créditos</div></div>
+                    </div>
+                    <table class="pricing-table">
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Precio (S/.)</th>
+                                <th>Umbral de seguridad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>7 días</td><td>S/ 80</td><td>1,000 consultas</td></tr>
+                            <tr><td>15 días</td><td>S/ 120</td><td>2,500 consultas</td></tr>
+                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 180</td><td>5,000 consultas</td></tr>
+                            <tr><td>60 días</td><td>S/ 320</td><td>12,000 consultas</td></tr>
+                        </tbody>
+                    </table>
+                    <div style="padding: 16px 14px; background: rgba(0,0,0,0.1);">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"><strong>Nota de Seguridad:</strong> Nuestros planes intensivos están diseñados para el uso humano y profesional estándar. Para garantizar la estabilidad del ecosistema Masitaprex y evitar tráfico abusivo o extracción masiva de datos, cada plan cuenta con un umbral de seguridad de consultas. El uso debe ajustarse a la <a href="politica.compras.html" style="color: var(--emerald-light); text-decoration: underline;">política de uso razonable</a>.</p>
+                        <p style="font-size: 0.85rem; color: var(--emerald-light);"><i class="fas fa-bolt"></i> Si tu proyecto requiere integración de alto volumen o consultas masivas por segundo, <a href="#" onclick="goToWhatsApp(); return false;" style="color: var(--emerald-light); text-decoration: underline; font-weight: bold;">contáctanos por WhatsApp</a> para habilitar un <strong>Plan Dedicado de Alta Disponibilidad</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Comparativa -->
                 <div class="pricing-section">
                     <div class="pricing-section-header">
                         <div class="pricing-section-icon platinum"><i class="fas fa-chart-bar"></i></div>
@@ -1276,44 +1442,17 @@
                     </table>
                 </div>
 
-                <!-- ═══ PLANES ILIMITADOS (ACTUALIZADO) ═══ -->
-                <div class="pricing-section">
-                    <div class="pricing-section-header">
-                        <div class="pricing-section-icon crimson"><i class="fas fa-infinity"></i></div>
-                        <div><div class="pricing-section-title">Planes Ilimitados — Para los que no se detienen</div><div class="pricing-section-sub">Uso humano y profesional estándar · Garantía de estabilidad</div></div>
-                    </div>
-                    <table class="pricing-table">
-                        <thead>
-                            <tr>
-                                <th>Plan</th>
-                                <th>Precio Sugerido (S/.)</th>
-                                <th>Límite de Seguridad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>7 días</td><td>S/ 80</td><td>1,000 consultas</td></tr>
-                            <tr><td>15 días</td><td>S/ 120</td><td>2,500 consultas</td></tr>
-                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 180</td><td>5,000 consultas</td></tr>
-                            <tr><td>60 días</td><td>S/ 320</td><td>12,000 consultas</td></tr>
-                        </tbody>
-                    </table>
-                    <div style="padding: 16px 14px; background: rgba(0,0,0,0.1);">
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"><strong>Nota de Seguridad:</strong> Nuestros planes ilimitados están diseñados para el uso humano y profesional estándar. Para garantizar la estabilidad del ecosistema Masitaprex y evitar tráfico abusivo o extracción masiva de datos, cada plan cuenta con un umbral de seguridad de consultas.</p>
-                        <p style="font-size: 0.85rem; color: var(--emerald-light);"><i class="fas fa-bolt"></i> Si tu proyecto requiere integración de alto volumen o consultas masivas por segundo, <a href="#" onclick="goToWhatsApp(); return false;" style="color: var(--emerald-light); text-decoration: underline; font-weight: bold;">contáctanos por WhatsApp</a> para habilitar un <strong>Plan Dedicado de Alta Disponibilidad</strong>.</p>
-                    </div>
-                </div>
-
                 <p style="font-size:0.8rem; color: var(--text-subtle); text-align: center;">🧠 Mientras más grande el paquete, menos pagas por consulta y más ventaja acumulas.</p>
             </div>
         </section>
 
         <div class="section-divider"></div>
 
-        <!-- ═══ VENTAJAS ═══ -->
+        <!-- ═══ QUÉ INCLUYE TU COMPRA ═══ -->
         <section class="section">
             <div class="content-grid">
-                <span class="section-label">Por qué los mejores nos eligen</span>
-                <h2 class="section-title">Ventajas <em>exclusivas</em></h2>
+                <span class="section-label">Qué incluye tu compra</span>
+                <h2 class="section-title">Todo lo que recibes <em>al activar</em></h2>
                 <div class="advantage-grid">
                     <div class="advantage-item"><div class="adv-icon"><i class="fas fa-bolt"></i></div><span>Activación Inmediata</span></div>
                     <div class="advantage-item"><div class="adv-icon"><i class="fas fa-shield-alt"></i></div><span>Pago 100% Seguro</span></div>
@@ -1330,9 +1469,9 @@
         <!-- ═══ SLIDER ═══ -->
         <section class="section">
             <div class="content-grid">
-                <span class="section-label">Experiencia visual</span>
-                <h2 class="section-title">Descubre el <em>ecosistema</em></h2>
-                <p class="section-body">Una mirada al interior de Masitaprex — tecnología, exclusividad y poder en tus manos.</p>
+                <span class="section-label">Conoce cómo funciona</span>
+                <h2 class="section-title">Explora el <em>ecosistema</em></h2>
+                <p class="section-body">Una mirada al interior de Masitaprex — tecnología, herramientas y acceso en un solo lugar.</p>
                 <div class="slider-container">
                     <div class="slider-track" id="sliderTrack">
                         <div class="slider-slide"><img src="https://i.postimg.cc/7Y4h8SSC/image-17.jpg" alt="Masitaprex Vista 1" loading="lazy"></div>
@@ -1379,9 +1518,9 @@
         <section class="section">
             <div class="content-grid">
                 <span class="section-label">Respuestas directas</span>
-                <h2 class="section-title">Lo que los <em>mejores</em> preguntan.</h2>
+                <h2 class="section-title">Preguntas <em>frecuentes</em></h2>
                 <div class="faq-container">
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Qué tipos de planes ofrecemos?</div><div class="faq-answer" style="display:none;"><p><span class="badge">Recomendado ⭐</span> <strong>Plan ilimitado:</strong> Acceso total sin límites durante los días que elijas.</p><p><strong>Créditos:</strong> Pagas solo por lo que usas. Sin fecha de vencimiento.</p></div></div>
+                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Qué tipos de planes ofrecemos?</div><div class="faq-answer" style="display:none;"><p><span class="badge">Recomendado ⭐</span> <strong>Plan intensivo:</strong> Acceso sin preocuparte por créditos durante los días que elijas, sujeto a uso razonable.</p><p><strong>Créditos:</strong> Pagas solo por lo que usas. Sin fecha de vencimiento.</p></div></div>
                     <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Qué métodos de pago están disponibles?</div><div class="faq-answer" style="display:none;"><p><span class="badge">Automático ⚡</span> <strong>Pago con tarjeta:</strong> Activación en segundos.</p><p><strong>Pago por WhatsApp:</strong> Con ayuda personalizada.</p></div></div>
                     <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Hay comisiones ocultas?</div><div class="faq-answer" style="display:none;"><p>Mercado Pago puede aplicar una pequeña comisión según tu banco. Nosotros no cobramos nada adicional.</p></div></div>
                     <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Hay horarios para comprar?</div><div class="faq-answer" style="display:none;"><p><strong>Desde la web:</strong> 24/7, sin restricciones.</p><p><strong>Por WhatsApp:</strong> Horario de atención 6:00 a.m. a 9:00 p.m.</p></div></div>
@@ -1439,7 +1578,7 @@
     <script>
         // Typewriter header
         (function() {
-            const fullText = "Acceso Limitado — Círculo de Élite";
+            const fullText = "Activa tu plan en segundos";
             const textElement = document.getElementById("typewriterText");
             let currentIndex = 0, isDeleting = false, isWaiting = false;
             function typeEffect() {
@@ -1475,7 +1614,7 @@
         // Constantes
         const BASE_API_URL = "/api/init/mercadopago";
         const CREDITS_MAP = { "10": { credits: 60 }, "20": { credits: 125 }, "50": { credits: 330 }, "100": { credits: 700 }, "200": { credits: 1500 } };
-        const UNLIMITED_MAP = { "7-dias": { amount: 80, duration: '7 días' }, "15-dias": { amount: 120, duration: '15 días' }, "30-dias": { amount: 180, duration: '30 días' }, "60-dias": { amount: 320, duration: '60 días' } };
+        const INTENSIVE_MAP = { "7-dias": { amount: 80, duration: '7 días' }, "15-dias": { amount: 120, duration: '15 días' }, "30-dias": { amount: 180, duration: '30 días' }, "60-dias": { amount: 320, duration: '60 días' } };
         const STORAGE_KEY_EMAIL = 'masitaprex_user_email';
         const STORAGE_KEY_UID = 'masitaprex_user_uid';
         let auth, currentPurchaseType = 'CREDITOS';
@@ -1502,14 +1641,14 @@
         const paymentLoading = document.getElementById("paymentLoading");
         const mpButton = document.getElementById("mpButton");
         const creditsTypeBtn = document.getElementById("creditsType");
-        const unlimitedTypeBtn = document.getElementById("unlimitedType");
+        const intensiveTypeBtn = document.getElementById("intensiveType");
         const successModalOverlay = document.getElementById("successModalOverlay");
         const successModalTitle = document.getElementById("successModalTitle");
         const successModalBody = document.getElementById("successModalBody");
         const errorModalOverlay = document.getElementById("errorModalOverlay");
         const errorMessageDisplay = document.getElementById("errorMessage");
 
-        function sharePage() { const url = "https://masitaprexv2.fly.dev/"; if (navigator.share) { navigator.share({ title: "Masitaprex", text: "¡Descubre Masitaprex!", url }).catch(e => console.log(e)); } else { window.open(url, "_blank"); } }
+        function sharePage() { const url = "https://masitaprexv2.fly.dev/"; if (navigator.share) { navigator.share({ title: "Masitaprex", text: "¡Activa tu plan en Masitaprex!", url }).catch(e => console.log(e)); } else { window.open(url, "_blank"); } }
         function closeBanner() { document.getElementById('banner').style.display = 'none'; }
 
         function showErrorModal(message) { errorMessageDisplay.innerHTML = message.replace(/\n/g, '<br>'); errorModalOverlay.classList.add('active'); errorModalOverlay.style.display = "flex"; paymentLoading.style.display = "none"; }
@@ -1523,7 +1662,7 @@
                 selectLabel.textContent = 'Selecciona el Paquete de Créditos:';
                 [{ value: "10", label: "S/ 10 → 60 créditos (+3 bonus)" }, { value: "20", label: "S/ 20 → 125 créditos (+5 bonus)" }, { value: "50", label: "⭐ S/ 50 → 330 créditos (+20 bonus)" }, { value: "100", label: "S/ 100 → 700 créditos (+40 bonus)" }, { value: "200", label: "🔥 S/ 200 → 1,500 créditos (+80 bonus)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             } else {
-                selectLabel.textContent = 'Selecciona el Plan Ilimitado:';
+                selectLabel.textContent = 'Selecciona el Plan Intensivo:';
                 [{ value: "7-dias", label: "7 días — S/ 80 (1,000 consultas)" }, { value: "15-dias", label: "15 días — S/ 120 (2,500 consultas)" }, { value: "30-dias", label: "⭐ 30 días — S/ 180 (5,000 consultas)" }, { value: "60-dias", label: "60 días — S/ 320 (12,000 consultas)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             }
             updatePaymentButtons();
@@ -1538,25 +1677,52 @@
             let amount, description, limiteSeguridad = '';
             if (currentPurchaseType === 'CREDITOS') { amount = parseInt(selected); description = `Créditos Masitaprex: ${CREDITS_MAP[selected]?.credits || ''} créditos`; }
             else { 
-                const plan = UNLIMITED_MAP[selected];
+                const plan = INTENSIVE_MAP[selected];
                 amount = plan.amount;
                 let limiteTexto = '';
-                if (selected === '7-dias') limiteTexto = 'Límite 1,000 consultas';
-                else if (selected === '15-dias') limiteTexto = 'Límite 2,500 consultas';
-                else if (selected === '30-dias') limiteTexto = 'Límite 5,000 consultas';
-                else if (selected === '60-dias') limiteTexto = 'Límite 12,000 consultas';
-                description = `Plan Ilimitado Masitaprex: ${plan.duration} — ${limiteTexto}`;
+                if (selected === '7-dias') limiteTexto = 'Umbral 1,000 consultas';
+                else if (selected === '15-dias') limiteTexto = 'Umbral 2,500 consultas';
+                else if (selected === '30-dias') limiteTexto = 'Umbral 5,000 consultas';
+                else if (selected === '60-dias') limiteTexto = 'Umbral 12,000 consultas';
+                description = `Plan Intensivo Masitaprex: ${plan.duration} — ${limiteTexto}`;
             }
-            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}&tipoPlan=${currentPurchaseType === 'CREDITOS' ? 'creditos' : 'ilimitado'}`;
+            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}&tipoPlan=${currentPurchaseType === 'CREDITOS' ? 'creditos' : 'intensivo'}`;
         }
 
         function clearStorageAfterPayment() { localStorage.removeItem(STORAGE_KEY_EMAIL); localStorage.removeItem(STORAGE_KEY_UID); }
 
         function handleTypeSelection(event) {
             const selectedType = event.currentTarget.dataset.type;
-            creditsTypeBtn.classList.remove('selected'); unlimitedTypeBtn.classList.remove('selected');
+            creditsTypeBtn.classList.remove('selected'); intensiveTypeBtn.classList.remove('selected');
             event.currentTarget.classList.add('selected'); currentPurchaseType = selectedType;
             populateDetailsSelect(selectedType);
+        }
+
+        function applyRecommendation(type, element) {
+            // Quitar clase seleccionada de todos
+            document.querySelectorAll('.rec-option').forEach(opt => opt.classList.remove('selected-rec'));
+            element.classList.add('selected-rec');
+
+            if (type === 'DEDICADO') {
+                // Redirigir a WhatsApp para plan dedicado
+                goToWhatsApp();
+                return;
+            }
+
+            // Actualizar tipo en el formulario
+            if (type === 'CREDITOS') {
+                creditsTypeBtn.classList.add('selected');
+                intensiveTypeBtn.classList.remove('selected');
+                currentPurchaseType = 'CREDITOS';
+            } else {
+                intensiveTypeBtn.classList.add('selected');
+                creditsTypeBtn.classList.remove('selected');
+                currentPurchaseType = 'INTENSIVO';
+            }
+            populateDetailsSelect(type);
+
+            // Scroll al formulario
+            document.getElementById('purchase-section').scrollIntoView({ behavior: 'smooth' });
         }
 
         function handlePaymentCallback() {
@@ -1595,7 +1761,7 @@
         purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
         mpButton.addEventListener('click', startPayment);
         creditsTypeBtn.addEventListener('click', handleTypeSelection);
-        unlimitedTypeBtn.addEventListener('click', handleTypeSelection);
+        intensiveTypeBtn.addEventListener('click', handleTypeSelection);
 
         // FAQ toggle
         window.toggleFaq = function(element) {
