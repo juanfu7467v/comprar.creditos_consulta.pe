@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Generar API Key | Apis Dev Perú | Documentación Masitaprex</title>
-    <meta name="description" content="Obtén tu API Key oficial. Acceso exclusivo a la Documentación Masitaprex para integrar Apis Perú de DNI, RUC y más. El estándar de oro para desarrolladores.">
-    <meta name="keywords" content="apis dev, apis peru, masitaprex api key, documentacion masitaprex, generar token api, api reniec gratis, api sunat peru, api identidad, desarrolladores peru" />
+    <title>API Key | Masitaprex — Tu API está lista</title>
+    <meta name="description" content="Copia tu token, prueba un endpoint y activa más créditos cuando lo necesites. Acceso a APIs de DNI, RUC y más.">
+    <meta name="keywords" content="apis dev, apis peru, masitaprex api key, documentacion masitaprex, generar token api, api reniec, api sunat peru" />
     <meta name="robots" content="index, follow">
     
-    <meta property="og:title" content="Generar API Key | Infraestructura Apis Dev Perú" />
-    <meta property="og:description" content="Gestiona tu token y accede a la documentación técnica de Masitaprex. La potencia que tu proyecto necesita." />
+    <meta property="og:title" content="API Key | Masitaprex — Tu API lista para integrar" />
+    <meta property="og:description" content="Token activo. Prueba un endpoint y recarga créditos cuando quieras." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://masitaprex.com/api-key" />
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
@@ -31,41 +31,34 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Mono:wght@400;500&display=swap');
         
         :root {
-            /* Paleta de Confianza y Éxito */
             --navy-deep: #0A1628;
             --navy-surface: #0F1F3D;
             --navy-card: #15294A;
             --navy-border: #1E3A5F;
             
-            /* Verde Esmeralda para acciones de dinero/recarga */
             --emerald: #00C853;
             --emerald-light: #69F0AE;
             --emerald-dark: #00A844;
             --emerald-glow: rgba(0, 200, 83, 0.2);
             
-            /* Dorado para premium/confianza */
             --gold: #FFD700;
             --gold-light: #FFED4A;
             --gold-dim: #B8960F;
             --gold-glow: rgba(255, 215, 0, 0.15);
             
-            /* Rojo rubí para alertas/notificaciones */
             --ruby: #E53935;
             --ruby-light: #FF5252;
             --ruby-glow: rgba(229, 57, 53, 0.2);
             
-            /* Textos y superficies */
             --white: #F8FAFC;
             --text-primary: #E2E8F0;
             --text-muted: #94A3B8;
             --text-subtle: #64748B;
             
-            /* Sombras y efectos */
             --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
             --shadow-gold: 0 4px 20px rgba(255,215,0,0.15);
             --shadow-emerald: 0 4px 20px rgba(0,200,83,0.2);
             
-            /* Bordes */
             --border-subtle: rgba(255,255,255,0.08);
             --border-active: rgba(0,200,83,0.3);
             
@@ -127,7 +120,6 @@
             66% { transform: translate(-15px, 15px) scale(0.95); }
         }
 
-        /* CABECERA PREMIUM */
         header {
             box-shadow: 0 10px 40px rgba(0,0,0,.35);
             backdrop-filter: blur(20px);
@@ -351,7 +343,6 @@
             transform: translateY(-3px);
         }
 
-        /* Header Icons */
         .header-icon {
             width: 1.75rem;
             height: 1.75rem;
@@ -375,86 +366,77 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        /* Banner de compartir */
-        .banner {  
-            width: 100%;  
-            max-width: 480px;
-            background: var(--navy-card);
-            border: 1px solid var(--border-active);
-            color: var(--white);  
-            position: fixed;  
-            bottom: 0;  
-            left: 50%;  
-            transform: translateX(-50%);  
-            padding: 26px;  
-            border-top-left-radius: 20px;  
-            border-top-right-radius: 20px;  
-            box-shadow: 0 -8px 40px rgba(0,0,0,0.7);  
+        /* ===== NUEVOS ESTILOS PARA PANEL OPTIMIZADO ===== */
+        .low-balance-bar {
+            background: linear-gradient(135deg, rgba(229,57,53,0.15), rgba(229,57,53,0.3));
+            border: 1px solid var(--ruby);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
             display: none;
-            flex-direction: column;  
-            align-items: center;  
-            text-align: center;  
-            z-index: 9999;
-            animation: slideUp 0.3s ease;
-        }  
-
-        @keyframes slideUp {
-            from { transform: translateX(-50%) translateY(100%); }
-            to { transform: translateX(-50%) translateY(0); }
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: #fff;
+            font-weight: 600;
+            animation: pulseWarning 2s infinite;
+        }
+        @keyframes pulseWarning {
+            0%, 100% { border-color: var(--ruby); box-shadow: 0 0 15px var(--ruby-glow); }
+            50% { border-color: var(--ruby-light); box-shadow: 0 0 25px var(--ruby-glow); }
+        }
+        .low-balance-bar .cta-button-small {
+            background: linear-gradient(135deg, var(--ruby), #c62828);
+            color: #fff;
+            border-radius: 30px;
+            padding: 10px 22px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 12px rgba(229,57,53,0.4);
+        }
+        .low-balance-bar .cta-button-small:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229,57,53,0.6);
         }
 
-        .banner-title {  
-            font-size: 1.1rem;  
-            font-weight: 700;  
-            margin-bottom: 12px;  
-            color: var(--gold);  
-        }  
+        .test-curl-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .test-curl-modal.active {
+            display: flex;
+        }
+        .test-curl-modal .modal-content {
+            background: var(--navy-card);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 90%;
+            width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            position: relative;
+        }
+        .test-curl-modal pre {
+            background: var(--navy-surface);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-family: 'DM Mono', monospace;
+            margin-top: 12px;
+        }
 
-        .banner-description {  
-            font-size: 0.85rem;  
-            line-height: 1.6;  
-            color: var(--text-muted);  
-            margin-bottom: 20px;  
-        }  
-
-        .cta-button, .close-modal {  
-            width: 100%;  
-            padding: 14px;  
-            text-align: center;  
-            text-decoration: none;  
-            border-radius: 10px;  
-            font-size: 0.95rem;  
-            font-weight: 700;  
-            margin-bottom: 10px;  
-            cursor: pointer;  
-            transition: all 0.25s ease;  
-            font-family: 'Outfit', sans-serif;
-        }  
-
-        .cta-button {  
-            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
-            color: #000;
-            box-shadow: 0 4px 15px var(--emerald-glow);
-        }  
-
-        .cta-button:hover { 
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px var(--emerald-glow);
-        }  
-
-        .close-modal {  
-            background: transparent;
-            border: 1px solid var(--border-subtle);
-            color: var(--text-muted);
-        }  
-
-        .close-modal:hover {  
-            border-color: var(--border-active);
-            color: var(--white);
-            transform: translateY(-2px);
-        }  
-
-        /* INTERFAZ API KEY */
         .wrap {
             width: 100%;
             max-width: 100%;
@@ -469,34 +451,21 @@
         .font-bold { font-weight: 700; }
         .mb-4 { margin-bottom: 16px; }
 
-        /* Loading Spinner */
         #loading-indicator {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
             background: rgba(10,22,40,0.95);
-            z-index: 9999;
-            display: none;
+            z-index: 9999; display: none;
         }
-
         .spinner-ring {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             border: 3px solid transparent;
-            border-top-color: var(--emerald);
-            border-right-color: var(--gold);
+            border-top-color: var(--emerald); border-right-color: var(--gold);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .gradient-border { position: relative; z-index: 1; }
         .gradient-border::before {
@@ -512,7 +481,6 @@
             z-index: -1;
             animation: borderGlow 3s infinite;
         }
-
         @keyframes borderGlow {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -526,48 +494,35 @@
             display: flex;
             flex-direction: column;
             gap: 18px;
+            margin-bottom: 18px;
         }
-
         .profile-header { display: flex; align-items: center; gap: 14px; }
         .profile-header .avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
+            width: 64px; height: 64px; border-radius: 50%;
             background: linear-gradient(135deg, var(--emerald-dark), var(--navy-border));
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
             border: 2px solid var(--emerald);
             box-shadow: 0 0 20px var(--emerald-glow);
             animation: pulseAvatar 2s infinite;
         }
-
         @keyframes pulseAvatar {
             0%, 100% { box-shadow: 0 0 20px var(--emerald-glow); }
             50% { box-shadow: 0 0 35px var(--emerald-glow); }
         }
-
         .profile-header img { width: 100%; height: 100%; object-fit: cover; }
         .profile-header h2 { font-size: 20px; color: var(--white); font-weight: 700; }
         
-        .profile-stats {
-            display: flex;
-            justify-content: space-around;
+        .saldo-block {
+            background: var(--navy-surface);
+            border-radius: var(--radius-sm);
+            padding: 16px;
             text-align: center;
-            border-top: 1px solid var(--border-subtle);
-            padding-top: 18px;
+            margin-top: 8px;
         }
-
-        .stat-item { display: flex; flex-direction: column; gap: 4px; }
-        .stat-value {
-            font-size: 28px;
-            font-weight: 900;
-            color: var(--emerald);
-            text-shadow: 0 0 20px var(--emerald-glow);
-            font-family: 'DM Mono', monospace;
-        }
-        .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .saldo-block .saldo-titulo { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+        .saldo-block .saldo-monto { font-size: 2.2rem; font-weight: 900; color: var(--emerald); font-family: 'DM Mono', monospace; }
+        .saldo-block .saldo-estimacion { font-size: 0.85rem; color: var(--text-primary); margin-top: 6px; }
 
         .section-card {
             background: var(--navy-card);
@@ -579,7 +534,6 @@
             flex-direction: column;
             gap: 16px;
         }
-        
         .section-header {
             display: flex;
             align-items: center;
@@ -607,29 +561,18 @@
             position: relative;
             overflow: hidden;
         }
-
         .btn-primary::after {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
             border-radius: 50%;
             background: rgba(255,255,255,0.3);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
-
-        .btn-primary:hover::after {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn-primary:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 25px var(--emerald-glow);
-        }
+        .btn-primary:hover::after { width: 300px; height: 300px; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 25px var(--emerald-glow); }
         .btn-primary:active { transform: scale(0.98); }
 
         .input-group { position: relative; }
@@ -648,493 +591,132 @@
             letter-spacing: 0.5px;
             transition: all 0.25s ease;
         }
-
         .input-group input::placeholder { color: var(--text-subtle); }
-        .input-group input:focus { 
-            border-color: var(--emerald); 
-            box-shadow: 0 0 20px var(--emerald-glow);
-        }
-
+        .input-group input:focus { border-color: var(--emerald); box-shadow: 0 0 20px var(--emerald-glow); }
         .input-group .copy-btn {
             position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--emerald);
-            cursor: pointer;
-            font-size: 20px;
-            padding: 8px;
+            right: 8px; top: 50%; transform: translateY(-50%);
+            background: none; border: none;
+            color: var(--emerald); cursor: pointer;
+            font-size: 20px; padding: 8px;
             transition: all 0.2s ease;
         }
-
-        .input-group .copy-btn:hover {
-            color: var(--emerald-light);
-            transform: translateY(-50%) scale(1.2);
-        }
+        .input-group .copy-btn:hover { color: var(--emerald-light); transform: translateY(-50%) scale(1.2); }
 
         .btn-secondary {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             width: 100%;
             padding: 14px;
             border-radius: 10px;
             background: transparent;
             border: 1px solid var(--navy-border);
             color: var(--white);
-            font-weight: 700;
-            letter-spacing: 0.6px;
+            font-weight: 700; letter-spacing: 0.6px;
             margin-top: 8px;
-            cursor: pointer;
-            text-decoration: none;
+            cursor: pointer; text-decoration: none;
             transition: all 0.25s ease;
             font-family: 'Outfit', sans-serif;
         }
-        .btn-secondary:hover { 
-            background: rgba(0,200,83,0.08); 
-            border-color: var(--emerald); 
-            color: var(--emerald-light);
-            transform: translateY(-2px);
-        }
+        .btn-secondary:hover { background: rgba(0,200,83,0.08); border-color: var(--emerald); color: var(--emerald-light); transform: translateY(-2px); }
         .btn-secondary:active { transform: scale(0.98); }
         .btn-secondary i { font-size: 1.2em; }
 
-        .info-section {
-            background: var(--navy-card);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-top: 18px;
-            box-shadow: var(--shadow-card);
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
+        .info-section { background: var(--navy-card); border-radius: var(--radius); padding: 20px; margin-top: 18px; box-shadow: var(--shadow-card); }
         .info-section h3 { font-size: 18px; color: var(--white); }
-
-        .info-section p, .info-section ul, .info-section li, .info-section div {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin: 0;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .info-item:last-child { border-bottom: none; }
-        .info-item i {
-            font-size: 20px;
-            color: var(--emerald);
-            padding-top: 2px;
-        }
-        
-        .text-container {
-            padding: 18px;
-            border-radius: var(--radius-sm);
-            background: var(--navy-surface);
-            border: 1px solid var(--border-subtle);
-            margin-top: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .text-container-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--emerald);
-        }
-
-        .text-container-header i { color: var(--emerald); font-size: 20px; }
-
-        .text-container p { margin: 0; font-size: 14px; color: var(--text-primary); }
-        .text-container strong { color: var(--gold); }
+        .info-section p, .info-section li { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
         .credit-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
         .credit-table th, .credit-table td { padding: 10px 12px; text-align: left; font-size: 13px; }
         .credit-table thead th {
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 12px;
-            position: sticky;
-            top: 0;
-            background: var(--navy-card);
-            z-index: 10;
+            font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+            border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;
+            position: sticky; top: 0; background: var(--navy-card); z-index: 10;
         }
         .credit-table tbody tr {
-            background: var(--navy-surface);
-            border-radius: 8px;
-            overflow: hidden;
-            font-weight: 600;
-            color: var(--text-primary);
-            transition: all 0.2s ease;
+            background: var(--navy-surface); border-radius: 8px;
+            font-weight: 600; color: var(--text-primary); transition: all 0.2s ease;
         }
-
-        .credit-table tbody tr:hover {
-            background: var(--navy-border);
-            transform: scale(1.01);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
+        .credit-table tbody tr:hover { background: var(--navy-border); transform: scale(1.01); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .credit-table td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-        .credit-table td:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            text-align: right;
-            color: var(--emerald);
-            font-weight: 800;
-            font-family: 'DM Mono', monospace;
-        }
+        .credit-table td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; text-align: right; color: var(--emerald); font-weight: 800; font-family: 'DM Mono', monospace; }
+        .table-scroll { max-height: 400px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--navy-card); }
 
-        .table-scroll {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 10px;
+        .api-recommendation {
+            background: var(--navy-card); border: 1px solid var(--border-active);
+            border-radius: var(--radius); padding: 20px; color: var(--text-primary);
+            box-shadow: var(--shadow-card); margin-top: 18px;
+        }
+        .api-recommendation h4 { font-size: 16px; font-weight: 800; margin-bottom: 8px; color: var(--emerald); }
+
+        .legal-accordion {
+            background: var(--navy-card);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-sm);
-            background: var(--navy-card);
-        }
-        
-        .api-recommendation {
-            background: var(--navy-card);
-            border: 1px solid var(--border-active);
-            border-radius: var(--radius);
-            padding: 20px;
-            color: var(--text-primary);
-            box-shadow: var(--shadow-card);
             margin-top: 18px;
+            overflow: hidden;
         }
-        .api-recommendation h4 {
-            font-size: 16px;
-            font-weight: 800;
-            margin-top: 0;
-            margin-bottom: 8px;
+        .legal-accordion summary {
+            padding: 14px 18px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-muted);
+            list-style: none;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--emerald);
         }
-        .api-recommendation code {
-            display: block;
-            background: var(--navy-surface);
-            border: 1px solid var(--border-subtle);
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            margin-bottom: 10px;
-            overflow-x: auto;
-            color: var(--gold);
-            font-family: 'DM Mono', monospace;
+        .legal-accordion summary::-webkit-details-marker { display: none; }
+        .legal-accordion[open] summary { color: var(--emerald-light); }
+        .legal-accordion .legal-content {
+            padding: 0 18px 16px;
+            font-size: 0.8rem;
+            color: var(--text-subtle);
+            line-height: 1.7;
         }
-        .api-recommendation p { font-size: 14px; margin: 0; color: var(--text-muted); }
-        .api-recommendation strong { color: var(--gold); }
-
-        .advantage-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            gap: 12px;
-        }
-        .advantage-list li {
-            font-size: 14px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-        .advantage-list li i { color: var(--emerald); font-size: 20px; }
-        
-        .package-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 14px;
-            margin-top: 14px;
-        }
-        .package-grid a { text-decoration: none; color: inherit; }
-        
-        .package-card {
-            background: var(--navy-surface);
-            border-radius: var(--radius-sm);
-            padding: 16px;
-            text-align: center;
-            border: 1px solid var(--border-subtle);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .package-grid a:hover .package-card {
-            background: rgba(0,200,83,0.1);
-            border-color: var(--emerald);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px var(--emerald-glow);
-        }
-        
-        .package-grid a:nth-child(3) .package-card { 
-            border-color: var(--emerald); 
-            background: rgba(0,200,83,0.08); 
-            box-shadow: 0 0 20px var(--emerald-glow);
-        }
-
-        .package-card .amount {
-            font-size: 22px;
-            font-weight: 900;
-            color: var(--emerald);
-            margin-bottom: 4px;
-            font-family: 'DM Mono', monospace;
-        }
-        .package-card .credits {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--text-primary);
-        }
-        .package-card .benefit {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
-        
-        .unlimited-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            border: 1px solid var(--border-subtle);
-        }
-        .unlimited-table th, .unlimited-table td {
-            padding: 12px;
-            text-align: center;
-            font-size: 13px;
-        }
-        .unlimited-table thead th {
-            background: var(--navy-surface);
-            color: var(--text-primary);
-            font-weight: 800;
-        }
-        .unlimited-table tbody tr {
-            transition: background 0.2s ease;
-        }
-        .unlimited-table tbody tr:hover {
-            background: rgba(0,200,83,0.05);
-        }
-        .unlimited-table tbody td {
-            border-bottom: 1px solid var(--border-subtle);
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-        .unlimited-table tbody tr:last-child td { border-bottom: none; }
-        .unlimited-table .price { font-weight: 900; color: var(--emerald); }
-        .unlimited-table .saving { color: var(--gold); font-weight: 800; }
-        
-        .quote {
-            background: linear-gradient(90deg, rgba(0,200,83,0.08), rgba(255,215,0,0.04));
-            border-left: 4px solid var(--emerald);
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: var(--radius-sm);
-            font-style: italic;
-            font-size: 16px;
-            color: var(--text-primary);
-            font-weight: 600;
-            text-shadow: 0 0 10px rgba(0,200,83,0.2);
-        }
-        .quote i { color: var(--emerald); margin-right: 5px; }
-
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal.active { display: flex; opacity: 1; }
-
-        .modal-content {
-            background: var(--navy-card);
-            color: var(--text-primary);
-            padding: 24px;
-            border-radius: var(--radius);
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            min-width: 280px;
-            border: 1px solid var(--border-active);
-            animation: modalPop 0.3s ease;
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-content.success { border: 2px solid var(--emerald); box-shadow: 0 0 30px var(--emerald-glow); }
-        .modal-content.error { border: 2px solid var(--ruby); box-shadow: 0 0 30px var(--ruby-glow); }
+        .legal-accordion .legal-content a { color: var(--emerald-light); font-weight: 600; }
 
         footer {
-            margin-top: 40px;
-            padding: 24px;
-            text-align: center;
-            background: transparent;
-            border-top: 1px solid var(--border-subtle);
+            margin-top: 40px; padding: 24px; text-align: center;
+            background: transparent; border-top: 1px solid var(--border-subtle);
         }
-        
         footer h3 { font-size: 16px; margin-bottom: 14px; color: var(--text-primary); }
         footer p { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-        
-        footer a,
-        .info-section a,
-        .text-container a,
-        .section-card a:not(.btn-primary):not(.btn-secondary) {
-            color: var(--emerald) !important;
-            text-decoration: none;
-            margin: 0 5px;
-            transition: color 0.3s ease;
-            font-weight: 600;
+        footer a, .info-section a, .text-container a, .section-card a:not(.btn-primary):not(.btn-secondary) {
+            color: var(--emerald) !important; text-decoration: none; margin: 0 5px; transition: color 0.3s ease; font-weight: 600;
         }
-        footer a:hover,
-        .info-section a:hover,
-        .text-container a:hover,
-        .section-card a:not(.btn-primary):not(.btn-secondary):hover {
-            color: var(--emerald-light) !important;
-            text-decoration: underline;
+        footer a:hover, .info-section a:hover, .text-container a:hover, .section-card a:not(.btn-primary):not(.btn-secondary):hover {
+            color: var(--emerald-light) !important; text-decoration: underline;
         }
 
-        .social-icons a {
-            font-size: 26px;
-            color: var(--text-muted);
-            margin: 0 12px;
-            transition: all 0.3s ease;
-        }
-        .social-icons a:hover { 
-            color: var(--emerald); 
-            transform: translateY(-3px);
-            filter: drop-shadow(0 4px 8px var(--emerald-glow));
-        }
-        
-        .mb-2 { margin-bottom: 8px; }
+        .social-icons a { font-size: 26px; color: var(--text-muted); margin: 0 12px; transition: all 0.3s ease; }
+        .social-icons a:hover { color: var(--emerald); transform: translateY(-3px); filter: drop-shadow(0 4px 8px var(--emerald-glow)); }
 
-        /* WhatsApp Bubble */
         .chat-bubble {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 28px;
-            cursor: pointer;
-            box-shadow: 0 6px 25px rgba(37,211,102,0.4);
-            z-index: 1000;
-            animation: floatBubble 3s ease-in-out infinite;
-            transition: all 0.3s ease;
+            position: fixed; bottom: 28px; right: 28px; width: 60px; height: 60px;
+            background: linear-gradient(135deg, #25D366, #128C7E); color: white;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 28px; cursor: pointer; box-shadow: 0 6px 25px rgba(37,211,102,0.4);
+            z-index: 1000; animation: floatBubble 3s ease-in-out infinite; transition: all 0.3s ease;
         }
-
         @keyframes floatBubble {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-8px); }
         }
-
-        .chat-bubble:hover { 
-            transform: scale(1.1); 
-            box-shadow: 0 8px 35px rgba(37,211,102,0.5);
-        }
-
+        .chat-bubble:hover { transform: scale(1.1); box-shadow: 0 8px 35px rgba(37,211,102,0.5); }
         .chat-text {
-            position: fixed;
-            bottom: 98px;
-            right: 28px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-size: 13px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-            white-space: nowrap;
-            opacity: 0;
-            transform: scale(0.9);
-            transition: opacity 0.4s, transform 0.4s;
-            z-index: 1001;
-            cursor: pointer;
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
+            position: fixed; bottom: 98px; right: 28px;
+            background: linear-gradient(135deg, #25D366, #128C7E); color: white;
+            padding: 12px 18px; border-radius: 14px; font-size: 13px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4); white-space: nowrap;
+            opacity: 0; transform: scale(0.9); transition: opacity 0.4s, transform 0.4s;
+            z-index: 1001; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600;
         }
-
         .chat-text.show { opacity: 1; transform: scale(1); }
         .chat-text.hide { opacity: 0; transform: scale(0.9); }
 
-        .legal-warning {
-            background: rgba(229,57,53,0.06);
-            border: 1px solid rgba(229,57,53,0.2);
-            border-left: 4px solid var(--ruby);
-            padding: 18px;
-            border-radius: var(--radius-sm);
-            margin-top: 16px;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .legal-warning .warning-title {
-            color: var(--ruby);
-            font-weight: 800;
-            font-size: 15px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legal-warning .warning-content {
-            color: var(--text-primary);
-        }
-
-        .legal-warning .emphasis-red {
-            color: var(--ruby);
-            font-weight: 700;
-        }
-
-        .legal-warning a {
-            color: var(--ruby-light) !important;
-            text-decoration: underline;
-            font-weight: 700;
-        }
-
-        .legal-warning a:hover {
-            color: var(--white) !important;
-        }
-
-        /* Responsive */
         @media (max-width: 640px) {
             .wrap { padding: 10px; }
-            .package-grid { grid-template-columns: 1fr 1fr; }
-            .profile-stats { flex-direction: column; gap: 12px; }
+            .low-balance-bar { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -1152,13 +734,11 @@
         </div>
         
         <div class="flex-1 text-center">
-            <h1 class="header-center-text">Developer</h1>
+            <h1 class="header-center-text">API Key</h1>
         </div>
         
         <div class="flex items-center gap-4">
-            <button id="share-btn" class="p-2 rounded-full transition-all hover:bg-white/5">
-                <i data-lucide="share-2" class="header-icon"></i>
-            </button>
+            <!-- share button removed -->
         </div>
     </header>
 
@@ -1176,7 +756,6 @@
 
         <div class="sb-scroll-area">
             <nav>
-                <!-- General -->
                 <div class="sb-cat">General</div>
                 <a href="home">
                     <i class="fas fa-home sb-icon"></i>
@@ -1187,7 +766,6 @@
                     <span>Recargar</span>
                 </a>
                 
-                <!-- Herramientas API -->
                 <div class="sb-cat">Herramientas API</div>
                 <a href="api-key" class="active">
                     <i class="fas fa-key sb-icon"></i>
@@ -1202,14 +780,12 @@
                     <span>ConsultaPe versión web</span>
                 </a>
 
-                <!-- Entretenimiento -->
                 <div class="sb-cat">Entretenimiento</div>
                 <a href="PeliPREX">
                     <i class="fas fa-film sb-icon"></i>
                     <span>Películas gratis</span>
                 </a>
 
-                <!-- Próximamente -->
                 <div class="sb-cat">Próximamente</div>
                 <a href="bienvenida-Revenue-Recovery-OS">
                     <i class="fas fa-robot sb-icon"></i>
@@ -1217,7 +793,6 @@
                     <span class="sb-badge">Pronto</span>
                 </a>
 
-                <!-- Cuenta -->
                 <div class="sb-cat">Cuenta</div>
                 <a href="ayuda">
                     <i class="fas fa-headset sb-icon"></i>
@@ -1237,52 +812,24 @@
         </div>
     </aside>
 
-    <!-- MODAL DE COMPARTIR -->
-    <div class="banner" id="banner">  
-        <div class="banner-title"><i class="fas fa-heart" style="margin-right:8px;"></i> 🤭 ¡Pequeño favorcito!</div>  
-        <div class="banner-description">  
-            <p>Si no es mucho pedir, comparte esta página con todos tus contactos en Facebook, Messenger y WhatsApp. 📲</p>  
-            <p>Hazlo por la eficiencia, por la facilidad… o simplemente para apoyar a la infraestructura de Masitaprex y seguir mejorando juntos. 😜✨</p>  
-        </div>  
-        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt" style="margin-right:8px;"></i> Compartir ahora</a>  
-        <a href="#" class="close-modal" onclick="closeBanner()"><i class="fas fa-times" style="margin-right:8px;"></i> Quizás más tarde</a>  
-    </div>
-
-    <!-- CONTENIDO PRINCIPAL DE API KEY -->
+    <!-- CONTENIDO PRINCIPAL -->
     <div id="loading-indicator">
         <div class="spinner-ring"></div>
     </div>
     
     <div class="wrap" id="profile-container" style="display: none;">
         
-        <div class="profile-card gradient-border">
-            <div class="profile-header">
-                <div class="avatar">
-                    <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
-                </div>
-                <div>
-                    <h2>Hola, <span id="userName"></span></h2>
-                    <p style="font-size:14px;color:var(--text-muted);margin:0;">¡Bienvenido(a) a la infraestructura Masitaprex!</p>
-                </div>
-            </div>
-            <div class="profile-stats">
-                <div class="stat-item" id="infoCreditos">
-                    <span class="stat-value" id="creditos">0</span>
-                    <span class="stat-label">Créditos Restantes</span>
-                </div>
-                <div class="stat-item" id="infoIlimitado" style="display:none;">
-                    <span class="stat-value" id="diasRestantes">0</span>
-                    <span class="stat-label">Días restantes (Ilimitado)</span>
-                    <span style="font-size:11px;color:var(--text-muted);">Vence el: <span id="venceEl"></span></span>
-                </div>
-            </div>
-            <a href="planes" class="btn-primary">⚡ Recargar Créditos <i class="ri-wallet-3-line"></i></a>
+        <!-- Alerta de saldo bajo -->
+        <div class="low-balance-bar" id="lowBalanceBar">
+            <span>⚠️ Te quedan pocas consultas disponibles</span>
+            <a href="planes" class="cta-button-small">Recargar en 1 clic</a>
         </div>
 
-        <div class="section-card gradient-border">
-            <h3>🔑 Tu Token de Acceso</h3>
-            <p style="font-size:14px;color:var(--text-muted);">
-                Usa este token en el encabezado <code class="font-bold" style="color:var(--gold);">x-api-key</code> de tus solicitudes para acceder a los servicios de Infraestructura tecnológica Masitaprex APIs.
+        <!-- Tarjeta principal: Token + acciones rápidas -->
+        <div class="section-card gradient-border" style="margin-top:0;">
+            <h3 style="font-size:1.4rem;">🔑 Tu API está lista</h3>
+            <p style="color:var(--text-muted); margin:0; font-size:0.9rem;">
+                Copia tu token, prueba un endpoint y activa más créditos cuando lo necesites.
             </p>
             <div class="input-group">
                 <input type="text" id="api-key-field" readonly placeholder="ma••••••••••••••••••••••pe" />
@@ -1290,220 +837,103 @@
                     <i class="ri-file-copy-line"></i>
                 </button>
             </div>
-            <button class="btn-secondary" id="generate-api-key-btn">
-                <i class="ri-refresh-line"></i> 🔄 Generar Nuevo Token
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn-primary" id="test-endpoint-btn" style="flex:1; min-width:160px;">
+                    <i class="ri-flashlight-line"></i> Probar endpoint
+                </button>
+                <a href="API-Docs" class="btn-secondary" style="flex:1; min-width:160px; margin-top:0;">
+                    <i class="ri-book-3-line"></i> Ver documentación
+                </a>
+            </div>
+            <button class="btn-secondary" id="generate-api-key-btn" style="margin-top:6px;">
+                <i class="ri-refresh-line"></i> Generar nuevo token
             </button>
-            <a href="API-Docs" target="_blank" class="btn-secondary">
-                <i class="ri-book-3-line"></i> 📚 Ver documentación
-            </a>
         </div>
 
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-sparkling-2-line"></i>
-                ¡Felicidades por elegir la infraestructura Masitaprex! 🚀
+        <!-- Perfil + Saldo -->
+        <div class="profile-card gradient-border">
+            <div class="profile-header">
+                <div class="avatar">
+                    <img id="user-photo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiiQJitHw_3wF_08BjBXLFIZAD0QsIoUYhHWCVXLBAIBopJBGRu-t0a7ffnpm6mY8xo-xIWBDZy7onTdW9XH-V08NFckM2YZUbwTi6J3QtWw3Y5zUBMX6-23atheZZHrbURyEaO5UmwjyL1pE0-90bi68UCagd6WtLlslYraV-0cGpkJxvzjFpMYIfnTZag/s400/1000125345.png" alt="Foto de perfil" />
+                </div>
+                <div>
+                    <h2><span id="userName"></span></h2>
+                    <p style="font-size:14px;color:var(--text-muted);margin:0;">Tu panel de desarrollador</p>
+                </div>
             </div>
-            <p class="font-bold" style="color:var(--text-primary);">
-                Has tomado una de las mejores decisiones para tu proyecto.
-            </p>
-            <p>
-                Aquí encontrarás <strong style="color:var(--emerald);">servicios de Infraestructura tecnológica Masitaprex APIs listos para integrar</strong>, limpios, estables y con soporte constante.
-                Tu desarrollo ahora será más seguro, más estable y con resultados profesionales.
-            </p>
             
-            <div class="legal-warning">
-                <div class="warning-title">
-                    ⚠️ Aviso Importante
-                </div>
-                <div class="warning-content">
-                    Somos un <span class="emphasis-red">intermediario tecnológico</span> que facilita el acceso a la información. 
-                    <span class="emphasis-red">No somos los custodios, propietarios ni responsables directos de las APIs</span> de las entidades públicas o privadas. 
-                    Consulta nuestro <a href="disclaimer-apis">Aviso Legal y Descargo de Responsabilidad</a>.
-                </div>
+            <div class="saldo-block">
+                <div class="saldo-titulo">Saldo disponible</div>
+                <div class="saldo-monto" id="creditosDisplay">0</div>
+                <div class="saldo-estimacion" id="estimacionConsultas">—</div>
             </div>
+            
+            <a href="planes" class="btn-primary" style="margin-top:8px;">⚡ Recargar créditos</a>
         </div>
 
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-lightbulb-line"></i>
-                💡 Sobre el Consumo de Créditos
-            </div>
-            <p>
-                Recuerda que cada servicio de Infraestructura tecnológica Masitaprex APIs tiene su propio consumo de créditos.
-            </p>
-            <p class="font-bold" style="color:var(--emerald);">
-                👉 El consumo puede ser gestionado de forma independiente según las necesidades de tu sistema.
-            </p>
-            <div class="text-container">
-                <div class="text-container-header">
-                    ⚙️ Gestión del Consumo:
-                </div>
-                <p style="color:var(--text-primary);">
-                    Cada servicio tiene un consumo de créditos definido. Puedes gestionar el uso de las APIs según las necesidades de tu sistema. Masitaprex proporciona infraestructura tecnológica para procesamiento de datos.
-                </p>
-            </div>
-        </div>
-
+        <!-- Tabla de consumo -->
         <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-database-line"></i>
-                💳 Tabla de Créditos por Servicio
+            <div class="section-header">
+                <h3>💳 Consumo por servicio</h3>
             </div>
             <div class="table-scroll">
                 <table class="credit-table">
                     <thead>
-                        <tr><th>🔧 Servicio de Infraestructura</th><th>💰 Créditos</th><th>📝 Descripción</th></tr>
+                        <tr><th>Servicio</th><th>Créditos</th><th>Descripción</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td><strong>Consulta RENIEC por DNI</strong></td><td>7</td><td>Infraestructura tecnológica para acceso a datos básicos de identificación</td></tr>
-                        <tr><td><strong>Telefonía por Documento</strong></td><td>9</td><td>Procesamiento de consultas a registros telefónicos por documento</td></tr>
-                        <tr><td><strong>Telefonía por Número</strong></td><td>8</td><td>Servicio de consulta inversa de titularidad telefónica</td></tr>
-                        <tr><td><strong>Datos SUNARP - Propietario/Vehiculo</strong></td><td>8</td><td>Infraestructura tecnológica para consulta de registros vehiculares</td></tr>
-                        <tr><td><strong>SUNAT por RUC</strong></td><td>6</td><td>Procesamiento de datos fiscales empresariales</td></tr>
-                        <tr><td><strong>SUNAT por Razón Social</strong></td><td>5</td><td>Servicio de búsqueda empresarial por nombre</td></tr>
-                        <tr><td><strong>Empresas donde figura la persona</strong></td><td>4</td><td>Infraestructura tecnológica para consulta de vinculaciones empresariales</td></tr>
-                        <tr><td><strong>Matrimonios Registrados</strong></td><td>6</td><td>Procesamiento de registros de estado civil</td></tr>
-                        <tr><td><strong>Buscar DNI por Nombres y Apellidos</strong></td><td>5</td><td>Servicio de búsqueda inversa por datos nominales</td></tr>
-                        <tr><td><strong>Buscar Venezolanos por Nombres</strong></td><td>5</td><td>Infraestructura tecnológica para consultas de personas venezolanas</td></tr>
-                        <tr><td><strong>Consulta por Cédula Venezolana</strong></td><td>5</td><td>Procesamiento de consultas por documento venezolano</td></tr>
+                        <tr><td><strong>RENIEC por DNI</strong></td><td>7</td><td>Datos básicos de identificación</td></tr>
+                        <tr><td><strong>Telefonía por Documento</strong></td><td>9</td><td>Registros telefónicos asociados</td></tr>
+                        <tr><td><strong>Telefonía por Número</strong></td><td>8</td><td>Consulta inversa de titularidad</td></tr>
+                        <tr><td><strong>SUNARP - Vehicular</strong></td><td>8</td><td>Registros vehiculares</td></tr>
+                        <tr><td><strong>SUNAT por RUC</strong></td><td>6</td><td>Datos fiscales empresariales</td></tr>
+                        <tr><td><strong>SUNAT por Razón Social</strong></td><td>5</td><td>Búsqueda empresarial</td></tr>
+                        <tr><td><strong>Empresas donde figura</strong></td><td>4</td><td>Vinculaciones empresariales</td></tr>
+                        <tr><td><strong>Matrimonios Registrados</strong></td><td>6</td><td>Estado civil</td></tr>
+                        <tr><td><strong>Buscar DNI por Nombres</strong></td><td>5</td><td>Búsqueda inversa</td></tr>
                     </tbody>
-                    <tfoot>
-                        <tr><td colspan="3" style="text-align: center; font-size: 0.9em; padding-top: 15px; color: var(--text-muted);"><strong>Nota:</strong> Los créditos cubren exclusivamente costos de Infraestructura tecnológica, procesamiento, servidores y mantenimiento del servicio.</td></tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
 
-        <div class="api-recommendation">  
-            <h4><i class="ri-tools-line"></i> ⚙️ Infraestructura tecnológica Masitaprex APIs Optimizada</h4>  
-            <p>Accede a servicios de datos mediante nuestra Infraestructura tecnológica segura y eficiente.</p>  
-            <p>Centraliza tus consultas desde una sola plataforma confiable.</p>  
-            <code>URL Base: https://api.masitaprex.com/</code>  
-            <p>Soluciones ligeras, rápidas y listas para integrarse en tus sistemas.</p>  
-            <p>💡 Diseñado para desarrolladores que buscan rendimiento y simplicidad.</p>  
-        </div>
-        
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-rocket-line"></i>
-                🧩 11 Servicios de Infraestructura tecnológica Masitaprex APIs Listos para Ti
+        <!-- Legal en acordeón -->
+        <details class="legal-accordion">
+            <summary><i class="ri-file-text-line"></i> Aviso legal y descargo de responsabilidad</summary>
+            <div class="legal-content">
+                <p>Somos un intermediario tecnológico que facilita el acceso a la información. No somos custodios ni responsables directos de las APIs de las entidades públicas o privadas.</p>
+                <p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento y mantenimiento. Consulte nuestros <a href="disclaimer-apis">términos completos</a>.</p>
             </div>
-            <p>
-                Todos nuestros servicios están <strong style="color:var(--emerald);">listos para consumir</strong>, probados y optimizados para máxima eficiencia.
-            </p>
-            <p>
-                Si eres desarrollador y tu proyecto está creciendo, te recomendamos elegir la opción de créditos, ya que <strong style="color:var(--gold);">no tienen fecha de vencimiento</strong> y puedes usarlos cuando desees.
-            </p>
-        </div>
-
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-money-dollar-circle-line"></i>
-                💰 Paquetes Disponibles
-            </div>
-            <div class="package-grid">
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/10</div><div class="credits">60 ⚡ CRÉDITOS</div><div class="benefit">Ideal para pruebas o proyectos pequeños</div></div>
-                </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/20</div><div class="credits">125 🚀 CRÉDITOS</div><div class="benefit">Buen equilibrio entre costo y rendimiento</div></div>
-                </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/50</div><div class="credits">330 💎 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--emerald);">Opción inteligente y más rentable</div></div>
-                </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/100</div><div class="credits">700 👑 CRÉDITOS</div><div class="benefit">Plan avanzado con excelente retorno</div></div>
-                </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
-                    <div class="package-card"><div class="amount">S/200</div><div class="credits">1500 🔥 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold);">La mejor relación costo-beneficio</div></div>
-                </a>
-            </div>
-        </div>
-        
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-line-chart-line"></i>
-                📊 Comparativa de Ahorro por Paquete
-            </div>
-            <p>Paquete de S/10 (60 créditos) → cada consulta cuesta aprox. <strong>S/0.17</strong></p>
-            <p>Paquete de S/50 (330 créditos) → cada consulta cuesta aprox. <strong>S/0.15</strong> → <span class="font-bold" style="color: var(--emerald);">💰 13% de ahorro</span></p>
-            <p>Paquete de S/200 (1500 créditos) → cada consulta cuesta aprox. <strong>S/0.13</strong> → <span class="font-bold" style="color: var(--gold);">🔥 24% de ahorro</span></p>
-            <p class="font-bold" style="color:var(--emerald);">👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.</p>
-        </div>
-        
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-award-line"></i>
-                💎 Comparativa de Paquetes y Ahorro
-            </div>
-            <p class="font-bold" style="color: var(--text-primary);">🎯 Recomendación principal: Si realizas consultas con frecuencia, elige el paquete de <strong style="color:var(--emerald);">S/50 (330 créditos) o superior</strong>.</p>
-            <p>Pagas menos por cada crédito, obtienes más consultas por el mismo dinero, y además te regalamos <strong style="color:var(--gold);">3 créditos adicionales como bono especial 🎁</strong>.</p>
-
-            <div class="text-container-header" style="margin-top: 10px;">
-                <i class="ri-checkbox-circle-line"></i>
-                ✨ Ventajas exclusivas
-            </div>
-            <ul class="advantage-list">
-                <li><i class="ri-check-line"></i> Tus créditos <strong style="color:var(--emerald);">jamás caducan</strong>.</li>
-                <li><i class="ri-check-line"></i> Recibes regalos y bonos en cada compra.</li>
-                <li><i class="ri-check-line"></i> Puedes usar los créditos en cualquier tipo de consulta (RENIEC, antecedentes, C4, etc.).</li>
-                <li><i class="ri-check-line"></i> Acceso prioritario a nuevos servicios de Infraestructura tecnológica Masitaprex APIs y soporte técnico directo.</li>
-            </ul>
-            <p class="font-bold text-center" style="margin-top: 15px; color: var(--text-primary);">💬 En pocas palabras: Mientras más grande sea tu paquete, menos pagas por consulta y más te ahorras a largo plazo.</p>
-            <p class="font-bold text-center" style="color:var(--gold); font-size: 18px;">🔥 La infraestructura Masitaprex APIs premia a los desarrolladores inteligentes.</p>
-        </div>
-
-        <div class="section-card gradient-border">
-            <div class="text-container-header">
-                <i class="ri-global-line"></i>
-                🌐 Planes Ilimitados (para proyectos con alto tráfico)
-            </div>
-            <p>Si tu app ya tiene muchos usuarios o tráfico constante, el <strong style="color:var(--emerald);">plan ilimitado</strong> es una excelente opción.</p>
-            <table class="unlimited-table">
-                <thead><tr><th>DURACIÓN</th><th>PRECIO SUGERIDO</th><th>AHORRO ESTIMADO</th></tr></thead>
-                <tbody>
-                    <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
-                    <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
-                    <tr><td>1 mes</td><td class="price">S/120</td><td>Ahorro S/20</td></tr>
-                    <tr><td>1 mes y medio</td><td class="price">S/165</td><td>Ahorro S/30</td></tr>
-                    <tr><td>2 meses</td><td class="price">S/210</td><td class="saving">Ahorro S/50</td></tr>
-                    <tr><td>2 meses y medio</td><td class="price">S/300</td><td>Ahorro S/37</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="info-section gradient-border">
-            <div class="text-container-header">
-                <i class="ri-emotion-line"></i>
-                ✨ Conclusión:
-            </div>
-            <p>La infraestructura Masitaprex APIs te brinda una <strong style="color:var(--emerald);">experiencia completa, confiable y escalable</strong> al actuar como <strong style="color:var(--gold);">plataforma tecnológica</strong> de diversos servicios de información para que tu proyecto pueda crecer. Queremos que disfrutes cada integración, que sientas que tu proyecto avanza, y que digas con orgullo:</p>
-            <blockquote class="quote">Elegí la infraestructura Masitaprex APIs… y fue la mejor decisión. 💚</blockquote>
-        </div>
+        </details>
 
         <footer>
-            <h3>Síguenos en nuestras redes sociales</h3>
+            <h3>Síguenos</h3>
             <div class="social-icons">
                 <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-square"></i></a>
                 <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank" aria-label="YouTube"><i class="fab fa-youtube-square"></i></a>
             </div>
-            <p class="mb-2">Infraestructura Masitaprex APIs © 2024 - Todos los derechos reservados</p>
-            <p class="mb-2">
-                <a href="terminos-condiciones">Términos y condiciones</a> |
-                <a href="politica-privacidad">Política de privacidad</a> |
-                <a href="aviso-legal-peliprex">Aviso legal peliPREX</a> |
-                <a href="disclaimer-apis">Aviso legal apis</a> |
-                <a href="disclaimer-apis">Descargo de responsabilidad</a>
+            <p>Infraestructura Masitaprex APIs © 2024 - Todos los derechos reservados</p>
+            <p>
+                <a href="terminos-condiciones">Términos</a> ·
+                <a href="politica-privacidad">Privacidad</a> ·
+                <a href="disclaimer-apis">Aviso legal APIs</a>
             </p>
-            <p>La información es proporcionada por fuentes públicas externas. El uso de estos datos es responsabilidad exclusiva del cliente según Ley 29733.</p>
-            <p>Los créditos cubren exclusivamente costos de infraestructura, procesamiento de datos y mantenimiento técnico.</p>
         </footer>
-
     </div>
 
-    <div id="saveConfirmModal" class="modal">
-        <div class="modal-content gradient-border">
-            <p id="saveConfirmMessage"></p>
+    <!-- Modal de prueba de endpoint -->
+    <div class="test-curl-modal" id="testCurlModal">
+        <div class="modal-content">
+            <h4 style="color:var(--emerald); margin-bottom:12px;">🧪 Probar tu API Key</h4>
+            <p style="font-size:0.9rem; color:var(--text-muted);">Ejecuta este comando en tu terminal para verificar que tu token funciona:</p>
+            <pre id="curlSnippet">curl -H "x-api-key: TU_TOKEN" https://api.masitaprex.com/test</pre>
+            <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+                <button class="btn-primary" id="copyCurlBtn" style="width:auto; padding:10px 20px;">
+                    <i class="ri-file-copy-line"></i> Copiar comando
+                </button>
+                <button class="btn-secondary" id="closeCurlModal" style="width:auto; margin-top:0; padding:10px 20px;">
+                    Cerrar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1511,14 +941,12 @@
     <div class="chat-bubble" onclick="goToWhatsApp()">
         <i class="fab fa-whatsapp"></i>
     </div>
-
     <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
 
     <script>
-        // Inicializar iconos de Lucide
         lucide.createIcons();
 
-        // Control del menú lateral
+        // Menú lateral
         const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -1545,74 +973,33 @@
         menuToggle.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        const navLinks = sidebar.querySelectorAll('nav a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                toggleMenu();
-            });
+        sidebar.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', () => toggleMenu());
         });
 
-        // Botón de compartir
-        document.getElementById('share-btn').addEventListener('click', function() {
-            document.getElementById('banner').style.display = 'flex';
-        });
-
-        function sharePage() {  
-            const url = "https://masitaprexv3.fly.dev/";  
-            const title = "¿Sabías que puedes consultar tu DNI, RUC y más con total seguridad? Descubre cómo con la infraestructura de Masitaprex APIs";  
-            const text = "¡Hey! Te recomiendo la infraestructura Masitaprex APIs, súper útil para consultar DNI, RUC, placas y más. ¡Pruébala!";  
-
-            if (navigator.share) {  
-                navigator.share({ title, text, url })  
-                    .catch(error => console.log("Error al compartir:", error));  
-            } else {  
-                window.open(url, "_blank");  
-            }  
-        }  
-
-        function closeBanner() {  
-            document.getElementById('banner').style.display = 'none';  
-        }
-
-        // WhatsApp Bubble
+        // WhatsApp
         const message = "¡Hola, ¿Necesitas ayuda?!";
         const chatText = document.getElementById("chatText");
         let index = 0;
-
         function typeWriter() {
             if (index < message.length) {
                 chatText.textContent += message.charAt(index);
                 index++;
                 setTimeout(typeWriter, 100);
             } else {
-                setTimeout(() => {
-                    chatText.classList.remove('show');
-                    chatText.classList.add('hide');
-                    setTimeout(resetAndRestart, 1000);
-                }, 2500);
+                setTimeout(() => { chatText.classList.remove('show'); chatText.classList.add('hide'); setTimeout(resetAndRestart, 1000); }, 2500);
             }
         }
-
         function resetAndRestart() {
             chatText.textContent = "";
             index = 0;
             chatText.classList.remove('hide');
-            setTimeout(() => {
-                chatText.classList.add('show');
-                typeWriter();
-            }, 500);
+            setTimeout(() => { chatText.classList.add('show'); typeWriter(); }, 500);
         }
-
         function goToWhatsApp() {
-            const phoneNumber = '51944950234';
-            const prefilledMessage = encodeURIComponent('Hola, necesito ayuda en la web sección api-key.');
-            window.open(`https://wa.me/${phoneNumber}?text=${prefilledMessage}`, '_blank');
+            window.open(`https://wa.me/51944950234?text=${encodeURIComponent('Hola, necesito ayuda en la sección API Key.')}`, '_blank');
         }
-
-        setTimeout(() => {
-            chatText.classList.add('show');
-            typeWriter();
-        }, 1000);
+        setTimeout(() => { chatText.classList.add('show'); typeWriter(); }, 1000);
     </script>
 
     <script type="module">
@@ -1649,112 +1036,141 @@
 
                 const profileContainer = document.getElementById('profile-container');
                 const loadingIndicator = document.getElementById('loading-indicator');
-                const saveConfirmModal = document.getElementById('saveConfirmModal');
-                const saveConfirmMessage = document.getElementById('saveConfirmMessage');
                 const userNameSpan = document.getElementById('userName');
-                const infoCreditosDiv = document.getElementById('infoCreditos');
-                const creditosSpan = document.getElementById('creditos');
-                const infoIlimitadoDiv = document.getElementById('infoIlimitado');
-                const venceElSpan = document.getElementById('venceEl');
-                const diasRestantesSpan = document.getElementById('diasRestantes');
+                const creditosDisplay = document.getElementById('creditosDisplay');
+                const estimacionConsultas = document.getElementById('estimacionConsultas');
                 const apiKeyField = document.getElementById('api-key-field');
                 const userPhoto = document.getElementById('user-photo');
+                const lowBalanceBar = document.getElementById('lowBalanceBar');
+
+                const testCurlModal = document.getElementById('testCurlModal');
+                const curlSnippet = document.getElementById('curlSnippet');
+                const copyCurlBtn = document.getElementById('copyCurlBtn');
+                const closeCurlModal = document.getElementById('closeCurlModal');
 
                 let currentUser = null;
 
-                function showLoadingIndicator() {
+                function showLoading() {
                     loadingIndicator.style.display = 'flex';
                     profileContainer.style.display = 'none';
                 }
-
-                function hideLoadingIndicator() {
+                function hideLoading() {
                     loadingIndicator.style.display = 'none';
                     profileContainer.style.display = 'block';
                 }
 
-                function showFeedbackModal(msg, isError = false) {
-                    saveConfirmMessage.textContent = msg;
-                    const modalContent = saveConfirmModal.querySelector('.modal-content');
-                    modalContent.className = 'modal-content ' + (isError ? 'error' : 'success');
-                    saveConfirmModal.classList.add('active');
-                    setTimeout(() => {
-                        saveConfirmModal.classList.remove('active');
-                    }, 3000);
+                function maskApiKey(key) {
+                    if (!key || key.length < 8) return 'ma••••••••••••••••pe';
+                    return key.substring(0,2) + '•'.repeat(Math.min(key.length-4, 18)) + key.substring(key.length-2);
                 }
 
-                // Función para mostrar máscara parcial del API Key
-                function maskApiKey(key) {
-                    if (!key || key.length < 8) {
-                        return 'ma••••••••••••••••pe';
+                function updateLowBalanceWarning(creditos) {
+                    if (creditos < 20) {
+                        lowBalanceBar.style.display = 'flex';
+                    } else {
+                        lowBalanceBar.style.display = 'none';
                     }
-                    const firstChars = key.substring(0, 2);
-                    const lastChars = key.substring(key.length - 2);
-                    const middleLength = key.length - 4;
-                    const maskedMiddle = '•'.repeat(Math.min(middleLength, 18));
-                    return firstChars + maskedMiddle + lastChars;
+                }
+
+                function updateConsultasEstimadas(creditos) {
+                    const minConsulta = 4; // menor consumo (empresas)
+                    const maxConsulta = 9; // mayor consumo (telefonía por doc)
+                    const minConsultas = Math.floor(creditos / maxConsulta);
+                    const maxConsultas = Math.floor(creditos / minConsulta);
+                    if (creditos > 0) {
+                        estimacionConsultas.textContent = `Entre ${minConsultas} y ${maxConsultas} consultas según el servicio`;
+                    } else {
+                        estimacionConsultas.textContent = 'Recarga para empezar a consultar';
+                    }
                 }
 
                 async function generateNewApiKey() {
-                    if (!currentUser) {
-                        showFeedbackModal('No hay usuario autenticado.', true);
-                        return;
-                    }
-                    showLoadingIndicator();
+                    if (!currentUser) return;
+                    showLoading();
                     try {
                         const newApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
                                                .map(b => b.toString(16).padStart(2, '0')).join('');
-                        
                         const userRef = doc(db, "usuarios", currentUser.uid);
                         await setDoc(userRef, { apiKey: newApiKey }, { merge: true });
-
                         tempApiKey = newApiKey;
                         apiKeyField.value = maskApiKey(newApiKey);
-                        
-                        showFeedbackModal('¡Nuevo token de acceso generado exitosamente!');
+                        showFeedback('Nuevo token generado exitosamente.');
                     } catch (e) {
-                        console.error("Error al generar el token:", e);
-                        showFeedbackModal('Error al generar el token. Intenta de nuevo.', true);
+                        console.error(e);
+                        showFeedback('Error al generar token.', true);
                     } finally {
-                        hideLoadingIndicator();
+                        hideLoading();
                     }
                 }
 
                 function copyApiKey() {
                     if (!tempApiKey) {
-                        showFeedbackModal('No hay token para copiar.', true);
+                        showFeedback('No hay token para copiar.', true);
                         return;
                     }
                     if (navigator.clipboard) {
                         navigator.clipboard.writeText(tempApiKey)
-                            .then(() => showFeedbackModal('✅ Token copiado al portapapeles!'))
-                            .catch(err => fallbackCopyTextToClipboard(tempApiKey));
+                            .then(() => showFeedback('✅ Token copiado al portapapeles'))
+                            .catch(() => fallbackCopy(tempApiKey));
                     } else {
-                        fallbackCopyTextToClipboard(tempApiKey);
+                        fallbackCopy(tempApiKey);
                     }
                 }
 
-                function fallbackCopyTextToClipboard(text) {
-                    const tempInput = document.createElement('textarea');
-                    tempInput.value = text;
-                    tempInput.style.position = 'fixed';
-                    tempInput.style.opacity = '0';
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
+                function fallbackCopy(text) {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
                     try {
-                        const successful = document.execCommand('copy');
-                        if (successful) showFeedbackModal('✅ Token copiado al portapapeles!');
-                        else showFeedbackModal('No se pudo copiar el token.', true);
+                        document.execCommand('copy');
+                        showFeedback('✅ Token copiado');
                     } catch (err) {
-                        showFeedbackModal('No se pudo copiar el token.', true);
+                        showFeedback('No se pudo copiar.', true);
                     }
-                    document.body.removeChild(tempInput);
+                    document.body.removeChild(ta);
                 }
+
+                function showFeedback(msg, isError = false) {
+                    // Simple feedback usando un modal o toast. Usamos el modal existente pero simplificado.
+                    const modal = document.createElement('div');
+                    modal.className = 'modal active';
+                    modal.innerHTML = `<div class="modal-content ${isError ? 'error' : 'success'}"><p>${msg}</p></div>`;
+                    document.body.appendChild(modal);
+                    setTimeout(() => { modal.remove(); }, 2500);
+                }
+
+                // Probar endpoint: abrir modal con curl y token real
+                function openTestModal() {
+                    if (!tempApiKey) {
+                        showFeedback('Primero copia o genera tu token.', true);
+                        return;
+                    }
+                    curlSnippet.textContent = `curl -H "x-api-key: ${tempApiKey}" https://api.masitaprex.com/test`;
+                    testCurlModal.classList.add('active');
+                }
+
+                copyCurlBtn.addEventListener('click', () => {
+                    const cmd = curlSnippet.textContent;
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(cmd).then(() => showFeedback('Comando copiado'));
+                    } else {
+                        fallbackCopy(cmd);
+                    }
+                });
+
+                closeCurlModal.addEventListener('click', () => {
+                    testCurlModal.classList.remove('active');
+                });
+
+                document.getElementById('test-endpoint-btn').addEventListener('click', openTestModal);
 
                 async function loadProfileData() {
-                    showLoadingIndicator();
+                    showLoading();
                     if (!currentUser) {
                         ReturnConfig.redirectToLogin();
-                        hideLoadingIndicator();
+                        hideLoading();
                         return;
                     }
                     try {
@@ -1767,7 +1183,6 @@
                             const defaultName = currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'Usuario');
                             const initialApiKey = Array.from(crypto.getRandomValues(new Uint8Array(20)))
                                                    .map(b => b.toString(16).padStart(2, '0')).join('');
-
                             userData = {
                                 name: defaultName,
                                 email: currentUser.email || '',
@@ -1781,42 +1196,24 @@
 
                         userNameSpan.textContent = userData.name || 'Usuario';
                         if(currentUser.photoURL) userPhoto.src = currentUser.photoURL;
-                        
-                        infoCreditosDiv.style.display = 'none';
-                        infoIlimitadoDiv.style.display = 'none';
 
-                        if (userData.tipoPlan === "creditos") {
-                            infoCreditosDiv.style.display = "flex";
-                            creditosSpan.textContent = userData.creditos ? userData.creditos.toLocaleString('es-PE') : '0';
-                        } else if (userData.tipoPlan === "ilimitado") {
-                            const fechaActivacion = userData.fechaActivacion ? userData.fechaActivacion.toDate() : null;
-                            const duracion = userData.duracionDias || 0;
-
-                            if (fechaActivacion) {
-                                const fechaFin = new Date(fechaActivacion);
-                                fechaFin.setDate(fechaFin.getDate() + duracion);
-                                const hoy = new Date();
-                                const diffMs = fechaFin - hoy;
-                                const diasRestantes = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-
-                                infoIlimitadoDiv.style.display = "flex";
-                                venceElSpan.textContent = fechaFin.toLocaleDateString();
-                                diasRestantesSpan.textContent = diasRestantes;
-                            }
-                        }
+                        let creditos = userData.creditos || 0;
+                        creditosDisplay.textContent = creditos.toLocaleString('es-PE') + ' ⚡';
+                        updateConsultasEstimadas(creditos);
+                        updateLowBalanceWarning(creditos);
 
                         if (userData.apiKey) {
                             tempApiKey = userData.apiKey;
                             apiKeyField.value = maskApiKey(userData.apiKey);
                         } else {
-                            generateNewApiKey();
+                            await generateNewApiKey();
                         }
 
                     } catch (e) {
-                        console.error("Error al cargar el perfil:", e);
-                        showFeedbackModal("Error al cargar los datos del perfil.", true);
+                        console.error(e);
+                        showFeedback("Error al cargar perfil.", true);
                     } finally {
-                        hideLoadingIndicator();
+                        hideLoading();
                     }
                 }
 
