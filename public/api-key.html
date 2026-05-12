@@ -869,7 +869,8 @@
             margin-top: 6px;
         }
         
-        .unlimited-table {
+        /* Nueva tabla para plan intensivo */
+        .intensive-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
@@ -877,31 +878,42 @@
             overflow: hidden;
             border: 1px solid var(--border-subtle);
         }
-        .unlimited-table th, .unlimited-table td {
+        .intensive-table th, .intensive-table td {
             padding: 12px;
             text-align: center;
             font-size: 13px;
         }
-        .unlimited-table thead th {
+        .intensive-table thead th {
             background: var(--navy-surface);
             color: var(--text-primary);
             font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .unlimited-table tbody tr {
+        .intensive-table tbody tr {
             transition: background 0.2s ease;
+            cursor: pointer;
         }
-        .unlimited-table tbody tr:hover {
+        .intensive-table tbody tr:hover {
             background: rgba(0,200,83,0.05);
         }
-        .unlimited-table tbody td {
+        .intensive-table tbody td {
             border-bottom: 1px solid var(--border-subtle);
             font-weight: 500;
             color: var(--text-muted);
         }
-        .unlimited-table tbody tr:last-child td { border-bottom: none; }
-        .unlimited-table .price { font-weight: 900; color: var(--emerald); }
-        .unlimited-table .saving { color: var(--gold); font-weight: 800; }
-        
+        .intensive-table tbody tr:last-child td { border-bottom: none; }
+        .intensive-table .plan-link {
+            color: var(--emerald);
+            text-decoration: none;
+            font-weight: 700;
+            display: block;
+        }
+        .intensive-table .plan-link:hover {
+            color: var(--emerald-light);
+            text-decoration: underline;
+        }
+
         .quote {
             background: linear-gradient(90deg, rgba(0,200,83,0.08), rgba(255,215,0,0.04));
             border-left: 4px solid var(--emerald);
@@ -1281,26 +1293,26 @@
             <p>💡 Diseñado para desarrolladores que buscan rendimiento y simplicidad.</p>  
         </div>
         
-        <!-- Paquetes Disponibles -->
+        <!-- Paquetes de Créditos -->
         <div class="section-card gradient-border">
             <div class="text-container-header">
                 <i class="ri-money-dollar-circle-line"></i>
                 💰 Paquetes de Créditos
             </div>
-            <div class="package-grid">
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%2060%20Cr%C3%A9ditos%20De%2010%20soles%20" target="_blank">
+            <div class="package-grid" id="creditsGrid">
+                <a id="credit-link-10" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/10</div><div class="credits">60 ⚡ CRÉDITOS</div><div class="benefit">Ideal para pruebas o proyectos pequeños</div></div>
                 </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20125%20Cr%C3%A9ditos%20De%2020%20soles%20" target="_blank">
+                <a id="credit-link-20" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/20</div><div class="credits">125 🚀 CRÉDITOS</div><div class="benefit">Buen equilibrio entre costo y rendimiento</div></div>
                 </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20330%20Cr%C3%A9ditos%20De%2050%20soles%20" target="_blank">
+                <a id="credit-link-50" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/50</div><div class="credits">330 💎 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--emerald);">Opción inteligente y más rentable</div></div>
                 </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%20700%20Cr%C3%A9ditos%20De%20100%20soles%20" target="_blank">
+                <a id="credit-link-100" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/100</div><div class="credits">700 👑 CRÉDITOS</div><div class="benefit">Plan avanzado con excelente retorno</div></div>
                 </a>
-                <a href="https://wa.me/51944950234?text=!Hola!%20Quiero%20comprar%20el%20paquete%20de%201500%20Cr%C3%A9ditos%20De%20200%20soles%20" target="_blank">
+                <a id="credit-link-200" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/200</div><div class="credits">1500 🔥 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold);">La mejor relación costo-beneficio</div></div>
                 </a>
             </div>
@@ -1318,24 +1330,44 @@
             <p class="font-bold" style="color:var(--emerald);">👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.</p>
         </div>
         
-        <!-- Planes Ilimitados -->
+        <!-- Plan intensivo - Ideal si consultas a diario -->
         <div class="section-card gradient-border">
             <div class="text-container-header">
                 <i class="ri-global-line"></i>
-                🌐 Planes Ilimitados (para proyectos con alto tráfico)
+                🌐 Plan intensivo – Ideal si consultas a diario
             </div>
-            <p>Si tu app ya tiene muchos usuarios o tráfico constante, el <strong style="color:var(--emerald);">plan ilimitado</strong> es una excelente opción.</p>
-            <table class="unlimited-table">
-                <thead><tr><th>DURACIÓN</th><th>PRECIO SUGERIDO</th><th>AHORRO ESTIMADO</th></tr></thead>
+            <p style="font-size:14px; color:var(--text-muted);">Uso humano normal sujeto a política de uso razonable. Sin contar créditos.</p>
+            <table class="intensive-table">
+                <thead>
+                    <tr><th>PLAN</th><th>PRECIO (S/.)</th><th>UMBRAL DE SEGURIDAD</th></tr>
+                </thead>
                 <tbody>
-                    <tr><td>7 días</td><td class="price">S/60</td><td>—</td></tr>
-                    <tr><td>15 días</td><td class="price">S/80</td><td>Ahorro S/10</td></tr>
-                    <tr><td>1 mes</td><td class="price">S/120</td><td>Ahorro S/20</td></tr>
-                    <tr><td>1 mes y medio</td><td class="price">S/165</td><td>Ahorro S/30</td></tr>
-                    <tr><td>2 meses</td><td class="price">S/210</td><td class="saving">Ahorro S/50</td></tr>
-                    <tr><td>2 meses y medio</td><td class="price">S/300</td><td>Ahorro S/37</td></tr>
+                    <tr id="intensive-row-7">
+                        <td><a href="#" class="plan-link" id="intensive-link-7">7 días</a></td>
+                        <td class="price">S/80</td>
+                        <td>1,000 consultas</td>
+                    </tr>
+                    <tr id="intensive-row-15">
+                        <td><a href="#" class="plan-link" id="intensive-link-15">15 días</a></td>
+                        <td class="price">S/120</td>
+                        <td>2,500 consultas</td>
+                    </tr>
+                    <tr id="intensive-row-30">
+                        <td><a href="#" class="plan-link" id="intensive-link-30">30 días</a></td>
+                        <td class="price">S/180</td>
+                        <td>5,000 consultas</td>
+                    </tr>
+                    <tr id="intensive-row-60">
+                        <td><a href="#" class="plan-link" id="intensive-link-60">60 días</a></td>
+                        <td class="price">S/320</td>
+                        <td>12,000 consultas</td>
+                    </tr>
                 </tbody>
             </table>
+            <div style="padding: 16px 14px; background: rgba(0,0,0,0.1); margin-top: 12px; border-radius: var(--radius-sm);">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"><strong>Nota de Seguridad:</strong> Nuestros planes intensivos están diseñados para el uso humano y profesional estándar. Para garantizar la estabilidad del ecosistema Masitaprex y evitar tráfico abusivo o extracción masiva de datos, cada plan cuenta con un umbral de seguridad de consultas. El uso debe ajustarse a la <a href="politica.compras.html" style="color: var(--emerald-light); text-decoration: underline;">política de uso razonable</a>.</p>
+                <p style="font-size: 0.85rem; color: var(--emerald-light);"><i class="fas fa-bolt"></i> Si tu proyecto requiere integración de alto volumen o consultas masivas por segundo, <a href="#" onclick="goToWhatsApp(); return false;" style="color: var(--emerald-light); text-decoration: underline; font-weight: bold;">contáctanos por WhatsApp</a> para habilitar un <strong>Plan Dedicado de Alta Disponibilidad</strong>.</p>
+            </div>
         </div>
 
         <!-- Legal en acordeón -->
@@ -1624,6 +1656,36 @@
                     }
                 }
 
+                // Función para actualizar todos los enlaces de pago con uid y email dinámicos
+                function updateCheckoutLinks(uid, email) {
+                    if (!uid || !email) return;
+
+                    // Paquetes de créditos
+                    const creditAmounts = [10, 20, 50, 100, 200];
+                    creditAmounts.forEach(amount => {
+                        const link = document.getElementById(`credit-link-${amount}`);
+                        if (link) {
+                            const desc = encodeURIComponent(`Créditos Masitaprex: ${amount === 10 ? '60' : amount === 20 ? '125' : amount === 50 ? '330' : amount === 100 ? '700' : '1500'} créditos`);
+                            link.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${encodeURIComponent(email)}&description=${desc}&tipoPlan=creditos`;
+                        }
+                    });
+
+                    // Planes intensivos
+                    const intensivePlans = [
+                        { days: 7, amount: 80, consultas: '1,000 consultas' },
+                        { days: 15, amount: 120, consultas: '2,500 consultas' },
+                        { days: 30, amount: 180, consultas: '5,000 consultas' },
+                        { days: 60, amount: 320, consultas: '12,000 consultas' }
+                    ];
+                    intensivePlans.forEach(plan => {
+                        const link = document.getElementById(`intensive-link-${plan.days}`);
+                        if (link) {
+                            const desc = encodeURIComponent(`Plan Intensivo: ${plan.days} días — ${plan.consultas}`);
+                            link.href = `/checkout.html?amount=${plan.amount}&uid=${uid}&email=${encodeURIComponent(email)}&description=${desc}&tipoPlan=intensivo`;
+                        }
+                    });
+                }
+
                 async function loadProfileData() {
                     showLoadingIndicator();
                     if (!currentUser) {
@@ -1659,12 +1721,15 @@
                         infoCreditosDiv.style.display = 'none';
                         infoIlimitadoDiv.style.display = 'none';
 
+                        // Actualizar enlaces de pago con datos reales
+                        const userEmail = currentUser.email || userData.email || '';
+                        updateCheckoutLinks(currentUser.uid, userEmail);
+
                         if (userData.tipoPlan === "creditos") {
                             infoCreditosDiv.style.display = "flex";
                             const creditos = userData.creditos || 0;
                             creditosSpan.textContent = creditos.toLocaleString('es-PE');
                             
-                            // Estimar consultas posibles
                             if (creditos > 0) {
                                 const minConsultas = Math.floor(creditos / 9);
                                 const maxConsultas = Math.floor(creditos / 4);
