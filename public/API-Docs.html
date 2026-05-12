@@ -43,7 +43,7 @@
             --color-secondary: #D1FAE5;
             --color-text-primary: #111827;
             --color-text-light: #4B5563;
-            --color-bg: #F9FAFB;
+            --color-bg: #1e293b;
             --color-white: #FFFFFF;
             --color-code-bg: #eef;
             --color-shadow: rgba(0, 0, 0, 0.2);
@@ -720,7 +720,6 @@
             background: linear-gradient(135deg, #1e293b, #0f172a);
             color: #cbd5e1;
             padding: 40px 0;
-            margin-top: 60px;
         }
         .footer-content {
             display: grid;
@@ -1002,8 +1001,8 @@
             <h1>Integra consultas de DNI, RUC, telefonía y más en minutos</h1>
             <p>Obtén tu API Key, prueba endpoints reales y escala con créditos o plan dedicado.</p>
             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <a href="api-key" class="btn btn-primary" style="background: #FFD700; color: #000;">Obtener API Key</a>
-                <a href="planes" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white;">Ver precios</a>
+                <a href="api-key" onclick="window.location.href='api-key'; return false;" class="btn btn-primary" style="background: #FFD700; color: #000;">Obtener API Key</a>
+                <a href="planes" onclick="window.location.href='planes'; return false;" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white;">Ver precios</a>
             </div>
         </div>
     </header>
