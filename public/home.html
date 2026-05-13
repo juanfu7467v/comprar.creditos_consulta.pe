@@ -621,34 +621,40 @@
       text-overflow: ellipsis;
     }
 
-    /* ═══ SKELETON SUGERENCIAS ═══ */
+    /* Skeleton suggestions */
+    @keyframes skeletonShimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
     .skeleton-suggestion-card {
+      flex: 0 0 auto;
       width: 160px;
-      flex-shrink: 0;
-      cursor: default;
-      pointer-events: none;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
     }
     .skeleton-suggestion-poster {
       width: 100%;
       height: 240px;
-      border-radius: 12px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s infinite;
+      background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0.06) 75%);
+      background-size: 800px 100%;
+      animation: skeletonShimmer 1.4s infinite linear;
     }
     .skeleton-suggestion-title {
-      width: 75%;
-      height: 13px;
-      margin-top: 8px;
-      margin-left: 8px;
-      border-radius: 4px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s infinite;
+      height: 14px;
+      margin: 10px 10px 4px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.13) 50%, rgba(255,255,255,0.06) 75%);
+      background-size: 800px 100%;
+      animation: skeletonShimmer 1.4s infinite linear;
     }
-    @keyframes skeleton-shimmer {
-      0%   { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+    .skeleton-suggestion-sub {
+      height: 10px;
+      margin: 0 24px 14px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 800px 100%;
+      animation: skeletonShimmer 1.4s infinite linear;
     }
 
     /* Footer */
@@ -948,7 +954,7 @@
     </div>
     <div class="suggestions">
       <h4>También podría gustarte</h4>
-      <div class="suggestions-row" id="suggestions-row"></div>
+      <div class="suggestions-row" id="suggestions-row" style="display:flex; overflow-x:auto; gap:14px;"></div>
     </div>
   </section>
 
@@ -1001,24 +1007,35 @@
   window.addEventListener('load',()=>setTimeout(()=>{ct.classList.add('show');typeChat();},1200));
 
   /* ═══ PELIPREX SUGERENCIAS ═══ */
-  const PELIPREX_BASE_URL = 'https://api.masitaprex.com/peliprex';
+  let PELIPREX_BASE_URL = '';
 
-  function safeImage(url) {
-    if (!url) return 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster+No+Disp.';
-    const baseTMDb = 'https://image.tmdb.org/t/p/';
-    if (url.startsWith(baseTMDb)) return url.replace('/w500', '/original');
-    return url.startsWith('http') ? url : 'https://via.placeholder.com/500x750/111111/FFFFFF?text=Póster';
+  async function loadPeliprexConfig() {
+    try {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      if (cfg && cfg.peliprexBaseUrl) PELIPREX_BASE_URL = cfg.peliprexBaseUrl;
+    } catch (e) { /* usa URL relativa */ }
   }
 
-  function createSkeletonSuggestion() {
+  function safeImageHome(url) {
+    if (!url) return 'https://via.placeholder.com/160x240/111111/FFFFFF?text=Sin+imagen';
+    const base = 'https://image.tmdb.org/t/p/';
+    if (url.startsWith(base)) return url.replace('/w500', '/original');
+    return url.startsWith('http') ? url : 'https://via.placeholder.com/160x240/111111/FFFFFF?text=Sin+imagen';
+  }
+
+  function createSkeletonSuggestionHome() {
     const div = document.createElement('div');
     div.className = 'skeleton-suggestion-card';
     const poster = document.createElement('div');
     poster.className = 'skeleton-suggestion-poster';
     const title = document.createElement('div');
     title.className = 'skeleton-suggestion-title';
+    const sub = document.createElement('div');
+    sub.className = 'skeleton-suggestion-sub';
     div.appendChild(poster);
     div.appendChild(title);
+    div.appendChild(sub);
     return div;
   }
 
@@ -1028,19 +1045,20 @@
 
     const img = document.createElement('img');
     img.className = 'suggestion-poster';
-    img.alt = 'Póster de ' + (item.titulo || '');
-    img.src = safeImage(item.imagen_url);
+    img.alt = `Póster de ${item.titulo}`;
+    img.src = safeImageHome(item.imagen_url);
     img.loading = 'lazy';
 
-    const titleEl = document.createElement('div');
-    titleEl.className = 'suggestion-title';
-    titleEl.textContent = item.titulo || '';
+    const title = document.createElement('div');
+    title.className = 'suggestion-title';
+    title.textContent = item.titulo;
 
     div.appendChild(img);
-    div.appendChild(titleEl);
+    div.appendChild(title);
 
     div.addEventListener('click', () => {
-      window.location.href = 'PeliPREX?movie=' + encodeURIComponent(item.id || item.titulo);
+      const param = item.id ? `id=${encodeURIComponent(item.id)}` : `q=${encodeURIComponent(item.titulo)}`;
+      window.location.href = `PeliPREX?${param}`;
     });
     return div;
   }
@@ -1049,7 +1067,7 @@
     const row = document.getElementById('suggestions-row');
     row.innerHTML = '';
     if (!resultados || resultados.length === 0) {
-      row.innerHTML = '<p style="color:var(--muted);font-size:14px;margin:0;">No hay sugerencias disponibles.</p>';
+      row.innerHTML = '<p style="color:var(--muted); font-size:14px; margin-top:0;">No se encontraron sugerencias.</p>';
       return;
     }
     resultados.slice(0, 10).forEach(item => row.appendChild(createSuggestionCard(item)));
@@ -1058,29 +1076,31 @@
   async function fetchSuggestions(movie) {
     const row = document.getElementById('suggestions-row');
     row.innerHTML = '';
-    // Mostrar skeletons mientras carga
-    for (let i = 0; i < 6; i++) row.appendChild(createSkeletonSuggestion());
+    for (let i = 0; i < 6; i++) row.appendChild(createSkeletonSuggestionHome());
     try {
-      const titulo  = movie.titulo  || '';
-      const generos = movie.generos || '';
-      const id      = movie.id      || '';
+      const titulo  = (movie && movie.titulo)  || 'Avengers';
+      const generos = (movie && movie.generos) || 'acción';
+      const id      = (movie && movie.id)      || '';
       const apiURL  = `${PELIPREX_BASE_URL}/sugerencias?titulo=${encodeURIComponent(titulo)}&generos=${encodeURIComponent(generos)}&id=${encodeURIComponent(id)}`;
       const response = await fetch(apiURL);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      if (data && Array.isArray(data.resultados) && data.resultados.length > 0) {
-        renderSuggestions(data.resultados);
+      const resultados = (data && Array.isArray(data.resultados)) ? data.resultados : null;
+      if (resultados && resultados.length > 0) {
+        renderSuggestions(resultados);
       } else {
         renderSuggestions([]);
       }
     } catch (error) {
       console.error('Error al cargar sugerencias:', error);
       const row2 = document.getElementById('suggestions-row');
-      row2.innerHTML = '<p style="color:var(--muted);font-size:14px;margin:0;">Error al cargar sugerencias.</p>';
+      row2.innerHTML = '<p style="color:var(--muted); font-size:14px; margin-top:0;">No se pudieron cargar sugerencias. Intenta de nuevo.</p>';
     }
   }
 
-  function loadDefaultSuggestions() {
-    fetchSuggestions({ titulo: 'Avengers', generos: 'acción', id: '1' });
+  async function loadDefaultSuggestions() {
+    await loadPeliprexConfig();
+    fetchSuggestions({ titulo: 'Avengers', generos: 'acción', id: '' });
   }
   </script>
 </body>
