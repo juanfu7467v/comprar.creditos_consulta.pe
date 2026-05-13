@@ -262,18 +262,36 @@
     .subtitle{margin-top:16px;color:var(--muted);font-size:clamp(15px,1.8vw,18px);line-height:1.65;max-width:860px;opacity:0;transform:translateY(15px);animation:fadeInUp .7s ease .6s forwards;text-align:center;}
     .btnStartNow{
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      margin:28px auto 40px;padding:18px 32px;
+      margin:0; padding:18px 32px;
       background:linear-gradient(90deg,var(--accent-secondary),var(--accent-primary));
       color:white;font-weight:900;font-size:18px;letter-spacing:.02em;
       text-decoration:none;border-radius:20px;border:1px solid rgba(255,255,255,.18);
       box-shadow:var(--sh-med);transition:transform .25s ease,box-shadow .25s ease;
       position:relative;overflow:hidden;z-index:1;
-      opacity:0;transform:translateY(15px);animation:fadeInUp .7s ease .7s forwards;
       -webkit-tap-highlight-color:transparent;
     }
     .btnStartNow::before{content:"";position:absolute;inset:-120%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 55%);opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:-1;}
     .btnStartNow:hover{transform:translateY(-3px);box-shadow:var(--sh-hov);}
     .btnStartNow:hover::before{opacity:1;}
+
+    /* ═══ BOTÓN OUTLINE (Integrar APIs) ═══ */
+    .btn-outline{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      margin:0; padding:18px 32px;
+      background:transparent;
+      border:2px solid white;
+      color:white;
+      font-weight:900;font-size:18px;letter-spacing:.02em;
+      text-decoration:none;border-radius:20px;
+      box-shadow:var(--sh-med);
+      transition:transform .25s ease,box-shadow .25s ease;
+      position:relative;overflow:hidden;z-index:1;
+      opacity:0;transform:translateY(15px);animation:fadeInUp .7s ease .8s forwards;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn-outline::before{content:"";position:absolute;inset:-120%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 55%);opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:-1;}
+    .btn-outline:hover{transform:translateY(-3px);box-shadow:var(--sh-hov);}
+    .btn-outline:hover::before{opacity:1;}
 
     /* ═══ APP STORE STYLE SECTION ═══ */
     .appstore-section{
@@ -542,11 +560,12 @@
       <p class="kicker">Infraestructura tecnológica · masitaprex</p>
       <h1 class="title">Consulta DNI, RUC, teléfonos y vehículos <b>en segundos</b>.</h1>
       <p class="subtitle mx-auto">
-        Accede desde la web o desde la APK de Consulta PE. Resultados rápidos, activación inmediata y planes pensados para uso real.
-        <b>También puedes integrar nuestras APIs en tus proyectos.</b>
-        <b>PeliPREX HD</b> (entretenimiento con <b>películas, series y más</b>) y otros servicios adicionales.
+        Resultados inmediatos, activación al instante y la API más rápida del Perú para integrar en tus sistemas. Potencia tus verificaciones de DNI, RUC, vehículos y más con la infraestructura SaaS líder. Pruébalo ahora.
       </p>
-      <div style="text-align:center;"><a href="consultaPe-vercion-web" class="btnStartNow"><i class="fas fa-play-circle"></i> Probar Consulta PE web</a></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:28px;">
+        <a href="consultaPe-vercion-web" class="btnStartNow" style="margin:0; width:100%; max-width:320px; opacity:1; animation:fadeInUp .7s ease .7s forwards;"><i class="fas fa-laptop-code"></i> Probar Consulta PE web</a>
+        <a href="api-key" class="btn-outline" style="width:100%; max-width:320px;"><i class="fas fa-code-branch"></i> Integrar APIs</a>
+      </div>
     </div>
   </header>
 
@@ -589,14 +608,6 @@
       <p>Consulta Pe no es una aplicación común; es <strong>la cumbre de la eficiencia</strong> en gestión de datos e infraestructura tecnológica. Hemos diseñado una herramienta de élite para quienes no aceptan respuestas lentas ni procesos burocráticos. Pertenece al prestigioso ecosistema de desarrollo de <strong>Masitaprex</strong> (www.masitaprex.com), garantizando una experiencia de usuario que otros simplemente no pueden replicar.</p>
     </div>
 
-    <!-- Aviso de Transparencia -->
-    <div class="section-block">
-      <h4>🛡️ Aviso de Transparencia y Naturaleza Jurídica</h4>
-      <p style="font-size:14px;color:var(--muted);line-height:1.7;">
-        Para los que exigen claridad: <strong>Consulta Pe no es una entidad gubernamental ni está vinculada al Estado.</strong> Somos una infraestructura tecnológica privada que actúa exclusivamente como intermediario técnico. Nuestra plataforma facilita el acceso a nodos de información pública, optimizando la visualización de datos de manera externa. No somos dueños de la información, somos los dueños de la mejor tecnología para encontrarla.
-      </p>
-    </div>
-
     <!-- Potencia en Consultas -->
     <div class="section-block">
       <h4>⚡ Potencia en Consultas Especializadas</h4>
@@ -609,24 +620,11 @@
       </ul>
     </div>
 
-    <!-- Servicios de Valor Añadido -->
-    <div class="section-block">
-      <h4>🚀 Servicios de Valor Añadido (100% Gratuitos)</h4>
-      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">Mientras otros cobran por lo básico, nosotros te otorgamos el control total sin costo adicional. Nuestra infraestructura no solo es útil, es indispensable:</p>
-      <ul class="feature-list">
-        <li><i class="fas fa-circle"></i> <span><strong>PeliPREX:</strong> Olvida los límites. Acceso a millones de títulos. Cine de alto nivel en la palma de tu mano.</span></li>
-        <li><i class="fas fa-circle"></i> <span><strong>Gestor de Seguridad:</strong> Generador de contraseñas de grado militar para proteger tus redes y Wi-Fi.</span></li>
-        <li><i class="fas fa-circle"></i> <span><strong>Escáner QR Pro:</strong> Interacción segura y precisa con documentos, productos y enlaces.</span></li>
-        <li><i class="fas fa-circle"></i> <span><strong>Marketing Hub:</strong> Generador de enlaces personalizados para WhatsApp y Telegram.</span></li>
-        <li><i class="fas fa-circle"></i> <span><strong>Zona Gaming:</strong> Una selección curada de juegos para quienes valoran su tiempo de ocio.</span></li>
-      </ul>
-    </div>
-
     <!-- Estructura de Costos -->
     <div class="section-block">
       <h4>💳 Estructura de Costos e Infraestructura</h4>
       <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">
-        En Consulta Pe, mantenemos una política de <strong>transparencia absoluta</strong>. El acceso a la aplicación y sus servicios de utilidad (juegos, películas, gestores) es <strong>totalmente gratuito</strong>.
+        En Consulta Pe, mantenemos una política de <strong>transparencia absoluta</strong>. El acceso a la aplicación y sus funcionalidades de consulta es <strong>totalmente gratuito</strong>.
       </p>
       <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:12px;">
         Los créditos adquiridos dentro de la plataforma se destinan exclusivamente a cubrir los costos de:
@@ -742,6 +740,10 @@
     <div class="social-icons">
       <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook"></i></a>
       <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
+    </div>
+    <div style="margin-top:20px; padding:20px; background:rgba(255,255,255,0.05); border-radius:12px; text-align:left; max-width:800px; margin-left:auto; margin-right:auto;">
+      <h4 style="font-weight:800; margin-bottom:10px;">🛡️ Aviso de Transparencia y Naturaleza Jurídica</h4>
+      <p style="font-size:14px; color:#ccc; line-height:1.7;">Para los que exigen claridad: <strong>Consulta Pe no es una entidad gubernamental ni está vinculada al Estado.</strong> Somos una infraestructura tecnológica privada que actúa exclusivamente como intermediario técnico. Nuestra plataforma facilita el acceso a nodos de información pública, optimizando la visualización de datos de manera externa. No somos dueños de la información, somos los dueños de la mejor tecnología para encontrarla.</p>
     </div>
     <p style="margin-top:20px;font-size:14px;color:#ccc;">Masitaprex - consulta Pe - peliPREX | <strong>Cajamarca, Perú</strong> | <strong>Representante: JOSÉ RENÉ CUBAS PÉREZ | RUC: 10736224351</strong></p>
   </footer>
