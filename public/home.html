@@ -244,7 +244,6 @@
     .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.55));z-index:0;pointer-events:none;}
     .wrap{width:min(1180px,calc(100% - 32px));margin:0 auto;position:relative;z-index:1;}
     
-    /* MODIFICACIÓN DEL ICONO AQUÍ (Tamaño más grande en PC y animación corregida) */
     .main-icon{
       width:clamp(140px, 18vw, 220px);
       height:clamp(140px, 18vw, 220px);
@@ -260,38 +259,73 @@
     .title{font-weight:900;letter-spacing:-.04em;line-height:1.02;margin-top:10px;font-size:clamp(32px,5.2vw,64px);text-shadow:0 18px 48px rgba(0,0,0,.55);opacity:0;transform:translateY(20px);animation:fadeInUp .7s ease .5s forwards;text-align:center;}
     .title b{background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary),var(--accent-tertiary));-webkit-background-clip:text;background-clip:text;color:transparent;}
     .subtitle{margin-top:16px;color:var(--muted);font-size:clamp(15px,1.8vw,18px);line-height:1.65;max-width:860px;opacity:0;transform:translateY(15px);animation:fadeInUp .7s ease .6s forwards;text-align:center;}
-    .btnStartNow{
-      display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      margin:0; padding:18px 32px;
-      background:linear-gradient(90deg,var(--accent-secondary),var(--accent-primary));
-      color:white;font-weight:900;font-size:18px;letter-spacing:.02em;
-      text-decoration:none;border-radius:20px;border:1px solid rgba(255,255,255,.18);
-      box-shadow:var(--sh-med);transition:transform .25s ease,box-shadow .25s ease;
-      position:relative;overflow:hidden;z-index:1;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .btnStartNow::before{content:"";position:absolute;inset:-120%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 55%);opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:-1;}
-    .btnStartNow:hover{transform:translateY(-3px);box-shadow:var(--sh-hov);}
-    .btnStartNow:hover::before{opacity:1;}
 
-    /* ═══ BOTÓN OUTLINE (Integrar APIs) ═══ */
-    .btn-outline{
-      display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      margin:0; padding:18px 32px;
-      background:transparent;
-      border:2px solid white;
-      color:white;
-      font-weight:900;font-size:18px;letter-spacing:.02em;
-      text-decoration:none;border-radius:20px;
-      box-shadow:var(--sh-med);
-      transition:transform .25s ease,box-shadow .25s ease;
-      position:relative;overflow:hidden;z-index:1;
-      opacity:0;transform:translateY(15px);animation:fadeInUp .7s ease .8s forwards;
-      -webkit-tap-highlight-color:transparent;
+    /* ═══ BOTONES HERO MEJORADOS ═══ */
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 16px;
+      margin-top: 28px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .btn-outline::before{content:"";position:absolute;inset:-120%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.28),transparent 55%);opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:-1;}
-    .btn-outline:hover{transform:translateY(-3px);box-shadow:var(--sh-hov);}
-    .btn-outline:hover::before{opacity:1;}
+    .btnStartNow,
+    .btn-outline {
+      flex: 1;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 18px 32px;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: .02em;
+      border-radius: 20px;
+      text-decoration: none;
+      transition: transform .25s ease, box-shadow .25s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: var(--sh-med);
+    }
+    .btnStartNow {
+      background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+      color: white;
+      border: 1px solid rgba(255,255,255,.18);
+      opacity: 0;
+      animation: fadeInUp .7s ease .7s forwards;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      opacity: 0;
+      animation: fadeInUp .7s ease .8s forwards;
+    }
+    .btnStartNow::before,
+    .btn-outline::before {
+      content: "";
+      position: absolute;
+      inset: -120%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.28), transparent 55%);
+      opacity: 0;
+      transition: opacity .25s ease;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .btnStartNow:hover,
+    .btn-outline:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--sh-hov);
+    }
+    .btnStartNow:hover::before,
+    .btn-outline:hover::before {
+      opacity: 1;
+    }
 
     /* ═══ APP STORE STYLE SECTION ═══ */
     .appstore-section{
@@ -466,6 +500,127 @@
     .api-cta-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:16px 28px;background:linear-gradient(90deg,rgba(0,240,255,.2),rgba(123,47,157,.2));color:white;text-decoration:none;border-radius:12px;font-weight:700;font-size:16px;border:1px solid rgba(0,240,255,.3);box-shadow:var(--sh-soft);transition:all .3s ease;position:relative;overflow:hidden;}
     .api-cta-button:hover{background:linear-gradient(90deg,rgba(0,240,255,.3),rgba(123,47,157,.3));border-color:rgba(0,240,255,.5);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,240,255,.25);}
 
+    /* ═══ OTROS SERVICIOS (PELIPREX) ═══ */
+    .otros-servicios {
+      width: 100%;
+      padding: 60px 5%;
+      border-top: 1px solid rgba(255,215,0,.3);
+      background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(20,20,40,0.85) 100%);
+      position: relative;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 40px;
+    }
+    .servicio-peliprex {
+      max-width: 900px;
+      margin: 0 auto 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .peliprex-hero {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 30px;
+      border: 1px solid rgba(255,215,0,0.3);
+      width: 100%;
+    }
+    .peliprex-logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(255,215,0,0.4);
+      flex-shrink: 0;
+    }
+    .peliprex-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .peliprex-info h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .peliprex-info p {
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .peliprex-cta {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      color: #0A1628;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 40px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .peliprex-cta:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(255,215,0,0.6);
+    }
+    .suggestions {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .suggestions h4 {
+      color: var(--gold);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .suggestions-row {
+      display: flex;
+      overflow-x: auto;
+      gap: 14px;
+      padding-bottom: 10px;
+    }
+    .suggestion-card {
+      flex: 0 0 auto;
+      width: 160px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.3s, border-color 0.3s;
+      cursor: pointer;
+    }
+    .suggestion-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--gold);
+    }
+    .suggestion-poster {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+    }
+    .suggestion-title {
+      padding: 8px;
+      font-size: 12px;
+      color: #fff;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* Footer */
     .footer{background:#000;color:#fff;padding:40px 5%;text-align:center;width:100%;margin-top:0;}
     .footer p{margin:10px 0;color:#fff;line-height:1.6;}
@@ -485,7 +640,24 @@
     .chat-text.show{opacity:1;transform:scale(1);}
     .chat-text.hide{opacity:0;transform:scale(.9);}
 
-    @media(min-width:768px){.api-stats{grid-template-columns:repeat(4,1fr);gap:24px;}.stat-card{padding:32px 24px;}.stat-number{font-size:48px;}}
+    @media(min-width:768px){
+      .api-stats{grid-template-columns:repeat(4,1fr);gap:24px;}.stat-card{padding:32px 24px;}.stat-number{font-size:48px;}
+    }
+    @media(max-width:768px){
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+        max-width: 320px;
+      }
+      .btnStartNow,
+      .btn-outline {
+        width: 100%;
+      }
+      .peliprex-hero {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
     @media(max-width:640px){
       .api-stats{gap:16px;padding:0 16px;margin:40px auto;}.stat-card{padding:24px 16px;}.stat-number{font-size:36px;}
       #sidebar{width:100%;max-width:300px;}.api-slide{width:85%;}
@@ -555,16 +727,15 @@
   <!-- ═══ HERO ═══ -->
   <header class="hero" role="banner">
     <div class="wrap text-center">
-      <!-- Ahora sin width y height limitantes, y animando correctamente -->
       <img class="main-icon" src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex logo" onerror="this.onerror=null;this.src='https://placehold.co/256x256/111827/ffffff?text=Consulta+PE';" />
       <p class="kicker">Infraestructura tecnológica · masitaprex</p>
       <h1 class="title">Consulta DNI, RUC, teléfonos y vehículos <b>en segundos</b>.</h1>
       <p class="subtitle mx-auto">
         Resultados inmediatos, activación al instante y la API más rápida del Perú para integrar en tus sistemas. Potencia tus verificaciones de DNI, RUC, vehículos y más con la infraestructura SaaS líder. Pruébalo ahora.
       </p>
-      <div style="display:flex; flex-direction:column; align-items:center; gap:16px; margin-top:28px;">
-        <a href="consultaPe-vercion-web" class="btnStartNow" style="margin:0; width:100%; max-width:320px; opacity:1; animation:fadeInUp .7s ease .7s forwards;"><i class="fas fa-laptop-code"></i> Probar Consulta PE web</a>
-        <a href="api-key" class="btn-outline" style="width:100%; max-width:320px;"><i class="fas fa-code-branch"></i> Integrar APIs</a>
+      <div class="hero-buttons">
+        <a href="consultaPe-vercion-web" class="btnStartNow"><i class="fas fa-laptop-code"></i> Probar Consulta PE web</a>
+        <a href="api-key" class="btn-outline"><i class="fas fa-code-branch"></i> Integrar APIs</a>
       </div>
     </div>
   </header>
@@ -730,6 +901,27 @@
     <div class="api-cta"><a href="api-key" class="api-cta-button"><i class="fas fa-code-branch"></i> Documentación y Credenciales</a></div>
   </section>
 
+  <!-- ═══ OTROS SERVICIOS ═══ -->
+  <section class="otros-servicios">
+    <h2 class="section-title">✨ Otros Servicios</h2>
+    <div class="servicio-peliprex">
+      <div class="peliprex-hero">
+        <div class="peliprex-logo">
+          <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="PeliPREX Logo">
+        </div>
+        <div class="peliprex-info">
+          <h3>PeliPREX</h3>
+          <p>Accede a un mundo ilimitado de películas y series en HD. Disfruta de estrenos, clásicos y contenido exclusivo sin interrupciones.</p>
+          <a href="PeliPREX" class="peliprex-cta"><i class="fas fa-play"></i> Explorar ahora</a>
+        </div>
+      </div>
+    </div>
+    <div class="suggestions">
+      <h4>También podría gustarte</h4>
+      <div class="suggestions-row" id="suggestions-row" style="display:flex; overflow-x:auto; gap:14px;"></div>
+    </div>
+  </section>
+
   <!-- ═══ FOOTER ═══ -->
   <footer class="footer">
     <p><strong>Masitaprex</strong> © 2025 - Todos los derechos reservados</p>
@@ -764,7 +956,7 @@
   const lp=document.getElementById('loaderProgress');
   function advanceProgress(t,d){return new Promise(r=>{setTimeout(()=>{lp.style.width=t+'%';setTimeout(r,220);},d||0);})}
   const ci=['https://cdn-icons-png.flaticon.com/128/747/747965.png','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvdkU1PvU6RuzdcEII4FtG9sUVlchCz52G7rH0BAsyl9kq34PAKajZrKxD7GeXO8vSvIWu0PQgx2rd9aML0NVmR7gBn70Nt93b6_ohL_APWSKWUMQo6QziTPVeVABFzR6IaaKDWhV8ymsoGe1VQagZ6wuFJ318u4lBPiTdeO1GjX4KAtYEtF1Pi9yRN9Gj/s1200/1000037176.jpg','https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjDS2vvRHiCJ7gbMAltYFW1O8lAkFpcgTQx0wJrSNYuscotQ0kxkxnAfSzDIiVi2I40r8D4427Fl1W725VBLCta3cVsKVz3va20nsr10kNyOEoMO_uHE8HtwHbdeviOj8T3xpOrbTXZUfMSApDOhfJAed2ldkWCZbwDd0Pt_ONpeTddiqcz9emLKtRKxQAx/s512/1000037039.png'];
-  document.addEventListener('DOMContentLoaded',async function(){await advanceProgress(25,0);await preloadImages(ci);await advanceProgress(65,100);await advanceProgress(90,200);await advanceProgress(100,200);setTimeout(()=>{document.getElementById('loading').classList.add('hidden');initApiBackground();startTypingEffect();animateCounters();initScrollProgress('apiImageSlider','scrollProgress');},350);});
+  document.addEventListener('DOMContentLoaded',async function(){await advanceProgress(25,0);await preloadImages(ci);await advanceProgress(65,100);await advanceProgress(90,200);await advanceProgress(100,200);setTimeout(()=>{document.getElementById('loading').classList.add('hidden');initApiBackground();startTypingEffect();animateCounters();initScrollProgress('apiImageSlider','scrollProgress');loadDefaultSuggestions();},350);});
 
   function animateCounters(){document.querySelectorAll('.stat-number[data-target]').forEach(c=>{const t=parseFloat(c.getAttribute('data-target')),d=1800,s=60,i=t/s;let u=0,p=0;const f=()=>{p++;u=Math.min(u+i,t);if(t%1!==0)c.textContent=u.toFixed(1)+'%';else c.textContent=Math.floor(u)+(t>=1000?'k+':'%');if(p<s)requestAnimationFrame(f);else{if(t%1!==0)c.textContent=t.toFixed(1)+'%';else c.textContent=(t>=1000?'2k+':t+'%');}};setTimeout(()=>requestAnimationFrame(f),400);});}
 
@@ -777,6 +969,56 @@
   function typeChat(){if(mi<msg.length){ct.textContent+=msg.charAt(mi);mi++;setTimeout(typeChat,90);}else{setTimeout(()=>{ct.classList.remove('show');ct.classList.add('hide');setTimeout(resetChat,900);},2500);}}
   function resetChat(){ct.textContent='';mi=0;ct.classList.remove('hide');setTimeout(()=>{ct.classList.add('show');typeChat();},500);}
   window.addEventListener('load',()=>setTimeout(()=>{ct.classList.add('show');typeChat();},1200));
+
+  /* ═══ PELIPREX SUGERENCIAS ═══ */
+  const PELIPREX_BASE_URL = 'https://api.masitaprex.com/peliprex'; // Reemplazar por URL real
+  async function fetchSuggestions(movie) {
+    const row = document.getElementById('suggestions-row');
+    row.innerHTML = '';
+    try {
+      const titulo = movie.titulo || '';
+      const generos = movie.generos || '';
+      const id = movie.id || '';
+      const apiURL = `${PELIPREX_BASE_URL}/sugerencias?titulo=${encodeURIComponent(titulo)}&generos=${encodeURIComponent(generos)}&id=${encodeURIComponent(id)}`;
+      const response = await fetch(apiURL);
+      const data = await response.json();
+      if (data && Array.isArray(data.resultados) && data.resultados.length > 0) {
+        renderSuggestions(data.resultados);
+      } else {
+        row.innerHTML = '<p style="color:var(--muted);">No hay sugerencias disponibles.</p>';
+      }
+    } catch (error) {
+      console.error("Error al cargar sugerencias:", error);
+      row.innerHTML = '<p style="color:var(--muted);">Error al cargar sugerencias.</p>';
+    }
+  }
+
+  function renderSuggestions(resultados) {
+    const row = document.getElementById('suggestions-row');
+    resultados.slice(0, 10).forEach(item => {
+      const card = createSuggestionCard(item);
+      row.appendChild(card);
+    });
+  }
+
+  function createSuggestionCard(item) {
+    const div = document.createElement('div');
+    div.className = 'suggestion-card';
+    div.innerHTML = `
+      <img class="suggestion-poster" src="${item.imagen_url || 'https://via.placeholder.com/160x240'}" alt="${item.titulo}" loading="lazy">
+      <div class="suggestion-title">${item.titulo}</div>
+    `;
+    div.addEventListener('click', () => {
+      // Navegar o abrir detalle de película
+      window.location.href = `PeliPREX?id=${item.id}`;
+    });
+    return div;
+  }
+
+  function loadDefaultSuggestions() {
+    // Llamada inicial con un objeto de ejemplo (puede ser una película popular)
+    fetchSuggestions({ titulo: 'Avengers', generos: 'acción', id: '1' });
+  }
   </script>
 </body>
 </html>
