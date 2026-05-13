@@ -193,7 +193,7 @@ app.post("/api/login-success", async (req, res) => {
 	        const userDoc = await userRef.get();
         const updateData = { lastLogin: admin.firestore.FieldValue.serverTimestamp() };
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
-          updateData.creditos = 0;
+          updateData.creditos = 11;
           updateData.tipoPlan = "creditos";
         }
         if (welcomeResult.success) {
@@ -262,7 +262,7 @@ app.post("/api/notify-verification", async (req, res) => {
         
         const userDoc = await db.collection("usuarios").doc(uid).get();
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
-          await db.collection("usuarios").doc(uid).set({ creditos: 0, tipoPlan: "creditos" }, { merge: true });
+          await db.collection("usuarios").doc(uid).set({ creditos: 11, tipoPlan: "creditos" }, { merge: true });
         }
 
         // Nueva lógica: Guardar en colección "empresas" y generar token seguro tras verificación
