@@ -6,9 +6,9 @@
 
 // Configuración de créditos por tipo de URL
 const CREDITS_CONFIG = {
-    GOOGLE_DRIVE: 5,      // Google Drive: 5 créditos
+    GOOGLE_DRIVE: 11,      // Google Drive: 5 créditos
     FLYIO: 20,            // Fly.io: 20 créditos
-    DEFAULT: 5            // Por defecto: 5 créditos
+    DEFAULT: 11            // Por defecto: 5 créditos
 };
 
 // Tiempo de vista previa gratuita (en segundos)

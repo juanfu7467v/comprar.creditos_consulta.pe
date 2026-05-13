@@ -896,7 +896,7 @@
             const doc = await userRef.get();
             if (doc.exists) { renderizarPerfilConDatos(doc.data()); }
             else {
-                const defaultUserData = { email: user.email, tipoPlan: "creditos", creditos: 5, fechaActivacion: FieldValue.serverTimestamp(), duracionDias: 0, apiKey: generarApiKey(), ultimaCompra: null, ultimaConsulta: null };
+                const defaultUserData = { email: user.email, tipoPlan: "creditos", creditos: 11, fechaActivacion: FieldValue.serverTimestamp(), duracionDias: 0, apiKey: generarApiKey(), ultimaCompra: null, ultimaConsulta: null };
                 await userRef.set(defaultUserData);
                 renderizarPerfilConDatos(defaultUserData);
             }

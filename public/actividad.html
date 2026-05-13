@@ -2006,12 +2006,12 @@ auth.onAuthStateChanged(async (user) => {
         updateProfileUI(doc.data());
       } else {
         const defaultUserData = {
-          email: user.email, tipoPlan: "creditos", creditos: 5,
+          email: user.email, tipoPlan: "creditos", creditos: 11,
           fechaActivacion: FieldValue.serverTimestamp(), duracionDias: 0
         };
         await userRef.set(defaultUserData);
         updateProfileUI(defaultUserData);
-        showCustomModal("¡Bienvenido!", "Te hemos regalado 5 créditos para que comiences a consultar.");
+        showCustomModal("¡Bienvenido!", "Te hemos regalado 11 créditos para que comiences a consultar.");
       }
       await fetchProfileData(USER_EMAIL);
       await fetchFavoritesData(USER_EMAIL);
