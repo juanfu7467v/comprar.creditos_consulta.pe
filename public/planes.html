@@ -1744,10 +1744,10 @@
                 auth = firebase.auth();
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        const savedEmail = localStorage.getItem(STORAGE_KEY_EMAIL);
-                        const savedUid = localStorage.getItem(STORAGE_KEY_UID);
-                        userEmailInput.value = savedEmail || user.email || "";
-                        userUidInput.value = savedUid || user.uid || "";
+                        userEmailInput.value = user.email || "";
+                        userUidInput.value = user.uid || "";
+                        localStorage.setItem(STORAGE_KEY_EMAIL, user.email || "");
+                        localStorage.setItem(STORAGE_KEY_UID, user.uid || "");
                     } else { ReturnConfig.redirectToLogin(); }
                     updatePaymentButtons();
                 });
