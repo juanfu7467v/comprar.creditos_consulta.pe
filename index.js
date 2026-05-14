@@ -37,7 +37,7 @@ import {
   enviarCorreoSospechoso,
   enviarCorreoRechazo,
   enviarCorreoSoporte,
-  createSessionCookie,
+  // createSessionCookie,
   PAQUETES_CREDITOS,
   PLANES_ILIMITADOS
 } from './negocios.js';
@@ -166,6 +166,7 @@ app.post("/api/login-success", async (req, res) => {
 
     await resetLoginAttempts(email);
 
+    /* 
     if (idToken && admin.apps.length) {
       try {
         const { sessionCookie, expiresIn } = await createSessionCookie(idToken);
@@ -176,6 +177,7 @@ app.post("/api/login-success", async (req, res) => {
         logger.warn(context, 'No se pudo crear session cookie', cookieError);
       }
     }
+    */
 
 	    if (isNewUser && uid) {
 	      const nombre = displayName || email.split('@')[0];
