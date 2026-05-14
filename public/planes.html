@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masitaprex — Activa tu plan en segundos | Recargar Créditos</title>
+    <meta name="description" content="Elige el plan que mejor se adapta a tu uso. APIs, PeliPREX HD, Consulta PE y más. Activación inmediata con Mercado Pago.">
+    <meta name="keywords" content="planes masitaprex, comprar creditos masitaprex, recargar creditos masitaprex, suscripcion masitaprex, consultas ilimitadas peru">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Masitaprex — Activa tu plan en segundos" />
+    <meta property="og:description" content="Créditos sin vencimiento o plan intensivo. Pago seguro y activación automática." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://masitaprex.com/planes" />
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/128/747/747965.png" />
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <link rel="shortcut icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/747/747965.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&family=DM+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="returnConfig.js"></script>
+
+    <style>
+        :root {
+            --navy-deep: #0A1628;
+            --navy-surface: #0F1F3D;
+            --navy-card: #15294A;
+            --navy-border: #1E3A5F;
+            
+            --emerald: #00C853;
+            --emerald-light: #69F0AE;
+            --emerald-dark: #00A844;
+            --emerald-glow: rgba(0, 200, 83, 0.2);
+            --emerald-glow-strong: rgba(0, 200, 83, 0.35);
+            
+            --gold: #FFD700;
+            --gold-light: #FFED4A;
+            --gold-dim: #B8960F;
+            --gold-glow: rgba(255, 215, 0, 0.15);
+            
+            --ruby: #E53935;
+            --ruby-light: #FF5252;
+            --ruby-glow: rgba(229, 57, 53, 0.2);
+            
+            --white: #F8FAFC;
+            --text-primary: #E2E8F0;
+            --text-muted: #94A3B8;
+            --text-subtle: #64748B;
+            
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-active: rgba(0,200,83,0.25);
+            --border-gold: rgba(255,215,0,0.25);
+            
+            --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+            --shadow-emerald: 0 4px 20px rgba(0,200,83,0.2);
+            --sh-hov: 0 24px 64px rgba(0,0,0,0.5), 0 6px 24px rgba(0,200,83,0.18);
+            
+            --radius: 20px;
+            --radius-sm: 10px;
+            --font-family: 'Outfit', 'Inter', sans-serif;
+            --font-display: 'Space Grotesk', 'Outfit', sans-serif;
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { font-size: 106.25%; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--navy-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            user-select: none;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .ambient-1 {
+            position: fixed; top: -20%; left: -10%;
+            width: 60vw; height: 60vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,200,83,0.03) 0%, transparent 65%);
+            pointer-events: none; z-index: -1;
+            animation: floatAmbient 10s ease-in-out infinite;
+        }
+        .ambient-2 {
+            position: fixed; bottom: -20%; right: -10%;
+            width: 50vw; height: 50vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,215,0,0.04) 0%, transparent 65%);
+            pointer-events: none; z-index: -1;
+            animation: floatAmbient 12s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatAmbient {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -20px) scale(1.05); }
+            66% { transform: translate(-15px, 15px) scale(0.95); }
+        }
+
+        /* ═══ SIDEBAR ÉLITE ═══ */
+        #sidebar-overlay { 
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 50; opacity: 0;
+            transition: opacity 0.3s ease;
+            display: none;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        #sidebar-overlay.opacity-100 { opacity: 1; }
+        #sidebar-overlay.hidden { display: none; }
+
+        #sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 100%; width: 290px;
+            background: linear-gradient(180deg, #0A1628 0%, #0F1F3D 100%) !important;
+            border-right: 1px solid var(--border-active);
+            z-index: 60;
+            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(-100%);
+            display: flex; flex-direction: column;
+            box-shadow: 8px 0 40px rgba(0,0,0,0.5);
+        }
+        #sidebar.open { transform: translateX(0); }
+
+        .sb-header {
+            padding: 32px 20px 20px;
+            background: linear-gradient(160deg, #0A1628 0%, #0F1F3D 100%);
+            border-bottom: 1px solid var(--border-active);
+            text-align: center;
+            position: relative; overflow: hidden;
+            flex-shrink: 0;
+        }
+        .sb-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--emerald), var(--gold), transparent);
+            animation: shimmerHeader 3s infinite;
+        }
+        @keyframes shimmerHeader {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        .sb-logo-box {
+            width: 68px; height: 68px;
+            margin: 0 auto 12px;
+            border-radius: 18px; overflow: hidden;
+            border: 2px solid var(--border-active);
+            box-shadow: 0 0 25px var(--emerald-glow);
+            transition: transform 0.3s ease;
+            background: rgba(0,200,83,0.05);
+        }
+        .sb-logo-box:hover { transform: scale(1.1) rotate(5deg); }
+        .sb-logo-box img { width: 100%; height: 100%; object-fit: cover; }
+        .sb-brand {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800; font-size: 1.3rem;
+            color: var(--gold) !important;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255,215,0,0.4);
+        }
+        .sb-tagline {
+            font-size: 0.7rem; font-weight: 500;
+            color: var(--text-muted);
+            letter-spacing: 0.15em; margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .sb-scroll-area { flex: 1; overflow-y: auto; padding: 8px 0; }
+        .sb-scroll-area::-webkit-scrollbar { width: 3px; }
+        .sb-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .sb-scroll-area::-webkit-scrollbar-thumb { background: var(--emerald-dark); border-radius: 3px; }
+        .sb-cat {
+            padding: 14px 24px 8px;
+            font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--emerald);
+        }
+        #sidebar nav a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-primary) !important;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            font-size: 0.9rem; font-weight: 500;
+            position: relative; overflow: hidden;
+        }
+        #sidebar nav a::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--emerald);
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
+        }
+        #sidebar nav a:hover {
+            background: rgba(0,200,83,0.08);
+            color: var(--emerald-light) !important;
+            transform: translateX(4px);
+        }
+        #sidebar nav a:hover::before { transform: scaleY(1); }
+        #sidebar nav a.active {
+            background: linear-gradient(90deg, rgba(0,200,83,0.12) 0%, transparent 100%);
+            color: var(--emerald) !important;
+            font-weight: 700;
+        }
+        #sidebar nav a.active::before { transform: scaleY(1); }
+        .sb-icon {
+            width: 20px; height: 20px;
+            flex-shrink: 0; font-size: 1.1rem;
+            text-align: center; color: var(--text-muted);
+            transition: color 0.25s ease;
+        }
+        #sidebar nav a:hover .sb-icon,
+        #sidebar nav a.active .sb-icon { color: var(--emerald); }
+        .sb-badge {
+            font-size: 0.65rem; padding: 2px 8px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+            color: #000; font-weight: 800;
+            letter-spacing: 0.05em;
+            animation: pulse 2s infinite;
+            margin-left: auto;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .sb-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-subtle);
+            display: flex; gap: 16px;
+            justify-content: center;
+            background: rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .sb-footer a {
+            color: var(--text-muted) !important;
+            font-size: 1.3rem;
+            transition: all 0.25s ease;
+        }
+        .sb-footer a:hover { color: var(--emerald) !important; transform: translateY(-3px); }
+
+        /* Botón hamburguesa */
+        #menu-toggle {
+            position: fixed;
+            top: 16px; left: 16px;
+            z-index: 100;
+            background: rgba(15, 31, 61, 0.9);
+            color: var(--emerald);
+            border: 1px solid var(--border-active);
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        #menu-toggle:hover {
+            transform: scale(1.08);
+            background: rgba(0,200,83,0.1);
+            box-shadow: 0 6px 20px var(--emerald-glow);
+        }
+        #menu-toggle svg { color: var(--emerald); width: 20px; height: 20px; }
+
+        /* ═══ HEADER TYPEWRITER ═══ */
+        #typewriterHeader {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 90;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(10, 22, 40, 0.96);
+            border-bottom: 1px solid var(--border-gold);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 2px 24px rgba(255, 215, 0, 0.08);
+            gap: 8px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--gold);
+            font-family: var(--font-mono);
+            min-height: 48px;
+        }
+        #typewriterHeader .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            animation: pulse-dot 1.5s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+        .typewriter-cursor {
+            display: inline-block;
+            width: 2px;
+            margin-left: 2px;
+            background-color: var(--gold);
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ═══ MAIN ═══ */
+        main {
+            position: relative; z-index: 1; width: 100%;
+            padding-top: 48px;
+        }
+
+        /* ═══ HERO ═══ */
+        .hero {
+            width: 100%;
+            min-height: 100svh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 56px 16px 48px;
+            text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .hero-line {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent 0%, var(--emerald) 50%, transparent 100%);
+        }
+        .hero-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.7rem; letter-spacing: 0.3em;
+            text-transform: uppercase; color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            font-weight: 800; line-height: 0.95;
+            color: var(--white); letter-spacing: -0.04em;
+            margin-bottom: 24px;
+        }
+        .hero-title em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--emerald); }
+        .hero-divider { width: 60px; height: 4px; background: var(--gold); margin: 0 auto 24px; border-radius: 2px; }
+        .hero-tagline { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+        .hero-sub { font-size: 0.9rem; color: var(--text-muted); max-width: 500px; line-height: 1.6; margin-bottom: 32px; }
+        .hero-cta {
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+            color: #000; padding: 16px 32px; border-radius: 60px;
+            font-weight: 800; font-size: 0.95rem; text-transform: uppercase;
+            letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 30px var(--emerald-glow);
+            border: none; cursor: pointer;
+        }
+        .hero-cta:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 45px var(--emerald-glow-strong); }
+        .hero-stats { display: flex; gap: 32px; margin-top: 48px; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-subtle); padding-right: 32px; }
+        .stat-item:last-child { border-right: none; padding-right: 0; }
+        .stat-num { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); margin-top: 4px; }
+
+        /* ═══ SECTIONS ═══ */
+        .section { padding: 80px 0; position: relative; }
+        .content-grid { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .section-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--emerald); letter-spacing: 0.3em; text-transform: uppercase; display: block; margin-bottom: 16px; }
+        .section-title { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; color: var(--white); letter-spacing: -0.03em; margin-bottom: 24px; line-height: 1.1; }
+        .section-title em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--gold); }
+        .section-body { font-size: 1rem; color: var(--text-muted); line-height: 1.7; max-width: 600px; margin-bottom: 40px; }
+        .section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-subtle), transparent); }
+
+        /* ═══ ELITE STATEMENT ═══ */
+        .elite-statement { background: var(--navy-surface); padding: 64px 24px; text-align: center; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+        .elite-quote { font-family: var(--font-serif); font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); max-width: 800px; margin: 0 auto 16px; line-height: 1.3; }
+        .elite-quote em { color: var(--emerald); }
+        .elite-quote-sub { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.2em; }
+
+        /* ═══ PURCHASE WRAPPER ═══ */
+        .purchase-wrapper { background: var(--navy-card); border: 1px solid var(--border-active); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card); position: relative; }
+        .purchase-header { padding: 32px 24px; background: linear-gradient(135deg, #15294A 0%, #0F1F3D 100%); border-bottom: 1px solid var(--border-subtle); text-align: center; }
+        .purchase-header h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+        .purchase-header p { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em; }
+        .purchase-body { padding: 32px 24px 40px; }
+        .policy-link { font-size: 0.75rem; color: var(--text-subtle); text-align: center; margin-bottom: 24px; }
+        .policy-link a { color: var(--emerald-light); text-decoration: underline; }
+        .info-box { background: rgba(0,200,83,0.05); border: 1px solid var(--border-active); border-radius: 12px; padding: 16px; font-size: 0.85rem; color: var(--text-primary); line-height: 1.5; margin-bottom: 32px; }
+        .info-box strong { color: var(--emerald); }
+
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 10px; }
+        .form-group input, .form-group select { width: 100%; background: var(--navy-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 16px; color: var(--white); font-family: var(--font-family); font-size: 0.95rem; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--emerald); background: rgba(0,200,83,0.03); box-shadow: 0 0 15px var(--emerald-glow); }
+        
+        .type-selector { display: flex; gap: 12px; margin-bottom: 24px; }
+        .type-option { flex: 1; background: var(--navy-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.25s; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .type-option i { font-size: 1rem; }
+        .type-option:hover { border-color: var(--border-active); color: var(--white); }
+        .type-option.selected { background: rgba(0,200,83,0.1); border-color: var(--emerald); color: var(--emerald); box-shadow: 0 0 20px var(--emerald-glow); }
+
+        .buy-button { width: 100%; padding: 18px; border-radius: 14px; font-weight: 800; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.3s; border: none; margin-top: 12px; }
+        .buy-button.mp { background: #009EE3; color: #fff; box-shadow: 0 10px 25px rgba(0,158,227,0.25); }
+        .buy-button.mp:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,158,227,0.35); background: #008AD6; }
+        .buy-button.disabled-text { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
+        .card-icons-container { display: flex; justify-content: center; gap: 12px; margin: 24px 0; opacity: 0.6; }
+        .card-icon { font-size: 1.5rem; color: var(--text-muted); }
+        .payment-info-text { font-size: 0.7rem; color: var(--text-subtle); text-align: center; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* ═══ PRICING TABLES ═══ */
+        .pricing-section { background: var(--navy-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); overflow: hidden; margin-bottom: 48px; }
+        .pricing-section-header { padding: 24px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 16px; }
+        .pricing-section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        .pricing-section-icon.gold { background: rgba(255,215,0,0.1); color: var(--gold); }
+        .pricing-section-icon.crimson { background: rgba(229,57,53,0.1); color: var(--ruby-light); }
+        .pricing-section-icon.platinum { background: rgba(255,255,255,0.05); color: var(--white); }
+        .pricing-section-title { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+        .pricing-section-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        
+        .pricing-table { width: 100%; border-collapse: collapse; }
+        .pricing-table th { background: rgba(0,0,0,0.2); padding: 16px; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); }
+        .pricing-table td { padding: 18px 16px; font-size: 0.95rem; color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); }
+        .pricing-table tr:last-child td { border-bottom: none; }
+        .pricing-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .recommended-row td { background: rgba(0,200,83,0.04); color: var(--emerald-light); font-weight: 700; }
+        .best-value-row td { background: rgba(255,215,0,0.04); color: var(--gold); font-weight: 700; }
+
+        /* ═══ ADVANTAGES ═══ */
+        .advantage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 32px; }
+        .advantage-item { background: var(--navy-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; transition: all 0.3s; }
+        .advantage-item:hover { border-color: var(--border-active); transform: translateY(-5px); background: rgba(0,200,83,0.03); }
+        .adv-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(0,200,83,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--emerald); }
+        .advantage-item span { font-size: 0.85rem; font-weight: 600; color: var(--white); }
+
+        /* ═══ SLIDER ═══ */
+        .slider-container { position: relative; width: 100%; margin-top: 40px; }
+        .slider-track { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 20px; }
+        .slider-track::-webkit-scrollbar { display: none; }
+        .slider-slide { flex: 0 0 auto; width: 80%; scroll-snap-align: center; border-radius: 18px; overflow: hidden; border: 1px solid var(--border-subtle); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .slider-slide img { width: 100%; height: auto; display: block; }
+        .slider-indicators { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+        .slider-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-subtle); transition: all 0.3s; cursor: pointer; }
+        .slider-dot.active { width: 20px; border-radius: 10px; background: var(--emerald); }
+
+        /* ═══ MODALS ═══ */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--navy-card); border: 1px solid var(--border-active); border-radius: 24px; width: 100%; max-width: 400px; padding: 40px 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .modal-icon { width: 70px; height: 70px; border-radius: 50%; background: rgba(0,200,83,0.1); color: var(--emerald); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 24px; }
+        .modal-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+        .modal-body { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 32px; }
+        .btn-close { width: 100%; padding: 16px; background: var(--emerald); color: #000; border-radius: 12px; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-close:hover { background: var(--emerald-light); transform: scale(1.02); }
+
+        /* ═══ WHATSAPP ═══ */
+        .chat-bubble { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: #25D366; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; z-index: 9000; box-shadow: 0 8px 24px rgba(37,211,102,0.4); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .chat-bubble:hover { transform: scale(1.1) rotate(10deg); }
+        .chat-text { position: fixed; bottom: 32px; right: 90px; background: #fff; color: #000; padding: 8px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; z-index: 9000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); pointer-events: none; opacity: 0; transform: translateX(20px); transition: all 0.3s ease; }
+        .chat-text.show { opacity: 1; transform: translateX(0); }
+
+        /* ═══ TOOLTIP ═══ */
+        .help-icon-wrapper { position: relative; display: inline-block; margin-left: 4px; cursor: help; }
+        .help-icon { width: 16px; height: 16px; border-radius: 50%; background: var(--border-subtle); color: var(--text-muted); font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-10px); width: 200px; background: #fff; color: #000; padding: 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 500; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; }
+        .help-icon-wrapper:hover .tooltip { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+
+        /* ═══ BANNER ═══ */
+        .banner {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--navy-card); border-top: 2px solid var(--emerald);
+            padding: 24px 20px;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
+            display: none; flex-direction: column; align-items: center;
+            text-align: center; z-index: 9999;
+        }
+        .banner-title { font-size: 1.1rem; font-weight: 700; color: var(--emerald); margin-bottom: 12px; }
+        .banner-description { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+        .cta-button {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+            color: #000;
+            border-radius: 60px; font-size: 0.95rem; font-weight: 700;
+            text-decoration: none; display: block; margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover { transform: translateY(-2px); }
+        .close-modal {
+            width: 100%; padding: 12px; background: transparent;
+            color: var(--text-muted); border: 1px solid var(--border-subtle);
+            border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+            cursor: pointer; text-align: center; text-decoration: none;
+            display: block; transition: all 0.2s; font-family: var(--font-family);
+        }
+        .close-modal:hover { border-color: var(--border-active); color: var(--white); }
+
+        .footer-content {
+            width: 100%; padding: 48px 16px 32px;
+            background: var(--navy-surface);
+            border-top: 1px solid var(--border-active);
+            text-align: center; position: relative; z-index: 1;
+        }
+        .footer-content::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--emerald), transparent);
+        }
+        .footer-content h3 {
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted);
+            letter-spacing: 0.1em; text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .footer-content .social-icons { margin-bottom: 24px; }
+        .footer-content .social-icons a {
+            color: var(--text-muted); font-size: 1.6rem;
+            margin: 0 12px; transition: all 0.2s;
+        }
+        .footer-content .social-icons a:hover { color: var(--emerald); transform: translateY(-3px); }
+        .footer-content p {
+            font-size: 0.78rem; color: var(--text-subtle);
+            line-height: 1.6; margin-bottom: 8px;
+        }
+        .footer-content a { color: var(--emerald-light); text-decoration: none; transition: color 0.2s; font-weight: 600; }
+        .footer-content a:hover { color: var(--emerald); }
+
+        .content-grid h2 {
+            font-family: var(--font-display);
+            font-size: 1.15rem; font-weight: 700;
+            color: var(--emerald); text-align: left; margin-bottom: 18px;
+        }
+        .section-subtitle {
+            font-size: 0.82rem; font-weight: 700; color: var(--emerald);
+            letter-spacing: 0.08em; text-transform: uppercase;
+            margin: 24px 0 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* Recomendación automática */
+        .recommendation-selector {
+            width: 100%;
+            background: var(--navy-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius);
+            padding: 28px 20px;
+            margin-bottom: 32px;
+        }
+        .recommendation-selector h3 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .recommendation-selector p.sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .rec-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .rec-option {
+            background: var(--navy-surface);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 18px 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .rec-option:hover {
+            border-color: var(--border-active);
+            background: rgba(0,200,83,0.05);
+            transform: translateX(4px);
+        }
+        .rec-option.selected-rec {
+            border-color: var(--emerald);
+            background: rgba(0,200,83,0.08);
+            box-shadow: 0 0 20px var(--emerald-glow);
+        }
+        .rec-option .rec-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: rgba(0,200,83,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: var(--emerald);
+            flex-shrink: 0;
+        }
+        .rec-option .rec-text strong {
+            display: block;
+            font-size: 0.95rem;
+            color: var(--white);
+            margin-bottom: 4px;
+        }
+        .rec-option .rec-text span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .trust-block {
+            background: rgba(0,200,83,0.03);
+            border: 1px solid var(--border-active);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin: 18px 0 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .trust-block .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+        }
+        .trust-block .trust-item i {
+            color: var(--emerald);
+            font-size: 0.9rem;
+            width: 18px;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .hero-stats { flex-wrap: wrap; }
+            .stat-item { min-width: 50%; border-right: none; border-bottom: 1px solid var(--border-subtle); }
+            .stat-item:nth-child(2n) { border-right: none; }
+            .pricing-table th, .pricing-table td { padding: 10px 10px; font-size: 0.78rem; }
+            .content-grid { padding: 0 12px; }
+            .section { padding: 40px 0; }
+            .slider-slide { width: 90%; }
+            #sidebar { width: 100%; max-width: 300px; }
+            .purchase-body { padding: 16px 12px 20px; }
+            .advantage-grid { gap: 8px; }
+            .rec-options { gap: 10px; }
+        }
+        @media (min-width: 768px) {
+            .content-grid { padding: 0 20px; }
+            .purchase-body { padding: 24px 20px 28px; }
+            .slider-slide { width: 45%; }
+            .rec-options { flex-direction: row; }
+            .rec-option { flex: 1; }
+        }
+        @media (min-width: 1024px) {
+            .content-grid { max-width: 960px; }
+            .slider-slide { width: 30%; }
+            .advantage-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-1"></div>
+    <div class="ambient-2"></div>
+
+    <!-- ═══ TYPEWRITER HEADER ═══ -->
+    <div id="typewriterHeader">
+        <span class="dot"></span>
+        <span id="typewriterText"></span>
+        <span class="typewriter-cursor"></span>
+    </div>
+
+    <!-- Botón hamburguesa -->
+    <button id="menu-toggle" aria-label="Abrir menú">
+        <i data-lucide="menu"></i>
+    </button>
+
+    <!-- Overlay -->
+    <div id="sidebar-overlay" class="hidden"></div>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside id="sidebar">
+        <div class="sb-header">
+            <div class="sb-logo-box">
+                <img src="https://cdn-icons-png.flaticon.com/128/747/747965.png" alt="Masitaprex">
+            </div>
+            <div class="sb-brand">Masitaprex</div>
+            <div class="sb-tagline">Infraestructura Tecnológica • LATAM</div>
+        </div>
+        <div class="sb-scroll-area">
+            <nav>
+                <div class="sb-cat">General</div>
+                <a href="home">
+                    <i class="fas fa-home sb-icon"></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="planes" class="active">
+                    <i class="fas fa-bolt sb-icon"></i>
+                    <span>Recargar</span>
+                </a>
+                <div class="sb-cat">Herramientas API</div>
+                <a href="api-key">
+                    <i class="fas fa-key sb-icon"></i>
+                    <span>Mi API Key</span>
+                </a>
+                <a href="API-Docs">
+                    <i class="fas fa-file-code sb-icon"></i>
+                    <span>Documentación APIs</span>
+                </a>
+                <a href="consultaPe-vercion-web">
+                    <i class="fas fa-globe sb-icon"></i>
+                    <span>ConsultaPe versión web</span>
+                </a>
+                <div class="sb-cat">Entretenimiento</div>
+                <a href="PeliPREX">
+                    <i class="fas fa-film sb-icon"></i>
+                    <span>Películas gratis</span>
+                </a>
+                <div class="sb-cat">Próximamente</div>
+                <a href="bienvenida-Revenue-Recovery-OS">
+                    <i class="fas fa-robot sb-icon"></i>
+                    <span>Revenue-Recovery-OS</span>
+                    <span class="sb-badge">Pronto</span>
+                </a>
+                <div class="sb-cat">Cuenta</div>
+                <a href="ayuda">
+                    <i class="fas fa-headset sb-icon"></i>
+                    <span>Ayuda y soporte</span>
+                </a>
+                <a href="actividad">
+                    <i class="fas fa-user-circle sb-icon"></i>
+                    <span>Mi cuenta</span>
+                </a>
+            </nav>
+        </div>
+        <div class="sb-footer">
+            <a href="https://m.facebook.com/61564349657272/" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://youtube.com/@eltiojota628" target="_blank" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/51944950234" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </aside>
+
+    <main>
+
+        <!-- ═══ HERO ═══ -->
+        <section class="hero">
+            <div class="hero-line"></div>
+            <span class="hero-eyebrow">Infraestructura tecnológica · Perú · 2026</span>
+            <h1 class="hero-title"><em>Masitaprex</em><br>Elige tu<br>plan.</h1>
+            <div class="hero-divider"></div>
+            <p class="hero-tagline">Compra créditos o un plan intensivo con activación inmediata.</p>
+            <p class="hero-sub">APIs, consultas, streaming premium — todo en un solo acceso. Sin demoras, sin complicaciones.</p>
+            <button class="hero-cta" onclick="document.getElementById('purchase-section').scrollIntoView({behavior:'smooth'})">
+                <i class="fas fa-bolt"></i> Activar plan ahora
+            </button>
+            <div class="hero-stats">
+                <div class="stat-item"><span class="stat-num">+2,400</span><span class="stat-label">Usuarios Activos</span></div>
+                <div class="stat-item"><span class="stat-num">6</span><span class="stat-label">Servicios</span></div>
+                <div class="stat-item"><span class="stat-num">24/7</span><span class="stat-label">Disponibilidad</span></div>
+                <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label">Activación</span></div>
+            </div>
+        </section>
+
+        <!-- ═══ MENSAJE DE CONFIANZA ═══ -->
+        <section class="elite-statement">
+            <p class="elite-quote">Activa tu cuenta en segundos y empieza a usar <em>todas las herramientas.</em></p>
+            <p class="elite-quote-sub">— Pago seguro, activación automática, sin letra pequeña.</p>
+        </section>
+
+        <!-- ═══ SELECTOR DE RECOMENDACIÓN ═══ -->
+        <section class="section" id="recommendation-section">
+            <div class="content-grid">
+                <div class="recommendation-selector">
+                    <h3>¿No sabes qué plan elegir?</h3>
+                    <p class="sub">Selecciona cómo planeas usar Masitaprex y te recomendamos la mejor opción.</p>
+                    <div class="rec-options">
+                        <div class="rec-option" onclick="applyRecommendation('CREDITOS', this)">
+                            <div class="rec-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="rec-text">
+                                <strong>Consulto algunas veces por semana</strong>
+                                <span>→ Créditos: pagas solo por uso, sin vencimiento.</span>
+                            </div>
+                        </div>
+                        <div class="rec-option" onclick="applyRecommendation('INTENSIVO', this)">
+                            <div class="rec-icon"><i class="fas fa-bolt"></i></div>
+                            <div class="rec-text">
+                                <strong>Consulto a diario</strong>
+                                <span>→ Plan intensivo: sin preocuparte por créditos.</span>
+                            </div>
+                        </div>
+                        <div class="rec-option" onclick="applyRecommendation('DEDICADO', this)">
+                            <div class="rec-icon"><i class="fas fa-server"></i></div>
+                            <div class="rec-text">
+                                <strong>Integración en sistema o venta a terceros</strong>
+                                <span>→ Plan dedicado: contáctanos por WhatsApp.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ PURCHASE SECTION ═══ -->
+        <section class="section" id="purchase-section">
+            <div class="content-grid">
+                <div>
+                    <span class="section-label">Acceso al ecosistema</span>
+                    <h2 class="section-title">⚡ Activación Instantánea</h2>
+                    <p class="section-body">Paga solo por lo que necesitas y activa tu cuenta en segundos.</p>
+                </div>
+
+                <div class="purchase-wrapper">
+                    <div class="purchase-header">
+                        <h2>⚡ Activación Instantánea</h2>
+                        <p>Pago procesado · Acceso activado · Sin esperas</p>
+                    </div>
+                    <div class="purchase-body">
+                        <p class="policy-link">Al continuar aceptas la <a href="politica.compras.html">Política de Compras y Créditos</a></p>
+                        <div class="info-box"><strong>Selecciona tu plan y paga con Mercado Pago.</strong> La activación ocurre al instante — sin demoras, sin burocracia.</div>
+
+                        <div id="purchaseForm">
+                            <div class="form-group">
+                                <label>Tipo de acceso:</label>
+                                <div class="type-selector">
+                                    <div class="type-option selected" id="creditsType" data-type="CREDITOS"><i class="fas fa-coins"></i> Créditos</div>
+                                    <div class="type-option" id="intensiveType" data-type="INTENSIVO"><i class="fas fa-bolt"></i> Plan intensivo</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="userEmail">Correo electrónico <span class="help-icon-wrapper"><span class="help-icon">?</span><div class="tooltip">Ingresa tu correo o el de la persona a quien quieres recargar.</div></span></label>
+                                <input type="email" id="userEmail" required placeholder="ejemplo@gmail.com" />
+                            </div>
+                            <div class="form-group">
+                                <label for="userUid">ID de usuario <span class="help-icon-wrapper"><span class="help-icon">?</span><div class="tooltip">Tu ID único de cuenta. Si vas a recargar otra cuenta, reemplaza este valor.</div></span></label>
+                                <input type="text" id="userUid" required placeholder="ID de Usuario" />
+                            </div>
+                            <div class="form-group">
+                                <label for="purchaseDetailsSelect" id="selectLabel">Selecciona paquete:</label>
+                                <select id="purchaseDetailsSelect" required>
+                                    <option value="" disabled selected>Selecciona un monto / plan</option>
+                                </select>
+                            </div>
+
+                            <div class="trust-block">
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Tu compra se activa automáticamente en tu cuenta.</div>
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Créditos sin vencimiento.</div>
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Acceso desde web y APK.</div>
+                                <div class="trust-item"><i class="fas fa-check-circle"></i> Soporte si lo necesitas.</div>
+                            </div>
+
+                            <div class="payment-info-text">Aceptamos todas las tarjetas</div>
+                            <div class="card-icons-container">
+                                <div class="card-icon"><i class="fab fa-cc-visa"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-mastercard"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-amex"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-diners-club"></i></div>
+                                <div class="card-icon"><i class="fab fa-cc-discover"></i></div>
+                                <div class="card-icon more-card"><span>y más</span></div>
+                            </div>
+
+                            <div class="loading-spinner" id="paymentLoading" style="display:none;">
+                                <div class="loading-spinner-container">
+                                    <div class="loading-ring-container">
+                                        <div class="loading-ring"></div>
+                                        <div class="loading-ring"></div>
+                                        <div class="loading-ring"></div>
+                                    </div>
+                                </div>
+                                <p class="loading-text">Iniciando pago, espera un momento...</p>
+                            </div>
+
+                            <button type="button" class="buy-button mp enabled" id="mpButton">
+                                <i class="fas fa-bolt"></i> Pagar con Mercado Pago
+                            </button>
+                            <p class="purchase-footer-note">Pago procesado por Mercado Pago.</p>
+
+                            <div class="message-container" id="paymentMessage" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- ═══ PRICING ═══ -->
+        <section class="section">
+            <div class="content-grid">
+                <div>
+                    <span class="section-label">Estructura de precios</span>
+                    <h2 class="section-title">Elige tu <em>inversión.</em></h2>
+                    <p class="section-body">Mientras más grande el paquete, menor el costo por consulta. Los que piensan en grande, pagan menos por cada movimiento.</p>
+                </div>
+
+                <!-- Créditos -->
+                <div class="pricing-section" id="creditsPricingSection">
+                    <div class="pricing-section-header">
+                        <div class="pricing-section-icon gold"><i class="fas fa-coins"></i></div>
+                        <div><div class="pricing-section-title">Créditos — Ideal si consultas de forma ocasional</div><div class="pricing-section-sub">Sin vencimiento · Acumulables · Bonus por volumen</div></div>
+                    </div>
+                    <table class="pricing-table">
+                        <thead><tr><th>Monto (S/.)</th><th>Créditos</th><th>Bonus</th></tr></thead>
+                        <tbody>
+                            <tr><td>S/ 10</td><td>60 ⚡</td><td>+3</td></tr>
+                            <tr><td>S/ 20</td><td>125 🚀</td><td>+5</td></tr>
+                            <tr class="recommended-row"><td>S/ 50 ⭐</td><td>330 💎</td><td>+20</td></tr>
+                            <tr><td>S/ 100</td><td>700 👑</td><td>+40</td></tr>
+                            <tr class="best-value-row"><td>S/ 200</td><td>1,500 🔥</td><td>+80</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Plan intensivo -->
+                <div class="pricing-section" id="intensivePricingSection">
+                    <div class="pricing-section-header">
+                        <div class="pricing-section-icon crimson"><i class="fas fa-bolt"></i></div>
+                        <div><div class="pricing-section-title">Plan intensivo — Ideal si consultas a diario</div><div class="pricing-section-sub">Uso humano normal sujeto a política de uso razonable · Sin contar créditos</div></div>
+                    </div>
+                    <table class="pricing-table">
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Precio (S/.)</th>
+                                <th>Umbral de seguridad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>7 días</td><td>S/ 80</td><td>1,000 consultas</td></tr>
+                            <tr><td>15 días</td><td>S/ 120</td><td>2,500 consultas</td></tr>
+                            <tr class="recommended-row"><td>30 días ⭐</td><td>S/ 180</td><td>5,000 consultas</td></tr>
+                            <tr><td>60 días</td><td>S/ 320</td><td>12,000 consultas</td></tr>
+                        </tbody>
+                    </table>
+                    <div style="padding: 16px 14px; background: rgba(0,0,0,0.1);">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;"><strong>Nota de Seguridad:</strong> Nuestros planes intensivos están diseñados para el uso humano y profesional estándar. Para garantizar la estabilidad del ecosistema Masitaprex y evitar tráfico abusivo o extracción masiva de datos, cada plan cuenta con un umbral de seguridad de consultas. El uso debe ajustarse a la <a href="politica.compras.html" style="color: var(--emerald-light); text-decoration: underline;">política de uso razonable</a>.</p>
+                        <p style="font-size: 0.85rem; color: var(--emerald-light);"><i class="fas fa-bolt"></i> Si tu proyecto requiere integración de alto volumen o consultas masivas por segundo, <a href="#" onclick="goToWhatsApp(); return false;" style="color: var(--emerald-light); text-decoration: underline; font-weight: bold;">contáctanos por WhatsApp</a> para habilitar un <strong>Plan Dedicado de Alta Disponibilidad</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Comparativa -->
+                <div class="pricing-section">
+                    <div class="pricing-section-header">
+                        <div class="pricing-section-icon platinum"><i class="fas fa-chart-bar"></i></div>
+                        <div><div class="pricing-section-title">Comparativa de ahorro real</div><div class="pricing-section-sub">Costo efectivo por consulta según paquete</div></div>
+                    </div>
+                    <table class="pricing-table">
+                        <thead><tr><th>Paquete</th><th>Créditos</th><th>Costo / consulta</th><th>Ahorro</th></tr></thead>
+                        <tbody>
+                            <tr><td>S/ 10</td><td>60 ⚡</td><td>S/ 0.17</td><td>—</td></tr>
+                            <tr class="recommended-row"><td>S/ 50</td><td>330 💎</td><td>S/ 0.15</td><td>13%</td></tr>
+                            <tr class="best-value-row"><td>S/ 200</td><td>1,500 🔥</td><td>S/ 0.13</td><td>24%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p style="font-size:0.8rem; color: var(--text-subtle); text-align: center;">🧠 Mientras más grande el paquete, menos pagas por consulta y más ventaja acumulas.</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- ═══ QUÉ INCLUYE TU COMPRA ═══ -->
+        <section class="section">
+            <div class="content-grid">
+                <span class="section-label">Qué incluye tu compra</span>
+                <h2 class="section-title">Todo lo que recibes <em>al activar</em></h2>
+                <div class="advantage-grid">
+                    <div class="advantage-item"><div class="adv-icon"><i class="fas fa-bolt"></i></div><span>Activación Inmediata</span></div>
+                    <div class="advantage-item"><div class="adv-icon"><i class="fas fa-shield-alt"></i></div><span>Pago 100% Seguro</span></div>
+                    <div class="advantage-item"><div class="adv-icon"><i class="fas fa-headset"></i></div><span>Soporte Prioritario</span></div>
+                    <div class="advantage-item"><div class="adv-icon"><i class="fas fa-layer-group"></i></div><span>Ecosistema Completo</span></div>
+                    <div class="advantage-item"><div class="adv-icon"><i class="fas fa-percent"></i></div><span>Bonificaciones Extra</span></div>
+                    <div class="advantage-item"><div class="adv-icon"><i class="fas fa-infinity"></i></div><span>Sin fecha de vencimiento</span></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- ═══ SLIDER ═══ -->
+        <section class="section">
+            <div class="content-grid">
+                <span class="section-label">Conoce cómo funciona</span>
+                <h2 class="section-title">Explora el <em>ecosistema</em></h2>
+                <p class="section-body">Una mirada al interior de Masitaprex — tecnología, herramientas y acceso en un solo lugar.</p>
+                <div class="slider-container">
+                    <div class="slider-track" id="sliderTrack">
+                        <div class="slider-slide"><img src="https://i.postimg.cc/7Y4h8SSC/image-17.jpg" alt="Masitaprex Vista 1" loading="lazy"></div>
+                        <div class="slider-slide"><img src="https://i.postimg.cc/15SXhDDf/image-25.jpg" alt="Masitaprex Vista 2" loading="lazy"></div>
+                        <div class="slider-slide"><img src="https://i.postimg.cc/mZCk5m1P/image-24.jpg" alt="Masitaprex Vista 3" loading="lazy"></div>
+                        <div class="slider-slide"><img src="https://i.postimg.cc/gc8jTgLJ/image-18.jpg" alt="Masitaprex Vista 4" loading="lazy"></div>
+                        <div class="slider-slide"><img src="https://i.postimg.cc/8kMc0Zfj/image-11.jpg" alt="Masitaprex Vista 5" loading="lazy"></div>
+                        <div class="slider-slide"><img src="https://i.postimg.cc/CMk5QcnZ/image-16.jpg" alt="Masitaprex Vista 6" loading="lazy"></div>
+                    </div>
+                    <div class="slider-indicators" id="sliderIndicators"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- ═══ PROCESO DE PAGO ═══ -->
+        <section class="section">
+            <div class="content-grid">
+                <span class="section-label">Proceso de pago</span>
+                <h2 class="section-title">Paga en <em>60 segundos.</em></h2>
+                <p class="section-body">Sin complicaciones. Sin rodeos. Diseñamos el proceso para los que valoran su tiempo.</p>
+                <div class="pricing-section">
+                    <div class="pricing-section-header">
+                        <div class="pricing-section-icon gold"><i class="fas fa-credit-card"></i></div>
+                        <div><div class="pricing-section-title">Tarjeta de Crédito o Débito</div><div class="pricing-section-sub">Visa, Mastercard, Amex y más · Activación inmediata</div></div>
+                    </div>
+                    <div style="padding: 16px 14px;">
+                        <ul class="instruction-list">
+                            <li data-step="1">Selecciona tu tipo de compra y paquete arriba.</li>
+                            <li data-step="2">Ingresa <strong>tu correo e ID</strong> correctamente.</li>
+                            <li data-step="3">Haz clic en "Pagar con Mercado Pago" y completa los datos de tu tarjeta.</li>
+                            <li data-step="4">Confirmado el pago, tu cuenta se activa automáticamente.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer-content">
+            <h3>Masitaprex</h3>
+            <div class="social-icons">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://youtube.com/@eltiojota628" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="https://wa.me/51944950234" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p>© 2026 Masitaprex. Todos los derechos reservados.</p>
+            <p><a href="politica-privacidad.html">Privacidad</a> · <a href="terminos-condiciones.html">Términos</a> · <a href="politica.compras.html">Compras</a></p>
+        </footer>
+
+    </main>
+
+    <!-- ═══ MODALS ═══ -->
+    <div id="successModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon"><i class="fas fa-check"></i></div>
+            <h4 class="modal-title" id="successModalTitle">¡Activación Exitosa!</h4>
+            <p class="modal-body" id="successModalBody"></p>
+            <button class="btn-close" onclick="closeSuccessModal()">Empezar a usar</button>
+        </div>
+    </div>
+
+    <div id="errorModalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon" style="background:rgba(229,57,53,0.1); color:var(--ruby-light);"><i class="fas fa-times"></i></div>
+            <h4 class="modal-title">Error en la Transacción</h4>
+            <p class="modal-body" id="errorMessage"></p>
+            <button class="btn-close" onclick="closeErrorModal()">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- ═══ WHATSAPP ═══ -->
+    <div class="chat-bubble" onclick="goToWhatsApp()"><i class="fab fa-whatsapp"></i></div>
+    <div class="chat-text" id="chatText" onclick="goToWhatsApp()"></div>
+
+    <!-- ═══ SCRIPTS ═══ -->
+    <script>
+        // Typewriter header
+        (function() {
+            const fullText = "Activa tu plan en segundos";
+            const textElement = document.getElementById("typewriterText");
+            let currentIndex = 0, isDeleting = false, isWaiting = false;
+            function typeEffect() {
+                if (isWaiting) return;
+                if (!isDeleting) {
+                    if (currentIndex <= fullText.length) { textElement.textContent = fullText.substring(0, currentIndex); currentIndex++; setTimeout(typeEffect, 70); }
+                    else { isDeleting = true; isWaiting = true; setTimeout(() => { isWaiting = false; typeEffect(); }, 2500); }
+                } else {
+                    if (currentIndex >= 0) { textElement.textContent = fullText.substring(0, currentIndex); currentIndex--; setTimeout(typeEffect, 50); }
+                    else { isDeleting = false; currentIndex = 0; isWaiting = true; setTimeout(() => { isWaiting = false; typeEffect(); }, 800); }
+                }
+            }
+            typeEffect();
+        })();
+
+        // Slider indicadores
+        (function() {
+            const track = document.getElementById('sliderTrack');
+            const indicatorsContainer = document.getElementById('sliderIndicators');
+            const slides = document.querySelectorAll('.slider-slide');
+            if (!track || !indicatorsContainer || slides.length === 0) return;
+            slides.forEach((_, index) => {
+                const dot = document.createElement('div'); dot.classList.add('slider-dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => { track.scrollTo({ left: index * (slides[0].offsetWidth + 14), behavior: 'smooth' }); updateActiveDot(index); });
+                indicatorsContainer.appendChild(dot);
+            });
+            function updateActiveDot(activeIndex) { document.querySelectorAll('.slider-dot').forEach((dot, idx) => dot.classList.toggle('active', idx === activeIndex)); }
+            let scrollTimeout;
+            track.addEventListener('scroll', () => { clearTimeout(scrollTimeout); scrollTimeout = setTimeout(() => { const activeIndex = Math.round(track.scrollLeft / (slides[0].offsetWidth + 14)); updateActiveDot(Math.min(activeIndex, slides.length - 1)); }, 100); });
+        })();
+
+        // Constantes
+        const BASE_API_URL = "/api/init/mercadopago";
+        
+        // Mapa de Planes Seguro (Frontend)
+        const PLANES_CONFIG = {
+            'CREDITOS': [
+                { id: "60_creditos", label: "S/ 10 → 60 créditos (+3 bonus)", amount: 10 },
+                { id: "125_creditos", label: "S/ 20 → 125 créditos (+5 bonus)", amount: 20 },
+                { id: "330_creditos", label: "⭐ S/ 50 → 330 créditos (+20 bonus)", amount: 50 },
+                { id: "700_creditos", label: "S/ 100 → 700 créditos (+40 bonus)", amount: 100 },
+                { id: "1500_creditos", label: "🔥 S/ 200 → 1,500 créditos (+80 bonus)", amount: 200 }
+            ],
+            'INTENSIVO': [
+                { id: "plan_7_dias", label: "7 días — S/ 80 (1,000 consultas)", amount: 80 },
+                { id: "plan_15_dias", label: "15 días — S/ 120 (2,500 consultas)", amount: 120 },
+                { id: "plan_30_dias", label: "⭐ 30 días — S/ 180 (5,000 consultas)", amount: 180 },
+                { id: "plan_60_dias", label: "60 días — S/ 320 (12,000 consultas)", amount: 320 }
+            ]
+        };
+
+        const STORAGE_KEY_EMAIL = 'masitaprex_user_email';
+        const STORAGE_KEY_UID = 'masitaprex_user_uid';
+        let auth, currentPurchaseType = 'CREDITOS';
+
+        // Sidebar
+        lucide.createIcons();
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        function toggleMenu() {
+            const isOpen = sidebar.classList.toggle('open');
+            if (isOpen) { overlay.classList.remove('hidden'); overlay.style.display = 'block'; document.body.style.overflow = 'hidden'; setTimeout(() => overlay.classList.add('opacity-100'), 10); }
+            else { overlay.classList.remove('opacity-100'); document.body.style.overflow = ''; setTimeout(() => { if (!sidebar.classList.contains('open')) { overlay.classList.add('hidden'); overlay.style.display = 'none'; } }, 300); }
+        }
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+        sidebar.querySelectorAll('nav a').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); toggleMenu(); setTimeout(() => { window.location.href = link.getAttribute('href'); }, 300); }); });
+
+        // Elementos DOM
+        const userEmailInput = document.getElementById("userEmail");
+        const userUidInput = document.getElementById("userUid");
+        const purchaseDetailsSelect = document.getElementById("purchaseDetailsSelect");
+        const selectLabel = document.getElementById("selectLabel");
+        const paymentLoading = document.getElementById("paymentLoading");
+        const mpButton = document.getElementById("mpButton");
+        const creditsTypeBtn = document.getElementById("creditsType");
+        const intensiveTypeBtn = document.getElementById("intensiveType");
+        const successModalOverlay = document.getElementById("successModalOverlay");
+        const successModalTitle = document.getElementById("successModalTitle");
+        const successModalBody = document.getElementById("successModalBody");
+        const errorModalOverlay = document.getElementById("errorModalOverlay");
+        const errorMessageDisplay = document.getElementById("errorMessage");
+
+        function sharePage() { const url = "https://masitaprexv2.fly.dev/"; if (navigator.share) { navigator.share({ title: "Masitaprex", text: "¡Activa tu plan en Masitaprex!", url }).catch(e => console.log(e)); } else { window.open(url, "_blank"); } }
+        function closeBanner() { document.getElementById('banner').style.display = 'none'; }
+
+        function showErrorModal(message) { errorMessageDisplay.innerHTML = message.replace(/\n/g, '<br>'); errorModalOverlay.classList.add('active'); errorModalOverlay.style.display = "flex"; paymentLoading.style.display = "none"; }
+        function closeErrorModal() { errorModalOverlay.classList.remove('active'); errorModalOverlay.style.display = "none"; }
+        function showSuccessModal(title, body) { successModalTitle.textContent = title; successModalBody.textContent = body; successModalOverlay.classList.add('active'); successModalOverlay.style.display = "flex"; paymentLoading.style.display = "none"; }
+        function closeSuccessModal() { successModalOverlay.classList.remove('active'); successModalOverlay.style.display = "none"; }
+
+        function populateDetailsSelect(type) {
+            purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un monto / plan</option>';
+            const options = PLANES_CONFIG[type];
+            
+            if (type === 'CREDITOS') {
+                selectLabel.textContent = 'Selecciona el Paquete de Créditos:';
+            } else {
+                selectLabel.textContent = 'Selecciona el Plan Intensivo:';
+            }
+
+            options.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = opt.id;
+                o.textContent = opt.label;
+                purchaseDetailsSelect.appendChild(o);
+            });
+            
+            updatePaymentButtons();
+        }
+
+        function updatePaymentButtons() { const email = userEmailInput.value.trim(); const uid = userUidInput.value.trim(); const selected = purchaseDetailsSelect.value; const isValid = email && uid && selected && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); mpButton.classList.toggle('enabled', isValid); if (!isValid) { mpButton.classList.add('disabled-text'); } else { mpButton.classList.remove('disabled-text'); } }
+
+        async function startPayment() {
+            const email = userEmailInput.value.trim(); 
+            const uid = userUidInput.value.trim(); 
+            const planId = purchaseDetailsSelect.value;
+            
+            if (!email || !uid || !planId) return;
+            
+            paymentLoading.style.display = 'block'; 
+            mpButton.style.display = 'none';
+            
+            // Redirigir al checkout usando planId en lugar de amount
+            window.location.href = `/checkout.html?planId=${planId}&uid=${uid}&email=${email}`;
+        }
+
+        function clearStorageAfterPayment() { localStorage.removeItem(STORAGE_KEY_EMAIL); localStorage.removeItem(STORAGE_KEY_UID); }
+
+        function handleTypeSelection(event) {
+            const selectedType = event.currentTarget.dataset.type;
+            creditsTypeBtn.classList.remove('selected'); intensiveTypeBtn.classList.remove('selected');
+            event.currentTarget.classList.add('selected'); currentPurchaseType = selectedType;
+            populateDetailsSelect(selectedType);
+        }
+
+        function applyRecommendation(type, element) {
+            document.querySelectorAll('.rec-option').forEach(opt => opt.classList.remove('selected-rec'));
+            element.classList.add('selected-rec');
+
+            if (type === 'DEDICADO') {
+                goToWhatsApp();
+                return;
+            }
+
+            if (type === 'CREDITOS') {
+                creditsTypeBtn.classList.add('selected');
+                intensiveTypeBtn.classList.remove('selected');
+                currentPurchaseType = 'CREDITOS';
+            } else {
+                intensiveTypeBtn.classList.add('selected');
+                creditsTypeBtn.classList.remove('selected');
+                currentPurchaseType = 'INTENSIVO';
+            }
+            populateDetailsSelect(type);
+            document.getElementById('purchase-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handlePaymentCallback() {
+            const urlParams = new URLSearchParams(window.location.search); const urlPath = window.location.pathname;
+            if (urlPath.endsWith('/payment/success') && urlParams.has('msg')) {
+                try { const messageObj = JSON.parse(decodeURIComponent(urlParams.get('msg'))); if (messageObj?.titulo && messageObj?.cuerpo) { showSuccessModal(messageObj.titulo, messageObj.cuerpo); clearStorageAfterPayment(); } else { showErrorModal("Compra exitosa, pero el mensaje está incompleto."); } }
+                catch (e) { showErrorModal("Error al leer la confirmación."); }
+                return true;
+            }
+            if (urlPath.endsWith('/payment/rejected')) { showErrorModal(`Transacción rechazada.`); return true; }
+            if (urlPath.endsWith('/payment/error') && urlParams.has('msg')) { showErrorModal(`Error:\n\n${decodeURIComponent(urlParams.get('msg'))}`); return true; }
+            return false;
+        }
+
+        async function initApp() {
+            try {
+                const response = await fetch('/api/config'); const config = await response.json();
+                if (!firebase.apps.length) firebase.initializeApp(config.firebaseConfig);
+                auth = firebase.auth();
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        const realEmail = user.email || "";
+                        const realUid = user.uid || "";
+                        localStorage.setItem(STORAGE_KEY_EMAIL, realEmail);
+                        localStorage.setItem(STORAGE_KEY_UID, realUid);
+                        userEmailInput.value = realEmail;
+                        userUidInput.value = realUid;
+                    } else {
+                        ReturnConfig.redirectToLogin();
+                    }
+                    updatePaymentButtons();
+                });
+                populateDetailsSelect(currentPurchaseType);
+                handlePaymentCallback();
+            } catch (error) { console.error("Error:", error); showErrorModal("Error al conectar con el servidor."); }
+        }
+
+        userEmailInput.addEventListener('input', function() { localStorage.setItem(STORAGE_KEY_EMAIL, this.value.trim()); updatePaymentButtons(); });
+        userUidInput.addEventListener('input', function() { localStorage.setItem(STORAGE_KEY_UID, this.value.trim()); updatePaymentButtons(); });
+        purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
+        mpButton.addEventListener('click', startPayment);
+        creditsTypeBtn.addEventListener('click', handleTypeSelection);
+        intensiveTypeBtn.addEventListener('click', handleTypeSelection);
+
+        window.toggleFaq = function(element) {
+            const answer = element.nextElementSibling; const icon = element.querySelector('i');
+            if (answer.style.display === 'none' || answer.style.display === '') { answer.style.display = 'block'; element.classList.add('active'); icon.classList.replace('fa-chevron-right', 'fa-chevron-down'); }
+            else { answer.style.display = 'none'; element.classList.remove('active'); icon.classList.replace('fa-chevron-down', 'fa-chevron-right'); }
+        };
+
+        const chatTextEl = document.getElementById("chatText");
+        const whatsappMessage = "¡Comprar por Whatsapp!";
+        let idx = 0;
+        function typeChat() { if (idx < whatsappMessage.length) { chatTextEl.textContent += whatsappMessage.charAt(idx); idx++; setTimeout(typeChat, 100); } else { setTimeout(() => { chatTextEl.classList.add('show'); }, 500); } }
+        function goToWhatsApp() { window.open("https://wa.me/51944950234?text=Hola,%20quiero%20comprar%20un%20plan%20dedicado%20en%20Masitaprex", "_blank"); }
+        
+        window.onload = () => { initApp(); setTimeout(typeChat, 2000); };
+    </script>
+</body>
+</html>
