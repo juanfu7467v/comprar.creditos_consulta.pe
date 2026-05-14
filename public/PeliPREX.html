@@ -2317,8 +2317,16 @@ function isFlyioUrl(url) {
 function updateOGTags(movie) {
     if (!movie) return;
     const titulo = movie.titulo || 'PeliPREX HD';
-    const descripcion = movie.descripcion ? movie.descripcion.substring(0, 200) : `Mira ${titulo} en PeliPREX HD. Dale play ahora mismo.`;
-    const imagen = movie.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
+    const descripcion = (movie.descripcion ? movie.descripcion.substring(0, 160) : `Mira ${titulo} en PeliPREX HD. Dale play ahora mismo.`).trim();
+    let imagen = movie.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
+    
+    // Optimizar imagen para redes sociales (Google Drive)
+    if (imagen.includes('drive.google.com')) {
+        const match = imagen.match(/\/d\/([^/]+)/);
+        if (match) {
+            imagen = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+        }
+    }
     const movieParam = encodeURIComponent(movie.id || movie.titulo);
     const urlCompartir = window.location.origin + window.location.pathname + '?movie=' + movieParam;
     document.title = `${titulo} | PeliPREX HD`;
@@ -2327,17 +2335,20 @@ function updateOGTags(movie) {
         if (!el) { el = document.createElement('meta'); const parts = selector.match(/\[(\w+)="([^"]+)"\]/); if (parts) { el.setAttribute(parts[1], parts[2]); document.head.appendChild(el); } }
         if (el) el.setAttribute(attr, value);
     };
-    setMeta('meta[property="og:title"]', 'content', `🎬 ${titulo} | PeliPREX HD`);
+    setMeta('meta[property="og:title"]', 'content', `${titulo} | PeliPREX HD`);
     setMeta('meta[property="og:description"]', 'content', descripcion);
     setMeta('meta[property="og:image"]', 'content', imagen);
-    setMeta('meta[property="og:image:width"]', 'content', '1280');
-    setMeta('meta[property="og:image:height"]', 'content', '720');
+    setMeta('meta[property="og:image:width"]', 'content', '1200');
+    setMeta('meta[property="og:image:height"]', 'content', '630');
+    setMeta('meta[property="og:image:type"]', 'content', 'image/jpeg');
     setMeta('meta[property="og:url"]', 'content', urlCompartir);
     setMeta('meta[property="og:type"]', 'content', 'video.movie');
+    setMeta('meta[property="og:site_name"]', 'content', 'PeliPREX HD');
     setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image');
-    setMeta('meta[name="twitter:title"]', 'content', `🎬 ${titulo} | PeliPREX HD`);
+    setMeta('meta[name="twitter:title"]', 'content', `${titulo} | PeliPREX HD`);
     setMeta('meta[name="twitter:description"]', 'content', descripcion);
     setMeta('meta[name="twitter:image"]', 'content', imagen);
+    setMeta('meta[name="twitter:image:alt"]', 'content', titulo);
     setMeta('meta[name="description"]', 'content', descripcion);
 }
 

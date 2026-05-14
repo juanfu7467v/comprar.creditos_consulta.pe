@@ -571,6 +571,21 @@ const SOCIAL_BOTS = [
   'slackbot'
 ];
 
+// Función para generar URL de imagen recortada (horizontal 16:9)
+const generateCroppedImageUrl = (imageUrl) => {
+  if (!imageUrl || imageUrl.includes('flaticon.com')) return imageUrl;
+  // Si es una URL de Google Drive, generar una miniatura
+  if (imageUrl.includes('drive.google.com')) {
+    const match = imageUrl.match(/\/d\/([^/]+)/);
+    if (match) {
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
+    }
+  }
+  // Para otras URLs, agregar parámetros de redimensionamiento si es posible
+  // Esto funciona con CDNs que soportan image resizing
+  return imageUrl;
+};
+
 // Middleware para detectar bots y servir metadatos dinámicos de películas
 const serveDynamicMetadata = async (req, res, next) => {
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
@@ -604,8 +619,8 @@ const serveDynamicMetadata = async (req, res, next) => {
 
       if (movieData) {
         const title = `${movieData.titulo} - PeliPREX`;
-        const description = movieData.descripcion || `Ver ${movieData.titulo} en línea con la mejor calidad en PeliPREX.`;
-        const imageUrl = movieData.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
+        const description = (movieData.descripcion || `Ver ${movieData.titulo} en línea con la mejor calidad en PeliPREX.`).substring(0, 160);
+        let imageUrl = generateCroppedImageUrl(movieData.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png');
         const pageUrl = `${HOST_URL}${req.path}?movie=${encodeURIComponent(movieId)}`;
 
         if (isBot) {
@@ -623,11 +638,14 @@ const serveDynamicMetadata = async (req, res, next) => {
     <meta property="og:image" content="${imageUrl}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:url" content="${pageUrl}">
+    <meta property="og:site_name" content="PeliPREX HD">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${title}">
     <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="${imageUrl}">
+    <meta name="twitter:image:alt" content="${movieData.titulo}">
 </head>
 <body>
     <h1>${title}</h1>
@@ -643,7 +661,8 @@ const serveDynamicMetadata = async (req, res, next) => {
             title,
             description,
             imageUrl,
-            pageUrl
+            pageUrl,
+            movieData
           };
         }
       }
@@ -695,18 +714,86 @@ const serveHtmlWithGA = (req, res, next) => {
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:type" content="video.movie" />
+    <meta property="og:site_name" content="PeliPREX HD" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${imageUrl}" />
+    <meta name="twitter:image:alt" content="${title}" />
           `;
 
+          // Remover etiquetas OG existentes para evitar duplicados
+          html = html.replace(/<meta property="og:title"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:description"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:image"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:image:width"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:image:height"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:image:type"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:url"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:type"[^>]*>/gi, '');
+          html = html.replace(/<meta property="og:site_name"[^>]*>/gi, '');
+          html = html.replace(/<meta name="twitter:card"[^>]*>/gi, '');
+          html = html.replace(/<meta name="twitter:title"[^>]*>/gi, '');
+          html = html.replace(/<meta name="twitter:description"[^>]*>/gi, '');
+          html = html.replace(/<meta name="twitter:image"[^>]*>/gi, '');
+          html = html.replace(/<meta name="twitter:image:alt"[^>]*>/gi, '');
+          
           // Insertar después de <head>
           html = html.replace('<head>', `<head>${dynamicMetaTags}`);
         }
 
+        // Inyectar script para actualizar metadatos en el cliente cuando se cargue la película
+        const metadataScript = `
+<script>
+  // Datos de película inyectados desde el servidor
+  window.injectedMovieData = ${JSON.stringify(req.dynamicMetadata?.movieData || {})};
+  
+  // Función para actualizar metadatos OG dinámicamente
+  function updateOGTagsFromServer(movie) {
+    if (!movie || !movie.titulo) return;
+    
+    const setMeta = (selector, attr, value) => {
+      let el = document.querySelector(selector);
+      if (!el) {
+        el = document.createElement('meta');
+        const parts = selector.match(/\[(\w+)="([^"]+)"\]/);
+        if (parts) {
+          el.setAttribute(parts[1], parts[2]);
+          document.head.appendChild(el);
+        }
+      }
+      if (el) el.setAttribute(attr, value);
+    };
+    
+    const titulo = movie.titulo || '';
+    const descripcion = (movie.descripcion || 'Ver en PeliPREX HD').substring(0, 160);
+    const imagen = movie.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
+    
+    setMeta('meta[property="og:title"]', 'content', titulo + ' | PeliPREX HD');
+    setMeta('meta[property="og:description"]', 'content', descripcion);
+    setMeta('meta[property="og:image"]', 'content', imagen);
+    setMeta('meta[property="og:image:width"]', 'content', '1200');
+    setMeta('meta[property="og:image:height"]', 'content', '630');
+    setMeta('meta[name="twitter:title"]', 'content', titulo + ' | PeliPREX HD');
+    setMeta('meta[name="twitter:description"]', 'content', descripcion);
+    setMeta('meta[name="twitter:image"]', 'content', imagen);
+  }
+  
+  // Actualizar al cargar si hay datos inyectados
+  if (window.injectedMovieData && window.injectedMovieData.titulo) {
+    updateOGTagsFromServer(window.injectedMovieData);
+  }
+</script>
+        `;
+        
+        // Insertar el script antes de cerrar </head>
+        html = html.replace('</head>', metadataScript + '</head>');
+        
         html = injectGA(html);
         return res.send(html);
       } catch (err) {
