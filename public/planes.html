@@ -356,648 +356,142 @@
             font-family: var(--font-mono);
             font-size: 0.7rem; letter-spacing: 0.3em;
             text-transform: uppercase; color: var(--text-muted);
-            margin-bottom: 16px;
-            animation: fadeUp 0.8s 0.1s ease forwards; opacity: 0;
+            margin-bottom: 24px;
         }
         .hero-title {
-            font-family: var(--font-serif);
-            font-size: clamp(3.5rem, 12vw, 8rem);
-            font-weight: 300; line-height: 0.9;
-            letter-spacing: -0.02em; color: var(--white);
-            margin-bottom: 8px;
-            animation: fadeUp 0.9s 0.2s ease forwards; opacity: 0;
-        }
-        .hero-title em { font-style: italic; color: var(--emerald); }
-        .hero-divider {
-            width: 60px; height: 2px;
-            background: var(--emerald);
-            margin: 24px auto;
-            animation: expandLine 0.8s 0.4s ease forwards;
-            transform: scaleX(0);
-        }
-        @keyframes expandLine { to { transform: scaleX(1); } }
-        .hero-tagline {
-            font-family: var(--font-serif);
-            font-size: clamp(1.3rem, 3vw, 2rem);
-            font-weight: 300; font-style: italic;
-            color: var(--text-primary); max-width: 600px;
-            line-height: 1.5; margin-bottom: 16px;
-            animation: fadeUp 0.9s 0.5s ease forwards; opacity: 0;
-        }
-        .hero-sub {
-            font-size: 0.88rem; color: var(--text-muted);
-            max-width: 520px; line-height: 1.7;
-            margin-bottom: 40px; font-weight: 300;
-            animation: fadeUp 0.9s 0.6s ease forwards; opacity: 0;
-        }
-        .hero-cta {
-            display: inline-flex; align-items: center; gap: 10px;
-            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
-            color: #000;
-            font-weight: 700; font-size: 0.85rem;
-            letter-spacing: 0.12em; text-transform: uppercase;
-            padding: 16px 36px; border-radius: 60px;
-            text-decoration: none;
-            transition: all 0.25s ease;
-            animation: fadeUp 0.9s 0.7s ease forwards; opacity: 0;
-            cursor: pointer; border: none;
-            box-shadow: 0 8px 28px var(--emerald-glow-strong);
             font-family: var(--font-display);
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            font-weight: 800; line-height: 0.95;
+            color: var(--white); letter-spacing: -0.04em;
+            margin-bottom: 24px;
         }
-        .hero-cta:hover {
-            background: linear-gradient(135deg, var(--emerald-light), var(--emerald));
-            transform: translateY(-3px);
-            box-shadow: 0 12px 36px var(--emerald-glow-strong);
+        .hero-title em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--emerald); }
+        .hero-divider { width: 60px; height: 4px; background: var(--gold); margin: 0 auto 24px; border-radius: 2px; }
+        .hero-tagline { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; }
+        .hero-sub { font-size: 0.9rem; color: var(--text-muted); max-width: 500px; line-height: 1.6; margin-bottom: 32px; }
+        .hero-cta {
+            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+            color: #000; padding: 16px 32px; border-radius: 60px;
+            font-weight: 800; font-size: 0.95rem; text-transform: uppercase;
+            letter-spacing: 0.1em; display: flex; align-items: center; gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 30px var(--emerald-glow);
+            border: none; cursor: pointer;
         }
-        .hero-stats {
-            display: flex; gap: 0;
-            width: 100%; margin-top: 60px;
-            border-top: 1px solid var(--border-subtle);
-            animation: fadeUp 0.9s 0.8s ease forwards; opacity: 0;
-        }
-        .stat-item {
-            flex: 1; padding: 24px 8px;
-            text-align: center;
-            border-right: 1px solid var(--border-subtle);
-        }
-        .stat-item:last-child { border-right: none; }
-        .stat-num {
-            font-family: var(--font-serif);
-            font-size: 2rem; font-weight: 600;
-            color: var(--emerald); display: block;
-        }
-        .stat-label {
-            font-size: 0.68rem; color: var(--text-muted);
-            letter-spacing: 0.08em; text-transform: uppercase;
-            margin-top: 4px; display: block;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .hero-cta:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 0 45px var(--emerald-glow-strong); }
+        .hero-stats { display: flex; gap: 32px; margin-top: 48px; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-subtle); padding-right: 32px; }
+        .stat-item:last-child { border-right: none; padding-right: 0; }
+        .stat-num { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); margin-top: 4px; }
 
         /* ═══ SECTIONS ═══ */
-        .section {
-            width: 100%; padding: 48px 0;
-            position: relative;
-        }
-        .section-label {
-            font-family: var(--font-mono);
-            font-size: 0.7rem; letter-spacing: 0.3em;
-            text-transform: uppercase; color: var(--emerald);
-            margin-bottom: 14px; display: block;
-        }
-        .section-title {
-            font-family: var(--font-serif);
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 300; color: var(--white);
-            line-height: 1.1; margin-bottom: 14px;
-        }
-        .section-title em { font-style: italic; color: var(--emerald); }
-        .section-body {
-            font-size: 0.95rem; color: var(--text-muted);
-            line-height: 1.8;
-        }
+        .section { padding: 80px 0; position: relative; }
+        .content-grid { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+        .section-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--emerald); letter-spacing: 0.3em; text-transform: uppercase; display: block; margin-bottom: 16px; }
+        .section-title { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; color: var(--white); letter-spacing: -0.03em; margin-bottom: 24px; line-height: 1.1; }
+        .section-title em { font-family: var(--font-serif); font-style: italic; font-weight: 400; color: var(--gold); }
+        .section-body { font-size: 1rem; color: var(--text-muted); line-height: 1.7; max-width: 600px; margin-bottom: 40px; }
+        .section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-subtle), transparent); }
 
-        .content-grid {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 0 16px;
-            box-sizing: border-box;
-        }
-        .content-grid > * { margin-bottom: 32px; }
-        .content-grid > *:last-child { margin-bottom: 0; }
+        /* ═══ ELITE STATEMENT ═══ */
+        .elite-statement { background: var(--navy-surface); padding: 64px 24px; text-align: center; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+        .elite-quote { font-family: var(--font-serif); font-size: clamp(1.5rem, 4vw, 2.2rem); color: var(--white); max-width: 800px; margin: 0 auto 16px; line-height: 1.3; }
+        .elite-quote em { color: var(--emerald); }
+        .elite-quote-sub { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.2em; }
 
-        .purchase-wrapper {
-            background: var(--navy-card);
-            border: 1px solid var(--border-active);
-            border-radius: var(--radius);
-            overflow: hidden; position: relative;
-            box-shadow: var(--shadow-card);
-            width: 100%;
-        }
-        .purchase-wrapper::before {
-            content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--emerald), var(--gold), transparent);
-        }
-        .purchase-header {
-            padding: 24px 16px 18px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .purchase-header h2 {
-            font-family: var(--font-display);
-            font-size: 1.15rem; font-weight: 700;
-            color: var(--white); letter-spacing: 0.05em;
-            margin-bottom: 6px;
-        }
-        .purchase-header p { font-size: 0.82rem; color: var(--text-muted); }
-        .purchase-body { padding: 20px 16px 24px; }
+        /* ═══ PURCHASE WRAPPER ═══ */
+        .purchase-wrapper { background: var(--navy-card); border: 1px solid var(--border-active); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card); position: relative; }
+        .purchase-header { padding: 32px 24px; background: linear-gradient(135deg, #15294A 0%, #0F1F3D 100%); border-bottom: 1px solid var(--border-subtle); text-align: center; }
+        .purchase-header h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); margin-bottom: 8px; }
+        .purchase-header p { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 0.05em; }
+        .purchase-body { padding: 32px 24px 40px; }
+        .policy-link { font-size: 0.75rem; color: var(--text-subtle); text-align: center; margin-bottom: 24px; }
+        .policy-link a { color: var(--emerald-light); text-decoration: underline; }
+        .info-box { background: rgba(0,200,83,0.05); border: 1px solid var(--border-active); border-radius: 12px; padding: 16px; font-size: 0.85rem; color: var(--text-primary); line-height: 1.5; margin-bottom: 32px; }
+        .info-box strong { color: var(--emerald); }
 
-        .type-selector {
-            display: flex; gap: 10px; margin-bottom: 20px;
-        }
-        .type-option {
-            flex: 1; padding: 14px 8px;
-            border-radius: var(--radius-sm);
-            border: 2px solid var(--border-subtle);
-            cursor: pointer; font-weight: 600;
-            color: var(--text-muted);
-            transition: all 0.25s ease;
-            text-align: center; font-size: 0.85rem;
-            background: var(--navy-surface);
-        }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 10px; }
+        .form-group input, .form-group select { width: 100%; background: var(--navy-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 16px; color: var(--white); font-family: var(--font-family); font-size: 0.95rem; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--emerald); background: rgba(0,200,83,0.03); box-shadow: 0 0 15px var(--emerald-glow); }
+        
+        .type-selector { display: flex; gap: 12px; margin-bottom: 24px; }
+        .type-option { flex: 1; background: var(--navy-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.25s; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .type-option i { font-size: 1rem; }
         .type-option:hover { border-color: var(--border-active); color: var(--white); }
-        .type-option.selected {
-            background: rgba(0,200,83,0.08);
-            color: var(--emerald); border-color: var(--emerald);
-            box-shadow: 0 0 16px var(--emerald-glow);
-        }
+        .type-option.selected { background: rgba(0,200,83,0.1); border-color: var(--emerald); color: var(--emerald); box-shadow: 0 0 20px var(--emerald-glow); }
 
-        /* Tooltips mejorados */
-        .help-icon-wrapper {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            margin-left: 6px;
-            cursor: pointer;
-        }
-        .help-icon {
-            width: 18px;
-            height: 18px;
-            background: var(--navy-border);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-muted);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        .help-icon:hover {
-            background: var(--emerald);
-            color: #000;
-            border-color: var(--emerald);
-        }
-        .tooltip {
-            position: absolute;
-            bottom: 130%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--navy-card);
-            border: 1px solid var(--border-active);
-            color: var(--text-primary);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            line-height: 1.5;
-            width: 220px;
-            text-align: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
-            transform: translateX(-50%) translateY(6px);
-            z-index: 200;
-            pointer-events: none;
-            font-family: var(--font-family);
-            letter-spacing: normal;
-            text-transform: none;
-        }
-        .help-icon-wrapper:hover .tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        /* Flecha del tooltip */
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -6px;
-            border-width: 6px;
-            border-style: solid;
-            border-color: var(--navy-card) transparent transparent transparent;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-        }
+        .buy-button { width: 100%; padding: 18px; border-radius: 14px; font-weight: 800; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.3s; border: none; margin-top: 12px; }
+        .buy-button.mp { background: #009EE3; color: #fff; box-shadow: 0 10px 25px rgba(0,158,227,0.25); }
+        .buy-button.mp:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,158,227,0.35); background: #008AD6; }
+        .buy-button.disabled-text { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
-        .form-group { margin-bottom: 14px; }
-        .form-group label {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 0.76rem; font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 0.08em; text-transform: uppercase;
-            margin-bottom: 7px;
-        }
-        .form-group input, .form-group select {
-            width: 100%; padding: 13px 12px;
-            background: var(--navy-surface);
-            border: 1px solid var(--navy-border);
-            border-radius: var(--radius-sm);
-            font-family: var(--font-family);
-            font-size: 0.95rem; color: var(--white);
-            transition: all 0.25s ease;
-            outline: none; appearance: none;
-        }
-        .form-group input::placeholder { color: var(--text-subtle); }
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--emerald);
-            box-shadow: 0 0 20px var(--emerald-glow);
-        }
-        .form-group select option { background: var(--navy-card); color: var(--white); }
+        .card-icons-container { display: flex; justify-content: center; gap: 12px; margin: 24px 0; opacity: 0.6; }
+        .card-icon { font-size: 1.5rem; color: var(--text-muted); }
+        .payment-info-text { font-size: 0.7rem; color: var(--text-subtle); text-align: center; text-transform: uppercase; letter-spacing: 0.1em; }
 
-        .card-icons-container {
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 18px;
-            overflow-x: auto; padding-bottom: 2px; flex-wrap: nowrap;
-        }
-        .card-icons-container::-webkit-scrollbar { display: none; }
-        .card-icon {
-            display: flex; align-items: center; justify-content: center;
-            width: 48px; height: 34px;
-            background: var(--navy-surface);
-            border: 1px solid var(--navy-border);
-            border-radius: 6px; font-size: 1.4rem;
-            color: var(--text-primary); flex-shrink: 0;
-        }
-        .card-icon.more-card {
-            font-size: 0.65rem; font-weight: 700;
-            color: var(--text-muted); letter-spacing: 0.05em;
-        }
-        .payment-info-text {
-            font-size: 0.75rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.1em;
-            font-weight: 600; margin-bottom: 10px;
-        }
+        /* ═══ PRICING TABLES ═══ */
+        .pricing-section { background: var(--navy-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); overflow: hidden; margin-bottom: 48px; }
+        .pricing-section-header { padding: 24px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 16px; }
+        .pricing-section-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        .pricing-section-icon.gold { background: rgba(255,215,0,0.1); color: var(--gold); }
+        .pricing-section-icon.crimson { background: rgba(229,57,53,0.1); color: var(--ruby-light); }
+        .pricing-section-icon.platinum { background: rgba(255,255,255,0.05); color: var(--white); }
+        .pricing-section-title { font-size: 1.1rem; font-weight: 700; color: var(--white); }
+        .pricing-section-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+        
+        .pricing-table { width: 100%; border-collapse: collapse; }
+        .pricing-table th { background: rgba(0,0,0,0.2); padding: 16px; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); }
+        .pricing-table td { padding: 18px 16px; font-size: 0.95rem; color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); }
+        .pricing-table tr:last-child td { border-bottom: none; }
+        .pricing-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .recommended-row td { background: rgba(0,200,83,0.04); color: var(--emerald-light); font-weight: 700; }
+        .best-value-row td { background: rgba(255,215,0,0.04); color: var(--gold); font-weight: 700; }
 
-        .buy-button {
-            display: flex; align-items: center; justify-content: center;
-            width: 100%; padding: 16px;
-            border-radius: var(--radius-sm); font-weight: 700;
-            cursor: pointer; transition: all 0.3s ease;
-            text-align: center; border: none;
-            font-size: 0.95rem; font-family: var(--font-display);
-            margin-top: 8px; letter-spacing: 0.05em;
-            opacity: 0.4; pointer-events: none; color: #000;
-            position: relative; overflow: hidden;
-        }
-        .buy-button.enabled { opacity: 1; pointer-events: auto; }
-        .buy-button.mp { 
-            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark)); 
-            color: #000;
-            box-shadow: 0 4px 16px var(--emerald-glow);
-        }
-        .buy-button.mp::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 0; height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-        .buy-button.mp:hover::after { width: 400px; height: 400px; }
-        .buy-button.mp:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 28px var(--emerald-glow-strong);
-        }
-        .buy-button i { margin-right: 10px; }
+        /* ═══ ADVANTAGES ═══ */
+        .advantage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 32px; }
+        .advantage-item { background: var(--navy-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; transition: all 0.3s; }
+        .advantage-item:hover { border-color: var(--border-active); transform: translateY(-5px); background: rgba(0,200,83,0.03); }
+        .adv-icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(0,200,83,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--emerald); }
+        .advantage-item span { font-size: 0.85rem; font-weight: 600; color: var(--white); }
 
-        .loading-spinner-container {
-            display: flex; justify-content: center; align-items: center;
-            padding: 1.5rem 0;
-        }
-        .loading-ring-container {
-            display: flex; justify-content: space-between; width: 56px;
-        }
-        .loading-ring {
-            width: 12px; height: 12px; border-radius: 50%;
-            background: var(--emerald);
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-        .loading-ring:nth-child(1) { animation-delay: -0.32s; }
-        .loading-ring:nth-child(2) { animation-delay: -0.16s; }
-        .loading-ring:nth-child(3) { animation-delay: 0s; }
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-        .loading-text { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-top: 8px; }
-        .message-container { text-align: center; padding: 8px 0; }
+        /* ═══ SLIDER ═══ */
+        .slider-container { position: relative; width: 100%; margin-top: 40px; }
+        .slider-track { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 20px; }
+        .slider-track::-webkit-scrollbar { display: none; }
+        .slider-slide { flex: 0 0 auto; width: 80%; scroll-snap-align: center; border-radius: 18px; overflow: hidden; border: 1px solid var(--border-subtle); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .slider-slide img { width: 100%; height: auto; display: block; }
+        .slider-indicators { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+        .slider-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-subtle); transition: all 0.3s; cursor: pointer; }
+        .slider-dot.active { width: 20px; border-radius: 10px; background: var(--emerald); }
 
-        .policy-link {
-            font-size: 0.75rem; color: var(--text-subtle);
-            text-align: center; margin-bottom: 16px;
-        }
-        .policy-link a { color: var(--emerald-light); text-decoration: none; transition: color 0.2s; font-weight: 600; }
-        .policy-link a:hover { color: var(--emerald); }
+        /* ═══ MODALS ═══ */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: var(--navy-card); border: 1px solid var(--border-active); border-radius: 24px; width: 100%; max-width: 400px; padding: 40px 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .modal-icon { width: 70px; height: 70px; border-radius: 50%; background: rgba(0,200,83,0.1); color: var(--emerald); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 24px; }
+        .modal-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--white); margin-bottom: 12px; }
+        .modal-body { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 32px; }
+        .btn-close { width: 100%; padding: 16px; background: var(--emerald); color: #000; border-radius: 12px; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-close:hover { background: var(--emerald-light); transform: scale(1.02); }
 
-        .purchase-footer-note {
-            font-size: 0.72rem; color: var(--text-subtle);
-            text-align: center; margin-top: 18px; line-height: 1.6;
-        }
+        /* ═══ WHATSAPP ═══ */
+        .chat-bubble { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: #25D366; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; z-index: 9000; box-shadow: 0 8px 24px rgba(37,211,102,0.4); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .chat-bubble:hover { transform: scale(1.1) rotate(10deg); }
+        .chat-text { position: fixed; bottom: 32px; right: 90px; background: #fff; color: #000; padding: 8px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; z-index: 9000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); pointer-events: none; opacity: 0; transform: translateX(20px); transition: all 0.3s ease; }
+        .chat-text.show { opacity: 1; transform: translateX(0); }
 
-        .pricing-section {
-            width: 100%;
-            background: var(--navy-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        .pricing-section:hover {
-            border-color: var(--border-active);
-            box-shadow: 0 8px 32px var(--emerald-glow);
-        }
-        .pricing-section-header {
-            padding: 18px 16px 16px;
-            border-bottom: 1px solid var(--border-subtle);
-            display: flex; align-items: center; gap: 12px;
-        }
-        .pricing-section-icon {
-            width: 40px; height: 40px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; flex-shrink: 0;
-        }
-        .pricing-section-icon.gold { background: rgba(0,200,83,0.12); color: var(--emerald); }
-        .pricing-section-icon.crimson { background: rgba(229,57,53,0.08); color: var(--ruby-light); }
-        .pricing-section-icon.platinum { background: rgba(200,200,200,0.06); color: var(--text-primary); }
-        .pricing-section-title { font-size: 0.95rem; font-weight: 700; color: var(--white); }
-        .pricing-section-sub { font-size: 0.76rem; color: var(--text-muted); margin-top: 2px; }
+        /* ═══ TOOLTIP ═══ */
+        .help-icon-wrapper { position: relative; display: inline-block; margin-left: 4px; cursor: help; }
+        .help-icon { width: 16px; height: 16px; border-radius: 50%; background: var(--border-subtle); color: var(--text-muted); font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+        .tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-10px); width: 200px; background: #fff; color: #000; padding: 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 500; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.3); opacity: 0; pointer-events: none; transition: all 0.2s; z-index: 100; }
+        .help-icon-wrapper:hover .tooltip { opacity: 1; transform: translateX(-50%) translateY(-5px); }
 
-        table.pricing-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-        table.pricing-table thead tr { border-bottom: 1px solid var(--border-subtle); }
-        table.pricing-table th {
-            padding: 10px 14px; text-align: left;
-            font-size: 0.68rem; font-weight: 700;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            color: var(--text-muted);
-        }
-        table.pricing-table td {
-            padding: 13px 14px; color: var(--text-primary);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
-        table.pricing-table tbody tr:last-child td { border-bottom: none; }
-        table.pricing-table tbody tr:hover { background: rgba(0,200,83,0.03); }
-        table.pricing-table .recommended-row td {
-            color: var(--emerald-light); font-weight: 600;
-            background: rgba(0,200,83,0.04);
-        }
-        table.pricing-table .best-value-row td {
-            color: var(--gold-light); font-weight: 700;
-            background: rgba(255,215,0,0.04);
-        }
-
-        .advantage-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px; width: 100%;
-        }
-        .advantage-item {
-            background: var(--navy-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-sm); padding: 20px 14px;
-            display: flex; flex-direction: column;
-            align-items: center; text-align: center;
-            gap: 10px; transition: all 0.3s ease;
-        }
-        .advantage-item:hover {
-            border-color: var(--border-active);
-            background: rgba(0,200,83,0.04);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px var(--emerald-glow);
-        }
-        .advantage-item .adv-icon {
-            width: 44px; height: 44px; border-radius: 12px;
-            background: rgba(0,200,83,0.1);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; color: var(--emerald);
-        }
-        .advantage-item span {
-            font-size: 0.82rem; font-weight: 600; color: var(--text-primary);
-        }
-
-        .instruction-list { list-style: none; padding: 0; margin: 0; }
-        .instruction-list li {
-            display: flex; gap: 14px; margin-bottom: 14px;
-            font-size: 0.9rem; color: var(--text-muted); align-items: flex-start;
-        }
-        .instruction-list li::before {
-            content: attr(data-step);
-            min-width: 24px; height: 24px;
-            background: var(--emerald); color: #000;
-            border-radius: 50%; text-align: center;
-            line-height: 24px; font-size: 0.72rem;
-            font-weight: 800; flex-shrink: 0; margin-top: 1px;
-        }
-        .instruction-list li strong { color: var(--white); }
-
-        .info-box {
-            background: rgba(0,200,83,0.04);
-            border: 1px solid var(--border-active);
-            border-left: 4px solid var(--emerald);
-            border-radius: var(--radius-sm); padding: 14px;
-            font-size: 0.88rem; color: var(--emerald-light);
-            margin-bottom: 18px; line-height: 1.6;
-        }
-
-        /* Slider */
-        .slider-container {
-            width: 100%; margin: 0 auto;
-            position: relative; overflow: hidden;
-            border-radius: 16px;
-        }
-        .slider-track {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: var(--emerald) var(--navy-surface);
-            gap: 14px;
-            padding: 4px 0 20px 0;
-        }
-        .slider-track::-webkit-scrollbar { height: 4px; }
-        .slider-track::-webkit-scrollbar-track { background: var(--navy-surface); border-radius: 10px; }
-        .slider-track::-webkit-scrollbar-thumb { background: var(--emerald); border-radius: 10px; }
-        .slider-slide {
-            flex: 0 0 auto;
-            width: 85%;
-            scroll-snap-align: start;
-            border-radius: 16px;
-            overflow: hidden;
-            background: var(--navy-card);
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--border-subtle);
-        }
-        .slider-slide img {
-            width: 100%; height: auto;
-            display: block; object-fit: contain;
-            background: var(--navy-surface);
-        }
-        .slider-indicators {
-            display: flex; justify-content: center;
-            gap: 8px; margin-top: 12px; flex-wrap: wrap;
-        }
-        .slider-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            background: var(--text-subtle);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.5;
-        }
-        .slider-dot.active {
-            background: var(--emerald);
-            width: 24px; border-radius: 4px;
-            opacity: 1;
-        }
-        .slider-dot:hover { opacity: 0.8; background: var(--emerald-light); }
-
-        @media (min-width: 768px) { .slider-slide { width: 45%; } }
-        @media (min-width: 1024px) { .slider-slide { width: 30%; } }
-
-        .faq-container { text-align: left; width: 100%; }
-        .faq-item { border-bottom: 1px solid var(--border-subtle); }
-        .faq-question {
-            display: flex; align-items: center; gap: 12px;
-            cursor: pointer; padding: 16px 4px;
-            font-weight: 600; font-size: 0.9rem;
-            color: var(--text-primary); transition: color 0.2s; user-select: none;
-        }
-        .faq-question:hover { color: var(--emerald); }
-        .faq-question.active { color: var(--emerald); }
-        .faq-question i {
-            color: var(--emerald); font-size: 0.75rem;
-            flex-shrink: 0; transition: transform 0.3s ease, color 0.2s;
-        }
-        .faq-question.active i { transform: rotate(90deg); color: var(--emerald-light); }
-        .faq-answer {
-            padding: 0 4px 18px 28px; color: var(--text-muted);
-            font-size: 0.88rem; line-height: 1.75;
-        }
-        .faq-answer p { margin-bottom: 8px; }
-        .faq-answer p:last-child { margin-bottom: 0; }
-        .faq-answer .badge {
-            background: var(--emerald); color: #000;
-            font-size: 0.65rem; font-weight: 800;
-            padding: 2px 8px; border-radius: 100px;
-            margin-right: 6px; letter-spacing: 0.05em;
-        }
-
-        .elite-statement {
-            width: 100%; padding: 72px 16px;
-            background: linear-gradient(180deg, var(--navy-deep) 0%, rgba(0,200,83,0.03) 50%, var(--navy-deep) 100%);
-            text-align: center; position: relative; overflow: hidden;
-        }
-        .elite-quote {
-            font-family: var(--font-serif);
-            font-size: clamp(1.7rem, 5vw, 3.5rem);
-            font-weight: 300; font-style: italic; color: var(--white);
-            line-height: 1.3; max-width: 100%; margin: 0 auto 24px;
-            position: relative; z-index: 1;
-        }
-        .elite-quote em { color: var(--emerald); font-style: normal; }
-        .elite-quote-sub {
-            font-size: 0.85rem; color: var(--text-muted);
-            position: relative; z-index: 1; letter-spacing: 0.05em;
-        }
-
-        .section-divider {
-            width: 100%; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
-        }
-
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.85);
-            display: none; align-items: center; justify-content: center;
-            z-index: 2000; backdrop-filter: blur(6px);
-        }
-        .success-modal-content, .error-modal-content {
-            background: var(--navy-card);
-            border: 1px solid var(--border-active);
-            border-radius: var(--radius); padding: 36px 24px;
-            max-width: 92%; width: 400px; text-align: center;
-            box-shadow: 0 0 60px rgba(0,200,83,0.1);
-            transform: scale(0.95); opacity: 0;
-            transition: all 0.3s ease-out;
-        }
-        .modal-overlay.active .success-modal-content,
-        .modal-overlay.active .error-modal-content { transform: scale(1); opacity: 1; }
-        .success-modal-content h4 {
-            font-size: 1.3rem; font-weight: 700; color: var(--emerald);
-            margin-bottom: 12px;
-        }
-        .error-modal-content h4 {
-            font-size: 1.3rem; font-weight: 700; color: var(--ruby-light);
-            margin-bottom: 12px;
-        }
-        .success-modal-content p, .error-modal-content p {
-            font-size: 0.88rem; color: var(--text-muted);
-            margin-bottom: 24px; text-align: left; line-height: 1.7;
-        }
-        .btn-close {
-            background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
-            color: #000;
-            padding: 12px 28px; border-radius: 60px;
-            font-weight: 700; cursor: pointer;
-            transition: all 0.25s; border: none;
-            font-family: var(--font-display); font-size: 0.9rem;
-        }
-        .btn-close:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--emerald-glow); }
-
-        .chat-bubble {
-            position: fixed; bottom: 24px; right: 24px;
-            width: 60px; height: 60px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            color: white; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 28px; cursor: pointer;
-            box-shadow: 0 6px 25px rgba(37,211,102,0.4);
-            z-index: 1000;
-            animation: slideIn 1s ease-out forwards;
-            transition: all 0.3s ease;
-        }
-        .chat-bubble:hover { transform: scale(1.1); }
-        .chat-text {
-            position: fixed; bottom: 94px; right: 24px;
-            background: linear-gradient(135deg, #25D366, #128C7E);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-size: 14px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            white-space: nowrap;
-            opacity: 0; transform: scale(0.9);
-            transition: opacity 0.4s, transform 0.4s;
-            z-index: 1001; cursor: pointer;
-            font-family: var(--font-family); font-weight: 600;
-        }
-        .chat-text.show { opacity: 1; transform: scale(1); }
-        .chat-text.hide { opacity: 0; transform: scale(0.9); }
-        @keyframes slideIn {
-            from { transform: translateX(80px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
+        /* ═══ BANNER ═══ */
         .banner {
-            width: 100%; max-width: 480px;
-            background: var(--navy-card);
-            border: 1px solid var(--border-active);
-            color: var(--white);
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            padding: 28px;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--navy-card); border-top: 2px solid var(--emerald);
+            padding: 24px 20px;
             border-top-left-radius: 20px; border-top-right-radius: 20px;
             box-shadow: 0 -8px 40px rgba(0,0,0,0.6);
             display: none; flex-direction: column; align-items: center;
@@ -1331,7 +825,7 @@
             <div class="content-grid">
                 <div>
                     <span class="section-label">Acceso al ecosistema</span>
-                    <h2 class="section-title">Compara tus <em>opciones</em></h2>
+                    <h2 class="section-title">⚡ Activación Instantánea</h2>
                     <p class="section-body">Paga solo por lo que necesitas y activa tu cuenta en segundos.</p>
                 </div>
 
@@ -1541,68 +1035,41 @@
                             <li data-step="1">Selecciona tu tipo de compra y paquete arriba.</li>
                             <li data-step="2">Ingresa <strong>tu correo e ID</strong> correctamente.</li>
                             <li data-step="3">Haz clic en "Pagar con Mercado Pago" y completa los datos de tu tarjeta.</li>
-                            <li data-step="4">Confirma el pago — <strong>la activación ocurre al instante.</strong></li>
+                            <li data-step="4">Confirmado el pago, tu cuenta se activa automáticamente.</li>
                         </ul>
-                        <p style="font-size: 0.78rem; color: var(--text-subtle); margin-top: 12px;">⏱️ Tiempo de activación: Inmediato. Tu banco debe tener habilitadas las compras por internet.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <div class="section-divider"></div>
-
-        <!-- ═══ FAQ ═══ -->
-        <section class="section">
-            <div class="content-grid">
-                <span class="section-label">Respuestas directas</span>
-                <h2 class="section-title">Preguntas <em>frecuentes</em></h2>
-                <div class="faq-container">
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Qué tipos de planes ofrecemos?</div><div class="faq-answer" style="display:none;"><p><span class="badge">Recomendado ⭐</span> <strong>Plan intensivo:</strong> Acceso sin preocuparte por créditos durante los días que elijas, sujeto a uso razonable.</p><p><strong>Créditos:</strong> Pagas solo por lo que usas. Sin fecha de vencimiento.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Qué métodos de pago están disponibles?</div><div class="faq-answer" style="display:none;"><p><span class="badge">Automático ⚡</span> <strong>Pago con tarjeta:</strong> Activación en segundos.</p><p><strong>Pago por WhatsApp:</strong> Con ayuda personalizada.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Hay comisiones ocultas?</div><div class="faq-answer" style="display:none;"><p>Mercado Pago puede aplicar una pequeña comisión según tu banco. Nosotros no cobramos nada adicional.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Hay horarios para comprar?</div><div class="faq-answer" style="display:none;"><p><strong>Desde la web:</strong> 24/7, sin restricciones.</p><p><strong>Por WhatsApp:</strong> Horario de atención 6:00 a.m. a 9:00 p.m.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Dónde puedo usar mis créditos o plan?</div><div class="faq-answer" style="display:none;"><p>Todo conectado en una sola plataforma: APIs, PeliPREX HD, Consulta PE y más servicios.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿El soporte es 24/7?</div><div class="faq-answer" style="display:none;"><p>Sí. Puedes escribirnos en cualquier momento, los 365 días del año.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Puedo comprar para otra persona?</div><div class="faq-answer" style="display:none;"><p>Sí. Solo ingresa el correo e ID de la cuenta a recargar antes de completar el pago.</p></div></div>
-                    <div class="faq-item"><div class="faq-question" onclick="toggleFaq(this)"><i class="fas fa-chevron-right"></i> ¿Es segura esta plataforma?</div><div class="faq-answer" style="display:none;"><p>Sí. Contamos con protección avanzada y realizamos pruebas constantes.</p></div></div>
-                </div>
+        <footer class="footer-content">
+            <h3>Masitaprex</h3>
+            <div class="social-icons">
+                <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://youtube.com/@eltiojota628" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="https://wa.me/51944950234" target="_blank"><i class="fab fa-whatsapp"></i></a>
             </div>
-        </section>
+            <p>© 2026 Masitaprex. Todos los derechos reservados.</p>
+            <p><a href="politica-privacidad.html">Privacidad</a> · <a href="terminos-condiciones.html">Términos</a> · <a href="politica.compras.html">Compras</a></p>
+        </footer>
+
     </main>
 
-    <!-- ═══ FOOTER ═══ -->
-    <footer class="footer-content">
-        <h3>Síguenos</h3>
-        <div class="social-icons">
-            <a href="https://m.facebook.com/61564349657272/" target="_blank"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://youtube.com/@eltiojota628?si=sZw2ZHHTUMdaR0nL" target="_blank"><i class="fab fa-youtube"></i></a>
-        </div>
-        <p>Infraestructura tecnológica Masitaprex © 2026 — Todos los derechos reservados</p>
-        <p><a href="terminos-condiciones">Términos y condiciones</a> · <a href="politica-privacidad">Política de privacidad</a> · <a href="disclaimer-apis">Aviso legal APIs</a> · <a href="aviso-legal-peliprex">Aviso legal PeliPREX</a> · <a href="politica.compras.html">Política de compras</a></p>
-    </footer>
-
-    <!-- ═══ BANNER COMPARTIR ═══ -->
-    <div class="banner" id="banner">
-        <div class="banner-title"><i class="fas fa-heart" style="margin-right:8px;"></i> Pequeño favorcito</div>
-        <div class="banner-description"><p>Comparte esta página con tus contactos en Facebook y WhatsApp. 📲</p><p>Ayúdanos a crecer para seguir mejorando juntos.</p></div>
-        <a href="#" class="cta-button" onclick="sharePage()"><i class="fas fa-share-alt" style="margin-right:8px;"></i> Compartir ahora</a>
-        <a href="#" class="close-modal" onclick="closeBanner()">Quizás más tarde</a>
-    </div>
-
-    <!-- ═══ MODALES ═══ -->
+    <!-- ═══ MODALS ═══ -->
     <div id="successModalOverlay" class="modal-overlay">
-        <div class="success-modal-content">
-            <div style="margin:0 auto 20px;width:72px;height:72px;"><img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png" alt="Éxito" style="width:72px;height:72px;"></div>
-            <h4 id="successModalTitle">Activación Exitosa</h4>
-            <div id="successModalBody" style="color:var(--text-muted); margin-bottom:24px; font-size:0.88rem; white-space:pre-line; text-align:left;"></div>
-            <button class="btn-close" onclick="closeSuccessModal()">¡Entendido! Volver a Consultar</button>
+        <div class="modal-content">
+            <div class="modal-icon"><i class="fas fa-check"></i></div>
+            <h4 class="modal-title" id="successModalTitle">¡Activación Exitosa!</h4>
+            <p class="modal-body" id="successModalBody"></p>
+            <button class="btn-close" onclick="closeSuccessModal()">Empezar a usar</button>
         </div>
     </div>
 
     <div id="errorModalOverlay" class="modal-overlay">
-        <div class="error-modal-content">
-            <h4>❌ Error en la Transacción</h4>
-            <p id="errorMessage" style="color:var(--text-muted); margin-bottom:24px; font-size:0.88rem; text-align:left;"></p>
+        <div class="modal-content">
+            <div class="modal-icon" style="background:rgba(229,57,53,0.1); color:var(--ruby-light);"><i class="fas fa-times"></i></div>
+            <h4 class="modal-title">Error en la Transacción</h4>
+            <p class="modal-body" id="errorMessage"></p>
             <button class="btn-close" onclick="closeErrorModal()">Aceptar</button>
         </div>
     </div>
@@ -1650,8 +1117,24 @@
 
         // Constantes
         const BASE_API_URL = "/api/init/mercadopago";
-        const CREDITS_MAP = { "10": { credits: 60 }, "20": { credits: 125 }, "50": { credits: 330 }, "100": { credits: 700 }, "200": { credits: 1500 } };
-        const INTENSIVE_MAP = { "7-dias": { amount: 80, duration: '7 días' }, "15-dias": { amount: 120, duration: '15 días' }, "30-dias": { amount: 180, duration: '30 días' }, "60-dias": { amount: 320, duration: '60 días' } };
+        
+        // Mapa de Planes Seguro (Frontend)
+        const PLANES_CONFIG = {
+            'CREDITOS': [
+                { id: "60_creditos", label: "S/ 10 → 60 créditos (+3 bonus)", amount: 10 },
+                { id: "125_creditos", label: "S/ 20 → 125 créditos (+5 bonus)", amount: 20 },
+                { id: "330_creditos", label: "⭐ S/ 50 → 330 créditos (+20 bonus)", amount: 50 },
+                { id: "700_creditos", label: "S/ 100 → 700 créditos (+40 bonus)", amount: 100 },
+                { id: "1500_creditos", label: "🔥 S/ 200 → 1,500 créditos (+80 bonus)", amount: 200 }
+            ],
+            'INTENSIVO': [
+                { id: "plan_7_dias", label: "7 días — S/ 80 (1,000 consultas)", amount: 80 },
+                { id: "plan_15_dias", label: "15 días — S/ 120 (2,500 consultas)", amount: 120 },
+                { id: "plan_30_dias", label: "⭐ 30 días — S/ 180 (5,000 consultas)", amount: 180 },
+                { id: "plan_60_dias", label: "60 días — S/ 320 (12,000 consultas)", amount: 320 }
+            ]
+        };
+
         const STORAGE_KEY_EMAIL = 'masitaprex_user_email';
         const STORAGE_KEY_UID = 'masitaprex_user_uid';
         let auth, currentPurchaseType = 'CREDITOS';
@@ -1695,35 +1178,38 @@
 
         function populateDetailsSelect(type) {
             purchaseDetailsSelect.innerHTML = '<option value="" disabled selected>Selecciona un monto / plan</option>';
+            const options = PLANES_CONFIG[type];
+            
             if (type === 'CREDITOS') {
                 selectLabel.textContent = 'Selecciona el Paquete de Créditos:';
-                [{ value: "10", label: "S/ 10 → 60 créditos (+3 bonus)" }, { value: "20", label: "S/ 20 → 125 créditos (+5 bonus)" }, { value: "50", label: "⭐ S/ 50 → 330 créditos (+20 bonus)" }, { value: "100", label: "S/ 100 → 700 créditos (+40 bonus)" }, { value: "200", label: "🔥 S/ 200 → 1,500 créditos (+80 bonus)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             } else {
                 selectLabel.textContent = 'Selecciona el Plan Intensivo:';
-                [{ value: "7-dias", label: "7 días — S/ 80 (1,000 consultas)" }, { value: "15-dias", label: "15 días — S/ 120 (2,500 consultas)" }, { value: "30-dias", label: "⭐ 30 días — S/ 180 (5,000 consultas)" }, { value: "60-dias", label: "60 días — S/ 320 (12,000 consultas)" }].forEach(opt => { const o = document.createElement('option'); o.value = opt.value; o.textContent = opt.label; purchaseDetailsSelect.appendChild(o); });
             }
+
+            options.forEach(opt => {
+                const o = document.createElement('option');
+                o.value = opt.id;
+                o.textContent = opt.label;
+                purchaseDetailsSelect.appendChild(o);
+            });
+            
             updatePaymentButtons();
         }
 
         function updatePaymentButtons() { const email = userEmailInput.value.trim(); const uid = userUidInput.value.trim(); const selected = purchaseDetailsSelect.value; const isValid = email && uid && selected && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); mpButton.classList.toggle('enabled', isValid); if (!isValid) { mpButton.classList.add('disabled-text'); } else { mpButton.classList.remove('disabled-text'); } }
 
         async function startPayment() {
-            const email = userEmailInput.value.trim(); const uid = userUidInput.value.trim(); const selected = purchaseDetailsSelect.value;
-            if (!email || !uid || !selected) return;
-            paymentLoading.style.display = 'block'; mpButton.style.display = 'none';
-            let amount, description, limiteSeguridad = '';
-            if (currentPurchaseType === 'CREDITOS') { amount = parseInt(selected); description = `Créditos Masitaprex: ${CREDITS_MAP[selected]?.credits || ''} créditos`; }
-            else { 
-                const plan = INTENSIVE_MAP[selected];
-                amount = plan.amount;
-                let limiteTexto = '';
-                if (selected === '7-dias') limiteTexto = 'Umbral 1,000 consultas';
-                else if (selected === '15-dias') limiteTexto = 'Umbral 2,500 consultas';
-                else if (selected === '30-dias') limiteTexto = 'Umbral 5,000 consultas';
-                else if (selected === '60-dias') limiteTexto = 'Umbral 12,000 consultas';
-                description = `Plan Intensivo Masitaprex: ${plan.duration} — ${limiteTexto}`;
-            }
-            window.location.href = `/checkout.html?amount=${amount}&uid=${uid}&email=${email}&description=${encodeURIComponent(description)}&tipoPlan=${currentPurchaseType === 'CREDITOS' ? 'creditos' : 'intensivo'}`;
+            const email = userEmailInput.value.trim(); 
+            const uid = userUidInput.value.trim(); 
+            const planId = purchaseDetailsSelect.value;
+            
+            if (!email || !uid || !planId) return;
+            
+            paymentLoading.style.display = 'block'; 
+            mpButton.style.display = 'none';
+            
+            // Redirigir al checkout usando planId en lugar de amount
+            window.location.href = `/checkout.html?planId=${planId}&uid=${uid}&email=${email}`;
         }
 
         function clearStorageAfterPayment() { localStorage.removeItem(STORAGE_KEY_EMAIL); localStorage.removeItem(STORAGE_KEY_UID); }
@@ -1776,13 +1262,10 @@
                 auth = firebase.auth();
                 auth.onAuthStateChanged((user) => {
                     if (user) {
-                        // Cargar siempre los datos reales del usuario autenticado
                         const realEmail = user.email || "";
                         const realUid = user.uid || "";
-                        // Guardamos en localStorage para futuras referencias (opcional)
                         localStorage.setItem(STORAGE_KEY_EMAIL, realEmail);
                         localStorage.setItem(STORAGE_KEY_UID, realUid);
-                        // Asignar a los inputs
                         userEmailInput.value = realEmail;
                         userUidInput.value = realUid;
                     } else {
@@ -1795,7 +1278,6 @@
             } catch (error) { console.error("Error:", error); showErrorModal("Error al conectar con el servidor."); }
         }
 
-        // Sincronizar cambios manuales del usuario con localStorage (cuando edita los campos)
         userEmailInput.addEventListener('input', function() { localStorage.setItem(STORAGE_KEY_EMAIL, this.value.trim()); updatePaymentButtons(); });
         userUidInput.addEventListener('input', function() { localStorage.setItem(STORAGE_KEY_UID, this.value.trim()); updatePaymentButtons(); });
         purchaseDetailsSelect.addEventListener('change', updatePaymentButtons);
@@ -1803,24 +1285,19 @@
         creditsTypeBtn.addEventListener('click', handleTypeSelection);
         intensiveTypeBtn.addEventListener('click', handleTypeSelection);
 
-        // FAQ toggle
         window.toggleFaq = function(element) {
             const answer = element.nextElementSibling; const icon = element.querySelector('i');
             if (answer.style.display === 'none' || answer.style.display === '') { answer.style.display = 'block'; element.classList.add('active'); icon.classList.replace('fa-chevron-right', 'fa-chevron-down'); }
             else { answer.style.display = 'none'; element.classList.remove('active'); icon.classList.replace('fa-chevron-down', 'fa-chevron-right'); }
         };
 
-        // WhatsApp typing
         const chatTextEl = document.getElementById("chatText");
         const whatsappMessage = "¡Comprar por Whatsapp!";
         let idx = 0;
-        function typeWriterWhatsapp() {
-            if (idx < whatsappMessage.length) { chatTextEl.textContent += whatsappMessage.charAt(idx++); setTimeout(typeWriterWhatsapp, 100); }
-            else { setTimeout(() => { chatTextEl.classList.remove('show'); chatTextEl.classList.add('hide'); setTimeout(() => { chatTextEl.textContent = ""; idx = 0; chatTextEl.classList.remove('hide'); setTimeout(() => { chatTextEl.classList.add('show'); typeWriterWhatsapp(); }, 500); }, 1000); }, 2500); }
-        }
-        window.goToWhatsApp = function() { window.open(`https://wa.me/51944950234?text=${encodeURIComponent('Hola, necesito ayuda para comprar créditos para Masitaprex.')}`, '_blank'); };
-
-        document.addEventListener("DOMContentLoaded", () => { initApp(); setTimeout(() => { chatTextEl.classList.add('show'); typeWriterWhatsapp(); }, 1500); });
+        function typeChat() { if (idx < whatsappMessage.length) { chatTextEl.textContent += whatsappMessage.charAt(idx); idx++; setTimeout(typeChat, 100); } else { setTimeout(() => { chatTextEl.classList.add('show'); }, 500); } }
+        function goToWhatsApp() { window.open("https://wa.me/51944950234?text=Hola,%20quiero%20comprar%20un%20plan%20dedicado%20en%20Masitaprex", "_blank"); }
+        
+        window.onload = () => { initApp(); setTimeout(typeChat, 2000); };
     </script>
 </body>
 </html>

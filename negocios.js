@@ -107,11 +107,33 @@ export async function initFirebase(serviceAccount) {
 }
 
 // ================================================================
-// 💳 CONFIGURACIÓN DE MERCADO PAGO
+// 💳 CONFIGURACIÓN DE MERCADO PAGO Y MAPA DE PRECIOS SEGURO
 // ================================================================
 
-export const PAQUETES_CREDITOS = { 10: 60, 20: 125, 30: 200, 50: 330, 100: 700, 200: 1500 };
-export const PLANES_ILIMITADOS = { 60: 7, 80: 15, 110: 30, 160: 60, 510: 70, 29: 30, 79: 30, 199: 30 };
+// Mapa de Precios Seguro (Backend)
+export const MAPA_PLANES = {
+  // Paquetes de Créditos
+  "60_creditos": { precio: 10, creditos: 60, bonus: 3, tipo: "creditos", descripcion: "Paquete de 60 créditos + 3 bonus" },
+  "125_creditos": { precio: 20, creditos: 125, bonus: 5, tipo: "creditos", descripcion: "Paquete de 125 créditos + 5 bonus" },
+  "330_creditos": { precio: 50, creditos: 330, bonus: 20, tipo: "creditos", descripcion: "Paquete de 330 créditos + 20 bonus" },
+  "700_creditos": { precio: 100, creditos: 700, bonus: 40, tipo: "creditos", descripcion: "Paquete de 700 créditos + 40 bonus" },
+  "1500_creditos": { precio: 200, creditos: 1500, bonus: 80, tipo: "creditos", descripcion: "Paquete de 1500 créditos + 80 bonus" },
+  
+  // Planes Intensivos (Ilimitados)
+  "plan_7_dias": { precio: 80, dias: 7, umbral: 1000, tipo: "ilimitado", descripcion: "Plan Intensivo 7 días (1,000 consultas)" },
+  "plan_15_dias": { precio: 120, dias: 15, umbral: 2500, tipo: "ilimitado", descripcion: "Plan Intensivo 15 días (2,500 consultas)" },
+  "plan_30_dias": { precio: 180, dias: 30, umbral: 5000, tipo: "ilimitado", descripcion: "Plan Intensivo 30 días (5,000 consultas)" },
+  "plan_60_dias": { precio: 320, dias: 60, umbral: 12000, tipo: "ilimitado", descripcion: "Plan Intensivo 60 días (12,000 consultas)" },
+
+  // Revenue Recovery (Mantener compatibilidad si existe)
+  "plan_starter_rr": { precio: 29, dias: 30, tipo: "revenue_recovery", descripcion: "Plan Starter - Revenue Recovery OS" },
+  "plan_business_rr": { precio: 79, dias: 30, tipo: "revenue_recovery", descripcion: "Plan Business - Revenue Recovery OS" },
+  "plan_enterprise_rr": { precio: 199, dias: 30, tipo: "revenue_recovery", descripcion: "Plan Enterprise - Revenue Recovery OS" }
+};
+
+// Mantener para compatibilidad con código antiguo si es necesario, pero priorizar MAPA_PLANES
+export const PAQUETES_CREDITOS = { 10: 60, 20: 125, 50: 330, 100: 700, 200: 1500 };
+export const PLANES_ILIMITADOS = { 80: 7, 120: 15, 180: 30, 320: 60 };
 
 export const processedPaymentsCache = new Map();
 export const paymentLocks = new Map();
@@ -204,13 +226,33 @@ export async function uploadPDFToStorage(pdfPath, paymentId) {
 
 /**
  * Otorgar beneficios al usuario tras un pago exitoso
+ * Ahora valida contra el planId y el mapa de precios seguro
  */
-export async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRefString, resend, tipoPlanSolicitado) {
+export async function otorgarBeneficio(uid, email, montoPagado, processor, paymentRefString, resend, planId) {
   const context = 'OTORGAR_BENEFICIO';
   
   if (!db) {
     logger.error(context, 'Base de datos no disponible');
     return { status: 'error', message: 'Database not available' };
+  }
+
+  // Validación de Plan
+  const planSeguro = MAPA_PLANES[planId];
+  if (!planSeguro) {
+    logger.error(context, 'PlanId no válido', { planId, uid });
+    return { status: 'error', message: 'Invalid Plan ID' };
+  }
+
+  // Validación de Monto (Seguridad)
+  const montoNum = Number(montoPagado);
+  if (Math.abs(montoNum - planSeguro.precio) > 0.01) {
+    logger.error(context, 'DISCREPANCIA DE MONTO DETECTADA', { 
+      planId, 
+      montoPagado: montoNum, 
+      precioEsperado: planSeguro.precio,
+      uid 
+    });
+    return { status: 'error', message: 'Payment amount mismatch' };
   }
 
   try {
@@ -239,15 +281,15 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
       logger.info(context, 'Creando documento de pago inicial', { paymentRef: paymentRefString });
       await pagoDoc.set({
         email: email,
-        monto: montoPagado,
+        monto: montoNum,
         uid: uid,
+        planId: planId,
         estado: "pending",
         procesado: false,
         fechaRegistro: admin.firestore.FieldValue.serverTimestamp()
       });
     }
 
-    const montoNum = Number(montoPagado);
     const result = await db.runTransaction(async (t) => {
       const userDoc = db.collection("usuarios").doc(uid);
       const userSnap = await t.get(userDoc);
@@ -268,16 +310,15 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
       const duracionDiasActual = userData.duracionDias || 0;
 
       let creditosOtorgados = 0;
-      let descripcion = "";
+      let descripcion = planSeguro.descripcion;
       let planOtorgado = null;
-      let isRevenueRecovery = tipoPlanSolicitado === 'revenue_recovery' || [29, 79, 199].includes(montoNum);
 
       // 1. Lógica para Revenue Recovery OS
-      if (isRevenueRecovery) {
-        const diasNuevos = 30; // Todos los planes de RR son mensuales
+      if (planSeguro.tipo === 'revenue_recovery') {
+        const diasNuevos = planSeguro.dias;
         const ahora = new Date();
         const fechaFinPlan = moment(ahora).add(diasNuevos, 'days').toDate();
-        const planName = montoNum === 29 ? "Plan Starter" : montoNum === 79 ? "Plan Business" : montoNum === 199 ? "Plan Enterprise" : "Plan Revenue Recovery";
+        const planName = planSeguro.descripcion.split(' - ')[0];
 
         // Actualizar colección empresas (Revenue Recovery)
         const empresaRef = db.collection("empresas").doc(uid);
@@ -289,7 +330,6 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
           updatedAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        descripcion = `${planName} - Revenue Recovery OS`;
         planOtorgado = { dias: diasNuevos, fechaFin: fechaFinPlan, planName };
 
         t.update(pagoDoc, {
@@ -310,9 +350,9 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
         };
       }
 
-      // 2. Lógica para Planes Generales (Créditos o Ilimitado)
-      if (PAQUETES_CREDITOS[montoNum] && tipoPlanSolicitado !== 'ilimitado') {
-        creditosOtorgados = PAQUETES_CREDITOS[montoNum];
+      // 2. Lógica para Créditos
+      if (planSeguro.tipo === 'creditos') {
+        creditosOtorgados = planSeguro.creditos + (planSeguro.bonus || 0);
         const nuevosCreditos = creditosActuales + creditosOtorgados;
 
         t.update(userDoc, {
@@ -321,8 +361,6 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        descripcion = `Paquete de ${creditosOtorgados} créditos`;
-        
         t.update(pagoDoc, {
           descripcion,
           procesado: true,
@@ -344,8 +382,11 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
           tipoPlanNuevo: "creditos"
         };
 
-      } else if (PLANES_ILIMITADOS[montoNum]) {
-        const diasNuevos = PLANES_ILIMITADOS[montoNum];
+      } 
+      
+      // 3. Lógica para Planes Ilimitados
+      if (planSeguro.tipo === 'ilimitado') {
+        const diasNuevos = planSeguro.dias;
         let duracionTotalDias;
         let fechaFinPlan;
         const ahora = new Date();
@@ -368,11 +409,11 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
           planIlimitadoHasta: fechaFinPlan,
           creditos: 0,
           tipoPlan: "ilimitado",
+          umbralConsultas: planSeguro.umbral,
           fechaActivacion: tienePlanIlimitadoActivo ? fechaActivacionActual : admin.firestore.FieldValue.serverTimestamp(),
           ultimaCompra: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        descripcion = `Plan Ilimitado (${diasNuevos} días)`;
         planOtorgado = { dias: duracionTotalDias, diasAgregados: diasNuevos, fechaFin: fechaFinPlan };
 
         t.update(pagoDoc, {
@@ -393,7 +434,7 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
         };
       }
 
-      throw new Error(`Monto ${montoPagado} no corresponde a ningún plan válido`);
+      throw new Error(`Tipo de plan ${planSeguro.tipo} no reconocido`);
     });
 
     // Generación de PDF y envío de correo (fuera de la transacción)
@@ -402,262 +443,92 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
         orderId: paymentRefString,
         date: new Date().toLocaleString('es-PE'),
         email: email || 'cliente@example.com',
-        amount: montoPagado,
+        amount: montoNum,
         credits: result.creditosOtorgados || 0,
         description: result.descripcion || 'Compra Consulta PE',
         type: 'boleta'
       };
 
       const pdfPath = await generateInvoicePDF(invoiceData);
-      const localPdfPath = path.join(__dirname, 'public', pdfPath);
-      const storageUrl = await uploadPDFToStorage(localPdfPath, paymentRefString);
+      const publicUrl = await uploadPDFToStorage(pdfPath, paymentRefString);
 
       await pagoDoc.update({
-        pdfUrl: storageUrl,
-        pdfGeneradoEn: admin.firestore.FieldValue.serverTimestamp(),
-        tipoComprobante: 'boleta',
-        storagePath: `invoices/${paymentRefString}.pdf`
+        pdfUrl: publicUrl,
+        invoiceData: invoiceData
       });
 
-      if (fs.existsSync(localPdfPath)) fs.unlinkSync(localPdfPath);
-      result.pdfUrl = storageUrl;
+      result.pdfUrl = publicUrl;
+
+      // Limpiar archivo temporal
+      if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
 
     } catch (pdfError) {
-      logger.error(context, '⚠️ Error generando/subiendo PDF', pdfError);
+      logger.error(context, 'Error generando/subiendo PDF', pdfError);
     }
 
-    processedPaymentsCache.set(paymentRefString, {
-      uid,
-      timestamp: new Date().toISOString(),
-      processor,
-      status: 'processed',
-      pdfUrl: result.pdfUrl || null
-    });
-
-    setTimeout(() => processedPaymentsCache.delete(paymentRefString), 2 * 60 * 60 * 1000);
-
-    let userName = email.split('@')[0];
-    try {
-      // Intentar buscar primero en la colección correspondiente al tipo de plan
-      const collectionName = result.tipoPlanNuevo === 'revenue_recovery' ? 'empresas' : 'usuarios';
-      let userSnap = await db.collection(collectionName).doc(uid).get();
-      
-      // Si no existe en la preferida, intentar en la otra
-      if (!userSnap.exists) {
-        const alternativeCollection = collectionName === 'empresas' ? 'usuarios' : 'empresas';
-        userSnap = await db.collection(alternativeCollection).doc(uid).get();
-      }
-
-      if (userSnap.exists) {
-        const userData = userSnap.data();
-        userName = userData.name || userData.displayName || userData.nombre || userName;
-      }
-    } catch (err) {
-      logger.error(context, 'Error obteniendo nombre de usuario para correo', err);
-    }
-
-    if (result.tipoPlanNuevo === 'revenue_recovery') {
-      enviarCorreoCompraRR(email, userName, paymentRefString, montoPagado, result.descripcion, result.pdfUrl, resend)
-        .catch(err => logger.error(context, 'Error en envío de correo RR', err));
-    } else {
-      enviarCorreoCompra(email, userName, paymentRefString, montoPagado, result.descripcion, result.pdfUrl, resend)
-        .catch(err => logger.error(context, 'Error en envío de correo general', err));
-    }
-
+    processedPaymentsCache.set(paymentRefString, { uid, ...result });
     releasePaymentLock(paymentRefString);
     return result;
 
   } catch (error) {
-    logger.error(context, '❌ Error en otorgarBeneficio', error);
-    try {
-      await pagoDoc.update({
-        procesado: false,
-        estado: "error",
-        error: error.message,
-        fallidoEn: admin.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (e) {}
+    logger.error(context, 'Error procesando beneficio', error, { uid, paymentRef: paymentRefString });
     releasePaymentLock(paymentRefString);
     return { status: 'error', message: error.message };
   }
 }
 
 // ================================================================
-// ✉️ FUNCIONES DE CORREO
+// 🚀 WEBHOOK DE MERCADO PAGO (VALIDACIÓN OBLIGATORIA)
 // ================================================================
 
-export async function enviarBienvenida(email, nombre, resend) {
-  const context = 'ENVIAR_BIENVENIDA';
-  try {
-    const templatePath = path.join(__dirname, 'emails', 'bienvenida-usuario-nuevo.html');
-    if (!fs.existsSync(templatePath)) throw new Error('Plantilla no encontrada');
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre);
-    
-    const result = await resend.emails.send({
-      from: 'Masitaprex <no-reply@masitaprex.com>',
-      to: email,
-      subject: 'Bienvenido a Masitaprex',
-      html: htmlContent
-    });
-    return { success: true, id: result.id };
-  } catch (error) {
-    logger.error(context, '❌ Error enviando bienvenida', error);
-    return { success: false, error: error.message };
-  }
-}
+export async function handleMercadoPagoWebhook(req, res) {
+  const context = 'MP_WEBHOOK';
+  const { type, data } = req.body;
 
-export async function enviarCorreoCompra(email, nombre, orderId, monto, descripcion, urlBoleta, resend) {
-  const context = 'ENVIAR_CORREO_COMPRA';
-  try {
-    const templatePath = path.join(__dirname, 'emails', 'compra-exitosa.html');
-    if (!fs.existsSync(templatePath)) return { success: false, error: 'Plantilla no encontrada' };
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Cliente');
-    htmlContent = htmlContent.replace(/{{orderId}}/g, orderId);
-    htmlContent = htmlContent.replace(/{{monto}}/g, monto);
-    htmlContent = htmlContent.replace(/{{descripcion}}/g, descripcion);
-    htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/home');
-    
-    const result = await resend.emails.send({
-      from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
-      to: email,
-      subject: `Confirmación de Compra #${orderId} - Masitaprex`,
-      html: htmlContent
-    });
-    return { success: true, id: result.id };
-  } catch (error) {
-    logger.error(context, '❌ Error enviando correo de compra', error);
-    return { success: false, error: error.message };
+  if (type !== 'payment') {
+    return res.status(200).send('OK');
   }
-}
 
-export async function enviarCorreoSospechoso(email, nombre, location, ip, userAgent, resend) {
-  const context = 'ENVIAR_CORREO_SOSPECHOSO';
+  const paymentId = data.id;
+  logger.info(context, 'Recibido webhook de pago', { paymentId });
+
   try {
-    const templatePath = path.join(__dirname, 'emails', 'intento-inicio-seccion-sospechoso.html');
-    if (!fs.existsSync(templatePath)) {
-      logger.error(context, 'Plantilla no encontrada en: ' + templatePath);
-      return { success: false, error: 'Plantilla no encontrada' };
+    const mpClient = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+    const payment = new Payment(mpClient);
+    const paymentData = await payment.get({ id: paymentId });
+
+    if (paymentData.status === 'approved') {
+      const { external_reference, transaction_amount, metadata } = paymentData;
+      
+      // El external_reference suele contener el UID del usuario
+      // El planId debe venir en metadata si lo configuramos en el checkout
+      const uid = external_reference || metadata.user_id;
+      const planId = metadata.plan_id;
+      const email = paymentData.payer.email;
+
+      if (!uid || !planId) {
+        logger.error(context, 'Datos incompletos en el pago', { paymentId, uid, planId });
+        return res.status(400).send('Incomplete payment data');
+      }
+
+      const result = await otorgarBeneficio(
+        uid, 
+        email, 
+        transaction_amount, 
+        'MercadoPago_Webhook', 
+        paymentId.toString(), 
+        false, 
+        planId
+      );
+
+      logger.info(context, 'Beneficio procesado vía Webhook', { paymentId, result });
+      return res.status(200).json(result);
     }
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    const ubicacionStr = `${location.city || 'Desconocida'}, ${location.region || ''}, ${location.country || ''}`;
-    
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Usuario');
-    htmlContent = htmlContent.replace(/{{ubicacion}}/g, ubicacionStr);
-    htmlContent = htmlContent.replace(/{{ip}}/g, ip);
-    htmlContent = htmlContent.replace(/{{isp}}/g, location.isp || 'Desconocido');
-    htmlContent = htmlContent.replace(/{{tipo_conexion}}/g, location.type || 'Desconocido');
-    htmlContent = htmlContent.replace(/{{fecha_hora}}/g, new Date().toLocaleString('es-PE'));
-    htmlContent = htmlContent.replace(/{{dispositivo}}/g, userAgent || 'Desconocido');
-    
-    const result = await resend.emails.send({
-      from: 'Seguridad Masitaprex <seguridad@masitaprex.com>',
-      to: email,
-      subject: '⚠️ Intento de inicio de sesión sospechoso - Masitaprex',
-      html: htmlContent
-    });
-    return { success: true, id: result.id };
+
+    return res.status(200).send('Payment not approved');
+
   } catch (error) {
-    logger.error(context, '❌ Error enviando correo sospechoso', error);
-    return { success: false, error: error.message };
+    logger.error(context, 'Error en Webhook Mercado Pago', error);
+    return res.status(500).send('Internal Server Error');
   }
-}
-
-export async function enviarCorreoCompraRR(email, nombre, orderId, monto, descripcion, urlBoleta, resend) {
-  const context = 'ENVIAR_CORREO_COMPRA_RR';
-  try {
-    // Usamos la misma plantilla pero podríamos personalizarla en el futuro si se requiere
-    const templatePath = path.join(__dirname, 'emails', 'compra-exitosa.html');
-    if (!fs.existsSync(templatePath)) return { success: false, error: 'Plantilla no encontrada' };
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Empresa');
-    htmlContent = htmlContent.replace(/{{orderId}}/g, orderId);
-    htmlContent = htmlContent.replace(/{{monto}}/g, monto);
-    htmlContent = htmlContent.replace(/{{descripcion}}/g, descripcion);
-    htmlContent = htmlContent.replace(/{{url_boleta}}/g, urlBoleta || 'https://masitaprex.com/Dashboard-Revenue-Recovery-OS.html');
-    
-    // Cambiamos el asunto para identificar que es de RR-OS
-    const result = await resend.emails.send({
-      from: 'Revenue Recovery OS <facturacion@masitaprex.com>',
-      to: email,
-      subject: `Activación Exitosa: ${descripcion} - #${orderId}`,
-      html: htmlContent
-    });
-    return { success: true, id: result.id };
-  } catch (error) {
-    logger.error(context, '❌ Error enviando correo de compra RR', error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function enviarCorreoRechazo(email, nombre, orderId, monto, descripcion, motivo, resend) {
-  const context = 'ENVIAR_CORREO_RECHAZO';
-  try {
-    const templatePath = path.join(__dirname, 'emails', 'compra-rechazada.html');
-    if (!fs.existsSync(templatePath)) return { success: false, error: 'Plantilla no encontrada' };
-    
-    let htmlContent = fs.readFileSync(templatePath, 'utf-8');
-    htmlContent = htmlContent.replace(/{{nombre}}/g, nombre || 'Cliente');
-    htmlContent = htmlContent.replace(/{{orderId}}/g, orderId);
-    htmlContent = htmlContent.replace(/{{monto}}/g, monto);
-    htmlContent = htmlContent.replace(/{{descripcion}}/g, descripcion);
-    
-    const motivosMap = {
-      'cc_rejected_insufficient_amount': 'Fondos insuficientes en la tarjeta.',
-      'cc_rejected_bad_filled_security_code': 'Código de seguridad (CVV) incorrecto.',
-      'cc_rejected_bad_filled_date': 'Fecha de expiración incorrecta.',
-      'cc_rejected_bad_filled_other': 'Datos de la tarjeta incorrectos.',
-      'cc_rejected_call_for_authorize': 'La entidad emisora requiere autorización telefónica.',
-      'cc_rejected_card_disabled': 'La tarjeta no está activa para compras por internet.',
-      'cc_rejected_card_error': 'Error al procesar la tarjeta.',
-      'cc_rejected_duplicated_payment': 'Pago duplicado detectado.',
-      'cc_rejected_high_risk': 'El pago fue rechazado por políticas de seguridad.',
-      'cc_rejected_invalid_installments': 'Número de cuotas no permitido para esta tarjeta.',
-      'cc_rejected_max_attempts': 'Se ha superado el número máximo de intentos.',
-      'cc_rejected_other_reason': 'Error general en la transacción bancaria.'
-    };
-
-    const mensajeMotivo = motivosMap[motivo] || motivo || 'fondos insuficientes o restricción bancaria';
-    htmlContent = htmlContent.replace(/\(fondos insuficientes o restricción bancaria\)/g, `(${mensajeMotivo})`);
-    htmlContent = htmlContent.replace(/fondos insuficientes o restricción bancaria/g, mensajeMotivo);
-    
-    const result = await resend.emails.send({
-      from: 'Facturación Masitaprex <facturacion@masitaprex.com>',
-      to: email,
-      subject: `Pago Rechazado #${orderId} - Masitaprex`,
-      html: htmlContent
-    });
-    return { success: true, id: result.id };
-  } catch (error) {
-    logger.error(context, '❌ Error enviando correo de rechazo', error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function enviarCorreoSoporte(email, nombre, asunto, mensaje, resend) {
-  const context = 'ENVIAR_CORREO_SOPORTE';
-  try {
-    const result = await resend.emails.send({
-      from: 'Soporte Masitaprex <soporte@masitaprex.com>',
-      to: 'soporte@masitaprex.com',
-      reply_to: email,
-      subject: `[SOPORTE] ${asunto}`,
-      html: `<p><strong>De:</strong> ${nombre} (${email})</p><p><strong>Mensaje:</strong></p><p>${mensaje}</p>`
-    });
-    return { success: true, id: result.id };
-  } catch (error) {
-    logger.error(context, '❌ Error enviando correo de soporte', error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function createSessionCookie(idToken) {
-  const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 días
-  const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
-  return { sessionCookie, expiresIn };
 }
