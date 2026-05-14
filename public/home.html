@@ -1057,8 +1057,9 @@
     div.appendChild(title);
 
     div.addEventListener('click', () => {
-      const param = item.id ? `id=${encodeURIComponent(item.id)}` : `q=${encodeURIComponent(item.titulo)}`;
-      window.location.href = `PeliPREX?${param}`;
+      // SOLUCIÓN: usar el parámetro "movie" con el título de la película
+      const movieSlug = encodeURIComponent(item.titulo || '');
+      window.location.href = `PeliPREX?movie=${movieSlug}`;
     });
     return div;
   }
