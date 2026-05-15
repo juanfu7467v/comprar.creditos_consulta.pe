@@ -869,7 +869,7 @@
             margin-top: 6px;
         }
         
-        /* Nueva tabla para plan intensivo - filas clickeables */
+        /* Nueva tabla para plan intensivo */
         .intensive-table {
             width: 100%;
             border-collapse: collapse;
@@ -891,12 +891,11 @@
             letter-spacing: 0.5px;
         }
         .intensive-table tbody tr {
-            transition: all 0.2s ease;
+            transition: background 0.2s ease;
             cursor: pointer;
         }
         .intensive-table tbody tr:hover {
-            background: rgba(0,200,83,0.08);
-            transform: scale(1.01);
+            background: rgba(0,200,83,0.05);
         }
         .intensive-table tbody td {
             border-bottom: 1px solid var(--border-subtle);
@@ -904,6 +903,7 @@
             color: var(--text-muted);
         }
         .intensive-table tbody tr:last-child td { border-bottom: none; }
+        /* Ya no se usa .plan-link porque ahora la fila entera es clickeable */
 
         .quote {
             background: linear-gradient(90deg, rgba(0,200,83,0.08), rgba(255,215,0,0.04));
@@ -1284,26 +1284,26 @@
             <p>💡 Diseñado para desarrolladores que buscan rendimiento y simplicidad.</p>  
         </div>
         
-        <!-- Paquetes de Créditos (con planId seguro) -->
+        <!-- Paquetes de Créditos -->
         <div class="section-card gradient-border">
             <div class="text-container-header">
                 <i class="ri-money-dollar-circle-line"></i>
                 💰 Paquetes de Créditos
             </div>
             <div class="package-grid" id="creditsGrid">
-                <a id="credit-link-60" href="#" target="_blank">
+                <a id="credit-link-10" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/10</div><div class="credits">60 ⚡ CRÉDITOS</div><div class="benefit">Ideal para pruebas o proyectos pequeños</div></div>
                 </a>
-                <a id="credit-link-125" href="#" target="_blank">
+                <a id="credit-link-20" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/20</div><div class="credits">125 🚀 CRÉDITOS</div><div class="benefit">Buen equilibrio entre costo y rendimiento</div></div>
                 </a>
-                <a id="credit-link-330" href="#" target="_blank">
+                <a id="credit-link-50" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/50</div><div class="credits">330 💎 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--emerald);">Opción inteligente y más rentable</div></div>
                 </a>
-                <a id="credit-link-700" href="#" target="_blank">
+                <a id="credit-link-100" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/100</div><div class="credits">700 👑 CRÉDITOS</div><div class="benefit">Plan avanzado con excelente retorno</div></div>
                 </a>
-                <a id="credit-link-1500" href="#" target="_blank">
+                <a id="credit-link-200" href="#" target="_blank">
                     <div class="package-card"><div class="amount">S/200</div><div class="credits">1500 🔥 CRÉDITOS</div><div class="benefit font-bold" style="color: var(--gold);">La mejor relación costo-beneficio</div></div>
                 </a>
             </div>
@@ -1321,7 +1321,7 @@
             <p class="font-bold" style="color:var(--emerald);">👉 Si no quieres invertir mucho, el paquete de S/50 es la opción más equilibrada.</p>
         </div>
         
-        <!-- Plan intensivo - Ideal si consultas a diario (filas clickeables con planId) -->
+        <!-- Plan intensivo - Ideal si consultas a diario -->
         <div class="section-card gradient-border">
             <div class="text-container-header">
                 <i class="ri-global-line"></i>
@@ -1334,16 +1334,24 @@
                 </thead>
                 <tbody>
                     <tr id="intensive-row-7" data-plan-id="plan_7_dias">
-                        <td>7 días</td><td class="price">S/80</td><td>1,000 consultas</td>
+                        <td>7 días</td>
+                        <td class="price">S/80</td>
+                        <td>1,000 consultas</td>
                     </tr>
                     <tr id="intensive-row-15" data-plan-id="plan_15_dias">
-                        <td>15 días</td><td class="price">S/120</td><td>2,500 consultas</td>
+                        <td>15 días</td>
+                        <td class="price">S/120</td>
+                        <td>2,500 consultas</td>
                     </tr>
                     <tr id="intensive-row-30" data-plan-id="plan_30_dias">
-                        <td>30 días</td><td class="price">S/180</td><td>5,000 consultas</td>
+                        <td>30 días</td>
+                        <td class="price">S/180</td>
+                        <td>5,000 consultas</td>
                     </tr>
                     <tr id="intensive-row-60" data-plan-id="plan_60_dias">
-                        <td>60 días</td><td class="price">S/320</td><td>12,000 consultas</td>
+                        <td>60 días</td>
+                        <td class="price">S/320</td>
+                        <td>12,000 consultas</td>
                     </tr>
                 </tbody>
             </table>
@@ -1437,6 +1445,8 @@
         const navLinks = sidebar.querySelectorAll('nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
+                // Permitir la navegación normalmente, pero también cerrar el menú
+                // No prevenimos el comportamiento por defecto para que el enlace funcione.
                 toggleMenu();
             });
         });
@@ -1519,6 +1529,23 @@
                 };
             }
         }
+
+        // Mapa de planId para paquetes de créditos (seguro, sin montos en URL)
+        const CREDIT_PLAN_IDS = {
+            10: "60_creditos",
+            20: "125_creditos",
+            50: "330_creditos",
+            100: "700_creditos",
+            200: "1500_creditos"
+        };
+
+        // Mapa de planId para planes intensivos
+        const INTENSIVE_PLAN_IDS = {
+            7: "plan_7_dias",
+            15: "plan_15_dias",
+            30: "plan_30_dias",
+            60: "plan_60_dias"
+        };
 
         async function initApp() {
             try {
@@ -1639,36 +1666,32 @@
                     }
                 }
 
-                // ========== NUEVO: Actualizar enlaces de pago con planId seguro ==========
+                // ========== NUEVA FUNCIÓN SEGURA: actualiza los enlaces con planId ==========
                 function updateCheckoutLinks(uid, email) {
                     if (!uid || !email) return;
 
-                    // Mapeo de planId para créditos (coherente con negocios.js)
-                    const creditPlans = [
-                        { id: "60_creditos", elementId: "credit-link-60" },
-                        { id: "125_creditos", elementId: "credit-link-125" },
-                        { id: "330_creditos", elementId: "credit-link-330" },
-                        { id: "700_creditos", elementId: "credit-link-700" },
-                        { id: "1500_creditos", elementId: "credit-link-1500" }
-                    ];
-                    creditPlans.forEach(plan => {
-                        const link = document.getElementById(plan.elementId);
+                    // 1. Paquetes de créditos: usar planId
+                    for (const [amount, planId] of Object.entries(CREDIT_PLAN_IDS)) {
+                        const link = document.getElementById(`credit-link-${amount}`);
                         if (link) {
-                            link.href = `/checkout.html?planId=${plan.id}&uid=${uid}&email=${encodeURIComponent(email)}`;
+                            link.href = `/checkout.html?planId=${planId}&uid=${uid}&email=${encodeURIComponent(email)}`;
+                        }
+                    }
+
+                    // 2. Planes intensivos: asignar planId a cada fila (la fila es clickeable)
+                    const intensiveRows = document.querySelectorAll('.intensive-table tbody tr');
+                    intensiveRows.forEach(row => {
+                        const planId = row.getAttribute('data-plan-id');
+                        if (planId) {
+                            // Al hacer clic en la fila, redirigir al checkout con planId
+                            row.style.cursor = 'pointer';
+                            row.addEventListener('click', (e) => {
+                                // Evitar que el clic en enlaces internos (como el de WhatsApp dentro de la nota) dispare la redirección
+                                if (e.target.tagName === 'A') return;
+                                window.location.href = `/checkout.html?planId=${planId}&uid=${uid}&email=${encodeURIComponent(email)}`;
+                            });
                         }
                     });
-
-                    // Planes intensivos: ya no se usan enlaces <a> individuales, sino filas clickeables.
-                    // Se manejan con eventos directamente (ver más abajo)
-                }
-
-                // Función para redirigir a checkout con planId (usada en filas clickeables)
-                function redirectToCheckout(planId, uid, email) {
-                    if (!uid || !email) {
-                        showFeedbackModal('No se pudo identificar el usuario. Reintenta.', true);
-                        return;
-                    }
-                    window.location.href = `/checkout.html?planId=${planId}&uid=${uid}&email=${encodeURIComponent(email)}`;
                 }
 
                 async function loadProfileData() {
@@ -1706,20 +1729,9 @@
                         infoCreditosDiv.style.display = 'none';
                         infoIlimitadoDiv.style.display = 'none';
 
-                        // Actualizar enlaces de pago con datos reales
+                        // Actualizar enlaces de pago con uid y email reales
                         const userEmail = currentUser.email || userData.email || '';
                         updateCheckoutLinks(currentUser.uid, userEmail);
-
-                        // Asignar eventos click a las filas de la tabla intensiva
-                        const intensiveRows = document.querySelectorAll('#intensive-row-7, #intensive-row-15, #intensive-row-30, #intensive-row-60');
-                        intensiveRows.forEach(row => {
-                            const planId = row.getAttribute('data-plan-id');
-                            row.addEventListener('click', (e) => {
-                                // Evitar que el click se propague si se hace clic en algún enlace interno (no hay)
-                                e.stopPropagation();
-                                redirectToCheckout(planId, currentUser.uid, userEmail);
-                            });
-                        });
 
                         if (userData.tipoPlan === "creditos") {
                             infoCreditosDiv.style.display = "flex";
