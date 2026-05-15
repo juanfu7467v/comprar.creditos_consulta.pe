@@ -114,11 +114,32 @@
             position: relative;
         }
 
+        .payment-carousel-section::before,
+        .payment-carousel-section::after {
+            content: '';
+            position: absolute;
+            top: 36px;
+            bottom: 22px;
+            width: 36px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .payment-carousel-section::before {
+            left: 0;
+            background: linear-gradient(90deg, rgba(247, 248, 250, 0.95) 0%, rgba(247, 248, 250, 0) 100%);
+        }
+
+        .payment-carousel-section::after {
+            right: 0;
+            background: linear-gradient(270deg, rgba(247, 248, 250, 0.95) 0%, rgba(247, 248, 250, 0) 100%);
+        }
+
         .carousel-label {
             font-size: 14px;
             font-weight: 500;
             color: var(--text-gray);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -129,44 +150,61 @@
             font-size: 14px;
         }
 
-        /* Slider premium */
+        .carousel-helper-text {
+            font-size: 12px;
+            color: var(--text-gray);
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
         .horizontal-scroll {
-            position: relative;
-            overflow: hidden;
-            cursor: grab;
-            touch-action: pan-y; /* permite scroll vertical mientras se arrastra horizontal */
+            display: flex;
+            align-items: stretch;
+            gap: 18px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scroll-snap-type: x proximity;
+            padding: 10px 16px 22px;
             margin: 0 -6px;
-            padding: 8px 2px 16px 2px;
-            user-select: none;
-            -webkit-user-select: none;
+            cursor: grab;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            will-change: scroll-position;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none;
         }
 
         .horizontal-scroll:active {
             cursor: grabbing;
         }
 
-        .slider-track {
-            display: flex;
-            transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
-            will-change: transform;
-        }
-
         .carousel-item {
-            flex-shrink: 0;
-            width: 90%;
-            max-width: 320px;
-            margin-right: 18px;
+            flex: 0 0 clamp(250px, 82vw, 340px);
+            display: flex;
+            scroll-snap-align: center;
             vertical-align: top;
             border-radius: var(--radius-lg);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            opacity: 0.72;
+            filter: saturate(0.92);
+            transform: scale(0.94) translateY(6px) translateZ(0);
+            transition:
+                transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.45s ease,
+                filter 0.45s ease,
+                box-shadow 0.45s ease;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
         }
 
-        .carousel-item:first-child {
-            margin-left: 6px;
-        }
-
-        .carousel-item:last-child {
-            margin-right: 6px;
+        .carousel-item.active {
+            opacity: 1;
+            filter: saturate(1);
+            transform: scale(1) translateY(0) translateZ(0);
+            box-shadow: 0 22px 50px rgba(79, 110, 247, 0.16);
         }
 
         .carousel-item img {
@@ -177,23 +215,41 @@
             background: white;
             display: block;
             pointer-events: none;
+            transition:
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.45s ease;
+        }
+
+        .carousel-item.active img {
+            transform: scale(1.015);
+            box-shadow: 0 20px 36px -14px rgba(79, 110, 247, 0.28);
         }
 
         .scroll-hint {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 8px;
-            margin-top: 8px;
+            margin-top: 2px;
             margin-bottom: 4px;
+            min-height: 10px;
         }
 
         .scroll-hint span {
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             background: var(--text-gray);
-            opacity: 0.4;
-            border-radius: 10px;
-            transition: all 0.25s ease;
+            opacity: 0.35;
+            border-radius: 999px;
+            transition: all 0.35s ease;
+            cursor: pointer;
+        }
+
+        .scroll-hint span.active {
+            width: 24px;
+            opacity: 1;
+            background: var(--primary-blue);
+            box-shadow: 0 6px 14px rgba(79, 110, 247, 0.28);
         }
 
         #loadingScreen {
@@ -557,13 +613,22 @@
                 font-size: 12px;
                 padding: 0 6px;
             }
+
+            .carousel-item {
+                flex-basis: 84vw;
+            }
+
+            .payment-carousel-section::before,
+            .payment-carousel-section::after {
+                width: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div id="loadingScreen">
         <div class="spinner"></div>
-        <p class="loading-text" id="loadingText">Cargando plataforma de pago...</p>
+        <p class="loading-text" id="loadingText">Preparando tu pago seguro...</p>
     </div>
 
     <div class="iphone-container">
@@ -571,22 +636,22 @@
             <div class="back-btn" onclick="goBack()">
                 <i class="fas fa-chevron-left"></i>
             </div>
-            <div class="header-title">Pago Seguro</div>
+            <div class="header-title">Pago protegido</div>
         </div>
 
         <div id="checkoutScreen" class="content">
             <div class="price-section">
-                <p class="price-label">Total a pagar</p>
+                <p class="price-label">Importe total</p>
                 <h1 class="total-price" id="display-amount">S/ 0.00</h1>
             </div>
 
             <div class="payment-carousel-section">
                 <div class="carousel-label">
                     <i class="fas fa-credit-card"></i>
-                    <span>Métodos de pago seguros</span>
+                    <span>Revisa tus opciones de pago seguras</span>
                 </div>
+                <p class="carousel-helper-text">Desliza o arrastra las imágenes para verlas con una transición suave y cómoda en móvil o en ordenador.</p>
                 <div class="horizontal-scroll" id="imageScroll">
-                    <!-- Las imágenes se moverán dentro de un track generado por JS -->
                     <div class="carousel-item">
                         <img src="https://i.postimg.cc/zfyKVTZr/IMG-20260515-113901.jpg" alt="Tarjeta de crédito VISA" loading="lazy">
                     </div>
@@ -606,13 +671,11 @@
                         <img src="https://i.postimg.cc/xdZGRty0/IMG-20260515-113346.jpg" alt="Compras protegidas" loading="lazy">
                     </div>
                 </div>
-                <div class="scroll-hint" id="scrollHint">
-                    <span></span><span></span><span></span>
-                </div>
+                <div class="scroll-hint" id="scrollHint"></div>
             </div>
 
             <div class="payment-method-switcher">
-                <p class="price-label" style="margin-bottom:12px;">Elige cómo pagar</p>
+                <p class="price-label" style="margin-bottom:12px;">Selecciona tu método de pago</p>
                 <div class="method-segmented-control" id="paymentMethodControl">
                     <button type="button" class="method-pill active" data-method="card">Tarjeta</button>
                     <button type="button" class="method-pill" data-method="yape">Yape</button>
@@ -622,33 +685,33 @@
             <div class="payment-method-stage">
                 <section class="payment-method-panel active" id="cardPanel" data-panel="card">
                     <div class="payment-status-chip">Crédito / Débito</div>
-                    <h3 class="method-panel-title">Paga con tarjeta de forma inmediata</h3>
-                    <p class="method-panel-subtitle">Paga con tarjeta de crédito o débito de forma rápida y segura.</p>
+                    <h3 class="method-panel-title">Paga al instante con tu tarjeta</h3>
+                    <p class="method-panel-subtitle">Esta es la opción recomendada. Completa tus datos en el formulario seguro y, si lo deseas, revisa las cuotas disponibles antes de confirmar.</p>
                     <div id="cardPaymentBrick_container"></div>
                 </section>
 
                 <section class="payment-method-panel" id="yapePanel" data-panel="yape">
                     <div class="payment-status-chip">Yape</div>
-                    <h3 class="method-panel-title">Confirma tu pago con Yape</h3>
-                    <p class="method-panel-subtitle">Ingresa tu celular y el código OTP de la app Yape.</p>
+                    <h3 class="method-panel-title">Paga con Yape en pocos pasos</h3>
+                    <p class="method-panel-subtitle">Escribe el número de celular asociado a tu Yape y el código de 6 dígitos que aparece en tu app. Después confirma el pago para terminar.</p>
                     <form class="yape-form" id="yapeForm">
                         <div class="yape-field">
-                            <label for="yapePhone">Celular Yape</label>
-                            <input id="yapePhone" type="tel" inputmode="numeric" maxlength="9" placeholder="999999999" required>
+                            <label for="yapePhone">Número de celular asociado a Yape</label>
+                            <input id="yapePhone" type="tel" inputmode="numeric" maxlength="9" placeholder="Ejemplo: 999999999" required>
                         </div>
                         <div class="yape-field">
-                            <label for="yapeOtp">Código OTP</label>
-                            <input id="yapeOtp" type="tel" inputmode="numeric" maxlength="6" placeholder="123456" required>
+                            <label for="yapeOtp">Código de confirmación (OTP)</label>
+                            <input id="yapeOtp" type="tel" inputmode="numeric" maxlength="6" placeholder="Ejemplo: 123456" required>
                         </div>
-                        <button type="submit" class="yape-submit-btn" id="yapeSubmitBtn">Pagar con Yape</button>
+                        <button type="submit" class="yape-submit-btn" id="yapeSubmitBtn">Confirmar pago con Yape</button>
                     </form>
-                    <p class="payment-helper-note">Procesamos tu pago de forma segura con Mercado Pago.</p>
+                    <p class="payment-helper-note">Verifica que el número y el código estén correctos. El sistema validará el monto exacto antes de activar tu compra.</p>
                 </section>
             </div>
 
             <div class="security-badge">
                 <i class="fas fa-shield-check"></i>
-                <span>Pago encriptado y procesado por Mercado Pago</span>
+                <span>Pago cifrado y protegido por Mercado Pago</span>
             </div>
         </div>
 
@@ -656,8 +719,8 @@
             <div class="result-icon success-icon">
                 <i class="fas fa-check"></i>
             </div>
-            <h2 class="result-title">¡Pago Exitoso!</h2>
-            <p class="result-message">Tu transacción ha sido procesada correctamente y tus beneficios han sido activados.</p>
+            <h2 class="result-title">¡Pago confirmado!</h2>
+            <p class="result-message">Tu pago se registró correctamente y tus beneficios ya quedaron activados.</p>
 
             <div class="receipt-card">
                 <div class="receipt-row">
@@ -665,7 +728,7 @@
                     <span class="receipt-value" id="success-email">-</span>
                 </div>
                 <div class="receipt-row">
-                    <span class="receipt-label">Monto pagado</span>
+                    <span class="receipt-label">Importe pagado</span>
                     <span class="receipt-value" id="success-amount">-</span>
                 </div>
                 <div class="receipt-row">
@@ -682,14 +745,14 @@
                     <span class="receipt-value" id="success-time">-</span>
                 </div>
                 <div class="receipt-row">
-                    <span class="receipt-label">ID Transacción</span>
+                    <span class="receipt-label">ID de transacción</span>
                     <span class="receipt-value" id="success-transaction-id">-</span>
                 </div>
             </div>
 
             <button class="action-btn primary-btn" onclick="closePayment()">Volver a la aplicación</button>
             <button class="action-btn secondary-btn" id="downloadVoucherBtn">
-                <i class="fas fa-download"></i> Descargar Boleta de Venta
+                <i class="fas fa-download"></i> Descargar boleta de venta
             </button>
             <p id="downloadMessage" style="display:none; font-size:12px; color:var(--text-gray); margin-top:5px; align-items:center; justify-content:center; gap:5px;">
                 <i class="fas fa-info-circle"></i> Tu boleta se está descargando...
@@ -700,10 +763,10 @@
             <div class="result-icon error-icon">
                 <i class="fas fa-times"></i>
             </div>
-            <h2 class="result-title" id="failed-title">Pago Fallido</h2>
-            <p class="result-message" id="error-message">Lo sentimos, no pudimos procesar tu pago. Por favor, intenta con otro método o contacta a tu banco.</p>
+            <h2 class="result-title" id="failed-title">No se pudo completar el pago</h2>
+            <p class="result-message" id="error-message">No pudimos procesar tu pago en este momento. Revisa tus datos o intenta con otro método.</p>
 
-            <button class="action-btn primary-btn" id="retryPaymentBtn" onclick="retryPayment()">Intentar de nuevo</button>
+            <button class="action-btn primary-btn" id="retryPaymentBtn" onclick="retryPayment()">Intentar otra vez</button>
             <button class="action-btn secondary-btn" id="secondaryErrorBtn" onclick="closePayment()">Cancelar y volver</button>
         </div>
     </div>
@@ -728,7 +791,7 @@
         const planInfo = MAPA_PLANES[planId];
 
         if (!planId || !uid || !email || !planInfo) {
-            alert('Error: Datos de pago incompletos o inválidos. Redirigiendo a planes...');
+            alert('Error: Los datos del pago no son válidos. Te llevaremos nuevamente a la sección de planes.');
             window.location.href = '/planes.html';
         }
 
@@ -763,7 +826,7 @@
             inputHorizontalPadding: '14px'
         };
 
-        function showLoading(message = 'Procesando tu pago...') {
+        function showLoading(message = 'Estamos procesando tu pago...') {
             document.getElementById('loadingText').textContent = message;
             document.getElementById('loadingScreen').style.display = 'flex';
         }
@@ -780,7 +843,7 @@
         }
 
         function goBack() {
-            if (confirm('¿Estás seguro de que deseas cancelar el pago?')) {
+            if (confirm('¿Seguro que quieres cancelar este pago?')) {
                 window.location.href = '/planes.html';
             }
         }
@@ -797,10 +860,10 @@
             window.location.href = cleanUrl.toString();
         }
 
-        function setErrorScreenState({ title = 'Pago Fallido', message, showRetry = true, secondaryText = 'Cancelar y volver' }) {
+        function setErrorScreenState({ title = 'No se pudo completar el pago', message, showRetry = true, secondaryText = 'Cancelar y volver' }) {
             document.getElementById('failed-title').textContent = title;
             document.getElementById('error-message').textContent = message;
-            document.getElementById('retryPaymentBtn').style.display = showRetry ? 'block' : 'none';
+            document.getElementById('retryPaymentBtn').style.display = showRetry ? 'block' : 'block';
             document.getElementById('secondaryErrorBtn').textContent = secondaryText;
             showScreen('failedScreen');
         }
@@ -852,7 +915,7 @@
         }
 
         async function renderCardBrick() {
-            showLoading('Cargando formulario de tarjeta...');
+            showLoading('Cargando el formulario seguro de tarjeta...');
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
                 initialization: {
                     amount,
@@ -869,7 +932,7 @@
                             formSubmit: `Pagar S/ ${amount.toFixed(2)}`,
                             email: { label: 'Correo electrónico' },
                             installmentsSectionTitle: 'Cuotas disponibles',
-                            selectInstallments: 'Selecciona tus cuotas',
+                            selectInstallments: 'Elige tus cuotas',
                             selectIssuerBank: 'Banco emisor'
                         }
                     },
@@ -886,7 +949,7 @@
                         if (activeMethod === 'card') hideLoading();
                     },
                     onSubmit: async (cardFormData) => {
-                        showLoading('Confirmando pago con tarjeta...');
+                        showLoading('Confirmando tu pago con tarjeta...');
                         const result = await fetchJSON('/api/pay', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -902,14 +965,14 @@
                                 description: `Compra Consulta PE: ${description}`
                             })
                         });
-                        await handleBackendPaymentResponse(result, 'Tarjeta');
+                        await handleBackendPaymentResponse(result, 'tarjeta');
                     },
                     onError: (error) => {
                         console.error('Error Card Brick:', error);
                         hideLoading();
                         setErrorScreenState({
-                            title: 'Pago Fallido',
-                            message: 'Ocurrió un error con el formulario de tarjeta. Intenta nuevamente.'
+                            title: 'No se pudo completar el pago',
+                            message: 'Hubo un problema al cargar o procesar el formulario de tarjeta. Inténtalo nuevamente.'
                         });
                     }
                 }
@@ -923,16 +986,16 @@
 
             if (phoneNumber.length !== 9) {
                 setErrorScreenState({
-                    title: 'Datos incompletos',
-                    message: 'Ingresa un número celular Yape válido de 9 dígitos.'
+                    title: 'Revisa tu número',
+                    message: 'Ingresa un número de celular válido de 9 dígitos asociado a tu cuenta Yape.'
                 });
                 return;
             }
 
             if (otp.length !== 6) {
                 setErrorScreenState({
-                    title: 'Datos incompletos',
-                    message: 'Ingresa el código OTP de 6 dígitos generado por Yape.'
+                    title: 'Código incompleto',
+                    message: 'Ingresa el código OTP de 6 dígitos que aparece en tu aplicación Yape.'
                 });
                 return;
             }
@@ -940,17 +1003,17 @@
             if (!mp || typeof mp.yape !== 'function') {
                 setErrorScreenState({
                     title: 'Yape no disponible',
-                    message: 'Tu credencial actual no permite generar tokens Yape. Revisa la configuración de Mercado Pago.'
+                    message: 'En este momento no es posible generar el token de Yape. Revisa la configuración e inténtalo de nuevo.'
                 });
                 return;
             }
 
             const submitBtn = document.getElementById('yapeSubmitBtn');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Procesando...';
+            submitBtn.textContent = 'Procesando pago...';
 
             try {
-                showLoading('Generando token real de Yape...');
+                showLoading('Validando tus datos de Yape...');
                 const yapeInstance = mp.yape({ otp, phoneNumber });
                 const yapeTokenResponse = await yapeInstance.create();
                 const yapeToken = typeof yapeTokenResponse === 'string'
@@ -981,18 +1044,18 @@
                 console.error('Error Yape:', error);
                 hideLoading();
                 setErrorScreenState({
-                    title: 'Pago Fallido',
-                    message: error.message || 'No pudimos procesar tu pago con Yape.'
+                    title: 'No se pudo completar el pago',
+                    message: error.message || 'No pudimos procesar el pago con Yape. Inténtalo nuevamente.'
                 });
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Pagar con Yape';
+                submitBtn.textContent = 'Confirmar pago con Yape';
             }
         }
 
         async function handleBackendPaymentResponse(result, methodLabel) {
             if (!result || !result.id) {
-                throw new Error('Mercado Pago no devolvió un identificador válido.');
+                throw new Error('No se recibió un identificador válido del pago.');
             }
 
             currentPaymentId = String(result.id);
@@ -1000,8 +1063,8 @@
             if (['rejected', 'cancelled'].includes(result.status)) {
                 hideLoading();
                 setErrorScreenState({
-                    title: 'Pago Fallido',
-                    message: `El pago con ${methodLabel} fue rechazado. Intenta con otro método o revisa tus datos.`
+                    title: 'Pago rechazado',
+                    message: `El pago con ${methodLabel} no pudo aprobarse. Revisa tus datos o inténtalo con otro método.`
                 });
                 return;
             }
@@ -1010,8 +1073,8 @@
                 paymentId: currentPaymentId,
                 externalReference: result.external_reference || null,
                 loadingText: result.status === 'approved'
-                    ? 'Pago recibido. Confirmando plan y activando beneficios...'
-                    : 'Pago enviado. Esperando confirmación de Mercado Pago...'
+                    ? 'Pago recibido. Estamos activando tu compra...'
+                    : 'Pago enviado. Estamos esperando la confirmación...'
             });
         }
 
@@ -1051,8 +1114,8 @@
                         if (['rejected', 'cancelled'].includes(statusData.status)) {
                             hideLoading();
                             setErrorScreenState({
-                                title: 'Pago Fallido',
-                                message: 'Mercado Pago informó que la operación fue rechazada o cancelada.'
+                                title: 'Pago rechazado',
+                                message: 'La operación fue rechazada o cancelada por Mercado Pago.'
                             });
                             return;
                         }
@@ -1073,7 +1136,7 @@
             hideLoading();
             setErrorScreenState({
                 title: 'Pago en validación',
-                message: 'Tu pago fue recibido y está siendo confirmado por Mercado Pago. Si el cobro ya se realizó, tus créditos o tu plan se activarán automáticamente en breve.',
+                message: 'Recibimos tu pago y todavía se está confirmando. Si el cobro ya se realizó, tu plan o tus créditos se activarán automáticamente en breve.',
                 showRetry: false,
                 secondaryText: 'Volver a la app'
             });
@@ -1110,8 +1173,8 @@
                     paymentId: paymentId ? String(paymentId) : null,
                     externalReference,
                     loadingText: status === 'approved'
-                        ? 'Regresaste del checkout. Validando y activando tu compra...'
-                        : 'Verificando el estado real de tu pago...'
+                        ? 'Volviste del checkout. Estamos validando tu compra...'
+                        : 'Estamos comprobando el estado real del pago...'
                 });
                 return true;
             }
@@ -1134,10 +1197,10 @@
                         btn.innerHTML = '<i class="fas fa-check"></i> Listo';
                     } else {
                         const data = await response.json().catch(() => ({}));
-                        throw new Error(data.error || 'El comprobante todavía se está generando.');
+                        throw new Error(data.error || 'La boleta todavía se está generando.');
                     }
                 } catch (error) {
-                    alert(error.message || 'No se pudo descargar la boleta todavía.');
+                    alert(error.message || 'Todavía no se pudo descargar la boleta.');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 } finally {
@@ -1146,135 +1209,209 @@
             };
         }
 
-        /* ========== Slider premium con transiciones suaves ========== */
-        function initCarousel() {
+        function setupCarouselIndicators() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
-            const items = Array.from(scrollContainer.querySelectorAll('.carousel-item'));
+            const items = Array.from(scrollContainer?.querySelectorAll('.carousel-item') || []);
 
-            if (items.length === 0) return;
+            if (!scrollContainer || !hintContainer || !items.length) return;
 
-            // Crear track interno
-            const track = document.createElement('div');
-            track.classList.add('slider-track');
-            items.forEach(item => track.appendChild(item));
-            scrollContainer.appendChild(track);
+            hintContainer.innerHTML = items.map((_, index) => `<span data-index="${index}" aria-label="Ir a imagen ${index + 1}"></span>`).join('');
+            const hintSpans = Array.from(hintContainer.querySelectorAll('span'));
 
-            const hintSpans = hintContainer.querySelectorAll('span');
-            let currentIndex = 0;
-            let startX = 0;
-            let currentTranslate = 0;
-            let prevTranslate = 0;
-            let isDragging = false;
-            let animationID = null;
+            let snapTimeout = null;
+            let isAutoSnapping = false;
 
-            const itemWidth = items[0].offsetWidth + 18; // ancho + margen derecho (18px)
-            const containerWidth = scrollContainer.clientWidth;
-            const maxIndex = items.length - 1;
+            const updateSidePadding = () => {
+                if (!items.length) return;
+                const firstItemWidth = items[0].getBoundingClientRect().width;
+                const sidePadding = Math.max(16, (scrollContainer.clientWidth - firstItemWidth) / 2);
+                scrollContainer.style.paddingLeft = `${sidePadding}px`;
+                scrollContainer.style.paddingRight = `${sidePadding}px`;
+            };
 
-            function setPositionByIndex(index, withTransition = true) {
-                if (index < 0) index = 0;
-                if (index > maxIndex) index = maxIndex;
-                currentIndex = index;
-                // Calcular desplazamiento para centrar el elemento actual en la vista
-                const offset = containerWidth / 2 - itemWidth / 2 - 6; // margen izquierdo del primer item (6px)
-                const translateX = -(index * itemWidth) + offset;
-                currentTranslate = translateX;
-                prevTranslate = translateX;
-                track.style.transition = withTransition ? 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
-                track.style.transform = `translateX(${translateX}px)`;
-            }
+            const getClosestIndex = () => {
+                const containerCenter = scrollContainer.scrollLeft + (scrollContainer.clientWidth / 2);
+                let closestIndex = 0;
+                let closestDistance = Infinity;
 
-            function updateHint() {
-                hintSpans.forEach((span, idx) => {
-                    if (idx === currentIndex) {
-                        span.style.opacity = '1';
-                        span.style.width = '12px';
-                        span.style.backgroundColor = 'var(--primary-blue)';
-                    } else {
-                        span.style.opacity = '0.4';
-                        span.style.width = '6px';
-                        span.style.backgroundColor = 'var(--text-gray)';
+                items.forEach((item, index) => {
+                    const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+                    const distance = Math.abs(containerCenter - itemCenter);
+
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestIndex = index;
+                    }
+
+                    const normalized = Math.min(distance / (scrollContainer.clientWidth * 0.65), 1);
+                    const scale = 0.94 + ((1 - normalized) * 0.06);
+                    const opacity = 0.72 + ((1 - normalized) * 0.28);
+                    const translateY = normalized * 6;
+
+                    item.style.transform = `scale(${scale.toFixed(3)}) translateY(${translateY.toFixed(2)}px) translateZ(0)`;
+                    item.style.opacity = opacity.toFixed(3);
+                });
+
+                return closestIndex;
+            };
+
+            const updateHint = () => {
+                const activeIndex = getClosestIndex();
+
+                items.forEach((item, index) => {
+                    item.classList.toggle('active', index === activeIndex);
+                    if (index === activeIndex) {
+                        item.style.transform = 'scale(1) translateY(0) translateZ(0)';
+                        item.style.opacity = '1';
                     }
                 });
-            }
 
-            function snapToNearest() {
-                const moveDistance = currentTranslate - prevTranslate;
-                const threshold = itemWidth / 4;
-                let newIndex = currentIndex;
+                hintSpans.forEach((span, index) => {
+                    span.classList.toggle('active', index === activeIndex);
+                });
+            };
 
-                if (moveDistance > threshold) {
-                    newIndex = Math.max(currentIndex - 1, 0);
-                } else if (moveDistance < -threshold) {
-                    newIndex = Math.min(currentIndex + 1, maxIndex);
-                }
-                // Ajustar fine si la distancia es pequeña
-                if (newIndex !== currentIndex) {
-                    setPositionByIndex(newIndex, true);
-                } else {
-                    // simplemente volver a la posición exacta del índice actual
-                    setPositionByIndex(currentIndex, true);
-                }
-                updateHint();
-            }
+            const snapToIndex = (index, smooth = true) => {
+                const item = items[index];
+                if (!item) return;
 
-            function dragStart(e) {
-                isDragging = true;
-                startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
-                prevTranslate = currentTranslate;
-                track.style.transition = 'none';
-                cancelAnimationFrame(animationID);
-            }
+                const targetLeft = item.offsetLeft - ((scrollContainer.clientWidth - item.offsetWidth) / 2);
+                const maxLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+                const safeLeft = Math.max(0, Math.min(targetLeft, maxLeft));
 
-            function dragMove(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
-                const delta = currentX - startX;
-                currentTranslate = prevTranslate + delta;
-                track.style.transform = `translateX(${currentTranslate}px)`;
-            }
+                isAutoSnapping = true;
+                scrollContainer.scrollTo({
+                    left: safeLeft,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
 
-            function dragEnd() {
-                if (!isDragging) return;
-                isDragging = false;
-                cancelAnimationFrame(animationID);
-                snapToNearest();
-            }
+                setTimeout(() => {
+                    isAutoSnapping = false;
+                    updateHint();
+                }, smooth ? 420 : 0);
+            };
 
-            // Event listeners
-            scrollContainer.addEventListener('mousedown', dragStart);
-            scrollContainer.addEventListener('touchstart', dragStart, { passive: true });
+            const scheduleSnap = () => {
+                clearTimeout(snapTimeout);
+                snapTimeout = setTimeout(() => {
+                    if (scrollContainer.dataset.dragging === 'true') return;
+                    const closestIndex = getClosestIndex();
+                    snapToIndex(closestIndex, true);
+                }, 110);
+            };
 
-            window.addEventListener('mousemove', dragMove);
-            window.addEventListener('mouseup', dragEnd);
-
-            scrollContainer.addEventListener('touchmove', dragMove, { passive: false });
-            scrollContainer.addEventListener('touchend', dragEnd);
-
-            // Prevenir arrastre de imágenes
-            scrollContainer.querySelectorAll('img').forEach(img => img.addEventListener('dragstart', e => e.preventDefault()));
-
-            // Iniciar en el primer elemento
-            setPositionByIndex(0, false);
-            updateHint();
-
-            // Recalcular al cambiar tamaño de ventana
-            window.addEventListener('resize', () => {
-                // Recalcular itemWidth y reposicionar
-                const newItemWidth = items[0].offsetWidth + 18;
-                // Ajustamos la variable itemWidth para próximos cálculos
-                // No podemos reasignar const, así que mejor recalcular en cada uso:
-                // Pero podemos usar una función getItemWidth
-                // Por simplicidad, reposicionamos con el índice actual
-                setPositionByIndex(currentIndex, false);
+            hintSpans.forEach((span) => {
+                span.addEventListener('click', () => {
+                    const index = Number(span.dataset.index);
+                    snapToIndex(index, true);
+                });
             });
+
+            scrollContainer.addEventListener('scroll', () => {
+                updateHint();
+                if (!isAutoSnapping) {
+                    scheduleSnap();
+                }
+            }, { passive: true });
+
+            scrollContainer.addEventListener('snap-to-nearest', () => {
+                const closestIndex = getClosestIndex();
+                snapToIndex(closestIndex, true);
+            });
+
+            window.addEventListener('resize', () => {
+                updateSidePadding();
+                updateHint();
+                scheduleSnap();
+            });
+
+            window.addEventListener('load', () => {
+                updateSidePadding();
+                snapToIndex(0, false);
+            });
+
+            updateSidePadding();
+            setTimeout(() => {
+                snapToIndex(0, false);
+                updateHint();
+            }, 80);
+        }
+
+        function enhanceScrollDrag() {
+            const slider = document.getElementById('imageScroll');
+            if (!slider) return;
+
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            const releaseDrag = () => {
+                isDown = false;
+                slider.dataset.dragging = 'false';
+                slider.style.cursor = 'grab';
+                slider.dispatchEvent(new Event('snap-to-nearest'));
+            };
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.dataset.dragging = 'true';
+                slider.style.cursor = 'grabbing';
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+                e.preventDefault();
+            });
+
+            slider.addEventListener('mouseleave', () => {
+                if (isDown) releaseDrag();
+            });
+
+            slider.addEventListener('mouseup', () => {
+                if (isDown) releaseDrag();
+            });
+
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.05;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+
+            slider.addEventListener('touchstart', (e) => {
+                isDown = true;
+                slider.dataset.dragging = 'true';
+                startX = e.touches[0].pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            }, { passive: true });
+
+            slider.addEventListener('touchend', () => {
+                if (isDown) releaseDrag();
+            }, { passive: true });
+
+            slider.addEventListener('touchcancel', () => {
+                if (isDown) releaseDrag();
+            }, { passive: true });
+
+            slider.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                const x = e.touches[0].pageX - slider.offsetLeft;
+                const walk = (x - startX) * 1.05;
+                slider.scrollLeft = scrollLeft - walk;
+            }, { passive: true });
+
+            slider.addEventListener('wheel', (e) => {
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    e.preventDefault();
+                    slider.scrollLeft += e.deltaY;
+                }
+            }, { passive: false });
         }
 
         async function initMercadoPago() {
             try {
-                initCarousel(); // Inicializar slider premium
+                setupCarouselIndicators();
+                enhanceScrollDrag();
                 setupMethodSelector();
                 document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
@@ -1292,7 +1429,7 @@
                 hideLoading();
                 setErrorScreenState({
                     title: 'Error de conexión',
-                    message: 'No se pudo inicializar la plataforma de pago. Intenta nuevamente en unos segundos.'
+                    message: 'No se pudo iniciar la plataforma de pago. Espera unos segundos e inténtalo otra vez.'
                 });
             }
         }
