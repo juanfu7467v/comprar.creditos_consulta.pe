@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ========== ESTILOS COMPLETOS (sin cambios) ========== */
+        /* ========== ESTILOS COMPLETOS ========== */
         :root {
             --primary-blue: #4F6EF7;
             --light-blue: #E8EEFF;
@@ -48,7 +48,6 @@
             padding-bottom: 40px;
         }
 
-        /* Header */
         .header {
             padding: 20px;
             display: flex;
@@ -70,9 +69,7 @@
             flex-shrink: 0;
         }
 
-        .back-btn:active {
-            transform: scale(0.9);
-        }
+        .back-btn:active { transform: scale(0.9); }
 
         .header-title {
             flex: 1;
@@ -82,7 +79,6 @@
             margin-right: 30px;
         }
 
-        /* Contenido */
         .content {
             padding: 0 24px;
             max-width: 1200px;
@@ -99,17 +95,15 @@
             color: var(--text-gray);
             font-size: 14px;
             margin-bottom: 5px;
-            width: 100%;
         }
 
         .total-price {
             font-size: 34px;
             font-weight: 700;
             color: var(--primary-blue);
-            width: 100%;
         }
 
-        /* Tarjeta de Crédito Visual */
+        /* Tarjeta visual */
         .credit-card-display {
             background: var(--gradient);
             border-radius: var(--radius-lg);
@@ -123,7 +117,6 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            width: 100%;
         }
 
         .credit-card-display::before {
@@ -152,9 +145,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            position: relative;
             z-index: 2;
-            width: 100%;
         }
 
         .card-chip {
@@ -173,13 +164,7 @@
             left: 5px;
             right: 5px;
             bottom: 5px;
-            background: repeating-linear-gradient(
-                90deg,
-                rgba(0,0,0,0.1) 0px,
-                rgba(0,0,0,0.1) 2px,
-                transparent 2px,
-                transparent 4px
-            );
+            background: repeating-linear-gradient(90deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
         }
 
         .card-type-container {
@@ -196,7 +181,6 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s;
         }
@@ -206,25 +190,18 @@
             font-weight: 600;
             letter-spacing: 3px;
             margin: 25px 0 20px;
-            position: relative;
             z-index: 2;
             text-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            width: 100%;
         }
 
         .card-bottom {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            position: relative;
             z-index: 2;
-            width: 100%;
         }
 
-        .card-holder-info {
-            flex: 1;
-        }
-
+        .card-holder-info { flex: 1; }
         .card-label {
             font-size: 10px;
             opacity: 0.7;
@@ -232,19 +209,48 @@
             margin-bottom: 5px;
             letter-spacing: 1px;
         }
-
         .card-value {
             font-size: 14px;
             font-weight: 600;
             text-transform: uppercase;
         }
+        .card-logo { font-size: 32px; opacity: 0.9; }
 
-        .card-logo {
-            font-size: 32px;
-            opacity: 0.9;
+        /* Selector de métodos de pago (visual) */
+        .payment-methods-row {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .payment-method-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            background: #f8f9fc;
+            flex: 1;
+            min-width: 70px;
+            text-align: center;
+        }
+        .payment-method-icon i { font-size: 24px; color: var(--primary-blue); }
+        .payment-method-icon span { font-size: 11px; font-weight: 600; color: var(--text-dark); }
+        .payment-method-icon.active {
+            background: var(--light-blue);
+            border: 1px solid var(--primary-blue);
         }
 
-        /* Pantalla de Carga */
+        /* Pantalla de carga */
         #loadingScreen {
             position: fixed;
             inset: 0;
@@ -255,7 +261,6 @@
             justify-content: center;
             z-index: 1000;
         }
-
         .spinner {
             width: 50px;
             height: 50px;
@@ -264,19 +269,9 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { margin-top: 20px; color: var(--text-gray); font-size: 14px; }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 20px;
-            color: var(--text-gray);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* Indicador de seguridad */
         .security-badge {
             display: flex;
             align-items: center;
@@ -288,15 +283,10 @@
             padding: 12px;
             background: var(--white);
             border-radius: var(--radius-md);
-            width: 100%;
         }
+        .security-badge i { color: #10B981; font-size: 16px; }
 
-        .security-badge i {
-            color: #10B981;
-            font-size: 16px;
-        }
-
-        /* Pantallas de Resultado */
+        /* Pantallas de resultado */
         .result-screen {
             position: fixed;
             inset: 0;
@@ -308,11 +298,7 @@
             padding: 40px 24px;
             text-align: center;
         }
-
-        .hidden {
-            display: none !important;
-        }
-
+        .hidden { display: none !important; }
         .result-icon {
             width: 80px;
             height: 80px;
@@ -323,30 +309,10 @@
             font-size: 40px;
             margin-bottom: 24px;
         }
-
-        .success-icon {
-            background: #E6F9F1;
-            color: var(--success-green);
-        }
-
-        .error-icon {
-            background: #FEE2E2;
-            color: var(--error-red);
-        }
-
-        .result-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .result-message {
-            color: var(--text-gray);
-            font-size: 15px;
-            line-height: 1.5;
-            margin-bottom: 32px;
-        }
-
+        .success-icon { background: #E6F9F1; color: var(--success-green); }
+        .error-icon { background: #FEE2E2; color: var(--error-red); }
+        .result-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .result-message { color: var(--text-gray); font-size: 15px; margin-bottom: 32px; }
         .receipt-card {
             background: var(--bg-gray);
             border-radius: var(--radius-md);
@@ -355,29 +321,15 @@
             margin-bottom: 32px;
             text-align: left;
         }
-
         .receipt-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 12px;
             font-size: 14px;
         }
-
-        .receipt-label {
-            color: var(--text-gray);
-        }
-
-        .receipt-value {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .receipt-divider {
-            height: 1px;
-            background: #EAECEF;
-            margin: 12px 0;
-        }
-
+        .receipt-label { color: var(--text-gray); }
+        .receipt-value { font-weight: 600; color: var(--text-dark); }
+        .receipt-divider { height: 1px; background: #EAECEF; margin: 12px 0; }
         .action-btn {
             width: 100%;
             padding: 16px;
@@ -386,59 +338,38 @@
             font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.2s;
             margin-bottom: 12px;
         }
+        .primary-btn { background: var(--primary-blue); color: white; }
+        .secondary-btn { background: var(--light-blue); color: var(--primary-blue); }
 
-        .primary-btn {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        .secondary-btn {
-            background: var(--light-blue);
-            color: var(--primary-blue);
-        }
-
-        /* Payment Brick Container */
-        #paymentBrick_container {
-            width: 100%;
-            margin-top: 20px;
-        }
+        #paymentBrick_container { width: 100%; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- Pantalla de Carga Inicial -->
     <div id="loadingScreen">
         <div class="spinner"></div>
         <p class="loading-text">Cargando plataforma de pago...</p>
     </div>
 
     <div class="iphone-container">
-        <!-- Header -->
         <div class="header">
-            <div class="back-btn" onclick="goBack()">
-                <i class="fas fa-chevron-left"></i>
-            </div>
+            <div class="back-btn" onclick="goBack()"><i class="fas fa-chevron-left"></i></div>
             <div class="header-title">Pago Seguro</div>
         </div>
 
-        <!-- Checkout Screen -->
         <div id="checkoutScreen" class="content">
             <div class="price-section">
                 <p class="price-label">Total a pagar</p>
                 <h1 class="total-price" id="display-amount">S/ 0.00</h1>
             </div>
 
-            <!-- Tarjeta Visual -->
             <div class="credit-card-display">
                 <div class="card-top">
                     <div class="card-chip"></div>
                     <div class="card-type-container">
-                        <div class="card-type" id="card-type-logo">
-                            <i class="fab fa-cc-visa card-logo"></i>
-                        </div>
+                        <div class="card-type" id="card-type-logo"><i class="fab fa-cc-visa card-logo"></i></div>
                     </div>
                 </div>
                 <div class="card-number-display" id="visual-card-number">•••• •••• •••• ••••</div>
@@ -454,68 +385,55 @@
                 </div>
             </div>
 
-            <!-- Payment Brick Container -->
-            <div id="paymentBrick_container"></div>
+            <!-- Selector visual de métodos de pago (solo informativo, el Brick ya permite elegir) -->
+            <div class="payment-methods-row">
+                <div class="payment-method-icon" data-method="creditCard">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Tarjeta</span>
+                </div>
+                <div class="payment-method-icon" data-method="yape">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Yape</span>
+                </div>
+                <div class="payment-method-icon" data-method="wallet">
+                    <i class="fas fa-wallet"></i>
+                    <span>Mercado Pago</span>
+                </div>
+                <div class="payment-method-icon" data-method="mercadoCredito">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Mercado Crédito</span>
+                </div>
+            </div>
 
+            <div id="paymentBrick_container"></div>
             <div class="security-badge">
                 <i class="fas fa-shield-check"></i>
                 <span>Pago encriptado y procesado por Mercado Pago</span>
             </div>
         </div>
 
-        <!-- Pantalla de Éxito -->
+        <!-- Pantallas de éxito/error -->
         <div id="successScreen" class="result-screen hidden">
-            <div class="result-icon success-icon">
-                <i class="fas fa-check"></i>
-            </div>
+            <div class="result-icon success-icon"><i class="fas fa-check"></i></div>
             <h2 class="result-title">¡Pago Exitoso!</h2>
             <p class="result-message">Tu transacción ha sido procesada correctamente y tus beneficios han sido activados.</p>
-            
             <div class="receipt-card">
-                <div class="receipt-row">
-                    <span class="receipt-label">Correo</span>
-                    <span class="receipt-value" id="success-email">-</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Monto pagado</span>
-                    <span class="receipt-value" id="success-amount">-</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label" id="benefit-label">Beneficio</span>
-                    <span class="receipt-value" id="benefit-value">-</span>
-                </div>
+                <div class="receipt-row"><span class="receipt-label">Correo</span><span class="receipt-value" id="success-email">-</span></div>
+                <div class="receipt-row"><span class="receipt-label">Monto pagado</span><span class="receipt-value" id="success-amount">-</span></div>
+                <div class="receipt-row"><span class="receipt-label" id="benefit-label">Beneficio</span><span class="receipt-value" id="benefit-value">-</span></div>
                 <div class="receipt-divider"></div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Fecha</span>
-                    <span class="receipt-value" id="success-date">-</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">Hora</span>
-                    <span class="receipt-value" id="success-time">-</span>
-                </div>
-                <div class="receipt-row">
-                    <span class="receipt-label">ID Transacción</span>
-                    <span class="receipt-value" id="success-transaction-id">-</span>
-                </div>
+                <div class="receipt-row"><span class="receipt-label">Fecha</span><span class="receipt-value" id="success-date">-</span></div>
+                <div class="receipt-row"><span class="receipt-label">Hora</span><span class="receipt-value" id="success-time">-</span></div>
+                <div class="receipt-row"><span class="receipt-label">ID Transacción</span><span class="receipt-value" id="success-transaction-id">-</span></div>
             </div>
-
             <button class="action-btn primary-btn" onclick="closePayment()">Volver a la aplicación</button>
-            <button class="action-btn secondary-btn" id="downloadVoucherBtn">
-                <i class="fas fa-download"></i> Descargar Boleta de Venta
-            </button>
-            <p id="downloadMessage" style="display:none; font-size:12px; color:var(--text-gray); margin-top:5px; align-items:center; justify-content:center; gap:5px;">
-                <i class="fas fa-info-circle"></i> Tu boleta se está descargando...
-            </p>
+            <button class="action-btn secondary-btn" id="downloadVoucherBtn"><i class="fas fa-download"></i> Descargar Boleta de Venta</button>
         </div>
 
-        <!-- Pantalla de Error -->
         <div id="failedScreen" class="result-screen hidden">
-            <div class="result-icon error-icon">
-                <i class="fas fa-times"></i>
-            </div>
+            <div class="result-icon error-icon"><i class="fas fa-times"></i></div>
             <h2 class="result-title">Pago Fallido</h2>
             <p class="result-message" id="error-message">Lo sentimos, no pudimos procesar tu pago. Por favor, intenta con otro método o contacta a tu banco.</p>
-            
             <button class="action-btn primary-btn" onclick="retryPayment()">Intentar de nuevo</button>
             <button class="action-btn secondary-btn" onclick="closePayment()">Cancelar y volver</button>
         </div>
@@ -529,48 +447,40 @@
             "330_creditos": { precio: 50, descripcion: "330 créditos + 20 bonus" },
             "700_creditos": { precio: 100, descripcion: "700 créditos + 40 bonus" },
             "1500_creditos": { precio: 200, descripcion: "1500 créditos + 80 bonus" },
-            "plan_7_dias": { precio: 80, descripcion: "Plan Intensivo 7 días (1,000 consultas)" },
-            "plan_15_dias": { precio: 120, descripcion: "Plan Intensivo 15 días (2,500 consultas)" },
-            "plan_30_dias": { precio: 180, descripcion: "Plan Intensivo 30 días (5,000 consultas)" },
-            "plan_60_dias": { precio: 320, descripcion: "Plan Intensivo 60 días (12,000 consultas)" }
+            "plan_7_dias": { precio: 80, descripcion: "Plan Intensivo 7 días" },
+            "plan_15_dias": { precio: 120, descripcion: "Plan Intensivo 15 días" },
+            "plan_30_dias": { precio: 180, descripcion: "Plan Intensivo 30 días" },
+            "plan_60_dias": { precio: 320, descripcion: "Plan Intensivo 60 días" }
         };
 
-        // Obtener parámetros de la URL (seguro: solo planId, uid, email)
         const urlParams = new URLSearchParams(window.location.search);
         const planId = urlParams.get('planId');
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
 
-        // Validación inicial
         if (!planId || !uid || !email) {
-            alert('Error: Datos de pago incompletos. Redirigiendo...');
+            alert('Error: Datos de pago incompletos o inválidos. Redirigiendo a planes...');
             window.location.href = '/planes.html';
         }
 
         const planInfo = MAPA_PLANES[planId];
         if (!planInfo) {
-            alert('Error: Plan no reconocido. Redirigiendo...');
+            alert('Error: Plan no reconocido. Redirigiendo a planes...');
             window.location.href = '/planes.html';
         }
 
         const amount = planInfo.precio;
         const description = planInfo.descripcion;
-
-        // Actualizar UI
         document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
 
-        let mp;
-        let bricksBuilder;
-        let paymentBrickController;
+        let mp, bricksBuilder, paymentBrickController;
 
         async function initMercadoPago() {
             try {
                 const response = await fetch('/api/config');
                 const config = await response.json();
-                
                 mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
                 bricksBuilder = mp.bricks();
-                
                 renderPaymentBrick();
             } catch (error) {
                 console.error('Error inicializando MP:', error);
@@ -582,23 +492,16 @@
             const settings = {
                 initialization: {
                     amount: amount,
-                    payer: { email: email },
+                    payer: { email: email }
                 },
                 customization: {
                     paymentMethods: {
-                        // Tarjetas de crédito y débito
                         creditCard: 'all',
                         debitCard: 'all',
-                        // Yape (transferencia bancaria)
-                        bankTransfer: ['yape', 'pagoefectivo'],
-                        // Saldo en cuenta y Mercado Crédito
-                        mercadoPago: 'all',
-                        // También se pueden aceptar pagos en efectivo (opcional)
-                        ticket: ['all']
+                        mercadoPago: 'all',      // Wallet y Mercado Crédito
+                        bankTransfer: ['yape']   // Yape
                     },
-                    visual: {
-                        style: { theme: 'default' },
-                    },
+                    visual: { style: { theme: 'default' } }
                 },
                 callbacks: {
                     onReady: () => {
@@ -606,7 +509,6 @@
                     },
                     onSubmit: ({ selectedPaymentMethod, formData }) => {
                         return new Promise((resolve, reject) => {
-                            // Construir payload para el endpoint /api/pay
                             const payload = {
                                 transaction_amount: amount,
                                 token: formData.token,
@@ -620,10 +522,8 @@
                                     last_name: formData.cardholderName?.split(' ').slice(1).join(' ') || ''
                                 },
                                 uid: uid,
-                                planId: planId   // Enviamos el planId directamente
+                                planId: planId
                             };
-
-                            // Limpiar campos nulos
                             if (!payload.payer.identification) delete payload.payer.identification;
                             if (!payload.payer.first_name) delete payload.payer.first_name;
                             if (!payload.payer.last_name) delete payload.payer.last_name;
@@ -631,10 +531,10 @@
                             fetch("/api/pay", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(payload),
+                                body: JSON.stringify(payload)
                             })
-                            .then((response) => response.json())
-                            .then((result) => {
+                            .then(response => response.json())
+                            .then(result => {
                                 if (result.status === 'approved' || result.id) {
                                     showSuccessScreen(result.id || 'Pago aprobado');
                                     resolve();
@@ -645,7 +545,7 @@
                                     reject();
                                 }
                             })
-                            .catch((error) => {
+                            .catch(error => {
                                 console.error('Error procesando pago:', error);
                                 document.getElementById('error-message').textContent = 'Error de conexión con el servidor. Intenta nuevamente.';
                                 showScreen('failedScreen');
@@ -657,13 +557,12 @@
                         console.error('Error en Brick:', error);
                         document.getElementById('error-message').textContent = 'Ocurrió un error con el método de pago. Intenta de nuevo.';
                         showScreen('failedScreen');
-                    },
-                },
+                    }
+                }
             };
             paymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
         };
 
-        // Funciones de UI
         function showScreen(screenId) {
             document.getElementById('checkoutScreen').classList.add('hidden');
             document.getElementById('successScreen').classList.add('hidden');
@@ -677,73 +576,52 @@
             }
         }
 
-        function closePayment() {
-            window.location.href = '/home.html';
-        }
-
-        function retryPayment() {
-            location.reload();
-        }
-
-        function getRealDateTime() {
-            const now = new Date();
-            return {
-                fecha: now.toLocaleDateString('es-PE'),
-                hora: now.toLocaleTimeString('es-PE')
-            };
-        }
+        function closePayment() { window.location.href = '/home.html'; }
+        function retryPayment() { location.reload(); }
 
         let currentPaymentId;
-
         async function showSuccessScreen(paymentId) {
             currentPaymentId = paymentId;
-            const { fecha, hora } = getRealDateTime();
-
+            const now = new Date();
             document.getElementById('success-email').textContent = email;
             document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
             document.getElementById('benefit-label').textContent = 'Plan/Créditos';
             document.getElementById('benefit-value').textContent = description;
-            document.getElementById('success-date').textContent = fecha;
-            document.getElementById('success-time').textContent = hora;
+            document.getElementById('success-date').textContent = now.toLocaleDateString('es-PE');
+            document.getElementById('success-time').textContent = now.toLocaleTimeString('es-PE');
             document.getElementById('success-transaction-id').textContent = paymentId;
-
             showScreen('successScreen');
         }
 
-        // Descarga de comprobante (usando endpoint real /api/invoice/:paymentId)
         document.getElementById('downloadVoucherBtn').onclick = async function() {
             const btn = this;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
             btn.disabled = true;
-
             try {
                 const response = await fetch(`/api/invoice/${currentPaymentId}`);
                 if (response.ok) {
                     const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
+                    const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `boleta_${currentPaymentId}.pdf`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
+                    URL.revokeObjectURL(url);
                     btn.innerHTML = '<i class="fas fa-check"></i> Listo';
                 } else {
-                    alert('El comprobante aún no está listo. Intenta en unos segundos.');
+                    alert('El comprobante se está procesando, intenta en unos segundos.');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
             } catch (e) {
-                console.error(e);
-                alert('No se pudo descargar el comprobante. Contacta a soporte.');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         };
 
-        // Iniciar
         window.onload = initMercadoPago;
     </script>
 </body>
