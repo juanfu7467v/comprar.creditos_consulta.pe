@@ -34,8 +34,9 @@ import {
   db, 
   otorgarBeneficio, 
   enviarBienvenida, 
-  enviarCorreoSospechoso,
+  enviarCorreoSospechoso, 
   enviarCorreoRechazo,
+  enviarCorreoExito,
   enviarCorreoSoporte,
   PAQUETES_CREDITOS,
   PLANES_ILIMITADOS
@@ -383,7 +384,13 @@ app.post("/api/pay", async (req, res) => {
         payment_method_id,
         payer,
         notification_url: `${HOST_URL}/api/webhook/mercadopago`,
-        metadata: { uid, email: payer.email, amount: transaction_amount, tipoPlan }
+        metadata: { 
+          uid, 
+          email: payer.email, 
+          amount: transaction_amount, 
+          tipoPlan,
+          tipo_plan: tipoPlan // Duplicamos por seguridad para el webhook
+        }
       }
     });
 
@@ -439,8 +446,15 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
 
       if (paymentInfo.status === "approved") {
         const metadata = paymentInfo.metadata || {};
-        if (metadata.uid) {
-          await otorgarBeneficio(metadata.uid, metadata.email || paymentInfo.payer?.email, metadata.amount || paymentInfo.transaction_amount, 'MP_WEBHOOK', paymentId.toString(), resend, metadata.tipoPlan);
+        const uid = metadata.uid || paymentInfo.external_reference;
+        const email = metadata.email || paymentInfo.payer?.email;
+        const amount = metadata.amount || paymentInfo.transaction_amount;
+        const planId = metadata.tipo_plan || metadata.tipoPlan || metadata.plan_id;
+
+        if (uid && planId) {
+          await otorgarBeneficio(uid, email, amount, 'MP_WEBHOOK', paymentId.toString(), resend, planId);
+        } else {
+          logger.error(context, 'Datos insuficientes en webhook aprobado', { paymentId, uid, planId });
         }
       } else if (paymentInfo.status === "rejected" || paymentInfo.status === "cancelled") {
         const metadata = paymentInfo.metadata || {};

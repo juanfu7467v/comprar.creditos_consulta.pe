@@ -208,7 +208,7 @@ export async function generateInvoicePDF(data) {
             doc.font('Helvetica-Bold').fontSize(9).fillColor(colors.black).text('¡Gracias por confiar en Consulta PE!', 140, footerY + 80);
 
             doc.end();
-            stream.on('finish', () => resolve(`/invoices/${fileName}`));
+            stream.on('finish', () => resolve(filePath));
         } catch (error) {
             reject(error);
         }

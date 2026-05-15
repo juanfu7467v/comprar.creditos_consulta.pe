@@ -459,6 +459,34 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
 
       result.pdfUrl = publicUrl;
 
+      // Enviar correo de éxito automáticamente
+      if (resend) {
+        let nombreUsuario = email.split('@')[0];
+        try {
+          const userSnap = await db.collection("usuarios").doc(uid).get();
+          if (userSnap.exists) {
+            nombreUsuario = userSnap.data().name || userSnap.data().displayName || nombreUsuario;
+          } else {
+            const empresaSnap = await db.collection("empresas").doc(uid).get();
+            if (empresaSnap.exists) {
+              nombreUsuario = empresaSnap.data().nombre || nombreUsuario;
+            }
+          }
+        } catch (e) {
+          logger.error(context, 'Error obteniendo nombre para email', e);
+        }
+
+        enviarCorreoExito(
+          email,
+          nombreUsuario,
+          paymentRefString,
+          montoNum,
+          result.descripcion,
+          publicUrl,
+          resend
+        ).catch(err => logger.error(context, 'Error en envío automático de email de éxito', err));
+      }
+
       // Limpiar archivo temporal
       if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
 
@@ -589,6 +617,35 @@ export async function enviarCorreoRechazo(email, nombre, orderId, monto, descrip
     return { success: true, messageId: data?.id };
   } catch (error) {
     logger.error(context, 'Error enviando correo de rechazo', { email, error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envía correo de confirmación de compra exitosa
+ */
+export async function enviarCorreoExito(email, nombre, orderId, monto, descripcion, urlBoleta, resend) {
+  const context = 'EMAIL_EXITO';
+  try {
+    const html = readHtmlTemplate('compra-exitosa.html', {
+      nombre: nombre || email.split('@')[0],
+      descripcion: descripcion || 'Compra en Consulta PE',
+      orderId: orderId,
+      monto: monto.toString(),
+      url_boleta: urlBoleta || '#'
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'Masitaprex Facturación <facturacion@masitaprex.com>',
+      to: email,
+      subject: '¡Tu compra ha sido exitosa! - Consulta PE',
+      html: html
+    });
+    if (error) throw new Error(error.message);
+    logger.info(context, 'Correo de éxito enviado', { email, orderId, messageId: data?.id });
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    logger.error(context, 'Error enviando correo de éxito', { email, error: error.message });
     return { success: false, error: error.message };
   }
 }
