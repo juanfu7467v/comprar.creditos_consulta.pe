@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ========== ESTILOS COMPLETOS (sin cambios en los existentes) ========== */
+        /* ========== ESTILOS BASE ========== */
         :root {
             --primary-blue: #4F6EF7;
             --light-blue: #E8EEFF;
@@ -49,6 +50,7 @@
             padding-bottom: 40px;
         }
 
+        /* Header */
         .header {
             padding: 20px;
             display: flex;
@@ -82,6 +84,7 @@
             margin-right: 30px;
         }
 
+        /* Contenido y Precios */
         .content {
             padding: 0 24px;
             max-width: 1200px;
@@ -108,9 +111,9 @@
             width: 100%;
         }
 
-        /* ========== CARRUSEL HORIZONTAL DE IMÁGENES ========== */
+        /* ========== CARRUSEL HORIZONTAL ========== */
         .payment-carousel-section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             width: 100%;
             position: relative;
         }
@@ -188,12 +191,7 @@
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
             background: white;
             display: block;
-            transition: transform 0.2s, box-shadow 0.2s;
             pointer-events: none;
-        }
-
-        .carousel-item:active {
-            transform: scale(0.98);
         }
 
         .scroll-hint {
@@ -213,55 +211,54 @@
             transition: all 0.2s;
         }
 
-        /* ========== NUEVO SEGMENTED CONTROL (PILL BUTTONS) ========== */
+        /* ========== SEGMENTED CONTROL (PILL BUTTONS) ========== */
         .payment-methods-bar {
-            margin: 20px 0 24px;
+            margin: 0 0 24px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             overflow-x: auto;
             scrollbar-width: none;
             white-space: nowrap;
-            padding-bottom: 6px;
+            padding: 4px;
+            background: #F1F3F7;
+            border-radius: var(--radius-pill);
         }
 
         .payment-methods-bar::-webkit-scrollbar {
-            display: none;
+            display: none; /* Ocultar scrollbar en Chrome/Safari */
         }
 
         .method-pill {
             flex: 1;
             text-align: center;
-            padding: 12px 8px;
+            padding: 12px 16px;
             border-radius: var(--radius-pill);
-            background: #F1F3F7;
-            color: var(--text-dark);
+            color: var(--text-gray);
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             white-space: nowrap;
-            backdrop-filter: blur(2px);
-            border: 1px solid transparent;
+            user-select: none;
         }
 
         .method-pill i {
             margin-right: 6px;
-            font-size: 14px;
+            font-size: 15px;
         }
 
         .method-pill.active {
             background: var(--primary-blue);
             color: white;
-            box-shadow: 0 6px 14px rgba(79, 110, 247, 0.35);
+            box-shadow: 0 4px 12px rgba(79, 110, 247, 0.4);
             transform: scale(1.02);
-            border-color: rgba(255,255,255,0.3);
         }
 
         .method-pill:active {
             transform: scale(0.96);
         }
 
-        /* Pantalla de Carga */
+        /* Pantalla de Carga y Extras */
         #loadingScreen {
             position: fixed;
             inset: 0;
@@ -300,16 +297,24 @@
             gap: 8px;
             color: var(--text-gray);
             font-size: 12px;
-            margin-top: 20px;
-            padding: 12px;
+            margin-top: 24px;
+            padding: 14px;
             background: var(--white);
             border-radius: var(--radius-md);
             width: 100%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
 
         .security-badge i {
             color: #10B981;
             font-size: 16px;
+        }
+
+        /* Payment Brick Container */
+        #paymentBrick_container {
+            width: 100%;
+            min-height: 250px; /* Previene saltos en el diseño */
+            transition: opacity 0.3s ease;
         }
 
         /* Pantallas de Resultado */
@@ -415,18 +420,6 @@
             background: var(--light-blue);
             color: var(--primary-blue);
         }
-
-        /* Payment Brick Container */
-        #paymentBrick_container {
-            width: 100%;
-            margin-top: 12px;
-            transition: all 0.2s;
-        }
-
-        .horizontal-scroll {
-            scroll-snap-type: x mandatory;
-            scroll-padding: 0 20px;
-        }
     </style>
 </head>
 <body>
@@ -438,6 +431,7 @@
     </div>
 
     <div class="iphone-container">
+        <!-- Header -->
         <div class="header">
             <div class="back-btn" onclick="goBack()">
                 <i class="fas fa-chevron-left"></i>
@@ -452,10 +446,10 @@
                 <h1 class="total-price" id="display-amount">S/ 0.00</h1>
             </div>
 
-            <!-- CARRUSEL HORIZONTAL DE IMÁGENES -->
+            <!-- CARRUSEL HORIZONTAL -->
             <div class="payment-carousel-section">
                 <div class="carousel-label">
-                    <i class="fas fa-credit-card"></i>
+                    <i class="fas fa-shield-alt"></i>
                     <span>Métodos de pago 100% seguros</span>
                 </div>
                 <div class="horizontal-scroll" id="imageScroll">
@@ -483,7 +477,7 @@
                 </div>
             </div>
 
-            <!-- NUEVO SEGMENTED CONTROL: OPCIONES DE PAGO REALES -->
+            <!-- SEGMENTED CONTROL: OPCIONES DE PAGO -->
             <div class="payment-methods-bar" id="paymentMethodsBar">
                 <div class="method-pill active" data-method="card">
                     <i class="fas fa-credit-card"></i> Tarjeta
@@ -495,11 +489,11 @@
                     <i class="fas fa-wallet"></i> Wallet
                 </div>
                 <div class="method-pill" data-method="mercadocredito">
-                    <i class="fas fa-chart-line"></i> Mercado Crédito
+                    <i class="fas fa-chart-line"></i> Crédito
                 </div>
             </div>
 
-            <!-- Payment Brick Container (se recrea dinámicamente) -->
+            <!-- Payment Brick Container -->
             <div id="paymentBrick_container"></div>
 
             <div class="security-badge">
@@ -567,7 +561,7 @@
     </div>
 
     <script>
-        // ========== MAPA DE PLANES (coherente con negocios.js) ==========
+        // ========== MAPA DE PLANES (Backend Validation Reference) ==========
         const MAPA_PLANES = {
             "60_creditos": { precio: 10, descripcion: "60 créditos + 3 bonus" },
             "125_creditos": { precio: 20, descripcion: "125 créditos + 5 bonus" },
@@ -580,14 +574,15 @@
             "plan_60_dias": { precio: 320, descripcion: "Plan Intensivo 60 días" }
         };
 
-        // Obtener parámetros de la URL
+        // Obtener parámetros seguros de la URL
         const urlParams = new URLSearchParams(window.location.search);
         const planId = urlParams.get('planId');
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
 
+        // Validación inicial
         if (!planId || !uid || !email) {
-            alert('Error: Datos de pago incompletos o inválidos. Redirigiendo a planes...');
+            alert('Error: Datos de pago incompletos. Redirigiendo a planes...');
             window.location.href = '/planes.html';
         }
 
@@ -599,54 +594,67 @@
 
         const amount = planInfo.precio;
         const description = planInfo.descripcion;
+
+        // Actualizar UI del precio
         document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
 
-        // Variables globales
+        // Variables Globales MP
         let mp;
         let bricksBuilder;
-        let currentPaymentBrickController = null;
-        let currentMethod = 'card'; // card, yape, wallet, mercadocredito
+        let paymentBrickController = null;
+        let currentMethod = 'card';
 
-        // Inicializar Mercado Pago y cargar el brick por defecto (Tarjeta)
+        // Inicializar SDK de Mercado Pago
         async function initMercadoPago() {
             try {
                 const response = await fetch('/api/config');
                 const config = await response.json();
+                
                 mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
-                bricksBuilder = mp.bricks();
                 await renderPaymentBrick(currentMethod);
+                
                 document.getElementById('loadingScreen').style.display = 'none';
             } catch (error) {
                 console.error('Error inicializando MP:', error);
-                alert('Error al conectar con Mercado Pago.');
+                document.getElementById('loadingScreen').innerHTML = '<p>Error al cargar métodos de pago. Recarga la página.</p>';
             }
         }
 
-        // Configura los métodos según la opción seleccionada
+        // Obtener la configuración correcta por método
         function getPaymentMethodsConfig(method) {
             switch(method) {
                 case 'card':
                     return { creditCard: 'all', debitCard: 'all' };
                 case 'yape':
-                    // Yape: usamos pago en efectivo (ticket) que genera cupón de pago - funcionalidad real de MercadoPago
-                    return { ticket: 'all' };
+                    // Yape es procesado como transferencia bancaria instantánea en MP Perú
+                    return { bankTransfer: 'all' };
                 case 'wallet':
-                    return { mercadoPago: 'all' }; // Saldo en cuenta
                 case 'mercadocredito':
-                    return { mercadoPago: 'all' }; // Mercado Crédito se maneja internamente
+                    // Wallet y Crédito se manejan mediante la cuenta de MP
+                    return { mercadoPago: 'all' };
                 default:
                     return { creditCard: 'all', debitCard: 'all' };
             }
         }
 
+        // Renderizar o re-renderizar el Brick de pago
         async function renderPaymentBrick(method) {
-            // Destruir brick anterior si existe
-            if (currentPaymentBrickController) {
+            const containerId = 'paymentBrick_container';
+            const container = document.getElementById(containerId);
+
+            // 1. LIMPIEZA TOTAL: Prevenir el error de unmount
+            if (paymentBrickController) {
                 try {
-                    await currentPaymentBrickController.unmount();
-                } catch(e) { console.warn("Error unmounting brick", e); }
-                currentPaymentBrickController = null;
+                    paymentBrickController.unmount();
+                } catch (e) {
+                    console.warn("Aviso al desmontar brick (ignorado de forma segura):", e);
+                }
+                container.innerHTML = ''; // Limpieza manual del DOM vital para evitar bloqueos
+                paymentBrickController = null;
             }
+
+            // 2. REINICIAR BUILDER: Garantiza una instancia limpia
+            bricksBuilder = mp.bricks();
 
             const paymentMethodsConfig = getPaymentMethodsConfig(method);
             
@@ -660,27 +668,31 @@
                     visual: { style: { theme: 'default' } },
                 },
                 callbacks: {
-                    onReady: () => { /* ya ocultamos loading */ },
+                    onReady: () => {
+                        container.style.opacity = '1'; // Restaurar opacidad al cargar
+                    },
                     onSubmit: ({ selectedPaymentMethod, formData }) => {
                         return new Promise((resolve, reject) => {
+                            // Construir payload asegurando compatibilidad con backend
                             const payload = {
                                 transaction_amount: amount,
-                                token: formData.token,
                                 description: `Compra Masitaprex: ${description}`,
                                 installments: formData.installments || 1,
                                 payment_method_id: formData.paymentMethodId,
                                 payer: {
                                     email: email,
-                                    identification: formData.identification || null,
-                                    first_name: formData.cardholderName?.split(' ')[0] || '',
-                                    last_name: formData.cardholderName?.split(' ').slice(1).join(' ') || ''
+                                    identification: formData.identification || undefined,
+                                    first_name: formData.cardholderName?.split(' ')[0] || undefined,
+                                    last_name: formData.cardholderName?.split(' ').slice(1).join(' ') || undefined
                                 },
                                 uid: uid,
                                 planId: planId
                             };
-                            if (!payload.payer.identification) delete payload.payer.identification;
-                            if (!payload.payer.first_name) delete payload.payer.first_name;
-                            if (!payload.payer.last_name) delete payload.payer.last_name;
+
+                            // Agregar token SOLO si existe (Yape/Wallet no usan token de tarjeta)
+                            if (formData.token) {
+                                payload.token = formData.token;
+                            }
 
                             fetch("/api/pay", {
                                 method: "POST",
@@ -701,35 +713,32 @@
                             })
                             .catch(error => {
                                 console.error('Error procesando pago:', error);
-                                document.getElementById('error-message').textContent = 'Error de conexión con el servidor. Intenta nuevamente.';
+                                document.getElementById('error-message').textContent = 'Error de conexión. Intenta nuevamente.';
                                 showScreen('failedScreen');
                                 reject();
                             });
                         });
                     },
                     onError: (error) => {
-                        console.error('Error en Brick:', error);
-                        document.getElementById('error-message').textContent = 'Ocurrió un error con el método de pago. Intenta de nuevo.';
-                        showScreen('failedScreen');
+                        console.error('Error interno del Brick:', error);
+                        // No mostrar pantalla de error completa por errores de validación tipográfica del usuario
                     },
                 },
             };
             
             try {
-                currentPaymentBrickController = await bricksBuilder.create('payment', 'paymentBrick_container', settings);
+                paymentBrickController = await bricksBuilder.create('payment', containerId, settings);
             } catch(err) {
-                console.error("Error creating brick:", err);
-                document.getElementById('error-message').textContent = 'No se pudo cargar el formulario de pago.';
-                showScreen('failedScreen');
+                console.error("Error creando el brick de MP:", err);
             }
         }
 
-        // Cambiar método de pago al hacer clic en los pills
-        function switchPaymentMethod(methodId) {
+        // Lógica de cambio de botones (Pills)
+        async function switchPaymentMethod(methodId) {
             if (currentMethod === methodId) return;
             currentMethod = methodId;
             
-            // Actualizar UI de los botones
+            // Actualizar botones visualmente
             document.querySelectorAll('.method-pill').forEach(pill => {
                 if (pill.getAttribute('data-method') === methodId) {
                     pill.classList.add('active');
@@ -738,15 +747,20 @@
                 }
             });
             
-            // Mostrar loading sutil mientras se reconstruye el brick
+            // Re-renderizar formulario con efecto de desvanecimiento
             const container = document.getElementById('paymentBrick_container');
-            container.style.opacity = '0.5';
-            renderPaymentBrick(methodId).finally(() => {
-                container.style.opacity = '1';
-            });
+            container.style.opacity = '0.4';
+            await renderPaymentBrick(methodId);
         }
 
-        // Funciones de UI y navegación (intactas)
+        // Asignar eventos de clic a los Pills
+        document.querySelectorAll('.method-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                switchPaymentMethod(pill.getAttribute('data-method'));
+            });
+        });
+
+        // ========== FUNCIONES DE UI Y NAVEGACIÓN ==========
         function showScreen(screenId) {
             document.getElementById('checkoutScreen').classList.add('hidden');
             document.getElementById('successScreen').classList.add('hidden');
@@ -778,9 +792,10 @@
 
         let currentPaymentId;
 
-        async function showSuccessScreen(paymentId) {
+        function showSuccessScreen(paymentId) {
             currentPaymentId = paymentId;
             const { fecha, hora } = getRealDateTime();
+            
             document.getElementById('success-email').textContent = email;
             document.getElementById('success-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
             document.getElementById('benefit-label').textContent = 'Plan/Créditos';
@@ -788,10 +803,11 @@
             document.getElementById('success-date').textContent = fecha;
             document.getElementById('success-time').textContent = hora;
             document.getElementById('success-transaction-id').textContent = paymentId;
+            
             showScreen('successScreen');
         }
 
-        // Descarga de comprobante
+        // Botón Descargar Boleta
         document.getElementById('downloadVoucherBtn').onclick = async function() {
             const btn = this;
             const originalText = btn.innerHTML;
@@ -803,7 +819,7 @@
                     window.open(`/api/invoice/${currentPaymentId}`, '_blank');
                     btn.innerHTML = '<i class="fas fa-check"></i> Listo';
                 } else {
-                    alert('El comprobante se está procesando, intenta en unos segundos.');
+                    alert('El comprobante se está procesando en el servidor. Intenta en unos segundos.');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
@@ -813,7 +829,7 @@
             }
         };
 
-        // Mejoras del carrusel (intactas)
+        // ========== MEJORAS UX DEL CARRUSEL ==========
         function setupCarouselIndicators() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintSpans = document.querySelectorAll('#scrollHint span');
@@ -875,20 +891,15 @@
             });
         }
 
-        // Eventos para los botones de pago
-        document.querySelectorAll('.method-pill').forEach(pill => {
-            pill.addEventListener('click', (e) => {
-                const method = pill.getAttribute('data-method');
-                switchPaymentMethod(method);
-            });
-        });
-
         window.addEventListener('DOMContentLoaded', () => {
             setupCarouselIndicators();
             enhanceScrollDrag();
         });
 
+        // Disparador Principal
         window.onload = initMercadoPago;
     </script>
 </body>
 </html>
+
+```
