@@ -668,7 +668,7 @@
                     <span class="receipt-value" id="success-amount">-</span>
                 </div>
                 <div class="receipt-row">
-                    <span class="receipt-label" id="benefit-label">Beneficio</span>
+                    <span class="receipt-label" id="benefit-label">Plan/Créditos</span>
                     <span class="receipt-value" id="benefit-value">-</span>
                 </div>
                 <div class="receipt-divider"></div>
@@ -851,7 +851,8 @@
 
         async function renderCardBrick() {
             showLoading('Cargando formulario de tarjeta...');
-            brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
+            // Configuración para pago de contado (sin cuotas)
+            const cardBrickSettings = {
                 initialization: {
                     amount,
                     payer: { email }
@@ -866,13 +867,13 @@
                         texts: {
                             formSubmit: `Pagar S/ ${amount.toFixed(2)}`,
                             email: { label: 'Correo electrónico' },
-                            installmentsSectionTitle: 'Cuotas disponibles',
-                            selectInstallments: 'Selecciona tus cuotas',
+                            installmentsSectionTitle: 'Pago de contado',
+                            selectInstallments: '1 cuota sin intereses',
                             selectIssuerBank: 'Banco emisor'
                         }
                     },
                     paymentMethods: {
-                        maxInstallments: 12,
+                        maxInstallments: 1,      // Solo 1 cuota
                         minInstallments: 1,
                         types: {
                             included: ['credit_card', 'debit_card']
@@ -885,22 +886,31 @@
                     },
                     onSubmit: async (cardFormData) => {
                         showLoading('Confirmando pago con tarjeta...');
-                        const result = await fetchJSON('/api/pay', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                token: cardFormData.token,
-                                transaction_amount: amount,
-                                installments: cardFormData.installments || 1,
-                                payment_method_id: cardFormData.payment_method_id,
-                                issuer_id: cardFormData.issuer_id || null,
-                                payer: cardFormData.payer,
-                                uid,
-                                planId,
-                                description: `Compra Consulta PE: ${description}`
-                            })
-                        });
-                        await handleBackendPaymentResponse(result, 'Tarjeta');
+                        try {
+                            const result = await fetchJSON('/api/pay', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    token: cardFormData.token,
+                                    transaction_amount: amount,
+                                    installments: 1,               // Siempre 1
+                                    payment_method_id: cardFormData.payment_method_id,
+                                    issuer_id: cardFormData.issuer_id || null,
+                                    payer: cardFormData.payer,
+                                    uid,
+                                    tipoPlan: planId,              // ← clave correcta para el backend
+                                    description: `Compra Consulta PE: ${description}`
+                                })
+                            });
+                            await handleBackendPaymentResponse(result, 'Tarjeta');
+                        } catch (error) {
+                            console.error('Error en onSubmit:', error);
+                            hideLoading();
+                            setErrorScreenState({
+                                title: 'Pago Fallido',
+                                message: error.message || 'No se pudo procesar el pago con tarjeta.'
+                            });
+                        }
                     },
                     onError: (error) => {
                         console.error('Error Card Brick:', error);
@@ -911,7 +921,8 @@
                         });
                     }
                 }
-            });
+            };
+            brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', cardBrickSettings);
         }
 
         async function handleYapeSubmit(event) {
@@ -969,7 +980,7 @@
                         payment_method_id: 'yape',
                         payer: { email },
                         uid,
-                        planId,
+                        tipoPlan: planId,
                         description: `Compra Consulta PE: ${description}`
                     })
                 });
@@ -1129,6 +1140,10 @@
                     if (response.ok || response.redirected) {
                         window.open(`/api/invoice/${currentPaymentId}`, '_blank');
                         btn.innerHTML = '<i class="fas fa-check"></i> Listo';
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                        }, 2000);
                     } else {
                         const data = await response.json().catch(() => ({}));
                         throw new Error(data.error || 'El comprobante todavía se está generando.');
@@ -1166,7 +1181,6 @@
             let animationID = null;
 
             function getItemWidth() {
-                // Ancho del elemento + margen derecho (18px)
                 return items[0].offsetWidth + 18;
             }
 
@@ -1176,8 +1190,6 @@
                 currentIndex = index;
                 const itemWidth = getItemWidth();
                 const containerWidth = scrollContainer.clientWidth;
-                // Centrar la imagen: el borde izquierdo de la imagen debe estar en containerWidth/2 - imageWidth/2
-                // y la imagen comienza después del margin-left (6px) del item.
                 const offset = containerWidth / 2 - itemWidth / 2 - 6;
                 const translateX = -(index * itemWidth) + offset;
                 currentTranslate = translateX;
@@ -1244,7 +1256,6 @@
                 snapToNearest();
             }
 
-            // Event listeners
             scrollContainer.addEventListener('mousedown', dragStart);
             scrollContainer.addEventListener('touchstart', dragStart, { passive: true });
             window.addEventListener('mousemove', dragMove);
@@ -1252,26 +1263,22 @@
             scrollContainer.addEventListener('touchmove', dragMove, { passive: false });
             scrollContainer.addEventListener('touchend', dragEnd);
 
-            // Prevenir arrastre de imágenes
             scrollContainer.querySelectorAll('img').forEach(img => img.addEventListener('dragstart', e => e.preventDefault()));
 
-            // Esperar a que todas las imágenes del slider estén cargadas antes de posicionar
             const images = Array.from(scrollContainer.querySelectorAll('img'));
             const imageLoadPromises = images.map(img => {
                 if (img.complete) return Promise.resolve();
                 return new Promise(resolve => {
                     img.addEventListener('load', resolve);
-                    img.addEventListener('error', resolve); // por si alguna falla
+                    img.addEventListener('error', resolve);
                 });
             });
 
             Promise.all(imageLoadPromises).then(() => {
-                // Posicionar en el primer elemento sin transición
                 setPositionByIndex(0, false);
                 updateHint();
             });
 
-            // Recalcular al cambiar tamaño de ventana
             window.addEventListener('resize', () => {
                 setPositionByIndex(currentIndex, false);
                 updateHint();
