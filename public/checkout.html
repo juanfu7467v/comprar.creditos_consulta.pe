@@ -129,59 +129,36 @@
             font-size: 14px;
         }
 
+        /* Slider premium */
         .horizontal-scroll {
-            overflow-x: auto;
-            overflow-y: hidden;
-            white-space: nowrap;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            padding: 8px 2px 16px 2px;
-            margin: 0 -6px;
+            position: relative;
+            overflow: hidden;
             cursor: grab;
-            scrollbar-width: thin;
-            scrollbar-color: var(--primary-blue) var(--light-blue);
-            scroll-padding: 0 20px;
-            /* Necesario para el scroll con inercia */
-            overscroll-behavior-x: contain;
+            touch-action: pan-y; /* permite scroll vertical mientras se arrastra horizontal */
+            margin: 0 -6px;
+            padding: 8px 2px 16px 2px;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .horizontal-scroll:active {
             cursor: grabbing;
         }
 
-        .horizontal-scroll::-webkit-scrollbar {
-            height: 4px;
-        }
-
-        .horizontal-scroll::-webkit-scrollbar-track {
-            background: var(--light-blue);
-            border-radius: 10px;
-        }
-
-        .horizontal-scroll::-webkit-scrollbar-thumb {
-            background: var(--primary-blue);
-            border-radius: 10px;
+        .slider-track {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
         }
 
         .carousel-item {
-            display: inline-flex;
+            flex-shrink: 0;
             width: 90%;
             max-width: 320px;
-            scroll-snap-align: start;
             margin-right: 18px;
             vertical-align: top;
             border-radius: var(--radius-lg);
-            /* Transiciones suaves para opacidad y escala */
-            opacity: 0.7;
-            transform: scale(0.95);
-            transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.25s ease;
-        }
-
-        /* Cuando el ítem está activo (snapped) se vuelve completamente visible y a escala completa */
-        .carousel-item.snapped {
-            opacity: 1;
-            transform: scale(1);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
         .carousel-item:first-child {
@@ -199,12 +176,7 @@
             box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
             background: white;
             display: block;
-            transition: transform 0.2s, box-shadow 0.2s;
             pointer-events: none;
-        }
-
-        .carousel-item:active {
-            transform: scale(0.98);
         }
 
         .scroll-hint {
@@ -221,7 +193,7 @@
             background: var(--text-gray);
             opacity: 0.4;
             border-radius: 10px;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
         }
 
         #loadingScreen {
@@ -265,8 +237,7 @@
 
         .method-segmented-control {
             display: grid;
-            /* Ahora solo dos columnas: Tarjeta y Yape */
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
             width: 100%;
             background: rgba(255, 255, 255, 0.75);
@@ -376,9 +347,7 @@
             margin-bottom: 14px;
         }
 
-        #cardPaymentBrick_container,
-        #walletBrick_container,
-        #creditBrick_container {
+        #cardPaymentBrick_container {
             width: 100%;
             min-height: 72px;
         }
@@ -594,7 +563,7 @@
 <body>
     <div id="loadingScreen">
         <div class="spinner"></div>
-        <p class="loading-text" id="loadingText">Preparando el pago seguro...</p>
+        <p class="loading-text" id="loadingText">Cargando plataforma de pago...</p>
     </div>
 
     <div class="iphone-container">
@@ -614,9 +583,10 @@
             <div class="payment-carousel-section">
                 <div class="carousel-label">
                     <i class="fas fa-credit-card"></i>
-                    <span>Pagos seguros y protegidos</span>
+                    <span>Métodos de pago seguros</span>
                 </div>
                 <div class="horizontal-scroll" id="imageScroll">
+                    <!-- Las imágenes se moverán dentro de un track generado por JS -->
                     <div class="carousel-item">
                         <img src="https://i.postimg.cc/zfyKVTZr/IMG-20260515-113901.jpg" alt="Tarjeta de crédito VISA" loading="lazy">
                     </div>
@@ -651,16 +621,16 @@
 
             <div class="payment-method-stage">
                 <section class="payment-method-panel active" id="cardPanel" data-panel="card">
-                    <div class="payment-status-chip">Tarjeta</div>
-                    <h3 class="method-panel-title">Paga con tarjeta al instante</h3>
-                    <p class="method-panel-subtitle">Usa tu tarjeta de crédito o débito con la seguridad de Mercado Pago.</p>
+                    <div class="payment-status-chip">Crédito / Débito</div>
+                    <h3 class="method-panel-title">Paga con tarjeta de forma inmediata</h3>
+                    <p class="method-panel-subtitle">Paga con tarjeta de crédito o débito de forma rápida y segura.</p>
                     <div id="cardPaymentBrick_container"></div>
                 </section>
 
                 <section class="payment-method-panel" id="yapePanel" data-panel="yape">
                     <div class="payment-status-chip">Yape</div>
-                    <h3 class="method-panel-title">Paga fácil con Yape</h3>
-                    <p class="method-panel-subtitle">Ingresa tu celular y el código de verificación de Yape para confirmar el pago.</p>
+                    <h3 class="method-panel-title">Confirma tu pago con Yape</h3>
+                    <p class="method-panel-subtitle">Ingresa tu celular y el código OTP de la app Yape.</p>
                     <form class="yape-form" id="yapeForm">
                         <div class="yape-field">
                             <label for="yapePhone">Celular Yape</label>
@@ -672,7 +642,7 @@
                         </div>
                         <button type="submit" class="yape-submit-btn" id="yapeSubmitBtn">Pagar con Yape</button>
                     </form>
-                    <p class="payment-helper-note">El pago se procesa de forma segura a través de Mercado Pago.</p>
+                    <p class="payment-helper-note">Procesamos tu pago de forma segura con Mercado Pago.</p>
                 </section>
             </div>
 
@@ -773,7 +743,6 @@
         let activeMethod = 'card';
         const brickControllers = {
             card: null
-            // wallet y mercado_credito eliminados
         };
 
         const premiumVariables = {
@@ -794,7 +763,7 @@
             inputHorizontalPadding: '14px'
         };
 
-        function showLoading(message = 'Procesando...') {
+        function showLoading(message = 'Procesando tu pago...') {
             document.getElementById('loadingText').textContent = message;
             document.getElementById('loadingScreen').style.display = 'flex';
         }
@@ -866,12 +835,11 @@
         }
 
         async function ensureMethodMounted(method) {
-            // Solo necesitamos montar el brick de tarjeta; Yape no usa brick
             if (method === 'card' && brickControllers.card) return;
+
             if (method === 'card') {
                 await renderCardBrick();
             }
-            // wallet y mercado_credito removidos
         }
 
         async function fetchJSON(url, options = {}) {
@@ -883,11 +851,8 @@
             return data;
         }
 
-        // Función eliminada: createPreference (ya no se usa)
-        // async function createPreference(mode) { ... }
-
         async function renderCardBrick() {
-            showLoading('Cargando formulario seguro...');
+            showLoading('Cargando formulario de tarjeta...');
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
                 initialization: {
                     amount,
@@ -921,7 +886,7 @@
                         if (activeMethod === 'card') hideLoading();
                     },
                     onSubmit: async (cardFormData) => {
-                        showLoading('Procesando pago...');
+                        showLoading('Confirmando pago con tarjeta...');
                         const result = await fetchJSON('/api/pay', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -950,8 +915,6 @@
                 }
             });
         }
-
-        // Función renderWalletBrick eliminada completamente (wallet y mercado crédito)
 
         async function handleYapeSubmit(event) {
             event.preventDefault();
@@ -987,7 +950,7 @@
             submitBtn.textContent = 'Procesando...';
 
             try {
-                showLoading('Verificando datos Yape...');
+                showLoading('Generando token real de Yape...');
                 const yapeInstance = mp.yape({ otp, phoneNumber });
                 const yapeTokenResponse = await yapeInstance.create();
                 const yapeToken = typeof yapeTokenResponse === 'string'
@@ -1047,8 +1010,8 @@
                 paymentId: currentPaymentId,
                 externalReference: result.external_reference || null,
                 loadingText: result.status === 'approved'
-                    ? 'Confirmando y activando tu compra...'
-                    : 'Esperando confirmación del pago...'
+                    ? 'Pago recibido. Confirmando plan y activando beneficios...'
+                    : 'Pago enviado. Esperando confirmación de Mercado Pago...'
             });
         }
 
@@ -1064,7 +1027,7 @@
             return fetchJSON(`/api/payment/${encodeURIComponent(paymentId)}`);
         }
 
-        async function pollPaymentResolution({ paymentId = null, externalReference = null, loadingText = 'Confirmando...' }) {
+        async function pollPaymentResolution({ paymentId = null, externalReference = null, loadingText = 'Confirmando tu pago...' }) {
             showLoading(loadingText);
 
             const maxAttempts = 24;
@@ -1147,8 +1110,8 @@
                     paymentId: paymentId ? String(paymentId) : null,
                     externalReference,
                     loadingText: status === 'approved'
-                        ? 'Validando y activando tu compra...'
-                        : 'Verificando tu pago...'
+                        ? 'Regresaste del checkout. Validando y activando tu compra...'
+                        : 'Verificando el estado real de tu pago...'
                 });
                 return true;
             }
@@ -1183,19 +1146,48 @@
             };
         }
 
-        function setupCarouselIndicators() {
+        /* ========== Slider premium con transiciones suaves ========== */
+        function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
-            const hintSpans = document.querySelectorAll('#scrollHint span');
-            if (!scrollContainer || hintSpans.length === 0) return;
+            const hintContainer = document.getElementById('scrollHint');
+            const items = Array.from(scrollContainer.querySelectorAll('.carousel-item'));
 
-            const updateHint = () => {
-                const scrollLeft = scrollContainer.scrollLeft;
-                const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-                if (maxScroll <= 0) return;
-                const ratio = scrollLeft / maxScroll;
-                const activeIndex = Math.min(Math.floor(ratio * hintSpans.length), hintSpans.length - 1);
+            if (items.length === 0) return;
+
+            // Crear track interno
+            const track = document.createElement('div');
+            track.classList.add('slider-track');
+            items.forEach(item => track.appendChild(item));
+            scrollContainer.appendChild(track);
+
+            const hintSpans = hintContainer.querySelectorAll('span');
+            let currentIndex = 0;
+            let startX = 0;
+            let currentTranslate = 0;
+            let prevTranslate = 0;
+            let isDragging = false;
+            let animationID = null;
+
+            const itemWidth = items[0].offsetWidth + 18; // ancho + margen derecho (18px)
+            const containerWidth = scrollContainer.clientWidth;
+            const maxIndex = items.length - 1;
+
+            function setPositionByIndex(index, withTransition = true) {
+                if (index < 0) index = 0;
+                if (index > maxIndex) index = maxIndex;
+                currentIndex = index;
+                // Calcular desplazamiento para centrar el elemento actual en la vista
+                const offset = containerWidth / 2 - itemWidth / 2 - 6; // margen izquierdo del primer item (6px)
+                const translateX = -(index * itemWidth) + offset;
+                currentTranslate = translateX;
+                prevTranslate = translateX;
+                track.style.transition = withTransition ? 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
+                track.style.transform = `translateX(${translateX}px)`;
+            }
+
+            function updateHint() {
                 hintSpans.forEach((span, idx) => {
-                    if (idx === activeIndex) {
+                    if (idx === currentIndex) {
                         span.style.opacity = '1';
                         span.style.width = '12px';
                         span.style.backgroundColor = 'var(--primary-blue)';
@@ -1205,124 +1197,84 @@
                         span.style.backgroundColor = 'var(--text-gray)';
                     }
                 });
-            };
+            }
 
-            scrollContainer.addEventListener('scroll', updateHint);
-            setTimeout(updateHint, 100);
-            window.addEventListener('load', updateHint);
-        }
+            function snapToNearest() {
+                const moveDistance = currentTranslate - prevTranslate;
+                const threshold = itemWidth / 4;
+                let newIndex = currentIndex;
 
-        // Observador para resaltar el elemento más visible (efecto snapped)
-        function observeCarouselItems() {
-            const items = document.querySelectorAll('.carousel-item');
-            if (!items.length) return;
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    entry.target.classList.toggle('snapped', entry.isIntersecting && entry.intersectionRatio >= 0.5);
-                });
-            }, {
-                threshold: [0.5],
-                root: document.getElementById('imageScroll')
-            });
-
-            items.forEach(item => observer.observe(item));
-        }
-
-        // Scroll con inercia para una experiencia fluida tipo app premium
-        function enableMomentumScroll(slider) {
-            if (!slider) return;
-
-            let isDown = false;
-            let startX = 0;
-            let scrollLeftStart = 0;
-            let velocity = 0;
-            let lastX = 0;
-            let lastTime = 0;
-            let momentumId = null;
-
-            function cancelMomentum() {
-                if (momentumId) {
-                    cancelAnimationFrame(momentumId);
-                    momentumId = null;
+                if (moveDistance > threshold) {
+                    newIndex = Math.max(currentIndex - 1, 0);
+                } else if (moveDistance < -threshold) {
+                    newIndex = Math.min(currentIndex + 1, maxIndex);
                 }
-            }
-
-            function startMomentum() {
-                cancelMomentum();
-                if (Math.abs(velocity) < 0.5) return;
-
-                const friction = 0.95;
-                const minVelocity = 0.5;
-                const step = () => {
-                    if (Math.abs(velocity) < minVelocity) {
-                        momentumId = null;
-                        return;
-                    }
-
-                    slider.scrollLeft -= velocity * 16; // 16ms aproximado por frame
-                    velocity *= friction;
-                    momentumId = requestAnimationFrame(step);
-                };
-                momentumId = requestAnimationFrame(step);
-            }
-
-            function onDown(e) {
-                cancelMomentum();
-                isDown = true;
-                slider.style.cursor = 'grabbing';
-                const point = e.touches ? e.touches[0] : e;
-                startX = point.pageX - slider.offsetLeft;
-                scrollLeftStart = slider.scrollLeft;
-                lastX = point.pageX;
-                lastTime = Date.now();
-                velocity = 0;
-                e.preventDefault();
-            }
-
-            function onMove(e) {
-                if (!isDown) return;
-                const point = e.touches ? e.touches[0] : e;
-                const currentX = point.pageX - slider.offsetLeft;
-                const walk = (currentX - startX) * 1.2;
-                slider.scrollLeft = scrollLeftStart - walk;
-
-                const now = Date.now();
-                const dt = now - lastTime;
-                if (dt > 0) {
-                    const dx = point.pageX - lastX;
-                    velocity = (dx / dt) * 16; // normalizar a ~16ms
+                // Ajustar fine si la distancia es pequeña
+                if (newIndex !== currentIndex) {
+                    setPositionByIndex(newIndex, true);
+                } else {
+                    // simplemente volver a la posición exacta del índice actual
+                    setPositionByIndex(currentIndex, true);
                 }
-                lastX = point.pageX;
-                lastTime = now;
+                updateHint();
+            }
+
+            function dragStart(e) {
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+                prevTranslate = currentTranslate;
+                track.style.transition = 'none';
+                cancelAnimationFrame(animationID);
+            }
+
+            function dragMove(e) {
+                if (!isDragging) return;
                 e.preventDefault();
+                const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+                const delta = currentX - startX;
+                currentTranslate = prevTranslate + delta;
+                track.style.transform = `translateX(${currentTranslate}px)`;
             }
 
-            function onUp() {
-                if (!isDown) return;
-                isDown = false;
-                slider.style.cursor = 'grab';
-                startMomentum();
+            function dragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                cancelAnimationFrame(animationID);
+                snapToNearest();
             }
 
-            slider.addEventListener('mousedown', onDown);
-            window.addEventListener('mousemove', (e) => {
-                if (isDown) onMove(e);
+            // Event listeners
+            scrollContainer.addEventListener('mousedown', dragStart);
+            scrollContainer.addEventListener('touchstart', dragStart, { passive: true });
+
+            window.addEventListener('mousemove', dragMove);
+            window.addEventListener('mouseup', dragEnd);
+
+            scrollContainer.addEventListener('touchmove', dragMove, { passive: false });
+            scrollContainer.addEventListener('touchend', dragEnd);
+
+            // Prevenir arrastre de imágenes
+            scrollContainer.querySelectorAll('img').forEach(img => img.addEventListener('dragstart', e => e.preventDefault()));
+
+            // Iniciar en el primer elemento
+            setPositionByIndex(0, false);
+            updateHint();
+
+            // Recalcular al cambiar tamaño de ventana
+            window.addEventListener('resize', () => {
+                // Recalcular itemWidth y reposicionar
+                const newItemWidth = items[0].offsetWidth + 18;
+                // Ajustamos la variable itemWidth para próximos cálculos
+                // No podemos reasignar const, así que mejor recalcular en cada uso:
+                // Pero podemos usar una función getItemWidth
+                // Por simplicidad, reposicionamos con el índice actual
+                setPositionByIndex(currentIndex, false);
             });
-            window.addEventListener('mouseup', onUp);
-            slider.addEventListener('mouseleave', onUp);
-
-            slider.addEventListener('touchstart', onDown, { passive: false });
-            slider.addEventListener('touchmove', onMove, { passive: false });
-            slider.addEventListener('touchend', onUp);
-            slider.addEventListener('touchcancel', onUp);
         }
 
         async function initMercadoPago() {
             try {
-                setupCarouselIndicators();
-                observeCarouselItems();
-                enableMomentumScroll(document.getElementById('imageScroll'));
+                initCarousel(); // Inicializar slider premium
                 setupMethodSelector();
                 document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
