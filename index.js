@@ -37,7 +37,6 @@ import {
   enviarCorreoSospechoso,
   enviarCorreoRechazo,
   enviarCorreoSoporte,
-  // createSessionCookie,
   PAQUETES_CREDITOS,
   PLANES_ILIMITADOS
 } from './negocios.js';
@@ -95,7 +94,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const serviceAccount = buildServiceAccountFromEnv();
 if (serviceAccount) {
-  // Inicialización asíncrona para acelerar el cold start
   initFirebase(serviceAccount).catch(err => {
     logger.error('FIREBASE', 'Error crítico en inicialización asíncrona', err);
   });
@@ -126,7 +124,6 @@ app.post("/api/login-success", async (req, res) => {
     const { email, uid, displayName, isNewUser, idToken, deviceModel } = req.body;
     if (!email) return res.status(400).json({ success: false, error: 'Email is required' });
 
-    // Verificar si es un inicio de sesión desde un dispositivo nuevo/sospechoso
     try {
       if (db && uid) {
         const userRef = db.collection("usuarios").doc(uid);
@@ -136,7 +133,6 @@ app.post("/api/login-success", async (req, res) => {
           const userData = userDoc.data();
           const lastDevice = userData.lastDeviceModel;
           
-          // Si ya tenía un dispositivo registrado y el actual es diferente, es sospechoso
           if (lastDevice && deviceModel && lastDevice !== deviceModel) {
             const ip = getClientIp(req);
             const location = await getLocationFromIP(ip);
@@ -146,12 +142,10 @@ app.post("/api/login-success", async (req, res) => {
               email, uid, oldDevice: lastDevice, newDevice: deviceModel, ip
             });
             
-            // Enviar correo de alerta (sin bloquear el flujo principal)
             enviarCorreoSospechoso(email, nombre, location, ip, req.headers['user-agent'], resend)
               .catch(err => logger.error(context, 'Error enviando correo sospechoso', err));
           }
           
-          // Actualizar el modelo del último dispositivo
           if (deviceModel) {
             await userRef.update({ 
               lastDeviceModel: deviceModel,
@@ -166,33 +160,19 @@ app.post("/api/login-success", async (req, res) => {
 
     await resetLoginAttempts(email);
 
-    /* 
-    if (idToken && admin.apps.length) {
-      try {
-        const { sessionCookie, expiresIn } = await createSessionCookie(idToken);
-        res.cookie('__session', sessionCookie, {
-          httpOnly: true, secure: true, sameSite: 'strict', maxAge: expiresIn, path: '/'
-        });
-      } catch (cookieError) {
-        logger.warn(context, 'No se pudo crear session cookie', cookieError);
+    if (isNewUser && uid) {
+      const nombre = displayName || email.split('@')[0];
+      const welcomeResult = await enviarBienvenida(email, nombre, resend);
+      
+      let waitAttempts = 0;
+      while (!db && waitAttempts < 10) {
+        await new Promise(r => setTimeout(r, 500));
+        waitAttempts++;
       }
-    }
-    */
 
-	    if (isNewUser && uid) {
-	      const nombre = displayName || email.split('@')[0];
-	      const welcomeResult = await enviarBienvenida(email, nombre, resend);
-	      
-	      // Asegurar que Firestore esté listo (máximo 5 segundos de espera)
-	      let waitAttempts = 0;
-	      while (!db && waitAttempts < 10) {
-	        await new Promise(r => setTimeout(r, 500));
-	        waitAttempts++;
-	      }
-
-	      if (db) {
-	        const userRef = db.collection("usuarios").doc(uid);
-	        const userDoc = await userRef.get();
+      if (db) {
+        const userRef = db.collection("usuarios").doc(uid);
+        const userDoc = await userRef.get();
         const updateData = { lastLogin: admin.firestore.FieldValue.serverTimestamp() };
         if (!userDoc.exists || userDoc.data().creditos === undefined) {
           updateData.creditos = 11;
@@ -204,7 +184,6 @@ app.post("/api/login-success", async (req, res) => {
         }
         await userRef.set(updateData, { merge: true });
 
-        // Nueva lógica: Guardar en colección "empresas" y generar token seguro
         const empresaRef = db.collection("empresas").doc(uid);
         const secureToken = crypto.randomBytes(32).toString('hex');
         await empresaRef.set({
@@ -212,7 +191,7 @@ app.post("/api/login-success", async (req, res) => {
           email,
           nombre,
           apiToken: secureToken,
-          token: secureToken, // Mantener consistencia entre apiToken y token
+          token: secureToken,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           status: 'active'
@@ -241,18 +220,17 @@ app.post("/api/notify-verification", async (req, res) => {
     const { uid, email, displayName } = req.body;
     if (!uid || !email) return res.status(400).json({ success: false, error: 'Se requiere uid y email' });
 
-	    // Asegurar que Firestore esté listo
-	    let waitAttempts = 0;
-	    while (!db && waitAttempts < 10) {
-	      await new Promise(r => setTimeout(r, 500));
-	      waitAttempts++;
-	    }
+    let waitAttempts = 0;
+    while (!db && waitAttempts < 10) {
+      await new Promise(r => setTimeout(r, 500));
+      waitAttempts++;
+    }
 
-	    let alreadySent = false;
-	    if (db) {
-	      const userDoc = await db.collection("usuarios").doc(uid).get();
-	      if (userDoc.exists && userDoc.data().welcomeEmailSent) alreadySent = true;
-	    }
+    let alreadySent = false;
+    if (db) {
+      const userDoc = await db.collection("usuarios").doc(uid).get();
+      if (userDoc.exists && userDoc.data().welcomeEmailSent) alreadySent = true;
+    }
 
     if (!alreadySent) {
       const result = await enviarBienvenida(email, displayName || email.split('@')[0], resend);
@@ -267,7 +245,6 @@ app.post("/api/notify-verification", async (req, res) => {
           await db.collection("usuarios").doc(uid).set({ creditos: 11, tipoPlan: "creditos" }, { merge: true });
         }
 
-        // Nueva lógica: Guardar en colección "empresas" y generar token seguro tras verificación
         const empresaRef = db.collection("empresas").doc(uid);
         const secureToken = crypto.randomBytes(32).toString('hex');
         await empresaRef.set({
@@ -275,7 +252,7 @@ app.post("/api/notify-verification", async (req, res) => {
           email,
           nombre: displayName || email.split('@')[0],
           apiToken: secureToken,
-          token: secureToken, // Mantener consistencia entre apiToken y token
+          token: secureToken,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           status: 'active'
@@ -385,14 +362,12 @@ app.post("/api/report-failed-login", async (req, res) => {
   }
 });
 
-// Endpoint de pago
+// Endpoint de pago (corregido para usar tipoPlan)
 app.post("/api/pay", async (req, res) => {
   const context = 'PAY_API';
   try {
     const { transaction_amount, token, description, installments, payment_method_id, payer, uid, tipoPlan } = req.body;
     if (!mpClient) return res.status(503).json({ error: 'Mercado Pago not configured' });
-
-    // Validación defensiva para evitar errores de 'undefined'
     if (!payer || !payer.email) {
       logger.error(context, 'Payer email missing in request body');
       return res.status(400).json({ error: 'Payer email is required' });
@@ -418,7 +393,6 @@ app.post("/api/pay", async (req, res) => {
       let userName = payer.email.split('@')[0];
       try {
         if (db) {
-          // Buscar en usuarios o empresas
           const collectionName = tipoPlan === 'revenue_recovery' ? 'empresas' : 'usuarios';
           let userSnap = await db.collection(collectionName).doc(uid).get();
           if (!userSnap.exists) {
@@ -508,7 +482,88 @@ app.post("/api/webhook/mercadopago", async (req, res) => {
   }
 });
 
-// Endpoint para obtener información del pago
+// ================================================================
+// 🆕 NUEVOS ENDPOINTS PARA CONSULTAR ESTADO DE PAGO
+// ================================================================
+
+// Obtener estado de un pago por ID de Mercado Pago
+app.get("/api/payment-status/:paymentId", async (req, res) => {
+  try {
+    const paymentId = req.params.paymentId;
+    if (!paymentId) return res.status(400).json({ error: 'paymentId requerido' });
+
+    if (!db) return res.status(503).json({ error: 'Database no disponible' });
+
+    const pagoDoc = await db.collection("pagos_registrados").doc(paymentId).get();
+    if (!pagoDoc.exists) {
+      return res.json({ status: 'pending', processed: false });
+    }
+
+    const data = pagoDoc.data();
+    res.json({
+      status: data.estado || 'pending',
+      processed: data.procesado || false,
+      paymentId: paymentId
+    });
+  } catch (error) {
+    logger.error('PAYMENT_STATUS', error);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// Obtener estado por external_reference (opcional)
+app.get("/api/payment-reference/:externalRef", async (req, res) => {
+  try {
+    const externalRef = req.params.externalRef;
+    if (!externalRef) return res.status(400).json({ error: 'externalRef requerido' });
+
+    if (!db) return res.status(503).json({ error: 'Database no disponible' });
+
+    const pagosQuery = await db.collection("pagos_registrados")
+      .where("externalReference", "==", externalRef)
+      .limit(1)
+      .get();
+
+    if (pagosQuery.empty) {
+      return res.json({ status: 'pending', processed: false, paymentId: null });
+    }
+
+    const doc = pagosQuery.docs[0];
+    const data = doc.data();
+    res.json({
+      status: data.estado || 'pending',
+      processed: data.procesado || false,
+      paymentId: doc.id
+    });
+  } catch (error) {
+    logger.error('PAYMENT_REFERENCE', error);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// Endpoint para descargar la boleta de venta (PDF)
+app.get("/api/invoice/:paymentId", async (req, res) => {
+  try {
+    const paymentId = req.params.paymentId;
+    if (!db) return res.status(503).json({ error: 'Database no disponible' });
+
+    const pagoDoc = await db.collection("pagos_registrados").doc(paymentId).get();
+    if (!pagoDoc.exists) return res.status(404).json({ error: 'Pago no encontrado' });
+
+    const data = pagoDoc.data();
+    if (!data.pdfUrl) {
+      return res.status(404).json({ error: 'La boleta aún no está disponible. Intenta en unos segundos.' });
+    }
+
+    // Redirigir a la URL pública de Firebase Storage
+    res.redirect(data.pdfUrl);
+  } catch (error) {
+    logger.error('INVOICE_DOWNLOAD', error);
+    res.status(500).json({ error: 'Error al obtener la boleta' });
+  }
+});
+
+// Endpoint para obtener información del pago (ya existente, pero lo dejamos)
 app.get("/api/payment/:paymentId", async (req, res) => {
   try {
     if (!db) return res.status(503).json({ error: 'Database not available' });
@@ -535,9 +590,12 @@ app.get("/api/payment/:paymentId", async (req, res) => {
   }
 });
 
-// Servir archivos estáticos y manejo de rutas
+// ================================================================
+// SERVICIO DE ARCHIVOS ESTÁTICOS Y METADATOS (sin cambios relevantes)
+// ================================================================
+
 const PUBLIC_ROUTES = ['/login', '/register', '/verify', '/reset-password', '/disclaimer-apis', '/API-Docs'];
-// Función para inyectar Google Analytics en el HTML
+
 const injectGA = (html) => {
   const gaId = process.env.GOOGLE_ANALYTICS_ID;
   if (!gaId) return html;
@@ -555,14 +613,12 @@ const injectGA = (html) => {
     </script>
   `;
   
-  // Insertar antes del cierre de </head> o al principio si no existe
   if (html.includes('</head>')) {
     return html.replace('</head>', `${gaScript}</head>`);
   }
   return gaScript + html;
 };
 
-// Lista de User-Agents de bots sociales para servir metadatos dinámicos
 const SOCIAL_BOTS = [
   'facebookexternalhit',
   'twitterbot',
@@ -573,45 +629,36 @@ const SOCIAL_BOTS = [
   'slackbot'
 ];
 
-// Función para generar URL de imagen recortada (horizontal 16:9)
 const generateCroppedImageUrl = (imageUrl) => {
   if (!imageUrl || imageUrl.includes('flaticon.com')) return imageUrl;
-  // Si es una URL de Google Drive, generar una miniatura
   if (imageUrl.includes('drive.google.com')) {
     const match = imageUrl.match(/\/d\/([^/]+)/);
     if (match) {
       return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1200`;
     }
   }
-  // Para otras URLs, agregar parámetros de redimensionamiento si es posible
-  // Esto funciona con CDNs que soportan image resizing
   return imageUrl;
 };
 
-// Middleware para detectar bots y servir metadatos dinámicos de películas
 const serveDynamicMetadata = async (req, res, next) => {
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
   const isBot = SOCIAL_BOTS.some(bot => userAgent.includes(bot));
   const movieId = req.query.movie;
 
-  // Solo procesar si hay un ID de película y es un bot o una ruta de película específica
   if (movieId && (isBot || req.path.includes('PeliPREX.html') || req.path === '/PeliPREX')) {
     try {
       if (!db) {
         return next();
       }
 
-      // Buscar la película en Firestore por ID o título
       let movieData = null;
       const moviesRef = db.collection('peliculas');
       
-      // Intentar buscar por ID primero
       const doc = await moviesRef.doc(movieId).get();
       if (doc.exists) {
         movieData = doc.data();
         movieData.id = doc.id;
       } else {
-        // Si no existe por ID, intentar buscar por título (asumiendo que movieId puede ser el título)
         const querySnapshot = await moviesRef.where('titulo', '==', movieId).limit(1).get();
         if (!querySnapshot.empty) {
           movieData = querySnapshot.docs[0].data();
@@ -626,7 +673,6 @@ const serveDynamicMetadata = async (req, res, next) => {
         const pageUrl = `${HOST_URL}${req.path}?movie=${encodeURIComponent(movieId)}`;
 
         if (isBot) {
-          // Servir HTML ligero solo con metadatos para bots
           const botHtml = `
 <!DOCTYPE html>
 <html lang="es">
@@ -657,8 +703,6 @@ const serveDynamicMetadata = async (req, res, next) => {
 </html>`;
           return res.send(botHtml);
         } else {
-          // Para usuarios normales, inyectar los metadatos en el HTML original
-          // Esto se manejará en el siguiente middleware serveHtmlWithGA para no duplicar lectura de archivos
           req.dynamicMetadata = {
             title,
             description,
@@ -675,7 +719,6 @@ const serveDynamicMetadata = async (req, res, next) => {
   next();
 };
 
-// Middleware para servir HTMLs con GA inyectado
 const serveHtmlWithGA = (req, res, next) => {
   let fileName = '';
   if (req.path === '/') {
@@ -685,7 +728,6 @@ const serveHtmlWithGA = (req, res, next) => {
   } else if (req.path.endsWith('.html')) {
     fileName = req.path.substring(1);
   } else {
-    // Verificar si existe el archivo con extensión .html
     const potentialFile = `${req.path.substring(1)}.html`;
     if (fs.existsSync(path.join(__dirname, 'public', potentialFile))) {
       fileName = potentialFile;
@@ -698,19 +740,14 @@ const serveHtmlWithGA = (req, res, next) => {
       try {
         let html = fs.readFileSync(filePath, 'utf8');
         
-        // Inyectar metadatos dinámicos si existen
         if (req.dynamicMetadata) {
           const { title, description, imageUrl, pageUrl } = req.dynamicMetadata;
           
-          // Reemplazar título
           html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
-          
-          // Reemplazar o insertar meta descripción
           if (html.includes('name="description"')) {
             html = html.replace(/<meta name="description" content=".*?">/i, `<meta name="description" content="${description}">`);
           }
 
-          // Inyectar etiquetas OG y Twitter (limpiando las existentes si las hay)
           const dynamicMetaTags = `
     <!-- Dynamic Open Graph -->
     <meta property="og:title" content="${title}" />
@@ -729,7 +766,6 @@ const serveHtmlWithGA = (req, res, next) => {
     <meta name="twitter:image:alt" content="${title}" />
           `;
 
-          // Remover etiquetas OG existentes para evitar duplicados
           html = html.replace(/<meta property="og:title"[^>]*>/gi, '');
           html = html.replace(/<meta property="og:description"[^>]*>/gi, '');
           html = html.replace(/<meta property="og:image"[^>]*>/gi, '');
@@ -745,25 +781,19 @@ const serveHtmlWithGA = (req, res, next) => {
           html = html.replace(/<meta name="twitter:image"[^>]*>/gi, '');
           html = html.replace(/<meta name="twitter:image:alt"[^>]*>/gi, '');
           
-          // Insertar después de <head>
           html = html.replace('<head>', `<head>${dynamicMetaTags}`);
         }
 
-        // Inyectar script para actualizar metadatos en el cliente cuando se cargue la película
         const metadataScript = `
 <script>
-  // Datos de película inyectados desde el servidor
   window.injectedMovieData = ${JSON.stringify(req.dynamicMetadata?.movieData || {})};
-  
-  // Función para actualizar metadatos OG dinámicamente
   function updateOGTagsFromServer(movie) {
     if (!movie || !movie.titulo) return;
-    
     const setMeta = (selector, attr, value) => {
       let el = document.querySelector(selector);
       if (!el) {
         el = document.createElement('meta');
-        const parts = selector.match(/\[(\w+)="([^"]+)"\]/);
+        const parts = selector.match(/\\[(\\w+)="([^"]+)"\\]/);
         if (parts) {
           el.setAttribute(parts[1], parts[2]);
           document.head.appendChild(el);
@@ -771,11 +801,9 @@ const serveHtmlWithGA = (req, res, next) => {
       }
       if (el) el.setAttribute(attr, value);
     };
-    
     const titulo = movie.titulo || '';
     const descripcion = (movie.descripcion || 'Ver en PeliPREX HD').substring(0, 160);
     const imagen = movie.imagen_url || 'https://cdn-icons-png.flaticon.com/128/747/747965.png';
-    
     setMeta('meta[property="og:title"]', 'content', titulo + ' | PeliPREX HD');
     setMeta('meta[property="og:description"]', 'content', descripcion);
     setMeta('meta[property="og:image"]', 'content', imagen);
@@ -785,22 +813,18 @@ const serveHtmlWithGA = (req, res, next) => {
     setMeta('meta[name="twitter:description"]', 'content', descripcion);
     setMeta('meta[name="twitter:image"]', 'content', imagen);
   }
-  
-  // Actualizar al cargar si hay datos inyectados
   if (window.injectedMovieData && window.injectedMovieData.titulo) {
     updateOGTagsFromServer(window.injectedMovieData);
   }
 </script>
         `;
         
-        // Insertar el script antes de cerrar </head>
         html = html.replace('</head>', metadataScript + '</head>');
-        
         html = injectGA(html);
         return res.send(html);
       } catch (err) {
         logger.error('GA_INJECTION', `Error inyectando GA en ${fileName}`, err);
-        return res.sendFile(filePath); // Fallback al archivo original
+        return res.sendFile(filePath);
       }
     }
   }
@@ -809,17 +833,14 @@ const serveHtmlWithGA = (req, res, next) => {
 
 app.use(serveDynamicMetadata);
 app.use(serveHtmlWithGA);
-
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 app.get("/api", (req, res) => res.json({ status: "ok" }));
 
-// Endpoint de Centro de Ayuda y Soporte
 app.post("/api/support/send", async (req, res) => {
   const context = 'SUPPORT_SEND_API';
   try {
     const { name, email, subject, message, timestamp } = req.body;
-    
     if (!name || !email || !subject || !message) {
       return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
     }
@@ -839,7 +860,6 @@ app.post("/api/support/send", async (req, res) => {
   }
 });
 
-// Manejo de errores global
 app.use((err, req, res, next) => {
   logger.error('GLOBAL_ERROR', 'Error no manejado', err);
   res.status(500).json({ error: 'Error interno del servidor' });
@@ -847,7 +867,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, "0.0.0.0", () => {
-  logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, { version: '3.6.0' });
+  logger.info('SERVER', `🚀 Servidor iniciado en puerto ${PORT}`, { version: '3.6.1' });
 });
 
 app.get("*", (req, res) => {
