@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ========== ESTILOS COMPLETOS (sin cambios) ========== */
         :root {
             --primary-blue: #4F6EF7;
             --light-blue: #E8EEFF;
@@ -521,7 +522,7 @@
     </div>
 
     <script>
-        // Configuración de Precios Segura (Frontend para visualización)
+        // ========== MAPA DE PLANES (coherente con negocios.js) ==========
         const MAPA_PLANES = {
             "60_creditos": { precio: 10, descripcion: "60 créditos + 3 bonus" },
             "125_creditos": { precio: 20, descripcion: "125 créditos + 5 bonus" },
@@ -534,16 +535,21 @@
             "plan_60_dias": { precio: 320, descripcion: "Plan Intensivo 60 días" }
         };
 
-        // Obtener parámetros de la URL
+        // Obtener parámetros de la URL (seguro: solo planId, uid, email)
         const urlParams = new URLSearchParams(window.location.search);
         const planId = urlParams.get('planId');
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
 
-        // Validar Plan
+        // Validar que los datos esenciales existan
+        if (!planId || !uid || !email) {
+            alert('Error: Datos de pago incompletos o inválidos. Redirigiendo a planes...');
+            window.location.href = '/planes.html';
+        }
+
         const planInfo = MAPA_PLANES[planId];
-        if (!planInfo || !uid || !email) {
-            alert('Error: Datos de pago incompletos o inválidos.');
+        if (!planInfo) {
+            alert('Error: Plan no reconocido. Redirigiendo a planes...');
             window.location.href = '/planes.html';
         }
 
@@ -563,7 +569,7 @@
                 const response = await fetch('/api/config');
                 const config = await response.json();
                 
-                mp = new MercadoPago(config.mpPublicKey, { locale: 'es-PE' });
+                mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
                 bricksBuilder = mp.bricks();
                 
                 renderPaymentBrick();
@@ -583,11 +589,11 @@
                 },
                 customization: {
                     paymentMethods: {
-                        bankTransfer: ['all'], // Para Yape
+                        bankTransfer: ['all'],
                         ticket: ['all'],
                         creditCard: 'all',
                         debitCard: 'all',
-                        mercadoPago: 'all', // Wallet y Mercado Crédito
+                        mercadoPago: 'all',
                     },
                     visual: {
                         style: {
@@ -601,32 +607,50 @@
                     },
                     onSubmit: ({ selectedPaymentMethod, formData }) => {
                         return new Promise((resolve, reject) => {
-                            // Agregar metadatos de seguridad
-                            formData.metadata = {
-                                plan_id: planId,
-                                user_id: uid
+                            // Construir payload para el endpoint /api/pay (backend real)
+                            const payload = {
+                                transaction_amount: amount,
+                                token: formData.token,
+                                description: `Compra Masitaprex: ${description}`,
+                                installments: formData.installments || 1,
+                                payment_method_id: formData.paymentMethodId,
+                                payer: {
+                                    email: email,
+                                    identification: formData.identification || null,
+                                    first_name: formData.cardholderName?.split(' ')[0] || '',
+                                    last_name: formData.cardholderName?.split(' ').slice(1).join(' ') || ''
+                                },
+                                uid: uid,
+                                planId: planId   // Enviamos el planId directamente
                             };
 
-                            fetch("/api/process_payment", {
+                            // Limpiar campos nulos
+                            if (!payload.payer.identification) delete payload.payer.identification;
+                            if (!payload.payer.first_name) delete payload.payer.first_name;
+                            if (!payload.payer.last_name) delete payload.payer.last_name;
+
+                            fetch("/api/pay", {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/json",
                                 },
-                                body: JSON.stringify(formData),
+                                body: JSON.stringify(payload),
                             })
                             .then((response) => response.json())
                             .then((result) => {
-                                if (result.status === 'approved' || result.status === 'success') {
-                                    showSuccessScreen(result.id || result.paymentId);
+                                if (result.status === 'approved' || result.id) {
+                                    showSuccessScreen(result.id || 'Pago aprobado');
                                     resolve();
                                 } else {
-                                    document.getElementById('error-message').textContent = result.message || 'El pago no pudo ser procesado.';
+                                    const errorMsg = result.message || result.cause?.[0]?.description || 'El pago no pudo ser procesado.';
+                                    document.getElementById('error-message').textContent = errorMsg;
                                     showScreen('failedScreen');
                                     reject();
                                 }
                             })
                             .catch((error) => {
                                 console.error('Error procesando pago:', error);
+                                document.getElementById('error-message').textContent = 'Error de conexión con el servidor. Intenta nuevamente.';
                                 showScreen('failedScreen');
                                 reject();
                             });
@@ -634,6 +658,7 @@
                     },
                     onError: (error) => {
                         console.error('Error en Brick:', error);
+                        document.getElementById('error-message').textContent = 'Ocurrió un error con el método de pago. Intenta de nuevo.';
                         showScreen('failedScreen');
                     },
                 },
@@ -689,7 +714,7 @@
             showScreen('successScreen');
         }
 
-        // Descarga de comprobante
+        // Descarga de comprobante (ajustar si existe endpoint real)
         document.getElementById('downloadVoucherBtn').onclick = async function() {
             const btn = this;
             const originalText = btn.innerHTML;
