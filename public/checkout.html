@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pago Seguro - Consulta PE</title>
+    <title>Pago Seguro - Masitaprex</title>
     <script src="https://sdk.mercadopago.com/js/v2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -529,10 +529,10 @@
             "330_creditos": { precio: 50, descripcion: "330 créditos + 20 bonus" },
             "700_creditos": { precio: 100, descripcion: "700 créditos + 40 bonus" },
             "1500_creditos": { precio: 200, descripcion: "1500 créditos + 80 bonus" },
-            "plan_7_dias": { precio: 80, descripcion: "Plan Intensivo 7 días" },
-            "plan_15_dias": { precio: 120, descripcion: "Plan Intensivo 15 días" },
-            "plan_30_dias": { precio: 180, descripcion: "Plan Intensivo 30 días" },
-            "plan_60_dias": { precio: 320, descripcion: "Plan Intensivo 60 días" }
+            "plan_7_dias": { precio: 80, descripcion: "Plan Intensivo 7 días (1,000 consultas)" },
+            "plan_15_dias": { precio: 120, descripcion: "Plan Intensivo 15 días (2,500 consultas)" },
+            "plan_30_dias": { precio: 180, descripcion: "Plan Intensivo 30 días (5,000 consultas)" },
+            "plan_60_dias": { precio: 320, descripcion: "Plan Intensivo 60 días (12,000 consultas)" }
         };
 
         // Obtener parámetros de la URL (seguro: solo planId, uid, email)
@@ -541,15 +541,15 @@
         const uid = urlParams.get('uid');
         const email = urlParams.get('email');
 
-        // Validar que los datos esenciales existan
+        // Validación inicial
         if (!planId || !uid || !email) {
-            alert('Error: Datos de pago incompletos o inválidos. Redirigiendo a planes...');
+            alert('Error: Datos de pago incompletos. Redirigiendo...');
             window.location.href = '/planes.html';
         }
 
         const planInfo = MAPA_PLANES[planId];
         if (!planInfo) {
-            alert('Error: Plan no reconocido. Redirigiendo a planes...');
+            alert('Error: Plan no reconocido. Redirigiendo...');
             window.location.href = '/planes.html';
         }
 
@@ -559,7 +559,6 @@
         // Actualizar UI
         document.getElementById('display-amount').textContent = `S/ ${parseFloat(amount).toFixed(2)}`;
 
-        // Inicializar Mercado Pago
         let mp;
         let bricksBuilder;
         let paymentBrickController;
@@ -583,22 +582,22 @@
             const settings = {
                 initialization: {
                     amount: amount,
-                    payer: {
-                        email: email,
-                    },
+                    payer: { email: email },
                 },
                 customization: {
                     paymentMethods: {
-                        bankTransfer: ['all'],
-                        ticket: ['all'],
+                        // Tarjetas de crédito y débito
                         creditCard: 'all',
                         debitCard: 'all',
+                        // Yape (transferencia bancaria)
+                        bankTransfer: ['yape', 'pagoefectivo'],
+                        // Saldo en cuenta y Mercado Crédito
                         mercadoPago: 'all',
+                        // También se pueden aceptar pagos en efectivo (opcional)
+                        ticket: ['all']
                     },
                     visual: {
-                        style: {
-                            theme: 'default',
-                        },
+                        style: { theme: 'default' },
                     },
                 },
                 callbacks: {
@@ -607,7 +606,7 @@
                     },
                     onSubmit: ({ selectedPaymentMethod, formData }) => {
                         return new Promise((resolve, reject) => {
-                            // Construir payload para el endpoint /api/pay (backend real)
+                            // Construir payload para el endpoint /api/pay
                             const payload = {
                                 transaction_amount: amount,
                                 token: formData.token,
@@ -631,9 +630,7 @@
 
                             fetch("/api/pay", {
                                 method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
+                                headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify(payload),
                             })
                             .then((response) => response.json())
@@ -697,7 +694,6 @@
         }
 
         let currentPaymentId;
-        let currentPaymentData;
 
         async function showSuccessScreen(paymentId) {
             currentPaymentId = paymentId;
@@ -714,7 +710,7 @@
             showScreen('successScreen');
         }
 
-        // Descarga de comprobante (ajustar si existe endpoint real)
+        // Descarga de comprobante (usando endpoint real /api/invoice/:paymentId)
         document.getElementById('downloadVoucherBtn').onclick = async function() {
             const btn = this;
             const originalText = btn.innerHTML;
@@ -724,14 +720,24 @@
             try {
                 const response = await fetch(`/api/invoice/${currentPaymentId}`);
                 if (response.ok) {
-                    window.open(`/api/invoice/${currentPaymentId}`, '_blank');
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `boleta_${currentPaymentId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
                     btn.innerHTML = '<i class="fas fa-check"></i> Listo';
                 } else {
-                    alert('El comprobante se está procesando, intenta en unos segundos.');
+                    alert('El comprobante aún no está listo. Intenta en unos segundos.');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
             } catch (e) {
+                console.error(e);
+                alert('No se pudo descargar el comprobante. Contacta a soporte.');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
