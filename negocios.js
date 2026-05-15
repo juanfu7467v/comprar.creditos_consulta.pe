@@ -478,6 +478,157 @@ export async function otorgarBeneficio(uid, email, montoPagado, processor, payme
 }
 
 // ================================================================
+// 📧 FUNCIONES DE ENVÍO DE CORREOS ELECTRÓNICOS
+// ================================================================
+
+// Función auxiliar para leer plantillas HTML
+function readHtmlTemplate(templateName, replacements = {}) {
+  const templatePath = path.join(__dirname, 'emails', templateName);
+  try {
+    let html = fs.readFileSync(templatePath, 'utf8');
+    for (const [key, value] of Object.entries(replacements)) {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      html = html.replace(regex, value);
+    }
+    return html;
+  } catch (error) {
+    logger.error('EMAIL_TEMPLATE', `Error leyendo plantilla ${templateName}`, error);
+    return `<p>Error al cargar la plantilla. Por favor contacte a soporte.</p>`;
+  }
+}
+
+/**
+ * Envía correo de bienvenida a un nuevo usuario
+ */
+export async function enviarBienvenida(email, nombre, resend) {
+  const context = 'EMAIL_BIENVENIDA';
+  try {
+    const html = readHtmlTemplate('bienvenida-usuario-nuevo.html', { nombre: nombre || email.split('@')[0] });
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'Masitaprex <noreply@masitaprex.com>',
+      to: email,
+      subject: 'Bienvenido a Masitaprex - Tu cuenta está lista',
+      html: html
+    });
+    if (error) throw new Error(error.message);
+    logger.info(context, 'Correo de bienvenida enviado', { email, messageId: data?.id });
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    logger.error(context, 'Error enviando correo de bienvenida', { email, error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envía correo de alerta por inicio de sesión sospechoso
+ */
+export async function enviarCorreoSospechoso(email, nombre, location, ip, userAgent, resend) {
+  const context = 'EMAIL_SOSPECHOSO';
+  try {
+    // Obtener información del dispositivo desde el User-Agent
+    let dispositivo = 'Desconocido';
+    let isp = 'Proveedor no identificado';
+    let tipo_conexion = 'No disponible';
+    
+    if (userAgent) {
+      if (userAgent.includes('Windows')) dispositivo = 'Windows PC';
+      else if (userAgent.includes('Mac')) dispositivo = 'Mac';
+      else if (userAgent.includes('iPhone')) dispositivo = 'iPhone';
+      else if (userAgent.includes('Android')) dispositivo = 'Android';
+      else if (userAgent.includes('Linux')) dispositivo = 'Linux';
+    }
+
+    const fecha_hora = moment().tz('America/Lima').format('DD/MM/YYYY HH:mm:ss');
+
+    const html = readHtmlTemplate('intento-inicio-seccion-sospechoso.html', {
+      nombre: nombre || email.split('@')[0],
+      ubicacion: location || 'Ubicación desconocida',
+      ip: ip || 'IP no registrada',
+      isp: isp,
+      tipo_conexion: tipo_conexion,
+      fecha_hora: fecha_hora,
+      dispositivo: dispositivo
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'Masitaprex Seguridad <seguridad@masitaprex.com>',
+      to: email,
+      subject: '⚠️ Alerta de seguridad: Inicio de sesión sospechoso detectado',
+      html: html
+    });
+    if (error) throw new Error(error.message);
+    logger.info(context, 'Correo sospechoso enviado', { email, ip, messageId: data?.id });
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    logger.error(context, 'Error enviando correo sospechoso', { email, error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envía correo de rechazo de pago
+ */
+export async function enviarCorreoRechazo(email, nombre, orderId, monto, descripcion, estado, resend) {
+  const context = 'EMAIL_RECHAZO';
+  try {
+    const html = readHtmlTemplate('compra-rechazada.html', {
+      nombre: nombre || email.split('@')[0],
+      descripcion: descripcion || 'Suscripción Masitaprex',
+      orderId: orderId,
+      monto: monto.toString()
+    });
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'Masitaprex Facturación <facturacion@masitaprex.com>',
+      to: email,
+      subject: 'Problema con tu pago en Masitaprex',
+      html: html
+    });
+    if (error) throw new Error(error.message);
+    logger.info(context, 'Correo de rechazo enviado', { email, orderId, messageId: data?.id });
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    logger.error(context, 'Error enviando correo de rechazo', { email, error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Envía correo de soporte al administrador (o a la dirección configurada)
+ */
+export async function enviarCorreoSoporte({ name, email, subject, message, timestamp }, resend) {
+  const context = 'EMAIL_SOPORTE';
+  try {
+    const adminEmail = process.env.SUPPORT_EMAIL || 'soporte@masitaprex.com';
+    const fecha = timestamp || new Date().toLocaleString('es-PE');
+    
+    const html = `
+      <h2>Nuevo mensaje de contacto</h2>
+      <p><strong>Nombre:</strong> ${name}</p>
+      <p><strong>Correo:</strong> ${email}</p>
+      <p><strong>Asunto:</strong> ${subject}</p>
+      <p><strong>Fecha:</strong> ${fecha}</p>
+      <p><strong>Mensaje:</strong></p>
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM || 'Masitaprex Soporte <soporte@masitaprex.com>',
+      to: adminEmail,
+      replyTo: email,
+      subject: `[Soporte] ${subject}`,
+      html: html
+    });
+    if (error) throw new Error(error.message);
+    logger.info(context, 'Correo de soporte enviado al administrador', { from: email, subject, messageId: data?.id });
+    return { success: true, messageId: data?.id };
+  } catch (error) {
+    logger.error(context, 'Error enviando correo de soporte', { email, error: error.message });
+    return { success: false, error: error.message };
+  }
+}
+
+// ================================================================
 // 🚀 WEBHOOK DE MERCADO PAGO (VALIDACIÓN OBLIGATORIA)
 // ================================================================
 
