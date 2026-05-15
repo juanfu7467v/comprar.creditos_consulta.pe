@@ -142,6 +142,8 @@
             scrollbar-width: thin;
             scrollbar-color: var(--primary-blue) var(--light-blue);
             scroll-padding: 0 20px;
+            /* Necesario para el scroll con inercia */
+            overscroll-behavior-x: contain;
         }
 
         .horizontal-scroll:active {
@@ -170,7 +172,16 @@
             margin-right: 18px;
             vertical-align: top;
             border-radius: var(--radius-lg);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            /* Transiciones suaves para opacidad y escala */
+            opacity: 0.7;
+            transform: scale(0.95);
+            transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.25s ease;
+        }
+
+        /* Cuando el ítem está activo (snapped) se vuelve completamente visible y a escala completa */
+        .carousel-item.snapped {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .carousel-item:first-child {
@@ -254,7 +265,8 @@
 
         .method-segmented-control {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            /* Ahora solo dos columnas: Tarjeta y Yape */
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             width: 100%;
             background: rgba(255, 255, 255, 0.75);
@@ -582,7 +594,7 @@
 <body>
     <div id="loadingScreen">
         <div class="spinner"></div>
-        <p class="loading-text" id="loadingText">Cargando plataforma de pago...</p>
+        <p class="loading-text" id="loadingText">Preparando el pago seguro...</p>
     </div>
 
     <div class="iphone-container">
@@ -602,7 +614,7 @@
             <div class="payment-carousel-section">
                 <div class="carousel-label">
                     <i class="fas fa-credit-card"></i>
-                    <span>Métodos de pago 100% seguros</span>
+                    <span>Pagos seguros y protegidos</span>
                 </div>
                 <div class="horizontal-scroll" id="imageScroll">
                     <div class="carousel-item">
@@ -634,23 +646,21 @@
                 <div class="method-segmented-control" id="paymentMethodControl">
                     <button type="button" class="method-pill active" data-method="card">Tarjeta</button>
                     <button type="button" class="method-pill" data-method="yape">Yape</button>
-                    <button type="button" class="method-pill" data-method="wallet">Wallet</button>
-                    <button type="button" class="method-pill" data-method="mercado_credito">Mercado Crédito</button>
                 </div>
             </div>
 
             <div class="payment-method-stage">
                 <section class="payment-method-panel active" id="cardPanel" data-panel="card">
-                    <div class="payment-status-chip">Crédito / Débito</div>
-                    <h3 class="method-panel-title">Paga con tarjeta de forma inmediata</h3>
-                    <p class="method-panel-subtitle">Esta opción queda activa por defecto. Acepta tarjetas de crédito y débito reales mediante el formulario seguro de Mercado Pago.</p>
+                    <div class="payment-status-chip">Tarjeta</div>
+                    <h3 class="method-panel-title">Paga con tarjeta al instante</h3>
+                    <p class="method-panel-subtitle">Usa tu tarjeta de crédito o débito con la seguridad de Mercado Pago.</p>
                     <div id="cardPaymentBrick_container"></div>
                 </section>
 
                 <section class="payment-method-panel" id="yapePanel" data-panel="yape">
                     <div class="payment-status-chip">Yape</div>
-                    <h3 class="method-panel-title">Confirma tu pago con Yape</h3>
-                    <p class="method-panel-subtitle">Ingresa tu número celular y el código OTP de 6 dígitos generado en tu app Yape para crear el token real y procesar el pago.</p>
+                    <h3 class="method-panel-title">Paga fácil con Yape</h3>
+                    <p class="method-panel-subtitle">Ingresa tu celular y el código de verificación de Yape para confirmar el pago.</p>
                     <form class="yape-form" id="yapeForm">
                         <div class="yape-field">
                             <label for="yapePhone">Celular Yape</label>
@@ -662,23 +672,7 @@
                         </div>
                         <button type="submit" class="yape-submit-btn" id="yapeSubmitBtn">Pagar con Yape</button>
                     </form>
-                    <p class="payment-helper-note">El token de Yape se genera en tiempo real con Mercado Pago y el backend valida planId y monto exacto antes de aceptar la operación.</p>
-                </section>
-
-                <section class="payment-method-panel" id="walletPanel" data-panel="wallet">
-                    <div class="payment-status-chip">Saldo Mercado Pago</div>
-                    <h3 class="method-panel-title">Paga con tu Wallet de Mercado Pago</h3>
-                    <p class="method-panel-subtitle">Serás llevado al checkout oficial para pagar con saldo disponible o medios guardados en tu cuenta de Mercado Pago.</p>
-                    <div id="walletBrick_container"></div>
-                    <p class="payment-helper-note">Al volver a esta página, la compra se confirmará automáticamente y se activarán tus créditos o tu plan cuando el webhook valide el pago.</p>
-                </section>
-
-                <section class="payment-method-panel" id="creditPanel" data-panel="mercado_credito">
-                    <div class="payment-status-chip">Mercado Crédito</div>
-                    <h3 class="method-panel-title">Usa Mercado Crédito de forma real</h3>
-                    <p class="method-panel-subtitle">Esta opción genera una preferencia real orientada a crédito para que el checkout de Mercado Pago abra con la alternativa de financiación priorizada.</p>
-                    <div id="creditBrick_container"></div>
-                    <p class="payment-helper-note">El alta del beneficio se realiza únicamente cuando Mercado Pago confirma por webhook que el monto corresponde exactamente al plan solicitado.</p>
+                    <p class="payment-helper-note">El pago se procesa de forma segura a través de Mercado Pago.</p>
                 </section>
             </div>
 
@@ -778,9 +772,8 @@
         let currentPaymentData = null;
         let activeMethod = 'card';
         const brickControllers = {
-            card: null,
-            wallet: null,
-            mercado_credito: null
+            card: null
+            // wallet y mercado_credito eliminados
         };
 
         const premiumVariables = {
@@ -801,7 +794,7 @@
             inputHorizontalPadding: '14px'
         };
 
-        function showLoading(message = 'Procesando tu pago...') {
+        function showLoading(message = 'Procesando...') {
             document.getElementById('loadingText').textContent = message;
             document.getElementById('loadingScreen').style.display = 'flex';
         }
@@ -873,23 +866,12 @@
         }
 
         async function ensureMethodMounted(method) {
+            // Solo necesitamos montar el brick de tarjeta; Yape no usa brick
             if (method === 'card' && brickControllers.card) return;
-            if (method === 'wallet' && brickControllers.wallet) return;
-            if (method === 'mercado_credito' && brickControllers.mercado_credito) return;
-
             if (method === 'card') {
                 await renderCardBrick();
-                return;
             }
-
-            if (method === 'wallet') {
-                await renderWalletBrick('wallet');
-                return;
-            }
-
-            if (method === 'mercado_credito') {
-                await renderWalletBrick('mercado_credito');
-            }
+            // wallet y mercado_credito removidos
         }
 
         async function fetchJSON(url, options = {}) {
@@ -901,23 +883,11 @@
             return data;
         }
 
-        async function createPreference(mode) {
-            const data = await fetchJSON('/api/payments/preference', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    uid,
-                    email,
-                    planId,
-                    mode,
-                    returnUrl: getCleanReturnUrl()
-                })
-            });
-            return data.preferenceId;
-        }
+        // Función eliminada: createPreference (ya no se usa)
+        // async function createPreference(mode) { ... }
 
         async function renderCardBrick() {
-            showLoading('Cargando formulario de tarjeta...');
+            showLoading('Cargando formulario seguro...');
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
                 initialization: {
                     amount,
@@ -951,7 +921,7 @@
                         if (activeMethod === 'card') hideLoading();
                     },
                     onSubmit: async (cardFormData) => {
-                        showLoading('Confirmando pago con tarjeta...');
+                        showLoading('Procesando pago...');
                         const result = await fetchJSON('/api/pay', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -981,43 +951,7 @@
             });
         }
 
-        async function renderWalletBrick(mode) {
-            const containerId = mode === 'wallet' ? 'walletBrick_container' : 'creditBrick_container';
-            const controllerKey = mode === 'wallet' ? 'wallet' : 'mercado_credito';
-            const loadingLabel = mode === 'wallet' ? 'Cargando Wallet de Mercado Pago...' : 'Cargando Mercado Crédito...';
-            showLoading(loadingLabel);
-
-            brickControllers[controllerKey] = await bricksBuilder.create('wallet', containerId, {
-                initialization: {
-                    redirectMode: 'self'
-                },
-                customization: {
-                    theme: 'black',
-                    valueProp: 'payment_methods_logos',
-                    customStyle: {
-                        borderRadius: '18px',
-                        buttonHeight: '54px'
-                    }
-                },
-                callbacks: {
-                    onReady: () => {
-                        if (activeMethod === mode) hideLoading();
-                    },
-                    onSubmit: async () => {
-                        showLoading(mode === 'wallet' ? 'Redirigiendo a tu Wallet...' : 'Abriendo Mercado Crédito...');
-                        return createPreference(mode);
-                    },
-                    onError: (error) => {
-                        console.error(`Error Wallet Brick (${mode}):`, error);
-                        hideLoading();
-                        setErrorScreenState({
-                            title: 'Pago Fallido',
-                            message: 'No se pudo iniciar el checkout de Mercado Pago. Intenta nuevamente.'
-                        });
-                    }
-                }
-            });
-        }
+        // Función renderWalletBrick eliminada completamente (wallet y mercado crédito)
 
         async function handleYapeSubmit(event) {
             event.preventDefault();
@@ -1053,7 +987,7 @@
             submitBtn.textContent = 'Procesando...';
 
             try {
-                showLoading('Generando token real de Yape...');
+                showLoading('Verificando datos Yape...');
                 const yapeInstance = mp.yape({ otp, phoneNumber });
                 const yapeTokenResponse = await yapeInstance.create();
                 const yapeToken = typeof yapeTokenResponse === 'string'
@@ -1113,8 +1047,8 @@
                 paymentId: currentPaymentId,
                 externalReference: result.external_reference || null,
                 loadingText: result.status === 'approved'
-                    ? 'Pago recibido. Confirmando plan y activando beneficios...'
-                    : 'Pago enviado. Esperando confirmación de Mercado Pago...'
+                    ? 'Confirmando y activando tu compra...'
+                    : 'Esperando confirmación del pago...'
             });
         }
 
@@ -1130,7 +1064,7 @@
             return fetchJSON(`/api/payment/${encodeURIComponent(paymentId)}`);
         }
 
-        async function pollPaymentResolution({ paymentId = null, externalReference = null, loadingText = 'Confirmando tu pago...' }) {
+        async function pollPaymentResolution({ paymentId = null, externalReference = null, loadingText = 'Confirmando...' }) {
             showLoading(loadingText);
 
             const maxAttempts = 24;
@@ -1213,8 +1147,8 @@
                     paymentId: paymentId ? String(paymentId) : null,
                     externalReference,
                     loadingText: status === 'approved'
-                        ? 'Regresaste del checkout. Validando y activando tu compra...'
-                        : 'Verificando el estado real de tu pago...'
+                        ? 'Validando y activando tu compra...'
+                        : 'Verificando tu pago...'
                 });
                 return true;
             }
@@ -1278,62 +1212,117 @@
             window.addEventListener('load', updateHint);
         }
 
-        function enhanceScrollDrag() {
-            const slider = document.getElementById('imageScroll');
+        // Observador para resaltar el elemento más visible (efecto snapped)
+        function observeCarouselItems() {
+            const items = document.querySelectorAll('.carousel-item');
+            if (!items.length) return;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    entry.target.classList.toggle('snapped', entry.isIntersecting && entry.intersectionRatio >= 0.5);
+                });
+            }, {
+                threshold: [0.5],
+                root: document.getElementById('imageScroll')
+            });
+
+            items.forEach(item => observer.observe(item));
+        }
+
+        // Scroll con inercia para una experiencia fluida tipo app premium
+        function enableMomentumScroll(slider) {
             if (!slider) return;
 
             let isDown = false;
             let startX = 0;
-            let scrollLeft = 0;
+            let scrollLeftStart = 0;
+            let velocity = 0;
+            let lastX = 0;
+            let lastTime = 0;
+            let momentumId = null;
 
-            slider.addEventListener('mousedown', (e) => {
+            function cancelMomentum() {
+                if (momentumId) {
+                    cancelAnimationFrame(momentumId);
+                    momentumId = null;
+                }
+            }
+
+            function startMomentum() {
+                cancelMomentum();
+                if (Math.abs(velocity) < 0.5) return;
+
+                const friction = 0.95;
+                const minVelocity = 0.5;
+                const step = () => {
+                    if (Math.abs(velocity) < minVelocity) {
+                        momentumId = null;
+                        return;
+                    }
+
+                    slider.scrollLeft -= velocity * 16; // 16ms aproximado por frame
+                    velocity *= friction;
+                    momentumId = requestAnimationFrame(step);
+                };
+                momentumId = requestAnimationFrame(step);
+            }
+
+            function onDown(e) {
+                cancelMomentum();
                 isDown = true;
                 slider.style.cursor = 'grabbing';
-                startX = e.pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
+                const point = e.touches ? e.touches[0] : e;
+                startX = point.pageX - slider.offsetLeft;
+                scrollLeftStart = slider.scrollLeft;
+                lastX = point.pageX;
+                lastTime = Date.now();
+                velocity = 0;
                 e.preventDefault();
-            });
+            }
 
-            slider.addEventListener('mouseleave', () => {
+            function onMove(e) {
+                if (!isDown) return;
+                const point = e.touches ? e.touches[0] : e;
+                const currentX = point.pageX - slider.offsetLeft;
+                const walk = (currentX - startX) * 1.2;
+                slider.scrollLeft = scrollLeftStart - walk;
+
+                const now = Date.now();
+                const dt = now - lastTime;
+                if (dt > 0) {
+                    const dx = point.pageX - lastX;
+                    velocity = (dx / dt) * 16; // normalizar a ~16ms
+                }
+                lastX = point.pageX;
+                lastTime = now;
+                e.preventDefault();
+            }
+
+            function onUp() {
+                if (!isDown) return;
                 isDown = false;
                 slider.style.cursor = 'grab';
+                startMomentum();
+            }
+
+            slider.addEventListener('mousedown', onDown);
+            window.addEventListener('mousemove', (e) => {
+                if (isDown) onMove(e);
             });
+            window.addEventListener('mouseup', onUp);
+            slider.addEventListener('mouseleave', onUp);
 
-            slider.addEventListener('mouseup', () => {
-                isDown = false;
-                slider.style.cursor = 'grab';
-            });
-
-            slider.addEventListener('mousemove', (e) => {
-                if (!isDown) return;
-                e.preventDefault();
-                const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 1.2;
-                slider.scrollLeft = scrollLeft - walk;
-            });
-
-            slider.addEventListener('touchstart', (e) => {
-                isDown = true;
-                startX = e.touches[0].pageX - slider.offsetLeft;
-                scrollLeft = slider.scrollLeft;
-            }, { passive: true });
-
-            slider.addEventListener('touchend', () => {
-                isDown = false;
-            }, { passive: true });
-
-            slider.addEventListener('touchmove', (e) => {
-                if (!isDown) return;
-                const x = e.touches[0].pageX - slider.offsetLeft;
-                const walk = (x - startX) * 1.2;
-                slider.scrollLeft = scrollLeft - walk;
-            }, { passive: true });
+            slider.addEventListener('touchstart', onDown, { passive: false });
+            slider.addEventListener('touchmove', onMove, { passive: false });
+            slider.addEventListener('touchend', onUp);
+            slider.addEventListener('touchcancel', onUp);
         }
 
         async function initMercadoPago() {
             try {
                 setupCarouselIndicators();
-                enhanceScrollDrag();
+                observeCarouselItems();
+                enableMomentumScroll(document.getElementById('imageScroll'));
                 setupMethodSelector();
                 document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
