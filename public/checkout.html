@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -18,7 +17,6 @@
             --white: #ffffff;
             --success-green: #10B981;
             --error-red: #EF4444;
-            --warning-amber: #F59E0B;
             --gradient: linear-gradient(135deg, #4F6EF7 0%, #7E57FF 100%);
             --radius-lg: 18px;
             --radius-md: 12px;
@@ -131,6 +129,7 @@
             font-size: 14px;
         }
 
+        /* Slider premium */
         .horizontal-scroll {
             position: relative;
             overflow: hidden;
@@ -238,7 +237,7 @@
 
         .method-segmented-control {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
             width: 100%;
             background: rgba(255, 255, 255, 0.75);
@@ -258,7 +257,7 @@
             font-weight: 700;
             border-radius: 14px;
             min-height: 52px;
-            padding: 0 8px;
+            padding: 0 10px;
             cursor: pointer;
             transition: all 0.22s ease;
             letter-spacing: 0.01em;
@@ -348,121 +347,9 @@
             margin-bottom: 14px;
         }
 
-        #cardPaymentBrick_container,
-        #walletBrick_container,
-        #transferBrick_container {
+        #cardPaymentBrick_container {
             width: 100%;
             min-height: 72px;
-        }
-
-        .wallet-shell {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .wallet-benefits {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            margin-bottom: 4px;
-        }
-
-        .wallet-benefit {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-height: 56px;
-            padding: 12px 14px;
-            border-radius: 16px;
-            background: rgba(79, 110, 247, 0.05);
-            border: 1px solid rgba(79, 110, 247, 0.08);
-        }
-
-        .wallet-benefit i {
-            color: var(--primary-blue);
-            font-size: 16px;
-        }
-
-        .wallet-benefit span {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-dark);
-            line-height: 1.35;
-        }
-
-        .panel-inline-status {
-            display: none;
-            align-items: flex-start;
-            gap: 10px;
-            width: 100%;
-            border-radius: 14px;
-            padding: 13px 14px;
-            font-size: 12px;
-            line-height: 1.5;
-            margin-top: 12px;
-        }
-
-        .panel-inline-status.show {
-            display: flex;
-        }
-
-        .panel-inline-status.info {
-            background: rgba(79, 110, 247, 0.08);
-            color: var(--primary-blue);
-        }
-
-        .panel-inline-status.error {
-            background: rgba(239, 68, 68, 0.08);
-            color: var(--error-red);
-        }
-
-        .panel-inline-status.warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: #B45309;
-        }
-
-        .wallet-refresh-btn {
-            width: 100%;
-            min-height: 48px;
-            border: 1px solid rgba(79, 110, 247, 0.15);
-            border-radius: 16px;
-            background: #fff;
-            color: var(--primary-blue);
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .wallet-refresh-btn:active {
-            transform: scale(0.98);
-        }
-
-        .instant-method-strip {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
-            margin-bottom: 16px;
-        }
-
-        .instant-method-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            min-height: 34px;
-            padding: 0 12px;
-            border-radius: 999px;
-            background: rgba(79, 110, 247, 0.06);
-            border: 1px solid rgba(79, 110, 247, 0.08);
-            color: var(--text-dark);
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .instant-method-badge i {
-            color: var(--primary-blue);
         }
 
         .yape-form {
@@ -661,18 +548,14 @@
             }
 
             .method-segmented-control {
-                gap: 6px;
-                padding: 4px;
+                gap: 8px;
+                padding: 5px;
             }
 
             .method-pill {
-                min-height: 44px;
-                font-size: 11px;
-                padding: 0 4px;
-            }
-
-            .wallet-benefits {
-                grid-template-columns: 1fr;
+                min-height: 48px;
+                font-size: 12px;
+                padding: 0 6px;
             }
         }
     </style>
@@ -732,37 +615,21 @@
                 <div class="method-segmented-control" id="paymentMethodControl">
                     <button type="button" class="method-pill active" data-method="card">Tarjeta</button>
                     <button type="button" class="method-pill" data-method="yape">Yape</button>
-                    <button type="button" class="method-pill" data-method="wallet">Billetera MP</button>
-                    <button type="button" class="method-pill" data-method="transfer">Transferencia</button>
                 </div>
             </div>
 
             <div class="payment-method-stage">
-                <!-- PANEL: TARJETA -->
                 <section class="payment-method-panel active" id="cardPanel" data-panel="card">
                     <div class="payment-status-chip">Crédito / Débito</div>
                     <h3 class="method-panel-title">Paga con tarjeta de forma inmediata</h3>
                     <p class="method-panel-subtitle">Paga con tarjeta de crédito o débito de forma rápida y segura.</p>
-
-                    <div class="instant-method-strip">
-                        <span class="instant-method-badge"><i class="fas fa-bolt"></i> Confirmación inmediata</span>
-                        <span class="instant-method-badge"><i class="fas fa-credit-card"></i> Crédito y débito</span>
-                    </div>
-
                     <div id="cardPaymentBrick_container"></div>
                 </section>
 
-                <!-- PANEL: YAPE -->
                 <section class="payment-method-panel" id="yapePanel" data-panel="yape">
                     <div class="payment-status-chip">Yape</div>
                     <h3 class="method-panel-title">Confirma tu pago con Yape</h3>
                     <p class="method-panel-subtitle">Ingresa tu celular y el código OTP de la app Yape.</p>
-
-                    <div class="instant-method-strip">
-                        <span class="instant-method-badge"><i class="fas fa-mobile-screen"></i> Pago rápido desde app</span>
-                        <span class="instant-method-badge"><i class="fas fa-bolt"></i> Activación inmediata</span>
-                    </div>
-
                     <form class="yape-form" id="yapeForm">
                         <div class="yape-field">
                             <label for="yapePhone">Celular Yape</label>
@@ -775,54 +642,6 @@
                         <button type="submit" class="yape-submit-btn" id="yapeSubmitBtn">Pagar con Yape</button>
                     </form>
                     <p class="payment-helper-note">Procesamos tu pago de forma segura con Mercado Pago.</p>
-                </section>
-
-                <!-- PANEL: BILLETERA MP -->
-                <section class="payment-method-panel" id="walletPanel" data-panel="wallet">
-                    <div class="payment-status-chip">Mercado Pago</div>
-                    <h3 class="method-panel-title">Paga con tu cuenta o billetera Mercado Pago</h3>
-                    <p class="method-panel-subtitle">Ideal para usuarios que ya tienen cuenta Mercado Pago y quieren pagar con saldo disponible o medios guardados, con confirmación online.</p>
-
-                    <div class="wallet-shell">
-                        <div class="wallet-benefits">
-                            <div class="wallet-benefit">
-                                <i class="fas fa-wallet"></i>
-                                <span>Saldo en cuenta Mercado Pago</span>
-                            </div>
-                            <div class="wallet-benefit">
-                                <i class="fas fa-badge-check"></i>
-                                <span>Acceso rápido con login seguro</span>
-                            </div>
-                        </div>
-
-                        <div id="walletBrick_container"></div>
-
-                        <div class="panel-inline-status info show" id="walletInlineStatus">
-                            <i class="fas fa-circle-info"></i>
-                            <span>Abre esta opción si prefieres pagar con tu cuenta Mercado Pago y volver con la activación automática.</span>
-                        </div>
-
-                        <button type="button" class="wallet-refresh-btn hidden" id="walletRefreshBtn">
-                            <i class="fas fa-rotate-right"></i> Reintentar billetera
-                        </button>
-                    </div>
-
-                    <p class="payment-helper-note">Se mantienen tus beneficios automáticos y el retorno a la app para validar el pago en tiempo real.</p>
-                </section>
-
-                <!-- NUEVO PANEL: TRANSFERENCIAS LATAM -->
-                <section class="payment-method-panel" id="transferPanel" data-panel="transfer">
-                    <div class="payment-status-chip">Latam y Bancos</div>
-                    <h3 class="method-panel-title">Transferencias Bancarias (Latam)</h3>
-                    <p class="method-panel-subtitle">Paga al instante con tu banco local: Pix (Brasil), PSE (Colombia) y otras transferencias inmediatas integradas por API.</p>
-
-                    <div class="instant-method-strip">
-                        <span class="instant-method-badge"><i class="fas fa-globe-americas"></i> Todo Latam</span>
-                        <span class="instant-method-badge"><i class="fas fa-bolt"></i> Confirmación Inmediata</span>
-                    </div>
-
-                    <div id="transferBrick_container"></div>
-                    <p class="payment-helper-note">Solo se muestran métodos instantáneos. No se admite Pago Efectivo u otros métodos demorados para garantizar la activación rápida y ahorrar recursos del sistema.</p>
                 </section>
             </div>
 
@@ -918,16 +737,11 @@
 
         let mp;
         let bricksBuilder;
-        let appConfig = null;
         let currentPaymentId = null;
         let currentPaymentData = null;
         let activeMethod = 'card';
-        let currentWalletPreferenceId = null;
-
         const brickControllers = {
-            card: null,
-            wallet: null,
-            transfer: null
+            card: null
         };
 
         const premiumVariables = {
@@ -1002,49 +816,14 @@
             document.querySelectorAll('.method-pill').forEach((button) => {
                 button.classList.toggle('active', button.dataset.method === method);
             });
-
             document.querySelectorAll('.payment-method-panel').forEach((panel) => {
                 panel.classList.toggle('active', panel.dataset.panel === method);
             });
         }
 
-        function updateVisibleMethodGrid() {
-            const control = document.getElementById('paymentMethodControl');
-            const visibleButtons = Array.from(control.querySelectorAll('.method-pill')).filter((button) => !button.classList.contains('hidden'));
-            control.style.gridTemplateColumns = `repeat(${Math.max(visibleButtons.length, 1)}, minmax(0, 1fr))`;
-        }
-
-        function setMethodVisibility(method, visible) {
-            const button = document.querySelector(`.method-pill[data-method="${method}"]`);
-            const panel = document.querySelector(`.payment-method-panel[data-panel="${method}"]`);
-            if (button) button.classList.toggle('hidden', !visible);
-            if (panel) panel.classList.toggle('hidden', !visible);
-            updateVisibleMethodGrid();
-        }
-
-        function applyMethodAvailability(config = {}) {
-            const yapeEnabled = config.enableYape !== false && config.yapeEnabled !== false;
-            const walletEnabled = config.enableWallet !== false && config.walletEnabled !== false && config.enableMercadoPagoWallet !== false;
-            const transferEnabled = config.enableTransfer !== false;
-
-            setMethodVisibility('card', true);
-            setMethodVisibility('yape', yapeEnabled);
-            setMethodVisibility('wallet', walletEnabled);
-            setMethodVisibility('transfer', transferEnabled);
-
-            const activeButton = document.querySelector(`.method-pill[data-method="${activeMethod}"]`);
-            if (!activeButton || activeButton.classList.contains('hidden')) {
-                const firstVisible = Array.from(document.querySelectorAll('.method-pill')).find((button) => !button.classList.contains('hidden'));
-                activeMethod = firstVisible ? firstVisible.dataset.method : 'card';
-            }
-
-            updateSegmentedControl(activeMethod);
-        }
-
         function setupMethodSelector() {
             document.querySelectorAll('.method-pill').forEach((button) => {
                 button.addEventListener('click', async () => {
-                    if (button.classList.contains('hidden')) return;
                     const method = button.dataset.method;
                     if (method === activeMethod) return;
                     activeMethod = method;
@@ -1056,22 +835,8 @@
 
         async function ensureMethodMounted(method) {
             if (method === 'card' && brickControllers.card) return;
-            if (method === 'wallet' && brickControllers.wallet) return;
-            if (method === 'transfer' && brickControllers.transfer) return;
-
             if (method === 'card') {
                 await renderCardBrick();
-                return;
-            }
-
-            if (method === 'wallet') {
-                await renderWalletBrick();
-                return;
-            }
-
-            if (method === 'transfer') {
-                await renderTransferBrick();
-                return;
             }
         }
 
@@ -1084,19 +849,9 @@
             return data;
         }
 
-        function setWalletInlineStatus(message, type = 'info') {
-            const statusEl = document.getElementById('walletInlineStatus');
-            statusEl.className = `panel-inline-status ${type} show`;
-            statusEl.innerHTML = `<i class="fas ${type === 'error' ? 'fa-circle-exclamation' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i><span>${message}</span>`;
-        }
-
-        function toggleWalletRefreshButton(show) {
-            document.getElementById('walletRefreshBtn').classList.toggle('hidden', !show);
-        }
-
         async function renderCardBrick() {
             showLoading('Cargando formulario de tarjeta...');
-
+            // Configuración para pago de contado (sin cuotas)
             const cardBrickSettings = {
                 initialization: {
                     amount,
@@ -1118,7 +873,7 @@
                         }
                     },
                     paymentMethods: {
-                        maxInstallments: 1,
+                        maxInstallments: 1,      // Solo 1 cuota
                         minInstallments: 1,
                         types: {
                             included: ['credit_card', 'debit_card']
@@ -1138,16 +893,15 @@
                                 body: JSON.stringify({
                                     token: cardFormData.token,
                                     transaction_amount: amount,
-                                    installments: 1,
+                                    installments: 1,               // Siempre 1
                                     payment_method_id: cardFormData.payment_method_id,
                                     issuer_id: cardFormData.issuer_id || null,
                                     payer: cardFormData.payer,
                                     uid,
-                                    tipoPlan: planId,
+                                    tipoPlan: planId,              // ← clave correcta para el backend
                                     description: `Compra Consulta PE: ${description}`
                                 })
                             });
-
                             await handleBackendPaymentResponse(result, 'Tarjeta');
                         } catch (error) {
                             console.error('Error en onSubmit:', error);
@@ -1168,194 +922,11 @@
                     }
                 }
             };
-
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', cardBrickSettings);
-        }
-
-        async function fetchWalletPreference(forceRefresh = false) {
-            if (currentWalletPreferenceId && !forceRefresh) {
-                return currentWalletPreferenceId;
-            }
-
-            const walletData = await fetchJSON('/api/wallet-preference', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    uid,
-                    tipoPlan: planId,
-                    email,
-                    amount,
-                    title: description,
-                    description: `Compra Consulta PE: ${description}`,
-                    purpose: 'wallet_purchase',
-                    back_urls: {
-                        success: getCleanReturnUrl(),
-                        failure: getCleanReturnUrl(),
-                        pending: getCleanReturnUrl()
-                    },
-                    auto_return: 'approved',
-                    metadata: {
-                        uid,
-                        email,
-                        planId,
-                        source: 'checkout_web_consulta_pe'
-                    }
-                })
-            });
-
-            const preferenceId =
-                walletData.preferenceId ||
-                walletData.preference_id ||
-                walletData.id ||
-                walletData.preference?.id ||
-                null;
-
-            if (!preferenceId) {
-                throw new Error('No se pudo obtener una preferencia válida para Mercado Pago.');
-            }
-
-            currentWalletPreferenceId = preferenceId;
-            return preferenceId;
-        }
-
-        async function renderWalletBrick(forceRefresh = false) {
-            showLoading('Preparando Mercado Pago...');
-            toggleWalletRefreshButton(false);
-
-            try {
-                const walletContainer = document.getElementById('walletBrick_container');
-                walletContainer.innerHTML = '';
-
-                if (brickControllers.wallet && typeof brickControllers.wallet.unmount === 'function') {
-                    try {
-                        await brickControllers.wallet.unmount();
-                    } catch (unmountError) {
-                        console.warn('No se pudo desmontar Wallet Brick previo:', unmountError);
-                    } finally {
-                        brickControllers.wallet = null;
-                    }
-                }
-
-                const preferenceId = await fetchWalletPreference(forceRefresh);
-
-                setWalletInlineStatus('Listo. Puedes continuar con tu cuenta Mercado Pago para completar el pago de forma segura.', 'info');
-
-                brickControllers.wallet = await bricksBuilder.create('wallet', 'walletBrick_container', {
-                    initialization: {
-                        preferenceId
-                    },
-                    customization: {
-                        theme: 'default',
-                        customStyle: {
-                            valueProp: 'security_details',
-                            valuePropColor: 'white'
-                        }
-                    },
-                    callbacks: {
-                        onReady: () => {
-                            if (activeMethod === 'wallet') {
-                                hideLoading();
-                            }
-                        },
-                        onSubmit: () => {
-                            showLoading('Redirigiendo a Mercado Pago...');
-                        },
-                        onError: (error) => {
-                            console.error('Error Wallet Brick:', error);
-                            hideLoading();
-                            toggleWalletRefreshButton(true);
-                            setWalletInlineStatus('No pudimos cargar la billetera ahora mismo. Puedes reintentar o usar Tarjeta/Yape sin afectar tu flujo actual.', 'error');
-                        }
-                    }
-                });
-
-                if (activeMethod === 'wallet') {
-                    hideLoading();
-                }
-            } catch (error) {
-                console.error('Error inicializando Wallet Brick:', error);
-                hideLoading();
-                toggleWalletRefreshButton(true);
-                setWalletInlineStatus('La billetera Mercado Pago no pudo prepararse en este momento. Puedes reintentar o usar Tarjeta/Yape de inmediato.', 'warning');
-            }
-        }
-
-        // ==========================================
-        // NUEVA FUNCIÓN: RENDER TRANSFERENCIAS (API)
-        // ==========================================
-        async function renderTransferBrick() {
-            showLoading('Cargando opciones de transferencia...');
-            try {
-                // Reutilizamos la preferencia generada o intentamos generarla si falla pasa a null
-                const preferenceId = await fetchWalletPreference(false).catch(() => null);
-
-                brickControllers.transfer = await bricksBuilder.create('payment', 'transferBrick_container', {
-                    initialization: {
-                        amount: amount,
-                        preferenceId: preferenceId,
-                        payer: { email: email }
-                    },
-                    customization: {
-                        visual: {
-                            style: {
-                                theme: 'default',
-                                customVariables: premiumVariables
-                            },
-                            hideFormTitle: true
-                        },
-                        paymentMethods: {
-                            // BLOQUEAMOS PAGO EFECTIVO/DEMORADOS - OBLIGATORIO por restricción Fly.io
-                            ticket: 'none', 
-                            // Ocultamos tarjetas y wallet (ya tienen sus pestañas personalizadas)
-                            creditCard: 'none', 
-                            debitCard: 'none',
-                            mercadoPago: 'none'
-                            // Se habilitarán automáticamente bank_transfer (Pix, PSE) y otros instantáneos.
-                        }
-                    },
-                    callbacks: {
-                        onReady: () => {
-                            if (activeMethod === 'transfer') hideLoading();
-                        },
-                        onSubmit: async (param) => {
-                            showLoading('Procesando transferencia...');
-                            try {
-                                const result = await fetchJSON('/api/pay', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        ...param.formData,
-                                        uid,
-                                        tipoPlan: planId,
-                                        description: `Compra Consulta PE: ${description}`
-                                    })
-                                });
-                                await handleBackendPaymentResponse(result, 'Transferencia Bancaria');
-                            } catch (error) {
-                                console.error('Error en onSubmit de transferencia:', error);
-                                hideLoading();
-                                setErrorScreenState({
-                                    title: 'Pago Fallido',
-                                    message: error.message || 'No se pudo procesar la transferencia bancaria.'
-                                });
-                            }
-                        },
-                        onError: (error) => {
-                            console.error('Error Transfer Brick:', error);
-                            // Usualmente los fallos visuales los maneja el brick, no bloqueamos la app.
-                            if(activeMethod === 'transfer') hideLoading();
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error inicializando Transfer Brick:', error);
-                hideLoading();
-            }
         }
 
         async function handleYapeSubmit(event) {
             event.preventDefault();
-
             const phoneNumber = document.getElementById('yapePhone').value.replace(/\D/g, '');
             const otp = document.getElementById('yapeOtp').value.replace(/\D/g, '');
 
@@ -1391,7 +962,6 @@
                 showLoading('Generando token real de Yape...');
                 const yapeInstance = mp.yape({ otp, phoneNumber });
                 const yapeTokenResponse = await yapeInstance.create();
-
                 const yapeToken = typeof yapeTokenResponse === 'string'
                     ? yapeTokenResponse
                     : (yapeTokenResponse?.id || yapeTokenResponse?.response?.id || null);
@@ -1554,7 +1124,6 @@
                 });
                 return true;
             }
-
             return false;
         }
 
@@ -1589,6 +1158,7 @@
             };
         }
 
+        /* ========== Slider premium corregido para centrado en PC ========== */
         function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
@@ -1596,6 +1166,7 @@
 
             if (items.length === 0) return;
 
+            // Crear track interno
             const track = document.createElement('div');
             track.classList.add('slider-track');
             items.forEach(item => track.appendChild(item));
@@ -1658,7 +1229,6 @@
                 } else {
                     setPositionByIndex(currentIndex, true);
                 }
-
                 updateHint();
             }
 
@@ -1719,27 +1289,17 @@
             try {
                 initCarousel();
                 setupMethodSelector();
+                document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
 
-                document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
-                document.getElementById('walletRefreshBtn').addEventListener('click', async () => {
-                    currentWalletPreferenceId = null;
-                    await renderWalletBrick(true);
-                });
-
-                appConfig = await fetchJSON('/api/config');
-                applyMethodAvailability(appConfig);
-
-                mp = new MercadoPago(appConfig.mercadopagoPublicKey, { locale: 'es-PE' });
+                const config = await fetchJSON('/api/config');
+                mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
                 bricksBuilder = mp.bricks();
 
-                updateSegmentedControl(activeMethod);
-                await ensureMethodMounted(activeMethod);
-
-                const returnedFromMercadoPago = await detectReturnFromMercadoPago();
-                if (!returnedFromMercadoPago) {
-                    hideLoading();
-                }
+                updateSegmentedControl('card');
+                await ensureMethodMounted('card');
+                await detectReturnFromMercadoPago();
+                hideLoading();
             } catch (error) {
                 console.error('Error inicializando Mercado Pago:', error);
                 hideLoading();
@@ -1754,5 +1314,3 @@
     </script>
 </body>
 </html>
-
-```
