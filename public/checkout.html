@@ -1158,7 +1158,7 @@
             };
         }
 
-        /* ========== Slider premium corregido para centrado en PC ========== */
+        /* ========== Slider premium con centrado corregido para PC ========== */
         function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
@@ -1180,18 +1180,31 @@
             let isDragging = false;
             let animationID = null;
 
+            // Calcula el ancho de paso (contenido + margen derecho)
             function getItemWidth() {
-                return items[0].offsetWidth + 18;
+                const card = items[0];
+                const cardStyle = window.getComputedStyle(card);
+                const mr = parseFloat(cardStyle.marginRight) || 0;
+                return card.offsetWidth + mr;
             }
 
             function setPositionByIndex(index, withTransition = true) {
                 if (index < 0) index = 0;
                 if (index > items.length - 1) index = items.length - 1;
                 currentIndex = index;
-                const itemWidth = getItemWidth();
-                const containerWidth = scrollContainer.clientWidth;
-                const offset = containerWidth / 2 - itemWidth / 2 - 6;
-                const translateX = -(index * itemWidth) + offset;
+
+                const itemWidth = getItemWidth(); // ancho de paso
+                const containerStyle = window.getComputedStyle(scrollContainer);
+                const pl = parseFloat(containerStyle.paddingLeft) || 0;
+                const pr = parseFloat(containerStyle.paddingRight) || 0;
+                const containerContentWidth = scrollContainer.clientWidth - pl - pr;
+                const cardContentWidth = items[0].offsetWidth;
+                const ml = parseFloat(window.getComputedStyle(items[0]).marginLeft) || 0;
+
+                // Offset para centrar la imagen activa en el área de contenido visible
+                const centerOffset = pl + (containerContentWidth - cardContentWidth) / 2 - ml;
+                const translateX = -(index * itemWidth) + centerOffset;
+
                 currentTranslate = translateX;
                 prevTranslate = translateX;
                 track.style.transition = withTransition ? 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
