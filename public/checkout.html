@@ -850,7 +850,7 @@
         }
 
         async function renderCardBrick() {
-            showLoading('Cargando formulario de tarjeta...');
+            showLoading('Cargando interfaz de pago...');
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
                 initialization: {
                     amount,
