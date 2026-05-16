@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ========== ESTILOS COMPLETOS (sin cambios) ========== */
         :root {
             --primary-blue: #4F6EF7;
             --light-blue: #E8EEFF;
@@ -129,7 +130,6 @@
             font-size: 14px;
         }
 
-        /* Slider premium */
         .horizontal-scroll {
             position: relative;
             overflow: hidden;
@@ -352,62 +352,10 @@
             min-height: 72px;
         }
 
-        .yape-form {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .yape-field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .yape-field label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .yape-field input {
+        /* Nuevo contenedor para el Brick de Yape */
+        #yapePaymentBrick_container {
             width: 100%;
-            border: 1px solid #dfe5f2;
-            border-radius: 14px;
-            min-height: 52px;
-            padding: 0 16px;
-            font-size: 15px;
-            outline: none;
-            background: #fff;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .yape-field input:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 4px rgba(79, 110, 247, 0.12);
-        }
-
-        .yape-submit-btn {
-            width: 100%;
-            min-height: 54px;
-            border: none;
-            border-radius: 16px;
-            background: var(--gradient);
-            color: #fff;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: var(--shadow-soft);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .yape-submit-btn:active {
-            transform: scale(0.98);
-        }
-
-        .yape-submit-btn[disabled] {
-            opacity: 0.7;
-            cursor: not-allowed;
+            min-height: 200px;
         }
 
         .security-badge {
@@ -546,12 +494,10 @@
             .content {
                 padding: 0 16px;
             }
-
             .method-segmented-control {
                 gap: 8px;
                 padding: 5px;
             }
-
             .method-pill {
                 min-height: 48px;
                 font-size: 12px;
@@ -628,19 +574,10 @@
 
                 <section class="payment-method-panel" id="yapePanel" data-panel="yape">
                     <div class="payment-status-chip">Yape</div>
-                    <h3 class="method-panel-title">Confirma tu pago con Yape</h3>
-                    <p class="method-panel-subtitle">Ingresa tu celular y el código OTP de la app Yape.</p>
-                    <form class="yape-form" id="yapeForm">
-                        <div class="yape-field">
-                            <label for="yapePhone">Celular Yape</label>
-                            <input id="yapePhone" type="tel" inputmode="numeric" maxlength="9" placeholder="999999999" required>
-                        </div>
-                        <div class="yape-field">
-                            <label for="yapeOtp">Código OTP</label>
-                            <input id="yapeOtp" type="tel" inputmode="numeric" maxlength="6" placeholder="123456" required>
-                        </div>
-                        <button type="submit" class="yape-submit-btn" id="yapeSubmitBtn">Pagar con Yape</button>
-                    </form>
+                    <h3 class="method-panel-title">Paga con Yape de forma segura</h3>
+                    <p class="method-panel-subtitle">Ingresa tu número de celular y el código OTP generado desde la app Yape.</p>
+                    <!-- Contenedor para el Brick de Yape -->
+                    <div id="yapePaymentBrick_container"></div>
                     <p class="payment-helper-note">Procesamos tu pago de forma segura con Mercado Pago.</p>
                 </section>
             </div>
@@ -741,7 +678,8 @@
         let currentPaymentData = null;
         let activeMethod = 'card';
         const brickControllers = {
-            card: null
+            card: null,
+            yape: null
         };
 
         const premiumVariables = {
@@ -835,8 +773,12 @@
 
         async function ensureMethodMounted(method) {
             if (method === 'card' && brickControllers.card) return;
+            if (method === 'yape' && brickControllers.yape) return;
+            
             if (method === 'card') {
                 await renderCardBrick();
+            } else if (method === 'yape') {
+                await renderYapeBrick();
             }
         }
 
@@ -850,8 +792,7 @@
         }
 
         async function renderCardBrick() {
-            showLoading('Cargando interfaz de pagos...');
-            // Configuración para pago de contado (sin cuotas)
+            showLoading('Cargando interfaz de tarjeta...');
             const cardBrickSettings = {
                 initialization: {
                     amount,
@@ -873,7 +814,7 @@
                         }
                     },
                     paymentMethods: {
-                        maxInstallments: 1,      // Solo 1 cuota
+                        maxInstallments: 1,
                         minInstallments: 1,
                         types: {
                             included: ['credit_card', 'debit_card']
@@ -893,18 +834,18 @@
                                 body: JSON.stringify({
                                     token: cardFormData.token,
                                     transaction_amount: amount,
-                                    installments: 1,               // Siempre 1
+                                    installments: 1,
                                     payment_method_id: cardFormData.payment_method_id,
                                     issuer_id: cardFormData.issuer_id || null,
                                     payer: cardFormData.payer,
                                     uid,
-                                    tipoPlan: planId,              // ← clave correcta para el backend
+                                    tipoPlan: planId,
                                     description: `Compra Consulta PE: ${description}`
                                 })
                             });
                             await handleBackendPaymentResponse(result, 'Tarjeta');
                         } catch (error) {
-                            console.error('Error en onSubmit:', error);
+                            console.error('Error en onSubmit (tarjeta):', error);
                             hideLoading();
                             setErrorScreenState({
                                 title: 'Pago Fallido',
@@ -925,78 +866,75 @@
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', cardBrickSettings);
         }
 
-        async function handleYapeSubmit(event) {
-            event.preventDefault();
-            const phoneNumber = document.getElementById('yapePhone').value.replace(/\D/g, '');
-            const otp = document.getElementById('yapeOtp').value.replace(/\D/g, '');
-
-            if (phoneNumber.length !== 9) {
-                setErrorScreenState({
-                    title: 'Datos incompletos',
-                    message: 'Ingresa un número celular Yape válido de 9 dígitos.'
-                });
-                return;
-            }
-
-            if (otp.length !== 6) {
-                setErrorScreenState({
-                    title: 'Datos incompletos',
-                    message: 'Ingresa el código OTP de 6 dígitos generado por Yape.'
-                });
-                return;
-            }
-
-            if (!mp || typeof mp.yape !== 'function') {
-                setErrorScreenState({
-                    title: 'Yape no disponible',
-                    message: 'Tu credencial actual no permite generar tokens Yape. Revisa la configuración de Mercado Pago.'
-                });
-                return;
-            }
-
-            const submitBtn = document.getElementById('yapeSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Procesando...';
-
-            try {
-                showLoading('Generando token de Yape...');
-                const yapeInstance = mp.yape({ otp, phoneNumber });
-                const yapeTokenResponse = await yapeInstance.create();
-                const yapeToken = typeof yapeTokenResponse === 'string'
-                    ? yapeTokenResponse
-                    : (yapeTokenResponse?.id || yapeTokenResponse?.response?.id || null);
-
-                if (!yapeToken) {
-                    throw new Error('No fue posible generar el token de Yape.');
+        // ========== BRICK DE YAPE CORREGIDO (sin installments) ==========
+        async function renderYapeBrick() {
+            showLoading('Cargando interfaz de Yape...');
+            const yapeBrickSettings = {
+                initialization: {
+                    amount,
+                    payer: { email }
+                },
+                customization: {
+                    visual: {
+                        style: {
+                            theme: 'default',
+                            customVariables: premiumVariables
+                        },
+                        texts: {
+                            formSubmit: `Pagar S/ ${amount.toFixed(2)} con Yape`,
+                            phoneNumberLabel: 'Número de celular Yape',
+                            otpLabel: 'Código OTP'
+                        }
+                    }
+                },
+                callbacks: {
+                    onReady: () => {
+                        if (activeMethod === 'yape') hideLoading();
+                    },
+                    onSubmit: async (yapeFormData) => {
+                        showLoading('Confirmando pago con Yape...');
+                        try {
+                            // El token real está dentro de yapeFormData.formData
+                            const paymentToken = yapeFormData.formData?.token || yapeFormData.token;
+                            if (!paymentToken) {
+                                throw new Error('No se pudo obtener el token de Yape. Verifica los datos ingresados.');
+                            }
+                            
+                            // IMPORTANTE: No se envía "installments" para Yape
+                            const result = await fetchJSON('/api/pay', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    token: paymentToken,
+                                    transaction_amount: amount,
+                                    payment_method_id: 'yape',
+                                    payer: { email },
+                                    uid,
+                                    tipoPlan: planId,
+                                    description: `Compra Consulta PE: ${description}`
+                                })
+                            });
+                            await handleBackendPaymentResponse(result, 'Yape');
+                        } catch (error) {
+                            console.error('Error en onSubmit (Yape):', error);
+                            hideLoading();
+                            setErrorScreenState({
+                                title: 'Pago Fallido',
+                                message: error.message || 'No se pudo procesar el pago con Yape.'
+                            });
+                        }
+                    },
+                    onError: (error) => {
+                        console.error('Error Yape Brick:', error);
+                        hideLoading();
+                        setErrorScreenState({
+                            title: 'Pago Fallido',
+                            message: 'Ocurrió un error con el formulario de Yape. Verifica tu número y código OTP.'
+                        });
+                    }
                 }
-
-                const result = await fetchJSON('/api/pay', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        token: yapeToken,
-                        transaction_amount: amount,
-                        installments: 1,
-                        payment_method_id: 'yape',
-                        payer: { email },
-                        uid,
-                        tipoPlan: planId,
-                        description: `Compra Consulta PE: ${description}`
-                    })
-                });
-
-                await handleBackendPaymentResponse(result, 'Yape');
-            } catch (error) {
-                console.error('Error Yape:', error);
-                hideLoading();
-                setErrorScreenState({
-                    title: 'Pago Fallido',
-                    message: error.message || 'No pudimos procesar tu pago con Yape.'
-                });
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Pagar con Yape';
-            }
+            };
+            brickControllers.yape = await bricksBuilder.create('yapePayment', 'yapePaymentBrick_container', yapeBrickSettings);
         }
 
         async function handleBackendPaymentResponse(result, methodLabel) {
@@ -1038,14 +976,12 @@
 
         async function pollPaymentResolution({ paymentId = null, externalReference = null, loadingText = 'Confirmando tu pago...' }) {
             showLoading(loadingText);
-
             const maxAttempts = 24;
             const delayMs = 2500;
 
-            for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
                 try {
                     let statusData = null;
-
                     if (paymentId) {
                         statusData = await fetchPaymentStatus(paymentId);
                     } else if (externalReference) {
@@ -1055,7 +991,6 @@
                             currentPaymentId = paymentId;
                         }
                     }
-
                     if (statusData) {
                         if (['rejected', 'cancelled'].includes(statusData.status)) {
                             hideLoading();
@@ -1065,7 +1000,6 @@
                             });
                             return;
                         }
-
                         if (statusData.processed && statusData.status === 'approved' && paymentId) {
                             await showSuccessScreen(paymentId);
                             cleanReturnState();
@@ -1075,10 +1009,8 @@
                 } catch (error) {
                     console.warn('Esperando confirmación del pago...', error.message);
                 }
-
                 await new Promise(resolve => setTimeout(resolve, delayMs));
             }
-
             hideLoading();
             setErrorScreenState({
                 title: 'Pago en validación',
@@ -1158,32 +1090,20 @@
             };
         }
 
-        /* ========== Slider premium corregido para centrado en PC ========== */
+        // Slider corregido (mismo código que antes)
         function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
             const items = Array.from(scrollContainer.querySelectorAll('.carousel-item'));
 
             if (items.length === 0) return;
-
-            // Crear track interno
             const track = document.createElement('div');
             track.classList.add('slider-track');
             items.forEach(item => track.appendChild(item));
             scrollContainer.appendChild(track);
-
             const hintSpans = hintContainer.querySelectorAll('span');
-            let currentIndex = 0;
-            let startX = 0;
-            let currentTranslate = 0;
-            let prevTranslate = 0;
-            let isDragging = false;
-            let animationID = null;
-
-            function getItemWidth() {
-                return items[0].offsetWidth + 18;
-            }
-
+            let currentIndex = 0, startX = 0, currentTranslate = 0, prevTranslate = 0, isDragging = false, animationID = null;
+            function getItemWidth() { return items[0].offsetWidth + 18; }
             function setPositionByIndex(index, withTransition = true) {
                 if (index < 0) index = 0;
                 if (index > items.length - 1) index = items.length - 1;
@@ -1197,7 +1117,6 @@
                 track.style.transition = withTransition ? 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
                 track.style.transform = `translateX(${translateX}px)`;
             }
-
             function updateHint() {
                 hintSpans.forEach((span, idx) => {
                     if (idx === currentIndex) {
@@ -1211,27 +1130,16 @@
                     }
                 });
             }
-
             function snapToNearest() {
                 const itemWidth = getItemWidth();
                 const moveDistance = currentTranslate - prevTranslate;
                 const threshold = itemWidth / 4;
                 let newIndex = currentIndex;
-
-                if (moveDistance > threshold) {
-                    newIndex = Math.max(currentIndex - 1, 0);
-                } else if (moveDistance < -threshold) {
-                    newIndex = Math.min(currentIndex + 1, items.length - 1);
-                }
-
-                if (newIndex !== currentIndex) {
-                    setPositionByIndex(newIndex, true);
-                } else {
-                    setPositionByIndex(currentIndex, true);
-                }
+                if (moveDistance > threshold) newIndex = Math.max(currentIndex - 1, 0);
+                else if (moveDistance < -threshold) newIndex = Math.min(currentIndex + 1, items.length - 1);
+                setPositionByIndex(newIndex, true);
                 updateHint();
             }
-
             function dragStart(e) {
                 isDragging = true;
                 startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
@@ -1239,7 +1147,6 @@
                 track.style.transition = 'none';
                 cancelAnimationFrame(animationID);
             }
-
             function dragMove(e) {
                 if (!isDragging) return;
                 e.preventDefault();
@@ -1248,54 +1155,33 @@
                 currentTranslate = prevTranslate + delta;
                 track.style.transform = `translateX(${currentTranslate}px)`;
             }
-
             function dragEnd() {
                 if (!isDragging) return;
                 isDragging = false;
                 cancelAnimationFrame(animationID);
                 snapToNearest();
             }
-
             scrollContainer.addEventListener('mousedown', dragStart);
             scrollContainer.addEventListener('touchstart', dragStart, { passive: true });
             window.addEventListener('mousemove', dragMove);
             window.addEventListener('mouseup', dragEnd);
             scrollContainer.addEventListener('touchmove', dragMove, { passive: false });
             scrollContainer.addEventListener('touchend', dragEnd);
-
             scrollContainer.querySelectorAll('img').forEach(img => img.addEventListener('dragstart', e => e.preventDefault()));
-
             const images = Array.from(scrollContainer.querySelectorAll('img'));
-            const imageLoadPromises = images.map(img => {
-                if (img.complete) return Promise.resolve();
-                return new Promise(resolve => {
-                    img.addEventListener('load', resolve);
-                    img.addEventListener('error', resolve);
-                });
-            });
-
-            Promise.all(imageLoadPromises).then(() => {
-                setPositionByIndex(0, false);
-                updateHint();
-            });
-
-            window.addEventListener('resize', () => {
-                setPositionByIndex(currentIndex, false);
-                updateHint();
-            });
+            Promise.all(images.map(img => img.complete ? Promise.resolve() : new Promise(resolve => { img.addEventListener('load', resolve); img.addEventListener('error', resolve); })))
+                .then(() => { setPositionByIndex(0, false); updateHint(); });
+            window.addEventListener('resize', () => { setPositionByIndex(currentIndex, false); updateHint(); });
         }
 
         async function initMercadoPago() {
             try {
                 initCarousel();
                 setupMethodSelector();
-                document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
-
                 const config = await fetchJSON('/api/config');
                 mp = new MercadoPago(config.mercadopagoPublicKey, { locale: 'es-PE' });
                 bricksBuilder = mp.bricks();
-
                 updateSegmentedControl('card');
                 await ensureMethodMounted('card');
                 await detectReturnFromMercadoPago();
