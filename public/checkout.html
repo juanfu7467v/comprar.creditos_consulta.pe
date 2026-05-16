@@ -866,75 +866,145 @@
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', cardBrickSettings);
         }
 
-        // ========== BRICK DE YAPE CORREGIDO (sin installments) ==========
+        // ========== FUNCIÓN RENDER YAPE OPTIMIZADA (con manejo robusto de errores) ==========
         async function renderYapeBrick() {
             showLoading('Cargando interfaz de Yape...');
-            const yapeBrickSettings = {
-                initialization: {
-                    amount,
-                    payer: { email }
-                },
-                customization: {
-                    visual: {
-                        style: {
-                            theme: 'default',
-                            customVariables: premiumVariables
-                        },
-                        texts: {
-                            formSubmit: `Pagar S/ ${amount.toFixed(2)} con Yape`,
-                            phoneNumberLabel: 'Número de celular Yape',
-                            otpLabel: 'Código OTP'
-                        }
-                    }
-                },
-                callbacks: {
-                    onReady: () => {
-                        if (activeMethod === 'yape') hideLoading();
-                    },
-                    onSubmit: async (yapeFormData) => {
-                        showLoading('Confirmando pago con Yape...');
-                        try {
-                            // El token real está dentro de yapeFormData.formData
-                            const paymentToken = yapeFormData.formData?.token || yapeFormData.token;
-                            if (!paymentToken) {
-                                throw new Error('No se pudo obtener el token de Yape. Verifica los datos ingresados.');
-                            }
-                            
-                            // IMPORTANTE: No se envía "installments" para Yape
-                            const result = await fetchJSON('/api/pay', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    token: paymentToken,
-                                    transaction_amount: amount,
-                                    payment_method_id: 'yape',
-                                    payer: { email },
-                                    uid,
-                                    tipoPlan: planId,
-                                    description: `Compra Consulta PE: ${description}`
-                                })
-                            });
-                            await handleBackendPaymentResponse(result, 'Yape');
-                        } catch (error) {
-                            console.error('Error en onSubmit (Yape):', error);
-                            hideLoading();
-                            setErrorScreenState({
-                                title: 'Pago Fallido',
-                                message: error.message || 'No se pudo procesar el pago con Yape.'
-                            });
-                        }
-                    },
-                    onError: (error) => {
-                        console.error('Error Yape Brick:', error);
-                        hideLoading();
-                        setErrorScreenState({
-                            title: 'Pago Fallido',
-                            message: 'Ocurrió un error con el formulario de Yape. Verifica tu número y código OTP.'
-                        });
-                    }
+            
+            // Timeout para evitar que se quede cargando indefinidamente
+            const loadingTimeout = setTimeout(() => {
+                if (activeMethod === 'yape') {
+                    console.error('Timeout: El Brick de Yape no respondió en 15 segundos');
+                    hideLoading();
+                    setErrorScreenState({
+                        title: 'Error de conexión',
+                        message: 'El formulario de Yape tardó demasiado en cargar. Por favor, intenta de nuevo o usa tarjeta.',
+                        showRetry: true,
+                        secondaryText: 'Volver'
+                    });
                 }
-            };
-            brickControllers.yape = await bricksBuilder.create('yapePayment', 'yapePaymentBrick_container', yapeBrickSettings);
+            }, 15000);
+
+            try {
+                // Verificar que bricksBuilder exista y tenga el método yapePayment
+                if (!bricksBuilder || typeof bricksBuilder.create !== 'function') {
+                    throw new Error('El SDK de Mercado Pago no está completamente inicializado.');
+                }
+
+                const yapeBrickSettings = {
+                    initialization: {
+                        amount,
+                        payer: { email }
+                    },
+                    customization: {
+                        visual: {
+                            style: {
+                                theme: 'default',
+                                customVariables: premiumVariables
+                            },
+                            texts: {
+                                formSubmit: `Pagar S/ ${amount.toFixed(2)} con Yape`,
+                                phoneNumberLabel: 'Número de celular Yape',
+                                otpLabel: 'Código OTP'
+                            }
+                        }
+                    },
+                    callbacks: {
+                        onReady: () => {
+                            clearTimeout(loadingTimeout);
+                            if (activeMethod === 'yape') hideLoading();
+                        },
+                        onSubmit: async (yapeFormData) => {
+                            showLoading('Confirmando pago con Yape...');
+                            try {
+                                // Extraer token de forma robusta
+                                let paymentToken = null;
+                                if (yapeFormData.formData?.token) {
+                                    paymentToken = yapeFormData.formData.token;
+                                } else if (yapeFormData.token) {
+                                    paymentToken = yapeFormData.token;
+                                } else if (yapeFormData.response?.token) {
+                                    paymentToken = yapeFormData.response.token;
+                                }
+                                
+                                if (!paymentToken) {
+                                    console.error('Estructura de yapeFormData:', yapeFormData);
+                                    throw new Error('No se pudo obtener el token de Yape. Por favor, verifica tus datos e intenta de nuevo.');
+                                }
+                                
+                                const result = await fetchJSON('/api/pay', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        token: paymentToken,
+                                        transaction_amount: amount,
+                                        payment_method_id: 'yape',
+                                        payer: { email },
+                                        uid,
+                                        tipoPlan: planId,
+                                        description: `Compra Consulta PE: ${description}`
+                                    })
+                                });
+                                await handleBackendPaymentResponse(result, 'Yape');
+                            } catch (error) {
+                                console.error('Error en onSubmit (Yape):', error);
+                                hideLoading();
+                                // Mensaje más descriptivo según el tipo de error
+                                let errorMsg = error.message || 'No se pudo procesar el pago con Yape.';
+                                if (errorMsg.includes('invalid')) {
+                                    errorMsg = 'El código OTP o número de teléfono es incorrecto. Verifica e intenta nuevamente.';
+                                } else if (errorMsg.includes('rejected')) {
+                                    errorMsg = 'El pago fue rechazado por Yape o tu banco. Intenta con otro método.';
+                                }
+                                setErrorScreenState({
+                                    title: 'Pago Fallido',
+                                    message: errorMsg,
+                                    showRetry: true,
+                                    secondaryText: 'Usar tarjeta'
+                                });
+                            }
+                        },
+                        onError: (error) => {
+                            clearTimeout(loadingTimeout);
+                            console.error('Error Yape Brick (detallado):', error);
+                            hideLoading();
+                            let errorDetail = '';
+                            if (typeof error === 'object') {
+                                errorDetail = JSON.stringify(error, null, 2);
+                            }
+                            setErrorScreenState({
+                                title: 'Error en el formulario Yape',
+                                message: `No se pudo inicializar el método de pago Yape. ${errorDetail ? 'Detalle: ' + errorDetail : 'Intenta de nuevo o usa tarjeta.'}`,
+                                showRetry: true,
+                                secondaryText: 'Usar tarjeta'
+                            });
+                        }
+                    }
+                };
+
+                // Intentar crear el Brick
+                brickControllers.yape = await bricksBuilder.create('yapePayment', 'yapePaymentBrick_container', yapeBrickSettings);
+                
+                // Si la creación falla silenciosamente, el onError ya se encargará
+            } catch (error) {
+                clearTimeout(loadingTimeout);
+                console.error('Error crítico al crear Yape Brick:', error);
+                hideLoading();
+                // Fallback: sugerir usar tarjeta
+                setErrorScreenState({
+                    title: 'Yape no disponible temporalmente',
+                    message: 'No se pudo cargar el método de pago Yape. Por favor, utiliza tarjeta de crédito o débito para completar tu compra.',
+                    showRetry: false,
+                    secondaryText: 'Usar tarjeta'
+                });
+                // Cambiar automáticamente a método tarjeta si el usuario desea reintentar
+                const secondaryBtn = document.getElementById('secondaryErrorBtn');
+                if (secondaryBtn) {
+                    secondaryBtn.onclick = () => {
+                        document.querySelector('.method-pill[data-method="card"]').click();
+                        closeErrorModal();
+                    };
+                }
+            }
         }
 
         async function handleBackendPaymentResponse(result, methodLabel) {
