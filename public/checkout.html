@@ -850,7 +850,7 @@
         }
 
         async function renderCardBrick() {
-            showLoading('Cargando interfaz de pago...');
+            showLoading('Cargando formulario de tarjeta...');
             brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
                 initialization: {
                     amount,
@@ -948,7 +948,7 @@
             submitBtn.textContent = 'Procesando...';
 
             try {
-                showLoading('procesando pago con Yape...');
+                showLoading('Generando token real de Yape...');
                 const yapeInstance = mp.yape({ otp, phoneNumber });
                 const yapeTokenResponse = await yapeInstance.create();
                 const yapeToken = typeof yapeTokenResponse === 'string'
