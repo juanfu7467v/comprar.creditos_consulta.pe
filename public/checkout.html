@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -237,7 +238,7 @@
 
         .method-segmented-control {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 10px;
             width: 100%;
             background: rgba(255, 255, 255, 0.75);
@@ -257,7 +258,7 @@
             font-weight: 700;
             border-radius: 14px;
             min-height: 52px;
-            padding: 0 10px;
+            padding: 0 8px;
             cursor: pointer;
             transition: all 0.22s ease;
             letter-spacing: 0.01em;
@@ -348,7 +349,8 @@
         }
 
         #cardPaymentBrick_container,
-        #walletBrick_container {
+        #walletBrick_container,
+        #transferBrick_container {
             width: 100%;
             min-height: 72px;
         }
@@ -659,14 +661,14 @@
             }
 
             .method-segmented-control {
-                gap: 8px;
-                padding: 5px;
+                gap: 6px;
+                padding: 4px;
             }
 
             .method-pill {
-                min-height: 48px;
-                font-size: 12px;
-                padding: 0 6px;
+                min-height: 44px;
+                font-size: 11px;
+                padding: 0 4px;
             }
 
             .wallet-benefits {
@@ -731,10 +733,12 @@
                     <button type="button" class="method-pill active" data-method="card">Tarjeta</button>
                     <button type="button" class="method-pill" data-method="yape">Yape</button>
                     <button type="button" class="method-pill" data-method="wallet">Billetera MP</button>
+                    <button type="button" class="method-pill" data-method="transfer">Transferencia</button>
                 </div>
             </div>
 
             <div class="payment-method-stage">
+                <!-- PANEL: TARJETA -->
                 <section class="payment-method-panel active" id="cardPanel" data-panel="card">
                     <div class="payment-status-chip">Crédito / Débito</div>
                     <h3 class="method-panel-title">Paga con tarjeta de forma inmediata</h3>
@@ -748,6 +752,7 @@
                     <div id="cardPaymentBrick_container"></div>
                 </section>
 
+                <!-- PANEL: YAPE -->
                 <section class="payment-method-panel" id="yapePanel" data-panel="yape">
                     <div class="payment-status-chip">Yape</div>
                     <h3 class="method-panel-title">Confirma tu pago con Yape</h3>
@@ -772,6 +777,7 @@
                     <p class="payment-helper-note">Procesamos tu pago de forma segura con Mercado Pago.</p>
                 </section>
 
+                <!-- PANEL: BILLETERA MP -->
                 <section class="payment-method-panel" id="walletPanel" data-panel="wallet">
                     <div class="payment-status-chip">Mercado Pago</div>
                     <h3 class="method-panel-title">Paga con tu cuenta o billetera Mercado Pago</h3>
@@ -802,6 +808,21 @@
                     </div>
 
                     <p class="payment-helper-note">Se mantienen tus beneficios automáticos y el retorno a la app para validar el pago en tiempo real.</p>
+                </section>
+
+                <!-- NUEVO PANEL: TRANSFERENCIAS LATAM -->
+                <section class="payment-method-panel" id="transferPanel" data-panel="transfer">
+                    <div class="payment-status-chip">Latam y Bancos</div>
+                    <h3 class="method-panel-title">Transferencias Bancarias (Latam)</h3>
+                    <p class="method-panel-subtitle">Paga al instante con tu banco local: Pix (Brasil), PSE (Colombia) y otras transferencias inmediatas integradas por API.</p>
+
+                    <div class="instant-method-strip">
+                        <span class="instant-method-badge"><i class="fas fa-globe-americas"></i> Todo Latam</span>
+                        <span class="instant-method-badge"><i class="fas fa-bolt"></i> Confirmación Inmediata</span>
+                    </div>
+
+                    <div id="transferBrick_container"></div>
+                    <p class="payment-helper-note">Solo se muestran métodos instantáneos. No se admite Pago Efectivo u otros métodos demorados para garantizar la activación rápida y ahorrar recursos del sistema.</p>
                 </section>
             </div>
 
@@ -905,7 +926,8 @@
 
         const brickControllers = {
             card: null,
-            wallet: null
+            wallet: null,
+            transfer: null
         };
 
         const premiumVariables = {
@@ -1003,10 +1025,12 @@
         function applyMethodAvailability(config = {}) {
             const yapeEnabled = config.enableYape !== false && config.yapeEnabled !== false;
             const walletEnabled = config.enableWallet !== false && config.walletEnabled !== false && config.enableMercadoPagoWallet !== false;
+            const transferEnabled = config.enableTransfer !== false;
 
             setMethodVisibility('card', true);
             setMethodVisibility('yape', yapeEnabled);
             setMethodVisibility('wallet', walletEnabled);
+            setMethodVisibility('transfer', transferEnabled);
 
             const activeButton = document.querySelector(`.method-pill[data-method="${activeMethod}"]`);
             if (!activeButton || activeButton.classList.contains('hidden')) {
@@ -1033,6 +1057,7 @@
         async function ensureMethodMounted(method) {
             if (method === 'card' && brickControllers.card) return;
             if (method === 'wallet' && brickControllers.wallet) return;
+            if (method === 'transfer' && brickControllers.transfer) return;
 
             if (method === 'card') {
                 await renderCardBrick();
@@ -1041,6 +1066,12 @@
 
             if (method === 'wallet') {
                 await renderWalletBrick();
+                return;
+            }
+
+            if (method === 'transfer') {
+                await renderTransferBrick();
+                return;
             }
         }
 
@@ -1246,6 +1277,79 @@
                 hideLoading();
                 toggleWalletRefreshButton(true);
                 setWalletInlineStatus('La billetera Mercado Pago no pudo prepararse en este momento. Puedes reintentar o usar Tarjeta/Yape de inmediato.', 'warning');
+            }
+        }
+
+        // ==========================================
+        // NUEVA FUNCIÓN: RENDER TRANSFERENCIAS (API)
+        // ==========================================
+        async function renderTransferBrick() {
+            showLoading('Cargando opciones de transferencia...');
+            try {
+                // Reutilizamos la preferencia generada o intentamos generarla si falla pasa a null
+                const preferenceId = await fetchWalletPreference(false).catch(() => null);
+
+                brickControllers.transfer = await bricksBuilder.create('payment', 'transferBrick_container', {
+                    initialization: {
+                        amount: amount,
+                        preferenceId: preferenceId,
+                        payer: { email: email }
+                    },
+                    customization: {
+                        visual: {
+                            style: {
+                                theme: 'default',
+                                customVariables: premiumVariables
+                            },
+                            hideFormTitle: true
+                        },
+                        paymentMethods: {
+                            // BLOQUEAMOS PAGO EFECTIVO/DEMORADOS - OBLIGATORIO por restricción Fly.io
+                            ticket: 'none', 
+                            // Ocultamos tarjetas y wallet (ya tienen sus pestañas personalizadas)
+                            creditCard: 'none', 
+                            debitCard: 'none',
+                            mercadoPago: 'none'
+                            // Se habilitarán automáticamente bank_transfer (Pix, PSE) y otros instantáneos.
+                        }
+                    },
+                    callbacks: {
+                        onReady: () => {
+                            if (activeMethod === 'transfer') hideLoading();
+                        },
+                        onSubmit: async (param) => {
+                            showLoading('Procesando transferencia...');
+                            try {
+                                const result = await fetchJSON('/api/pay', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        ...param.formData,
+                                        uid,
+                                        tipoPlan: planId,
+                                        description: `Compra Consulta PE: ${description}`
+                                    })
+                                });
+                                await handleBackendPaymentResponse(result, 'Transferencia Bancaria');
+                            } catch (error) {
+                                console.error('Error en onSubmit de transferencia:', error);
+                                hideLoading();
+                                setErrorScreenState({
+                                    title: 'Pago Fallido',
+                                    message: error.message || 'No se pudo procesar la transferencia bancaria.'
+                                });
+                            }
+                        },
+                        onError: (error) => {
+                            console.error('Error Transfer Brick:', error);
+                            // Usualmente los fallos visuales los maneja el brick, no bloqueamos la app.
+                            if(activeMethod === 'transfer') hideLoading();
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error inicializando Transfer Brick:', error);
+                hideLoading();
             }
         }
 
@@ -1650,3 +1754,5 @@
     </script>
 </body>
 </html>
+
+```
