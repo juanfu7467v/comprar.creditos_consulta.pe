@@ -959,7 +959,7 @@
             submitBtn.textContent = 'Procesando...';
 
             try {
-                showLoading('Generando token real de Yape...');
+                showLoading('Procesando pago con Yape...');
                 const yapeInstance = mp.yape({ otp, phoneNumber });
                 const yapeTokenResponse = await yapeInstance.create();
                 const yapeToken = typeof yapeTokenResponse === 'string'
