@@ -903,7 +903,7 @@
             color: var(--text-muted);
         }
         .intensive-table tbody tr:last-child td { border-bottom: none; }
-        /* Ya no se usa .plan-link porque ahora la fila entera es clickeable */
+        /* Cada fila es clickeable gracias al atributo data-plan-id y el event listener */
 
         .quote {
             background: linear-gradient(90deg, rgba(0,200,83,0.08), rgba(255,215,0,0.04));
@@ -1333,6 +1333,7 @@
                     <tr><th>PLAN</th><th>PRECIO (S/.)</th><th>UMBRAL DE SEGURIDAD</th></tr>
                 </thead>
                 <tbody>
+                    <!-- Se agregó data-plan-id a cada fila para que el sistema reconozca el plan -->
                     <tr id="intensive-row-7" data-plan-id="plan_7_dias">
                         <td>7 días</td>
                         <td class="price">S/80</td>
@@ -1445,8 +1446,6 @@
         const navLinks = sidebar.querySelectorAll('nav a');
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
-                // Permitir la navegación normalmente, pero también cerrar el menú
-                // No prevenimos el comportamiento por defecto para que el enlace funcione.
                 toggleMenu();
             });
         });
@@ -1666,7 +1665,7 @@
                     }
                 }
 
-                // ========== NUEVA FUNCIÓN SEGURA: actualiza los enlaces con planId ==========
+                // ========== FUNCIÓN SEGURA: actualiza los enlaces con planId (igual que planes.html) ==========
                 function updateCheckoutLinks(uid, email) {
                     if (!uid || !email) return;
 
@@ -1683,13 +1682,16 @@
                     intensiveRows.forEach(row => {
                         const planId = row.getAttribute('data-plan-id');
                         if (planId) {
-                            // Al hacer clic en la fila, redirigir al checkout con planId
                             row.style.cursor = 'pointer';
-                            row.addEventListener('click', (e) => {
+                            // Eliminar cualquier listener previo para evitar duplicados
+                            row.removeEventListener('click', row._clickHandler);
+                            const clickHandler = (e) => {
                                 // Evitar que el clic en enlaces internos (como el de WhatsApp dentro de la nota) dispare la redirección
                                 if (e.target.tagName === 'A') return;
                                 window.location.href = `/checkout.html?planId=${planId}&uid=${uid}&email=${encodeURIComponent(email)}`;
-                            });
+                            };
+                            row._clickHandler = clickHandler;
+                            row.addEventListener('click', clickHandler);
                         }
                     });
                 }
