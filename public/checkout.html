@@ -129,14 +129,15 @@
             font-size: 14px;
         }
 
-        /* Slider premium */
+        /* Slider premium – corregido para alineación izquierda y ancho completo */
         .horizontal-scroll {
             position: relative;
             overflow: hidden;
             cursor: grab;
             touch-action: pan-y;
-            margin: 0 -6px;
-            padding: 8px 2px 16px 2px;
+            /* Quitamos márgenes negativos y padding lateral para igualar el ancho del contenido */
+            margin: 0;
+            padding: 8px 0 16px 0;
             user-select: none;
             -webkit-user-select: none;
         }
@@ -153,20 +154,20 @@
 
         .carousel-item {
             flex-shrink: 0;
-            width: 90%;
-            max-width: 320px;
-            margin-right: 18px;
-            vertical-align: top;
+            /* Cada item ocupa el 100% del ancho del contenedor del slider */
+            width: 100%;
+            margin-right: 0;
             border-radius: var(--radius-lg);
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
+        /* Eliminamos los márgenes especiales del primer y último elemento */
         .carousel-item:first-child {
-            margin-left: 6px;
+            margin-left: 0;
         }
 
         .carousel-item:last-child {
-            margin-right: 6px;
+            margin-right: 0;
         }
 
         .carousel-item img {
@@ -606,7 +607,7 @@
                     </div>
                 </div>
                 <div class="scroll-hint" id="scrollHint">
-                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
                 </div>
             </div>
 
@@ -1158,7 +1159,7 @@
             };
         }
 
-        /* ========== Slider premium con centrado corregido para PC ========== */
+        /* ========== Slider premium corregido para alineación izquierda y ancho completo ========== */
         function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
@@ -1180,31 +1181,19 @@
             let isDragging = false;
             let animationID = null;
 
-            // Calcula el ancho de paso (contenido + margen derecho)
-            function getItemWidth() {
-                const card = items[0];
-                const cardStyle = window.getComputedStyle(card);
-                const mr = parseFloat(cardStyle.marginRight) || 0;
-                return card.offsetWidth + mr;
+            // El ancho del viewport del slider (sin márgenes internos ya que .horizontal-scroll no tiene padding lateral extra)
+            function getContainerWidth() {
+                return scrollContainer.clientWidth;
             }
 
+            // Mueve el track para que el elemento en currentIndex esté alineado al borde izquierdo del contenedor
             function setPositionByIndex(index, withTransition = true) {
                 if (index < 0) index = 0;
                 if (index > items.length - 1) index = items.length - 1;
                 currentIndex = index;
-
-                const itemWidth = getItemWidth(); // ancho de paso
-                const containerStyle = window.getComputedStyle(scrollContainer);
-                const pl = parseFloat(containerStyle.paddingLeft) || 0;
-                const pr = parseFloat(containerStyle.paddingRight) || 0;
-                const containerContentWidth = scrollContainer.clientWidth - pl - pr;
-                const cardContentWidth = items[0].offsetWidth;
-                const ml = parseFloat(window.getComputedStyle(items[0]).marginLeft) || 0;
-
-                // Offset para centrar la imagen activa en el área de contenido visible
-                const centerOffset = pl + (containerContentWidth - cardContentWidth) / 2 - ml;
-                const translateX = -(index * itemWidth) + centerOffset;
-
+                const containerWidth = getContainerWidth();
+                // Desplazamos el track exactamente el ancho del contenedor por cada índice
+                const translateX = -index * containerWidth;
                 currentTranslate = translateX;
                 prevTranslate = translateX;
                 track.style.transition = withTransition ? 'transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
@@ -1226,11 +1215,11 @@
             }
 
             function snapToNearest() {
-                const itemWidth = getItemWidth();
+                const containerWidth = getContainerWidth();
                 const moveDistance = currentTranslate - prevTranslate;
-                const threshold = itemWidth / 4;
-                let newIndex = currentIndex;
+                const threshold = containerWidth / 4; // umbral para cambiar de página
 
+                let newIndex = currentIndex;
                 if (moveDistance > threshold) {
                     newIndex = Math.max(currentIndex - 1, 0);
                 } else if (moveDistance < -threshold) {
@@ -1240,6 +1229,7 @@
                 if (newIndex !== currentIndex) {
                     setPositionByIndex(newIndex, true);
                 } else {
+                    // volver a la posición exacta del índice actual
                     setPositionByIndex(currentIndex, true);
                 }
                 updateHint();
