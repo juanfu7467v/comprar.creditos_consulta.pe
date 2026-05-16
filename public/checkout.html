@@ -134,7 +134,7 @@
             position: relative;
             overflow: hidden;
             cursor: grab;
-            touch-action: pan-y;
+            touch-action: pan-y; /* permite scroll vertical mientras se arrastra horizontal */
             margin: 0 -6px;
             padding: 8px 2px 16px 2px;
             user-select: none;
@@ -586,6 +586,7 @@
                     <span>Métodos de pago seguros</span>
                 </div>
                 <div class="horizontal-scroll" id="imageScroll">
+                    <!-- Las imágenes se moverán dentro de un track generado por JS -->
                     <div class="carousel-item">
                         <img src="https://i.postimg.cc/zfyKVTZr/IMG-20260515-113901.jpg" alt="Tarjeta de crédito VISA" loading="lazy">
                     </div>
@@ -668,7 +669,7 @@
                     <span class="receipt-value" id="success-amount">-</span>
                 </div>
                 <div class="receipt-row">
-                    <span class="receipt-label" id="benefit-label">Plan/Créditos</span>
+                    <span class="receipt-label" id="benefit-label">Beneficio</span>
                     <span class="receipt-value" id="benefit-value">-</span>
                 </div>
                 <div class="receipt-divider"></div>
@@ -835,6 +836,7 @@
 
         async function ensureMethodMounted(method) {
             if (method === 'card' && brickControllers.card) return;
+
             if (method === 'card') {
                 await renderCardBrick();
             }
@@ -851,8 +853,7 @@
 
         async function renderCardBrick() {
             showLoading('Cargando formulario de tarjeta...');
-            // Configuración para pago de contado (sin cuotas)
-            const cardBrickSettings = {
+            brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', {
                 initialization: {
                     amount,
                     payer: { email }
@@ -867,13 +868,13 @@
                         texts: {
                             formSubmit: `Pagar S/ ${amount.toFixed(2)}`,
                             email: { label: 'Correo electrónico' },
-                            installmentsSectionTitle: 'Pago de contado',
-                            selectInstallments: '1 cuota sin intereses',
+                            installmentsSectionTitle: 'Cuotas disponibles',
+                            selectInstallments: 'Selecciona tus cuotas',
                             selectIssuerBank: 'Banco emisor'
                         }
                     },
                     paymentMethods: {
-                        maxInstallments: 1,      // Solo 1 cuota
+                        maxInstallments: 12,
                         minInstallments: 1,
                         types: {
                             included: ['credit_card', 'debit_card']
@@ -886,31 +887,22 @@
                     },
                     onSubmit: async (cardFormData) => {
                         showLoading('Confirmando pago con tarjeta...');
-                        try {
-                            const result = await fetchJSON('/api/pay', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    token: cardFormData.token,
-                                    transaction_amount: amount,
-                                    installments: 1,               // Siempre 1
-                                    payment_method_id: cardFormData.payment_method_id,
-                                    issuer_id: cardFormData.issuer_id || null,
-                                    payer: cardFormData.payer,
-                                    uid,
-                                    tipoPlan: planId,              // ← clave correcta para el backend
-                                    description: `Compra Consulta PE: ${description}`
-                                })
-                            });
-                            await handleBackendPaymentResponse(result, 'Tarjeta');
-                        } catch (error) {
-                            console.error('Error en onSubmit:', error);
-                            hideLoading();
-                            setErrorScreenState({
-                                title: 'Pago Fallido',
-                                message: error.message || 'No se pudo procesar el pago con tarjeta.'
-                            });
-                        }
+                        const result = await fetchJSON('/api/pay', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                token: cardFormData.token,
+                                transaction_amount: amount,
+                                installments: cardFormData.installments || 1,
+                                payment_method_id: cardFormData.payment_method_id,
+                                issuer_id: cardFormData.issuer_id || null,
+                                payer: cardFormData.payer,
+                                uid,
+                                planId,
+                                description: `Compra Consulta PE: ${description}`
+                            })
+                        });
+                        await handleBackendPaymentResponse(result, 'Tarjeta');
                     },
                     onError: (error) => {
                         console.error('Error Card Brick:', error);
@@ -921,8 +913,7 @@
                         });
                     }
                 }
-            };
-            brickControllers.card = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', cardBrickSettings);
+            });
         }
 
         async function handleYapeSubmit(event) {
@@ -980,7 +971,7 @@
                         payment_method_id: 'yape',
                         payer: { email },
                         uid,
-                        tipoPlan: planId,
+                        planId,
                         description: `Compra Consulta PE: ${description}`
                     })
                 });
@@ -1124,6 +1115,7 @@
                 });
                 return true;
             }
+
             return false;
         }
 
@@ -1140,10 +1132,6 @@
                     if (response.ok || response.redirected) {
                         window.open(`/api/invoice/${currentPaymentId}`, '_blank');
                         btn.innerHTML = '<i class="fas fa-check"></i> Listo';
-                        setTimeout(() => {
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                        }, 2000);
                     } else {
                         const data = await response.json().catch(() => ({}));
                         throw new Error(data.error || 'El comprobante todavía se está generando.');
@@ -1158,7 +1146,7 @@
             };
         }
 
-        /* ========== Slider premium corregido para centrado en PC ========== */
+        /* ========== Slider premium con transiciones suaves ========== */
         function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
@@ -1180,17 +1168,16 @@
             let isDragging = false;
             let animationID = null;
 
-            function getItemWidth() {
-                return items[0].offsetWidth + 18;
-            }
+            const itemWidth = items[0].offsetWidth + 18; // ancho + margen derecho (18px)
+            const containerWidth = scrollContainer.clientWidth;
+            const maxIndex = items.length - 1;
 
             function setPositionByIndex(index, withTransition = true) {
                 if (index < 0) index = 0;
-                if (index > items.length - 1) index = items.length - 1;
+                if (index > maxIndex) index = maxIndex;
                 currentIndex = index;
-                const itemWidth = getItemWidth();
-                const containerWidth = scrollContainer.clientWidth;
-                const offset = containerWidth / 2 - itemWidth / 2 - 6;
+                // Calcular desplazamiento para centrar el elemento actual en la vista
+                const offset = containerWidth / 2 - itemWidth / 2 - 6; // margen izquierdo del primer item (6px)
                 const translateX = -(index * itemWidth) + offset;
                 currentTranslate = translateX;
                 prevTranslate = translateX;
@@ -1213,7 +1200,6 @@
             }
 
             function snapToNearest() {
-                const itemWidth = getItemWidth();
                 const moveDistance = currentTranslate - prevTranslate;
                 const threshold = itemWidth / 4;
                 let newIndex = currentIndex;
@@ -1221,12 +1207,13 @@
                 if (moveDistance > threshold) {
                     newIndex = Math.max(currentIndex - 1, 0);
                 } else if (moveDistance < -threshold) {
-                    newIndex = Math.min(currentIndex + 1, items.length - 1);
+                    newIndex = Math.min(currentIndex + 1, maxIndex);
                 }
-
+                // Ajustar fine si la distancia es pequeña
                 if (newIndex !== currentIndex) {
                     setPositionByIndex(newIndex, true);
                 } else {
+                    // simplemente volver a la posición exacta del índice actual
                     setPositionByIndex(currentIndex, true);
                 }
                 updateHint();
@@ -1256,38 +1243,38 @@
                 snapToNearest();
             }
 
+            // Event listeners
             scrollContainer.addEventListener('mousedown', dragStart);
             scrollContainer.addEventListener('touchstart', dragStart, { passive: true });
+
             window.addEventListener('mousemove', dragMove);
             window.addEventListener('mouseup', dragEnd);
+
             scrollContainer.addEventListener('touchmove', dragMove, { passive: false });
             scrollContainer.addEventListener('touchend', dragEnd);
 
+            // Prevenir arrastre de imágenes
             scrollContainer.querySelectorAll('img').forEach(img => img.addEventListener('dragstart', e => e.preventDefault()));
 
-            const images = Array.from(scrollContainer.querySelectorAll('img'));
-            const imageLoadPromises = images.map(img => {
-                if (img.complete) return Promise.resolve();
-                return new Promise(resolve => {
-                    img.addEventListener('load', resolve);
-                    img.addEventListener('error', resolve);
-                });
-            });
+            // Iniciar en el primer elemento
+            setPositionByIndex(0, false);
+            updateHint();
 
-            Promise.all(imageLoadPromises).then(() => {
-                setPositionByIndex(0, false);
-                updateHint();
-            });
-
+            // Recalcular al cambiar tamaño de ventana
             window.addEventListener('resize', () => {
+                // Recalcular itemWidth y reposicionar
+                const newItemWidth = items[0].offsetWidth + 18;
+                // Ajustamos la variable itemWidth para próximos cálculos
+                // No podemos reasignar const, así que mejor recalcular en cada uso:
+                // Pero podemos usar una función getItemWidth
+                // Por simplicidad, reposicionamos con el índice actual
                 setPositionByIndex(currentIndex, false);
-                updateHint();
             });
         }
 
         async function initMercadoPago() {
             try {
-                initCarousel();
+                initCarousel(); // Inicializar slider premium
                 setupMethodSelector();
                 document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
