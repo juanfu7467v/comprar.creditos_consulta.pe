@@ -134,7 +134,7 @@
             position: relative;
             overflow: hidden;
             cursor: grab;
-            touch-action: pan-y; /* permite scroll vertical mientras se arrastra horizontal */
+            touch-action: pan-y;
             margin: 0 -6px;
             padding: 8px 2px 16px 2px;
             user-select: none;
@@ -586,7 +586,6 @@
                     <span>Métodos de pago seguros</span>
                 </div>
                 <div class="horizontal-scroll" id="imageScroll">
-                    <!-- Las imágenes se moverán dentro de un track generado por JS -->
                     <div class="carousel-item">
                         <img src="https://i.postimg.cc/zfyKVTZr/IMG-20260515-113901.jpg" alt="Tarjeta de crédito VISA" loading="lazy">
                     </div>
@@ -836,7 +835,6 @@
 
         async function ensureMethodMounted(method) {
             if (method === 'card' && brickControllers.card) return;
-
             if (method === 'card') {
                 await renderCardBrick();
             }
@@ -1115,7 +1113,6 @@
                 });
                 return true;
             }
-
             return false;
         }
 
@@ -1146,7 +1143,7 @@
             };
         }
 
-        /* ========== Slider premium con transiciones suaves ========== */
+        /* ========== Slider premium corregido para centrado en PC ========== */
         function initCarousel() {
             const scrollContainer = document.getElementById('imageScroll');
             const hintContainer = document.getElementById('scrollHint');
@@ -1168,16 +1165,20 @@
             let isDragging = false;
             let animationID = null;
 
-            const itemWidth = items[0].offsetWidth + 18; // ancho + margen derecho (18px)
-            const containerWidth = scrollContainer.clientWidth;
-            const maxIndex = items.length - 1;
+            function getItemWidth() {
+                // Ancho del elemento + margen derecho (18px)
+                return items[0].offsetWidth + 18;
+            }
 
             function setPositionByIndex(index, withTransition = true) {
                 if (index < 0) index = 0;
-                if (index > maxIndex) index = maxIndex;
+                if (index > items.length - 1) index = items.length - 1;
                 currentIndex = index;
-                // Calcular desplazamiento para centrar el elemento actual en la vista
-                const offset = containerWidth / 2 - itemWidth / 2 - 6; // margen izquierdo del primer item (6px)
+                const itemWidth = getItemWidth();
+                const containerWidth = scrollContainer.clientWidth;
+                // Centrar la imagen: el borde izquierdo de la imagen debe estar en containerWidth/2 - imageWidth/2
+                // y la imagen comienza después del margin-left (6px) del item.
+                const offset = containerWidth / 2 - itemWidth / 2 - 6;
                 const translateX = -(index * itemWidth) + offset;
                 currentTranslate = translateX;
                 prevTranslate = translateX;
@@ -1200,6 +1201,7 @@
             }
 
             function snapToNearest() {
+                const itemWidth = getItemWidth();
                 const moveDistance = currentTranslate - prevTranslate;
                 const threshold = itemWidth / 4;
                 let newIndex = currentIndex;
@@ -1207,13 +1209,12 @@
                 if (moveDistance > threshold) {
                     newIndex = Math.max(currentIndex - 1, 0);
                 } else if (moveDistance < -threshold) {
-                    newIndex = Math.min(currentIndex + 1, maxIndex);
+                    newIndex = Math.min(currentIndex + 1, items.length - 1);
                 }
-                // Ajustar fine si la distancia es pequeña
+
                 if (newIndex !== currentIndex) {
                     setPositionByIndex(newIndex, true);
                 } else {
-                    // simplemente volver a la posición exacta del índice actual
                     setPositionByIndex(currentIndex, true);
                 }
                 updateHint();
@@ -1246,35 +1247,40 @@
             // Event listeners
             scrollContainer.addEventListener('mousedown', dragStart);
             scrollContainer.addEventListener('touchstart', dragStart, { passive: true });
-
             window.addEventListener('mousemove', dragMove);
             window.addEventListener('mouseup', dragEnd);
-
             scrollContainer.addEventListener('touchmove', dragMove, { passive: false });
             scrollContainer.addEventListener('touchend', dragEnd);
 
             // Prevenir arrastre de imágenes
             scrollContainer.querySelectorAll('img').forEach(img => img.addEventListener('dragstart', e => e.preventDefault()));
 
-            // Iniciar en el primer elemento
-            setPositionByIndex(0, false);
-            updateHint();
+            // Esperar a que todas las imágenes del slider estén cargadas antes de posicionar
+            const images = Array.from(scrollContainer.querySelectorAll('img'));
+            const imageLoadPromises = images.map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.addEventListener('load', resolve);
+                    img.addEventListener('error', resolve); // por si alguna falla
+                });
+            });
+
+            Promise.all(imageLoadPromises).then(() => {
+                // Posicionar en el primer elemento sin transición
+                setPositionByIndex(0, false);
+                updateHint();
+            });
 
             // Recalcular al cambiar tamaño de ventana
             window.addEventListener('resize', () => {
-                // Recalcular itemWidth y reposicionar
-                const newItemWidth = items[0].offsetWidth + 18;
-                // Ajustamos la variable itemWidth para próximos cálculos
-                // No podemos reasignar const, así que mejor recalcular en cada uso:
-                // Pero podemos usar una función getItemWidth
-                // Por simplicidad, reposicionamos con el índice actual
                 setPositionByIndex(currentIndex, false);
+                updateHint();
             });
         }
 
         async function initMercadoPago() {
             try {
-                initCarousel(); // Inicializar slider premium
+                initCarousel();
                 setupMethodSelector();
                 document.getElementById('yapeForm').addEventListener('submit', handleYapeSubmit);
                 setupVoucherDownload();
